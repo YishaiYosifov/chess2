@@ -1,0 +1,133 @@
+@import url("https://fonts.googleapis.com/css2?family=Secular+One&display=swap");
+@import "variables";
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    color: white;
+    line-height: 1.5;
+    font-size: 16px;
+
+    background-color: $background !important;
+
+    min-width: 300px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+body,
+html {
+    height: 100%;
+}
+
+main {
+    flex-direction: column;
+    display: flex;
+    flex: 1;
+}
+
+.card {
+    background: rgb(40, 40, 40);
+    background: linear-gradient(
+        135deg,
+        rgb(25, 25, 25) 0%,
+        rgb(20, 20, 20) 50%,
+        rgb(20, 20, 20) 100%
+    );
+    color: white;
+
+    border-radius: 5px !important;
+    padding: 15px;
+
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+
+    transition: box-shadow 0.3s;
+    &:hover {
+        opacity: 1;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    font-size: 25px !important;
+}
+
+.nav-link svg {
+    margin-right: 5px;
+}
+
+@media (max-width: 991px) {
+    .nav-link {
+        font-size: 30px;
+        width: 100%;
+        animation: all 0.5s;
+        padding: 10px;
+        border-radius: 10px;
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    }
+}
+
+.navbar-brand {
+    font-size: 27px !important;
+    font-weight: bold;
+}
+
+.offcanvas-lg {
+    width: 100%;
+}
+
+hr {
+    margin: 15px;
+}
+
+.navbar {
+    top: 0px;
+    width: 100%;
+}
+
+.input-group-text {
+    gap: 15px;
+}
+
+.limit-text {
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+}
+
+svg > g > g.google-visualization-tooltip {
+    pointer-events: none;
+}
+
+.text-invalid {
+    color: #ea868f;
+}
+
+option {
+    font-family: "Secular One", sans-serif;
+    font-weight: bolder;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    color: $text;
+}
+
+.reset {
+    all: unset;
+}

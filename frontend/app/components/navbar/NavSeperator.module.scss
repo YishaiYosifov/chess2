@@ -1,0 +1,19 @@
+.desktop {
+    user-select: none;
+    font-size: 25px;
+}
+
+.mobile {
+    display: none;
+    width: 100%;
+}
+
+@media (max-width: 991px) {
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: block;
+    }
+}
