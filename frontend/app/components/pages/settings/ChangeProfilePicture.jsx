@@ -1,7 +1,6 @@
 "use client";
 
-import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
-import { BsCameraFill } from "react-icons/bs";
+import { Button, Col, Row } from "react-bootstrap";
 import Image from "next/image";
 
 import { useRef, useState } from "react";
@@ -20,7 +19,6 @@ const ChangeProfilePicture = () => {
 
     const openFileSelector = () => uploadPfpInput.current.click();
     async function uploadPfp(event) {
-        console.log(event.target.files[0]);
         const data = new FormData();
         data.append("pfp", event.target.files[0]);
 

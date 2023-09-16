@@ -1,13 +1,37 @@
 import { BsGearFill } from "react-icons/bs";
-import { redirect } from "next/navigation";
 
-import { useStore } from "../store";
+import { updateProfile, useStore } from "../store";
 
 import SettingsForm from "../components/pages/settings/SettingsForm";
 import InitializeStore from "../components/InitializeStore";
 import ChangeProfilePicture from "../components/pages/settings/ChangeProfilePicture";
+import { apiRequest } from "../utils/common";
 
 const COL_CLASSES = "col-11 col-lg-9 col-xl-8 col-xxl-7 mx-auto";
+
+export async function updateSettings(form, helpers) {
+    const settingsResponse = await apiRequest("/profile/update-settings", {
+        method: "PUT",
+        json: form,
+    });
+    helpers.setSubmitting(false);
+    const msg = (await settingsResponse.json()).msg;
+
+    switch (settingsResponse.status) {
+        case 200:
+            delete form.password_confirm;
+            updateProfile(form);
+            window.location.reload();
+            break;
+        case 400:
+            helpers.setErrors(msg);
+            break;
+        default:
+            helpers.setStatus("Something went wrong.");
+            console.error(msg);
+            break;
+    }
+}
 
 const SettingsPage = async () => {
     const { isAuthed, profile } = useStore.getState();
