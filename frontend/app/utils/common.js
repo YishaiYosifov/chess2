@@ -84,6 +84,8 @@ export async function fetchUser(selector, include) {
     return await profileRequest.json();
 }
 
+async function updateSettings() {}
+
 //#region Validators
 
 yup.addMethod(yup.string, "username", function () {

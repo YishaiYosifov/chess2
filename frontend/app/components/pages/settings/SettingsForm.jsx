@@ -1,10 +1,16 @@
 "use client";
 
-import { Form } from "react-bootstrap";
-
 import UsernameField from "./specialFields/UsernameField";
+import EmailField from "./specialFields/EmailField";
 
 const SettingsForm = ({ countries }) => {
-    return <UsernameField />;
+    return (
+        <>
+            <div className="row g-3">
+                <UsernameField />
+                <EmailField />
+            </div>
+        </>
+    );
 };
 export default SettingsForm;
