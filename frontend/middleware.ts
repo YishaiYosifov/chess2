@@ -1,0 +1,39 @@
+import { NextRequest, NextResponse } from "next/server";
+
+import { apiRequest } from "@/lib/utils/common";
+import { cookies } from "next/headers";
+
+/**
+ * Make sure the user has an access token if they have a refresh token
+ */
+export async function middleware(request: NextRequest): Promise<NextResponse> {
+    const isLoggedIn = request.cookies.has("refresh_token_cookie");
+    if (request.cookies.has("access_token_cookie") || !isLoggedIn)
+        return NextResponse.next();
+
+    const response = NextResponse.redirect(request.url);
+
+    let accessTokenResponse: Response;
+    try {
+        accessTokenResponse = await apiRequest("/auth/regen-access-token", {
+            cache: "no-store",
+            method: "GET",
+        });
+    } catch {
+        response.cookies.delete("refresh_token_cookie");
+        return response;
+    }
+
+    const {
+        accessToken,
+        accessTokenMaxAge,
+    }: { accessToken: string; accessTokenMaxAge: number } =
+        await accessTokenResponse.json();
+
+    response.cookies.set("access_token_cookie", accessToken, {
+        maxAge: accessTokenMaxAge,
+        httpOnly: true,
+    });
+
+    return response;
+}
