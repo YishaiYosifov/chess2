@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { apiRequest } from "@/lib/utils/common";
-import { cookies } from "next/headers";
 
 /**
  * Make sure the user has an access token if they have a refresh token

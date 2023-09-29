@@ -1,10 +1,20 @@
 import { Button, Col, Row } from "react-bootstrap";
 
-const SubmitRow = ({ disableSubmitOn, onCancel }) => {
+const SubmitRow = ({
+    disableSubmitOn,
+    onCancel,
+}: {
+    disableSubmitOn: string | boolean;
+    onCancel: () => void;
+}) => {
     return (
         <Row className="mt-2 g-1">
             <Col sm="auto">
-                <Button type="submit" variant="dark" disabled={disableSubmitOn}>
+                <Button
+                    type="submit"
+                    variant="dark"
+                    disabled={Boolean(disableSubmitOn)}
+                >
                     Save
                 </Button>
             </Col>
