@@ -3,7 +3,7 @@
 import { Button, Col, Row } from "react-bootstrap";
 import Image from "next/image";
 
-import { useRef, useState } from "react";
+import { useRef, useState, ChangeEvent } from "react";
 
 import classes from "./ChangeProfilePicture.module.scss";
 import { apiRequest } from "@/lib/utils/common";
@@ -13,14 +13,17 @@ import { useStore } from "@/app/store";
 const ChangeProfilePicture = () => {
     const { username, pfpLastChanged, userId } = useStore.use.profile();
 
-    const uploadPfpInput = useRef();
+    const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);
     const [status, setStatus] = useState("");
 
-    const openFileSelector = () => uploadPfpInput.current.click();
-    async function uploadPfp(event) {
+    const openFileSelector = () => uploadPfpInput.current?.click();
+    async function uploadPfp(event: ChangeEvent<HTMLInputElement>) {
+        const files = (event.target as HTMLInputElement).files;
+        if (!files) return;
+
         const data = new FormData();
-        data.append("pfp", event.target.files[0]);
+        data.append("pfp", files[0]);
 
         const uploadResponse = await apiRequest(
             "/profile/upload-profile-picture",
@@ -33,8 +36,8 @@ const ChangeProfilePicture = () => {
 
         switch (uploadResponse.status) {
             case 201:
-                setLastChanged(Date.now());
                 setStatus("");
+                setLastChanged(new Date().toISOString());
                 revalidateUser(username);
                 break;
             case 400:

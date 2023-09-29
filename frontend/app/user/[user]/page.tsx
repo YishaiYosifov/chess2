@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { apiRequest, processGetBody } from "@/lib/utils/common";
+import { apiRequest, arrayToBody } from "@/lib/utils/common";
 import classes from "./user.module.scss";
 
 import RatingCard from "@/components/pages/user/RatingCard";
@@ -31,22 +31,26 @@ const UserPage = async ({ params: { user } }: { params: { user: string } }) => {
     // Fetch everything
     const [profileRequest, gamesRequest, ratingsRequest] = await Promise.all([
         apiRequest(
-            `/profile/${user}/info?${processGetBody({
-                include: ["username", "about", "pfpLastChanged"],
-            })}`,
+            `/profile/${user}/info?include=${arrayToBody("include", [
+                "username",
+                "about",
+                "pfpLastChanged",
+            ])}`,
             {
                 method: "GET",
                 next: { revalidate: 60, tags: [`user-${user}`] },
             }
         ),
+
         apiRequest(`/profile/${user}/games`, {
             method: "GET",
             next: { revalidate: 60 },
         }),
+
         apiRequest(
-            `/profile/${user}/ratings?${processGetBody({
-                since: dateMonthAgo.toISOString().split("T")[0],
-            })}`,
+            `/profile/${user}/ratings?since=${
+                dateMonthAgo.toISOString().split("T")[0]
+            }`,
             {
                 method: "GET",
                 next: { revalidate: 60 },

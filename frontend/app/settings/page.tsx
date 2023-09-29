@@ -1,9 +1,4 @@
 import { BsGearFill } from "react-icons/bs";
-import { FormikHelpers } from "formik";
-
-import { redirect } from "next/navigation";
-
-import { apiRequest } from "@/lib/utils/common";
 
 import ChangeProfilePicture from "@/components/pages/settings/ChangeProfilePicture";
 import SettingsForm from "@/components/pages/settings/SettingsForm";
@@ -12,29 +7,6 @@ import withAuth from "@/components/hocs/withAuth";
 import { useStore } from "../store";
 
 const COL_CLASSES = "col-11 col-lg-9 col-xl-8 col-xxl-7 mx-auto";
-
-export async function updateSettings(values, helpers: FormikHelpers) {
-    const settingsResponse = await apiRequest("/profile/update-settings", {
-        method: "PUT",
-        json: form,
-    });
-    helpers.setSubmitting(false);
-    const msg = (await settingsResponse.json()).msg;
-
-    switch (settingsResponse.status) {
-        case 200:
-            delete form.password_confirm;
-            window.location.reload();
-            break;
-        case 400:
-            helpers.setErrors(msg);
-            break;
-        default:
-            helpers.setStatus("Something went wrong.");
-            console.error(msg);
-            break;
-    }
-}
 
 const SettingsPage = withAuth(async () => {
     const countries = await (

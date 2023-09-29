@@ -15,21 +15,21 @@ import * as yup from "yup";
  *
  * @param [options.csrfToken] - Explicitly define the csrf token
  *
- * @param [options.others] - Any other options to pass to the fetch request
+ * @param [options.args] - Any other options to pass to the fetch request
  * @returns A promise the resolves to the response from the api
  */
 export async function apiRequest(
     route: string,
     {
         method = "POST",
-        headers = {},
+        headers = new Headers(),
         json,
 
         csrfToken,
         ...args
     }: {
         method?: string;
-        headers?: Dictionary<string>;
+        headers?: Headers;
         json?: any;
 
         csrfToken?: string;
@@ -38,18 +38,18 @@ export async function apiRequest(
     let body: string | null = null;
     if (json) {
         body = JSON.stringify(json);
-        headers["Content-Type"] = "application/json";
-        headers.Accept = "application/json";
+        headers.set("Content-Type", "application/json");
+        headers.set("Accept", "application/json");
     }
 
     // Check if this function is running inside a server component and add the cookies if so
     if (typeof window === "undefined") {
         const { cookies } = await import("next/headers");
-        headers.Cookie = cookies().toString();
+        headers.set("Cookie", cookies().toString());
     }
 
     if (method != "GET")
-        headers["X-CSRFToken"] = csrfToken || (await getCsrf());
+        headers.set("X-CSRFToken", csrfToken || (await getCsrf()));
 
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api${route}`,
@@ -68,21 +68,15 @@ export async function apiRequest(
 /**
  * Process an object for Flask WTF get form
  *
- * @param body - the body to process
+ * @param name - the name of the parameter
+ * @param array - the array to process
  * @returns the formatted object
  */
-export function processGetBody(body: Dictionary<any>) {
-    let parts = [];
-    for (const [key, value] of Object.entries(body)) {
-        if (!(value instanceof Array)) {
-            parts.push(`${key}=${value}`);
-            continue;
-        }
-
-        value.forEach((listElement, index) =>
-            parts.push(`${key}-${index}=${listElement}`)
-        );
-    }
+export function arrayToBody(name: string, array: Array<string>): string {
+    const parts: Array<string> = [];
+    array.forEach((listElement, index) =>
+        parts.push(`${name}-${index}=${listElement}`)
+    );
 
     return parts.join("&");
 }
@@ -96,6 +90,10 @@ export async function fetchUser(username: string): Promise<PublicProfile> {
         next: { tags: [`user-${username}`] },
     });
     return await profileRequest.json();
+}
+
+export function uppercaseFirstLetter(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 //#region Validators
