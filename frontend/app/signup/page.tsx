@@ -9,10 +9,10 @@ export const metadata = {
 
 const SignupPage = withoutAuth(async () => {
     return (
-        <div className="container mt-5">
+        <div className="container mt-4">
             <div className="row justify-content-center">
                 <div className="col-xl-6 col-lg-8 col-md-10 mt-xxl-5">
-                    <h3 className="text-start text-lg-center">
+                    <h3 className="text-start text-md-center">
                         <BsPlusSquare className="me-1 me-sm-2" />
                         Create an Account
                     </h3>

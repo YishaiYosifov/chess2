@@ -3,6 +3,8 @@ import Image from "next/image";
 import classes from "./Profile.module.scss";
 import { PublicProfile } from "@/lib/types";
 
+import logo from "../public/assets/logo.svg";
+
 const Profile = ({ profile }: { profile: PublicProfile }) => {
     return (
         <div className="card">
@@ -19,7 +21,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
                 <div className="col">
                     <h4 className="mt-3">
                         <Image
-                            src="/assets/logo.webp"
+                            src={logo}
                             width={40}
                             height={40}
                             className="rounded-1 img-fluid"

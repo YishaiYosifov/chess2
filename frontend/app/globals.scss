@@ -18,6 +18,8 @@ body {
 
     display: flex;
     flex-direction: column;
+
+    padding-top: 69px !important;
 }
 
 body,
@@ -53,46 +55,8 @@ main {
     }
 }
 
-.nav-link {
-    display: flex;
-    align-items: center;
-    font-size: 25px !important;
-}
-
-.nav-link svg {
-    margin-right: 5px;
-}
-
-@media (max-width: 991px) {
-    .nav-link {
-        font-size: 30px;
-        width: 100%;
-        animation: all 0.5s;
-        padding: 10px;
-        border-radius: 10px;
-
-        &:hover {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-    }
-}
-
-.navbar-brand {
-    font-size: 27px !important;
-    font-weight: bold;
-}
-
-.offcanvas-lg {
-    width: 100%;
-}
-
 hr {
     margin: 15px;
-}
-
-.navbar {
-    top: 0px;
-    width: 100%;
 }
 
 .input-group-text {
@@ -124,7 +88,8 @@ h3,
 h4,
 h5,
 h6,
-p {
+p,
+a {
     color: $text;
 }
 

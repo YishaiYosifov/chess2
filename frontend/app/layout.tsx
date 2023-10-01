@@ -1,10 +1,8 @@
 import { Secular_One } from "next/font/google";
-
 import "bootstrap/dist/css/bootstrap.css";
-import { navItems } from "@/navbar.config";
-import "./globals.scss";
-
 import { ReactNode } from "react";
+
+import "./globals.scss";
 
 import NavbarProvider from "@/components/navbar/NavbarProvider";
 import InitializeStore from "@/components/InitializeStore";
@@ -32,8 +30,8 @@ const RootLayout = async ({ children }: { children?: ReactNode }) => {
             <body className={secularOne.className}>
                 <InitializeStore values={{ isAuthed: isAuthed }} />
 
-                <NavbarProvider navItemData={navItems} />
-                {<main>{children}</main>}
+                <NavbarProvider />
+                <main>{children}</main>
             </body>
         </html>
     );

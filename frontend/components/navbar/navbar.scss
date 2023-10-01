@@ -1,0 +1,16 @@
+@import "../../app/variables";
+
+.navbar {
+    background-color: $navbar;
+    border-bottom: rgba(255, 255, 255, 0.4) solid 1px;
+    min-width: 250px;
+}
+
+.nav-link {
+    font-size: 1.5rem !important;
+    padding-inline: 1rem !important;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

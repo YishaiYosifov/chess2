@@ -69,7 +69,7 @@ const UserPage = async ({ params: { user } }: { params: { user: string } }) => {
 
     return (
         <>
-            <section className="mb-5">
+            <section className="mb-5 mt-3">
                 <div className="container">
                     <div className="row">
                         <div className="col-11 col-md-10 col-lg-9 col-xl-7 mx-auto">
