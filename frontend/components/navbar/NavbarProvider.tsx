@@ -1,5 +1,6 @@
 "use client";
 
+import { BsArrowRight, BsBoxArrowRight, BsGearFill } from "react-icons/bs";
 import Container from "react-bootstrap/Container";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Navbar from "react-bootstrap/Navbar";
@@ -7,70 +8,84 @@ import Nav from "react-bootstrap/Nav";
 import Image from "next/image";
 import Link from "next/link";
 
-import { ReactElement } from "react";
-
-import classes from "./NavbarProvider.module.scss";
-import NavSeperator from "./NavSeperator";
-import { NavItem } from "@/navbar.config";
+import logo from "@/public/assets/logo-text.svg";
+import styles from "./navbar.module.scss";
 import { useStore } from "@/app/store";
-import NavOption from "./NavItem";
+import "./navbar.scss";
 
-const NavbarProvider = ({ navItemData }: { navItemData: NavItem[] }) => {
+const NavbarProvider = () => {
     const isAuthed = useStore.use.isAuthed();
 
-    const preSeparator: ReactElement[] = [];
-    const postSeparator: ReactElement[] = [];
-    for (const itemData of navItemData) {
-        if (
-            (itemData.authReq === "authenticated" && !isAuthed) ||
-            (itemData.authReq === "unauthenticated" && isAuthed)
-        )
-            continue;
-
-        const navItem = <NavOption key={itemData.label} itemData={itemData} />;
-        if (itemData.position === "pre-seperator") preSeparator.push(navItem);
-        else if (itemData.position === "post-seperator")
-            postSeparator.push(navItem);
-        else throw Error(`Invalid Nav Item Position: ${itemData.position}`);
-    }
-
+    const expand = "md";
     return (
-        <Navbar collapseOnSelect expand="lg" className="mb-3">
-            <Container fluid>
-                <Navbar.Toggle aria-controls="offcanvas-navbar" />
-                <Link href="/" className="d-block d-lg-none navbar-brand">
-                    chess 2
-                </Link>
+        <Navbar fixed="top" collapseOnSelect expand={expand}>
+            <Container fluid="md">
+                <Navbar.Brand href="/">
+                    <Image
+                        src={logo}
+                        alt="logo"
+                        width={150}
+                        className="d-inline-block align-top rounded m-0"
+                    />
+                </Navbar.Brand>
+
+                <Navbar.Toggle
+                    aria-controls={`offcanvasNavbar-expand-${expand}`}
+                />
+
                 <Navbar.Offcanvas
-                    id="offcanvas-navbar"
-                    aria-labelledby="offcanvas-navbar-label"
+                    id={`offcanvasNavbar-expand-${expand}`}
+                    aria-labelledby={`offcanvasNavbarLabel-expand-${expand}`}
                     placement="start"
-                    responsive="lg"
                 >
                     <Offcanvas.Header closeButton>
-                        <Offcanvas.Title id="offcanvas-navbar-label">
+                        <Offcanvas.Title
+                            id={`offcanvasNavbarLabel-expand-${expand}`}
+                        >
                             <Image
-                                className={classes.logo}
-                                src="/assets/logo.webp"
-                                width={40}
-                                height={40}
+                                src={logo}
                                 alt="logo"
+                                width={150}
+                                className="d-inline-block align-top rounded m-0"
                             />
-                            chess 2
                         </Offcanvas.Title>
                     </Offcanvas.Header>
 
                     <Offcanvas.Body>
-                        <Nav className={classes["nav-links"]}>
-                            <Link
-                                href="/"
-                                className="d-none d-lg-block navbar-brand"
-                            >
-                                chess 2
-                            </Link>
-                            {preSeparator}
-                            <NavSeperator />
-                            {postSeparator}
+                        <Nav className="justify-content-start flex-grow-1">
+                            <Nav.Link as={Link} href="/">
+                                Home
+                            </Nav.Link>
+
+                            <Nav.Link as={Link} href="/play">
+                                Play
+                            </Nav.Link>
+
+                            {isAuthed ? (
+                                <Nav.Link as={Link} href="/user">
+                                    Profile
+                                </Nav.Link>
+                            ) : (
+                                <Nav.Link as={Link} href="/login">
+                                    Login
+                                </Nav.Link>
+                            )}
+                        </Nav>
+
+                        <Nav className="justify-content-end flex-grow-1">
+                            {isAuthed ? (
+                                <>
+                                    <Nav.Link as={Link} href="/settings">
+                                        <BsGearFill />
+                                    </Nav.Link>
+
+                                    <Nav.Link as={Link} href="/logout">
+                                        <BsBoxArrowRight />
+                                    </Nav.Link>
+                                </>
+                            ) : (
+                                <Signup />
+                            )}
                         </Nav>
                     </Offcanvas.Body>
                 </Navbar.Offcanvas>
@@ -79,3 +94,13 @@ const NavbarProvider = ({ navItemData }: { navItemData: NavItem[] }) => {
     );
 };
 export default NavbarProvider;
+
+const Signup = () => {
+    return (
+        <Nav.Link as={Link} href="/signup" id={styles["signup-container"]}>
+            <span id={styles.signup}>Signup</span>
+            <span id={styles["signup-helper"]}>Signup</span>
+            <BsArrowRight />
+        </Nav.Link>
+    );
+};

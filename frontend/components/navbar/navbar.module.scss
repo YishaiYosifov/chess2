@@ -1,0 +1,52 @@
+#signup-container {
+    display: grid;
+    align-items: center;
+    justify-content: start;
+    gap: 3px;
+
+    svg {
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+#signup,
+#signup-helper {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#signup {
+    background-image: linear-gradient(
+        135deg,
+        rgb(166, 212, 255) 0%,
+        rgb(213, 244, 255) 33%,
+        rgb(255, 221, 252) 66%,
+        rgb(254, 240, 253) 100%
+    );
+    background-clip: text;
+    color: transparent;
+
+    z-index: 0;
+}
+
+#signup-helper {
+    background-image: linear-gradient(
+        135deg,
+        rgb(106, 212, 255) 0%,
+        rgb(153, 244, 255) 33%,
+        rgb(255, 161, 252) 66%,
+        rgb(254, 180, 253) 100%
+    );
+    background-clip: text;
+    color: transparent;
+
+    z-index: 1;
+
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+
+    &:hover {
+        opacity: 1;
+    }
+}

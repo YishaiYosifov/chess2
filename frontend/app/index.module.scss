@@ -1,7 +1,7 @@
-.heading h1 {
-    font-size: 10rem;
-}
+.main {
+    flex-grow: 1;
 
-.heading img {
-    border-radius: 10px;
+    .row {
+        height: 100%;
+    }
 }

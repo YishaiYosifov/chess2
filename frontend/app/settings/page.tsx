@@ -15,7 +15,7 @@ const SettingsPage = withAuth(async () => {
 
     const { profile } = useStore.getState();
     return (
-        <div className="container-fluid" style={{ maxWidth: "1426px" }}>
+        <div className="container-fluid mt-5" style={{ maxWidth: "1426px" }}>
             <InitializeStore values={{ profile: profile }} />
 
             <header className="row">
@@ -45,7 +45,7 @@ const SettingsPage = withAuth(async () => {
                 </div>
                 <div className="row">
                     <div className={`card ${COL_CLASSES}`}>
-                        <SettingsForm countries={countries} />
+                        <SettingsForm />
                     </div>
                 </div>
             </section>
