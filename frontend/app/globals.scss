@@ -14,12 +14,12 @@ body {
 
     background-color: $background !important;
 
-    min-width: 300px;
+    min-width: 250px;
 
     display: flex;
     flex-direction: column;
 
-    padding-top: 69px !important;
+    //padding-top: 69px !important;
 }
 
 body,
@@ -28,9 +28,8 @@ html {
 }
 
 main {
-    flex-direction: column;
-    display: flex;
-    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr;
 }
 
 .card {
