@@ -10,9 +10,20 @@ export const metadata = {
 
 const IndexPage = () => {
     return (
-        <h1 className="mt-5">
-            test <Image src={logo} alt="logo" width={100} height={100} />
-        </h1>
+        <header className={styles["main-container"]}>
+            <div className={styles.header}>
+                <h1>chess 2</h1>
+                <p>the number one and only website to play anarchy chess</p>
+            </div>
+
+            <div className={styles.logo}>
+                <div className={styles["logo-bg-square"]} />
+                <div className={styles["logo-bg-square"]} />
+                <div className={styles["logo-bg-square"]} />
+                <div className={styles["logo-bg-square"]} />
+                <Image src={logo} alt="logo" draggable={false} />
+            </div>
+        </header>
     );
 };
 export default IndexPage;
