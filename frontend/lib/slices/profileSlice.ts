@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 
-import type { Store } from "../store";
+import type { Store } from "../../app/store";
 
 export const enum AuthMethods {
     Credentials,

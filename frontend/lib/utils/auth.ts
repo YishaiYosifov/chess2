@@ -28,8 +28,9 @@ export async function getCsrf(): Promise<string> {
 
 async function genCsrf(): Promise<string> {
     const response = await apiRequest("/auth/gen-csrf", { method: "GET" });
-    const { csrfToken } = await response.json();
-    setCsrfToken(csrfToken);
+    const { status, data } = await response.json();
+    if (status != "success") throw Error("Failed to fetch CSRF");
 
-    return csrfToken;
+    setCsrfToken(data);
+    return data;
 }

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import classes from "./Profile.module.scss";
+import styles from "./Profile.module.scss";
 import { PublicProfile } from "@/lib/types";
 
 import logo from "../public/assets/logo.svg";
@@ -14,7 +14,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
                         src={`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${profile.username}/profile-picture?${profile.pfpLastChanged}`}
                         height={220}
                         width={220}
-                        className={`rounded border border-white border-3 img-fluid ${classes["profile-picture"]}`}
+                        className={`rounded border border-white border-3 img-fluid ${styles["profile-picture"]}`}
                         alt="User Profile Picture"
                     />
                 </div>
@@ -30,7 +30,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
                         {profile.username}
                     </h4>
                     <textarea
-                        className={`form-control ${classes.about}`}
+                        className={`form-control ${styles.about}`}
                         readOnly
                         value={profile.about || ""}
                     />

@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { useRef, useState, ChangeEvent } from "react";
 
-import classes from "./ChangeProfilePicture.module.scss";
+import styles from "./ChangeProfilePicture.module.scss";
 import { apiRequest } from "@/lib/utils/common";
 import { revalidateUser } from "@/app/actions";
 import { useStore } from "@/app/store";
@@ -54,7 +54,7 @@ const ChangeProfilePicture = () => {
         <Row className="align-items-center">
             <Col sm="auto">
                 <Image
-                    className={classes["profile-picture"]}
+                    className={styles["profile-picture"]}
                     alt="profile picture"
                     src={`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${userId}/profile-picture?${lastChanged}`}
                     width={120}

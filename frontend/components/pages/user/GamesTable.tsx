@@ -1,4 +1,4 @@
-import classes from "./GamesTable.module.scss";
+import styles from "./GamesTable.module.scss";
 import GameRow from "./GameRow";
 import { Game } from "@/lib/types";
 
@@ -12,7 +12,7 @@ const GamesTable = ({
     return (
         <>
             <div
-                className={`col-11 col-lg-10 col-xl-8 table-responsive ${classes["games-table"]}`}
+                className={`col-11 col-lg-10 col-xl-8 table-responsive ${styles["games-table"]}`}
             >
                 <table className={`table text-light`}>
                     <thead>
@@ -27,16 +27,16 @@ const GamesTable = ({
                         {!games.length && (
                             <tr className="col-11 text-start text-secondary">
                                 <td>
-                                    <div className={classes["empty-td"]}></div>
+                                    <div className={styles["empty-td"]}></div>
                                 </td>
                                 <td>
-                                    <div className={classes["empty-td"]}></div>
+                                    <div className={styles["empty-td"]}></div>
                                 </td>
                                 <td>
-                                    <div className={classes["empty-td"]}></div>
+                                    <div className={styles["empty-td"]}></div>
                                 </td>
                                 <td>
-                                    <div className={classes["empty-td"]}></div>
+                                    <div className={styles["empty-td"]}></div>
                                 </td>
                             </tr>
                         )}

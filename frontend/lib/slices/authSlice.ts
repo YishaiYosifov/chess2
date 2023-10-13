@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import type { Store } from "../store";
+import type { Store } from "../../app/store";
 
 export interface AuthSlice {
     isAuthed: boolean;

@@ -4,6 +4,11 @@ import { redirect } from "next/navigation";
 import InitializeStore from "../InitializeStore";
 import { cookies } from "next/headers";
 
+/**
+ * HOC to make sure the page is not accessible when the user is logged in.
+ *
+ * If the user has an access / refresh token cookie they will be redirected to the home page.
+ */
 const withoutAuth = (WrappedComponent: ComponentType<ReactPropTypes>) => {
     return async (props: ReactPropTypes) => {
         const nextCookies = cookies();

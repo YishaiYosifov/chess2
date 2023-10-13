@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { apiRequest, arrayToBody } from "@/lib/utils/common";
-import classes from "./user.module.scss";
+import styles from "./user.module.scss";
 
 import RatingCard from "@/components/pages/user/RatingCard";
 import GamesTable from "@/components/pages/user/GamesTable";
@@ -79,7 +79,7 @@ const UserPage = async ({ params: { user } }: { params: { user: string } }) => {
                 </div>
             </section>
 
-            <section className={classes["section-table"]}>
+            <section className={styles["section-table"]}>
                 <div className="container-fluid">
                     <div className="row pt-3 pb-5 justify-content-center">
                         <GamesTable
@@ -90,7 +90,7 @@ const UserPage = async ({ params: { user } }: { params: { user: string } }) => {
                 </div>
             </section>
 
-            <section className={classes["section-rating"]}>
+            <section className={styles["section-rating"]}>
                 <div className="container-fluid">
                     <div className="row justify-content-center py-5 gap-5">
                         {Object.keys(ratings).map((variant) => {

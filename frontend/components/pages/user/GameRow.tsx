@@ -2,7 +2,7 @@ import { BsPlusSlashMinus, BsPlusSquare, BsDashSquare } from "react-icons/bs";
 import Image from "next/image";
 import Link from "next/link";
 
-import classes from "./Game.module.scss";
+import styles from "./Game.module.scss";
 import { Game } from "@/lib/types";
 
 const GameRow = ({ username, game }: { username: string; game: Game }) => {
@@ -17,7 +17,7 @@ const GameRow = ({ username, game }: { username: string; game: Game }) => {
     else ResultsIcon = BsDashSquare;
 
     const GameLink = () => (
-        <Link href={`/game/${game.token}`} className={classes["game-link"]} />
+        <Link href={`/game/${game.token}`} className={styles["game-link"]} />
     );
 
     const endedAt = new Date(game.createdAt);
@@ -28,7 +28,7 @@ const GameRow = ({ username, game }: { username: string; game: Game }) => {
     });
 
     return (
-        <tr className={`${classes.game}`}>
+        <tr className={`${styles.game}`}>
             <td className="col-2">
                 <GameLink />
                 <Image
@@ -41,7 +41,7 @@ const GameRow = ({ username, game }: { username: string; game: Game }) => {
             </td>
 
             <td className="col-6">
-                <div className={classes["users-column"]}>
+                <div className={styles["users-column"]}>
                     <Link
                         href={`/user/${game.white.username}`}
                         className="mt-2 limit-text"
@@ -60,7 +60,7 @@ const GameRow = ({ username, game }: { username: string; game: Game }) => {
 
             <td className="col-2">
                 <GameLink />
-                <div className={classes["results-column"]}>
+                <div className={styles["results-column"]}>
                     <div>
                         <span>{game.white.score}</span>
                         <span>-</span>
@@ -73,7 +73,7 @@ const GameRow = ({ username, game }: { username: string; game: Game }) => {
             <td className="col-2 text-wrap">
                 <GameLink />
 
-                <div className={classes["date-column"]}>
+                <div className={styles["date-column"]}>
                     <span>{formattedDate}</span>
                 </div>
             </td>

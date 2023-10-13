@@ -20,6 +20,14 @@ export const metadata = {
     },
 };
 
+/**
+ * The root layout.
+ *
+ * This will:
+ * * Create the navbar element
+ * * Initializes the store with whether the user is authorized or not.
+ *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
+ */
 const RootLayout = async ({ children }: { children?: ReactNode }) => {
     const nextCookies = cookies();
     const isAuthed =
