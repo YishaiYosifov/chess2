@@ -1,4 +1,4 @@
-@import "variables";
+@import "./lib/variables";
 
 .main-container {
     display: grid;
@@ -55,6 +55,11 @@
         background-clip: text;
         color: transparent;
         filter: drop-shadow(0 0 1rem black);
+    }
+
+    h1,
+    p {
+        user-select: none;
     }
 
     &::before {

@@ -4,7 +4,7 @@ import { Chart } from "react-google-charts";
 import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import classes from "./RatingCard.module.scss";
+import styles from "./RatingCard.module.scss";
 
 import type { RatingArchiveData } from "@/app/user/[user]/page";
 
@@ -47,9 +47,9 @@ const RatingCard = ({
             md={5}
             xl={4}
             xxl={3}
-            className={classes["rating-card"]}
+            className={styles["rating-card"]}
         >
-            <Card.Header className={classes["header"]}>
+            <Card.Header className={styles["header"]}>
                 <div>
                     <Image
                         className="img-fluid rounded-circle border border-3"
@@ -91,7 +91,7 @@ const RatingCard = ({
                     />
                 </div>
 
-                <div className={classes["info"]}>
+                <div className={styles["info"]}>
                     <div>
                         <span>Higest</span>
                         <span className="text-success">{maxRating}</span>

@@ -8,12 +8,12 @@ import {
     LocalProfile,
     ProfileSlice,
     createProfileSlice,
-} from "./slices/profileSlice";
+} from "../lib/slices/profileSlice";
 import {
     AuthSlice,
     createAuthSlice,
     initialAuthState,
-} from "./slices/authSlice";
+} from "../lib/slices/authSlice";
 import { apiRequest } from "@/lib/utils/common";
 
 type WithSelectors<S> = S extends { getState: () => infer T }

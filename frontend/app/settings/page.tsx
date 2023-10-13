@@ -8,6 +8,7 @@ import { useStore } from "../store";
 
 const COL_CLASSES = "col-11 col-lg-9 col-xl-8 col-xxl-7 mx-auto";
 
+/** This component groups all the different settings forms into a page. */
 const SettingsPage = withAuth(async () => {
     const countries = await (
         await fetch(`${process.env.NEXT_PUBLIC_API_URL}/static/countries.json`)

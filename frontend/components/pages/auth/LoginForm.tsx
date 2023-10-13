@@ -34,18 +34,18 @@ const LoginForm = () => {
             selectorInput.current?.value,
             passwordInput.current?.value
         );
-        const { msg } = await response.json();
+        const json = await response.json();
 
-        switch (status) {
-            case 200:
+        switch (json.status) {
+            case "success":
                 router.replace("/");
                 break;
-            case 401:
-                setStatus(msg);
+            case "fail":
+                setStatus(json.data);
                 break;
             default:
                 setStatus("Something went wrong.");
-                console.error(msg);
+                console.error(json);
                 break;
         }
         setIsLoading(false);

@@ -1,12 +1,18 @@
 import { ComponentType, ReactPropTypes } from "react";
 import { redirect } from "next/navigation";
 
-import type { LocalProfile } from "@/app/slices/profileSlice";
-import { useStore, updateProfile } from "@/app/store";
+import type { LocalProfile } from "@/lib/slices/profileSlice";
 import { apiRequest } from "@/lib/utils/common";
+import { updateProfile } from "@/app/store";
 
 import InitializeStore from "../InitializeStore";
 
+/**
+ * HOC to make sure the page is not accessible without the user being logged in.
+ *
+ * This HOC will send a request to `/profile/me/info`, and if an unauthorized HTTP status is returned
+ * the user will be redirected to the home page
+ */
 const withAuth = (WrappedComponent: ComponentType<ReactPropTypes>) => {
     return async (props: ReactPropTypes) => {
         const response = await apiRequest(
