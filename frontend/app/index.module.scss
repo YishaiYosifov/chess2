@@ -30,8 +30,8 @@
         max-height: 1600px;
         min-height: 760px;
 
-        background-image: radial-gradient(rgb(0, 0, 0) 18%, transparent 18%),
-            radial-gradient(rgb(0, 0, 0) 18%, transparent 18%);
+        background-image: radial-gradient(black 18%, transparent 18%),
+            radial-gradient(black 18%, transparent 18%);
         background-position: 0px 0px, 12px 12px;
         background-size: 24px 24px;
     }
@@ -145,7 +145,7 @@
     }
 
     .header h1 {
-        font-size: 9rem;
+        font-size: 10rem;
     }
 }
 

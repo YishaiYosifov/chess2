@@ -1,65 +1,70 @@
-@import "./././lib/variables";
+@import "@/lib/variables";
 
+// The main container that holds every element
 .container {
     display: grid;
-    grid-template-columns: minmax(auto, 800px) 1fr;
-    justify-self: center;
+
+    padding-left: 10px;
+    grid-template-columns: 1fr 2fr;
+    gap: 10px;
     align-items: center;
+
     height: 100vh;
     width: 100vw;
 }
 
+// Form is the signup / login form
 .form {
+    width: 100%;
+
     padding-top: 69px;
     display: grid;
-    justify-content: stretch;
+
+    text-align: center;
+
+    justify-content: center;
     justify-items: center;
-    justify-self: center;
 
-    align-items: center;
+    grid-template-columns: max(90vw, 250px);
 
-    grid-template-columns: clamp(250px, 90vw, 700px);
+    .logo-text {
+        width: clamp(240px, 500px, 90vw);
+        height: auto;
+    }
 
     .card {
-        filter: drop-shadow(0 10px 20px $hue);
         width: 100%;
     }
 
     h1 {
         margin-bottom: 40px;
     }
-}
 
-.logo-text {
-    width: clamp(240px, 500px, 90vw);
-    height: max(100px, calc(clamp(240px, 500px, 90vw) - 300px));
-}
-
-.side-image-container {
-    position: relative;
-    height: 100%;
-
-    &::after {
-        content: "";
-
-        background: linear-gradient(
-            90deg,
-            rgba($background, 1) 0%,
-            rgba($background, 0.5) 30%,
-            rgba($background, 0) 50%
-        );
-
-        z-index: 3;
-
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
+    @media (min-width: 800px) {
+        justify-self: end;
+        grid-template-columns: min(90%, 800px);
     }
 }
 
-@media (max-width: 1050px) {
+.side-image-container {
+    height: 100%;
+    width: 100%;
+
+    background: repeating-conic-gradient(black 0% 25%, transparent 0% 50%) 50% /
+        10rem 10rem;
+
+    filter: drop-shadow(0 0 100px $hue);
+
+    img {
+        width: 100%;
+        height: 100vh;
+    }
+
+    border-left: rgb(0, 0, 0) solid 10px;
+}
+
+// Hide the side image on smaller screens
+@media (max-width: 800px) {
     .side-image-container {
         display: none;
     }

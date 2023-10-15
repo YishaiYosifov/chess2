@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 import logoText from "@/public/assets/logo-text.svg";
-import anarchy from "@/public/assets/anarchy.jpg";
+import knook from "@/public/assets/pieces/knook-white.svg";
 import styles from "./authPage.module.scss";
 
 import SignupForm from "./SignupForm";
@@ -38,29 +38,7 @@ const AuthPage = ({
                 </Card>
             </div>
             <div className={styles["side-image-container"]}>
-                <svg width="100%" height="100%">
-                    <pattern
-                        id="chessboard-pattern"
-                        width="80"
-                        height="80"
-                        patternUnits="userSpaceOnUse"
-                    >
-                        <rect width="40" height="40" fill="black" />
-                        <rect
-                            x="40"
-                            y="40"
-                            width="40"
-                            height="40"
-                            fill="black"
-                        />
-                    </pattern>
-
-                    <rect
-                        width="100%"
-                        height="100%"
-                        fill="url(#chessboard-pattern)"
-                    />
-                </svg>
+                <Image src={knook} alt="knook" />
             </div>
         </div>
     );
