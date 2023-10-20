@@ -1,7 +1,4 @@
-import { ComponentType, ReactPropTypes } from "react";
 import { redirect } from "next/navigation";
-
-import InitializeStore from "../InitializeStore";
 import { cookies } from "next/headers";
 
 /**
@@ -9,8 +6,8 @@ import { cookies } from "next/headers";
  *
  * If the user has an access / refresh token cookie they will be redirected to the home page.
  */
-const withoutAuth = (WrappedComponent: ComponentType<ReactPropTypes>) => {
-    return async (props: ReactPropTypes) => {
+const withoutAuth = (WrappedComponent: any) => {
+    return async (props: any) => {
         const nextCookies = cookies();
         if (
             nextCookies.has("access_token_cookie") ||
@@ -18,12 +15,7 @@ const withoutAuth = (WrappedComponent: ComponentType<ReactPropTypes>) => {
         )
             redirect("/");
 
-        return (
-            <>
-                <InitializeStore values={{ isAuthed: false }} />
-                <WrappedComponent {...props} />
-            </>
-        );
+        return <WrappedComponent {...props} />;
     };
 };
 export default withoutAuth;

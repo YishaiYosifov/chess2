@@ -1,4 +1,4 @@
-import { setCsrfToken, setIsAuthed, useStore } from "@/app/store";
+import { setCsrfToken, setIsAuthed, useStore } from "@/zustand/store";
 import { apiRequest } from "./common";
 
 export async function login(

@@ -13,6 +13,7 @@ body {
     font-size: 16px;
 
     background-color: $background !important;
+    height: 100%;
     min-width: 250px;
 
     display: flex;
@@ -28,7 +29,6 @@ html {
 
 main {
     display: grid;
-    grid-template-columns: 1fr;
 }
 
 .card {
@@ -93,4 +93,8 @@ a {
 
 .reset {
     all: unset;
+}
+
+a:hover {
+    text-decoration: underline !important;
 }

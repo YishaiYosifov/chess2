@@ -8,10 +8,10 @@ import { useRef, useState, ChangeEvent } from "react";
 import styles from "./ChangeProfilePicture.module.scss";
 import { apiRequest } from "@/lib/utils/common";
 import { revalidateUser } from "@/app/actions";
-import { useStore } from "@/app/store";
+import { useStore } from "@/zustand/store";
 
 const ChangeProfilePicture = () => {
-    const { username, pfpLastChanged, userId } = useStore.use.profile();
+    const { username, pfpLastChanged, userId } = useStore.use.localProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);

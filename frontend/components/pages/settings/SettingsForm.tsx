@@ -3,7 +3,7 @@
 import { FormikHelpers } from "formik";
 
 import { apiRequest } from "@/lib/utils/common";
-import { useStore } from "@/app/store";
+import { useStore } from "@/zustand/store";
 import * as yup from "yup";
 
 import PasswordField from "./specialFields/PasswordField";
@@ -34,7 +34,7 @@ export async function updateSettings(
 }
 
 const SettingsForm = () => {
-    const profile = useStore.use.profile();
+    const profile = useStore.use.localProfile();
 
     const usernameSchema = yup
         .object()

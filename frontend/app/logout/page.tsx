@@ -1,19 +1,16 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
-import { logout } from "../store";
+import { apiRequest } from "@/lib/utils/common";
+import { setIsAuthed } from "@/zustand/store";
 
 const LogoutPage = () => {
     const router = useRouter();
-
-    useEffect(() => {
-        (async () => {
-            await logout();
-            router.replace("/");
-        })();
-    }, []);
+    apiRequest("/auth/logout").then(() => {
+        setIsAuthed(false);
+        router.replace("/");
+    });
 };
 
 export default LogoutPage;

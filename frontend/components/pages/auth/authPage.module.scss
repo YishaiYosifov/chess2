@@ -50,10 +50,13 @@
     height: 100%;
     width: 100%;
 
+    user-select: none;
+
     background: repeating-conic-gradient(black 0% 25%, transparent 0% 50%) 50% /
         10rem 10rem;
+    background-color: $background-secondary;
 
-    filter: drop-shadow(0 0 100px $hue);
+    filter: drop-shadow(0 0 40px $hue);
 
     img {
         width: 100%;
