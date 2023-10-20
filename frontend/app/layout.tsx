@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import "./globals.scss";
 
 import NavbarProvider from "@/components/navbar/NavbarProvider";
-import InitializeStore from "@/components/InitializeStore";
+import StoreInitializer from "@/components/StoreInitializer";
 
 import { cookies } from "next/headers";
 
@@ -36,7 +36,10 @@ const RootLayout = async ({ children }: { children?: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={secularOne.className}>
-                <InitializeStore values={{ isAuthed: isAuthed }} />
+                <StoreInitializer
+                    values={{ isAuthed }}
+                    action="SET_CLIENT_IS_AUTH"
+                />
 
                 <NavbarProvider />
                 <main>{children}</main>

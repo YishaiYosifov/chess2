@@ -1,14 +1,14 @@
 "use client";
 
+import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import logoText from "@/public/assets/logo-text.svg";
 import knook from "@/public/assets/pieces/knook-white.svg";
+import logoText from "@/public/assets/logo-text.svg";
 import styles from "./authPage.module.scss";
 
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
-import { Card } from "react-bootstrap";
 
 /**
  * Both the login and signup page are the same but with a different form,
@@ -38,7 +38,7 @@ const AuthPage = ({
                 </Card>
             </div>
             <div className={styles["side-image-container"]}>
-                <Image src={knook} alt="knook" />
+                <Image src={knook} alt="knook" draggable={false} />
             </div>
         </div>
     );

@@ -9,8 +9,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import logo from "@/public/assets/logo-text.svg";
+import { useStore } from "@/zustand/store";
 import styles from "./navbar.module.scss";
-import { useStore } from "@/app/store";
 import "./navbar.scss";
 
 const NavbarProvider = () => {

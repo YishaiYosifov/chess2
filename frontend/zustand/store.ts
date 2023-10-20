@@ -2,25 +2,20 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { StoreApi, UseBoundStore } from "zustand";
 import { devtools } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
-import { produce } from "immer";
 
-import {
-    LocalProfile,
-    ProfileSlice,
-    createProfileSlice,
-} from "../lib/slices/profileSlice";
-import {
-    AuthSlice,
-    createAuthSlice,
-    initialAuthState,
-} from "../lib/slices/authSlice";
-import { apiRequest } from "@/lib/utils/common";
+import { AuthSlice, createAuthSlice } from "./slices/authSlice";
 
 type WithSelectors<S> = S extends { getState: () => infer T }
     ? S & { use: { [K in keyof T]: () => T[K] } }
     : never;
 
-function createSelectors<S extends UseBoundStore<StoreApi<object>>>(_store: S) {
+/**
+ * Generate the .use method of the store.
+ * This is some ungodly looking typescript code I copied from the zustand docs
+ */
+export function createSelectors<S extends UseBoundStore<StoreApi<object>>>(
+    _store: S
+): WithSelectors<S> {
     let store = _store as WithSelectors<typeof _store>;
     store.use = {};
     for (let key of Object.keys(store.getState())) {
@@ -30,28 +25,18 @@ function createSelectors<S extends UseBoundStore<StoreApi<object>>>(_store: S) {
     return store;
 }
 
-export type Store = AuthSlice & ProfileSlice;
+export type State = AuthSlice;
 
 export const useStore = createSelectors(
-    createWithEqualityFn<Store>()(
+    createWithEqualityFn<State>()(
         devtools((...a) => ({
             ...createAuthSlice(...a),
-            ...createProfileSlice(...a),
         })),
         shallow
     )
 );
 
-export function updateProfile(profile: LocalProfile): void {
-    useStore.setState(
-        produce((state: Store): void => {
-            Object.assign(state.profile, profile);
-        }),
-        false,
-        "UPDATE_PROFILE"
-    );
-}
-
+/** Update the local logged in user profile */
 export function setCsrfToken(csrf: string): void {
     useStore.setState(
         {
@@ -65,9 +50,4 @@ export function setCsrfToken(csrf: string): void {
 
 export function setIsAuthed(isAuthed: boolean): void {
     useStore.setState({ isAuthed }, false, "LOGIN");
-}
-
-export async function logout(): Promise<void> {
-    await apiRequest("/auth/logout");
-    useStore.setState(initialAuthState, false, "LOGOUT");
 }

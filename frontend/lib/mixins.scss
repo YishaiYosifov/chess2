@@ -1,0 +1,4 @@
+@mixin largeContainer {
+    width: clamp(250px, 90vw, 1000px);
+    padding: 30px;
+}

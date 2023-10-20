@@ -1,0 +1,63 @@
+.game {
+    td {
+        position: relative;
+        height: 100px;
+
+        div {
+            display: flex;
+            height: 100%;
+        }
+    }
+}
+
+.variant-icon {
+    align-items: center;
+
+    img {
+        border: black solid 2px;
+        border-radius: 50%;
+    }
+}
+
+.players-column {
+    flex-direction: column;
+    justify-content: center;
+
+    gap: 15px;
+
+    a {
+        z-index: 1;
+        width: fit-content;
+        max-width: 150px;
+        text-decoration: none;
+        color: unset;
+    }
+}
+
+.results-column {
+    align-items: center;
+    gap: 20px;
+
+    div {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    svg {
+        font-size: 40px;
+    }
+}
+
+.date-column {
+    align-items: center;
+    height: 70px;
+}
+
+.game-link {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}

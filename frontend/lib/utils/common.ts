@@ -1,22 +1,23 @@
-import type { Dictionary, PublicProfile } from "@/lib/types";
-import { getCsrf } from "./auth";
 import * as yup from "yup";
+
+import type { Game, PublicProfile, RatingsMap } from "@/lib/types";
+import { getCsrf } from "./auth";
 
 /**
  * Makes an API request to a specific route with JSON data.
  * If this is ran from a server component, the cookies will be added to the headers automatically
  *
- * @param route - The api route to send the request to
- * @param options - Options object
+ * @param route - the api route to send the request to
+ * @param options - options object
  *
- * @param [options.method="POST"] - The HTTP method for the request
- * @param [options.headers={}] - The headers object. When json is provided, the content type will be added tot he headers automatically
- * @param [options.json] - The JSON data to send to the API
+ * @param [options.method="POST"] - the HTTP method for the request
+ * @param [options.headers={}] - the headers object. When json is provided, the content type will be added tot he headers automatically
+ * @param [options.json] - the JSON data to send to the API
  *
- * @param [options.csrfToken] - Explicitly define the csrf token
+ * @param [options.csrfToken] - explicitly define the csrf token
  *
- * @param [options.args] - Any other options to pass to the fetch request
- * @returns A promise the resolves to the response from the api
+ * @param [options.args] - any other options to pass to the fetch request
+ * @returns a promise the resolves to the response from the api
  */
 export async function apiRequest(
     route: string,
@@ -66,7 +67,7 @@ export async function apiRequest(
 }
 
 /**
- * Process an object for Flask WTF get form
+ * Process an array for Flask WTF get form
  *
  * @param name - the name of the parameter
  * @param array - the array to process
@@ -81,20 +82,77 @@ export function arrayToBody(name: string, array: Array<string>): string {
     return parts.join("&");
 }
 
-export const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
-export async function fetchUser(username: string): Promise<PublicProfile> {
-    const profileRequest = await apiRequest(`/profile/${username}`, {
-        cache: "force-cache",
-        next: { tags: [`user-${username}`] },
-    });
-    return await profileRequest.json();
-}
-
 export function uppercaseFirstLetter(value: string): string {
     return value.charAt(0).toUpperCase() + value.slice(1);
 }
+
+//#region Fetch user info
+
+/**
+ * Fetch a user's public profile by their username
+ *
+ * @param username - the username of the user to fetch
+ * @returns a promise that resolves to the users profile or null if the user was not found
+ */
+export async function fetchProfile(
+    username: string
+): Promise<PublicProfile | null> {
+    const profileRequest = await apiRequest(
+        `/profile/${username}/info?include=${arrayToBody("include", [
+            "username",
+            "about",
+            "pfpLastChanged",
+        ])}`,
+        {
+            method: "GET",
+            next: { revalidate: 60 },
+        }
+    );
+
+    if (profileRequest.status == 404) return null;
+    return ((await profileRequest.json())?.data || {}) as PublicProfile;
+}
+
+/**
+ * Fetch a user's ratings since a specified date
+ *
+ * @param username - the username of the user whose ratings to fetch
+ * @param since - the date since which to fetch ratings (in ISO date format)
+ * @returns a promise that resolves to a mapping of game variants to rating data or null if the user was not found.
+ */
+export async function fetchRatings(
+    username: string,
+    since: string
+): Promise<RatingsMap | null> {
+    const ratingsRequest = await apiRequest(
+        `/profile/${username}/ratings?since=${since}`,
+        {
+            method: "GET",
+            next: { revalidate: 60 },
+        }
+    );
+
+    if (ratingsRequest.status == 404) return null;
+    return ((await ratingsRequest.json())?.data || {}) as RatingsMap;
+}
+
+/**
+ * Fetch a user's games
+ *
+ * @param username - the username of the user whose games to fetch
+ * @returns a promise that resolves to an array of game objects or null if the user was not found
+ */
+export async function fetchGames(username: string): Promise<Game[] | null> {
+    const gamesRequest = await apiRequest(`/profile/${username}/games`, {
+        method: "GET",
+        next: { revalidate: 60 },
+    });
+    if (gamesRequest.status == 404) return null;
+
+    return ((await gamesRequest.json())?.data || []) as Game[];
+}
+
+//#endregion
 
 //#region Validators
 

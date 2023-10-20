@@ -1,0 +1,48 @@
+@import "@/lib/mixins";
+
+.ratings {
+    @include largeContainer;
+
+    display: flex;
+
+    justify-content: space-around;
+    align-items: center;
+
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.rating-holder {
+    display: flex;
+    flex-direction: row;
+
+    flex-grow: 1;
+    flex-basis: 0;
+
+    justify-content: center;
+    gap: 20px;
+
+    min-width: fit-content;
+    height: 100px;
+
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+
+    img {
+        height: 100%;
+        width: auto;
+
+        border-radius: 50%;
+        border: 3px black solid;
+    }
+
+    p {
+        color: #93dca6;
+        font-size: 3rem;
+    }
+}
