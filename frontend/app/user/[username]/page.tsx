@@ -35,12 +35,6 @@ const UserPage = async ({
 
             <section className={styles["games-section"]}>
                 <GamesTable games={games} viewingProfile={profile} />
-
-                {!games.length && (
-                    <p className={`${styles["no-games-text"]} text-danger`}>
-                        This user hasn't played any games yet!
-                    </p>
-                )}
             </section>
 
             <section className={styles["ratings-section"]}>

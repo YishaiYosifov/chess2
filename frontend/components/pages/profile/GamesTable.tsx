@@ -15,6 +15,24 @@ const GamesTable = ({
     games: Game[];
     viewingProfile: PublicProfile;
 }) => {
+    const EmptyRow = () => (
+        <tr>
+            <td>
+                <div className={styles["empty-td"]} />
+            </td>
+            <td>
+                <div className={styles["empty-td"]} />
+            </td>
+            <td>
+                <div className={styles["empty-td"]} />
+            </td>
+            <td>
+                <div className={styles["empty-td"]} />
+            </td>
+        </tr>
+    );
+    const MAX_EMPTY_ROWS = 3;
+
     return (
         <Table responsive className={styles["games-table"]}>
             <colgroup>
@@ -32,30 +50,18 @@ const GamesTable = ({
                 </tr>
             </thead>
             <tbody>
-                {games.length ? (
-                    games.map((game) => (
-                        <GameRow
-                            key={game.token}
-                            game={game}
-                            viewingProfile={viewingProfile}
-                        />
-                    ))
-                ) : (
-                    <tr>
-                        <td>
-                            <div className={styles["empty-td"]} />
-                        </td>
-                        <td>
-                            <div className={styles["empty-td"]} />
-                        </td>
-                        <td>
-                            <div className={styles["empty-td"]} />
-                        </td>
-                        <td>
-                            <div className={styles["empty-td"]} />
-                        </td>
-                    </tr>
-                )}
+                {games.map((game) => (
+                    <GameRow
+                        key={game.token}
+                        game={game}
+                        viewingProfile={viewingProfile}
+                    />
+                ))}
+
+                {games.length < MAX_EMPTY_ROWS &&
+                    [...Array(MAX_EMPTY_ROWS - games.length).keys()].map(
+                        (i) => <EmptyRow key={i} />
+                    )}
             </tbody>
         </Table>
     );

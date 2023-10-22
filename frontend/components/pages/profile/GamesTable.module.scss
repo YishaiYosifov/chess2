@@ -1,7 +1,8 @@
 @import "@/lib/mixins";
+@import "@/lib/variables";
 
 .games-table {
-    @include largeContainer;
+    width: container($xl);
 
     table {
         max-width: 850px;
@@ -17,8 +18,10 @@
 }
 
 .empty-td {
-    background-color: #272727;
-    width: 90%;
-    height: 30px;
-    border-radius: 25px;
+    background-color: #27272718;
+    height: 36px;
+
+    border-radius: 20px;
+
+    margin: 32px 0;
 }
