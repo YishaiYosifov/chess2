@@ -5,7 +5,7 @@
     display: grid;
     height: 100vh;
 
-    grid-template-rows: auto min-content 1fr;
+    grid-template-rows: auto auto 1fr;
 }
 
 .profile-info-section {
@@ -22,9 +22,7 @@
 
     display: grid;
     justify-items: center;
-    align-items: center;
 
-    min-height: 300px;
     width: 100vw;
     gap: 20px;
 
@@ -42,17 +40,16 @@
     padding-bottom: 30px;
 
     .ratings-container {
-        @include xxlargeContainer;
+        width: container($xxxl);
 
         margin-top: 30px;
         display: flex;
 
-        justify-content: space-around;
+        justify-content: center;
         align-items: center;
 
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 45px;
     }
 }
 

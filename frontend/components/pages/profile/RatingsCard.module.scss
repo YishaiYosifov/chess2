@@ -1,7 +1,9 @@
+@import "@/lib/variables";
 @import "@/lib/mixins";
 
 .rating-card {
-    @include smallContainer;
+    width: container($sm);
+    margin: 15px;
     border: 0;
 }
 

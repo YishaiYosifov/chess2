@@ -1,7 +1,9 @@
+@import "@/lib/variables";
 @import "@/lib/mixins";
 
 .profile {
-    @include largeContainer;
+    width: container($lg);
+    padding: 30px;
 
     gap: 30px;
     display: grid;
