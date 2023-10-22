@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { fetchGames, fetchProfile, fetchRatings } from "@/lib/utils/common";
 import styles from "./user.module.scss";
 
+import RatingCard from "@/components/pages/profile/RatingsCard";
 import GamesTable from "@/components/pages/profile/GamesTable";
-import Ratings from "@/components/pages/profile/Ratings";
-import Profile from "@/components/Profile";
+import Profile from "@/components/pages/profile/Profile";
 
 export const metadata = {
     title: "Chess 2 - User",
@@ -31,7 +31,6 @@ const UserPage = async ({
         <div className={styles.container}>
             <section className={styles["profile-info-section"]}>
                 <Profile profile={profile} />
-                <Ratings ratings={ratings} />
             </section>
 
             <section className={styles["games-section"]}>
@@ -42,6 +41,18 @@ const UserPage = async ({
                         This user hasn't played any games yet!
                     </p>
                 )}
+            </section>
+
+            <section className={styles["ratings-section"]}>
+                <div className={styles["ratings-container"]}>
+                    {Object.entries(ratings).map(([variant, data]) => (
+                        <RatingCard
+                            key={variant}
+                            variant={variant}
+                            ratingData={data}
+                        />
+                    ))}
+                </div>
             </section>
         </div>
     );

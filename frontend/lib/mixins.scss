@@ -1,4 +1,22 @@
+@mixin xsmallContainer {
+    width: clamp(250px, 90vw, 450px);
+}
+
+@mixin smallContainer {
+    width: clamp(250px, 90vw, 500px);
+}
+
 @mixin largeContainer {
     width: clamp(250px, 90vw, 1000px);
+    padding: 30px;
+}
+
+@mixin xlargeContainer {
+    width: clamp(250px, 90vw, 1500px);
+    padding: 30px;
+}
+
+@mixin xxlargeContainer {
+    width: clamp(250px, 90vw, 2000px);
     padding: 30px;
 }

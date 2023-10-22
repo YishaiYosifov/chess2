@@ -1,10 +1,11 @@
 @import "@/lib/variables";
+@import "@/lib/mixins";
 
 .container {
     display: grid;
     height: 100vh;
 
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(auto, 350px) 1fr;
 }
 
 .profile-info-section {
@@ -17,7 +18,7 @@
 }
 
 .games-section {
-    background-color: $background-secondary;
+    background-color: $background-2;
 
     display: grid;
     justify-items: center;
@@ -28,6 +29,30 @@
     padding-top: 20px;
     margin-top: 30px;
     width: 100vw;
+    padding-bottom: 20px;
+}
+
+.ratings-section {
+    display: flex;
+    background-color: $background-3;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: center;
+    padding-bottom: 30px;
+
+    .ratings-container {
+        @include xxlargeContainer;
+
+        margin-top: 30px;
+        display: flex;
+
+        justify-content: space-around;
+        align-items: center;
+
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 45px;
+    }
 }
 
 .no-games-text {

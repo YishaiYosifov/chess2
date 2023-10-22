@@ -1,22 +1,19 @@
-import { Button, Modal } from "react-bootstrap";
+"use client";
+
+import { Chart } from "react-google-charts";
+import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import styles from "./RatingModal.module.scss";
+import styles from "./RatingsCard.module.scss";
 
-import { RatingData } from "@/app/user/[username]/page";
-import Chart from "react-google-charts";
+import type { RatingData } from "@/lib/types";
 
-/** The popup modal with the rating details */
-const RatingModal = ({
+const RatingCard = ({
     variant,
     ratingData,
-    onHide,
-    show,
 }: {
     variant: string;
     ratingData: RatingData;
-    onHide?: () => void;
-    show?: boolean;
 }) => {
     const {
         history,
@@ -46,20 +43,18 @@ const RatingModal = ({
         ratingChange > 0 ? "+" : ratingChange < 0 ? "-" : "±";
 
     return (
-        <Modal show={show} onHide={onHide} size="lg" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>
-                    <Image
-                        className="img-fluid rounded-circle border border-3"
-                        src={`/assets/modes/${variant}.webp`}
-                        alt="Mode icon"
-                        width={30}
-                        height={30}
-                    />
-                    <span className="ms-2">{variant}</span>
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+        <Card className={styles["rating-card"]}>
+            <Card.Header className={styles.header}>
+                <Image
+                    className="img-fluid rounded-circle border border-3"
+                    src={`/assets/modes/${variant}.webp`}
+                    alt="Mode icon"
+                    width={30}
+                    height={30}
+                />
+                <span className="ms-2">{variant}</span>
+            </Card.Header>
+            <Card.Body className="text-start">
                 <Chart
                     chartType="AreaChart"
                     data={[...title, ...formattedRartings]}
@@ -104,11 +99,8 @@ const RatingModal = ({
                         </span>
                     </div>
                 </div>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button onClick={onHide}>Close</Button>
-            </Modal.Footer>
-        </Modal>
+            </Card.Body>
+        </Card>
     );
 };
-export default RatingModal;
+export default RatingCard;
