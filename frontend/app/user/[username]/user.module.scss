@@ -5,7 +5,7 @@
     display: grid;
     height: 100vh;
 
-    grid-template-rows: auto minmax(auto, 350px) 1fr;
+    grid-template-rows: auto min-content 1fr;
 }
 
 .profile-info-section {
@@ -22,14 +22,15 @@
 
     display: grid;
     justify-items: center;
-    grid-template-rows: auto 1fr;
+    align-items: center;
 
+    min-height: 300px;
+    width: 100vw;
     gap: 20px;
 
-    padding-top: 20px;
     margin-top: 30px;
-    width: 100vw;
     padding-bottom: 20px;
+    padding-top: 20px;
 }
 
 .ratings-section {
