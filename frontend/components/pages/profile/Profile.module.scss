@@ -1,0 +1,53 @@
+@import "@/lib/mixins";
+
+.profile {
+    @include largeContainer;
+
+    gap: 30px;
+    display: grid;
+    align-items: center;
+
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+    min-height: 200px;
+
+    height: 100%;
+    font-size: 3rem;
+
+    img {
+        width: 60px;
+        height: 60px;
+    }
+
+    span {
+        white-space: nowrap;
+        height: 130px;
+        overflow-x: hidden; /* Hides horizontal overflow */
+        text-overflow: ellipsis;
+    }
+}
+
+.profile-picture {
+    justify-self: center;
+    border: white 5px solid;
+    border-radius: 10%;
+}
+
+.about {
+    resize: none;
+    height: 100%;
+}
+
+@media (min-width: 700px) {
+    .profile {
+        grid-template-rows: 1fr;
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+}

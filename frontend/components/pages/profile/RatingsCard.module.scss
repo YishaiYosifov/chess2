@@ -1,0 +1,34 @@
+@import "@/lib/mixins";
+
+.rating-card {
+    @include smallContainer;
+    border: 0;
+}
+
+.header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    img {
+        overflow: hidden;
+    }
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+
+    margin-top: 30px;
+    gap: 20px;
+
+    div {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.chart {
+    border-radius: 10px;
+}

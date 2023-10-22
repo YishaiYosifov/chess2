@@ -3,7 +3,7 @@
 import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import knook from "@/public/assets/pieces/knook-white.svg";
+import knook from "@/public/assets/pieces/knook-black.svg";
 import logoText from "@/public/assets/logo-text.svg";
 import styles from "./authPage.module.scss";
 
