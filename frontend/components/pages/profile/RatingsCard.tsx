@@ -40,7 +40,7 @@ const RatingCard = ({
             ? "text-danger"
             : "";
     const ratingChangeIcon =
-        ratingChange > 0 ? "+" : ratingChange < 0 ? "-" : "±";
+        ratingChange > 0 ? "+" : ratingChange < 0 ? "" : "±";
 
     return (
         <Card className={styles["rating-card"]}>
