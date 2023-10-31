@@ -1,0 +1,19 @@
+.chessboard {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    width: auto;
+    height: auto;
+
+    border-radius: 10px;
+
+    background: url("/assets/board.svg") 100% / 100% no-repeat;
+    min-width: 300px;
+    min-height: 300px;
+}
+
+.square {
+    background: url("/assets/pieces/knook-black.png") 100% / 100% no-repeat;
+    height: 100%;
+    width: 100%;
+}

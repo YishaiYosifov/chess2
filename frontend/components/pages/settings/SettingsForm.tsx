@@ -1,10 +1,11 @@
 "use client";
 
 import { FormikHelpers } from "formik";
+import * as yup from "yup";
 
+import { EMAIL_EDIT_EVERY, USERNAME_EDIT_EVERY } from "@/lib/constants";
 import { apiRequest } from "@/lib/utils/common";
 import { useStore } from "@/zustand/store";
-import * as yup from "yup";
 
 import PasswordField from "./specialFields/PasswordField";
 
@@ -58,9 +59,7 @@ const SettingsForm = () => {
                 editingError={
                     !canEdit(
                         profile.usernameLastChanged || "",
-                        parseInt(
-                            process.env.NEXT_PUBLIC_USERNAME_EDIT_EVERY || "0"
-                        )
+                        USERNAME_EDIT_EVERY
                     ) && "Username changed too recently"
                 }
                 schema={usernameSchema}
@@ -75,9 +74,7 @@ const SettingsForm = () => {
                 editingError={
                     !canEdit(
                         profile.emailLastChanged || "",
-                        parseInt(
-                            process.env.NEXT_PUBLIC_EMAIL_EDIT_EVERY || "0"
-                        )
+                        EMAIL_EDIT_EVERY
                     ) && "Email changed too recently"
                 }
                 onSubmit={updateSettings}

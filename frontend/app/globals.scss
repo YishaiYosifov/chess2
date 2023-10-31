@@ -1,5 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Secular+One&display=swap");
-@import "../lib/variables";
+@import "../lib/variables.module";
 
 * {
     box-sizing: border-box;
@@ -18,8 +18,6 @@ body {
 
     display: flex;
     flex-direction: column;
-
-    //padding-top: 69px !important;
 }
 
 body,
@@ -32,13 +30,13 @@ main {
 }
 
 .card {
-    background: rgb(40, 40, 40);
-    background: linear-gradient(
+    background: rgb(25, 25, 25) !important;
+    /*background: linear-gradient(
         135deg,
         rgb(25, 25, 25) 0%,
         rgb(20, 20, 20) 50%,
         rgb(20, 20, 20) 100%
-    );
+    );*/
     color: white;
 
     border-radius: 5px !important;

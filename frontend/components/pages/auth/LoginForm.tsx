@@ -2,6 +2,7 @@
 
 import { InputGroup, Form, Button, Col } from "react-bootstrap";
 import {
+    BsArrowRight,
     BsEyeFill,
     BsEyeSlashFill,
     BsPersonFill,

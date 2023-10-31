@@ -1,11 +1,7 @@
+import { Variants } from "./constants";
+
 export interface Dictionary<T> {
     [Key: string]: T;
-}
-
-export const enum Variants {
-    Anarchy = "anarchy",
-    FogOfWar = "fogofwar",
-    Chss = "chss",
 }
 
 export interface Player {

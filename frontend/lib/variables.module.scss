@@ -15,3 +15,13 @@ $xxl: 1400px;
 $xxxl: 2000px;
 
 $hue: #2d2232;
+
+:export {
+    xs: $xs;
+    sm: $sm;
+    md: $md;
+    lg: $lg;
+    xl: $xl;
+    xxl: $xxxl;
+    xxxl: $xxxl;
+}
