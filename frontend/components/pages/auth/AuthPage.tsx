@@ -1,9 +1,8 @@
 "use client";
 
-import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import knook from "@/public/assets/pieces/knook-black.svg";
+import knook from "@/public/assets/pieces-svg/knook-white.svg";
 import logoText from "@/public/assets/logo-text.svg";
 import styles from "./authPage.module.scss";
 
@@ -33,9 +32,9 @@ const AuthPage = ({
                 />
                 <h1>{login ? "Login" : "Signup"}</h1>
 
-                <Card className={styles.card}>
+                <div className={styles["form-container"]}>
                     {login ? <LoginForm /> : <SignupForm />}
-                </Card>
+                </div>
             </div>
             <div className={styles["side-image-container"]}>
                 <Image src={knook} alt="knook" draggable={false} />

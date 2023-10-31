@@ -1,5 +1,5 @@
 @import "@/lib/mixins";
-@import "@/lib/variables";
+@import "@/lib/variables.module";
 
 .games-table {
     width: container($xl);
