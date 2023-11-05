@@ -1,5 +1,5 @@
-@import "@/lib/mixins";
 @import "@/lib/variables.module";
+@import "@/lib/mixins";
 
 .container {
     display: grid;
@@ -13,74 +13,11 @@
     padding-bottom: 20px;
 }
 
-//#region game setting card
-
-// .options-card is the side card with the game options
-.options-card {
-    display: flex;
-    gap: 40px;
-
-    overflow: scroll;
-
-    height: 100%;
-    width: container($xs);
-    min-width: 310px;
-}
-
-.option-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    font-size: 2rem;
-    svg {
-        font-size: 5rem;
-    }
-}
-
-// Stack the options in a 3xN grid
-.options-container {
-    display: grid;
-    gap: 10px;
-    grid-template-columns: repeat(3, 1fr);
-}
-
-// When the screen gets too small, collapse the variant options into option-per-row
-.variant-options .setting-buttons-container {
-    @media (max-width: 500px) {
-        grid-template-rows: repeat(3, 1fr);
-        grid-template-columns: 1fr;
-    }
-}
-
-.option-button {
-    cursor: pointer;
-
-    text-align: center;
-    word-break: break-word;
-    font-size: 1.6rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    transition: outline 0.15s ease-in-out;
-
-    &:hover {
-        outline: 2px solid white;
-    }
-}
-
-//#endregion
-
 // Collapse the board and the options card when the screen is too small
 @media (max-width: $xl) {
     .container {
         grid-template-columns: auto;
         justify-items: center;
         height: 100%;
-    }
-
-    .options-card {
-        width: container($lg);
     }
 }

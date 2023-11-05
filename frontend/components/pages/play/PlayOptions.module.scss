@@ -1,0 +1,97 @@
+@import "@/lib/variables.module";
+@import "@/lib/mixins";
+
+// .options-card is the side card with the game options
+.options-card {
+    display: flex;
+    gap: 40px;
+
+    overflow: scroll;
+
+    height: 100%;
+    width: container($xs);
+    min-width: 310px;
+}
+
+.option-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 2rem;
+    svg {
+        font-size: 5rem;
+    }
+}
+
+// Stack the options in a 3xN grid
+.options-container {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+// When the screen gets too small, collapse the variant options into option-per-row
+@media (max-width: 500px) {
+    .variant-options .options-container {
+        grid-template-rows: repeat(3, 1fr);
+        grid-template-columns: 1fr;
+    }
+}
+
+.option-button {
+    cursor: pointer;
+
+    text-align: center;
+    word-break: break-word;
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: outline 0.15s ease-in-out;
+
+    &:hover {
+        outline: 2px solid lightblue;
+    }
+}
+
+.spinner {
+    position: absolute;
+}
+
+.selected-variant {
+    border-color: cornflowerblue;
+}
+
+.selected-time-control {
+    @extend .selected-variant;
+
+    span {
+        filter: blur(5px);
+    }
+}
+
+.time-control-option-button {
+    @extend .option-button;
+
+    span:nth-child(1) {
+        white-space: nowrap;
+        font-size: 1.5rem;
+    }
+    span:nth-child(2) {
+        white-space: nowrap;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: $xl) {
+    .options-card {
+        width: container($lg);
+    }
+}
+
+.status-text {
+    text-align: center;
+    color: $text-invalid;
+}

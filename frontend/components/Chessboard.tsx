@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import styles from "./Chessboard.module.scss";
-import { Variants } from "@/lib/constants";
+import { Variant } from "@/lib/constants";
 
 interface Breakpoint {
     breakpoint: number;
@@ -25,7 +25,7 @@ const Chessboard = ({
     variant,
     offsetBreakpoints = [{ breakpoint: 0, offset: { width: 0, height: 0 } }],
 }: {
-    variant: Variants;
+    variant: Variant;
     offsetBreakpoints?: Breakpoint[];
 }) => {
     const [boardSize, setBoardSize] = useState(0);

@@ -1,4 +1,4 @@
-import { Variants } from "./constants";
+import { Variant } from "./constants";
 
 export interface Dictionary<T> {
     [Key: string]: T;
@@ -19,7 +19,7 @@ export interface Game {
 
     createdAt: string;
 
-    variant: Variants;
+    variant: Variant;
     increment: number;
     timeControl: number;
 }
@@ -35,7 +35,7 @@ export interface RatingData {
     maxRating: number;
 }
 
-export type RatingsMap = { [key in Variants]: RatingData };
+export type RatingsMap = { [key in Variant]: RatingData };
 
 export interface PublicProfile {
     userId: number;
