@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 
-import { Piece, PieceData, Variant, defaultChessboard } from "@/lib/constants";
+import {
+    BOARD_HEIGHT,
+    BOARD_SIZE,
+    BOARD_WIDTH,
+    Color,
+    PieceData,
+    Variant,
+    defaultChessboard,
+} from "@/lib/constants";
 import styles from "./Chessboard.module.scss";
 
 interface Breakpoint {
@@ -25,14 +33,16 @@ const Chessboard = ({
     variant,
     offsetBreakpoints = [{ breakpoint: 0, offset: { width: 0, height: 0 } }],
     startingBoard = defaultChessboard,
+    side = Color.White,
     fixed = false,
 }: {
     variant: Variant;
     offsetBreakpoints?: Breakpoint[];
     startingBoard?: Record<number, PieceData>;
+    side?: Color;
     fixed?: boolean;
 }) => {
-    const [boardSize, setBoardSize] = useState(0);
+    const [boardSize, setBoardSize] = useState<number>(0);
 
     /**
      * Calculate the width and height offset based on the offsetBreakpoints param and window width
@@ -79,12 +89,15 @@ const Chessboard = ({
                 height: `${boardSize}px`,
             }}
         >
-            {Array.from(Array(100).keys()).map((i) => {
-                i = 99 - i;
+            {Object.entries(startingBoard).map(([i, pieceData]) => {
+                // Flip the board depending on which side you are viewing from
+                let numIndex = parseInt(i);
+                if (side == Color.White) numIndex = BOARD_SIZE - 1 - numIndex;
+
                 return (
-                    <ChessSquare
-                        index={i}
-                        pieceData={startingBoard[i]}
+                    <ChessPiece
+                        index={numIndex}
+                        pieceData={pieceData}
                         key={i}
                     />
                 );
@@ -95,25 +108,22 @@ const Chessboard = ({
 
 export default Chessboard;
 
-const ChessSquare = ({
+const ChessPiece = ({
     index,
     pieceData,
 }: {
     index: number;
-    pieceData?: PieceData;
+    pieceData: PieceData;
 }) => {
-    return (
-        <div className={styles.square}>
-            {pieceData && <ChessPiece pieceData={pieceData} />}
-        </div>
-    );
-};
-
-const ChessPiece = ({ pieceData }: { pieceData: PieceData }) => {
+    const row = Math.floor(index / BOARD_HEIGHT);
+    const column = index % BOARD_WIDTH;
     return (
         <div
             className={styles.piece}
             style={{
+                transform: `translate(${column * BOARD_SIZE}%, ${
+                    row * BOARD_SIZE
+                }%)`,
                 background: `url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png") 100% / 100% no-repeat`,
             }}
         />
