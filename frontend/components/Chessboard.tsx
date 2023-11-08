@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { Piece, PieceData, Variant, defaultChessboard } from "@/lib/constants";
 import styles from "./Chessboard.module.scss";
-import { Variant } from "@/lib/constants";
 
 interface Breakpoint {
     breakpoint: number;
@@ -24,9 +24,13 @@ interface Breakpoint {
 const Chessboard = ({
     variant,
     offsetBreakpoints = [{ breakpoint: 0, offset: { width: 0, height: 0 } }],
+    startingBoard = defaultChessboard,
+    fixed = false,
 }: {
     variant: Variant;
     offsetBreakpoints?: Breakpoint[];
+    startingBoard?: Record<number, PieceData>;
+    fixed?: boolean;
 }) => {
     const [boardSize, setBoardSize] = useState(0);
 
@@ -75,11 +79,43 @@ const Chessboard = ({
                 height: `${boardSize}px`,
             }}
         >
-            {Array.from(Array(100).keys()).map((i) => (
-                <div className={styles.square} key={i}></div>
-            ))}
+            {Array.from(Array(100).keys()).map((i) => {
+                i = 99 - i;
+                return (
+                    <ChessSquare
+                        index={i}
+                        pieceData={startingBoard[i]}
+                        key={i}
+                    />
+                );
+            })}
         </div>
     );
 };
 
 export default Chessboard;
+
+const ChessSquare = ({
+    index,
+    pieceData,
+}: {
+    index: number;
+    pieceData?: PieceData;
+}) => {
+    return (
+        <div className={styles.square}>
+            {pieceData && <ChessPiece pieceData={pieceData} />}
+        </div>
+    );
+};
+
+const ChessPiece = ({ pieceData }: { pieceData: PieceData }) => {
+    return (
+        <div
+            className={styles.piece}
+            style={{
+                background: `url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png") 100% / 100% no-repeat`,
+            }}
+        />
+    );
+};

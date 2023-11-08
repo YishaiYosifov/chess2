@@ -14,10 +14,6 @@ interface TimeControl {
     increment: number;
 }
 
-interface GameRequest extends TimeControl {
-    variant: Variant;
-}
-
 /**
  * Card containing the variant and time control options.
  * When the one of the time control buttons is clicked, a request to enter the pool will be sent.
@@ -28,20 +24,17 @@ const PlayOptions = () => {
     );
     const [selectedTimeControl, setSelectedTimeControl] =
         useState<TimeControl>();
-    const [gameRequest, setGameRequest] = useState<GameRequest>();
+
     const [status, setStatus] = useState<string>("");
 
     /**
      * Cancels the outgoing game request
      */
     async function cancelRequest(): Promise<void> {
-        if (!gameRequest) return;
-
         await apiRequest("/game/cancel", {
             method: "delete",
         });
         setSelectedTimeControl(undefined);
-        setGameRequest(undefined);
     }
 
     /**
@@ -53,15 +46,6 @@ const PlayOptions = () => {
         increment: number,
         variant: Variant
     ): Promise<void> {
-        if (
-            gameRequest?.increment == increment &&
-            gameRequest.timeControl == timeControl &&
-            gameRequest.variant == variant
-        ) {
-            cancelRequest();
-            return;
-        }
-
         const response = await apiRequest("/game/pool/start", {
             json: {
                 variant: variant,
@@ -69,14 +53,36 @@ const PlayOptions = () => {
                 increment,
             },
         });
+
         if (!response.ok) {
             cancelRequest();
             setStatus("something went wrong...");
             return;
         }
+    }
 
-        setGameRequest({ timeControl, increment, variant });
-        setSelectedTimeControl({ timeControl, increment });
+    /**
+     * This function runs whenever the user selects a new time control.
+     * If the previous time control is equal to the new time control,
+     * don't send a new game request, instead cancel the current one.
+     */
+    async function onTimeControlChange(
+        newTimeControl: number,
+        newIncrement: number
+    ): Promise<void> {
+        if (
+            selectedTimeControl?.timeControl == newTimeControl &&
+            selectedTimeControl.increment == newIncrement
+        ) {
+            cancelRequest();
+            return;
+        }
+
+        await enterPool(newTimeControl, newIncrement, selectedVariant);
+        setSelectedTimeControl({
+            timeControl: newTimeControl,
+            increment: newIncrement,
+        });
     }
 
     return (
@@ -112,13 +118,7 @@ const PlayOptions = () => {
                             {...timeControl}
                             key={index}
                             selectedTimeControl={selectedTimeControl}
-                            onTimeControlChange={(timeControl, increment) =>
-                                enterPool(
-                                    timeControl,
-                                    increment,
-                                    selectedVariant
-                                )
-                            }
+                            onTimeControlChange={onTimeControlChange}
                         />
                     ))}
                 </div>
@@ -187,6 +187,7 @@ const TimeControlButton = ({
         selectedTimeControl &&
         selectedTimeControl.timeControl === timeControl &&
         selectedTimeControl.increment === increment;
+
     return (
         <Card
             className={`${styles["time-control-option-button"]} ${
