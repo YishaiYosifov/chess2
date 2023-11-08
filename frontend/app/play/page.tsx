@@ -14,13 +14,14 @@ const PlayPage = () => {
                 offsetBreakpoints={[
                     {
                         breakpoint,
-                        offset: { width: 100, height: 200 },
+                        offset: { width: 10, height: 200 },
                     },
                     {
                         breakpoint,
                         offset: { width: 500, height: 100 },
                     },
                 ]}
+                fixed
             />
 
             <PlayOptions />

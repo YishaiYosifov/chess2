@@ -10,10 +10,20 @@
     background: url("/assets/board.svg") 100% / 100% no-repeat;
     min-width: 300px;
     min-height: 300px;
+
+    position: relative;
 }
 
 .square {
-    background: url("/assets/pieces/knook-black.png") 100% / 100% no-repeat;
     height: 100%;
     width: 100%;
+    position: relative;
+
+    .piece {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
 }

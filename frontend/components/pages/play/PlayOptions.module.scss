@@ -56,16 +56,16 @@
     }
 }
 
-.spinner {
-    position: absolute;
-}
-
 .selected-variant {
     border-color: cornflowerblue;
 }
 
 .selected-time-control {
     @extend .selected-variant;
+
+    .spinner {
+        position: absolute;
+    }
 
     span {
         filter: blur(5px);

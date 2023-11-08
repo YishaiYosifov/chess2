@@ -1,9 +1,5 @@
 import { Variant } from "./constants";
 
-export interface Dictionary<T> {
-    [Key: string]: T;
-}
-
 export interface Player {
     userId: number;
     username: string;
