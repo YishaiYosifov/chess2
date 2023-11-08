@@ -1,6 +1,10 @@
 export const USERNAME_EDIT_EVERY = 2419200;
 export const EMAIL_EDIT_EVERY = 86400;
 
+export const BOARD_WIDTH = 10;
+export const BOARD_HEIGHT = 10;
+export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
+
 export enum Piece {
     King = "king",
     Queen = "queen",
