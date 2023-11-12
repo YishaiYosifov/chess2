@@ -7,7 +7,7 @@ import { EMAIL_EDIT_EVERY, USERNAME_EDIT_EVERY } from "@/lib/constants";
 import { apiRequest } from "@/lib/utils/common";
 import { useStore } from "@/zustand/store";
 
-import PasswordField from "./specialFields/PasswordField";
+import PasswordField from "../specialFields/PasswordField";
 
 export async function updateSettings(
     values: object,

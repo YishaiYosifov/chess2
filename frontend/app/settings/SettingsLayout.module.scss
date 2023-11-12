@@ -1,0 +1,7 @@
+@import "@/lib/variables.module";
+@import "@/lib/mixins";
+
+.setting-page {
+    width: container($lg);
+    justify-self: center;
+}

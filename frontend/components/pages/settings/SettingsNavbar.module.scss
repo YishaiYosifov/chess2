@@ -1,0 +1,45 @@
+@import "@/lib/variables.module.scss";
+@import "@/lib/mixins.scss";
+
+$item-selected-color: $light-purple;
+$item-color: $text;
+
+.nav {
+    width: container($lg);
+    margin-top: 89px;
+    justify-self: center;
+    flex-direction: column;
+
+    display: flex;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.nav-body {
+    justify-self: center;
+    overflow: scroll;
+    display: flex;
+    gap: 30px;
+
+    .item {
+        white-space: nowrap;
+        cursor: pointer;
+        text-decoration: none;
+        color: $item-color;
+
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        font-size: 1.5rem;
+
+        transition: color 0.15s ease-in-out;
+        &:hover {
+            color: $item-selected-color;
+        }
+    }
+
+    .item.selected {
+        color: $item-selected-color;
+    }
+}
