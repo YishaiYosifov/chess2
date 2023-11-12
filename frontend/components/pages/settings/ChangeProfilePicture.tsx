@@ -64,7 +64,7 @@ const ChangeProfilePicture = () => {
             <Col sm="auto">
                 <input
                     type="file"
-                    accept=".jpg,.jpeg,.png,.webp"
+                    accept=".jpg,.jpeg,.png,.webp,.gif"
                     ref={uploadPfpInput}
                     onChange={uploadPfp}
                     hidden
@@ -77,7 +77,7 @@ const ChangeProfilePicture = () => {
                     <span className="ms-1 text-invalid">{status}</span>
                 </div>
                 <p className="mt-2">
-                    Must be JPEG, PNG or WEBP and cannot exceed 2MB
+                    Must be JPEG, PNG, WEBP or GIF and cannot exceed 1MB
                 </p>
             </Col>
         </Row>

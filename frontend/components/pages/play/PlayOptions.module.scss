@@ -1,6 +1,8 @@
 @import "@/lib/variables.module";
 @import "@/lib/mixins";
 
+$option-selected: $light-purple;
+
 // .options-card is the side card with the game options
 .options-card {
     display: flex;
@@ -52,12 +54,12 @@
     transition: outline 0.15s ease-in-out;
 
     &:hover {
-        outline: 2px solid lightblue;
+        outline: 2px solid $option-selected;
     }
 }
 
 .selected-variant {
-    border-color: cornflowerblue;
+    border-color: $option-selected;
 }
 
 .selected-time-control {
