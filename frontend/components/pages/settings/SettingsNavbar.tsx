@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import styles from "./SettingsNavbar.module.scss";
+import { BsGearFill } from "react-icons/bs";
 
 const SettingsNavbar = ({
     settings,
@@ -12,7 +13,9 @@ const SettingsNavbar = ({
 
     return (
         <nav className={styles.nav}>
-            <h1>Settings</h1>
+            <h1>
+                <BsGearFill /> Settings
+            </h1>
             <div className={styles["nav-body"]}>
                 {settings.map((setting) => (
                     <a

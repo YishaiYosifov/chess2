@@ -11,11 +11,8 @@ export const enum AuthMethods {
 
 // The local profile has every field public profile has but also includes sensitive information
 export interface LocalProfile extends Partial<PublicProfile> {
-    authMethod?: AuthMethods;
     email?: string;
-
     usernameLastChanged?: string;
-    emailLastChanged?: string;
 }
 
 export interface AuthSlice {

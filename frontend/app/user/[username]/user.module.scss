@@ -45,7 +45,7 @@
 
     .ratings-container {
         width: container($xxxl);
-        overflow: scroll;
+        overflow: auto;
 
         margin-top: 30px;
         display: flex;

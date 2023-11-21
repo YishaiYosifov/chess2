@@ -1,4 +1,32 @@
+@import "@/lib/variables.module";
+
+$pfp-border: $light-purple;
+
+.container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 25px;
+
+    @media (max-width: $sm) {
+        grid-template-columns: unset;
+        justify-items: center;
+    }
+}
+
 .profile-picture {
     border-radius: 10px;
-    border: 2px solid lightblue;
+    border: 2px solid $pfp-border;
+}
+
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .upload-button-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 }
