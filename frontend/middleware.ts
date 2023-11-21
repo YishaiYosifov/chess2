@@ -26,8 +26,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     const {
         accessToken,
         accessTokenMaxAge,
-    }: { accessToken: string; accessTokenMaxAge: number } =
-        await accessTokenResponse.json();
+    }: { accessToken: string; accessTokenMaxAge: number } = (
+        await accessTokenResponse.json()
+    ).data;
 
     response.cookies.set("access_token_cookie", accessToken, {
         maxAge: accessTokenMaxAge,

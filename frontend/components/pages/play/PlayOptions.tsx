@@ -148,10 +148,10 @@ const VariantButton = ({
 }) => {
     return (
         <Card
+            onClick={() => onVariantChange(buttonVariant)}
             className={`${styles["option-button"]} ${
                 selectedVariant === buttonVariant && styles["selected-variant"]
             }`}
-            onClick={() => onVariantChange(buttonVariant)}
         >
             {buttonVariant}
         </Card>
@@ -190,10 +190,10 @@ const TimeControlButton = ({
 
     return (
         <Card
+            onClick={() => onTimeControlChange(timeControl, increment)}
             className={`${styles["time-control-option-button"]} ${
                 isSelected && styles["selected-time-control"]
             }`}
-            onClick={() => onTimeControlChange(timeControl, increment)}
         >
             {isSelected && (
                 <Spinner

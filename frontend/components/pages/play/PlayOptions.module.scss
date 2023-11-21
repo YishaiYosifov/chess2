@@ -1,14 +1,14 @@
 @import "@/lib/variables.module";
 @import "@/lib/mixins";
 
-$option-selected: $light-purple;
+$option-selected: $purple;
 
 // .options-card is the side card with the game options
 .options-card {
     display: flex;
     gap: 40px;
 
-    overflow: scroll;
+    overflow: auto;
 
     height: 100%;
     width: container($xs);

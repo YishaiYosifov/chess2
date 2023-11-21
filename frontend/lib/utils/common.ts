@@ -82,9 +82,8 @@ export function arrayToBody(name: string, array: Array<string>): string {
     return parts.join("&");
 }
 
-export function uppercaseFirstLetter(value: string): string {
-    return value.charAt(0).toUpperCase() + value.slice(1);
-}
+export const titleString = (value: string): string =>
+    value.charAt(0).toUpperCase() + value.replaceAll("_", " ").slice(1);
 
 //#region Fetch user info
 
