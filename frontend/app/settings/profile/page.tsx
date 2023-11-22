@@ -1,9 +1,9 @@
 import { LocalProfile } from "@/zustand/slices/authSlice";
 
-import ChangeProfilePicture from "@/components/pages/settings/ChangeProfilePicture";
-import SettingsForm from "@/components/pages/settings/profile/ProfileForm";
-import withAuth from "@/components/hocs/withAuth";
+import ChangeProfilePicture from "@/components/settings/ChangeProfilePicture";
+import SettingsForm from "@/components/settings/profile/ProfileForm";
 import StoreInitializer from "@/components/StoreInitializer";
+import withAuth from "@/components/hocs/withAuth";
 
 const ProfilePage = withAuth(async ({ profile }: { profile: LocalProfile }) => {
     const countries = await (

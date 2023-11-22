@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { fetchGames, fetchProfile, fetchRatings } from "@/lib/utils/common";
 import styles from "./user.module.scss";
 
-import RatingCard from "@/components/pages/profile/RatingsCard";
-import GamesTable from "@/components/pages/profile/GamesTable";
-import Profile from "@/components/pages/profile/Profile";
+import RatingCard from "@/components/profile/RatingsCard";
+import GamesTable from "@/components/profile/GamesTable";
+import Profile from "@/components/profile/Profile";
 
 export const metadata = {
     title: "Chess 2 - User",

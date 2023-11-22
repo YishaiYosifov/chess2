@@ -2,7 +2,7 @@ import scssVariables from "@/lib/variables.module.scss";
 import { Variant } from "@/lib/constants";
 import styles from "./play.module.scss";
 
-import PlayOptions from "@/components/pages/play/PlayOptions";
+import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/Chessboard";
 
 const PlayPage = () => {
