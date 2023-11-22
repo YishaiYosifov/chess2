@@ -4,14 +4,14 @@ import { ReactNode } from "react";
 
 import styles from "./SettingsLayout.module.scss";
 
-import SettingsNavbar from "@/components/pages/settings/SettingsNavbar";
+import SettingsNavbar from "@/components/settings/SettingsNavbar";
 
 const layout = async ({ children }: { children: ReactNode }) => {
     const settings = [
         { name: "Profile", url: "profile" },
         { name: "Live Game", url: "live-game" },
         { name: "Blocked", url: "blocked" },
-        { name: "Password", url: "blocked" },
+        { name: "Password", url: "password" },
     ];
 
     return (

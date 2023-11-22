@@ -1,10 +1,12 @@
 "use client";
 
+import { Button } from "react-bootstrap";
 import Image from "next/image";
+import Link from "next/link";
 
 import knook from "@/public/assets/pieces-svg/knook-white.svg";
 import logoText from "@/public/assets/logo-text.svg";
-import styles from "./authPage.module.scss";
+import styles from "./AuthPage.module.scss";
 
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
@@ -34,6 +36,27 @@ const AuthPage = ({
 
                 <div className={styles["form-container"]}>
                     {login ? <LoginForm /> : <SignupForm />}
+                    <hr />
+
+                    <Button as="a" className="w-100" variant="primary">
+                        <Image
+                            src="/assets/google.webp"
+                            alt="google logo"
+                            width={30}
+                            height={30}
+                            className="me-2"
+                        />
+                        Continue with Google
+                    </Button>
+
+                    <span>
+                        Already have an account? Click{" "}
+                        {login ? (
+                            <Link href="/signup">here to sign up</Link>
+                        ) : (
+                            <Link href="/login">here to log in</Link>
+                        )}
+                    </span>
                 </div>
             </div>
             <div className={styles["side-image-container"]}>

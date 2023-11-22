@@ -28,7 +28,7 @@ const withCollapsibleField = <P extends HOCComponentProps>(
     type HOCWithComponentProps = P & HOCProps;
 
     /**
-     * The enchanced component with collapsible  functionality
+     * The enchanced component with collapsible functionality
      */
     return (props: Omit<HOCWithComponentProps, keyof HOCComponentProps>) => {
         const [isEditing, setIsEditing] = useState(false);
@@ -45,6 +45,7 @@ const withCollapsibleField = <P extends HOCComponentProps>(
             <FormField
                 fieldName={props.field}
                 value={props.defaultValue}
+                fieldLabel
                 disabled
             >
                 {/* the button that enables and disables the form */}

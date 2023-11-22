@@ -1,12 +1,16 @@
 "use client";
 
-import { FormikHelpers } from "formik";
+import { Formik, FormikHelpers } from "formik";
+import { Form } from "react-bootstrap";
+
 import * as yup from "yup";
 
 import { USERNAME_EDIT_EVERY } from "@/lib/constants";
 import { apiRequest } from "@/lib/utils/common";
+import styles from "./ProfileForm.module.scss";
 import { useStore } from "@/zustand/store";
 
+import { FormikField } from "@/components/FormField";
 import PasswordField from "../fields/PasswordField";
 
 export async function updateSettings(
@@ -34,6 +38,9 @@ export async function updateSettings(
     }
 }
 
+/**
+ * Component for the settings form
+ */
 const SettingsForm = () => {
     const profile = useStore.use.localProfile();
 
@@ -42,33 +49,56 @@ const SettingsForm = () => {
         .shape({ username: yup.string().username() });
     const emailSchema = yup.object().shape({ email: yup.string().email() });
 
-    function canEdit(lastChanged: string, editEvery: number): Boolean {
+    /**
+     * Check if the given field has recently changed
+     *
+     * @param editEvery - how often should you be able to edit this field in seconds
+     * @param lastChanged - the timestamp of the last change
+     * @returns whether the field has changed recently
+     */
+    function didChangeRecently(
+        editEvery: number,
+        lastChanged?: string
+    ): boolean {
+        if (!lastChanged) return false;
+
         const lastChangedDate = new Date(lastChanged).valueOf();
         const now = new Date().valueOf();
-
         const timeSinceChange = (now - lastChangedDate) / 1000;
-        return timeSinceChange > editEvery;
+
+        return timeSinceChange < editEvery;
     }
+
+    const usernameChangedRecently = didChangeRecently(
+        USERNAME_EDIT_EVERY,
+        profile.usernameLastChanged
+    );
 
     return (
         <>
-            {/* username */}
+            {usernameChangedRecently && (
+                <span className={styles["setting-disabled-label"]}>
+                    username changed too recently
+                </span>
+            )}
 
             <PasswordField
                 field="username"
                 defaultValue={profile.username}
+                disabled={usernameChangedRecently}
                 schema={usernameSchema}
                 onSubmit={updateSettings}
+                fieldLabel
             />
 
             <hr />
 
-            {/* email */}
             <PasswordField
                 field="email"
                 defaultValue={profile.email}
                 schema={emailSchema}
                 onSubmit={updateSettings}
+                fieldLabel
             />
         </>
     );

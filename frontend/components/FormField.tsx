@@ -2,15 +2,16 @@
 
 import { Form, FormControlProps, InputGroup } from "react-bootstrap";
 
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 import styles from "./FormField.module.scss";
+
 import { titleString } from "@/lib/utils/common";
 import { useField } from "formik";
 
 export interface SettingsFieldProps extends FormControlProps {
-    fieldName: string;
-    fieldLabel?: string;
+    fieldName?: string;
+    fieldLabel?: string | boolean;
     hasValidation?: boolean;
     children?: ReactNode;
 }
@@ -18,26 +19,41 @@ export interface SettingsFieldProps extends FormControlProps {
 /**
  * Component for rendering form fields
  */
-export const FormField = ({
-    fieldName,
-    children,
-    fieldLabel = "",
-    hasValidation = false,
-    ...inputProps
-}: SettingsFieldProps) => {
-    fieldLabel ||= titleString(fieldName);
+export const FormField = forwardRef<HTMLInputElement, SettingsFieldProps>(
+    (
+        {
+            fieldName,
+            children,
+            fieldLabel,
+            hasValidation = false,
+            ...inputProps
+        }: SettingsFieldProps,
+        ref
+    ) => {
+        return (
+            <Form.Group className={styles["input-container"]}>
+                {fieldLabel && (
+                    <Form.Label>
+                        {typeof fieldLabel === "boolean"
+                            ? titleString(fieldName ?? "")
+                            : fieldLabel}
+                    </Form.Label>
+                )}
 
-    return (
-        <Form.Group className={styles["input-container"]}>
-            <Form.Label>{fieldLabel}</Form.Label>
-
-            <InputGroup hasValidation={hasValidation} className={styles.input}>
-                <Form.Control aria-label={fieldName} {...inputProps} />
-                {children}
-            </InputGroup>
-        </Form.Group>
-    );
-};
+                <InputGroup
+                    hasValidation={hasValidation}
+                    ref={ref}
+                    className={
+                        (fieldLabel && styles["label-input"]) || undefined
+                    }
+                >
+                    <Form.Control aria-label={fieldName} {...inputProps} />
+                    {children}
+                </InputGroup>
+            </Form.Group>
+        );
+    }
+);
 
 /**
  * Component for rendering form fields within a formik form
@@ -46,7 +62,7 @@ export const FormikField = ({
     fieldName,
     children,
     ...inputProps
-}: SettingsFieldProps) => {
+}: SettingsFieldProps & { fieldName: string }) => {
     const [field, meta] = useField(fieldName);
 
     return (
