@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 
-import { fetchGames, fetchProfile, fetchRatings } from "@/lib/utils/common";
+import {
+    fetchGames,
+    fetchProfile,
+    fetchRatings,
+} from "@/lib/services/fetchService";
 import styles from "./user.module.scss";
 
 import RatingCard from "@/components/profile/RatingsCard";
@@ -22,10 +26,11 @@ const UserPage = async ({
 
     const [profile, ratings, games] = await Promise.all([
         fetchProfile(username),
-        fetchRatings(username, dateMonthAgo.toISOString().split("T")[0]),
+        fetchRatings(username, dateMonthAgo),
         fetchGames(username),
     ]);
     if (!profile || !ratings || !games) notFound();
+    console.log(games);
 
     return (
         <div className={styles.container}>

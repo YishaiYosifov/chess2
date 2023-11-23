@@ -31,23 +31,18 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setErrors, setStatus }: FormikHelpers<LoginFormValues>
     ) {
-        const { status, response } = await login(
-            values.username,
-            values.password
-        );
-        const json = await response.json();
+        const { status, data } = await login(values.username, values.password);
 
-        switch (json.status) {
-            case "success":
+        switch (status) {
+            case 200:
                 router.replace("/");
                 break;
-            case "fail":
-                console.log(json);
-                setErrors(json.data);
+            case 401:
+                setStatus("Wrong username / password");
                 break;
             default:
                 setStatus("Something went wrong.");
-                console.error(json);
+                console.error(status, data);
                 break;
         }
     }

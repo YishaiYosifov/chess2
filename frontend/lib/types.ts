@@ -1,17 +1,16 @@
-import { Variant } from "./constants";
+import { Color, GameResult, Variant } from "./constants";
 
 export interface Player {
     userId: number;
     username: string;
-    color: "white" | "black";
+    color: Color;
 }
 
 export interface Game {
     token: string;
-    white: Player;
-    black: Player;
-
-    winnerId: number;
+    userWhite?: SimplePublicProfile;
+    userBlack?: SimplePublicProfile;
+    results: GameResult;
 
     createdAt: string;
 
@@ -27,17 +26,24 @@ export interface RatingHistory {
 export interface RatingData {
     history: RatingHistory[];
     current: number;
-    minRating: number;
-    maxRating: number;
+    min: number;
+    max: number;
 }
 
 export type RatingsMap = { [key in Variant]: RatingData };
 
-export interface PublicProfile {
+export interface SimplePublicProfile {
     userId: number;
     username: string;
+}
 
+export interface PublicProfile extends SimplePublicProfile {
     about: string;
     country: string;
     pfpLastChanged: string;
+}
+
+export interface LocalProfile extends Partial<PublicProfile> {
+    email?: string;
+    usernameLastChanged?: string;
 }

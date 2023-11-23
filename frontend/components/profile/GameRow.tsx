@@ -1,10 +1,11 @@
-import { BsPlusSlashMinus, BsPlusSquare, BsDashSquare } from "react-icons/bs";
+import { BsPlusSlashMinus, BsPlus, BsDash } from "react-icons/bs";
 import Image from "next/image";
 import Link from "next/link";
 
 import styles from "./GameRow.module.scss";
 
-import type { Game, PublicProfile } from "@/lib/types";
+import { type Game, type PublicProfile } from "@/lib/types";
+import { GameResult, Color } from "@/lib/constants";
 
 const GameRow = ({
     game,
@@ -13,8 +14,13 @@ const GameRow = ({
     game: Game;
     viewingProfile: PublicProfile;
 }) => {
-    const isDraw = !game.winnerId;
-    const isWinner = game.winnerId === viewingProfile.userId;
+    const color =
+        game.userWhite?.userId == viewingProfile.userId
+            ? Color.White
+            : Color.Black;
+
+    const isDraw = game.results === GameResult.Draw;
+    const isWinner = color.valueOf() === game.results;
 
     const GameLink = () => (
         <Link href={`/game/${game.token}`} className={styles["game-link"]} />
@@ -29,14 +35,13 @@ const GameRow = ({
     });
 
     // Find the results icon (whether the profile author is the winner or it's a draw)
-    // and find the score for each player
-    const ResultsIcon = isDraw
-        ? BsPlusSlashMinus
-        : isWinner
-        ? BsPlusSquare
-        : BsDashSquare;
-    const getScore = (id: number): string =>
-        isDraw ? "½" : game.winnerId === id ? "1" : "0";
+    // and find the score for each color
+    const ResultsIcon = isDraw ? BsPlusSlashMinus : isWinner ? BsPlus : BsDash;
+    const getScore = (color: Color): string =>
+        isDraw ? "½" : game.results == color.valueOf() ? "1" : "0";
+
+    const usernameWhite = game.userWhite?.username ?? "DELETED";
+    const usernameBlack = game.userBlack?.username ?? "DELETED";
 
     return (
         <tr className={styles.game}>
@@ -56,16 +61,16 @@ const GameRow = ({
                 <GameLink />
                 <div className={styles["players-column"]}>
                     <Link
-                        href={`/user/${game.white.username}`}
+                        href={`/user/${usernameWhite}`}
                         className="mt-2 limit-text"
                     >
-                        {game.white.username}
+                        {usernameWhite}
                     </Link>
                     <Link
-                        href={`/user/${game.black.username}`}
+                        href={`/user/${usernameBlack}`}
                         className="text-secondary limit-text"
                     >
-                        {game.black.username}
+                        {usernameBlack}
                     </Link>
                 </div>
             </td>
@@ -74,9 +79,9 @@ const GameRow = ({
                 <GameLink />
                 <div className={styles["results-column"]}>
                     <div>
-                        <span>{getScore(game.white.userId)}</span>
+                        <span>{getScore(Color.White)}</span>
                         <span>-</span>
-                        <span>{getScore(game.black.userId)}</span>
+                        <span>{getScore(Color.Black)}</span>
                     </div>
                     <ResultsIcon />
                 </div>
