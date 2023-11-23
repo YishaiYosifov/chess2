@@ -1,19 +1,32 @@
 import { setCsrfToken, setIsAuthed, useStore } from "@/zustand/store";
 import { apiRequest } from "./common";
 
+interface Tokens {
+    accessToken: string;
+    refreshToken: string;
+}
+
+interface LoginData {
+    status: number;
+    data: Tokens;
+}
+
 export async function login(
-    selector: string | undefined,
-    password: string | undefined
-): Promise<{ status: number; response: Response }> {
+    username: string,
+    password: string
+): Promise<LoginData> {
+    const loginForm = new FormData();
+    loginForm.set("username", username);
+    loginForm.set("password", password);
+
     const response = await apiRequest("/auth/login", {
-        json: {
-            selector: selector,
-            password: password,
-        },
+        body: loginForm,
     });
     if (response.ok) setIsAuthed(true);
 
-    return { status: response.status, response };
+    const data = (await response.json()).detail as Tokens;
+
+    return { status: response.status, data };
 }
 
 export async function getCsrf(): Promise<string> {

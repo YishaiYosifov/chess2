@@ -1,8 +1,5 @@
 import * as yup from "yup";
 
-import type { Game, PublicProfile, RatingsMap } from "@/lib/types";
-import { getCsrf } from "./auth";
-
 /**
  * Makes an API request to a specific route with JSON data.
  * If this is ran from a server component, the cookies will be added to the headers automatically
@@ -30,8 +27,8 @@ export async function apiRequest(
         ...args
     }: {
         method?: string;
-        headers?: Headers;
         json?: any;
+        headers?: Headers;
 
         csrfToken?: string;
     } & RequestInit = {}
@@ -49,25 +46,22 @@ export async function apiRequest(
         headers.set("Cookie", cookies().toString());
     }
 
-    if (method != "GET")
-        headers.set("X-CSRFToken", csrfToken || (await getCsrf()));
+    //if (method != "GET")
+    //headers.set("X-CSRFToken", csrfToken || (await getCsrf()));
 
-    const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api${route}`,
-        {
-            method,
-            body,
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${route}`, {
+        method,
+        body,
 
-            headers,
-            credentials: "include",
-            ...args,
-        }
-    );
+        headers,
+        credentials: "include",
+        ...args,
+    });
     return response;
 }
 
 /**
- * Process an array for Flask WTF get form
+ * Process an array get requests
  *
  * @param name - the name of the parameter
  * @param array - the array to process
@@ -75,83 +69,13 @@ export async function apiRequest(
  */
 export function arrayToBody(name: string, array: Array<string>): string {
     const parts: Array<string> = [];
-    array.forEach((listElement, index) =>
-        parts.push(`${name}-${index}=${listElement}`)
-    );
+    array.forEach((listElement) => parts.push(`${name}=${listElement}`));
 
     return parts.join("&");
 }
 
 export const titleString = (value: string): string =>
     value.charAt(0).toUpperCase() + value.replaceAll("_", " ").slice(1);
-
-//#region Fetch user info
-
-/**
- * Fetch a user's public profile by their username
- *
- * @param username - the username of the user to fetch
- * @returns a promise that resolves to the users profile or null if the user was not found
- */
-export async function fetchProfile(
-    username: string
-): Promise<PublicProfile | null> {
-    const profileRequest = await apiRequest(
-        `/profile/${username}/info?include=${arrayToBody("include", [
-            "username",
-            "about",
-            "pfpLastChanged",
-        ])}`,
-        {
-            method: "GET",
-            next: { revalidate: 60 },
-        }
-    );
-
-    if (profileRequest.status == 404) return null;
-    return ((await profileRequest.json())?.data || {}) as PublicProfile;
-}
-
-/**
- * Fetch a user's ratings since a specified date
- *
- * @param username - the username of the user whose ratings to fetch
- * @param since - the date since which to fetch ratings (in ISO date format)
- * @returns a promise that resolves to a mapping of game variants to rating data or null if the user was not found.
- */
-export async function fetchRatings(
-    username: string,
-    since: string
-): Promise<RatingsMap | null> {
-    const ratingsRequest = await apiRequest(
-        `/profile/${username}/ratings?since=${since}`,
-        {
-            method: "GET",
-            next: { revalidate: 60 },
-        }
-    );
-
-    if (ratingsRequest.status == 404) return null;
-    return ((await ratingsRequest.json())?.data || {}) as RatingsMap;
-}
-
-/**
- * Fetch a user's games
- *
- * @param username - the username of the user whose games to fetch
- * @returns a promise that resolves to an array of game objects or null if the user was not found
- */
-export async function fetchGames(username: string): Promise<Game[] | null> {
-    const gamesRequest = await apiRequest(`/profile/${username}/games`, {
-        method: "GET",
-        next: { revalidate: 60 },
-    });
-    if (gamesRequest.status == 404) return null;
-
-    return ((await gamesRequest.json())?.data || []) as Game[];
-}
-
-//#endregion
 
 //#region Validators
 
@@ -188,3 +112,25 @@ yup.addMethod(yup.string, "password", function () {
 });
 
 //#endregion
+
+/**
+ * Converts an object with snake_case keys to camelCase recursively.
+ *
+ * @param obj - the input object to be camelCased
+ * @returns a new object with camelCase keys
+ */
+export function snakeToCamel(obj: any) {
+    if (obj === null || typeof obj !== "object") return obj;
+
+    if (Array.isArray(obj)) return obj.map((item): any => snakeToCamel(item));
+
+    const camelCased: Record<any, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+        const camelKey = key.replace(/_([a-z])/g, (match: string, p1: string) =>
+            p1.toUpperCase()
+        );
+
+        camelCased[camelKey] = snakeToCamel(value);
+    }
+    return camelCased;
+}

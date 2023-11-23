@@ -23,6 +23,12 @@ export enum Color {
     Black = "black",
 }
 
+export const enum GameResult {
+    White = "white",
+    Black = "black",
+    Draw = "draw",
+}
+
 export enum Variant {
     Anarchy = "anarchy",
     FogOfWar = "fog of war",

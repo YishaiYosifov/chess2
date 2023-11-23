@@ -12,7 +12,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
     return (
         <Card className={styles.profile}>
             <Image
-                src={`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${profile.username}/profile-picture?${profile.pfpLastChanged}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/profile/${profile.username}/profile-picture?${profile.pfpLastChanged}`}
                 width={250}
                 height={250}
                 className={styles["profile-picture"]}

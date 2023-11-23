@@ -11,16 +11,13 @@ import { apiRequest } from "@/lib/utils/common";
  */
 const withAuth = (WrappedComponent: any) => {
     return async (props: any) => {
-        const response = await apiRequest(
-            "/profile/me/info?include_sensitive=1",
-            {
-                cache: "no-cache",
-                method: "GET",
-            }
-        );
+        const response = await apiRequest("/profile/me/info-sensitive", {
+            cache: "no-cache",
+            method: "GET",
+        });
         if (!response.ok) redirect("/");
 
-        const profile: LocalProfile = (await response.json()).data;
+        const profile: LocalProfile = await response.json();
         return <WrappedComponent {...props} profile={profile} />;
     };
 };

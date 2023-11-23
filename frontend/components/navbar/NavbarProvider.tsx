@@ -75,7 +75,10 @@ const NavbarProvider = () => {
                         <Nav className="justify-content-end flex-grow-1">
                             {isAuthed ? (
                                 <>
-                                    <Nav.Link as={Link} href="/settings">
+                                    <Nav.Link
+                                        as={Link}
+                                        href="/settings/profile"
+                                    >
                                         <BsGearFill />
                                     </Nav.Link>
 

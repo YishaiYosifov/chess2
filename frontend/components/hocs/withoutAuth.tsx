@@ -9,10 +9,7 @@ import { cookies } from "next/headers";
 const withoutAuth = (WrappedComponent: any) => {
     return async (props: any) => {
         const nextCookies = cookies();
-        if (
-            nextCookies.has("access_token_cookie") ||
-            nextCookies.has("refresh_token_cookie")
-        )
+        if (nextCookies.has("access_token") || nextCookies.has("refresh_token"))
             redirect("/");
 
         return <WrappedComponent {...props} />;

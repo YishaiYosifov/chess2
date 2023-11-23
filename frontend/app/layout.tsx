@@ -31,8 +31,8 @@ export const metadata = {
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = cookies();
     const isAuthed =
-        nextCookies.has("refresh_token_cookie") &&
-        nextCookies.has("access_token_cookie");
+        nextCookies.has("refresh_token") && nextCookies.has("access_token");
+
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={secularOne.className}>

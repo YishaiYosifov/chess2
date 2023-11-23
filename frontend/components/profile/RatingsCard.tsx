@@ -18,8 +18,8 @@ const RatingCard = ({
     const {
         history,
         current: currentRating,
-        minRating,
-        maxRating,
+        min: minRating,
+        max: maxRating,
     } = ratingData;
 
     // Format the rating history for google charts

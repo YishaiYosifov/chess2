@@ -37,7 +37,7 @@ const SignupForm = () => {
 
     async function onSubmit(
         values: SignupFormValues,
-        { setErrors, setSubmitting, setStatus }: FormikHelpers<SignupFormValues>
+        { setErrors, setStatus }: FormikHelpers<SignupFormValues>
     ) {
         const response = await apiRequest("/auth/signup", {
             json: values,
@@ -47,16 +47,14 @@ const SignupForm = () => {
             router.push("/login");
             return;
         }
-        setSubmitting(false);
+        const data = await response.json();
 
         switch (response.status) {
-            case 400:
             case 409:
-            case 401:
-                setErrors((await response.json()).data);
+                setErrors(data.detail);
                 break;
             default:
-                console.error(await response.json());
+                console.error(data);
                 setStatus("Something went wrong.");
                 break;
         }

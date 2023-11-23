@@ -14,12 +14,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 
     let accessTokenResponse: Response;
     try {
-        accessTokenResponse = await apiRequest("/auth/regen-access-token", {
+        accessTokenResponse = await apiRequest("/auth/refresh-access-token", {
             cache: "no-store",
             method: "GET",
         });
     } catch {
-        response.cookies.delete("refresh_token_cookie");
+        response.cookies.delete("refresh_token");
         return response;
     }
 
@@ -30,7 +30,7 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
         await accessTokenResponse.json()
     ).data;
 
-    response.cookies.set("access_token_cookie", accessToken, {
+    response.cookies.set("access_token", accessToken, {
         maxAge: accessTokenMaxAge,
         httpOnly: true,
     });
