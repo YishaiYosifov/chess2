@@ -1,13 +1,13 @@
 import Image from "next/image";
 
 const ProfilePicture = ({
-    userId,
+    username,
     width = 120,
     height = 120,
     lastChanged,
     className,
 }: {
-    userId: number;
+    username?: string;
     width?: number;
     height?: number;
     lastChanged?: string;
@@ -17,7 +17,7 @@ const ProfilePicture = ({
         <Image
             className={className}
             alt="profile picture"
-            src={`${process.env.NEXT_PUBLIC_API_URL}/api/profile/${userId}/profile-picture?${lastChanged}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/profile/${username}/profile-picture?${lastChanged}`}
             width={width}
             height={height}
         />

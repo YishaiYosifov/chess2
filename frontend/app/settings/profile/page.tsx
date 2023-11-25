@@ -1,4 +1,4 @@
-import { LocalProfile } from "@/zustand/slices/authSlice";
+import type { LocalProfile } from "@/lib/types";
 
 import ChangeProfilePicture from "@/components/settings/ChangeProfilePicture";
 import SettingsForm from "@/components/settings/profile/ProfileForm";

@@ -54,7 +54,7 @@ const ChangeProfilePicture = () => {
     return (
         <div className={styles.container}>
             <ProfilePicture
-                userId={userId ?? 0}
+                username={username}
                 lastChanged={lastChanged}
                 className={styles["profile-picture"]}
             />
