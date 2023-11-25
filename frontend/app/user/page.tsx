@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { LocalProfile } from "@/zustand/slices/authSlice";
+import type { LocalProfile } from "@/lib/types";
 import withAuth from "@/components/hocs/withAuth";
 
 const RedirectUserPage = withAuth(

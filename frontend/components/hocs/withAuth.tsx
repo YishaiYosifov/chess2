@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import type { LocalProfile } from "@/zustand/slices/authSlice";
+import type { LocalProfile } from "@/lib/types";
 import { apiRequest } from "@/lib/utils/common";
 
 /**
