@@ -60,3 +60,16 @@ export async function fetchGames(username: string): Promise<Game[] | null> {
 
     return (snakeToCamel(await gamesRequest.json()) || []) as Game[];
 }
+
+export async function fetchTodos(): Promise<Array<number>> {
+    try {
+        const res = await fetch("http://127.0.0.1:3000/todos");
+        console.log(res.body);
+        const todos = await res.json();
+        return todos;
+    } catch (err) {
+        if (err instanceof Error) console.log(err.message);
+        throw err;
+        return [];
+    }
+}

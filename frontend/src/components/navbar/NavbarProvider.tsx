@@ -8,7 +8,6 @@ import Nav from "react-bootstrap/Nav";
 import Image from "next/image";
 import Link from "next/link";
 
-import logo from "@/public/assets/logo-text.svg";
 import { useStore } from "@/zustand/store";
 import styles from "./navbar.module.scss";
 import "./navbar.scss";
@@ -17,16 +16,21 @@ const NavbarProvider = () => {
     const isAuthed = useStore.use.isAuthed();
 
     const expand = "md";
+    const Logo = () => (
+        <Image
+            src="/assets/logo-text.svg"
+            alt="logo"
+            height={40}
+            width={147}
+            className="d-inline-block align-top rounded m-0"
+        />
+    );
+
     return (
         <Navbar fixed="top" collapseOnSelect expand={expand}>
             <Container fluid="md">
                 <Navbar.Brand href="/">
-                    <Image
-                        src={logo}
-                        alt="logo"
-                        width={150}
-                        className="d-inline-block align-top rounded m-0"
-                    />
+                    <Logo />
                 </Navbar.Brand>
 
                 <Navbar.Toggle
@@ -42,12 +46,7 @@ const NavbarProvider = () => {
                         <Offcanvas.Title
                             id={`offcanvasNavbarLabel-expand-${expand}`}
                         >
-                            <Image
-                                src={logo}
-                                alt="logo"
-                                width={150}
-                                className="d-inline-block align-top rounded m-0"
-                            />
+                            <Logo />
                         </Offcanvas.Title>
                     </Offcanvas.Header>
 

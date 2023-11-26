@@ -2,8 +2,6 @@ import Image from "next/image";
 
 import styles from "./index.module.scss";
 
-import logo from "@/public/assets/logo.svg";
-
 export const metadata = {
     title: "Chess 2 - Home",
 };
@@ -21,7 +19,13 @@ const IndexPage = () => {
                 <div className={styles["logo-bg-square"]} />
                 <div className={styles["logo-bg-square"]} />
                 <div className={styles["logo-bg-square"]} />
-                <Image src={logo} alt="logo" draggable={false} />
+                <Image
+                    src="/assets/logo.svg"
+                    alt="logo"
+                    width={250}
+                    height={250}
+                    draggable={false}
+                />
             </div>
         </header>
     );
