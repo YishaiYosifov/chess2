@@ -4,7 +4,7 @@ import {
     fetchGames,
     fetchProfile,
     fetchRatings,
-} from "@/lib/services/fetchService";
+} from "@/lib/cruds/profileCrud";
 import styles from "./user.module.scss";
 
 import RatingCard from "@/components/profile/RatingsCard";

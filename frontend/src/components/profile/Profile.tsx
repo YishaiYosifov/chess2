@@ -4,8 +4,8 @@ import { Card } from "react-bootstrap";
 import Image from "next/image";
 
 import type { PublicProfile } from "@/lib/types";
-import logo from "@/public/assets/logo.svg";
 import styles from "./Profile.module.scss";
+
 import ProfilePicture from "../ProfilePicture";
 
 /** Show basic information about a user */
@@ -23,7 +23,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
             <div className={styles.info}>
                 <span>
                     <Image
-                        src={logo}
+                        src="/assets/logo.svg"
                         width={40}
                         height={40}
                         className="rounded-1 img-fluid"

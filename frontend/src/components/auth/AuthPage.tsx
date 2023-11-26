@@ -4,8 +4,6 @@ import { Button } from "react-bootstrap";
 import Image from "next/image";
 import Link from "next/link";
 
-import knook from "@/public/assets/pieces-svg/knook-white.svg";
-import logoText from "@/public/assets/logo-text.svg";
 import styles from "./AuthPage.module.scss";
 
 import SignupForm from "./SignupForm";
@@ -28,7 +26,9 @@ const AuthPage = ({
         <div className={styles.container}>
             <div className={styles.form}>
                 <Image
-                    src={logoText}
+                    src="/assets/logo-text.svg"
+                    width={300}
+                    height={83}
                     alt="logo"
                     className={styles["logo-text"]}
                 />
@@ -60,7 +60,13 @@ const AuthPage = ({
                 </div>
             </div>
             <div className={styles["side-image-container"]}>
-                <Image src={knook} alt="knook" draggable={false} />
+                <Image
+                    src="/assets/pieces-svg/knook-white.svg"
+                    width={600}
+                    height={600}
+                    alt="knook"
+                    draggable={false}
+                />
             </div>
         </div>
     );
