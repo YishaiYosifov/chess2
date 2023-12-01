@@ -35,7 +35,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# jest
+.swc
 
+# Vscode
+.vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json

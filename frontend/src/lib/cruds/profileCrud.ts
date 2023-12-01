@@ -1,6 +1,6 @@
 import type { Game, PublicProfile, RatingsMap } from "../types";
 
-import { apiRequest, snakeToCamel } from "../utils/common";
+import { getResource } from "../utils/fetchUtils";
 
 /**
  * Fetch a user's public profile by their username
@@ -11,13 +11,7 @@ import { apiRequest, snakeToCamel } from "../utils/common";
 export async function fetchProfile(
     username: string
 ): Promise<PublicProfile | null> {
-    const profileRequest = await apiRequest(`/profile/${username}/info`, {
-        method: "GET",
-        next: { revalidate: 60 },
-    });
-
-    if (profileRequest.status == 404) return null;
-    return (snakeToCamel(await profileRequest.json()) || {}) as PublicProfile;
+    return await getResource(`/profile/${username}/info`);
 }
 
 /**
@@ -31,18 +25,11 @@ export async function fetchRatings(
     username: string,
     since: Date
 ): Promise<RatingsMap | null> {
-    const ratingsRequest = await apiRequest(
+    return await getResource(
         `/profile/${username}/rating-history?since=${
             since.toISOString().split("T")[0]
-        }`,
-        {
-            method: "GET",
-            next: { revalidate: 60 },
-        }
+        }`
     );
-
-    if (ratingsRequest.status == 404) return null;
-    return (snakeToCamel(await ratingsRequest.json()) || {}) as RatingsMap;
 }
 
 /**
@@ -52,24 +39,5 @@ export async function fetchRatings(
  * @returns a promise that resolves to an array of game objects or null if the user was not found
  */
 export async function fetchGames(username: string): Promise<Game[] | null> {
-    const gamesRequest = await apiRequest(`/profile/${username}/games`, {
-        method: "GET",
-        next: { revalidate: 60 },
-    });
-    if (gamesRequest.status == 404) return null;
-
-    return (snakeToCamel(await gamesRequest.json()) || []) as Game[];
-}
-
-export async function fetchTodos(): Promise<Array<number>> {
-    try {
-        const res = await fetch("http://127.0.0.1:3000/todos");
-        console.log(res.body);
-        const todos = await res.json();
-        return todos;
-    } catch (err) {
-        if (err instanceof Error) console.log(err.message);
-        throw err;
-        return [];
-    }
+    return await getResource(`/profile/${username}/games`);
 }

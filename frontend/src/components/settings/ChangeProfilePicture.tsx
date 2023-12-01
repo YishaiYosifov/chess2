@@ -5,9 +5,10 @@ import { Button } from "react-bootstrap";
 import { useRef, useState, ChangeEvent } from "react";
 
 import styles from "./ChangeProfilePicture.module.scss";
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import { revalidateUser } from "@/app/actions";
 import { useStore } from "@/zustand/store";
+
 import ProfilePicture from "@/components/ProfilePicture";
 
 const ChangeProfilePicture = () => {

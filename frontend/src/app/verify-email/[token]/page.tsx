@@ -1,4 +1,4 @@
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import { redirect } from "next/navigation";
 
 const VerifyEmailPage = async ({

@@ -1,5 +1,5 @@
 import { setCsrfToken, setIsAuthed, useStore } from "@/zustand/store";
-import { apiRequest } from "./common";
+import { apiRequest } from "./fetchUtils";
 
 interface Tokens {
     accessToken: string;

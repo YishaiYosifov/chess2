@@ -10,7 +10,6 @@ import styles from "./PasswordField.module.scss";
 import withCollapsibleField from "./withCollapsibleField";
 import { FormikField } from "@/components/FormField";
 import SubmitField from "./helpers/SubmitField";
-import { apiRequest } from "@/lib/utils/common";
 
 interface PasswordFieldProps {
     field: string;

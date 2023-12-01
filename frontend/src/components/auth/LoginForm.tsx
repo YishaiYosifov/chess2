@@ -8,12 +8,10 @@ import {
     BsUnlockFill,
 } from "react-icons/bs";
 
-import * as yup from "yup";
-
-import { useRef, useState, SyntheticEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import { login } from "@/lib/utils/auth";
+import { login } from "@/lib/utils/authUtils";
 import { FormikField } from "../FormField";
 import { Formik, FormikHelpers } from "formik";
 

@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import * as yup from "yup";
 
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import { Formik, FormikHelpers } from "formik";
 import { FormikField } from "../FormField";
 
