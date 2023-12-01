@@ -1,7 +1,8 @@
 import { HttpResponse, http } from "msw";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const handlers = [
-    http.get("http://127.0.0.1:3000/test", () => {
-        return new Response("Hello, world!");
+    http.get(`${API_URL}/profile/:username/info`, () => {
+        return HttpResponse.json({});
     }),
 ];

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import type { LocalProfile } from "@/lib/types";
-import { apiRequest } from "@/lib/utils/common";
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.

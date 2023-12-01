@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import { setIsAuthed } from "@/zustand/store";
 
 const LogoutPage = () => {

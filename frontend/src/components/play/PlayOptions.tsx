@@ -6,7 +6,7 @@ import { Card, Spinner } from "react-bootstrap";
 import { useState } from "react";
 
 import { TIME_CONTROLS, Variant } from "@/lib/constants";
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import styles from "./PlayOptions.module.scss";
 
 interface TimeControl {

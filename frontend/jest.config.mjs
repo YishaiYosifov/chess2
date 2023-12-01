@@ -12,7 +12,7 @@ const config = {
     setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
     testEnvironment: "jest-environment-jsdom",
     preset: "ts-jest",
-    setupFiles: ["./jest.polyfills.js"],
+    setupFiles: ["./jest.env.js", "./jest.polyfills.js"],
 
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$",
@@ -23,6 +23,10 @@ const config = {
 
     testEnvironmentOptions: {
         customExportConditions: [""],
+    },
+
+    moduleNameMapper: {
+        "^@/(.*)$": "<rootDir>/src/$1",
     },
 };
 
