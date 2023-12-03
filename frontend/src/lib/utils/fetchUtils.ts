@@ -1,3 +1,5 @@
+import * as fetchUtils from "./fetchUtils";
+
 /**
  * Makes an API request to a specific route with JSON data.
  * If this is ran from a server component, the cookies will be added to the headers automatically
@@ -6,9 +8,9 @@
  * @param options - options object
  *
  * @param [options.method="POST"]
- * @param [options.json] - the JSON data to send to the API
- * @param [options.csrfToken] - explicitly define the csrf token
- * @param [options.args] - any other options to pass to the fetch request
+ * @param options.json - the JSON data to send to the API
+ * @param options.csrfToken - explicitly define the csrf token
+ * @param options.args - any other options to pass to the fetch request
  * @returns a promise the resolves to the response from the api
  */
 export async function apiRequest(
@@ -54,17 +56,40 @@ export async function apiRequest(
 }
 
 /**
- * Process an array get requests
+ * Fetch data from the api and convert it to camel case
  *
- * @param name - the name of the parameter
- * @param array - the array to process
- * @returns the formatted object
+ * @param url - the url to fetch data from
+ * @param options - an optional configuration object
+ * @param options.dataProcessor - a function to run the response json through
+ * @returns the json response as camel case
  */
-export function arrayToBody(name: string, array: Array<string>): string {
-    const parts: Array<string> = [];
-    array.forEach((listElement) => parts.push(`${name}=${listElement}`));
+export async function getResource<T>(
+    url: string,
+    {
+        dataProcessor,
+        ...options
+    }: RequestInit & { dataProcessor?: (data: any) => any } = {
+        dataProcessor: snakeToCamel,
+        next: { revalidate: 60 },
+    }
+): Promise<T | null> {
+    try {
+        const request = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}${url}`,
+            options
+        );
+        if (!request.ok) {
+            console.error(`Could not fetch "${url}":`, await request.text());
+            return null;
+        }
 
-    return parts.join("&");
+        const json = await request.json();
+        const processed = dataProcessor ? dataProcessor(json) : json;
+        return processed;
+    } catch (err) {
+        console.error(`Could not fetch "${url}":`, err);
+        return null;
+    }
 }
 
 /**
@@ -75,7 +100,6 @@ export function arrayToBody(name: string, array: Array<string>): string {
  */
 export function snakeToCamel(obj: any) {
     if (obj === null || typeof obj !== "object") return obj;
-
     if (Array.isArray(obj)) return obj.map((item): any => snakeToCamel(item));
 
     const camelCased: Record<any, any> = {};
@@ -89,24 +113,16 @@ export function snakeToCamel(obj: any) {
     return camelCased;
 }
 
-export async function getResource<T>(
-    url: string,
-    options: RequestInit & { headers?: Headers } = {
-        method: "GET",
-        next: { revalidate: 60 },
-    }
-): Promise<T | null> {
-    try {
-        const request = await apiRequest(url, options);
-        if (!request.ok) {
-            console.error(`Could not fetch "${url}":`, await request.text());
-            return null;
-        }
+/**
+ * Process an array get requests
+ *
+ * @param name - the name of the parameter
+ * @param array - the array to process
+ * @returns the formatted object
+ */
+export function arrayToBody(name: string, array: Array<string>): string {
+    const parts: Array<string> = [];
+    array.forEach((listElement) => parts.push(`${name}=${listElement}`));
 
-        const json = snakeToCamel(await request.json());
-        return json;
-    } catch (err) {
-        console.error(`Could not fetch for "${url}":`, err);
-        return null;
-    }
+    return parts.join("&");
 }
