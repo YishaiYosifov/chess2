@@ -54,6 +54,7 @@ export const FormField = forwardRef<HTMLInputElement, SettingsFieldProps>(
         );
     }
 );
+FormField.displayName = "FormField";
 
 /**
  * Component for rendering form fields within a formik form

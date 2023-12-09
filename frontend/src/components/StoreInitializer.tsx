@@ -12,12 +12,10 @@ const StoreInitializer = ({
     action: string;
 }) => {
     const initialized = useRef(false);
-
     if (initialized.current) return;
 
     useStore.setState(values, false, action);
     initialized.current = true;
-
     return null;
 };
 

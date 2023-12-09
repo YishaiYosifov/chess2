@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
     BOARD_HEIGHT,
-    BOARD_SIZE,
     BOARD_WIDTH,
     Color,
     PieceData,
@@ -14,7 +13,7 @@ import {
 import styles from "./Chessboard.module.scss";
 
 interface Breakpoint {
-    breakpoint: number;
+    widthBreakpoint: number;
     offset: {
         width: number;
         height: number;
@@ -25,32 +24,45 @@ interface Breakpoint {
  * Display a chessboard
  *
  * @param variant - the variant of the game
- * @param offsetBreakpoints - in ascending order, the offset for each width of the screen.
- * The last width will be used for any screen size larger than it.
+ * @param offsetBreakpoints - the offset for each width of the screen.
+ * The largest width breakpoint will be used for any screen size larger than it.
  * @returns
  */
 const Chessboard = ({
-    variant,
-    offsetBreakpoints = [{ breakpoint: 0, offset: { width: 0, height: 0 } }],
+    variant = Variant.Anarchy,
+    offsetBreakpoints = [],
     startingBoard = defaultChessboard,
+    boardHeight = BOARD_HEIGHT,
+    boardWidth = BOARD_WIDTH,
     side = Color.White,
     fixed = false,
 }: {
-    variant: Variant;
+    variant?: Variant;
     offsetBreakpoints?: Breakpoint[];
     startingBoard?: Record<number, PieceData>;
-    side?: Color;
+    boardWidth?: number;
+    boardHeight?: number;
     fixed?: boolean;
+    side?: Color;
 }) => {
     const [boardSize, setBoardSize] = useState<number>(0);
+
+    // Sort the offset breakpoints in ascending order
+    const sortedBreakpoints = useMemo<Breakpoint[]>(
+        () =>
+            offsetBreakpoints.sort(
+                (a, b) => a.widthBreakpoint - b.widthBreakpoint
+            ),
+        [offsetBreakpoints]
+    );
 
     /**
      * Calculate the width and height offset based on the offsetBreakpoints param and window width
      */
     function calculateOffset(): { width: number; height: number } {
         const width = window.innerWidth;
-        for (const { breakpoint, offset } of offsetBreakpoints) {
-            if (breakpoint > width) return offset;
+        for (const { widthBreakpoint, offset } of sortedBreakpoints) {
+            if (widthBreakpoint > width) return offset;
         }
 
         return offsetBreakpoints.at(-1)?.offset || { width: 0, height: 0 };
@@ -69,20 +81,15 @@ const Chessboard = ({
     }
 
     useEffect(() => {
-        // Make sure the board is only resized once the user has stopped resizing the window
-        // to prevent too many rerenders
-        let timerId: number;
-        window.addEventListener("resize", (ev) => {
-            if (timerId) clearTimeout(timerId);
-            timerId = setTimeout(resizeBoard, 100, ev);
-        });
-
+        window.addEventListener("resize", resizeBoard);
         resizeBoard();
+
         return () => window.removeEventListener("resize", resizeBoard);
     }, []);
 
     return (
         <div
+            data-testid="chessboard"
             className={styles.chessboard}
             style={{
                 width: `${boardSize}px`,
@@ -92,12 +99,15 @@ const Chessboard = ({
             {Object.entries(startingBoard).map(([i, pieceData]) => {
                 // Flip the board depending on which side you are viewing from
                 let numIndex = parseInt(i);
-                if (side == Color.White) numIndex = BOARD_SIZE - 1 - numIndex;
+                if (side == Color.White)
+                    numIndex = boardWidth * boardHeight - 1 - numIndex;
 
                 return (
                     <ChessPiece
                         index={numIndex}
                         pieceData={pieceData}
+                        boardWidth={boardWidth}
+                        boardHeight={boardHeight}
                         key={i}
                     />
                 );
@@ -108,23 +118,29 @@ const Chessboard = ({
 
 export default Chessboard;
 
-const ChessPiece = ({
+export const ChessPiece = ({
     index,
     pieceData,
+    boardWidth,
+    boardHeight,
 }: {
     index: number;
     pieceData: PieceData;
+    boardWidth: number;
+    boardHeight: number;
 }) => {
-    const row = Math.floor(index / BOARD_HEIGHT);
-    const column = index % BOARD_WIDTH;
+    const row = Math.floor(index / boardWidth);
+    const column = index % boardWidth;
+    const boardSize = boardWidth * boardHeight;
     return (
         <div
+            data-testid="piece"
             className={styles.piece}
             style={{
-                transform: `translate(${column * BOARD_SIZE}%, ${
-                    row * BOARD_SIZE
+                backgroundImage: `url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png")`,
+                transform: `translate(${column * boardWidth * boardHeight}%, ${
+                    row * boardSize
                 }%)`,
-                background: `url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png") 100% / 100% no-repeat`,
             }}
         />
     );
