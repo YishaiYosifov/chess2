@@ -13,11 +13,11 @@ const PlayPage = () => {
                 variant={Variant.Anarchy}
                 offsetBreakpoints={[
                     {
-                        breakpoint,
+                        widthBreakpoint: breakpoint,
                         offset: { width: 10, height: 200 },
                     },
                     {
-                        breakpoint,
+                        widthBreakpoint: breakpoint,
                         offset: { width: 500, height: 100 },
                     },
                 ]}
