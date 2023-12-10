@@ -1,19 +1,14 @@
 "use client";
 
 import { InputGroup, Form, Button } from "react-bootstrap";
-import {
-    BsEyeFill,
-    BsEyeSlashFill,
-    BsPersonFill,
-    BsUnlockFill,
-} from "react-icons/bs";
+import { BsPersonFill } from "react-icons/bs";
 
+import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { login } from "@/lib/utils/authUtils";
+import PasswordField from "../PasswordField";
 import { FormikField } from "../FormField";
-import { Formik, FormikHelpers } from "formik";
 
 interface LoginFormValues {
     username: string;
@@ -22,8 +17,6 @@ interface LoginFormValues {
 
 const LoginForm = () => {
     const router = useRouter();
-
-    const [isShowingPassword, setIsShowingPassword] = useState(false);
 
     async function onSubmit(
         values: LoginFormValues,
@@ -44,49 +37,44 @@ const LoginForm = () => {
                 break;
         }
     }
-    const EyeToggle = isShowingPassword ? BsEyeFill : BsEyeSlashFill;
 
     return (
-        <Formik
-            onSubmit={onSubmit}
-            initialValues={{ username: "luka", password: "securePassword123" }}
-        >
-            {({ handleSubmit, isSubmitting, status }) => (
-                <Form noValidate onSubmit={handleSubmit}>
-                    <FormikField fieldName="username" placeholder="Username">
-                        <InputGroup.Text>
-                            <BsPersonFill />
-                        </InputGroup.Text>
-                    </FormikField>
+        <div data-testid="loginForm">
+            <Formik
+                onSubmit={onSubmit}
+                initialValues={{
+                    username: "luka",
+                    password: "securePassword123",
+                }}
+            >
+                {({ handleSubmit, isSubmitting, status }) => (
+                    <Form noValidate onSubmit={handleSubmit}>
+                        <FormikField
+                            fieldName="username"
+                            placeholder="Username"
+                        >
+                            <InputGroup.Text>
+                                <BsPersonFill />
+                            </InputGroup.Text>
+                        </FormikField>
 
-                    <FormikField
-                        fieldName="password"
-                        placeholder="Password"
-                        type={isShowingPassword ? "text" : "password"}
-                    >
-                        <InputGroup.Text>
-                            <BsUnlockFill />
-                            <EyeToggle
-                                onClick={() =>
-                                    setIsShowingPassword(!isShowingPassword)
-                                }
-                                role="button"
-                            />
-                        </InputGroup.Text>
-                    </FormikField>
+                        <PasswordField />
 
-                    <Button
-                        type="submit"
-                        variant="secondary"
-                        disabled={isSubmitting}
-                    >
-                        Log In
-                    </Button>
+                        <Button
+                            type="submit"
+                            variant="secondary"
+                            disabled={isSubmitting}
+                        >
+                            Log In
+                        </Button>
 
-                    {status && <span className="text-invalid">{status}</span>}
-                </Form>
-            )}
-        </Formik>
+                        {status && (
+                            <span className="text-invalid">{status}</span>
+                        )}
+                    </Form>
+                )}
+            </Formik>
+        </div>
     );
 };
 export default LoginForm;

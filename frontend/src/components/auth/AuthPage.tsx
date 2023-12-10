@@ -49,14 +49,17 @@ const AuthPage = ({
                         Continue with Google
                     </Button>
 
-                    <span>
-                        Already have an account? Click{" "}
-                        {login ? (
+                    {login ? (
+                        <span data-testid="signupLink">{`Don't have an account? Click ${(
                             <Link href="/signup">here to sign up</Link>
-                        ) : (
-                            <Link href="/login">here to log in</Link>
-                        )}
-                    </span>
+                        )}`}</span>
+                    ) : (
+                        <span data-testid="loginLink">
+                            {`Already have an account? Click ${(
+                                <Link href="/login">here to log in</Link>
+                            )}`}
+                        </span>
+                    )}
                 </div>
             </div>
             <div className={styles["side-image-container"]}>
