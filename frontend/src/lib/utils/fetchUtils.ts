@@ -9,11 +9,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
  */
 export async function apiRequest(
     route: string,
-    options: RequestInit = {}
+    { json, headers, ...options }: RequestInit & { json?: object } = {}
 ): Promise<Response | null> {
     try {
+        headers = new Headers(headers);
+        headers.set("Accept", "application/json");
+
+        if (json) {
+            headers.set("Content-Type", "application/json");
+            options.body = JSON.stringify(json);
+        }
+
         const response = await fetch(`${API_URL}${route}`, {
             credentials: "include",
+            headers,
             ...options,
         });
 
