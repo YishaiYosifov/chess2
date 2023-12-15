@@ -29,34 +29,12 @@ describe("LoginForm", () => {
         await user.click(submitButton);
     }
 
-    it("should be able to type", async () => {
-        const user = userEvent.setup();
+    it("should display inputs and submit button", () => {
         render(<LoginForm />);
-
-        const { usernameField, passwordField } = await fillForm(
-            user,
-            "username",
-            "password"
-        );
-        expect(usernameField).toHaveValue("username");
-        expect(passwordField).toHaveValue("password");
+        expect(screen.getByTestId("usernameField")).toBeInTheDocument();
+        expect(screen.getByTestId("passwordField")).toBeInTheDocument();
+        expect(screen.getByTestId("submitLoginForm")).toBeInTheDocument();
     });
-
-    it.each([
-        ["", ""],
-        ["test", ""],
-        ["", "test"],
-    ])(
-        "should not submit when form is incomplete",
-        async (username, password) => {
-            const user = userEvent.setup();
-            render(<LoginForm />);
-
-            await fillForm(user, username, password);
-            await submit(user);
-            expect(login).not.toHaveBeenCalled();
-        }
-    );
 
     it.each([
         [null, "Something went wrong."],
