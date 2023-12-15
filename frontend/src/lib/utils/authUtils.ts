@@ -17,3 +17,14 @@ export async function login(
 
     return response;
 }
+
+export async function signup(
+    username: string,
+    email: string,
+    password: string
+) {
+    return await apiRequest("/auth/signup", {
+        method: "POST",
+        json: { username, email, password },
+    });
+}

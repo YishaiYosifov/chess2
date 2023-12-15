@@ -6,8 +6,10 @@ import { BsPersonFill, BsEnvelopeFill } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
-import { apiRequest } from "@/lib/utils/fetchUtils";
+import { signup } from "@/lib/utils/authUtils";
+
 import { Formik, FormikHelpers } from "formik";
+
 import PasswordField from "../PasswordField";
 import { FormikField } from "../FormField";
 
@@ -24,14 +26,20 @@ const SignupForm = () => {
         values: SignupFormValues,
         { setErrors, setStatus }: FormikHelpers<SignupFormValues>
     ) {
-        const response = await apiRequest("/auth/signup", {
-            json: values,
-        });
+        const response = await signup(
+            values.username,
+            values.email,
+            values.password
+        );
 
-        if (response.ok) {
+        if (!response) {
+            setStatus("Something went wrong.");
+            return;
+        } else if (response.ok) {
             router.push("/login");
             return;
         }
+
         const data = await response.json();
 
         switch (response.status) {
