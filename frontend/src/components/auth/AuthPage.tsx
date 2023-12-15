@@ -50,14 +50,14 @@ const AuthPage = ({
                     </Button>
 
                     {login ? (
-                        <span data-testid="signupLink">{`Don't have an account? Click ${(
-                            <Link href="/signup">here to sign up</Link>
-                        )}`}</span>
+                        <span data-testid="signupLink">
+                            Don&#39;t have an account? Click{" "}
+                            {<Link href="/signup">here to sign up</Link>}
+                        </span>
                     ) : (
                         <span data-testid="loginLink">
-                            {`Already have an account? Click ${(
-                                <Link href="/login">here to log in</Link>
-                            )}`}
+                            Already have an account? Click{" "}
+                            {<Link href="/login">here to log in</Link>}
                         </span>
                     )}
                 </div>

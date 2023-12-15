@@ -57,14 +57,15 @@ const SignupForm = () => {
                 validationSchema={schema}
                 onSubmit={onSubmit}
                 initialValues={{
-                    username: "luka",
-                    email: "willigooden.uk@gmail.com",
-                    password: "securePassword123",
+                    username: "",
+                    email: "",
+                    password: "",
                 }}
             >
                 {({ handleSubmit, isSubmitting, status }) => (
                     <Form noValidate onSubmit={handleSubmit}>
                         <FormikField
+                            data-testid="usernameField"
                             fieldName="username"
                             placeholder="username"
                         >
@@ -74,6 +75,7 @@ const SignupForm = () => {
                         </FormikField>
 
                         <FormikField
+                            data-testid="emailField"
                             fieldName="email"
                             placeholder="email"
                             type="email"

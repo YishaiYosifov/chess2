@@ -1,70 +1,39 @@
-import * as fetchUtils from "./fetchUtils";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
- * Makes an API request to a specific route with JSON data.
- * If this is ran from a server component, the cookies will be added to the headers automatically
+ * Makes an API request to a specified route
  *
  * @param route - the api route to send the request to
- * @param options - options object
- *
- * @param [options.method="POST"]
- * @param options.json - the JSON data to send to the API
- * @param options.csrfToken - explicitly define the csrf token
- * @param options.args - any other options to pass to the fetch request
+ * @param options - options to pass to the fetch request
  * @returns a promise the resolves to the response from the api
  */
 export async function apiRequest(
     route: string,
-    {
-        method = "POST",
-        headers = new Headers(),
-        json,
+    options: RequestInit = {}
+): Promise<Response | null> {
+    try {
+        const response = await fetch(`${API_URL}${route}`, {
+            credentials: "include",
+            ...options,
+        });
 
-        csrfToken,
-        ...args
-    }: {
-        json?: any;
-        csrfToken?: string;
-        headers?: Headers;
-    } & RequestInit = {}
-): Promise<Response> {
-    let body: string | null = null;
-    if (json) {
-        body = JSON.stringify(json);
-        headers.set("Content-Type", "application/json");
-        headers.set("Accept", "application/json");
+        return response;
+    } catch (err) {
+        console.error(`Could not fetch ${route}:`, err);
+        return null;
     }
-
-    // Check if this function is running inside a server component and add the cookies if so
-    if (typeof window === "undefined") {
-        const { cookies } = await import("next/headers");
-        headers.set("Cookie", cookies().toString());
-    }
-
-    //if (method != "GET")
-    //headers.set("X-CSRFToken", csrfToken || (await getCsrf()));
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${route}`, {
-        method,
-        body,
-
-        headers,
-        credentials: "include",
-        ...args,
-    });
-    return response;
 }
 
 /**
  * Fetch data from the api and convert it to camel case
  *
- * @param url - the url to fetch data from
+ * @param route - the url to fetch data from
  * @param options - an optional configuration object
  * @param options.dataProcessor - a function to run the response json through
  * @returns the json response as camel case
  */
 export async function getResource<T>(
-    url: string,
+    route: string,
     {
         dataProcessor,
         ...options
@@ -73,21 +42,22 @@ export async function getResource<T>(
         next: { revalidate: 60 },
     }
 ): Promise<T | null> {
-    try {
-        const request = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}${url}`,
-            options
+    const response = await apiRequest(route, options);
+    if (!response) return null;
+    else if (!response.ok) {
+        console.error(
+            `Bad response from ${route} (${response.status}):`,
+            await response.text()
         );
-        if (!request.ok) {
-            console.error(`Could not fetch "${url}":`, await request.text());
-            return null;
-        }
+        return null;
+    }
 
-        const json = await request.json();
+    try {
+        const json = await response.json();
         const processed = dataProcessor ? dataProcessor(json) : json;
         return processed;
     } catch (err) {
-        console.error(`Could not fetch "${url}":`, err);
+        console.log(`Could not decode response from ${route}:`, err);
         return null;
     }
 }
