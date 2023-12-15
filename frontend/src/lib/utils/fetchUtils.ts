@@ -25,7 +25,7 @@ export async function apiRequest(
 }
 
 /**
- * Fetch data from the api and convert it to camel case
+ * Fetch json data from the api and run it through the data processor
  *
  * @param route - the url to fetch data from
  * @param options - an optional configuration object
