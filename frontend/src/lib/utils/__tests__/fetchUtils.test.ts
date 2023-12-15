@@ -17,16 +17,25 @@ describe("apiRequest", () => {
     it("should include options in request", async () => {
         fetchMock.mockImplementation();
 
-        const options = { headers: { testing: "123" } };
+        const options = {
+            json: { key: "value" },
+            headers: { "X-Test-Header": "123" },
+        };
 
         await apiRequest("/test", options);
+
         expect(fetchMock).toHaveBeenCalledWith(
             `${process.env.NEXT_PUBLIC_API_URL}/test`,
-            {
+            expect.objectContaining({
                 credentials: "include",
-                ...options,
-            }
+                body: JSON.stringify(options.json),
+            })
         );
+
+        const fetchHeaders = fetchMock.mock.calls[0][1].headers;
+        expect(fetchHeaders.get("X-Test-Header")).toBe("123");
+        expect(fetchHeaders.get("Accept")).toBe("application/json");
+        expect(fetchHeaders.get("Content-Type")).toBe("application/json");
     });
 
     it("should return request", async () => {
