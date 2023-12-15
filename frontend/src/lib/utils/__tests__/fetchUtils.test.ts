@@ -18,7 +18,6 @@ describe("getResource", () => {
             }),
         ],
     ])("should fail correctly", async (fetch_fn) => {
-        jest.spyOn(console, "error").mockImplementation();
         fetchMock.mockImplementation(fetch_fn);
 
         const dataProcessor = jest.fn((a) => a);

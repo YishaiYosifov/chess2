@@ -3,11 +3,7 @@ import "@testing-library/jest-dom";
 import { server } from "@/mocks/server";
 
 jest.mock("next/navigation", () => ({
-    useRouter() {
-        return {
-            prefetch: () => null,
-        };
-    },
+    useRouter: jest.fn(),
 }));
 
 beforeAll(() => server.listen());
@@ -16,3 +12,5 @@ afterEach(() => {
     jest.clearAllMocks();
 });
 afterAll(() => server.close());
+
+global.console = { log: jest.fn(), error: jest.fn(), warn: jest.fn() };

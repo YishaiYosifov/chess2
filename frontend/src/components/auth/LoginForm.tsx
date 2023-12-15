@@ -5,6 +5,7 @@ import { BsPersonFill } from "react-icons/bs";
 
 import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
+import * as yup from "yup";
 
 import { login } from "@/lib/utils/authUtils";
 import PasswordField from "../PasswordField";
@@ -20,11 +21,16 @@ const LoginForm = () => {
 
     async function onSubmit(
         values: LoginFormValues,
-        { setErrors, setStatus }: FormikHelpers<LoginFormValues>
+        { setStatus }: FormikHelpers<LoginFormValues>
     ) {
-        const { status, data } = await login(values.username, values.password);
+        const response = await login(values.username, values.password);
 
-        switch (status) {
+        if (!response) {
+            setStatus("Something went wrong.");
+            return;
+        }
+
+        switch (response.status) {
             case 200:
                 router.replace("/");
                 break;
@@ -33,23 +39,30 @@ const LoginForm = () => {
                 break;
             default:
                 setStatus("Something went wrong.");
-                console.error(status, data);
+                console.error(response.status, await response.text());
                 break;
         }
     }
+
+    const schema = yup.object().shape({
+        username: yup.string().required(),
+        password: yup.string().required(),
+    });
 
     return (
         <div data-testid="loginForm">
             <Formik
                 onSubmit={onSubmit}
+                validationSchema={schema}
                 initialValues={{
-                    username: "luka",
-                    password: "securePassword123",
+                    username: "",
+                    password: "",
                 }}
             >
                 {({ handleSubmit, isSubmitting, status }) => (
                     <Form noValidate onSubmit={handleSubmit}>
                         <FormikField
+                            data-testid="usernameField"
                             fieldName="username"
                             placeholder="Username"
                         >
@@ -64,12 +77,18 @@ const LoginForm = () => {
                             type="submit"
                             variant="secondary"
                             disabled={isSubmitting}
+                            data-testid="submitLoginForm"
                         >
                             Log In
                         </Button>
 
                         {status && (
-                            <span className="text-invalid">{status}</span>
+                            <span
+                                data-testid="formStatus"
+                                className="text-invalid"
+                            >
+                                {status}
+                            </span>
                         )}
                     </Form>
                 )}

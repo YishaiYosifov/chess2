@@ -13,6 +13,7 @@ const PasswordField = () => {
 
     return (
         <FormikField
+            data-testid="passwordField"
             fieldName="password"
             placeholder="Password"
             type={isShowingPassword ? "text" : "password"}
