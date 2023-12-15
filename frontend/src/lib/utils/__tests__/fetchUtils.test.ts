@@ -1,27 +1,61 @@
-import { getResource, snakeToCamel } from "../fetchUtils";
+import { apiRequest, getResource, snakeToCamel } from "../fetchUtils";
 
-describe("getResource", () => {
+describe("apiRequest", () => {
     let fetchMock: jest.SpyInstance;
     beforeEach(() => {
         fetchMock = jest.spyOn(global, "fetch");
     });
-    afterEach(() => {
-        jest.restoreAllMocks();
-        jest.clearAllMocks();
+
+    it("should log an error when fetch raises error", async () => {
+        fetchMock.mockRejectedValue(new Error());
+
+        const response = await apiRequest("/test");
+        expect(response).toBe(null);
+        expect(console.error).toHaveBeenCalledTimes(1);
     });
 
-    it.each([
-        [jest.fn(async () => ({ ok: false, text: () => "" }))],
-        [
-            jest.fn(async () => {
-                throw new Error();
-            }),
-        ],
-    ])("should fail correctly", async (fetch_fn) => {
-        fetchMock.mockImplementation(fetch_fn);
+    it("should include options in request", async () => {
+        fetchMock.mockImplementation();
 
-        const dataProcessor = jest.fn((a) => a);
-        const response = await getResource("test", { dataProcessor });
+        const options = { headers: { testing: "123" } };
+
+        await apiRequest("/test", options);
+        expect(fetchMock).toHaveBeenCalledWith(
+            `${process.env.NEXT_PUBLIC_API_URL}/test`,
+            {
+                credentials: "include",
+                ...options,
+            }
+        );
+    });
+
+    it("should return request", async () => {
+        fetchMock.mockResolvedValue("testing");
+
+        const response = await apiRequest("/test");
+        expect(response).toBe("testing");
+    });
+});
+
+describe("getResource", () => {
+    let fetchMock: jest.SpyInstance;
+    const dataProcessor = jest.fn((a) => a);
+
+    beforeEach(() => {
+        fetchMock = jest.spyOn(global, "fetch");
+    });
+
+    it("should return null if fetch raises an error", async () => {
+        fetchMock.mockRejectedValue(new Error());
+
+        const response = await getResource("/test");
+        expect(response).toBe(null);
+    });
+
+    it("should log an error when the response is not ok", async () => {
+        fetchMock.mockResolvedValue({ ok: false, text: jest.fn() });
+
+        const response = await getResource("/test", { dataProcessor });
 
         expect(response).toBe(null);
         expect(console.error).toHaveBeenCalledTimes(1);
@@ -31,14 +65,11 @@ describe("getResource", () => {
     it("should succeed and call the data processor", async () => {
         const data = "data";
 
-        jest.spyOn(console, "error").mockImplementation();
         fetchMock.mockResolvedValue({ ok: true, json: () => data });
 
-        const dataProcessor = jest.fn((a) => a);
-        const response = await getResource("test", { dataProcessor });
+        const response = await getResource("/test", { dataProcessor });
 
         expect(response).toBe(data);
-        expect(dataProcessor).toHaveBeenCalledTimes(1);
         expect(dataProcessor).toHaveBeenCalledWith(data);
         expect(console.error).not.toHaveBeenCalled();
     });
