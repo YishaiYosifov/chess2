@@ -11,7 +11,7 @@ import { login } from "@/lib/utils/authUtils";
 import PasswordField from "../PasswordField";
 import { FormikField } from "../FormField";
 
-interface LoginFormValues {
+export interface LoginFormValues {
     username: string;
     password: string;
 }
@@ -28,12 +28,12 @@ const LoginForm = () => {
         if (!response) {
             setStatus("Something went wrong.");
             return;
+        } else if (response.ok) {
+            router.replace("/");
+            return;
         }
 
         switch (response.status) {
-            case 200:
-                router.replace("/");
-                break;
             case 401:
                 setStatus("Wrong username / password");
                 break;
@@ -50,50 +50,46 @@ const LoginForm = () => {
     });
 
     return (
-        <div data-testid="loginForm">
-            <Formik
-                onSubmit={onSubmit}
-                validationSchema={schema}
-                initialValues={{
-                    username: "",
-                    password: "",
-                }}
-            >
-                {({ handleSubmit, isSubmitting, status }) => (
-                    <Form noValidate onSubmit={handleSubmit}>
-                        <FormikField
-                            data-testid="usernameField"
-                            fieldName="username"
-                            placeholder="Username"
-                        >
-                            <InputGroup.Text>
-                                <BsPersonFill />
-                            </InputGroup.Text>
-                        </FormikField>
+        <Formik
+            onSubmit={onSubmit}
+            validationSchema={schema}
+            initialValues={{
+                username: "",
+                password: "",
+            }}
+        >
+            {({ handleSubmit, isSubmitting, status }) => (
+                <Form
+                    data-testid="loginForm"
+                    aria-label="signup form"
+                    noValidate
+                    onSubmit={handleSubmit}
+                >
+                    <FormikField fieldName="username" placeholder="Username">
+                        <InputGroup.Text>
+                            <BsPersonFill />
+                        </InputGroup.Text>
+                    </FormikField>
 
-                        <PasswordField />
+                    <PasswordField />
 
-                        <Button
-                            type="submit"
-                            variant="secondary"
-                            disabled={isSubmitting}
-                            data-testid="submitLoginForm"
-                        >
-                            Log In
-                        </Button>
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        disabled={isSubmitting}
+                        data-testid="submitForm"
+                    >
+                        Log In
+                    </Button>
 
-                        {status && (
-                            <span
-                                data-testid="formStatus"
-                                className="text-invalid"
-                            >
-                                {status}
-                            </span>
-                        )}
-                    </Form>
-                )}
-            </Formik>
-        </div>
+                    {status && (
+                        <span data-testid="formStatus" className="text-invalid">
+                            {status}
+                        </span>
+                    )}
+                </Form>
+            )}
+        </Formik>
     );
 };
 export default LoginForm;

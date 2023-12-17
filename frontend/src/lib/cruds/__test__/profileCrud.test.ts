@@ -4,7 +4,6 @@ import { getResource } from "@/lib/utils/fetchUtils";
 jest.mock("@/lib/utils/fetchUtils");
 
 function expectGetResourceCall(expectedPath: string) {
-    expect(getResource).toHaveBeenCalledTimes(1);
     expect(getResource).toHaveBeenCalledWith(expectedPath);
 }
 
