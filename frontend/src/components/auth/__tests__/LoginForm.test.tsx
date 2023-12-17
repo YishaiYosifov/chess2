@@ -1,12 +1,7 @@
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
-import {
-    FormValues,
-    fillForm,
-    mockRouter,
-    submitForm,
-} from "@/lib/utils/testUtils";
+import { createFormRenderer, mockRouter } from "@/lib/utils/testUtils";
 import { login } from "@/lib/utils/authUtils";
 import LoginForm, { LoginFormValues } from "../LoginForm";
 
@@ -15,13 +10,15 @@ jest.mock("@/lib/utils/authUtils", () => ({
 }));
 
 describe("LoginForm", () => {
-    const fillLoginForm = async (
-        user: UserEvent,
-        fieldValues: FormValues<LoginFormValues> = {
-            username: "a",
-            password: "b",
-        }
-    ): Promise<void> => fillForm(user, fieldValues);
+    const defaultFieldValues = {
+        username: "a",
+        password: "b",
+    };
+
+    const renderAndFillLogin = createFormRenderer<LoginFormValues>(
+        <LoginForm />,
+        defaultFieldValues
+    );
 
     it("should display the login form", () => {
         render(<LoginForm />);
@@ -38,14 +35,9 @@ describe("LoginForm", () => {
     ])(
         "should correctly handle submit failures",
         async (response, statusText) => {
-            const user = userEvent.setup();
-
             const mockLogin = login as jest.Mock;
             mockLogin.mockResolvedValue(response);
-
-            render(<LoginForm />);
-            await fillLoginForm(user);
-            await submitForm(user);
+            await renderAndFillLogin();
 
             const status = screen.getByTestId("formStatus");
             expect(status.textContent).toBe(statusText);
@@ -53,15 +45,12 @@ describe("LoginForm", () => {
     );
 
     it("should redirect when successfull", async () => {
-        const user = userEvent.setup();
         const { replace } = mockRouter();
 
         const mockLogin = login as jest.Mock;
         mockLogin.mockResolvedValue({ ok: true });
+        await renderAndFillLogin();
 
-        render(<LoginForm />);
-        await fillLoginForm(user);
-        await submitForm(user);
         expect(replace).toHaveBeenCalledWith("/");
     });
 });
