@@ -13,4 +13,4 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-global.console = { log: jest.fn(), error: jest.fn(), warn: jest.fn() };
+global.console = { error: jest.fn(), warn: jest.fn(), log: console.log };

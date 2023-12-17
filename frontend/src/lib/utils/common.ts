@@ -34,7 +34,7 @@ yup.addMethod(yup.string, "password", function () {
     return this.required("Password is required")
         .min(8, "Password must be at least 8 characters long")
         .matches(
-            /[a-z]+[A-Z]+/,
+            /^(?=.*[a-z])(?=.*[A-Z]).+$/,
             "Password must have both upper and lower case letters"
         )
         .matches(/\d/, "Password must have a number");

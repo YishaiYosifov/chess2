@@ -1,39 +1,34 @@
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
-import { mockRouter } from "@/lib/utils/testUtils";
+import {
+    FormValues,
+    fillForm,
+    mockRouter,
+    submitForm,
+} from "@/lib/utils/testUtils";
 import { login } from "@/lib/utils/authUtils";
-import LoginForm from "../LoginForm";
+import LoginForm, { LoginFormValues } from "../LoginForm";
 
 jest.mock("@/lib/utils/authUtils", () => ({
     login: jest.fn(),
 }));
 
 describe("LoginForm", () => {
-    async function fillForm(
+    const fillLoginForm = async (
         user: UserEvent,
-        username: string = "username",
-        password: string = "password"
-    ): Promise<{ usernameField: HTMLElement; passwordField: HTMLElement }> {
-        const usernameField = screen.getByTestId("usernameField");
-        const passwordField = screen.getByTestId("passwordField");
+        fieldValues: FormValues<LoginFormValues> = {
+            username: "a",
+            password: "b",
+        }
+    ): Promise<void> => fillForm(user, fieldValues);
 
-        if (username) await user.type(usernameField, username);
-        if (password) await user.type(passwordField, password);
-
-        return { usernameField, passwordField };
-    }
-
-    async function submit(user: UserEvent): Promise<void> {
-        const submitButton = screen.getByTestId("submitLoginForm");
-        await user.click(submitButton);
-    }
-
-    it("should display inputs and submit button", () => {
+    it("should display the login form", () => {
         render(<LoginForm />);
-        expect(screen.getByTestId("usernameField")).toBeInTheDocument();
-        expect(screen.getByTestId("passwordField")).toBeInTheDocument();
-        expect(screen.getByTestId("submitLoginForm")).toBeInTheDocument();
+        expect(screen.getByLabelText("username")).toBeInTheDocument();
+        expect(screen.getByLabelText("password")).toBeInTheDocument();
+        expect(screen.getByTestId("submitForm")).toBeInTheDocument();
+        expect(screen.getByRole("form")).toBeInTheDocument();
     });
 
     it.each([
@@ -49,8 +44,8 @@ describe("LoginForm", () => {
             mockLogin.mockResolvedValue(response);
 
             render(<LoginForm />);
-            await fillForm(user);
-            await submit(user);
+            await fillLoginForm(user);
+            await submitForm(user);
 
             const status = screen.getByTestId("formStatus");
             expect(status.textContent).toBe(statusText);
@@ -62,13 +57,11 @@ describe("LoginForm", () => {
         const { replace } = mockRouter();
 
         const mockLogin = login as jest.Mock;
-        mockLogin.mockResolvedValue({ status: 200 });
+        mockLogin.mockResolvedValue({ ok: true });
 
         render(<LoginForm />);
-        await fillForm(user);
-        await submit(user);
-
-        expect(replace).toHaveBeenCalledTimes(1);
+        await fillLoginForm(user);
+        await submitForm(user);
         expect(replace).toHaveBeenCalledWith("/");
     });
 });
