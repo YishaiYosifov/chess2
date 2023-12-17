@@ -18,7 +18,7 @@ export function mockRouter() {
     return router;
 }
 
-export type FormValues<T> = Partial<Record<keyof T, string>>;
+type FormFields<T> = Partial<Record<keyof T, string>>;
 
 /**
  * Fills a form with the specificed field values
@@ -26,12 +26,12 @@ export type FormValues<T> = Partial<Record<keyof T, string>>;
  * @param user - the user event to interact with the form
  * @param fieldValues - the field values to fill the form
  */
-export async function fillForm<T extends Record<string, string>>(
+export async function fillForm<T>(
     user: UserEvent,
-    fieldValues: FormValues<T>
+    fieldValues: FormFields<T>
 ): Promise<void> {
     for (const [fieldName, value] of Object.entries(fieldValues)) {
-        if (value) await user.type(screen.getByLabelText(fieldName), value);
+        await user.type(screen.getByLabelText(fieldName), value as string);
     }
 }
 
@@ -39,10 +39,22 @@ export async function submitForm(user: UserEvent): Promise<void> {
     await user.click(screen.getByTestId("submitForm"));
 }
 
-export async function renderForm<T extends Record<string, string>>(
+interface RenderAndFillForm<T> {
+    doSubmit?: boolean;
+    fieldValues?: FormFields<T>;
+}
+
+/**
+ * Renders a form
+ *
+ * @param form - the react form element to render
+ * @param [options.doSubmit=true] - should the form be submitted after filling?
+ * @param [options.fieldValues={}] - what should the form be filled with?
+ * @returns a promise the resolves to the rendering results
+ */
+export async function renderAndFillForm<T extends FormFields<T>>(
     form: ReactElement,
-    fieldValues: FormValues<T> = {},
-    doSubmit: boolean = true
+    { doSubmit = true, fieldValues = {} }: RenderAndFillForm<T>
 ): Promise<RenderResult> {
     const user = userEvent.setup();
     const renderResults = render(form);
@@ -52,3 +64,16 @@ export async function renderForm<T extends Record<string, string>>(
 
     return renderResults;
 }
+
+/**
+ * Creates a form renderer function that has your form and fields as the default parameters.
+ *
+ * @param form - the react form element to render
+ * @param defaultFields - the edfault values for the form fields
+ * @returns a function that renders and fills the form with specificed options
+ * @template T - the field values interface
+ */
+export const createFormRenderer =
+    <T>(form: ReactElement, defaultFields: FormFields<T>) =>
+    (options?: RenderAndFillForm<T>) =>
+        renderAndFillForm(form, { fieldValues: defaultFields, ...options });

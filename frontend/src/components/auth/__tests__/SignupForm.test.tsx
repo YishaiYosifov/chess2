@@ -1,7 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { FormValues, mockRouter, renderForm } from "@/lib/utils/testUtils";
+import {
+    fillForm,
+    mockRouter,
+    createFormRenderer,
+} from "@/lib/utils/testUtils";
 import SignupForm, { SignupFormValues } from "../SignupForm";
 import { signup } from "@/lib/utils/authUtils";
 
@@ -12,13 +16,13 @@ describe("SignupForm", () => {
     const defaultFieldValues = {
         username: "a",
         email: "a@b.c",
-        password: "fbf@d2AS",
+        password: "123456Aa",
     };
 
-    const renderSignupForm = async (
-        fieldValues: FormValues<SignupFormValues> = defaultFieldValues,
-        doSubmit: boolean = true
-    ) => renderForm(<SignupForm />, fieldValues, doSubmit);
+    const renderAndFillSignup = createFormRenderer<SignupFormValues>(
+        <SignupForm />,
+        defaultFieldValues
+    );
 
     it("should display the signup form", () => {
         render(<SignupForm />);
@@ -29,14 +33,14 @@ describe("SignupForm", () => {
     });
 
     it("should display errors on invalid fields", async () => {
-        const { container } = await renderSignupForm(
-            {
-                username: "1",
-                email: "a",
-                password: "a",
-            },
-            false
-        );
+        const user = userEvent.setup();
+
+        const { container } = render(<SignupForm />);
+        await fillForm(user, {
+            username: "1",
+            email: "a",
+            password: "a",
+        });
 
         const errors = container.querySelectorAll(".invalid-feedback");
         expect(errors).toHaveLength(3);
@@ -47,7 +51,7 @@ describe("SignupForm", () => {
         "should set status on unknown error",
         async (response) => {
             signupMock.mockResolvedValue(response);
-            await renderSignupForm();
+            await renderAndFillSignup();
 
             expect(
                 screen.getByText("Something went wrong.")
@@ -56,17 +60,20 @@ describe("SignupForm", () => {
     );
 
     it("should set errors on conflict", async () => {
-        signupMock.mockResolvedValue({ status: 409, json: jest.fn() });
-        const user = userEvent.setup();
+        signupMock.mockResolvedValue({
+            status: 409,
+            json: () => ({ detail: { email: "this is a test error" } }),
+        });
 
-        render(<SignupForm />);
+        await renderAndFillSignup();
+        expect(screen.getByText("this is a test error")).toBeInTheDocument();
     });
 
     it("should redirect when successfull", async () => {
         const { push } = mockRouter();
         signupMock.mockResolvedValue({ ok: true });
 
-        await renderSignupForm();
+        await renderAndFillSignup();
         expect(push).toHaveBeenCalledWith("/login");
     });
 });
