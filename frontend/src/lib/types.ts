@@ -20,7 +20,7 @@ export interface Game {
 }
 
 export interface RatingHistory {
-    achievedAt: number;
+    achievedAt: string;
     elo: number;
 }
 export interface RatingData {

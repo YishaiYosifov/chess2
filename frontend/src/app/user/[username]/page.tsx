@@ -30,7 +30,6 @@ const UserPage = async ({
         fetchGames(username),
     ]);
     if (!profile || !ratings || !games) notFound();
-    console.log(games);
 
     return (
         <div className={styles.container}>

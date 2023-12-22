@@ -20,6 +20,12 @@ export async function apiRequest(
             options.body = JSON.stringify(json);
         }
 
+        // Check if this function is running inside a server component and add the cookies if so
+        if (typeof window === "undefined") {
+            const { cookies } = await import("next/headers");
+            headers.set("Cookie", cookies().toString());
+        }
+
         const response = await fetch(`${API_URL}${route}`, {
             credentials: "include",
             headers,
@@ -66,7 +72,7 @@ export async function getResource<T>(
         const processed = dataProcessor ? dataProcessor(json) : json;
         return processed;
     } catch (err) {
-        console.log(`Could not decode response from ${route}:`, err);
+        console.error(`Could not decode response from ${route}:`, err);
         return null;
     }
 }
