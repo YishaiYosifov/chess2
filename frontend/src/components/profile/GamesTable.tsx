@@ -26,7 +26,10 @@ const GamesTable = ({
                 <col style={{ width: "13%" }} />
             </colgroup>
             <thead>
-                <tr className="text-white-50 text-start">
+                <tr
+                    className="text-white-50 text-start"
+                    data-testid="gamesTableHeader"
+                >
                     <th scope="col">Mode</th>
                     <th scope="col">Players</th>
                     <th scope="col">Results</th>

@@ -1,4 +1,3 @@
-import userEvent, { UserEvent } from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
 import { createFormRenderer, mockRouter } from "@/lib/utils/testUtils";
