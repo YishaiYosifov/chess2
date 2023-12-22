@@ -11,7 +11,7 @@ jest.mock("react-google-charts", () => ({
     Chart: jest.fn((props) => <div data-testid="ratingChart" {...props} />),
 }));
 
-const mockRating: RatingData = {
+const ratingMock: RatingData = {
     history: [{ elo: 900, achievedAt: "2023-01-01T12:00:00" }],
     current: 1000,
     min: 900,
@@ -21,7 +21,7 @@ const mockRating: RatingData = {
 describe("RatingsCard", () => {
     it("should render the card with variant, rating data, and chart", () => {
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={mockRating} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
         );
 
         expect(screen.getByTestId("ratingChart")).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe("RatingsCard", () => {
         jest.useFakeTimers().setSystemTime(currDate);
 
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={mockRating} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
         );
 
         const chartMock = Chart as unknown as jest.Mock;
@@ -48,17 +48,17 @@ describe("RatingsCard", () => {
 
     it("should display the provided rating information", () => {
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={mockRating} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
         );
 
         expect(screen.getByTestId("maxRating").textContent).toBe(
-            mockRating.max + ""
+            ratingMock.max + ""
         );
         expect(screen.getByTestId("minRating").textContent).toBe(
-            mockRating.min + ""
+            ratingMock.min + ""
         );
         expect(screen.getByTestId("currentRating").textContent).toBe(
-            mockRating.current + ""
+            ratingMock.current + ""
         );
     });
 
@@ -70,7 +70,7 @@ describe("RatingsCard", () => {
         "should display the rating change",
         (current, previous, colorClass, expectedText) => {
             const newMockRating = {
-                ...mockRating,
+                ...ratingMock,
                 current: current,
                 history: [{ elo: previous, achievedAt: "2023-01-01T12:00:00" }],
             };

@@ -15,8 +15,8 @@ export interface Game {
     createdAt: string;
 
     variant: Variant;
-    increment: number;
     timeControl: number;
+    increment: number;
 }
 
 export interface RatingHistory {

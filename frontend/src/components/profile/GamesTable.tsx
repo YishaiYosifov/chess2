@@ -15,22 +15,6 @@ const GamesTable = ({
     games: Game[];
     viewingProfile: PublicProfile;
 }) => {
-    const EmptyRow = () => (
-        <tr>
-            <td>
-                <div className={styles["empty-td"]} />
-            </td>
-            <td>
-                <div className={styles["empty-td"]} />
-            </td>
-            <td>
-                <div className={styles["empty-td"]} />
-            </td>
-            <td>
-                <div className={styles["empty-td"]} />
-            </td>
-        </tr>
-    );
     const MAX_EMPTY_ROWS = 3;
 
     return (
@@ -67,3 +51,20 @@ const GamesTable = ({
     );
 };
 export default GamesTable;
+
+const EmptyRow = () => (
+    <tr>
+        <td>
+            <div className={styles["empty-td"]} />
+        </td>
+        <td>
+            <div className={styles["empty-td"]} />
+        </td>
+        <td>
+            <div className={styles["empty-td"]} />
+        </td>
+        <td>
+            <div className={styles["empty-td"]} />
+        </td>
+    </tr>
+);
