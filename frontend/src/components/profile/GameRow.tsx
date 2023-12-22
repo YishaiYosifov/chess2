@@ -23,7 +23,11 @@ const GameRow = ({
     const isWinner = color.valueOf() === game.results;
 
     const GameLink = () => (
-        <Link href={`/game/${game.token}`} className={styles["game-link"]} />
+        <Link
+            data-testid="gameRowLink"
+            href={`/game/${game.token}`}
+            className={styles["game-link"]}
+        />
     );
 
     // Format the game date
@@ -63,12 +67,14 @@ const GameRow = ({
                     <Link
                         href={`/user/${usernameWhite}`}
                         className="mt-2 limit-text"
+                        data-testid="gameRowUsernameWhite"
                     >
                         {usernameWhite}
                     </Link>
                     <Link
                         href={`/user/${usernameBlack}`}
                         className="text-secondary limit-text"
+                        data-testid="gameRowUsernameBlack"
                     >
                         {usernameBlack}
                     </Link>
@@ -79,9 +85,13 @@ const GameRow = ({
                 <GameLink />
                 <div className={styles["results-column"]}>
                     <div>
-                        <span>{getScore(Color.White)}</span>
+                        <span data-testid="gameRowScoreWhite">
+                            {getScore(Color.White)}
+                        </span>
                         <span>-</span>
-                        <span>{getScore(Color.Black)}</span>
+                        <span data-testid="gameRowScoreBlack">
+                            {getScore(Color.Black)}
+                        </span>
                     </div>
                     <ResultsIcon />
                 </div>
@@ -91,7 +101,7 @@ const GameRow = ({
                 <GameLink />
 
                 <div className={styles["date-column"]}>
-                    <span>{formattedDate}</span>
+                    <span data-testid="gameRowDate">{formattedDate}</span>
                 </div>
             </td>
         </tr>
