@@ -33,14 +33,14 @@ const RatingCard = ({
     // This is for the "rating changed last month"
     // This code decides whether the text color and icon (+, - or ±)
     const ratingChange = currentRating - history[0].elo;
-    const ratingChangeColorClass =
-        ratingChange > 0
-            ? "text-success"
-            : ratingChange < 0
-            ? "text-danger"
-            : "";
-    const ratingChangeIcon =
-        ratingChange > 0 ? "+" : ratingChange < 0 ? "" : "±";
+    let ratingChangeColorClass = "";
+    let ratingChangeIcon = "";
+
+    if (ratingChange > 0) {
+        ratingChangeColorClass = "text-success";
+        ratingChangeIcon = "+";
+    } else if (ratingChange < 0) ratingChangeColorClass = "text-danger";
+    else ratingChangeIcon = "±";
 
     return (
         <Card className={styles["rating-card"]}>
@@ -52,10 +52,12 @@ const RatingCard = ({
                     width={30}
                     height={30}
                 />
-                <span className="ms-2">{variant}</span>
+                <span>{variant}</span>
+                <span data-testid="currentRating">{currentRating}</span>
             </Card.Header>
             <Card.Body className="text-start">
                 <Chart
+                    data-testid="ratingChart"
                     chartType="AreaChart"
                     data={[...title, ...formattedRartings]}
                     options={{
@@ -80,20 +82,27 @@ const RatingCard = ({
                     }}
                 />
 
-                <div className={styles.info}>
+                <div className={styles.info} data-testid="ratingInfoSection">
                     <div>
                         <span>Higest</span>
-                        <span className="text-success">{maxRating}</span>
+                        <span className="text-success" data-testid="maxRating">
+                            {maxRating}
+                        </span>
                     </div>
 
                     <div>
                         <span>Lowest</span>
-                        <span className="text-danger">{minRating}</span>
+                        <span className="text-danger" data-testid="minRating">
+                            {minRating}
+                        </span>
                     </div>
 
                     <div>
                         <span>Rating Change (last month)</span>
-                        <span className={ratingChangeColorClass}>
+                        <span
+                            className={ratingChangeColorClass}
+                            data-testid="ratingChange"
+                        >
                             {ratingChangeIcon}
                             {ratingChange}
                         </span>

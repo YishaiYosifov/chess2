@@ -15,7 +15,7 @@ const withAuth = (WrappedComponent: any) => {
             cache: "no-cache",
             method: "GET",
         });
-        if (!response.ok) redirect("/");
+        if (!response || !response.ok) redirect("/");
 
         const profile: LocalProfile = await response.json();
         return <WrappedComponent {...props} profile={profile} />;

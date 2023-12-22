@@ -23,6 +23,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
             <div className={styles.info}>
                 <span>
                     <Image
+                        data-testid="countryImage"
                         src="/assets/logo.svg"
                         width={40}
                         height={40}
@@ -33,6 +34,7 @@ const Profile = ({ profile }: { profile: PublicProfile }) => {
                 </span>
 
                 <textarea
+                    data-testid="aboutArea"
                     className={`form-control ${styles.about}`}
                     readOnly
                     value={profile.about || ""}
