@@ -8,11 +8,12 @@ import {
 } from "@/lib/utils/testUtils";
 import SignupForm, { SignupFormValues } from "../SignupForm";
 import { signup } from "@/lib/utils/authUtils";
+import { Mock } from "vitest";
 
-jest.mock("@/lib/utils/authUtils", () => ({ signup: jest.fn() }));
+vi.mock("@/lib/utils/authUtils", () => ({ signup: vi.fn() }));
 
 describe("SignupForm", () => {
-    const signupMock = signup as jest.Mock;
+    const signupMock = signup as Mock;
     const defaultFieldValues = {
         username: "a",
         email: "a@b.c",
@@ -47,7 +48,7 @@ describe("SignupForm", () => {
         for (const error of errors) expect(error.textContent).not.toBe("");
     });
 
-    it.each([null, { status: 500, json: jest.fn() }])(
+    it.each([null, { status: 500, json: vi.fn() }])(
         "should set status on unknown error",
         async (response) => {
             signupMock.mockResolvedValue(response);

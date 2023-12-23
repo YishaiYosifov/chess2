@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 
-import Profile from "../Profile";
 import { profileMock } from "@/mocks/mocks";
+
+import Profile from "../Profile";
 
 describe("Profile", () => {
     it("should render the profile correcetly", () => {

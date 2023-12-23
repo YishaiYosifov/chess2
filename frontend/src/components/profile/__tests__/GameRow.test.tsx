@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import GameRow from "../GameRow";
 
 import { createGame, gameMock, profileMock } from "@/mocks/mocks";
 import { GameResult } from "@/lib/constants";
+
+import GameRow from "../GameRow";
 
 describe("GameRow", () => {
     it("should display the correct usernames", () => {

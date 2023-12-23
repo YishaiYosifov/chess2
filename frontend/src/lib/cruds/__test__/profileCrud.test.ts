@@ -1,7 +1,7 @@
 import { fetchProfile, fetchRatings, fetchGames } from "../profileCrud";
 import { getResource } from "@/lib/utils/fetchUtils";
 
-jest.mock("@/lib/utils/fetchUtils");
+vi.mock("@/lib/utils/fetchUtils");
 
 function expectGetResourceCall(expectedPath: string) {
     expect(getResource).toHaveBeenCalledWith(expectedPath);

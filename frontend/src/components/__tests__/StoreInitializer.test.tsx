@@ -3,9 +3,9 @@ import { useStore } from "@/zustand/store";
 
 import StoreInitializer from "../StoreInitializer";
 
-jest.mock("@/zustand/store", () => ({
+vi.mock("@/zustand/store", () => ({
     useStore: {
-        setState: jest.fn(),
+        setState: vi.fn(),
     },
 }));
 

@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import GamesTable from "../GamesTable";
+
 import { createGame, profileMock } from "@/mocks/mocks";
+
+import GamesTable from "../GamesTable";
 
 const gamesMock = [createGame(), createGame(), createGame()];
 
