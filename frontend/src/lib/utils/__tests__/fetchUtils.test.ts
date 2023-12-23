@@ -1,9 +1,10 @@
+import { MockInstance } from "vitest";
 import { apiRequest, getResource, snakeToCamel } from "../fetchUtils";
 
 describe("apiRequest", () => {
-    let fetchMock: jest.SpyInstance;
+    let fetchMock: MockInstance;
     beforeEach(() => {
-        fetchMock = jest.spyOn(global, "fetch");
+        fetchMock = vi.spyOn(global, "fetch");
     });
 
     it("should log an error when fetch raises error", async () => {
@@ -15,7 +16,7 @@ describe("apiRequest", () => {
     });
 
     it("should include options in request", async () => {
-        fetchMock.mockImplementation();
+        fetchMock.mockImplementation(vi.fn());
 
         const options = {
             json: { key: "value" },
@@ -47,11 +48,11 @@ describe("apiRequest", () => {
 });
 
 describe("getResource", () => {
-    let fetchMock: jest.SpyInstance;
-    const dataProcessor = jest.fn((a) => a);
+    let fetchMock: MockInstance;
+    const dataProcessor = vi.fn((a) => a);
 
     beforeEach(() => {
-        fetchMock = jest.spyOn(global, "fetch");
+        fetchMock = vi.spyOn(global, "fetch");
     });
 
     it("should return null if fetch raises an error", async () => {
@@ -62,7 +63,7 @@ describe("getResource", () => {
     });
 
     it("should log an error when the response is not ok", async () => {
-        fetchMock.mockResolvedValue({ ok: false, text: jest.fn() });
+        fetchMock.mockResolvedValue({ ok: false, text: vi.fn() });
 
         const response = await getResource("/test", { dataProcessor });
 

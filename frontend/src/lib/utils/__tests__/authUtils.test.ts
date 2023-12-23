@@ -1,9 +1,10 @@
+import { setIsAuthed } from "@/zustand/store";
 import { apiRequest } from "../fetchUtils";
 import { login } from "../authUtils";
-import { setIsAuthed } from "@/zustand/store";
+import { Mock } from "vitest";
 
-jest.mock("@/zustand/store", () => ({ setIsAuthed: jest.fn() }));
-jest.mock("../fetchUtils", () => ({ apiRequest: jest.fn() }));
+vi.mock("@/zustand/store", () => ({ setIsAuthed: vi.fn() }));
+vi.mock("../fetchUtils", () => ({ apiRequest: vi.fn() }));
 
 describe("login", () => {
     it("should create a form and set the username and password", async () => {
@@ -22,7 +23,7 @@ describe("login", () => {
     });
 
     it("should set the isAuthed state when the response is ok", async () => {
-        const apiRequestMock = apiRequest as jest.Mock;
+        const apiRequestMock = apiRequest as Mock;
         apiRequestMock.mockResolvedValue({ ok: true });
 
         await login("username", "password");

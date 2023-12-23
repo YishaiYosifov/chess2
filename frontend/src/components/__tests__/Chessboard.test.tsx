@@ -3,8 +3,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { Color, Piece, PieceData } from "@/lib/constants";
 import Chessboard, { ChessPiece } from "../Chessboard";
 
-jest.mock("@/lib/constants", () => ({
-    ...jest.requireActual("@/lib/constants"),
+vi.mock("@/lib/constants", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("@/lib/constants")>()),
     BOARD_HEIGHT: 10,
     BOARD_WIDTH: 10,
     BOARD_SIZE: 100,

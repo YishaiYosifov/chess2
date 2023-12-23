@@ -2,17 +2,18 @@ import { RenderResult, render, screen } from "@testing-library/react";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 import { ReactElement } from "react";
+import { Mock } from "vitest";
 
 export function mockRouter() {
     const router = {
-        back: jest.fn(),
-        forward: jest.fn(),
-        refresh: jest.fn(),
-        push: jest.fn(),
-        replace: jest.fn(),
-        prefetch: jest.fn(),
+        back: vi.fn(),
+        forward: vi.fn(),
+        refresh: vi.fn(),
+        push: vi.fn(),
+        replace: vi.fn(),
+        prefetch: vi.fn(),
     };
-    const routerMock = useRouter as jest.Mock;
+    const routerMock = useRouter as Mock;
     routerMock.mockImplementation(() => router);
 
     return router;

@@ -6,9 +6,10 @@ import { Variant } from "@/lib/constants";
 import { RatingData } from "@/lib/types";
 
 import RatingCard from "../RatingsCard";
+import { Mock } from "vitest";
 
-jest.mock("react-google-charts", () => ({
-    Chart: jest.fn((props) => <div data-testid="ratingChart" {...props} />),
+vi.mock("react-google-charts", () => ({
+    Chart: vi.fn((props) => <div data-testid="ratingChart" {...props} />),
 }));
 
 const ratingMock: RatingData = {
@@ -31,13 +32,13 @@ describe("RatingsCard", () => {
 
     it("should correctly render the rating history chart", () => {
         const currDate = new Date("2023-01-01T12:00:00");
-        jest.useFakeTimers().setSystemTime(currDate);
+        vi.useFakeTimers().setSystemTime(currDate);
 
         render(
             <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
         );
 
-        const chartMock = Chart as unknown as jest.Mock;
+        const chartMock = Chart as unknown as Mock;
         const data = chartMock.mock.calls[0][0].data;
         expect(data).toEqual([
             ["Date", "Elo"],

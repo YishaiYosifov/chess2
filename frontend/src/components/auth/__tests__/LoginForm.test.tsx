@@ -3,9 +3,10 @@ import { render, screen } from "@testing-library/react";
 import { createFormRenderer, mockRouter } from "@/lib/utils/testUtils";
 import { login } from "@/lib/utils/authUtils";
 import LoginForm, { LoginFormValues } from "../LoginForm";
+import { Mock } from "vitest";
 
-jest.mock("@/lib/utils/authUtils", () => ({
-    login: jest.fn(),
+vi.mock("@/lib/utils/authUtils", () => ({
+    login: vi.fn(),
 }));
 
 describe("LoginForm", () => {
@@ -29,12 +30,12 @@ describe("LoginForm", () => {
 
     it.each([
         [null, "Something went wrong."],
-        [{ status: 500, text: jest.fn() }, "Something went wrong."],
+        [{ status: 500, text: vi.fn() }, "Something went wrong."],
         [{ status: 401 }, "Wrong username / password"],
     ])(
         "should correctly handle submit failures",
         async (response, statusText) => {
-            const mockLogin = login as jest.Mock;
+            const mockLogin = login as Mock;
             mockLogin.mockResolvedValue(response);
             await renderAndFillLogin();
 
@@ -46,7 +47,7 @@ describe("LoginForm", () => {
     it("should redirect when successfull", async () => {
         const { replace } = mockRouter();
 
-        const mockLogin = login as jest.Mock;
+        const mockLogin = login as Mock;
         mockLogin.mockResolvedValue({ ok: true });
         await renderAndFillLogin();
 
