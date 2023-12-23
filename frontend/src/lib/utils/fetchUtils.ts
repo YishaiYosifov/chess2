@@ -1,4 +1,33 @@
+import { CancelablePromise, OpenAPIConfig } from "@/client";
+import { ApiRequestOptions } from "@/client/core/ApiRequestOptions";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export async function request<T>(
+    config: OpenAPIConfig,
+    options: ApiRequestOptions
+): CancelablePromise<T> {
+    return new CancelablePromise((resolve, reject, onCancel) => {
+        try {
+            // Check if this function is running inside a server component and add the cookies if so
+
+            if (typeof window === "undefined") {
+                const { cookies } = await import("next/headers");
+                options.headers?.set("Cookie", cookies().toString());
+            }
+
+            const response = await fetch(`${API_URL}${options.path}`, {
+                credentials: "include",
+                ...options,
+            });
+
+            return response;
+        } catch (err) {
+            console.error(`Could not fetch ${options.path}:`, err);
+            return null;
+        }
+    }
+}
 
 /**
  * Makes an API request to a specified route
