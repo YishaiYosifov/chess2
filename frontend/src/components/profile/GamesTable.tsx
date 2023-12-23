@@ -56,7 +56,7 @@ const GamesTable = ({
 export default GamesTable;
 
 const EmptyRow = () => (
-    <tr>
+    <tr data-testid="emptyGamesTableRow">
         <td>
             <div className={styles["empty-td"]} />
         </td>

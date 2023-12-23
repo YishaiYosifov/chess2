@@ -48,7 +48,7 @@ const GameRow = ({
     const usernameBlack = game.userBlack?.username ?? "DELETED";
 
     return (
-        <tr className={styles.game}>
+        <tr className={styles.game} data-testid="gameRow">
             <td>
                 <GameLink />
                 <div className={styles["variant-icon"]}>
