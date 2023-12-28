@@ -19,43 +19,49 @@ import {
     RatingFromJSONTyped,
     RatingToJSON,
 } from './Rating';
+import type { RatingOverview } from './RatingOverview';
+import {
+    RatingOverviewFromJSON,
+    RatingOverviewFromJSONTyped,
+    RatingOverviewToJSON,
+} from './RatingOverview';
 
 /**
  * 
  * @export
- * @interface RatingOverview
+ * @interface ResponseProfileGetRatingsHistory
  */
-export interface RatingOverview {
+export interface ResponseProfileGetRatingsHistory {
     /**
      * 
      * @type {number}
-     * @memberof RatingOverview
+     * @memberof ResponseProfileGetRatingsHistory
      */
     min: number;
     /**
      * 
      * @type {number}
-     * @memberof RatingOverview
+     * @memberof ResponseProfileGetRatingsHistory
      */
     max: number;
     /**
      * 
      * @type {number}
-     * @memberof RatingOverview
+     * @memberof ResponseProfileGetRatingsHistory
      */
     current: number;
     /**
      * 
      * @type {Array<Rating>}
-     * @memberof RatingOverview
+     * @memberof ResponseProfileGetRatingsHistory
      */
     history: Array<Rating>;
 }
 
 /**
- * Check if a given object implements the RatingOverview interface.
+ * Check if a given object implements the ResponseProfileGetRatingsHistory interface.
  */
-export function instanceOfRatingOverview(value: object): boolean {
+export function instanceOfResponseProfileGetRatingsHistory(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "min" in value;
     isInstance = isInstance && "max" in value;
@@ -65,11 +71,11 @@ export function instanceOfRatingOverview(value: object): boolean {
     return isInstance;
 }
 
-export function RatingOverviewFromJSON(json: any): RatingOverview {
-    return RatingOverviewFromJSONTyped(json, false);
+export function ResponseProfileGetRatingsHistoryFromJSON(json: any): ResponseProfileGetRatingsHistory {
+    return ResponseProfileGetRatingsHistoryFromJSONTyped(json, false);
 }
 
-export function RatingOverviewFromJSONTyped(json: any, ignoreDiscriminator: boolean): RatingOverview {
+export function ResponseProfileGetRatingsHistoryFromJSONTyped(json: any, ignoreDiscriminator: boolean): ResponseProfileGetRatingsHistory {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -82,7 +88,7 @@ export function RatingOverviewFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function RatingOverviewToJSON(value?: RatingOverview | null): any {
+export function ResponseProfileGetRatingsHistoryToJSON(value?: ResponseProfileGetRatingsHistory | null): any {
     if (value === undefined) {
         return undefined;
     }

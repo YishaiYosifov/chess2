@@ -9,7 +9,7 @@
         "lint": "next lint",
         "test": "vitest run",
         "test:watch": "vitest",
-        "generate-client": "node scripts/generateOpenAPIClient.mjs"
+        "generate-client": "node ./scripts/openapi/generate.mjs"
     },
     "dependencies": {
         "@testing-library/user-event": "^14.5.1",
@@ -27,6 +27,7 @@
         "zustand": "^4.4.6"
     },
     "devDependencies": {
+        "@openapitools/openapi-generator-cli": "^2.7.0",
         "@testing-library/react": "^14.1.2",
         "@types/node": "^20",
         "@types/react": "^18",
@@ -38,7 +39,6 @@
         "eslint-plugin-testing-library": "^6.2.0",
         "jsdom": "^23.0.1",
         "msw": "^2.0.9",
-        "openapi-typescript-codegen": "^0.25.0",
         "typescript": "^5",
         "vite-tsconfig-paths": "^4.2.2",
         "vitest": "^1.1.0",

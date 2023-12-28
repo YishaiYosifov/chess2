@@ -1,4 +1,5 @@
-import OpenAPI from "openapi-typescript-codegen";
+import { execSync } from "child_process";
+import { writeFileSync } from "fs";
 
 async function getOpenapiContent() {
     const response = await fetch("http://localhost:8000/openapi.json");
@@ -23,13 +24,14 @@ async function generateClient() {
     const openapiContent = await processOpenapiContent(
         await getOpenapiContent()
     );
+    writeFileSync(
+        "./scripts/openapi/openapi.json",
+        JSON.stringify(openapiContent)
+    );
 
-    OpenAPI.generate({
-        input: openapiContent,
-        output: "./src/client",
-        client: "fetch",
-        useOptions: true,
-    });
+    execSync(
+        `npx openapi-generator-cli generate -i ./scripts/openapi/openapi.json -g typescript-fetch -o ./src/client`
+    );
 }
 
 generateClient();

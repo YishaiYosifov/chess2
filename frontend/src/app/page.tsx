@@ -6,7 +6,7 @@ export const metadata = {
     title: "Chess 2 - Home",
 };
 
-const IndexPage = () => {
+const IndexPage = async () => {
     return (
         <header className={styles["main-container"]}>
             <div className={styles.header}>
