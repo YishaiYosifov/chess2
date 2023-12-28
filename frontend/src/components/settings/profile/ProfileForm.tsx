@@ -6,7 +6,7 @@ import { Form } from "react-bootstrap";
 import * as yup from "yup";
 
 import { USERNAME_EDIT_EVERY } from "@/lib/constants";
-import { apiRequest } from "@/lib/utils/common";
+import { apiRequest } from "@/lib/utils/fetchUtils";
 import styles from "./ProfileForm.module.scss";
 import { useStore } from "@/zustand/store";
 
