@@ -48,7 +48,7 @@ export interface UserOut {
      * @type {Date}
      * @memberof UserOut
      */
-    pfpLastChanged?: Date;
+    pfpLastChanged: Date;
 }
 
 /**
@@ -58,6 +58,7 @@ export function instanceOfUserOut(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "username" in value;
     isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "pfpLastChanged" in value;
 
     return isInstance;
 }
@@ -76,7 +77,7 @@ export function UserOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): U
         'country': !exists(json, 'country') ? undefined : json['country'],
         'about': !exists(json, 'about') ? undefined : json['about'],
         'userId': json['user_id'],
-        'pfpLastChanged': !exists(json, 'pfp_last_changed') ? undefined : (new Date(json['pfp_last_changed'])),
+        'pfpLastChanged': (new Date(json['pfp_last_changed'])),
     };
 }
 
@@ -93,7 +94,7 @@ export function UserOutToJSON(value?: UserOut | null): any {
         'country': value.country,
         'about': value.about,
         'user_id': value.userId,
-        'pfp_last_changed': value.pfpLastChanged === undefined ? undefined : (value.pfpLastChanged.toISOString()),
+        'pfp_last_changed': (value.pfpLastChanged.toISOString()),
     };
 }
 

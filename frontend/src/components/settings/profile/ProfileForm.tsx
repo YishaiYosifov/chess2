@@ -6,21 +6,24 @@ import { Form } from "react-bootstrap";
 import * as yup from "yup";
 
 import { USERNAME_EDIT_EVERY } from "@/lib/constants";
-import { apiRequest } from "@/lib/utils/fetchUtils";
 import styles from "./ProfileForm.module.scss";
 import { useStore } from "@/zustand/store";
 
-import { FormikField } from "@/components/FormField";
 import PasswordField from "../fields/PasswordField";
+import { settingsApi } from "@/lib/apis";
 
 export async function updateSettings(
     values: object,
     helpers: FormikHelpers<object>
 ) {
-    const settingsResponse = await apiRequest("/profile/update-settings", {
-        method: "PUT",
-        json: values,
-    });
+    // !!! TODO !!!
+    const settingsResponse = await settingsApi.updateSettings(
+        "/profile/update-settings",
+        {
+            method: "PUT",
+            json: values,
+        }
+    );
     helpers.setSubmitting(false);
     const msg = (await settingsResponse.json()).msg;
 

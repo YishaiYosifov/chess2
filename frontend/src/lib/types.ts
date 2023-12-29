@@ -1,4 +1,5 @@
-import { Color, GameResult, Variant } from "./constants";
+import { RatingOverview, Variant } from "@/client";
+import { Color, GameResult } from "./constants";
 
 export interface Player {
     userId: number;
@@ -30,7 +31,7 @@ export interface RatingData {
     max: number;
 }
 
-export type RatingsMap = { [key in Variant]: RatingData };
+export type RatingMap = { [key: string]: RatingOverview };
 
 export interface SimplePublicProfile {
     userId: number;

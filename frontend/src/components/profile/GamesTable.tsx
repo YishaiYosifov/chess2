@@ -2,9 +2,8 @@
 
 import { Table } from "react-bootstrap";
 
-import type { PublicProfile } from "@/lib/types";
+import type { GameResults, UserOut } from "@/client";
 import styles from "./GamesTable.module.scss";
-import { Game } from "@/lib/types";
 
 import GameRow from "./GameRow";
 
@@ -12,8 +11,8 @@ const GamesTable = ({
     games,
     viewingProfile,
 }: {
-    games: Game[];
-    viewingProfile: PublicProfile;
+    games: GameResults[];
+    viewingProfile: UserOut;
 }) => {
     const MAX_EMPTY_ROWS = 3;
 

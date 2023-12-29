@@ -12,7 +12,6 @@ export * from './HTTPValidationError';
 export * from './LocationInner';
 export * from './Rating';
 export * from './RatingOverview';
-export * from './ResponseProfileGetRatingsHistory';
 export * from './SimpleUserOut';
 export * from './UserIn';
 export * from './UserOut';

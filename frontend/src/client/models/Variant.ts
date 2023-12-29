@@ -12,17 +12,16 @@
  * Do not edit the class manually.
  */
 
-
 /**
  * 
  * @export
+ * @enum {string}
  */
-export const Variant = {
-    FogOfWar: 'fog of war',
-    Anarchy: 'anarchy',
-    Chss: 'chss'
-} as const;
-export type Variant = typeof Variant[keyof typeof Variant];
+export enum Variant {
+    FogOfWar = 'fog of war',
+    Anarchy = 'anarchy',
+    Chss = 'chss'
+}
 
 
 export function VariantFromJSON(json: any): Variant {

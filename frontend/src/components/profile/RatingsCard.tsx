@@ -5,15 +5,14 @@ import { Card } from "react-bootstrap";
 import Image from "next/image";
 
 import styles from "./RatingsCard.module.scss";
-
-import type { RatingData } from "@/lib/types";
+import type { RatingOverview } from "@/client";
 
 const RatingCard = ({
     variant,
     ratingData,
 }: {
     variant: string;
-    ratingData: RatingData;
+    ratingData: RatingOverview;
 }) => {
     const {
         history,

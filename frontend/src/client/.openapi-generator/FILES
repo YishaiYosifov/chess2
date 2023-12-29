@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/AuthApi.ts
 apis/GameRequestsApi.ts
 apis/ProfileApi.ts
@@ -16,7 +17,6 @@ models/HTTPValidationError.ts
 models/LocationInner.ts
 models/Rating.ts
 models/RatingOverview.ts
-models/ResponseProfileGetRatingsHistory.ts
 models/SimpleUserOut.ts
 models/UserIn.ts
 models/UserOut.ts

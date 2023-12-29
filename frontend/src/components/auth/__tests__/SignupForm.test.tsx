@@ -1,19 +1,20 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import {
-    fillForm,
-    mockRouter,
-    createFormRenderer,
-} from "@/lib/utils/testUtils";
-import SignupForm, { SignupFormValues } from "../SignupForm";
-import { signup } from "@/lib/utils/authUtils";
 import { Mock } from "vitest";
 
-vi.mock("@/lib/utils/authUtils", () => ({ signup: vi.fn() }));
+import {
+    createFormRenderer,
+    fillForm,
+    responseErrFactory,
+} from "@/lib/utils/testUtils";
+import SignupForm, { SignupFormValues } from "../SignupForm";
+import { mockRouter } from "@/mocks/mocks";
+import { authApi } from "@/lib/apis";
+
+vi.mock("@/lib/apis", () => ({ authApi: { signup: vi.fn() } }));
 
 describe("SignupForm", () => {
-    const signupMock = signup as Mock;
+    const signupMock = authApi.signup as Mock;
     const defaultFieldValues = {
         username: "a",
         email: "a@b.c",
@@ -48,10 +49,10 @@ describe("SignupForm", () => {
         for (const error of errors) expect(error.textContent).not.toBe("");
     });
 
-    it.each([null, { status: 500, json: vi.fn() }])(
+    it.each([new Error(), responseErrFactory("{}", { status: 500 })])(
         "should set status on unknown error",
         async (response) => {
-            signupMock.mockResolvedValue(response);
+            signupMock.mockRejectedValue(response);
             await renderAndFillSignup();
 
             expect(
@@ -61,10 +62,12 @@ describe("SignupForm", () => {
     );
 
     it("should set errors on conflict", async () => {
-        signupMock.mockResolvedValue({
-            status: 409,
-            json: () => ({ detail: { email: "this is a test error" } }),
-        });
+        signupMock.mockRejectedValue(
+            responseErrFactory(
+                '{ "detail": { "email": "this is a test error" } }',
+                { status: 409 }
+            )
+        );
 
         await renderAndFillSignup();
         expect(screen.getByText("this is a test error")).toBeInTheDocument();

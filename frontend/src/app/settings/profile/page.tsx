@@ -1,4 +1,5 @@
 import type { LocalProfile } from "@/lib/types";
+import { apiConfig } from "@/lib/apis";
 
 import ChangeProfilePicture from "@/components/settings/ChangeProfilePicture";
 import SettingsForm from "@/components/settings/profile/ProfileForm";
@@ -7,7 +8,7 @@ import withAuth from "@/components/hocs/withAuth";
 
 const ProfilePage = withAuth(async ({ profile }: { profile: LocalProfile }) => {
     const countries = await (
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/static/countries.json`)
+        await fetch(`${apiConfig.basePath}/static/countries.json`)
     ).json();
 
     return (

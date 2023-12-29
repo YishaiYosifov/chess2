@@ -1,16 +1,16 @@
 import { notFound } from "next/navigation";
 
-import {
-    fetchGames,
-    fetchProfile,
-    fetchRatings,
-} from "@/lib/cruds/profileCrud";
 import styles from "./user.module.scss";
+
+import type { GameResults, UserOut } from "@/client";
+import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";
 import GamesTable from "@/components/profile/GamesTable";
 import Profile from "@/components/profile/Profile";
+import { RatingMap } from "@/lib/types";
 
+export const revalidate = 60;
 export const metadata = {
     title: "Chess 2 - User",
 };
@@ -24,12 +24,20 @@ const UserPage = async ({
     const dateMonthAgo = new Date();
     dateMonthAgo.setMonth(dateMonthAgo.getMonth() - 1);
 
-    const [profile, ratings, games] = await Promise.all([
-        fetchProfile(username),
-        fetchRatings(username, dateMonthAgo),
-        fetchGames(username),
-    ]);
-    if (!profile || !ratings || !games) notFound();
+    let profile: UserOut, ratings: RatingMap, games: GameResults[];
+    try {
+        [profile, ratings, games] = await Promise.all([
+            profileApi.getInfo({ target: username }),
+            profileApi.getRatingsHistory({
+                target: username,
+                since: dateMonthAgo,
+            }),
+            profileApi.paginateGames({ target: username }),
+        ]);
+    } catch {
+        // TODO error handing
+        notFound();
+    }
 
     return (
         <div className={styles.container}>

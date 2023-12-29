@@ -12,17 +12,16 @@
  * Do not edit the class manually.
  */
 
-
 /**
  * 
  * @export
+ * @enum {string}
  */
-export const GameResult = {
-    White: 'white',
-    Black: 'black',
-    Draw: 'draw'
-} as const;
-export type GameResult = typeof GameResult[keyof typeof GameResult];
+export enum GameResult {
+    White = 'white',
+    Black = 'black',
+    Draw = 'draw'
+}
 
 
 export function GameResultFromJSON(json: any): GameResult {

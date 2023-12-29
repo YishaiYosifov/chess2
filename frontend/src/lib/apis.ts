@@ -1,14 +1,17 @@
 import {
-    AuthApi,
-    Configuration,
     GameRequestsApi,
-    ProfileApi,
+    Configuration,
     SettingsApi,
+    ProfileApi,
+    AuthApi,
 } from "../client";
 
-const config = new Configuration({ basePath: process.env.NEXT_PUBLIC_API_URL });
+export const apiConfig = new Configuration({
+    basePath: process.env.NEXT_PUBLIC_API_URL,
+    credentials: "include",
+});
 
-export const gameRequestApi = new GameRequestsApi(config);
-export const settingsApi = new SettingsApi(config);
-export const profileApi = new ProfileApi(config);
-export const authApi = new AuthApi(config);
+export const gameRequestApi = new GameRequestsApi(apiConfig);
+export const settingsApi = new SettingsApi(apiConfig);
+export const profileApi = new ProfileApi(apiConfig);
+export const authApi = new AuthApi(apiConfig);

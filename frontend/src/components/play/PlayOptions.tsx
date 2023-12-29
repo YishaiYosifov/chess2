@@ -5,9 +5,9 @@ import { Card, Spinner } from "react-bootstrap";
 
 import { useState } from "react";
 
-//import { TIME_CONTROLS, Variant } from "@/lib/constants";
-import { apiRequest } from "@/lib/utils/fetchUtils";
 import styles from "./PlayOptions.module.scss";
+import { Variant } from "@/client";
+import { gameRequestApi } from "@/lib/apis";
 
 interface TimeControl {
     timeControl: number;
@@ -31,9 +31,7 @@ const PlayOptions = () => {
      * Cancels the outgoing game request
      */
     async function cancelRequest(): Promise<void> {
-        await apiRequest("/game-requests/cancel", {
-            method: "delete",
-        });
+        await gameRequestApi.cancel();
         setSelectedTimeControl(undefined);
     }
 
@@ -46,16 +44,15 @@ const PlayOptions = () => {
         increment: number,
         variant: Variant
     ): Promise<void> {
-        const response = await apiRequest("/game-requests/pool/join", {
-            method: "POST",
-            json: {
-                variant: variant,
-                time_control: timeControl,
-                increment,
-            },
-        });
-
-        if (!response || !response.ok) {
+        try {
+            await gameRequestApi.startPoolGame({
+                gameSettings: {
+                    variant: variant,
+                    timeControl: timeControl,
+                    increment,
+                },
+            });
+        } catch {
             cancelRequest();
             setStatus("something went wrong...");
             return;

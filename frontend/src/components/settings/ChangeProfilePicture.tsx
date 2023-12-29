@@ -5,11 +5,11 @@ import { Button } from "react-bootstrap";
 import { useRef, useState, ChangeEvent } from "react";
 
 import styles from "./ChangeProfilePicture.module.scss";
-import { apiRequest } from "@/lib/utils/fetchUtils";
 import { revalidateUser } from "@/app/actions";
 import { useStore } from "@/zustand/store";
 
 import ProfilePicture from "@/components/ProfilePicture";
+import { settingsApi } from "@/lib/apis";
 
 const ChangeProfilePicture = () => {
     const { username, pfpLastChanged, userId } = useStore.use.localProfile();
@@ -24,16 +24,9 @@ const ChangeProfilePicture = () => {
         const files = (event.target as HTMLInputElement).files;
         if (!files) return;
 
-        const data = new FormData();
-        data.append("pfp", files[0]);
-
-        const uploadResponse = await apiRequest(
-            "/profile/upload-profile-picture",
-            {
-                body: data,
-                method: "PUT",
-            }
-        );
+        const uploadResponse = await settingsApi.uploadProfilePicture({
+            pfp: files[0],
+        });
         const uploadData = await uploadResponse.json();
 
         switch (uploadResponse.status) {
