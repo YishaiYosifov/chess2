@@ -1,23 +1,7 @@
+import { ResponseError } from "@/client";
 import { RenderResult, render, screen } from "@testing-library/react";
 import userEvent, { UserEvent } from "@testing-library/user-event";
-import { useRouter } from "next/navigation";
 import { ReactElement } from "react";
-import { Mock } from "vitest";
-
-export function mockRouter() {
-    const router = {
-        back: vi.fn(),
-        forward: vi.fn(),
-        refresh: vi.fn(),
-        push: vi.fn(),
-        replace: vi.fn(),
-        prefetch: vi.fn(),
-    };
-    const routerMock = useRouter as Mock;
-    routerMock.mockImplementation(() => router);
-
-    return router;
-}
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 
@@ -78,3 +62,13 @@ export const createFormRenderer =
     <T>(form: ReactElement, defaultFields: FormFields<T>) =>
     (options?: RenderAndFillForm<T>) =>
         renderAndFillForm(form, { fieldValues: defaultFields, ...options });
+
+/**
+ * Creates a ResponseError instance
+ */
+export function responseErrFactory(
+    body: BodyInit | null,
+    response: ResponseInit
+): ResponseError {
+    return new ResponseError(new Response(body, response));
+}

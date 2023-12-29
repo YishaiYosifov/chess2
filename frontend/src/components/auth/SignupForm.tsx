@@ -6,12 +6,12 @@ import { BsPersonFill, BsEnvelopeFill } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
-import { signup } from "@/lib/utils/authUtils";
-
 import { Formik, FormikHelpers } from "formik";
 
 import PasswordField from "../PasswordField";
 import { FormikField } from "../FormField";
+import { authApi } from "@/lib/apis";
+import { ResponseError } from "@/client";
 
 export interface SignupFormValues {
     username: string;
@@ -26,31 +26,34 @@ const SignupForm = () => {
         values: SignupFormValues,
         { setErrors, setStatus }: FormikHelpers<SignupFormValues>
     ) {
-        const response = await signup(
-            values.username,
-            values.email,
-            values.password
-        );
-
-        if (!response) {
-            setStatus("Something went wrong.");
-            return;
-        } else if (response.ok) {
-            router.push("/login");
-            return;
-        }
-
-        const data = await response.json();
-
-        switch (response.status) {
-            case 409:
-                setErrors(data.detail);
-                break;
-            default:
-                console.error(data);
+        try {
+            await authApi.signup({
+                userIn: {
+                    username: values.username,
+                    email: values.email,
+                    password: values.password,
+                },
+            });
+        } catch (err) {
+            if (!(err instanceof ResponseError)) {
                 setStatus("Something went wrong.");
-                break;
+                return;
+            }
+
+            const data = await err.response.json();
+            switch (err.response.status) {
+                case 409:
+                    setErrors(data.detail);
+                    break;
+                default:
+                    console.error(data);
+                    setStatus("Something went wrong.");
+                    break;
+            }
+            return;
         }
+
+        router.push("/login");
     }
 
     const schema = yup.object().shape({

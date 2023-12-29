@@ -1,12 +1,13 @@
 import { render, screen } from "@testing-library/react";
-
-import { createFormRenderer, mockRouter } from "@/lib/utils/testUtils";
-import { login } from "@/lib/utils/authUtils";
-import LoginForm, { LoginFormValues } from "../LoginForm";
 import { Mock } from "vitest";
 
-vi.mock("@/lib/utils/authUtils", () => ({
-    login: vi.fn(),
+import { createFormRenderer, responseErrFactory } from "@/lib/utils/testUtils";
+import LoginForm, { LoginFormValues } from "../LoginForm";
+import { mockRouter } from "@/mocks/mocks";
+import { authApi } from "@/lib/apis";
+
+vi.mock("@/lib/apis", () => ({
+    authApi: { login: vi.fn() },
 }));
 
 describe("LoginForm", () => {
@@ -29,14 +30,17 @@ describe("LoginForm", () => {
     });
 
     it.each([
-        [null, "Something went wrong."],
-        [{ status: 500, text: vi.fn() }, "Something went wrong."],
-        [{ status: 401 }, "Wrong username / password"],
+        [new Error(), "Something went wrong."],
+        [responseErrFactory(null, { status: 500 }), "Something went wrong."],
+        [
+            responseErrFactory(null, { status: 401 }),
+            "Wrong username / password",
+        ],
     ])(
         "should correctly handle submit failures",
         async (response, statusText) => {
-            const mockLogin = login as Mock;
-            mockLogin.mockResolvedValue(response);
+            const mockLogin = authApi.login as Mock;
+            mockLogin.mockRejectedValue(response);
             await renderAndFillLogin();
 
             const status = screen.getByTestId("formStatus");
@@ -47,8 +51,8 @@ describe("LoginForm", () => {
     it("should redirect when successfull", async () => {
         const { replace } = mockRouter();
 
-        const mockLogin = login as Mock;
-        mockLogin.mockResolvedValue({ ok: true });
+        const mockLogin = authApi.login as Mock;
+        mockLogin.mockResolvedValue({});
         await renderAndFillLogin();
 
         expect(replace).toHaveBeenCalledWith("/");

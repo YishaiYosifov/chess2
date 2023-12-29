@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { apiRequest } from "@/lib/utils/fetchUtils";
-import type { LocalProfile } from "@/lib/types";
+import { profileApi } from "@/lib/apis";
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
@@ -11,14 +10,14 @@ import type { LocalProfile } from "@/lib/types";
  */
 const withAuth = (WrappedComponent: any) => {
     return async (props: any) => {
-        const response = await apiRequest("/profile/me/info-sensitive", {
-            cache: "no-cache",
-            method: "GET",
-        });
-        if (!response || !response.ok) redirect("/");
-
-        const profile: LocalProfile = await response.json();
-        return <WrappedComponent {...props} profile={profile} />;
+        try {
+            const profile = await profileApi.getInfoSensitive({
+                cache: "no-cache",
+            });
+            return <WrappedComponent {...props} profile={profile} />;
+        } catch {
+            redirect("/");
+        }
     };
 };
 export default withAuth;

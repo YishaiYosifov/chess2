@@ -3,13 +3,13 @@
 import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import type { PublicProfile } from "@/lib/types";
 import styles from "./Profile.module.scss";
 
 import ProfilePicture from "../ProfilePicture";
+import type { UserOut } from "@/client";
 
 /** Show basic information about a user */
-const Profile = ({ profile }: { profile: PublicProfile }) => {
+const Profile = ({ profile }: { profile: UserOut }) => {
     return (
         <Card className={styles.profile}>
             <ProfilePicture

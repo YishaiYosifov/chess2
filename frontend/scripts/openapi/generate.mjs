@@ -1,5 +1,5 @@
+import { writeFileSync, rmSync } from "fs";
 import { execSync } from "child_process";
-import { writeFileSync } from "fs";
 
 async function getOpenapiContent() {
     const response = await fetch("http://localhost:8000/openapi.json");
@@ -29,8 +29,13 @@ async function generateClient() {
         JSON.stringify(openapiContent)
     );
 
+    rmSync("./src/client", { recursive: true });
     execSync(
-        `npx openapi-generator-cli generate -i ./scripts/openapi/openapi.json -g typescript-fetch -o ./src/client`
+        "npx openapi-generator-cli generate " +
+            "-i ./scripts/openapi/openapi.json " +
+            "-g typescript-fetch " +
+            "-o ./src/client " +
+            "--additional-properties=stringEnums=true"
     );
 }
 

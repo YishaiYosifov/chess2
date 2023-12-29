@@ -1,3 +1,4 @@
+import { apiConfig } from "@/lib/apis";
 import Image from "next/image";
 
 const ProfilePicture = ({
@@ -10,14 +11,19 @@ const ProfilePicture = ({
     username?: string;
     width?: number;
     height?: number;
-    lastChanged?: string;
+    lastChanged?: Date;
     className?: string;
 }) => {
+    const lastChangedTimestamp = (lastChanged ?? new Date()).valueOf() / 1000;
+
     return (
         <Image
             className={className}
             alt="profile picture"
-            src={`${process.env.NEXT_PUBLIC_API_URL}/profile/${username}/profile-picture?${lastChanged}`}
+            src={
+                `${apiConfig.basePath}/profile/${username}` +
+                `/profile-picture?${lastChangedTimestamp}`
+            }
             width={width}
             height={height}
         />

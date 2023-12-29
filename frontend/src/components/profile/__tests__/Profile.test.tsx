@@ -31,7 +31,9 @@ describe("Profile", () => {
         const profilePicture = screen.getByAltText("profile picture");
         const profilePictureSrc =
             `${process.env.NEXT_PUBLIC_API_URL}/profile/` +
-            `${profileMock.username}/profile-picture?${profileMock.pfpLastChanged}`;
+            `${profileMock.username}/profile-picture?${
+                profileMock.pfpLastChanged.valueOf() / 1000
+            }`;
         expect(profilePicture).toHaveAttribute("src", profilePictureSrc);
         expect(profilePicture).toHaveAttribute("width", "250");
         expect(profilePicture).toHaveAttribute("height", "250");

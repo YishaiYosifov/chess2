@@ -7,7 +7,10 @@ import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
-import { login } from "@/lib/utils/authUtils";
+import { setIsAuthed } from "@/zustand/store";
+import { ResponseError } from "@/client";
+import { authApi } from "@/lib/apis";
+
 import PasswordField from "../PasswordField";
 import { FormikField } from "../FormField";
 
@@ -23,25 +26,34 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>
     ) {
-        const response = await login(values.username, values.password);
-
-        if (!response) {
-            setStatus("Something went wrong.");
-            return;
-        } else if (response.ok) {
-            router.replace("/");
-            return;
-        }
-
-        switch (response.status) {
-            case 401:
-                setStatus("Wrong username / password");
-                break;
-            default:
+        try {
+            await authApi.login({
+                username: values.username,
+                password: values.password,
+            });
+        } catch (err) {
+            if (!(err instanceof ResponseError)) {
                 setStatus("Something went wrong.");
-                console.error(response.status, await response.text());
-                break;
+                return;
+            }
+
+            switch (err.response.status) {
+                case 401:
+                    setStatus("Wrong username / password");
+                    break;
+                default:
+                    setStatus("Something went wrong.");
+                    console.error(
+                        err.response.status,
+                        await err.response.text()
+                    );
+                    break;
+            }
+            return;
         }
+
+        setIsAuthed(true);
+        router.replace("/");
     }
 
     const schema = yup.object().shape({

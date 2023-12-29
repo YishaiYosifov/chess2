@@ -20,7 +20,7 @@ import type {
   GameResults,
   HTTPValidationError,
   Rating,
-  ResponseProfileGetRatingsHistory,
+  RatingOverview,
   UserOut,
   UserOutSensitive,
   Variant,
@@ -36,8 +36,8 @@ import {
     HTTPValidationErrorToJSON,
     RatingFromJSON,
     RatingToJSON,
-    ResponseProfileGetRatingsHistoryFromJSON,
-    ResponseProfileGetRatingsHistoryToJSON,
+    RatingOverviewFromJSON,
+    RatingOverviewToJSON,
     UserOutFromJSON,
     UserOutToJSON,
     UserOutSensitiveFromJSON,
@@ -195,7 +195,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Get the rating history of a user. If a user is unrated in a certain variant, that variant will not be returned.
      * Get Ratings History
      */
-    async getRatingsHistoryRaw(requestParameters: GetRatingsHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: ResponseProfileGetRatingsHistory; }>> {
+    async getRatingsHistoryRaw(requestParameters: GetRatingsHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<{ [key: string]: RatingOverview; }>> {
         if (requestParameters.target === null || requestParameters.target === undefined) {
             throw new runtime.RequiredError('target','Required parameter requestParameters.target was null or undefined when calling getRatingsHistory.');
         }
@@ -228,14 +228,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => runtime.mapValues(jsonValue, ResponseProfileGetRatingsHistoryFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => runtime.mapValues(jsonValue, RatingOverviewFromJSON));
     }
 
     /**
      * Get the rating history of a user. If a user is unrated in a certain variant, that variant will not be returned.
      * Get Ratings History
      */
-    async getRatingsHistory(requestParameters: GetRatingsHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: ResponseProfileGetRatingsHistory; }> {
+    async getRatingsHistory(requestParameters: GetRatingsHistoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<{ [key: string]: RatingOverview; }> {
         const response = await this.getRatingsHistoryRaw(requestParameters, initOverrides);
         return await response.value();
     }
