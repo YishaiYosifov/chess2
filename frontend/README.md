@@ -38,7 +38,7 @@ To view the features, check out the [backend documentation](https://github.com/Y
 
 ![Signup Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/f352b93f-f6af-4f0b-ab7b-573b71c84f82)
 
-![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/e5cfbf97-54a1-4e69-9496-9a3fa4ec7470)
+![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1e50a2f7-1ae1-48dc-b534-568a5d1acb17)
 
 ![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1a5f6eba-7300-4977-a6c4-a125b4a5e44f)
 
