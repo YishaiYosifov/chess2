@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# chess2
 
-## Getting Started
+The chess2 website frontend
 
-First, run the development server:
+## Installation
+
+First, install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+  npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+then run the dev server:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+  npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Open http://localhost:3000 in your browser to view the website.
 
-## Learn More
+## OpenAPI SDK
 
-To learn more about Next.js, take a look at the following resources:
+The backend of this project is made in FastAPI. FastAPI automatically generates openapi specs. Using this, we can automatically generate a typesafe SDK.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project uses the openapi-generator package. To generate the client, run
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+  npm run generate-client
+```
 
-## Deploy on Vercel
+The SDK will be generated into `src/client`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+To view the features, check out the [backend documentation](https://github.com/YishaiYosifov/chess2-backend#features).
+
+## Screenshots
+
+![Signup Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/f352b93f-f6af-4f0b-ab7b-573b71c84f82)
+
+![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/7a3db5e8-6428-4b9f-be00-502a9d387f58)
+
+![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/d6218b96-0da3-454a-8890-bb00c44d5062)
+
+## Testing
+
+To run tests, run the following command:
+
+```bash
+  npm run test
+```
+
+To run the test watcher, run the following command:
+
+```bash
+  npm run test:watch
+```
+
+Tests are located in the `__tests__` subdirectory in each directory. Test are made with [React Testing Library](https://github.com/testing-library/react-testing-library) and [vitest](https://github.com/vitest-dev/vitest).
