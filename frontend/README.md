@@ -40,7 +40,7 @@ To view the features, check out the [backend documentation](https://github.com/Y
 
 ![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/7a3db5e8-6428-4b9f-be00-502a9d387f58)
 
-![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/d6218b96-0da3-454a-8890-bb00c44d5062)
+![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1a5f6eba-7300-4977-a6c4-a125b4a5e44f)
 
 ## Testing
 
