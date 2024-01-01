@@ -16,7 +16,7 @@ then run the dev server:
   npm run dev
 ```
 
-Open http://localhost:3000 in your browser to view the website.
+Open http://127.0.0.1:3000 in your browser to view the website.
 
 ## OpenAPI SDK
 
