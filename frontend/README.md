@@ -32,7 +32,7 @@ The SDK will be generated into `src/client`.
 
 ## Features
 
-To view the features, check out the [backend documentation](https://github.com/YishaiYosifov/chess2-backend#features).
+To view the features, check out the [backend readme](https://github.com/YishaiYosifov/chess2-backend#features).
 
 ## Screenshots
 
