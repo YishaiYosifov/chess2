@@ -5,9 +5,10 @@ import { Card, Spinner } from "react-bootstrap";
 
 import { useState } from "react";
 
+import { TIME_CONTROLS } from "@/lib/constants";
 import styles from "./PlayOptions.module.scss";
-import { Variant } from "@/client";
 import { gameRequestApi } from "@/lib/apis";
+import { Variant } from "@/client";
 
 interface TimeControl {
     timeControl: number;

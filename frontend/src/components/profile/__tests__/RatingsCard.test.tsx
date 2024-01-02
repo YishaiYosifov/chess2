@@ -3,17 +3,17 @@ import { render, screen } from "@testing-library/react";
 import { Chart } from "react-google-charts";
 
 import { Variant } from "@/lib/constants";
-import { RatingData } from "@/lib/types";
 
 import RatingCard from "../RatingsCard";
 import { Mock } from "vitest";
+import { RatingOverview } from "@/client";
 
 vi.mock("react-google-charts", () => ({
     Chart: vi.fn((props) => <div data-testid="ratingChart" {...props} />),
 }));
 
-const ratingMock: RatingData = {
-    history: [{ elo: 900, achievedAt: "2023-01-01T12:00:00" }],
+const ratingMock: RatingOverview = {
+    history: [{ elo: 900, achievedAt: new Date("2023-01-01T12:00:00") }],
     current: 1000,
     min: 900,
     max: 1100,
@@ -70,10 +70,15 @@ describe("RatingsCard", () => {
     ])(
         "should display the rating change",
         (current, previous, colorClass, expectedText) => {
-            const newMockRating = {
+            const newMockRating: RatingOverview = {
                 ...ratingMock,
                 current: current,
-                history: [{ elo: previous, achievedAt: "2023-01-01T12:00:00" }],
+                history: [
+                    {
+                        elo: previous,
+                        achievedAt: new Date("2023-01-01T12:00:00"),
+                    },
+                ],
             };
             render(
                 <RatingCard

@@ -46,7 +46,7 @@ const RatingCard = ({
             <Card.Header className={styles.header}>
                 <Image
                     className="img-fluid rounded-circle border border-3"
-                    src={`/assets/modes/${variant}.webp`}
+                    src={`/assets/modes/anarchy.webp`}
                     alt="Mode icon"
                     width={30}
                     height={30}

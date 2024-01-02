@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import styles from "./user.module.scss";
 
-import type { GameResults, UserOut } from "@/client";
+import type { FinishedGame, PublicUserOut } from "@/client";
 import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";
@@ -24,7 +24,7 @@ const UserPage = async ({
     const dateMonthAgo = new Date();
     dateMonthAgo.setMonth(dateMonthAgo.getMonth() - 1);
 
-    let profile: UserOut, ratings: RatingMap, games: GameResults[];
+    let profile: PublicUserOut, ratings: RatingMap, games: FinishedGame[];
     try {
         [profile, ratings, games] = await Promise.all([
             profileApi.getInfo({ target: username }),

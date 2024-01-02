@@ -15,20 +15,20 @@
 
 import * as runtime from '../runtime';
 import type {
-  BaseUserProfile,
+  EditableProfile,
   ErrorResponseStr,
   HTTPValidationError,
-  UserOut,
+  PublicUserOut,
 } from '../models/index';
 import {
-    BaseUserProfileFromJSON,
-    BaseUserProfileToJSON,
+    EditableProfileFromJSON,
+    EditableProfileToJSON,
     ErrorResponseStrFromJSON,
     ErrorResponseStrToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
-    UserOutFromJSON,
-    UserOutToJSON,
+    PublicUserOutFromJSON,
+    PublicUserOutToJSON,
 } from '../models/index';
 
 export interface ChangeEmailRequest {
@@ -44,7 +44,7 @@ export interface ChangeUsernameRequest {
 }
 
 export interface UpdateProfileRequest {
-    baseUserProfile: BaseUserProfile;
+    editableProfile: EditableProfile;
 }
 
 export interface UploadProfilePictureRequest {
@@ -60,7 +60,7 @@ export class SettingsApi extends runtime.BaseAPI {
      * Update the email and send an email verification. This will also unverify the user email.  Requires a fresh JWT token.
      * Change Email
      */
-    async changeEmailRaw(requestParameters: ChangeEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOut>> {
+    async changeEmailRaw(requestParameters: ChangeEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
         if (requestParameters.body === null || requestParameters.body === undefined) {
             throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling changeEmail.');
         }
@@ -84,14 +84,14 @@ export class SettingsApi extends runtime.BaseAPI {
             body: requestParameters.body as any,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
     }
 
     /**
      * Update the email and send an email verification. This will also unverify the user email.  Requires a fresh JWT token.
      * Change Email
      */
-    async changeEmail(requestParameters: ChangeEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+    async changeEmail(requestParameters: ChangeEmailRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
         const response = await this.changeEmailRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -100,7 +100,7 @@ export class SettingsApi extends runtime.BaseAPI {
      * Hash the password and update it. Requires a fresh JWT token.
      * Change Password
      */
-    async changePasswordRaw(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOut>> {
+    async changePasswordRaw(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
         if (requestParameters.body === null || requestParameters.body === undefined) {
             throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling changePassword.');
         }
@@ -124,14 +124,14 @@ export class SettingsApi extends runtime.BaseAPI {
             body: requestParameters.body as any,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
     }
 
     /**
      * Hash the password and update it. Requires a fresh JWT token.
      * Change Password
      */
-    async changePassword(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+    async changePassword(requestParameters: ChangePasswordRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
         const response = await this.changePasswordRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -140,7 +140,7 @@ export class SettingsApi extends runtime.BaseAPI {
      * Update the username
      * Change Username
      */
-    async changeUsernameRaw(requestParameters: ChangeUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOut>> {
+    async changeUsernameRaw(requestParameters: ChangeUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
         if (requestParameters.body === null || requestParameters.body === undefined) {
             throw new runtime.RequiredError('body','Required parameter requestParameters.body was null or undefined when calling changeUsername.');
         }
@@ -164,14 +164,14 @@ export class SettingsApi extends runtime.BaseAPI {
             body: requestParameters.body as any,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
     }
 
     /**
      * Update the username
      * Change Username
      */
-    async changeUsername(requestParameters: ChangeUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+    async changeUsername(requestParameters: ChangeUsernameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
         const response = await this.changeUsernameRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -179,9 +179,9 @@ export class SettingsApi extends runtime.BaseAPI {
     /**
      * Update Profile
      */
-    async updateProfileRaw(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOut>> {
-        if (requestParameters.baseUserProfile === null || requestParameters.baseUserProfile === undefined) {
-            throw new runtime.RequiredError('baseUserProfile','Required parameter requestParameters.baseUserProfile was null or undefined when calling updateProfile.');
+    async updateProfileRaw(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
+        if (requestParameters.editableProfile === null || requestParameters.editableProfile === undefined) {
+            throw new runtime.RequiredError('editableProfile','Required parameter requestParameters.editableProfile was null or undefined when calling updateProfile.');
         }
 
         const queryParameters: any = {};
@@ -200,16 +200,16 @@ export class SettingsApi extends runtime.BaseAPI {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: BaseUserProfileToJSON(requestParameters.baseUserProfile),
+            body: EditableProfileToJSON(requestParameters.editableProfile),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
     }
 
     /**
      * Update Profile
      */
-    async updateProfile(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+    async updateProfile(requestParameters: UpdateProfileRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
         const response = await this.updateProfileRaw(requestParameters, initOverrides);
         return await response.value();
     }

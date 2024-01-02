@@ -4,15 +4,16 @@ import Link from "next/link";
 
 import styles from "./GameRow.module.scss";
 
-import { type Game, type PublicProfile } from "@/lib/types";
-import { GameResult, Color } from "@/lib/constants";
+import type { PublicUserOut, FinishedGame } from "@/client";
+import { Color } from "@/lib/constants";
+import { GameResult } from "@/client";
 
 const GameRow = ({
     game,
     viewingProfile,
 }: {
-    game: Game;
-    viewingProfile: PublicProfile;
+    game: FinishedGame;
+    viewingProfile: PublicUserOut;
 }) => {
     const color =
         game.userWhite?.userId == viewingProfile.userId

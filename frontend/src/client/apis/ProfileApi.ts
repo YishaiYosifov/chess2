@@ -17,12 +17,12 @@ import * as runtime from '../runtime';
 import type {
   ErrorResponseDictStrStr,
   ErrorResponseStr,
-  GameResults,
+  FinishedGame,
   HTTPValidationError,
+  PrivateUserOut,
+  PublicUserOut,
   Rating,
   RatingOverview,
-  UserOut,
-  UserOutSensitive,
   Variant,
 } from '../models/index';
 import {
@@ -30,18 +30,18 @@ import {
     ErrorResponseDictStrStrToJSON,
     ErrorResponseStrFromJSON,
     ErrorResponseStrToJSON,
-    GameResultsFromJSON,
-    GameResultsToJSON,
+    FinishedGameFromJSON,
+    FinishedGameToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    PrivateUserOutFromJSON,
+    PrivateUserOutToJSON,
+    PublicUserOutFromJSON,
+    PublicUserOutToJSON,
     RatingFromJSON,
     RatingToJSON,
     RatingOverviewFromJSON,
     RatingOverviewToJSON,
-    UserOutFromJSON,
-    UserOutToJSON,
-    UserOutSensitiveFromJSON,
-    UserOutSensitiveToJSON,
     VariantFromJSON,
     VariantToJSON,
 } from '../models/index';
@@ -84,7 +84,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch a user\'s profile
      * Get Info
      */
-    async getInfoRaw(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOut>> {
+    async getInfoRaw(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
         if (requestParameters.target === null || requestParameters.target === undefined) {
             throw new runtime.RequiredError('target','Required parameter requestParameters.target was null or undefined when calling getInfo.');
         }
@@ -105,14 +105,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
     }
 
     /**
      * Fetch a user\'s profile
      * Get Info
      */
-    async getInfo(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+    async getInfo(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
         const response = await this.getInfoRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -121,7 +121,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitiveRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOutSensitive>> {
+    async getInfoSensitiveRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -138,14 +138,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutSensitiveFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateUserOutFromJSON(jsonValue));
     }
 
     /**
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitive(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOutSensitive> {
+    async getInfoSensitive(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
         const response = await this.getInfoSensitiveRaw(initOverrides);
         return await response.value();
     }
@@ -244,7 +244,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Paginate through game history for a specified target. Retrieve a paginated list of game results.
      * Paginate Games
      */
-    async paginateGamesRaw(requestParameters: PaginateGamesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<GameResults>>> {
+    async paginateGamesRaw(requestParameters: PaginateGamesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<FinishedGame>>> {
         if (requestParameters.target === null || requestParameters.target === undefined) {
             throw new runtime.RequiredError('target','Required parameter requestParameters.target was null or undefined when calling paginateGames.');
         }
@@ -273,14 +273,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(GameResultsFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(FinishedGameFromJSON));
     }
 
     /**
      * Paginate through game history for a specified target. Retrieve a paginated list of game results.
      * Paginate Games
      */
-    async paginateGames(requestParameters: PaginateGamesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<GameResults>> {
+    async paginateGames(requestParameters: PaginateGamesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<FinishedGame>> {
         const response = await this.paginateGamesRaw(requestParameters, initOverrides);
         return await response.value();
     }

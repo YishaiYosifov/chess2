@@ -20,8 +20,8 @@ import type {
   ErrorResponseDictStrStr,
   ErrorResponseStr,
   HTTPValidationError,
+  PrivateUserOut,
   UserIn,
-  UserOutSensitive,
 } from '../models/index';
 import {
     AccessTokenFromJSON,
@@ -34,10 +34,10 @@ import {
     ErrorResponseStrToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
+    PrivateUserOutFromJSON,
+    PrivateUserOutToJSON,
     UserInFromJSON,
     UserInToJSON,
-    UserOutSensitiveFromJSON,
-    UserOutSensitiveToJSON,
 } from '../models/index';
 
 export interface LoginRequest {
@@ -225,10 +225,10 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Takes a username, email and password and creates registers a new user.  This path operation will also: - send a verification email - create the necessary files
+     * Takes a username, email and password and creates registers a new user. This path operation will also send a verification email.
      * Signup
      */
-    async signupRaw(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserOutSensitive>> {
+    async signupRaw(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
         if (requestParameters.userIn === null || requestParameters.userIn === undefined) {
             throw new runtime.RequiredError('userIn','Required parameter requestParameters.userIn was null or undefined when calling signup.');
         }
@@ -247,14 +247,14 @@ export class AuthApi extends runtime.BaseAPI {
             body: UserInToJSON(requestParameters.userIn),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserOutSensitiveFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateUserOutFromJSON(jsonValue));
     }
 
     /**
-     * Takes a username, email and password and creates registers a new user.  This path operation will also: - send a verification email - create the necessary files
+     * Takes a username, email and password and creates registers a new user. This path operation will also send a verification email.
      * Signup
      */
-    async signup(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOutSensitive> {
+    async signup(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
         const response = await this.signupRaw(requestParameters, initOverrides);
         return await response.value();
     }

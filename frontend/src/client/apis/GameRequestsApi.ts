@@ -38,7 +38,7 @@ export interface StartPoolGameRequest {
 export class GameRequestsApi extends runtime.BaseAPI {
 
     /**
-     * Searches for a game request that fits the criterias. If a game was not found, it will create a new game request with an unspecified recipient.
+     * Joins the matchmaking pool with the specified game settings. If a game was not found, it will create a new game request.
      * Start Pool Game
      */
     async startPoolGameRaw(requestParameters: StartPoolGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
@@ -73,7 +73,7 @@ export class GameRequestsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Searches for a game request that fits the criterias. If a game was not found, it will create a new game request with an unspecified recipient.
+     * Joins the matchmaking pool with the specified game settings. If a game was not found, it will create a new game request.
      * Start Pool Game
      */
     async startPoolGame(requestParameters: StartPoolGameRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
