@@ -32,8 +32,8 @@ const PlayOptions = () => {
      * Cancels the outgoing game request
      */
     async function cancelRequest(): Promise<void> {
-        //await gameRequestApi.cancel();
         setSelectedTimeControl(undefined);
+        await gameRequestApi.cancel();
     }
 
     /**
@@ -77,11 +77,11 @@ const PlayOptions = () => {
             return;
         }
 
-        await enterPool(newTimeControl, newIncrement, selectedVariant);
         setSelectedTimeControl({
             timeControl: newTimeControl,
             increment: newIncrement,
         });
+        await enterPool(newTimeControl, newIncrement, selectedVariant);
     }
 
     return (
@@ -151,6 +151,7 @@ const VariantButton = ({
             className={`${styles["option-button"]} ${
                 selectedVariant === buttonVariant && styles["selected-variant"]
             }`}
+            data-testid="variantButton"
         >
             {buttonVariant}
         </Card>
@@ -193,6 +194,7 @@ const TimeControlButton = ({
             className={`${styles["time-control-option-button"]} ${
                 isSelected && styles["selected-time-control"]
             }`}
+            data-testid="timeControlButton"
         >
             {isSelected && (
                 <Spinner

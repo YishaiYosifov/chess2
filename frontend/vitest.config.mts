@@ -8,5 +8,6 @@ export default defineConfig({
         setupFiles: ["vitest.env.ts", "vitest.setup.tsx"],
         environment: "jsdom",
         globals: true,
+        css: { modules: { classNameStrategy: "non-scoped" } },
     },
 });

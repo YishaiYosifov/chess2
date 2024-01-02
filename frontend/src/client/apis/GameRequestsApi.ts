@@ -38,6 +38,36 @@ export interface StartPoolGameRequest {
 export class GameRequestsApi extends runtime.BaseAPI {
 
     /**
+     * Cancel
+     */
+    async cancelRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/game-requests/cancel`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        if (this.isJsonMime(response.headers.get('content-type'))) {
+            return new runtime.JSONApiResponse<any>(response);
+        } else {
+            return new runtime.TextApiResponse(response) as any;
+        }
+    }
+
+    /**
+     * Cancel
+     */
+    async cancel(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
+        const response = await this.cancelRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Joins the matchmaking pool with the specified game settings. If a game was not found, it will create a new game request.
      * Start Pool Game
      */
