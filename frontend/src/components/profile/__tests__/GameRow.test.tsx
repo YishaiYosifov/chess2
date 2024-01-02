@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import { createFinishedGame, gameMock, profileMock } from "@/mocks/mocks";
-import { GameResult } from "@/lib/constants";
+import { GameResult } from "@/client";
 
 import GameRow from "../GameRow";
 

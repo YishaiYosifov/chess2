@@ -6,7 +6,7 @@ import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/Chessboard";
 
 const PlayPage = () => {
-    const breakpoint = parseInt(scssVariables.lg);
+    const breakpoint = parseInt(scssVariables.xl);
     return (
         <div className={styles.container}>
             <Chessboard
@@ -18,7 +18,7 @@ const PlayPage = () => {
                     },
                     {
                         widthBreakpoint: breakpoint,
-                        offset: { width: 500, height: 100 },
+                        offset: { width: 626, height: 100 },
                     },
                 ]}
                 fixed

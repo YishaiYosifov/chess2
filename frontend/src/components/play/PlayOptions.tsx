@@ -32,7 +32,7 @@ const PlayOptions = () => {
      * Cancels the outgoing game request
      */
     async function cancelRequest(): Promise<void> {
-        await gameRequestApi.cancel();
+        //await gameRequestApi.cancel();
         setSelectedTimeControl(undefined);
     }
 
