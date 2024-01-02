@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { createGame, gameMock, profileMock } from "@/mocks/mocks";
+import { createFinishedGame, gameMock, profileMock } from "@/mocks/mocks";
 import { GameResult } from "@/lib/constants";
 
 import GameRow from "../GameRow";
@@ -24,7 +24,7 @@ describe("GameRow", () => {
     ])(
         "should correctly calculate the score of each player",
         (results, whiteScore, blackScore) => {
-            const newGameMock = createGame({ results });
+            const newGameMock = createFinishedGame({ results });
             render(<GameRow game={newGameMock} viewingProfile={profileMock} />);
 
             expect(screen.getByTestId("gameRowScoreWhite").textContent).toBe(

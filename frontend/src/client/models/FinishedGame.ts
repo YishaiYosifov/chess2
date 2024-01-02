@@ -19,12 +19,12 @@ import {
     GameResultFromJSONTyped,
     GameResultToJSON,
 } from './GameResult';
-import type { SimpleUserOut } from './SimpleUserOut';
+import type { PublicUserOut } from './PublicUserOut';
 import {
-    SimpleUserOutFromJSON,
-    SimpleUserOutFromJSONTyped,
-    SimpleUserOutToJSON,
-} from './SimpleUserOut';
+    PublicUserOutFromJSON,
+    PublicUserOutFromJSONTyped,
+    PublicUserOutToJSON,
+} from './PublicUserOut';
 import type { Variant } from './Variant';
 import {
     VariantFromJSON,
@@ -35,63 +35,63 @@ import {
 /**
  * 
  * @export
- * @interface GameResults
+ * @interface FinishedGame
  */
-export interface GameResults {
+export interface FinishedGame {
     /**
      * 
      * @type {string}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     token: string;
     /**
      * 
-     * @type {SimpleUserOut}
-     * @memberof GameResults
+     * @type {PublicUserOut}
+     * @memberof FinishedGame
      */
-    userWhite: SimpleUserOut | null;
+    userWhite: PublicUserOut | null;
     /**
      * 
-     * @type {SimpleUserOut}
-     * @memberof GameResults
+     * @type {PublicUserOut}
+     * @memberof FinishedGame
      */
-    userBlack: SimpleUserOut | null;
+    userBlack: PublicUserOut | null;
     /**
      * 
      * @type {GameResult}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     results: GameResult;
     /**
      * 
      * @type {Variant}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     variant: Variant;
     /**
      * 
      * @type {number}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     timeControl: number;
     /**
      * 
      * @type {number}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     increment: number;
     /**
      * 
      * @type {Date}
-     * @memberof GameResults
+     * @memberof FinishedGame
      */
     createdAt: Date;
 }
 
 /**
- * Check if a given object implements the GameResults interface.
+ * Check if a given object implements the FinishedGame interface.
  */
-export function instanceOfGameResults(value: object): boolean {
+export function instanceOfFinishedGame(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "token" in value;
     isInstance = isInstance && "userWhite" in value;
@@ -105,19 +105,19 @@ export function instanceOfGameResults(value: object): boolean {
     return isInstance;
 }
 
-export function GameResultsFromJSON(json: any): GameResults {
-    return GameResultsFromJSONTyped(json, false);
+export function FinishedGameFromJSON(json: any): FinishedGame {
+    return FinishedGameFromJSONTyped(json, false);
 }
 
-export function GameResultsFromJSONTyped(json: any, ignoreDiscriminator: boolean): GameResults {
+export function FinishedGameFromJSONTyped(json: any, ignoreDiscriminator: boolean): FinishedGame {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'token': json['token'],
-        'userWhite': SimpleUserOutFromJSON(json['user_white']),
-        'userBlack': SimpleUserOutFromJSON(json['user_black']),
+        'userWhite': PublicUserOutFromJSON(json['user_white']),
+        'userBlack': PublicUserOutFromJSON(json['user_black']),
         'results': GameResultFromJSON(json['results']),
         'variant': VariantFromJSON(json['variant']),
         'timeControl': json['time_control'],
@@ -126,7 +126,7 @@ export function GameResultsFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function GameResultsToJSON(value?: GameResults | null): any {
+export function FinishedGameToJSON(value?: FinishedGame | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -136,8 +136,8 @@ export function GameResultsToJSON(value?: GameResults | null): any {
     return {
         
         'token': value.token,
-        'user_white': SimpleUserOutToJSON(value.userWhite),
-        'user_black': SimpleUserOutToJSON(value.userBlack),
+        'user_white': PublicUserOutToJSON(value.userWhite),
+        'user_black': PublicUserOutToJSON(value.userBlack),
         'results': GameResultToJSON(value.results),
         'variant': VariantToJSON(value.variant),
         'time_control': value.timeControl,

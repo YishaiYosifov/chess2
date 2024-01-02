@@ -6,10 +6,10 @@ import Image from "next/image";
 import styles from "./Profile.module.scss";
 
 import ProfilePicture from "../ProfilePicture";
-import type { UserOut } from "@/client";
+import type { PublicUserOut } from "@/client";
 
 /** Show basic information about a user */
-const Profile = ({ profile }: { profile: UserOut }) => {
+const Profile = ({ profile }: { profile: PublicUserOut }) => {
     return (
         <Card className={styles.profile}>
             <ProfilePicture

@@ -16,80 +16,74 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UserOutSensitive
+ * @interface PublicUserOut
  */
-export interface UserOutSensitive {
+export interface PublicUserOut {
+    /**
+     * 
+     * @type {number}
+     * @memberof PublicUserOut
+     */
+    userId: number;
     /**
      * 
      * @type {string}
-     * @memberof UserOutSensitive
+     * @memberof PublicUserOut
      */
     username: string;
     /**
      * 
      * @type {string}
-     * @memberof UserOutSensitive
+     * @memberof PublicUserOut
      */
-    email: string;
+    about: string;
     /**
      * 
      * @type {string}
-     * @memberof UserOutSensitive
+     * @memberof PublicUserOut
      */
-    country?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof UserOutSensitive
-     */
-    about?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof UserOutSensitive
-     */
-    userId: number;
+    country: string | null;
     /**
      * 
      * @type {Date}
-     * @memberof UserOutSensitive
+     * @memberof PublicUserOut
      */
     pfpLastChanged: Date;
 }
 
 /**
- * Check if a given object implements the UserOutSensitive interface.
+ * Check if a given object implements the PublicUserOut interface.
  */
-export function instanceOfUserOutSensitive(value: object): boolean {
+export function instanceOfPublicUserOut(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "username" in value;
-    isInstance = isInstance && "email" in value;
     isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "username" in value;
+    isInstance = isInstance && "about" in value;
+    isInstance = isInstance && "country" in value;
     isInstance = isInstance && "pfpLastChanged" in value;
 
     return isInstance;
 }
 
-export function UserOutSensitiveFromJSON(json: any): UserOutSensitive {
-    return UserOutSensitiveFromJSONTyped(json, false);
+export function PublicUserOutFromJSON(json: any): PublicUserOut {
+    return PublicUserOutFromJSONTyped(json, false);
 }
 
-export function UserOutSensitiveFromJSONTyped(json: any, ignoreDiscriminator: boolean): UserOutSensitive {
+export function PublicUserOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): PublicUserOut {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'username': json['username'],
-        'email': json['email'],
-        'country': !exists(json, 'country') ? undefined : json['country'],
-        'about': !exists(json, 'about') ? undefined : json['about'],
         'userId': json['user_id'],
+        'username': json['username'],
+        'about': json['about'],
+        'country': json['country'],
         'pfpLastChanged': (new Date(json['pfp_last_changed'])),
     };
 }
 
-export function UserOutSensitiveToJSON(value?: UserOutSensitive | null): any {
+export function PublicUserOutToJSON(value?: PublicUserOut | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -98,11 +92,10 @@ export function UserOutSensitiveToJSON(value?: UserOutSensitive | null): any {
     }
     return {
         
-        'username': value.username,
-        'email': value.email,
-        'country': value.country,
-        'about': value.about,
         'user_id': value.userId,
+        'username': value.username,
+        'about': value.about,
+        'country': value.country,
         'pfp_last_changed': (value.pfpLastChanged.toISOString()),
     };
 }

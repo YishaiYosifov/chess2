@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 
-import { createGame, profileMock } from "@/mocks/mocks";
+import { createFinishedGame, profileMock } from "@/mocks/mocks";
 
 import GamesTable from "../GamesTable";
 
 const gamesMock = Array.from({ length: 3 }, (_, i) =>
-    createGame({
+    createFinishedGame({
         userWhite: { userId: 1, username: `test-user-white-${i}` },
         userBlack: { userId: 2, username: `test-user-black-${i}` },
     })

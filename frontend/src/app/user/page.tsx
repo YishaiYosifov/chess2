@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-import type { LocalProfile } from "@/lib/types";
 import withAuth from "@/components/hocs/withAuth";
+import { PrivateUserOut } from "@/client";
 
 const RedirectUserPage = withAuth(
-    async ({ profile }: { profile: LocalProfile }) => {
+    async ({ profile }: { profile: PrivateUserOut }) => {
         redirect(`/user/${profile.username}`);
     }
 );

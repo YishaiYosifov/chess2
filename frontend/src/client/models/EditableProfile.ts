@@ -16,37 +16,37 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface BaseUserProfile
+ * @interface EditableProfile
  */
-export interface BaseUserProfile {
+export interface EditableProfile {
     /**
      * 
      * @type {string}
-     * @memberof BaseUserProfile
+     * @memberof EditableProfile
      */
     country?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof BaseUserProfile
+     * @memberof EditableProfile
      */
     about?: string;
 }
 
 /**
- * Check if a given object implements the BaseUserProfile interface.
+ * Check if a given object implements the EditableProfile interface.
  */
-export function instanceOfBaseUserProfile(value: object): boolean {
+export function instanceOfEditableProfile(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function BaseUserProfileFromJSON(json: any): BaseUserProfile {
-    return BaseUserProfileFromJSONTyped(json, false);
+export function EditableProfileFromJSON(json: any): EditableProfile {
+    return EditableProfileFromJSONTyped(json, false);
 }
 
-export function BaseUserProfileFromJSONTyped(json: any, ignoreDiscriminator: boolean): BaseUserProfile {
+export function EditableProfileFromJSONTyped(json: any, ignoreDiscriminator: boolean): EditableProfile {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -57,7 +57,7 @@ export function BaseUserProfileFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function BaseUserProfileToJSON(value?: BaseUserProfile | null): any {
+export function EditableProfileToJSON(value?: EditableProfile | null): any {
     if (value === undefined) {
         return undefined;
     }

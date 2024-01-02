@@ -1,13 +1,13 @@
 import { StateCreator } from "zustand";
 
-import type { LocalProfile } from "@/lib/types";
+import { PrivateUserOut } from "@/client";
 import type { State } from "../store";
 
 export interface AuthSlice {
     csrfToken: string;
     csrfTokenCreatedAt: number;
     isAuthed: boolean;
-    localProfile: LocalProfile;
+    localProfile: Partial<PrivateUserOut>;
 }
 
 // Initialize the slice

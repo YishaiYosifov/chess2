@@ -7,13 +7,13 @@ The chess2 website frontend
 First, install the dependencies:
 
 ```bash
-  npm install
+$ npm install
 ```
 
 then run the dev server:
 
 ```bash
-  npm run dev
+$ npm run dev
 ```
 
 Open http://127.0.0.1:3000 in your browser to view the website.
@@ -25,14 +25,14 @@ The backend of this project is made in FastAPI. FastAPI automatically generates 
 This project uses the openapi-generator package. To generate the client, run
 
 ```bash
-  npm run generate-client
+$ npm run generate-client
 ```
 
 The SDK will be generated into `src/client`.
 
 ## Features
 
-To view the features, check out the [backend readme](https://github.com/YishaiYosifov/chess2-backend#features).
+Check out the [backend readme](https://github.com/YishaiYosifov/chess2-backend#features).
 
 ## Screenshots
 
@@ -47,13 +47,13 @@ To view the features, check out the [backend readme](https://github.com/YishaiYo
 To run tests, run the following command:
 
 ```bash
-  npm run test
+$ npm run test
 ```
 
 To run the test watcher, run the following command:
 
 ```bash
-  npm run test:watch
+$ npm run test:watch
 ```
 
 Tests are located in the `__tests__` subdirectory in each directory. Test are made with [React Testing Library](https://github.com/testing-library/react-testing-library) and [vitest](https://github.com/vitest-dev/vitest).
