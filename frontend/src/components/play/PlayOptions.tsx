@@ -85,7 +85,7 @@ const PlayOptions = () => {
     }
 
     return (
-        <Card className={styles["options-card"]}>
+        <Card className={styles["options-card"]} data-testid="playOptions">
             <section className={styles["variant-options"]}>
                 <p className={styles["option-title"]}>
                     <BsPlayFill /> Variant
