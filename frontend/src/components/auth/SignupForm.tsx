@@ -8,16 +8,25 @@ import * as yup from "yup";
 
 import { Formik, FormikHelpers } from "formik";
 
-import PasswordField from "../PasswordField";
-import { FormikField } from "../FormField";
-import { authApi } from "@/lib/apis";
+import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import { ResponseError } from "@/client";
+import { authApi } from "@/lib/apis";
+
+import { FormikInput } from "../FormikElements";
+import PasswordField from "../PasswordField";
+import FormField from "../FormField";
 
 export interface SignupFormValues {
     username: string;
     email: string;
     password: string;
 }
+
+const signupSchema = yup.object({
+    username: usernameSchema,
+    email: emailSchema,
+    password: passwordSchema,
+});
 
 const SignupForm = () => {
     const router = useRouter();
@@ -56,15 +65,9 @@ const SignupForm = () => {
         router.push("/login");
     }
 
-    const schema = yup.object().shape({
-        username: yup.string().username(),
-        email: yup.string().email(),
-        password: yup.string().password(),
-    });
-
     return (
         <Formik
-            validationSchema={schema}
+            validationSchema={signupSchema}
             onSubmit={onSubmit}
             initialValues={{
                 username: "",
@@ -79,21 +82,22 @@ const SignupForm = () => {
                     noValidate
                     onSubmit={handleSubmit}
                 >
-                    <FormikField fieldName="username" placeholder="username">
-                        <InputGroup.Text>
-                            <BsPersonFill />
-                        </InputGroup.Text>
-                    </FormikField>
+                    <FormField hasValidation>
+                        <FormikInput
+                            fieldName="username"
+                            placeholder="username"
+                            icon={<BsPersonFill />}
+                        />
+                    </FormField>
 
-                    <FormikField
-                        fieldName="email"
-                        placeholder="email"
-                        type="email"
-                    >
-                        <InputGroup.Text>
-                            <BsEnvelopeFill />
-                        </InputGroup.Text>
-                    </FormikField>
+                    <FormField hasValidation>
+                        <FormikInput
+                            fieldName="email"
+                            placeholder="email"
+                            type="email"
+                            icon={<BsEnvelopeFill />}
+                        />
+                    </FormField>
 
                     <PasswordField />
 

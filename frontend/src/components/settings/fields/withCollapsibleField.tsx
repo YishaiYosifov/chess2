@@ -1,11 +1,11 @@
 "use client";
 
 import { BsPencilFill } from "react-icons/bs";
-import { InputGroup } from "react-bootstrap";
+import { Form, InputGroup } from "react-bootstrap";
 
 import { ComponentType, useState } from "react";
 
-import { FormField } from "@/components/FormField";
+import FormField from "@/components/FormField";
 
 // Props for the HOC itself. They will not be passed down to the component
 interface HOCProps {
@@ -22,32 +22,30 @@ interface HOCComponentProps {
 /**
  * A higher order component that adds collapsibility functionality to forms
  */
-const withCollapsibleField = <P extends HOCComponentProps>(
-    WrappedComponent: ComponentType<P>
+const withCollapsibleField = <T extends HOCComponentProps>(
+    WrappedComponent: ComponentType<T>
 ) => {
-    type HOCWithComponentProps = P & HOCProps;
-
-    /**
-     * The enchanced component with collapsible functionality
-     */
-    return (props: Omit<HOCWithComponentProps, keyof HOCComponentProps>) => {
+    const InputComponent = (
+        props: Omit<T & HOCProps, keyof HOCComponentProps>
+    ) => {
         const [isEditing, setIsEditing] = useState(false);
 
         if (isEditing)
             return (
                 <WrappedComponent
-                    {...(props as HOCWithComponentProps)}
+                    {...(props as T)}
                     onCancel={() => setIsEditing(false)}
                 />
             );
 
         return (
-            <FormField
-                fieldName={props.field}
-                value={props.defaultValue}
-                fieldLabel
-                disabled
-            >
+            <FormField fieldLabel={props.field}>
+                <Form.Control
+                    aria-label={props.field}
+                    disabled
+                    value={props.defaultValue}
+                />
+
                 {/* the button that enables and disables the form */}
                 <InputGroup.Text>
                     <button
@@ -61,5 +59,6 @@ const withCollapsibleField = <P extends HOCComponentProps>(
             </FormField>
         );
     };
+    return InputComponent;
 };
 export default withCollapsibleField;

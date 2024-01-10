@@ -1,23 +1,19 @@
-import { apiConfig } from "@/lib/apis";
+import { PrivateUserOut } from "@/client";
 
 import ChangeProfilePicture from "@/components/settings/ChangeProfilePicture";
-import SettingsForm from "@/components/settings/profile/ProfileForm";
+import ProfileSettingsForm from "@/components/settings/profile/ProfileForm";
 import StoreInitializer from "@/components/StoreInitializer";
 import withAuth from "@/components/hocs/withAuth";
-import { PrivateUserOut } from "@/client";
 
 const ProfilePage = withAuth(
     async ({ profile }: { profile: PrivateUserOut }) => {
-        const countries = await (
-            await fetch(`${apiConfig.basePath}/static/countries.json`)
-        ).json();
-
         return (
             <div style={{ maxWidth: "1426px" }}>
                 <StoreInitializer
                     values={{ localProfile: profile }}
                     action="SET_LOCAL_PROFILE"
                 />
+
                 <section className="mt-4">
                     <div className="card">
                         <ChangeProfilePicture />
@@ -26,7 +22,7 @@ const ProfilePage = withAuth(
 
                 <section className="mt-4">
                     <div className="card">
-                        <SettingsForm />
+                        <ProfileSettingsForm />
                     </div>
                 </section>
             </div>

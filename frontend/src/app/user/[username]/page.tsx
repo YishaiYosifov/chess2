@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import styles from "./user.module.scss";
 
-import type { FinishedGame, PublicUserOut } from "@/client";
+import { ResponseError, type FinishedGame, type PublicUserOut } from "@/client";
 import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";
@@ -34,7 +34,7 @@ const UserPage = async ({
             }),
             profileApi.paginateGames({ target: username }),
         ]);
-    } catch {
+    } catch (err) {
         // TODO error handing
         notFound();
     }

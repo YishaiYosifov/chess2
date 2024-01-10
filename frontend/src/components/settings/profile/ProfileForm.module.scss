@@ -4,3 +4,9 @@
     text-align: end;
     margin-right: 20%;
 }
+
+.form-gap {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

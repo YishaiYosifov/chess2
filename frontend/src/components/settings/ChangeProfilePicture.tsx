@@ -10,9 +10,10 @@ import { useStore } from "@/zustand/store";
 
 import ProfilePicture from "@/components/ProfilePicture";
 import { settingsApi } from "@/lib/apis";
+import { ResponseError } from "@/client";
 
 const ChangeProfilePicture = () => {
-    const { username, pfpLastChanged, userId } = useStore.use.localProfile();
+    const { username, pfpLastChanged } = useStore.use.localProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);
@@ -24,25 +25,33 @@ const ChangeProfilePicture = () => {
         const files = (event.target as HTMLInputElement).files;
         if (!files) return;
 
-        const uploadResponse = await settingsApi.uploadProfilePicture({
-            pfp: files[0],
-        });
-        const uploadData = await uploadResponse.json();
-
-        switch (uploadResponse.status) {
-            case 201:
-                setStatus("");
-                setLastChanged(new Date().toISOString());
-                revalidateUser(username);
-                break;
-            case 400:
-                setStatus(uploadData.data.pfp[0]);
-                break;
-            default:
+        try {
+            await settingsApi.uploadProfilePicture({
+                pfp: files[0],
+            });
+        } catch (err) {
+            if (!(err instanceof ResponseError)) {
                 setStatus("Something went wrong.");
-                console.error(uploadData);
-                break;
+                console.error(err);
+                return;
+            }
+
+            switch (err.response.status) {
+                case 400:
+                case 413:
+                    setStatus((await err.response.json()).detail);
+                    break;
+                default:
+                    setStatus("Something went wrong.");
+                    console.error(await err.response.text());
+                    break;
+            }
+            return;
         }
+
+        setStatus("");
+        setLastChanged(new Date());
+        revalidateUser(username);
     }
 
     return (
@@ -52,6 +61,7 @@ const ChangeProfilePicture = () => {
                 lastChanged={lastChanged}
                 className={styles["profile-picture"]}
             />
+
             <div className={styles["upload-container"]}>
                 <input
                     type="file"

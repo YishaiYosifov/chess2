@@ -1,56 +1,28 @@
 "use client";
 
-import { Formik, FormikHelpers } from "formik";
+import { Formik } from "formik";
 import { Form } from "react-bootstrap";
 
 import * as yup from "yup";
 
+import { emailSchema, usernameSchema } from "@/lib/validation";
 import { USERNAME_EDIT_EVERY } from "@/lib/constants";
 import styles from "./ProfileForm.module.scss";
 import { useStore } from "@/zustand/store";
 
+import { FormikInput, FormikSelect } from "@/components/FormikElements";
 import PasswordField from "../fields/PasswordField";
-import { settingsApi } from "@/lib/apis";
+import FormField from "@/components/FormField";
 
-export async function updateSettings(
-    values: object,
-    helpers: FormikHelpers<object>
-) {
-    // !!! TODO !!!
-    const settingsResponse = await settingsApi.updateSettings(
-        "/profile/update-settings",
-        {
-            method: "PUT",
-            json: values,
-        }
-    );
-    helpers.setSubmitting(false);
-    const msg = (await settingsResponse.json()).msg;
-
-    switch (settingsResponse.status) {
-        case 200:
-            window.location.reload();
-            break;
-        case 400:
-            helpers.setErrors(msg);
-            break;
-        default:
-            helpers.setStatus("Something went wrong.");
-            console.error(msg);
-            break;
-    }
-}
+const usernameSettingSchema = yup.object({ username: usernameSchema });
+const emailSettingSchema = yup.object({ email: emailSchema });
+const profileSettingsSchema = yup.object();
 
 /**
  * Component for the settings form
  */
-const SettingsForm = () => {
+const ProfileSettingsForm = () => {
     const profile = useStore.use.localProfile();
-
-    const usernameSchema = yup
-        .object()
-        .shape({ username: yup.string().username() });
-    const emailSchema = yup.object().shape({ email: yup.string().email() });
 
     /**
      * Check if the given field has recently changed
@@ -61,7 +33,7 @@ const SettingsForm = () => {
      */
     function didChangeRecently(
         editEvery: number,
-        lastChanged?: string
+        lastChanged?: Date | null
     ): boolean {
         if (!lastChanged) return false;
 
@@ -77,8 +49,11 @@ const SettingsForm = () => {
         profile.usernameLastChanged
     );
 
+    async function updateUsername() {}
+    async function updateEmail() {}
+
     return (
-        <>
+        <div className={styles["form-gap"]}>
             {usernameChangedRecently && (
                 <span className={styles["setting-disabled-label"]}>
                     username changed too recently
@@ -87,23 +62,50 @@ const SettingsForm = () => {
 
             <PasswordField
                 field="username"
+                fieldLabel="Username"
                 defaultValue={profile.username}
                 disabled={usernameChangedRecently}
-                schema={usernameSchema}
-                onSubmit={updateSettings}
-                fieldLabel
+                schema={usernameSettingSchema}
+                onSubmit={updateUsername}
             />
 
             <hr />
 
             <PasswordField
                 field="email"
+                fieldLabel="Username"
                 defaultValue={profile.email}
-                schema={emailSchema}
-                onSubmit={updateSettings}
-                fieldLabel
+                schema={emailSettingSchema}
+                onSubmit={updateEmail}
             />
-        </>
+
+            <hr />
+
+            <Formik
+                validationSchema={profileSettingsSchema}
+                initialValues={{
+                    about: "",
+                    country: "",
+                }}
+            >
+                {({ handleSubmit, isSubmitting, status }) => (
+                    <Form
+                        className={styles["form-gap"]}
+                        aria-label="profile form"
+                        noValidate
+                        onSubmit={handleSubmit}
+                    >
+                        <FormField fieldLabel="About" hasValidation>
+                            <FormikInput fieldName="about" as="textarea" />
+                        </FormField>
+
+                        <FormField fieldLabel="Country" hasValidation>
+                            <FormikSelect fieldName="country"></FormikSelect>
+                        </FormField>
+                    </Form>
+                )}
+            </Formik>
+        </div>
     );
 };
-export default SettingsForm;
+export default ProfileSettingsForm;

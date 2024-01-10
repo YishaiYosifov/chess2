@@ -1,27 +1,23 @@
 "use client";
 
 import { Formik, FormikHelpers } from "formik";
-import { Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 
 import * as yup from "yup";
 
 import styles from "./PasswordField.module.scss";
 
 import withCollapsibleField from "./withCollapsibleField";
-import { FormikField } from "@/components/FormField";
-import SubmitField from "./helpers/SubmitField";
+import { FormikInput } from "@/components/FormikElements";
+import FormField from "@/components/FormField";
 
 interface PasswordFieldProps {
     field: string;
-    fieldLabel?: string | boolean;
+    fieldLabel?: string;
     defaultValue?: any;
     schema: yup.ObjectSchema<any>;
     onSubmit: (values: Object, helpers: FormikHelpers<any>) => Promise<void>;
     onCancel: () => void;
-}
-
-interface PasswordFormValues {
-    passwordConfirm: string;
 }
 
 /**
@@ -35,11 +31,6 @@ const PasswordField = ({
     onSubmit,
     onCancel,
 }: PasswordFieldProps) => {
-    async function handlePasswordSubmit(
-        values: PasswordFormValues,
-        { setErrors, setStatus }: FormikHelpers<PasswordFormValues>
-    ) {}
-
     const passwordSchema = yup
         .object()
         .shape({
@@ -52,7 +43,7 @@ const PasswordField = ({
     return (
         <Formik
             validationSchema={passwordSchema}
-            onSubmit={handlePasswordSubmit}
+            onSubmit={onSubmit}
             initialValues={{
                 [field]: defaultValue,
                 passwordConfirm: "",
@@ -64,22 +55,32 @@ const PasswordField = ({
                     onSubmit={handleSubmit}
                     className={styles.form}
                 >
-                    <FormikField fieldName={field} fieldLabel={fieldLabel} />
-                    <FormikField
-                        fieldName="passwordConfirm"
-                        fieldLabel="Password Confirm"
-                        type="password"
-                    />
+                    <FormField fieldLabel={fieldLabel} hasValidation>
+                        <FormikInput fieldName={field} />
+                    </FormField>
+
+                    <FormField fieldLabel="Password Confirm" hasValidation>
+                        <FormikInput fieldName="password" type="password" />
+                    </FormField>
                     <span className="text-invalid">{status}</span>
 
-                    <SubmitField
-                        disableSubmitOn={
-                            values[field] == defaultValue ||
-                            Object.keys(errors).length > 0 ||
-                            isSubmitting
-                        }
-                        onCancel={onCancel}
-                    />
+                    <div className={styles["submit-container"]}>
+                        <Button
+                            type="submit"
+                            variant="dark"
+                            disabled={
+                                values[field] == defaultValue ||
+                                Object.keys(errors).length > 0 ||
+                                isSubmitting
+                            }
+                        >
+                            Save
+                        </Button>
+
+                        <Button variant="dark" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                    </div>
                 </Form>
             )}
         </Formik>

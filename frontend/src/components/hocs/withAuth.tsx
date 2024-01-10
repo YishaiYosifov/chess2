@@ -1,14 +1,15 @@
 import { redirect } from "next/navigation";
 
 import { profileApi } from "@/lib/apis";
+import { ComponentType } from "react";
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
  *
- * This HOC will send a request to `/profile/me/info`, and if an unauthorized HTTP status is returned
- * the user will be redirected to the home page
+ * This HOC will send a request to `/profile/me/info-sensitive`, and if an unauthorized
+ * HTTP status is returned the user will be redirected to the home page
  */
-const withAuth = (WrappedComponent: any) => {
+const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
     return async (props: any) => {
         try {
             const profile = await profileApi.getInfoSensitive({

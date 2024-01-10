@@ -11,13 +11,19 @@ import { setIsAuthed } from "@/zustand/store";
 import { ResponseError } from "@/client";
 import { authApi } from "@/lib/apis";
 
+import { FormikInput } from "../FormikElements";
 import PasswordField from "../PasswordField";
-import { FormikField } from "../FormField";
+import FormField from "../FormField";
 
 export interface LoginFormValues {
     username: string;
     password: string;
 }
+
+const loginSchema = yup.object({
+    username: yup.string().required(),
+    password: yup.string().required(),
+});
 
 const LoginForm = () => {
     const router = useRouter();
@@ -56,15 +62,10 @@ const LoginForm = () => {
         router.replace("/");
     }
 
-    const schema = yup.object().shape({
-        username: yup.string().required(),
-        password: yup.string().required(),
-    });
-
     return (
         <Formik
             onSubmit={onSubmit}
-            validationSchema={schema}
+            validationSchema={loginSchema}
             initialValues={{
                 username: "",
                 password: "",
@@ -77,11 +78,13 @@ const LoginForm = () => {
                     noValidate
                     onSubmit={handleSubmit}
                 >
-                    <FormikField fieldName="username" placeholder="Username">
-                        <InputGroup.Text>
-                            <BsPersonFill />
-                        </InputGroup.Text>
-                    </FormikField>
+                    <FormField hasValidation>
+                        <FormikInput
+                            fieldName="username"
+                            placeholder="Username"
+                            icon={<BsPersonFill />}
+                        />
+                    </FormField>
 
                     <PasswordField />
 

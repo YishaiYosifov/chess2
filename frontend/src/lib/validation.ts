@@ -1,10 +1,5 @@
 import * as yup from "yup";
 
-export const titleString = (value: string): string =>
-    value.charAt(0).toUpperCase() + value.replaceAll("_", " ").slice(1);
-
-//#region Validators
-
 yup.addMethod(yup.string, "username", function () {
     return this.required("Username must be between 1 and 30 characters")
         .test(
@@ -40,4 +35,6 @@ yup.addMethod(yup.string, "password", function () {
         .matches(/\d/, "Password must have a number");
 });
 
-//#endregion
+export const usernameSchema = yup.string().username();
+export const emailSchema = yup.string().email();
+export const passwordSchema = yup.string().password();
