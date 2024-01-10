@@ -4,6 +4,9 @@ export const BOARD_WIDTH = 10;
 export const BOARD_HEIGHT = 10;
 export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 
+export const ACCESS_TOKEN = "access_token";
+export const REFRESH_TOKEN = "refresh_token";
+
 export enum Piece {
     King = "king",
     Queen = "queen",

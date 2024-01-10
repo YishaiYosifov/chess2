@@ -2,6 +2,7 @@ import { Secular_One } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.css";
 import { ReactNode } from "react";
 
+import * as constants from "@/lib/constants";
 import "./globals.scss";
 
 import NavbarProvider from "@/components/navbar/NavbarProvider";
@@ -31,7 +32,8 @@ export const metadata = {
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = cookies();
     const isAuthed =
-        nextCookies.has("refresh_token") && nextCookies.has("access_token");
+        nextCookies.has(constants.REFRESH_TOKEN) &&
+        nextCookies.has(constants.ACCESS_TOKEN);
 
     return (
         <html lang="en" data-bs-theme="dark">

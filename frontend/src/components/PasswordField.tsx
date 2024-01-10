@@ -1,30 +1,34 @@
 "use client";
 
 import { BsEyeFill, BsEyeSlashFill, BsUnlockFill } from "react-icons/bs";
-import { InputGroup } from "react-bootstrap";
-
 import { useState } from "react";
 
-import { FormikField } from "./FormField";
+import { FormikInput } from "./FormikElements";
+import FormField from "./FormField";
 
 const PasswordField = () => {
     const [isShowingPassword, setIsShowingPassword] = useState(false);
     const EyeToggle = isShowingPassword ? BsEyeFill : BsEyeSlashFill;
 
     return (
-        <FormikField
-            fieldName="password"
-            placeholder="Password"
-            type={isShowingPassword ? "text" : "password"}
-        >
-            <InputGroup.Text>
-                <BsUnlockFill />
-                <EyeToggle
-                    onClick={() => setIsShowingPassword(!isShowingPassword)}
-                    role="button"
-                />
-            </InputGroup.Text>
-        </FormikField>
+        <FormField hasValidation>
+            <FormikInput
+                fieldName="password"
+                type={isShowingPassword ? "text" : "password"}
+                placeholder="Password"
+                icon={
+                    <>
+                        <BsUnlockFill />
+                        <EyeToggle
+                            onClick={() =>
+                                setIsShowingPassword(!isShowingPassword)
+                            }
+                            role="button"
+                        />
+                    </>
+                }
+            />
+        </FormField>
     );
 };
 export default PasswordField;

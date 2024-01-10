@@ -1,7 +1,6 @@
 import Image from "next/image";
 
 import styles from "./index.module.scss";
-import { apiConfig, profileApi } from "@/lib/apis";
 
 export const metadata = {
     title: "Chess 2 - Home",
