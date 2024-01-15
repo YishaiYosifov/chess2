@@ -7,7 +7,7 @@ export interface AuthSlice {
     csrfToken: string;
     csrfTokenCreatedAt: number;
     isAuthed: boolean;
-    localProfile: Partial<PrivateUserOut>;
+    localProfile: PrivateUserOut | null;
 }
 
 // Initialize the slice
@@ -16,7 +16,7 @@ export const initialAuthState: AuthSlice = {
     csrfTokenCreatedAt: 0,
 
     isAuthed: false,
-    localProfile: {},
+    localProfile: null,
 };
 
 export const createAuthSlice: StateCreator<

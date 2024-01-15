@@ -12,9 +12,12 @@ import { ComponentType } from "react";
 const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
     return async (props: any) => {
         try {
-            const profile = await profileApi.getInfoSensitive({
-                cache: "no-cache",
-            });
+            const profile = await profileApi.getInfoSensitive(
+                {},
+                {
+                    cache: "no-cache",
+                }
+            );
             return <WrappedComponent {...props} profile={profile} />;
         } catch {
             redirect("/");

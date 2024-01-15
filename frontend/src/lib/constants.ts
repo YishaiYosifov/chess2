@@ -4,8 +4,13 @@ export const BOARD_WIDTH = 10;
 export const BOARD_HEIGHT = 10;
 export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 
+export const ACCESS_TOKEN_EXPIRES_SECONDS = 1800;
+export const REFRESH_TOKEN_EXPIRES_SECONDS = 216000;
+
 export const ACCESS_TOKEN = "access_token";
 export const REFRESH_TOKEN = "refresh_token";
+
+export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
 
 export enum Piece {
     King = "king",
@@ -95,3 +100,16 @@ export const defaultChessboard: Record<number, PieceData> = {
     98: { piece: Piece.Horse, color: Color.Black },
     99: { piece: Piece.Rook, color: Color.Black },
 };
+
+const exported = {
+    USERNAME_EDIT_EVERY,
+    BOARD_WIDTH,
+    BOARD_HEIGHT,
+    BOARD_SIZE,
+    ACCESS_TOKEN_EXPIRES_SECONDS,
+    REFRESH_TOKEN_EXPIRES_SECONDS,
+    ACCESS_TOKEN,
+    REFRESH_TOKEN,
+    LAST_LOGIN_LOCAL_STORAGE,
+};
+export default exported;

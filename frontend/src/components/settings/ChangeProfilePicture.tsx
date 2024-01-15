@@ -5,15 +5,15 @@ import { Button } from "react-bootstrap";
 import { useRef, useState, ChangeEvent } from "react";
 
 import styles from "./ChangeProfilePicture.module.scss";
+import { useLoadedProfile } from "@/zustand/store";
 import { revalidateUser } from "@/app/actions";
-import { useStore } from "@/zustand/store";
 
 import ProfilePicture from "@/components/ProfilePicture";
 import { settingsApi } from "@/lib/apis";
 import { ResponseError } from "@/client";
 
 const ChangeProfilePicture = () => {
-    const { username, pfpLastChanged } = useStore.use.localProfile();
+    const { username, pfpLastChanged } = useLoadedProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);

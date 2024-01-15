@@ -1,7 +1,7 @@
 import { PrivateUserOut } from "@/client";
 
 import ChangeProfilePicture from "@/components/settings/ChangeProfilePicture";
-import ProfileSettingsForm from "@/components/settings/profile/ProfileForm";
+import ProfileSettings from "@/components/settings/profile/ProfileSettings";
 import StoreInitializer from "@/components/StoreInitializer";
 import withAuth from "@/components/hocs/withAuth";
 
@@ -22,7 +22,7 @@ const ProfilePage = withAuth(
 
                 <section className="mt-4">
                     <div className="card">
-                        <ProfileSettingsForm />
+                        <ProfileSettings />
                     </div>
                 </section>
             </div>

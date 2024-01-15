@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { ComponentType } from "react";
 
-import * as constants from "@/lib/constants";
+import constants from "@/lib/constants";
 
 /**
  * HOC to make sure the page is not accessible when the user is logged in.

@@ -2,7 +2,7 @@ import { Secular_One } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.css";
 import { ReactNode } from "react";
 
-import * as constants from "@/lib/constants";
+import constants from "@/lib/constants";
 import "./globals.scss";
 
 import NavbarProvider from "@/components/navbar/NavbarProvider";

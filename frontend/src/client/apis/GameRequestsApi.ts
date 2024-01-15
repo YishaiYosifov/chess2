@@ -30,6 +30,9 @@ import {
 
 export interface StartPoolGameRequest {
     gameSettings: GameSettings;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 /**
@@ -81,6 +84,10 @@ export class GameRequestsApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
         headerParameters['Content-Type'] = 'application/json';
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required

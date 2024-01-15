@@ -1,20 +1,18 @@
 "use client";
 
-import { Form, Button, InputGroup } from "react-bootstrap";
 import { BsPersonFill, BsEnvelopeFill } from "react-icons/bs";
-
-import { useRouter } from "next/navigation";
-import * as yup from "yup";
+import { Form, Button } from "react-bootstrap";
 
 import { Formik, FormikHelpers } from "formik";
+import { useRouter } from "next/navigation";
+import * as yup from "yup";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import { ResponseError } from "@/client";
 import { authApi } from "@/lib/apis";
 
-import { FormikInput } from "../FormikElements";
-import PasswordField from "../PasswordField";
-import FormField from "../FormField";
+import { FormInput, FormikField, PasswordInput } from "../form/FormElements";
+import FormField from "../form/FormField";
 
 export interface SignupFormValues {
     username: string;
@@ -83,23 +81,31 @@ const SignupForm = () => {
                     onSubmit={handleSubmit}
                 >
                     <FormField hasValidation>
-                        <FormikInput
-                            fieldName="username"
+                        <FormikField
+                            asInput={FormInput}
+                            name="username"
                             placeholder="username"
                             icon={<BsPersonFill />}
                         />
                     </FormField>
 
                     <FormField hasValidation>
-                        <FormikInput
-                            fieldName="email"
+                        <FormikField
+                            asInput={FormInput}
+                            name="email"
                             placeholder="email"
                             type="email"
                             icon={<BsEnvelopeFill />}
                         />
                     </FormField>
 
-                    <PasswordField />
+                    <FormField hasValidation>
+                        <FormikField
+                            asInput={PasswordInput}
+                            name="password"
+                            placeholder="Password"
+                        />
+                    </FormField>
 
                     <Button
                         type="submit"
