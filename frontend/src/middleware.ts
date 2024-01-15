@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authApi } from "./lib/apis";
 
-import * as constants from "./lib/constants";
+import constants from "./lib/constants";
 
 /**
  * Handle access token refresh
@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.redirect(request.url);
     try {
         const tokens = await authApi.refreshAccessTokenRaw({
-            headers: { Cookie: `refresh_token=${refreshToken}` },
+            refreshToken: refreshToken?.value,
         });
 
         response.headers.set(

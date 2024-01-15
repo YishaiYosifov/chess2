@@ -49,6 +49,12 @@ export interface LoginRequest {
     clientSecret?: string | null;
 }
 
+export interface RefreshAccessTokenRequest {
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
+}
+
 export interface SignupRequest {
     userIn: UserIn;
 }
@@ -162,6 +168,7 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
+     * Remove all auth cookies
      * Logout
      */
     async logoutRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<any>> {
@@ -184,6 +191,7 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
+     * Remove all auth cookies
      * Logout
      */
     async logout(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<any> {
@@ -195,10 +203,14 @@ export class AuthApi extends runtime.BaseAPI {
      * Generate a new access token using a refresh token
      * Refresh Access Token
      */
-    async refreshAccessTokenRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccessToken>> {
+    async refreshAccessTokenRaw(requestParameters: RefreshAccessTokenRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccessToken>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
@@ -219,8 +231,8 @@ export class AuthApi extends runtime.BaseAPI {
      * Generate a new access token using a refresh token
      * Refresh Access Token
      */
-    async refreshAccessToken(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccessToken> {
-        const response = await this.refreshAccessTokenRaw(initOverrides);
+    async refreshAccessToken(requestParameters: RefreshAccessTokenRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccessToken> {
+        const response = await this.refreshAccessTokenRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

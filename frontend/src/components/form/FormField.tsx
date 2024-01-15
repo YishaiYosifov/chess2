@@ -7,7 +7,7 @@ import { ReactNode, forwardRef } from "react";
 import styles from "./FormField.module.scss";
 
 export interface SettingsFieldProps {
-    fieldLabel?: string | boolean;
+    label?: string | boolean;
     hasValidation?: boolean;
     children?: ReactNode;
 }
@@ -16,24 +16,19 @@ export interface SettingsFieldProps {
  * Component for rendering form fields
  */
 const FormField = forwardRef<HTMLInputElement, SettingsFieldProps>(
-    (
-        { children, fieldLabel, hasValidation = false }: SettingsFieldProps,
-        ref
-    ) => {
+    ({ children, label, hasValidation = false }, ref) => {
         return (
             <Form.Group className={styles["input-container"]}>
-                {fieldLabel && (
+                {label && (
                     <Form.Label data-testid="formFieldLabel">
-                        {fieldLabel}
+                        {label}
                     </Form.Label>
                 )}
 
                 <InputGroup
                     hasValidation={hasValidation}
                     ref={ref}
-                    className={
-                        (fieldLabel && styles["label-input"]) || undefined
-                    }
+                    className={(label && styles["label-input"]) || undefined}
                 >
                     {children}
                 </InputGroup>

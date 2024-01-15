@@ -48,31 +48,55 @@ import {
 
 export interface GetInfoRequest {
     target: string;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
+}
+
+export interface GetInfoSensitiveRequest {
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 export interface GetRatingsRequest {
     target: string;
     variants?: Array<Variant>;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 export interface GetRatingsHistoryRequest {
     target: string;
     since: Date;
     variants?: Array<Variant>;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 export interface PaginateGamesRequest {
     target: string;
     page?: number;
     perPage?: number;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 export interface ProfilePictureRequest {
     target: string;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 export interface TotalGameCountRequest {
     target: string;
+    authorization?: string | null;
+    accessToken?: string | null;
+    refreshToken?: string | null;
 }
 
 /**
@@ -92,6 +116,10 @@ export class ProfileApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
@@ -121,10 +149,14 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitiveRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
+    async getInfoSensitiveRaw(requestParameters: GetInfoSensitiveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
@@ -145,8 +177,8 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitive(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
-        const response = await this.getInfoSensitiveRaw(initOverrides);
+    async getInfoSensitive(requestParameters: GetInfoSensitiveRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+        const response = await this.getInfoSensitiveRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -166,6 +198,10 @@ export class ProfileApi extends runtime.BaseAPI {
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
@@ -216,6 +252,10 @@ export class ProfileApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
+
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
             headerParameters["Authorization"] = await this.configuration.accessToken("OAuth2PasswordBearerCookie", []);
@@ -261,6 +301,10 @@ export class ProfileApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
+
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
             headerParameters["Authorization"] = await this.configuration.accessToken("OAuth2PasswordBearerCookie", []);
@@ -298,6 +342,10 @@ export class ProfileApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
+
         if (this.configuration && this.configuration.accessToken) {
             // oauth required
             headerParameters["Authorization"] = await this.configuration.accessToken("OAuth2PasswordBearerCookie", []);
@@ -333,6 +381,10 @@ export class ProfileApi extends runtime.BaseAPI {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
+
+        if (requestParameters.authorization !== undefined && requestParameters.authorization !== null) {
+            headerParameters['Authorization'] = String(requestParameters.authorization);
+        }
 
         if (this.configuration && this.configuration.accessToken) {
             // oauth required

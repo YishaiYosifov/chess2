@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
-import FormField from "../FormField";
+import FormField from "../form/FormField";
 
 describe("FormField", () => {
     it("should render FormField with label", () => {
-        render(<FormField fieldLabel="Testing" />);
+        render(<FormField label="Testing" />);
 
         const label = screen.getByTestId("formFieldLabel");
         expect(label).toBeInTheDocument();

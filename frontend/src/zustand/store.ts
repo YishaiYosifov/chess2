@@ -4,6 +4,7 @@ import { devtools } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 
 import { AuthSlice, createAuthSlice } from "./slices/authSlice";
+import { PrivateUserOut } from "@/client";
 
 type WithSelectors<S> = S extends { getState: () => infer T }
     ? S & { use: { [K in keyof T]: () => T[K] } }
@@ -35,6 +36,21 @@ export const useStore = createSelectors(
         shallow
     )
 );
+
+export function useLoadedProfile(): PrivateUserOut {
+    const localProfile = useStore.getState().localProfile;
+    if (!localProfile) throw new Error("Profile Not Loaded");
+
+    return localProfile;
+}
+
+export function setLocalProfile(newProfile: PrivateUserOut): void {
+    useStore.setState(
+        { localProfile: newProfile },
+        false,
+        "UPDATE_LOCAL_PROFILE"
+    );
+}
 
 /** Update the local logged in user profile */
 export function setCsrfToken(csrf: string): void {

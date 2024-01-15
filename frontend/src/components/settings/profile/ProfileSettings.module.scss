@@ -1,0 +1,7 @@
+$form-gap: 20px;
+
+.form-gap {
+    display: flex;
+    flex-direction: column;
+    gap: $form-gap;
+}
