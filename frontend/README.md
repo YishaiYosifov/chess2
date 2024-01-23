@@ -1,6 +1,15 @@
 # chess2
 
-The chess2 website frontend
+The chess2 website frontend made in NextJS.
+
+Chess2 is chess website with many new pieces and rules.
+
+2 players can match against each other if they are rated similarly and choose the same game settings.
+You are also able to play as a guest, but your rating and game history will not be saved.
+
+A video from the older version:
+
+https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/3d51e75d-6b80-496c-b594-1339757b1695
 
 ## Installation
 
