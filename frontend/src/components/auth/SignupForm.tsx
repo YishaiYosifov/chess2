@@ -9,6 +9,7 @@ import * as yup from "yup";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import { ResponseError } from "@/client";
+import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
 import { FormInput, FormikField, PasswordInput } from "../form/FormElements";
@@ -41,21 +42,14 @@ const SignupForm = () => {
                     password: values.password,
                 },
             });
-        } catch (err) {
-            if (!(err instanceof ResponseError)) {
-                setStatus("Something went wrong.");
-                return;
-            }
-
-            const data = await err.response.json();
-            switch (err.response.status) {
+        } catch (err: any) {
+            switch (err?.response?.status) {
                 case 409:
-                    setErrors(data.detail);
+                    setErrors((await err.response.json()).detail);
                     break;
                 default:
-                    console.error(data);
-                    setStatus("Something went wrong.");
-                    break;
+                    setStatus(constants.GENERIC_ERROR);
+                    throw err;
             }
             return;
         }

@@ -1,14 +1,14 @@
-import { Formik, FormikHelpers } from "formik";
-
+import { Formik } from "formik";
 import * as yup from "yup";
 
 import { useLoadedProfile } from "@/zustand/store";
 import { usernameSchema } from "@/lib/validation";
 import styles from "./UsernameForm.module.scss";
+import { FormikOnSubmit } from "@/lib/types";
 import constants from "@/lib/constants";
 
-import CollapsibleForm from "@/components/form/CollapsibleForm";
 import { FormInput, FormikField } from "@/components/form/FormElements";
+import CollapsibleForm from "@/components/form/CollapsibleForm";
 import FormField from "@/components/form/FormField";
 
 export interface UsernameSchema {
@@ -20,10 +20,7 @@ const usernameSettingSchema = yup.object({ username: usernameSchema });
 const UsernameForm = ({
     onSubmit,
 }: {
-    onSubmit: (
-        values: UsernameSchema,
-        helpers: FormikHelpers<UsernameSchema>
-    ) => void;
+    onSubmit: FormikOnSubmit<UsernameSchema>;
 }) => {
     const { usernameLastChanged, username } = useLoadedProfile();
 

@@ -1,5 +1,5 @@
-import { Formik, FormikHelpers } from "formik";
 import { Button, Form } from "react-bootstrap";
+import { Formik } from "formik";
 import * as yup from "yup";
 
 import styles from "./ProfileSettings.module.scss";
@@ -12,13 +12,18 @@ import {
 } from "@/components/form/FormElements";
 import FormField from "@/components/form/FormField";
 import { useLoadedProfile } from "@/zustand/store";
+import { FormikOnSubmit } from "@/lib/types";
 
 const profileSettingsSchema = yup.object();
+export interface ProfileSchema {
+    about: string;
+    country: string;
+}
 
 const ProfileForm = ({
     onSubmit,
 }: {
-    onSubmit: (values: Object, helpers: FormikHelpers<any>) => Promise<void>;
+    onSubmit: FormikOnSubmit<ProfileSchema>;
 }) => {
     const { about } = useLoadedProfile();
 

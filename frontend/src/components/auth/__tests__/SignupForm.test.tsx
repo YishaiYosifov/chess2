@@ -7,6 +7,8 @@ import {
     fillForm,
     responseErrFactory,
 } from "@/lib/utils/testUtils";
+import constants from "@/lib/constants";
+
 import SignupForm, { SignupFormValues } from "../SignupForm";
 import { mockRouter } from "@/mocks/mocks";
 import { authApi } from "@/lib/apis";
@@ -56,7 +58,7 @@ describe("SignupForm", () => {
             await renderAndFillSignup();
 
             expect(
-                screen.getByText("Something went wrong.")
+                screen.getByText(constants.GENERIC_ERROR)
             ).toBeInTheDocument();
         }
     );
