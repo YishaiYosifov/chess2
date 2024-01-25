@@ -37,22 +37,14 @@ const LoginForm = () => {
                 username: values.username,
                 password: values.password,
             });
-        } catch (err) {
-            if (!(err instanceof ResponseError)) {
-                setStatus("Something went wrong.");
-                return;
-            }
-
-            switch (err.response.status) {
+        } catch (err: any) {
+            switch (err?.response?.status) {
                 case 401:
                     setStatus("Wrong username / password");
                     break;
                 default:
-                    setStatus("Something went wrong.");
-                    console.error(
-                        err.response.status,
-                        await err.response.text()
-                    );
+                    setStatus(constants.GENERIC_ERROR);
+                    throw err;
             }
             return;
         }

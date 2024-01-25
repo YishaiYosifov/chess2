@@ -4,10 +4,12 @@ import { FormikHelpers } from "formik";
 
 import styles from "./ProfileSettings.module.scss";
 import { settingsApi } from "@/lib/apis";
+import { ResponseError } from "@/client";
+import constants from "@/lib/constants";
 
 import UsernameForm, { UsernameSchema } from "./UsernameForm";
+import ProfileForm, { ProfileSchema } from "./ProfileForm";
 import EmailForm, { EmailSchema } from "./EmailForm";
-import ProfileForm from "./ProfileForm";
 
 const ProfileSettings = () => {
     async function updateUsername(
@@ -19,8 +21,15 @@ const ProfileSettings = () => {
                 body: values.username,
             });
             location.reload();
-        } catch {
-            helpers.setStatus("tee hee");
+        } catch (err: any) {
+            switch (err?.response?.status) {
+                case 409:
+                    helpers.setErrors({ username: "Username taken" });
+                    break;
+                default:
+                    helpers.setStatus(constants.GENERIC_ERROR);
+                    throw err;
+            }
         }
     }
 
@@ -33,12 +42,22 @@ const ProfileSettings = () => {
                 body: values.email,
             });
             location.reload();
-        } catch {
-            helpers.setStatus("tee hee");
+        } catch (err: any) {
+            switch (err?.response?.status) {
+                case 409:
+                    helpers.setErrors({ email: "Email taken" });
+                    break;
+                default:
+                    helpers.setStatus(constants.GENERIC_ERROR);
+                    throw err;
+            }
         }
     }
 
-    async function updateProfile() {}
+    async function updateProfile(
+        values: ProfileSchema,
+        helpers: FormikHelpers<ProfileSchema>
+    ) {}
 
     return (
         <div className={styles["form-gap"]}>

@@ -24,7 +24,7 @@ const CollapsibleForm: ForwardRefRenderFunction<
     CollapsibleFormProps
 > = ({ label, defaultValue, disabled, children, ...formProps }, ref) => {
     const [isEditing, setIsEditing] = useState(false);
-    const { dirty, isValid, isSubmitting } = useFormikContext();
+    const { dirty, isValid, isSubmitting, status } = useFormikContext();
 
     const cancel = () => setIsEditing(false);
     const open = () => setIsEditing(true);
@@ -33,6 +33,7 @@ const CollapsibleForm: ForwardRefRenderFunction<
         return (
             <Form {...formProps} className={styles["form"]} ref={ref}>
                 {children}
+                <span className="text-invalid">{status}</span>
 
                 <div className={styles["submit-container"]}>
                     <Button

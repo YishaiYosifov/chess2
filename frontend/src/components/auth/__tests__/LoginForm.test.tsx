@@ -5,6 +5,7 @@ import { createFormRenderer, responseErrFactory } from "@/lib/utils/testUtils";
 import LoginForm, { LoginFormValues } from "../LoginForm";
 import { mockRouter } from "@/mocks/mocks";
 import { authApi } from "@/lib/apis";
+import constants from "@/lib/constants";
 
 vi.mock("@/lib/apis", () => ({
     authApi: { login: vi.fn() },
@@ -30,8 +31,8 @@ describe("LoginForm", () => {
     });
 
     it.each([
-        [new Error(), "Something went wrong."],
-        [responseErrFactory(null, { status: 500 }), "Something went wrong."],
+        [new Error(), constants.GENERIC_ERROR],
+        [responseErrFactory(null, { status: 500 }), constants.GENERIC_ERROR],
         [
             responseErrFactory(null, { status: 401 }),
             "Wrong username / password",

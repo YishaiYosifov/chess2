@@ -1,4 +1,4 @@
-import { writeFileSync, rmSync } from "fs";
+import { writeFileSync, rmSync, existsSync } from "fs";
 import { execSync } from "child_process";
 
 async function getOpenapiContent() {
@@ -29,7 +29,8 @@ async function generateClient() {
         JSON.stringify(openapiContent)
     );
 
-    rmSync("./src/client", { recursive: true });
+    if (existsSync("./src/client")) rmSync("./src/client", { recursive: true });
+
     execSync(
         "npx openapi-generator-cli generate " +
             "-i ./scripts/openapi/openapi.json " +

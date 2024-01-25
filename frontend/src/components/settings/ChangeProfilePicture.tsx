@@ -7,10 +7,11 @@ import { useRef, useState, ChangeEvent } from "react";
 import styles from "./ChangeProfilePicture.module.scss";
 import { useLoadedProfile } from "@/zustand/store";
 import { revalidateUser } from "@/app/actions";
+import { ResponseError } from "@/client";
+import { settingsApi } from "@/lib/apis";
+import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/ProfilePicture";
-import { settingsApi } from "@/lib/apis";
-import { ResponseError } from "@/client";
 
 const ChangeProfilePicture = () => {
     const { username, pfpLastChanged } = useLoadedProfile();
@@ -29,22 +30,15 @@ const ChangeProfilePicture = () => {
             await settingsApi.uploadProfilePicture({
                 pfp: files[0],
             });
-        } catch (err) {
-            if (!(err instanceof ResponseError)) {
-                setStatus("Something went wrong.");
-                console.error(err);
-                return;
-            }
-
-            switch (err.response.status) {
+        } catch (err: any) {
+            switch (err?.response?.status) {
                 case 400:
                 case 413:
                     setStatus((await err.response.json()).detail);
                     break;
                 default:
-                    setStatus("Something went wrong.");
-                    console.error(await err.response.text());
-                    break;
+                    setStatus(constants.GENERIC_ERROR);
+                    throw err;
             }
             return;
         }

@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import styles from "./SettingsNavbar.module.scss";
 import { BsGearFill } from "react-icons/bs";
+
+import styles from "./SettingsNavbar.module.scss";
 
 const SettingsNavbar = ({
     settings,

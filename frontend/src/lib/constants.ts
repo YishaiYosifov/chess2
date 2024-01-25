@@ -12,6 +12,8 @@ export const REFRESH_TOKEN = "refresh_token";
 
 export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
 
+export const GENERIC_ERROR = "Something went wrong.";
+
 export enum Piece {
     King = "king",
     Queen = "queen",
@@ -111,5 +113,6 @@ const exported = {
     ACCESS_TOKEN,
     REFRESH_TOKEN,
     LAST_LOGIN_LOCAL_STORAGE,
+    GENERIC_ERROR,
 };
 export default exported;
