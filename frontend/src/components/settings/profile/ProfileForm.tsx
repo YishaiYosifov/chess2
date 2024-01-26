@@ -13,27 +13,24 @@ import {
 import FormField from "@/components/form/FormField";
 import { useLoadedProfile } from "@/zustand/store";
 import { FormikOnSubmit } from "@/lib/types";
+import { EditableProfile } from "@/client";
 
 const profileSettingsSchema = yup.object();
-export interface ProfileSchema {
-    about: string;
-    country: string;
-}
 
 const ProfileForm = ({
     onSubmit,
 }: {
-    onSubmit: FormikOnSubmit<ProfileSchema>;
+    onSubmit: FormikOnSubmit<EditableProfile>;
 }) => {
-    const { about } = useLoadedProfile();
+    const { about, countryAlpha3 } = useLoadedProfile();
 
     return (
         <Formik
             validationSchema={profileSettingsSchema}
             onSubmit={onSubmit}
             initialValues={{
-                about: about,
-                country: "INTR",
+                about,
+                countryAlpha3,
             }}
         >
             {({ handleSubmit }) => (
@@ -53,7 +50,7 @@ const ProfileForm = ({
                     </FormField>
 
                     <FormField label="Country" hasValidation>
-                        <FormikField asInput={FormSelect} name="country">
+                        <FormikField asInput={FormSelect} name="countryAlpha3">
                             {countries.map((country) => (
                                 <option
                                     key={country.alpha3}
