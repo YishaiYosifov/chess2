@@ -42,7 +42,7 @@ export interface PrivateUserOut {
      * @type {string}
      * @memberof PrivateUserOut
      */
-    country: string | null;
+    countryAlpha3: string;
     /**
      * 
      * @type {Date}
@@ -71,7 +71,7 @@ export function instanceOfPrivateUserOut(value: object): boolean {
     isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "username" in value;
     isInstance = isInstance && "about" in value;
-    isInstance = isInstance && "country" in value;
+    isInstance = isInstance && "countryAlpha3" in value;
     isInstance = isInstance && "pfpLastChanged" in value;
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "usernameLastChanged" in value;
@@ -92,7 +92,7 @@ export function PrivateUserOutFromJSONTyped(json: any, ignoreDiscriminator: bool
         'userId': json['user_id'],
         'username': json['username'],
         'about': json['about'],
-        'country': json['country'],
+        'countryAlpha3': json['country_alpha3'],
         'pfpLastChanged': (new Date(json['pfp_last_changed'])),
         'email': json['email'],
         'usernameLastChanged': (json['username_last_changed'] === null ? null : new Date(json['username_last_changed'])),
@@ -111,7 +111,7 @@ export function PrivateUserOutToJSON(value?: PrivateUserOut | null): any {
         'user_id': value.userId,
         'username': value.username,
         'about': value.about,
-        'country': value.country,
+        'country_alpha3': value.countryAlpha3,
         'pfp_last_changed': (value.pfpLastChanged.toISOString()),
         'email': value.email,
         'username_last_changed': (value.usernameLastChanged === null ? null : value.usernameLastChanged.toISOString()),

@@ -24,13 +24,13 @@ export interface EditableProfile {
      * @type {string}
      * @memberof EditableProfile
      */
-    country?: string | null;
+    countryAlpha3: string;
     /**
      * 
      * @type {string}
      * @memberof EditableProfile
      */
-    about?: string;
+    about: string;
 }
 
 /**
@@ -38,6 +38,8 @@ export interface EditableProfile {
  */
 export function instanceOfEditableProfile(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "countryAlpha3" in value;
+    isInstance = isInstance && "about" in value;
 
     return isInstance;
 }
@@ -52,8 +54,8 @@ export function EditableProfileFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'country': !exists(json, 'country') ? undefined : json['country'],
-        'about': !exists(json, 'about') ? undefined : json['about'],
+        'countryAlpha3': json['country_alpha3'],
+        'about': json['about'],
     };
 }
 
@@ -66,7 +68,7 @@ export function EditableProfileToJSON(value?: EditableProfile | null): any {
     }
     return {
         
-        'country': value.country,
+        'country_alpha3': value.countryAlpha3,
         'about': value.about,
     };
 }

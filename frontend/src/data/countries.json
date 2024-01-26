@@ -1,998 +1,1252 @@
 [
     {
-        "alpha3": "INTR",
-        "name": "International"
-    },
-    {
-        "alpha3": "ABW",
-        "name": "Aruba"
-    },
-    {
         "alpha3": "AFG",
+        "flag": "🇦🇫",
         "name": "Afghanistan"
     },
     {
+        "alpha3": "ALB",
+        "flag": "🇦🇱",
+        "name": "Albania"
+    },
+    {
+        "alpha3": "DZA",
+        "flag": "🇩🇿",
+        "name": "Algeria"
+    },
+    {
+        "alpha3": "ASM",
+        "flag": "🇦🇸",
+        "name": "American Samoa"
+    },
+    {
+        "alpha3": "AND",
+        "flag": "🇦🇩",
+        "name": "Andorra"
+    },
+    {
         "alpha3": "AGO",
+        "flag": "🇦🇴",
         "name": "Angola"
     },
     {
         "alpha3": "AIA",
+        "flag": "🇦🇮",
         "name": "Anguilla"
     },
     {
-        "alpha3": "ALA",
-        "name": "Åland Islands"
+        "alpha3": "ATA",
+        "flag": "🇦🇶",
+        "name": "Antarctica"
     },
     {
-        "alpha3": "ALB",
-        "name": "Albania"
-    },
-    {
-        "alpha3": "AND",
-        "name": "Andorra"
-    },
-    {
-        "alpha3": "ARE",
-        "name": "United Arab Emirates"
+        "alpha3": "ATG",
+        "flag": "🇦🇬",
+        "name": "Antigua and Barbuda"
     },
     {
         "alpha3": "ARG",
+        "flag": "🇦🇷",
         "name": "Argentina"
     },
     {
         "alpha3": "ARM",
+        "flag": "🇦🇲",
         "name": "Armenia"
     },
     {
-        "alpha3": "ASM",
-        "name": "American Samoa"
-    },
-    {
-        "alpha3": "ATA",
-        "name": "Antarctica"
-    },
-    {
-        "alpha3": "ATF",
-        "name": "French Southern Territories"
-    },
-    {
-        "alpha3": "ATG",
-        "name": "Antigua and Barbuda"
+        "alpha3": "ABW",
+        "flag": "🇦🇼",
+        "name": "Aruba"
     },
     {
         "alpha3": "AUS",
+        "flag": "🇦🇺",
         "name": "Australia"
     },
     {
         "alpha3": "AUT",
+        "flag": "🇦🇹",
         "name": "Austria"
     },
     {
         "alpha3": "AZE",
+        "flag": "🇦🇿",
         "name": "Azerbaijan"
     },
     {
-        "alpha3": "BDI",
-        "name": "Burundi"
-    },
-    {
-        "alpha3": "BEL",
-        "name": "Belgium"
-    },
-    {
-        "alpha3": "BEN",
-        "name": "Benin"
-    },
-    {
-        "alpha3": "BES",
-        "name": "Bonaire, Sint Eustatius and Saba"
-    },
-    {
-        "alpha3": "BFA",
-        "name": "Burkina Faso"
-    },
-    {
-        "alpha3": "BGD",
-        "name": "Bangladesh"
-    },
-    {
-        "alpha3": "BGR",
-        "name": "Bulgaria"
-    },
-    {
-        "alpha3": "BHR",
-        "name": "Bahrain"
-    },
-    {
         "alpha3": "BHS",
+        "flag": "🇧🇸",
         "name": "Bahamas"
     },
     {
-        "alpha3": "BIH",
-        "name": "Bosnia and Herzegovina"
+        "alpha3": "BHR",
+        "flag": "🇧🇭",
+        "name": "Bahrain"
     },
     {
-        "alpha3": "BLM",
-        "name": "Saint Barthélemy"
-    },
-    {
-        "alpha3": "BLR",
-        "name": "Belarus"
-    },
-    {
-        "alpha3": "BLZ",
-        "name": "Belize"
-    },
-    {
-        "alpha3": "BMU",
-        "name": "Bermuda"
-    },
-    {
-        "alpha3": "BOL",
-        "name": "Bolivia, Plurinational State of"
-    },
-    {
-        "alpha3": "BRA",
-        "name": "Brazil"
+        "alpha3": "BGD",
+        "flag": "🇧🇩",
+        "name": "Bangladesh"
     },
     {
         "alpha3": "BRB",
+        "flag": "🇧🇧",
         "name": "Barbados"
     },
     {
-        "alpha3": "BRN",
-        "name": "Brunei Darussalam"
+        "alpha3": "BLR",
+        "flag": "🇧🇾",
+        "name": "Belarus"
+    },
+    {
+        "alpha3": "BEL",
+        "flag": "🇧🇪",
+        "name": "Belgium"
+    },
+    {
+        "alpha3": "BLZ",
+        "flag": "🇧🇿",
+        "name": "Belize"
+    },
+    {
+        "alpha3": "BEN",
+        "flag": "🇧🇯",
+        "name": "Benin"
+    },
+    {
+        "alpha3": "BMU",
+        "flag": "🇧🇲",
+        "name": "Bermuda"
     },
     {
         "alpha3": "BTN",
+        "flag": "🇧🇹",
         "name": "Bhutan"
     },
     {
-        "alpha3": "BVT",
-        "name": "Bouvet Island"
+        "alpha3": "BOL",
+        "flag": "🇧🇴",
+        "name": "Bolivia, Plurinational State of"
+    },
+    {
+        "alpha3": "BES",
+        "flag": "🇧🇶",
+        "name": "Bonaire, Sint Eustatius and Saba"
+    },
+    {
+        "alpha3": "BIH",
+        "flag": "🇧🇦",
+        "name": "Bosnia and Herzegovina"
     },
     {
         "alpha3": "BWA",
+        "flag": "🇧🇼",
         "name": "Botswana"
     },
     {
-        "alpha3": "CAF",
-        "name": "Central African Republic"
+        "alpha3": "BVT",
+        "flag": "🇧🇻",
+        "name": "Bouvet Island"
+    },
+    {
+        "alpha3": "BRA",
+        "flag": "🇧🇷",
+        "name": "Brazil"
+    },
+    {
+        "alpha3": "IOT",
+        "flag": "🇮🇴",
+        "name": "British Indian Ocean Territory"
+    },
+    {
+        "alpha3": "BRN",
+        "flag": "🇧🇳",
+        "name": "Brunei Darussalam"
+    },
+    {
+        "alpha3": "BGR",
+        "flag": "🇧🇬",
+        "name": "Bulgaria"
+    },
+    {
+        "alpha3": "BFA",
+        "flag": "🇧🇫",
+        "name": "Burkina Faso"
+    },
+    {
+        "alpha3": "BDI",
+        "flag": "🇧🇮",
+        "name": "Burundi"
+    },
+    {
+        "alpha3": "CPV",
+        "flag": "🇨🇻",
+        "name": "Cabo Verde"
+    },
+    {
+        "alpha3": "KHM",
+        "flag": "🇰🇭",
+        "name": "Cambodia"
+    },
+    {
+        "alpha3": "CMR",
+        "flag": "🇨🇲",
+        "name": "Cameroon"
     },
     {
         "alpha3": "CAN",
+        "flag": "🇨🇦",
         "name": "Canada"
     },
     {
-        "alpha3": "CCK",
-        "name": "Cocos (Keeling) Islands"
+        "alpha3": "CYM",
+        "flag": "🇰🇾",
+        "name": "Cayman Islands"
     },
     {
-        "alpha3": "CHE",
-        "name": "Switzerland"
+        "alpha3": "CAF",
+        "flag": "🇨🇫",
+        "name": "Central African Republic"
+    },
+    {
+        "alpha3": "TCD",
+        "flag": "🇹🇩",
+        "name": "Chad"
     },
     {
         "alpha3": "CHL",
+        "flag": "🇨🇱",
         "name": "Chile"
     },
     {
         "alpha3": "CHN",
+        "flag": "🇨🇳",
         "name": "China"
     },
     {
-        "alpha3": "CIV",
-        "name": "Côte d'Ivoire"
+        "alpha3": "CXR",
+        "flag": "🇨🇽",
+        "name": "Christmas Island"
     },
     {
-        "alpha3": "CMR",
-        "name": "Cameroon"
-    },
-    {
-        "alpha3": "COD",
-        "name": "Congo, The Democratic Republic of the"
-    },
-    {
-        "alpha3": "COG",
-        "name": "Congo"
-    },
-    {
-        "alpha3": "COK",
-        "name": "Cook Islands"
+        "alpha3": "CCK",
+        "flag": "🇨🇨",
+        "name": "Cocos (Keeling) Islands"
     },
     {
         "alpha3": "COL",
+        "flag": "🇨🇴",
         "name": "Colombia"
     },
     {
         "alpha3": "COM",
+        "flag": "🇰🇲",
         "name": "Comoros"
     },
     {
-        "alpha3": "CPV",
-        "name": "Cabo Verde"
+        "alpha3": "COG",
+        "flag": "🇨🇬",
+        "name": "Congo"
+    },
+    {
+        "alpha3": "COD",
+        "flag": "🇨🇩",
+        "name": "Congo, The Democratic Republic of the"
+    },
+    {
+        "alpha3": "COK",
+        "flag": "🇨🇰",
+        "name": "Cook Islands"
     },
     {
         "alpha3": "CRI",
+        "flag": "🇨🇷",
         "name": "Costa Rica"
     },
     {
+        "alpha3": "HRV",
+        "flag": "🇭🇷",
+        "name": "Croatia"
+    },
+    {
         "alpha3": "CUB",
+        "flag": "🇨🇺",
         "name": "Cuba"
     },
     {
         "alpha3": "CUW",
+        "flag": "🇨🇼",
         "name": "Curaçao"
     },
     {
-        "alpha3": "CXR",
-        "name": "Christmas Island"
-    },
-    {
-        "alpha3": "CYM",
-        "name": "Cayman Islands"
-    },
-    {
         "alpha3": "CYP",
+        "flag": "🇨🇾",
         "name": "Cyprus"
     },
     {
         "alpha3": "CZE",
+        "flag": "🇨🇿",
         "name": "Czechia"
     },
     {
-        "alpha3": "DEU",
-        "name": "Germany"
+        "alpha3": "CIV",
+        "flag": "🇨🇮",
+        "name": "Côte d'Ivoire"
+    },
+    {
+        "alpha3": "DNK",
+        "flag": "🇩🇰",
+        "name": "Denmark"
     },
     {
         "alpha3": "DJI",
+        "flag": "🇩🇯",
         "name": "Djibouti"
     },
     {
         "alpha3": "DMA",
+        "flag": "🇩🇲",
         "name": "Dominica"
     },
     {
-        "alpha3": "DNK",
-        "name": "Denmark"
-    },
-    {
         "alpha3": "DOM",
+        "flag": "🇩🇴",
         "name": "Dominican Republic"
     },
     {
-        "alpha3": "DZA",
-        "name": "Algeria"
-    },
-    {
         "alpha3": "ECU",
+        "flag": "🇪🇨",
         "name": "Ecuador"
     },
     {
         "alpha3": "EGY",
+        "flag": "🇪🇬",
         "name": "Egypt"
     },
     {
+        "alpha3": "SLV",
+        "flag": "🇸🇻",
+        "name": "El Salvador"
+    },
+    {
+        "alpha3": "GNQ",
+        "flag": "🇬🇶",
+        "name": "Equatorial Guinea"
+    },
+    {
         "alpha3": "ERI",
+        "flag": "🇪🇷",
         "name": "Eritrea"
     },
     {
-        "alpha3": "ESH",
-        "name": "Western Sahara"
-    },
-    {
-        "alpha3": "ESP",
-        "name": "Spain"
-    },
-    {
         "alpha3": "EST",
+        "flag": "🇪🇪",
         "name": "Estonia"
     },
     {
+        "alpha3": "SWZ",
+        "flag": "🇸🇿",
+        "name": "Eswatini"
+    },
+    {
         "alpha3": "ETH",
+        "flag": "🇪🇹",
         "name": "Ethiopia"
     },
     {
-        "alpha3": "FIN",
-        "name": "Finland"
-    },
-    {
-        "alpha3": "FJI",
-        "name": "Fiji"
-    },
-    {
         "alpha3": "FLK",
+        "flag": "🇫🇰",
         "name": "Falkland Islands (Malvinas)"
     },
     {
-        "alpha3": "FRA",
-        "name": "France"
-    },
-    {
         "alpha3": "FRO",
+        "flag": "🇫🇴",
         "name": "Faroe Islands"
     },
     {
-        "alpha3": "FSM",
-        "name": "Micronesia, Federated States of"
+        "alpha3": "FJI",
+        "flag": "🇫🇯",
+        "name": "Fiji"
+    },
+    {
+        "alpha3": "FIN",
+        "flag": "🇫🇮",
+        "name": "Finland"
+    },
+    {
+        "alpha3": "FRA",
+        "flag": "🇫🇷",
+        "name": "France"
+    },
+    {
+        "alpha3": "GUF",
+        "flag": "🇬🇫",
+        "name": "French Guiana"
+    },
+    {
+        "alpha3": "PYF",
+        "flag": "🇵🇫",
+        "name": "French Polynesia"
+    },
+    {
+        "alpha3": "ATF",
+        "flag": "🇹🇫",
+        "name": "French Southern Territories"
     },
     {
         "alpha3": "GAB",
+        "flag": "🇬🇦",
         "name": "Gabon"
     },
     {
-        "alpha3": "GBR",
-        "name": "United Kingdom"
+        "alpha3": "GMB",
+        "flag": "🇬🇲",
+        "name": "Gambia"
     },
     {
         "alpha3": "GEO",
+        "flag": "🇬🇪",
         "name": "Georgia"
     },
     {
-        "alpha3": "GGY",
-        "name": "Guernsey"
+        "alpha3": "DEU",
+        "flag": "🇩🇪",
+        "name": "Germany"
     },
     {
         "alpha3": "GHA",
+        "flag": "🇬🇭",
         "name": "Ghana"
     },
     {
         "alpha3": "GIB",
+        "flag": "🇬🇮",
         "name": "Gibraltar"
     },
     {
-        "alpha3": "GIN",
-        "name": "Guinea"
-    },
-    {
-        "alpha3": "GLP",
-        "name": "Guadeloupe"
-    },
-    {
-        "alpha3": "GMB",
-        "name": "Gambia"
-    },
-    {
-        "alpha3": "GNB",
-        "name": "Guinea-Bissau"
-    },
-    {
-        "alpha3": "GNQ",
-        "name": "Equatorial Guinea"
-    },
-    {
         "alpha3": "GRC",
+        "flag": "🇬🇷",
         "name": "Greece"
     },
     {
-        "alpha3": "GRD",
-        "name": "Grenada"
-    },
-    {
         "alpha3": "GRL",
+        "flag": "🇬🇱",
         "name": "Greenland"
     },
     {
-        "alpha3": "GTM",
-        "name": "Guatemala"
+        "alpha3": "GRD",
+        "flag": "🇬🇩",
+        "name": "Grenada"
     },
     {
-        "alpha3": "GUF",
-        "name": "French Guiana"
+        "alpha3": "GLP",
+        "flag": "🇬🇵",
+        "name": "Guadeloupe"
     },
     {
         "alpha3": "GUM",
+        "flag": "🇬🇺",
         "name": "Guam"
     },
     {
+        "alpha3": "GTM",
+        "flag": "🇬🇹",
+        "name": "Guatemala"
+    },
+    {
+        "alpha3": "GGY",
+        "flag": "🇬🇬",
+        "name": "Guernsey"
+    },
+    {
+        "alpha3": "GIN",
+        "flag": "🇬🇳",
+        "name": "Guinea"
+    },
+    {
+        "alpha3": "GNB",
+        "flag": "🇬🇼",
+        "name": "Guinea-Bissau"
+    },
+    {
         "alpha3": "GUY",
+        "flag": "🇬🇾",
         "name": "Guyana"
     },
     {
-        "alpha3": "HKG",
-        "name": "Hong Kong"
-    },
-    {
-        "alpha3": "HMD",
-        "name": "Heard Island and McDonald Islands"
-    },
-    {
-        "alpha3": "HND",
-        "name": "Honduras"
-    },
-    {
-        "alpha3": "HRV",
-        "name": "Croatia"
-    },
-    {
         "alpha3": "HTI",
+        "flag": "🇭🇹",
         "name": "Haiti"
     },
     {
+        "alpha3": "HMD",
+        "flag": "🇭🇲",
+        "name": "Heard Island and McDonald Islands"
+    },
+    {
+        "alpha3": "VAT",
+        "flag": "🇻🇦",
+        "name": "Holy See (Vatican City State)"
+    },
+    {
+        "alpha3": "HND",
+        "flag": "🇭🇳",
+        "name": "Honduras"
+    },
+    {
+        "alpha3": "HKG",
+        "flag": "🇭🇰",
+        "name": "Hong Kong"
+    },
+    {
         "alpha3": "HUN",
+        "flag": "🇭🇺",
         "name": "Hungary"
     },
     {
-        "alpha3": "IDN",
-        "name": "Indonesia"
-    },
-    {
-        "alpha3": "IMN",
-        "name": "Isle of Man"
+        "alpha3": "ISL",
+        "flag": "🇮🇸",
+        "name": "Iceland"
     },
     {
         "alpha3": "IND",
+        "flag": "🇮🇳",
         "name": "India"
     },
     {
-        "alpha3": "IOT",
-        "name": "British Indian Ocean Territory"
+        "alpha3": "IDN",
+        "flag": "🇮🇩",
+        "name": "Indonesia"
     },
     {
-        "alpha3": "IRL",
-        "name": "Ireland"
+        "alpha3": "INT",
+        "flag": "🌎",
+        "name": "International"
     },
     {
         "alpha3": "IRN",
+        "flag": "🇮🇷",
         "name": "Iran, Islamic Republic of"
     },
     {
         "alpha3": "IRQ",
+        "flag": "🇮🇶",
         "name": "Iraq"
     },
     {
-        "alpha3": "ISL",
-        "name": "Iceland"
+        "alpha3": "IRL",
+        "flag": "🇮🇪",
+        "name": "Ireland"
+    },
+    {
+        "alpha3": "IMN",
+        "flag": "🇮🇲",
+        "name": "Isle of Man"
     },
     {
         "alpha3": "ISR",
+        "flag": "🇮🇱",
         "name": "Israel"
     },
     {
         "alpha3": "ITA",
+        "flag": "🇮🇹",
         "name": "Italy"
     },
     {
         "alpha3": "JAM",
+        "flag": "🇯🇲",
         "name": "Jamaica"
     },
     {
+        "alpha3": "JPN",
+        "flag": "🇯🇵",
+        "name": "Japan"
+    },
+    {
         "alpha3": "JEY",
+        "flag": "🇯🇪",
         "name": "Jersey"
     },
     {
         "alpha3": "JOR",
+        "flag": "🇯🇴",
         "name": "Jordan"
     },
     {
-        "alpha3": "JPN",
-        "name": "Japan"
-    },
-    {
         "alpha3": "KAZ",
+        "flag": "🇰🇿",
         "name": "Kazakhstan"
     },
     {
         "alpha3": "KEN",
+        "flag": "🇰🇪",
         "name": "Kenya"
     },
     {
-        "alpha3": "KGZ",
-        "name": "Kyrgyzstan"
-    },
-    {
-        "alpha3": "KHM",
-        "name": "Cambodia"
-    },
-    {
         "alpha3": "KIR",
+        "flag": "🇰🇮",
         "name": "Kiribati"
     },
     {
-        "alpha3": "KNA",
-        "name": "Saint Kitts and Nevis"
+        "alpha3": "PRK",
+        "flag": "🇰🇵",
+        "name": "Korea, Democratic People's Republic of"
     },
     {
         "alpha3": "KOR",
+        "flag": "🇰🇷",
         "name": "Korea, Republic of"
     },
     {
         "alpha3": "KWT",
+        "flag": "🇰🇼",
         "name": "Kuwait"
     },
     {
+        "alpha3": "KGZ",
+        "flag": "🇰🇬",
+        "name": "Kyrgyzstan"
+    },
+    {
         "alpha3": "LAO",
+        "flag": "🇱🇦",
         "name": "Lao People's Democratic Republic"
     },
     {
+        "alpha3": "LVA",
+        "flag": "🇱🇻",
+        "name": "Latvia"
+    },
+    {
         "alpha3": "LBN",
+        "flag": "🇱🇧",
         "name": "Lebanon"
     },
     {
+        "alpha3": "LSO",
+        "flag": "🇱🇸",
+        "name": "Lesotho"
+    },
+    {
         "alpha3": "LBR",
+        "flag": "🇱🇷",
         "name": "Liberia"
     },
     {
         "alpha3": "LBY",
+        "flag": "🇱🇾",
         "name": "Libya"
     },
     {
-        "alpha3": "LCA",
-        "name": "Saint Lucia"
-    },
-    {
         "alpha3": "LIE",
+        "flag": "🇱🇮",
         "name": "Liechtenstein"
     },
     {
-        "alpha3": "LKA",
-        "name": "Sri Lanka"
-    },
-    {
-        "alpha3": "LSO",
-        "name": "Lesotho"
-    },
-    {
         "alpha3": "LTU",
+        "flag": "🇱🇹",
         "name": "Lithuania"
     },
     {
         "alpha3": "LUX",
+        "flag": "🇱🇺",
         "name": "Luxembourg"
     },
     {
-        "alpha3": "LVA",
-        "name": "Latvia"
-    },
-    {
         "alpha3": "MAC",
+        "flag": "🇲🇴",
         "name": "Macao"
     },
     {
-        "alpha3": "MAF",
-        "name": "Saint Martin (French part)"
-    },
-    {
-        "alpha3": "MAR",
-        "name": "Morocco"
-    },
-    {
-        "alpha3": "MCO",
-        "name": "Monaco"
-    },
-    {
-        "alpha3": "MDA",
-        "name": "Moldova, Republic of"
-    },
-    {
         "alpha3": "MDG",
+        "flag": "🇲🇬",
         "name": "Madagascar"
     },
     {
-        "alpha3": "MDV",
-        "name": "Maldives"
-    },
-    {
-        "alpha3": "MEX",
-        "name": "Mexico"
-    },
-    {
-        "alpha3": "MHL",
-        "name": "Marshall Islands"
-    },
-    {
-        "alpha3": "MKD",
-        "name": "North Macedonia"
-    },
-    {
-        "alpha3": "MLI",
-        "name": "Mali"
-    },
-    {
-        "alpha3": "MLT",
-        "name": "Malta"
-    },
-    {
-        "alpha3": "MMR",
-        "name": "Myanmar"
-    },
-    {
-        "alpha3": "MNE",
-        "name": "Montenegro"
-    },
-    {
-        "alpha3": "MNG",
-        "name": "Mongolia"
-    },
-    {
-        "alpha3": "MNP",
-        "name": "Northern Mariana Islands"
-    },
-    {
-        "alpha3": "MOZ",
-        "name": "Mozambique"
-    },
-    {
-        "alpha3": "MRT",
-        "name": "Mauritania"
-    },
-    {
-        "alpha3": "MSR",
-        "name": "Montserrat"
-    },
-    {
-        "alpha3": "MTQ",
-        "name": "Martinique"
-    },
-    {
-        "alpha3": "MUS",
-        "name": "Mauritius"
-    },
-    {
         "alpha3": "MWI",
+        "flag": "🇲🇼",
         "name": "Malawi"
     },
     {
         "alpha3": "MYS",
+        "flag": "🇲🇾",
         "name": "Malaysia"
     },
     {
+        "alpha3": "MDV",
+        "flag": "🇲🇻",
+        "name": "Maldives"
+    },
+    {
+        "alpha3": "MLI",
+        "flag": "🇲🇱",
+        "name": "Mali"
+    },
+    {
+        "alpha3": "MLT",
+        "flag": "🇲🇹",
+        "name": "Malta"
+    },
+    {
+        "alpha3": "MHL",
+        "flag": "🇲🇭",
+        "name": "Marshall Islands"
+    },
+    {
+        "alpha3": "MTQ",
+        "flag": "🇲🇶",
+        "name": "Martinique"
+    },
+    {
+        "alpha3": "MRT",
+        "flag": "🇲🇷",
+        "name": "Mauritania"
+    },
+    {
+        "alpha3": "MUS",
+        "flag": "🇲🇺",
+        "name": "Mauritius"
+    },
+    {
         "alpha3": "MYT",
+        "flag": "🇾🇹",
         "name": "Mayotte"
     },
     {
+        "alpha3": "MEX",
+        "flag": "🇲🇽",
+        "name": "Mexico"
+    },
+    {
+        "alpha3": "FSM",
+        "flag": "🇫🇲",
+        "name": "Micronesia, Federated States of"
+    },
+    {
+        "alpha3": "MDA",
+        "flag": "🇲🇩",
+        "name": "Moldova, Republic of"
+    },
+    {
+        "alpha3": "MCO",
+        "flag": "🇲🇨",
+        "name": "Monaco"
+    },
+    {
+        "alpha3": "MNG",
+        "flag": "🇲🇳",
+        "name": "Mongolia"
+    },
+    {
+        "alpha3": "MNE",
+        "flag": "🇲🇪",
+        "name": "Montenegro"
+    },
+    {
+        "alpha3": "MSR",
+        "flag": "🇲🇸",
+        "name": "Montserrat"
+    },
+    {
+        "alpha3": "MAR",
+        "flag": "🇲🇦",
+        "name": "Morocco"
+    },
+    {
+        "alpha3": "MOZ",
+        "flag": "🇲🇿",
+        "name": "Mozambique"
+    },
+    {
+        "alpha3": "MMR",
+        "flag": "🇲🇲",
+        "name": "Myanmar"
+    },
+    {
         "alpha3": "NAM",
+        "flag": "🇳🇦",
         "name": "Namibia"
     },
     {
-        "alpha3": "NCL",
-        "name": "New Caledonia"
-    },
-    {
-        "alpha3": "NER",
-        "name": "Niger"
-    },
-    {
-        "alpha3": "NFK",
-        "name": "Norfolk Island"
-    },
-    {
-        "alpha3": "NGA",
-        "name": "Nigeria"
-    },
-    {
-        "alpha3": "NIC",
-        "name": "Nicaragua"
-    },
-    {
-        "alpha3": "NIU",
-        "name": "Niue"
-    },
-    {
-        "alpha3": "NLD",
-        "name": "Netherlands"
-    },
-    {
-        "alpha3": "NOR",
-        "name": "Norway"
-    },
-    {
-        "alpha3": "NPL",
-        "name": "Nepal"
-    },
-    {
         "alpha3": "NRU",
+        "flag": "🇳🇷",
         "name": "Nauru"
     },
     {
+        "alpha3": "NPL",
+        "flag": "🇳🇵",
+        "name": "Nepal"
+    },
+    {
+        "alpha3": "NLD",
+        "flag": "🇳🇱",
+        "name": "Netherlands"
+    },
+    {
+        "alpha3": "NCL",
+        "flag": "🇳🇨",
+        "name": "New Caledonia"
+    },
+    {
         "alpha3": "NZL",
+        "flag": "🇳🇿",
         "name": "New Zealand"
     },
     {
+        "alpha3": "NIC",
+        "flag": "🇳🇮",
+        "name": "Nicaragua"
+    },
+    {
+        "alpha3": "NER",
+        "flag": "🇳🇪",
+        "name": "Niger"
+    },
+    {
+        "alpha3": "NGA",
+        "flag": "🇳🇬",
+        "name": "Nigeria"
+    },
+    {
+        "alpha3": "NIU",
+        "flag": "🇳🇺",
+        "name": "Niue"
+    },
+    {
+        "alpha3": "NFK",
+        "flag": "🇳🇫",
+        "name": "Norfolk Island"
+    },
+    {
+        "alpha3": "MKD",
+        "flag": "🇲🇰",
+        "name": "North Macedonia"
+    },
+    {
+        "alpha3": "MNP",
+        "flag": "🇲🇵",
+        "name": "Northern Mariana Islands"
+    },
+    {
+        "alpha3": "NOR",
+        "flag": "🇳🇴",
+        "name": "Norway"
+    },
+    {
         "alpha3": "OMN",
+        "flag": "🇴🇲",
         "name": "Oman"
     },
     {
         "alpha3": "PAK",
+        "flag": "🇵🇰",
         "name": "Pakistan"
     },
     {
+        "alpha3": "PLW",
+        "flag": "🇵🇼",
+        "name": "Palau"
+    },
+    {
+        "alpha3": "PSE",
+        "flag": "🇵🇸",
+        "name": "Palestine, State of"
+    },
+    {
         "alpha3": "PAN",
+        "flag": "🇵🇦",
         "name": "Panama"
     },
     {
-        "alpha3": "PCN",
-        "name": "Pitcairn"
+        "alpha3": "PNG",
+        "flag": "🇵🇬",
+        "name": "Papua New Guinea"
+    },
+    {
+        "alpha3": "PRY",
+        "flag": "🇵🇾",
+        "name": "Paraguay"
     },
     {
         "alpha3": "PER",
+        "flag": "🇵🇪",
         "name": "Peru"
     },
     {
         "alpha3": "PHL",
+        "flag": "🇵🇭",
         "name": "Philippines"
     },
     {
-        "alpha3": "PLW",
-        "name": "Palau"
-    },
-    {
-        "alpha3": "PNG",
-        "name": "Papua New Guinea"
+        "alpha3": "PCN",
+        "flag": "🇵🇳",
+        "name": "Pitcairn"
     },
     {
         "alpha3": "POL",
+        "flag": "🇵🇱",
         "name": "Poland"
     },
     {
-        "alpha3": "PRI",
-        "name": "Puerto Rico"
-    },
-    {
-        "alpha3": "PRK",
-        "name": "Korea, Democratic People's Republic of"
-    },
-    {
         "alpha3": "PRT",
+        "flag": "🇵🇹",
         "name": "Portugal"
     },
     {
-        "alpha3": "PRY",
-        "name": "Paraguay"
-    },
-    {
-        "alpha3": "PYF",
-        "name": "French Polynesia"
+        "alpha3": "PRI",
+        "flag": "🇵🇷",
+        "name": "Puerto Rico"
     },
     {
         "alpha3": "QAT",
+        "flag": "🇶🇦",
         "name": "Qatar"
     },
     {
-        "alpha3": "REU",
-        "name": "Réunion"
-    },
-    {
         "alpha3": "ROU",
+        "flag": "🇷🇴",
         "name": "Romania"
     },
     {
         "alpha3": "RUS",
+        "flag": "🇷🇺",
         "name": "Russian Federation"
     },
     {
         "alpha3": "RWA",
+        "flag": "🇷🇼",
         "name": "Rwanda"
     },
     {
-        "alpha3": "SAU",
-        "name": "Saudi Arabia"
+        "alpha3": "REU",
+        "flag": "🇷🇪",
+        "name": "Réunion"
     },
     {
-        "alpha3": "SDN",
-        "name": "Sudan"
-    },
-    {
-        "alpha3": "SEN",
-        "name": "Senegal"
-    },
-    {
-        "alpha3": "SGP",
-        "name": "Singapore"
-    },
-    {
-        "alpha3": "SGS",
-        "name": "South Georgia and the South Sandwich Islands"
+        "alpha3": "BLM",
+        "flag": "🇧🇱",
+        "name": "Saint Barthélemy"
     },
     {
         "alpha3": "SHN",
+        "flag": "🇸🇭",
         "name": "Saint Helena, Ascension and Tristan da Cunha"
     },
     {
-        "alpha3": "SJM",
-        "name": "Svalbard and Jan Mayen"
+        "alpha3": "KNA",
+        "flag": "🇰🇳",
+        "name": "Saint Kitts and Nevis"
     },
     {
-        "alpha3": "SLB",
-        "name": "Solomon Islands"
+        "alpha3": "LCA",
+        "flag": "🇱🇨",
+        "name": "Saint Lucia"
     },
     {
-        "alpha3": "SLE",
-        "name": "Sierra Leone"
-    },
-    {
-        "alpha3": "SLV",
-        "name": "El Salvador"
-    },
-    {
-        "alpha3": "SMR",
-        "name": "San Marino"
-    },
-    {
-        "alpha3": "SOM",
-        "name": "Somalia"
+        "alpha3": "MAF",
+        "flag": "🇲🇫",
+        "name": "Saint Martin (French part)"
     },
     {
         "alpha3": "SPM",
+        "flag": "🇵🇲",
         "name": "Saint Pierre and Miquelon"
     },
     {
-        "alpha3": "SRB",
-        "name": "Serbia"
+        "alpha3": "VCT",
+        "flag": "🇻🇨",
+        "name": "Saint Vincent and the Grenadines"
     },
     {
-        "alpha3": "SSD",
-        "name": "South Sudan"
+        "alpha3": "WSM",
+        "flag": "🇼🇸",
+        "name": "Samoa"
+    },
+    {
+        "alpha3": "SMR",
+        "flag": "🇸🇲",
+        "name": "San Marino"
     },
     {
         "alpha3": "STP",
+        "flag": "🇸🇹",
         "name": "Sao Tome and Principe"
     },
     {
-        "alpha3": "SUR",
-        "name": "Suriname"
+        "alpha3": "SAU",
+        "flag": "🇸🇦",
+        "name": "Saudi Arabia"
+    },
+    {
+        "alpha3": "SEN",
+        "flag": "🇸🇳",
+        "name": "Senegal"
+    },
+    {
+        "alpha3": "SRB",
+        "flag": "🇷🇸",
+        "name": "Serbia"
+    },
+    {
+        "alpha3": "SYC",
+        "flag": "🇸🇨",
+        "name": "Seychelles"
+    },
+    {
+        "alpha3": "SLE",
+        "flag": "🇸🇱",
+        "name": "Sierra Leone"
+    },
+    {
+        "alpha3": "SGP",
+        "flag": "🇸🇬",
+        "name": "Singapore"
+    },
+    {
+        "alpha3": "SXM",
+        "flag": "🇸🇽",
+        "name": "Sint Maarten (Dutch part)"
     },
     {
         "alpha3": "SVK",
+        "flag": "🇸🇰",
         "name": "Slovakia"
     },
     {
         "alpha3": "SVN",
+        "flag": "🇸🇮",
         "name": "Slovenia"
     },
     {
+        "alpha3": "SLB",
+        "flag": "🇸🇧",
+        "name": "Solomon Islands"
+    },
+    {
+        "alpha3": "SOM",
+        "flag": "🇸🇴",
+        "name": "Somalia"
+    },
+    {
+        "alpha3": "ZAF",
+        "flag": "🇿🇦",
+        "name": "South Africa"
+    },
+    {
+        "alpha3": "SGS",
+        "flag": "🇬🇸",
+        "name": "South Georgia and the South Sandwich Islands"
+    },
+    {
+        "alpha3": "SSD",
+        "flag": "🇸🇸",
+        "name": "South Sudan"
+    },
+    {
+        "alpha3": "ESP",
+        "flag": "🇪🇸",
+        "name": "Spain"
+    },
+    {
+        "alpha3": "LKA",
+        "flag": "🇱🇰",
+        "name": "Sri Lanka"
+    },
+    {
+        "alpha3": "SDN",
+        "flag": "🇸🇩",
+        "name": "Sudan"
+    },
+    {
+        "alpha3": "SUR",
+        "flag": "🇸🇷",
+        "name": "Suriname"
+    },
+    {
+        "alpha3": "SJM",
+        "flag": "🇸🇯",
+        "name": "Svalbard and Jan Mayen"
+    },
+    {
         "alpha3": "SWE",
+        "flag": "🇸🇪",
         "name": "Sweden"
     },
     {
-        "alpha3": "SWZ",
-        "name": "Eswatini"
-    },
-    {
-        "alpha3": "SXM",
-        "name": "Sint Maarten (Dutch part)"
-    },
-    {
-        "alpha3": "SYC",
-        "name": "Seychelles"
+        "alpha3": "CHE",
+        "flag": "🇨🇭",
+        "name": "Switzerland"
     },
     {
         "alpha3": "SYR",
+        "flag": "🇸🇾",
         "name": "Syrian Arab Republic"
     },
     {
-        "alpha3": "TCA",
-        "name": "Turks and Caicos Islands"
-    },
-    {
-        "alpha3": "TCD",
-        "name": "Chad"
-    },
-    {
-        "alpha3": "TGO",
-        "name": "Togo"
-    },
-    {
-        "alpha3": "THA",
-        "name": "Thailand"
+        "alpha3": "TWN",
+        "flag": "🇹🇼",
+        "name": "Taiwan, Province of China"
     },
     {
         "alpha3": "TJK",
+        "flag": "🇹🇯",
         "name": "Tajikistan"
     },
     {
-        "alpha3": "TKL",
-        "name": "Tokelau"
+        "alpha3": "TZA",
+        "flag": "🇹🇿",
+        "name": "Tanzania, United Republic of"
     },
     {
-        "alpha3": "TKM",
-        "name": "Turkmenistan"
+        "alpha3": "THA",
+        "flag": "🇹🇭",
+        "name": "Thailand"
     },
     {
         "alpha3": "TLS",
+        "flag": "🇹🇱",
         "name": "Timor-Leste"
     },
     {
+        "alpha3": "TGO",
+        "flag": "🇹🇬",
+        "name": "Togo"
+    },
+    {
+        "alpha3": "TKL",
+        "flag": "🇹🇰",
+        "name": "Tokelau"
+    },
+    {
         "alpha3": "TON",
+        "flag": "🇹🇴",
         "name": "Tonga"
     },
     {
         "alpha3": "TTO",
+        "flag": "🇹🇹",
         "name": "Trinidad and Tobago"
     },
     {
         "alpha3": "TUN",
+        "flag": "🇹🇳",
         "name": "Tunisia"
     },
     {
-        "alpha3": "TUR",
-        "name": "Turkey"
+        "alpha3": "TKM",
+        "flag": "🇹🇲",
+        "name": "Turkmenistan"
+    },
+    {
+        "alpha3": "TCA",
+        "flag": "🇹🇨",
+        "name": "Turks and Caicos Islands"
     },
     {
         "alpha3": "TUV",
+        "flag": "🇹🇻",
         "name": "Tuvalu"
     },
     {
-        "alpha3": "TWN",
-        "name": "Taiwan, Province of China"
-    },
-    {
-        "alpha3": "TZA",
-        "name": "Tanzania, United Republic of"
+        "alpha3": "TUR",
+        "flag": "🇹🇷",
+        "name": "Türkiye"
     },
     {
         "alpha3": "UGA",
+        "flag": "🇺🇬",
         "name": "Uganda"
     },
     {
         "alpha3": "UKR",
+        "flag": "🇺🇦",
         "name": "Ukraine"
     },
     {
+        "alpha3": "ARE",
+        "flag": "🇦🇪",
+        "name": "United Arab Emirates"
+    },
+    {
+        "alpha3": "GBR",
+        "flag": "🇬🇧",
+        "name": "United Kingdom"
+    },
+    {
+        "alpha3": "USA",
+        "flag": "🇺🇸",
+        "name": "United States"
+    },
+    {
         "alpha3": "UMI",
+        "flag": "🇺🇲",
         "name": "United States Minor Outlying Islands"
     },
     {
         "alpha3": "URY",
+        "flag": "🇺🇾",
         "name": "Uruguay"
     },
     {
-        "alpha3": "USA",
-        "name": "United States"
-    },
-    {
         "alpha3": "UZB",
+        "flag": "🇺🇿",
         "name": "Uzbekistan"
     },
     {
-        "alpha3": "VAT",
-        "name": "Holy See (Vatican City State)"
-    },
-    {
-        "alpha3": "VCT",
-        "name": "Saint Vincent and the Grenadines"
+        "alpha3": "VUT",
+        "flag": "🇻🇺",
+        "name": "Vanuatu"
     },
     {
         "alpha3": "VEN",
+        "flag": "🇻🇪",
         "name": "Venezuela, Bolivarian Republic of"
     },
     {
+        "alpha3": "VNM",
+        "flag": "🇻🇳",
+        "name": "Viet Nam"
+    },
+    {
         "alpha3": "VGB",
+        "flag": "🇻🇬",
         "name": "Virgin Islands, British"
     },
     {
         "alpha3": "VIR",
+        "flag": "🇻🇮",
         "name": "Virgin Islands, U.S."
     },
     {
-        "alpha3": "VNM",
-        "name": "Viet Nam"
-    },
-    {
-        "alpha3": "VUT",
-        "name": "Vanuatu"
-    },
-    {
         "alpha3": "WLF",
+        "flag": "🇼🇫",
         "name": "Wallis and Futuna"
     },
     {
-        "alpha3": "WSM",
-        "name": "Samoa"
+        "alpha3": "ESH",
+        "flag": "🇪🇭",
+        "name": "Western Sahara"
     },
     {
         "alpha3": "YEM",
+        "flag": "🇾🇪",
         "name": "Yemen"
     },
     {
-        "alpha3": "ZAF",
-        "name": "South Africa"
-    },
-    {
         "alpha3": "ZMB",
+        "flag": "🇿🇲",
         "name": "Zambia"
     },
     {
         "alpha3": "ZWE",
+        "flag": "🇿🇼",
         "name": "Zimbabwe"
+    },
+    {
+        "alpha3": "ALA",
+        "flag": "🇦🇽",
+        "name": "Åland Islands"
     }
 ]

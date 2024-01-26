@@ -42,7 +42,7 @@ export interface PublicUserOut {
      * @type {string}
      * @memberof PublicUserOut
      */
-    country: string | null;
+    countryAlpha3: string;
     /**
      * 
      * @type {Date}
@@ -59,7 +59,7 @@ export function instanceOfPublicUserOut(value: object): boolean {
     isInstance = isInstance && "userId" in value;
     isInstance = isInstance && "username" in value;
     isInstance = isInstance && "about" in value;
-    isInstance = isInstance && "country" in value;
+    isInstance = isInstance && "countryAlpha3" in value;
     isInstance = isInstance && "pfpLastChanged" in value;
 
     return isInstance;
@@ -78,7 +78,7 @@ export function PublicUserOutFromJSONTyped(json: any, ignoreDiscriminator: boole
         'userId': json['user_id'],
         'username': json['username'],
         'about': json['about'],
-        'country': json['country'],
+        'countryAlpha3': json['country_alpha3'],
         'pfpLastChanged': (new Date(json['pfp_last_changed'])),
     };
 }
@@ -95,7 +95,7 @@ export function PublicUserOutToJSON(value?: PublicUserOut | null): any {
         'user_id': value.userId,
         'username': value.username,
         'about': value.about,
-        'country': value.country,
+        'country_alpha3': value.countryAlpha3,
         'pfp_last_changed': (value.pfpLastChanged.toISOString()),
     };
 }
