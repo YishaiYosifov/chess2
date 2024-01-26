@@ -1,12 +1,13 @@
 "use client";
 
 import { Card } from "react-bootstrap";
-import Image from "next/image";
 
 import styles from "./Profile.module.scss";
 
 import ProfilePicture from "../ProfilePicture";
 import type { PublicUserOut } from "@/client";
+import countries from "@/data/countries.json";
+import { TypedCountries } from "@/lib/types";
 
 /** Show basic information about a user */
 const Profile = ({ profile }: { profile: PublicUserOut }) => {
@@ -22,14 +23,7 @@ const Profile = ({ profile }: { profile: PublicUserOut }) => {
 
             <div className={styles.info}>
                 <span>
-                    <Image
-                        data-testid="countryImage"
-                        src="/assets/logo.svg"
-                        width={40}
-                        height={40}
-                        className="rounded-1 img-fluid"
-                        alt="Country"
-                    />{" "}
+                    {(countries as TypedCountries)[profile.countryAlpha3].flag}{" "}
                     {profile.username}
                 </span>
 
