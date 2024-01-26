@@ -47,7 +47,8 @@ Check out the [backend readme](https://github.com/YishaiYosifov/chess2-backend#f
 
 ![Signup Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/f352b93f-f6af-4f0b-ab7b-573b71c84f82)
 
-![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1e50a2f7-1ae1-48dc-b534-568a5d1acb17)
+![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/2208684d-6521-4cbf-92d4-693e5d95d262)
+
 
 ![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1a5f6eba-7300-4977-a6c4-a125b4a5e44f)
 
