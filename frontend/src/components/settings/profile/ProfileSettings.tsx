@@ -58,12 +58,13 @@ const ProfileSettings = () => {
         values: EditableProfile,
         helpers: FormikHelpers<EditableProfile>
     ) {
+        console.log("test");
         try {
             await settingsApi.updateProfile({ editableProfile: values });
             location.reload();
         } catch (err: any) {
             switch (err?.response?.status) {
-                case 409:
+                case 422:
                     helpers.setErrors((await err.response.json()).detail);
                     break;
                 default:

@@ -51,18 +51,19 @@ const ProfileForm = ({
 
                     <FormField label="Country" hasValidation>
                         <FormikField asInput={FormSelect} name="countryAlpha3">
-                            {countries.map((country) => (
-                                <option
-                                    key={country.alpha3}
-                                    value={country.alpha3}
-                                >
-                                    {country.name}
-                                </option>
-                            ))}
+                            {Object.entries(countries).map(
+                                ([alpha3, country]) => (
+                                    <option key={alpha3} value={alpha3}>
+                                        {country.name}
+                                    </option>
+                                )
+                            )}
                         </FormikField>
                     </FormField>
 
-                    <Button variant="dark">Save</Button>
+                    <Button variant="dark" type="submit">
+                        Save
+                    </Button>
                 </Form>
             )}
         </Formik>
