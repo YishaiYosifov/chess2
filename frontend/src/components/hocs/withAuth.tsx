@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { profileApi } from "@/lib/apis";
 import { ComponentType } from "react";
+import AuthContextProvider from "../contexts/AuthContext";
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
@@ -18,7 +19,11 @@ const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
                     cache: "no-cache",
                 }
             );
-            return <WrappedComponent {...props} profile={profile} />;
+            return (
+                <AuthContextProvider profile={profile}>
+                    <WrappedComponent {...props} profile={profile} />
+                </AuthContextProvider>
+            );
         } catch {
             redirect("/");
         }

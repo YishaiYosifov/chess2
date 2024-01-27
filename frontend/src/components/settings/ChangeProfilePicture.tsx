@@ -4,17 +4,16 @@ import { Button } from "react-bootstrap";
 
 import { useRef, useState, ChangeEvent } from "react";
 
+import { useAuthedProfile } from "../contexts/AuthContext";
 import styles from "./ChangeProfilePicture.module.scss";
-import { useLoadedProfile } from "@/zustand/store";
 import { revalidateUser } from "@/app/actions";
-import { ResponseError } from "@/client";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/ProfilePicture";
 
 const ChangeProfilePicture = () => {
-    const { username, pfpLastChanged } = useLoadedProfile();
+    const { username, pfpLastChanged } = useAuthedProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);

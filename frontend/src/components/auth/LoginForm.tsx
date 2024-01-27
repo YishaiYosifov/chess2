@@ -7,8 +7,6 @@ import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
-import { setIsAuthed } from "@/zustand/store";
-import { ResponseError } from "@/client";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
@@ -53,7 +51,6 @@ const LoginForm = () => {
             constants.LAST_LOGIN_LOCAL_STORAGE,
             new Date().toUTCString()
         );
-        setIsAuthed(true);
         router.replace("/");
     }
 

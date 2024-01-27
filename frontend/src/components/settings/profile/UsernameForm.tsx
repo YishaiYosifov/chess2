@@ -1,7 +1,7 @@
 import { Formik } from "formik";
 import * as yup from "yup";
 
-import { useLoadedProfile } from "@/zustand/store";
+import { useAuthedProfile } from "@/components/contexts/AuthContext";
 import { usernameSchema } from "@/lib/validation";
 import styles from "./UsernameForm.module.scss";
 import { FormikOnSubmit } from "@/lib/types";
@@ -22,7 +22,7 @@ const UsernameForm = ({
 }: {
     onSubmit: FormikOnSubmit<UsernameSchema>;
 }) => {
-    const { usernameLastChanged, username } = useLoadedProfile();
+    const { usernameLastChanged, username } = useAuthedProfile();
 
     /**
      * Check if the given field has recently changed

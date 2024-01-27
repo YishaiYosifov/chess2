@@ -7,12 +7,12 @@ import {
     RefObject,
 } from "react";
 
-import { useLoadedProfile } from "@/zustand/store";
+import { useAuthedProfile } from "../contexts/AuthContext";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
-import FormField from "./FormField";
 import { PasswordInput } from "./FormElements";
+import FormField from "./FormField";
 
 export interface PasswordVerificationRefProps {
     verifyPassword: () => boolean;
@@ -26,7 +26,7 @@ const PasswordVerificationModal: ForwardRefRenderFunction<
     const [status, setStatus] = useState<string>("");
     const [isOpen, setIsOpen] = useState(false);
 
-    const { username } = useLoadedProfile();
+    const { username } = useAuthedProfile();
 
     /**
      * Checks if the user needs a password confirm
