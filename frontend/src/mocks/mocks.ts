@@ -23,7 +23,7 @@ export const profileMock: PublicUserOut = {
     username: "testuser",
     about: "test about",
 
-    country: "ISR",
+    countryAlpha3: "ISR",
     pfpLastChanged: new Date("2023-01-01T12:00:00Z"),
 };
 

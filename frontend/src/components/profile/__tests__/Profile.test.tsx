@@ -1,5 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
+import type { TypedCountries } from "@/lib/types";
+import countries from "@/data/countries.json";
 import { profileMock } from "@/mocks/mocks";
 
 import Profile from "../Profile";
@@ -9,13 +11,19 @@ describe("Profile", () => {
         render(<Profile profile={profileMock} />);
 
         expect(screen.getByAltText("profile picture")).toBeInTheDocument();
-        expect(screen.getByTestId("countryImage")).toBeInTheDocument();
         expect(screen.getByTestId("aboutArea")).toBeInTheDocument();
     });
 
     it("should display the username", () => {
         render(<Profile profile={profileMock} />);
-        expect(screen.getByText(profileMock.username)).toBeInTheDocument();
+        expect(
+            screen.getByText(
+                `${
+                    (countries as TypedCountries)[profileMock.countryAlpha3]
+                        .flag
+                } ${profileMock.username}`
+            )
+        ).toBeInTheDocument();
     });
 
     it("should display the about me", () => {
