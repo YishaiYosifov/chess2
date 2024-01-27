@@ -15,34 +15,21 @@ import ProfileForm from "./ProfileForm";
 const ProfileSettings = () => {
     const { setAuthedProfile } = useAuthedContext();
 
-    async function updateUsername(
-        values: UsernameSchema,
-        helpers: FormikHelpers<UsernameSchema>
+    /**
+     * Update a single field setting
+     *
+     * @param apiFunction - the api function binded to the api class
+     * @param value - value to send
+     * @param helpers - formik helpers
+     */
+    async function updateField<V>(
+        apiFunction: (requestParams: { body: V }) => Promise<any>,
+        value: V,
+        helpers: FormikHelpers<any>
     ) {
         try {
-            await settingsApi.changeUsername({
-                body: values.username,
-            });
-            location.reload();
-        } catch (err: any) {
-            switch (err?.response?.status) {
-                case 409:
-                    helpers.setErrors({ username: "Username taken" });
-                    break;
-                default:
-                    helpers.setStatus(constants.GENERIC_ERROR);
-                    throw err;
-            }
-        }
-    }
-
-    async function updateEmail(
-        values: EmailSchema,
-        helpers: FormikHelpers<EmailSchema>
-    ) {
-        try {
-            await settingsApi.changeEmail({
-                body: values.email,
+            await apiFunction({
+                body: value,
             });
             location.reload();
         } catch (err: any) {
@@ -57,6 +44,31 @@ const ProfileSettings = () => {
         }
     }
 
+    async function updateUsername(
+        values: UsernameSchema,
+        helpers: FormikHelpers<UsernameSchema>
+    ) {
+        updateField(
+            settingsApi.changeUsername.bind(settingsApi),
+            values.username,
+            helpers
+        );
+    }
+
+    async function updateEmail(
+        values: EmailSchema,
+        helpers: FormikHelpers<EmailSchema>
+    ) {
+        updateField(
+            settingsApi.changeEmail.bind(settingsApi),
+            values.email,
+            helpers
+        );
+    }
+
+    /**
+     * Update the profile settings
+     */
     async function updateProfile(
         values: EditableProfile,
         helpers: FormikHelpers<EditableProfile>
@@ -65,7 +77,6 @@ const ProfileSettings = () => {
             const profile = await settingsApi.updateProfile({
                 editableProfile: values,
             });
-            console.log(profile);
             setAuthedProfile(profile);
         } catch (err) {
             helpers.setStatus(constants.GENERIC_ERROR);
