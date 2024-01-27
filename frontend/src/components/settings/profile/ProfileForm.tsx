@@ -2,8 +2,11 @@ import { Button, Form } from "react-bootstrap";
 import { Formik } from "formik";
 import * as yup from "yup";
 
+import { useAuthedProfile } from "@/components/contexts/AuthContext";
 import styles from "./ProfileSettings.module.scss";
 import countries from "@/data/countries.json";
+import { FormikOnSubmit } from "@/lib/types";
+import { EditableProfile } from "@/client";
 
 import {
     FormInput,
@@ -11,9 +14,6 @@ import {
     FormikField,
 } from "@/components/form/FormElements";
 import FormField from "@/components/form/FormField";
-import { useLoadedProfile } from "@/zustand/store";
-import { FormikOnSubmit } from "@/lib/types";
-import { EditableProfile } from "@/client";
 
 const profileSettingsSchema = yup.object();
 
@@ -22,7 +22,7 @@ const ProfileForm = ({
 }: {
     onSubmit: FormikOnSubmit<EditableProfile>;
 }) => {
-    const { about, countryAlpha3 } = useLoadedProfile();
+    const { about, countryAlpha3 } = useAuthedProfile();
 
     return (
         <Formik
@@ -32,8 +32,9 @@ const ProfileForm = ({
                 about,
                 countryAlpha3,
             }}
+            enableReinitialize
         >
-            {({ handleSubmit }) => (
+            {({ handleSubmit, dirty, isValid, status, isSubmitting }) => (
                 <Form
                     className={styles["form-gap"]}
                     aria-label="profile form"
@@ -61,7 +62,13 @@ const ProfileForm = ({
                         </FormikField>
                     </FormField>
 
-                    <Button variant="dark" type="submit">
+                    <span className="text-invalid">{status}</span>
+
+                    <Button
+                        variant="dark"
+                        type="submit"
+                        disabled={!dirty || !isValid || isSubmitting}
+                    >
                         Save
                     </Button>
                 </Form>

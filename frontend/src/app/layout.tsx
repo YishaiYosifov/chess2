@@ -31,19 +31,14 @@ export const metadata = {
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = cookies();
-    const isAuthed =
+    const hasAuthCookies =
         nextCookies.has(constants.REFRESH_TOKEN) &&
         nextCookies.has(constants.ACCESS_TOKEN);
 
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={secularOne.className}>
-                <StoreInitializer
-                    values={{ isAuthed }}
-                    action="SET_CLIENT_IS_AUTH"
-                />
-
-                <NavbarProvider />
+                <NavbarProvider hasAuthCookies={hasAuthCookies} />
                 <main>{children}</main>
             </body>
         </html>

@@ -8,13 +8,10 @@ import Nav from "react-bootstrap/Nav";
 import Image from "next/image";
 import Link from "next/link";
 
-import { useStore } from "@/zustand/store";
 import styles from "./navbar.module.scss";
 import "./navbar.scss";
 
-const NavbarProvider = () => {
-    const isAuthed = useStore.use.isAuthed();
-
+const NavbarProvider = ({ hasAuthCookies }: { hasAuthCookies: boolean }) => {
     const expand = "md";
     const Logo = () => (
         <Image
@@ -60,7 +57,7 @@ const NavbarProvider = () => {
                                 Play
                             </Nav.Link>
 
-                            {isAuthed ? (
+                            {hasAuthCookies ? (
                                 <Nav.Link as={Link} href="/user">
                                     Profile
                                 </Nav.Link>
@@ -72,7 +69,7 @@ const NavbarProvider = () => {
                         </Nav>
 
                         <Nav className="justify-content-end flex-grow-1">
-                            {isAuthed ? (
+                            {hasAuthCookies ? (
                                 <>
                                     <Nav.Link
                                         as={Link}

@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 
-import { setIsAuthed } from "@/zustand/store";
 import { authApi } from "@/lib/apis";
+import { useAuthedContext } from "@/components/contexts/AuthContext";
 
 const LogoutPage = () => {
     const router = useRouter();
+    const { setIsAuthed } = useAuthedContext();
+
     authApi.logout().then(() => {
         setIsAuthed(false);
         router.replace("/");

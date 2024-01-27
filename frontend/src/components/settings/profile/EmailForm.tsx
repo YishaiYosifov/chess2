@@ -1,13 +1,13 @@
 import { Formik } from "formik";
 import * as yup from "yup";
 
-import { useLoadedProfile } from "@/zustand/store";
+import { useAuthedProfile } from "@/components/contexts/AuthContext";
 import { emailSchema } from "@/lib/validation";
+import { FormikOnSubmit } from "@/lib/types";
 
 import { FormInput, FormikField } from "@/components/form/FormElements";
 import FreshAuthForm from "@/components/form/FreshAuthForm";
 import FormField from "@/components/form/FormField";
-import { FormikOnSubmit } from "@/lib/types";
 
 export interface EmailSchema {
     email: string;
@@ -16,7 +16,7 @@ export interface EmailSchema {
 const emailSettingSchema = yup.object({ email: emailSchema });
 
 const EmailForm = ({ onSubmit }: { onSubmit: FormikOnSubmit<EmailSchema> }) => {
-    const { email } = useLoadedProfile();
+    const { email } = useAuthedProfile();
 
     return (
         <Formik
