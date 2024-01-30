@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import FormField from "../form/FormField";
+import FormField from "../FormField";
 
 describe("FormField", () => {
     it("should render FormField with label", () => {

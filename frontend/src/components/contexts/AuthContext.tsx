@@ -15,6 +15,11 @@ type ConditionalAuth =
 
 export const AuthContext = createContext<ConditionalAuth>({ isAuthed: false });
 
+/**
+ * Get the authed user context, or raise an error if not loaded
+ *
+ * @returns the auth context object
+ */
 export function useAuthedContext(): Required<ConditionalAuth> {
     const context = useContext(AuthContext);
     if (!context.isAuthed) throw Error("Profile Not Loaded");
@@ -22,6 +27,11 @@ export function useAuthedContext(): Required<ConditionalAuth> {
     return context;
 }
 
+/**
+ * Get the authed user profile, or raise an error if not loaded
+ *
+ * @returns the authed user profile
+ */
 export function useAuthedProfile(): PrivateUserOut {
     return useAuthedContext().authedProfile;
 }

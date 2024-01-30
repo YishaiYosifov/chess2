@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFinishedGame, gameMock, profileMock } from "@/mocks/mocks";
+import { createFinishedGame } from "@/mockUtils/gameMock";
+import { profileMock } from "@/mockUtils/profileMock";
+import { gameMock } from "@/mockUtils/gameMock";
 import { GameResult } from "@/client";
 
 import GameRow from "../GameRow";

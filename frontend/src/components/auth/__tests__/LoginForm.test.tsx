@@ -3,13 +3,11 @@ import { Mock } from "vitest";
 
 import { createFormRenderer, responseErrFactory } from "@/lib/utils/testUtils";
 import LoginForm, { LoginFormValues } from "../LoginForm";
-import { mockRouter } from "@/mocks/mocks";
-import { authApi } from "@/lib/apis";
+import { mockRouter } from "@/mockUtils/mockRouter";
 import constants from "@/lib/constants";
+import { authApi } from "@/lib/apis";
 
-vi.mock("@/lib/apis", () => ({
-    authApi: { login: vi.fn() },
-}));
+vi.mock("@/lib/apis");
 
 describe("LoginForm", () => {
     const defaultFieldValues = {

@@ -1,16 +1,14 @@
 import { render, screen } from "@testing-library/react";
+import { Mock } from "vitest";
 
 import { Chart } from "react-google-charts";
 
+import { RatingOverview } from "@/client";
 import { Variant } from "@/lib/constants";
 
 import RatingCard from "../RatingsCard";
-import { Mock } from "vitest";
-import { RatingOverview } from "@/client";
 
-vi.mock("react-google-charts", () => ({
-    Chart: vi.fn((props) => <div data-testid="ratingChart" {...props} />),
-}));
+vi.mock("react-google-charts");
 
 const ratingMock: RatingOverview = {
     history: [{ elo: 900, achievedAt: new Date("2023-01-01T12:00:00") }],
@@ -32,7 +30,7 @@ describe("RatingsCard", () => {
 
     it("should correctly render the rating history chart", () => {
         const currDate = new Date("2023-01-01T12:00:00");
-        vi.useFakeTimers().setSystemTime(currDate);
+        vi.setSystemTime(currDate);
 
         render(
             <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />

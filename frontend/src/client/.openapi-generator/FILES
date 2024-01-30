@@ -1,12 +1,16 @@
 .openapi-generator-ignore
 apis/AuthApi.ts
 apis/GameRequestsApi.ts
+apis/LiveGameApi.ts
 apis/ProfileApi.ts
 apis/SettingsApi.ts
 apis/index.ts
 index.ts
 models/AccessToken.ts
+models/AppConstantsEnumsPiece.ts
+models/AppSchemasGameSchemaPiece.ts
 models/AuthTokens.ts
+models/Color.ts
 models/EditableProfile.ts
 models/ErrorResponseDictStrStr.ts
 models/ErrorResponseStr.ts
@@ -14,7 +18,9 @@ models/FinishedGame.ts
 models/GameResult.ts
 models/GameSettings.ts
 models/HTTPValidationError.ts
+models/LiveGame.ts
 models/LocationInner.ts
+models/Player.ts
 models/PrivateUserOut.ts
 models/PublicUserOut.ts
 models/Rating.ts

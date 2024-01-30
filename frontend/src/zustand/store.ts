@@ -1,3 +1,5 @@
+// Not currently used, will be used later in the project
+
 import { createWithEqualityFn } from "zustand/traditional";
 import { StoreApi, UseBoundStore } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -30,15 +32,3 @@ export const useStore = createSelectors(
         shallow
     )
 );
-
-/** Update the local logged in user profile */
-export function setCsrfToken(csrf: string): void {
-    useStore.setState(
-        {
-            csrfToken: csrf,
-            csrfTokenCreatedAt: new Date().valueOf() / 1000,
-        },
-        false,
-        "SET_CSRF"
-    );
-}
