@@ -20,10 +20,7 @@ vi.mock("@/lib/constants", async (importOriginal) => ({
     Variant: { FogOfWar: "fog of war", Anarchy: "anarchy", Chss: "chss" },
 }));
 
-vi.mock("@/lib/apis", async (importOriginal) => ({
-    ...(await importOriginal<typeof import("@/lib/apis")>()),
-    gameRequestApi: { startPoolGame: vi.fn(), cancel: vi.fn() },
-}));
+vi.mock("@/lib/apis");
 
 describe("PlayOptions", () => {
     async function joinPoolFirstButton(user: UserEvent, index: number = 0) {

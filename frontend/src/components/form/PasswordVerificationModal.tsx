@@ -90,7 +90,12 @@ const PasswordVerificationModal: ForwardRefRenderFunction<
     );
 
     return (
-        <Modal show={isOpen} centered onHide={closePopup}>
+        <Modal
+            show={isOpen}
+            centered
+            onHide={closePopup}
+            data-testid="passwordModal"
+        >
             <Modal.Header closeButton>
                 <Modal.Title>Confirm your password</Modal.Title>
             </Modal.Header>

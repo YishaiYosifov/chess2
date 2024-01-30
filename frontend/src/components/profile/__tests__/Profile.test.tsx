@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 
+import { profileMock } from "@/mockUtils/profileMock";
 import type { TypedCountries } from "@/lib/types";
 import countries from "@/data/countries.json";
-import { profileMock } from "@/mocks/mocks";
 
 import Profile from "../Profile";
 

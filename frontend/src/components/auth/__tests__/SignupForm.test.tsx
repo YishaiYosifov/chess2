@@ -10,10 +10,10 @@ import {
 import constants from "@/lib/constants";
 
 import SignupForm, { SignupFormValues } from "../SignupForm";
-import { mockRouter } from "@/mocks/mocks";
+import { mockRouter } from "@/mockUtils/mockRouter";
 import { authApi } from "@/lib/apis";
 
-vi.mock("@/lib/apis", () => ({ authApi: { signup: vi.fn() } }));
+vi.mock("@/lib/apis");
 
 describe("SignupForm", () => {
     const signupMock = authApi.signup as Mock;

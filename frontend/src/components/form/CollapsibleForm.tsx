@@ -52,7 +52,7 @@ const CollapsibleForm: ForwardRefRenderFunction<
         );
 
     return (
-        <FormField label={label}>
+        <FormField label={label} data-testid="collapsibleForm">
             <Form.Control aria-label={label} value={defaultValue} disabled />
 
             {/* the button that enables and disables the form */}

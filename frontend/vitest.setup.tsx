@@ -1,4 +1,3 @@
-import { server } from "@/mocks/server";
 import "vitest-dom/extend-expect";
 
 vi.mock("next/navigation", () => ({
@@ -10,12 +9,10 @@ vi.mock("next/image", () =>
     ({ default: vi.fn((props) => <img {...props} />) })
 );
 
-beforeAll(() => server.listen());
 afterEach(() => {
-    server.resetHandlers();
+    vi.useRealTimers();
     vi.clearAllMocks();
 });
-afterAll(() => server.close());
 
 global.console = {
     ...global.console,
