@@ -30,10 +30,10 @@ describe("SignupForm", () => {
 
     it("should display the signup form", () => {
         render(<SignupForm />);
-        expect(screen.getByLabelText("username")).toBeInTheDocument();
-        expect(screen.getByLabelText("email")).toBeInTheDocument();
-        expect(screen.getByLabelText("password")).toBeInTheDocument();
-        expect(screen.getByRole("form")).toBeInTheDocument();
+        expect(screen.queryByLabelText("username")).toBeInTheDocument();
+        expect(screen.queryByLabelText("email")).toBeInTheDocument();
+        expect(screen.queryByLabelText("password")).toBeInTheDocument();
+        expect(screen.queryByRole("form")).toBeInTheDocument();
     });
 
     it("should display errors on invalid fields", async () => {
@@ -58,7 +58,7 @@ describe("SignupForm", () => {
             await renderAndFillSignup();
 
             expect(
-                screen.getByText(constants.GENERIC_ERROR)
+                screen.queryByText(constants.GENERIC_ERROR)
             ).toBeInTheDocument();
         }
     );
@@ -72,7 +72,7 @@ describe("SignupForm", () => {
         );
 
         await renderAndFillSignup();
-        expect(screen.getByText("this is a test error")).toBeInTheDocument();
+        expect(screen.queryByText("this is a test error")).toBeInTheDocument();
     });
 
     it("should redirect when successfull", async () => {

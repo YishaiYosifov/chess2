@@ -33,8 +33,8 @@ describe("PlayOptions", () => {
 
     it("should render without crashing", () => {
         render(<PlayOptions />);
-        expect(screen.getByText("Variant")).toBeInTheDocument();
-        expect(screen.getByText("Time Control")).toBeInTheDocument();
+        expect(screen.queryByText("Variant")).toBeInTheDocument();
+        expect(screen.queryByText("Time Control")).toBeInTheDocument();
     });
 
     it("should correctly render the time controls", () => {

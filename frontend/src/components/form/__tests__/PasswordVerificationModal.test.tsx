@@ -82,7 +82,7 @@ describe("PasswordVerificationModal", () => {
         await submitModal(user, ref);
 
         expect(
-            screen.getByText("Could not verify password")
+            screen.queryByText("Could not verify password")
         ).toBeInTheDocument();
     });
 

@@ -7,7 +7,6 @@ describe("FormField", () => {
         render(<FormField label="Testing" />);
 
         const label = screen.getByTestId("formFieldLabel");
-        expect(label).toBeInTheDocument();
         expect(label.textContent).toBe("Testing");
     });
 
@@ -24,7 +23,7 @@ describe("FormField", () => {
             </FormField>
         );
 
-        expect(screen.getByText("child element")).toBeInTheDocument();
+        expect(screen.queryByText("child element")).toBeInTheDocument();
     });
 
     it("should handle validation", () => {
