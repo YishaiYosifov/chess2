@@ -31,7 +31,12 @@ const CollapsibleForm: ForwardRefRenderFunction<
 
     if (isEditing)
         return (
-            <Form {...formProps} className={styles["form"]} ref={ref}>
+            <Form
+                {...formProps}
+                className={styles["form"]}
+                ref={ref}
+                data-testid="collapsibleForm"
+            >
                 {children}
                 <span className="text-invalid">{status}</span>
 
@@ -40,11 +45,16 @@ const CollapsibleForm: ForwardRefRenderFunction<
                         type="submit"
                         variant="dark"
                         disabled={!dirty || !isValid || isSubmitting}
+                        data-testid="collapsibleFormSubmit"
                     >
                         Save
                     </Button>
 
-                    <Button variant="dark" onClick={cancel}>
+                    <Button
+                        variant="dark"
+                        onClick={cancel}
+                        data-testid="collapsibleFormCancel"
+                    >
                         Cancel
                     </Button>
                 </div>
@@ -52,12 +62,22 @@ const CollapsibleForm: ForwardRefRenderFunction<
         );
 
     return (
-        <FormField label={label} data-testid="collapsibleForm">
-            <Form.Control aria-label={label} value={defaultValue} disabled />
+        <FormField label={label}>
+            <Form.Control
+                aria-label={label}
+                value={defaultValue}
+                disabled
+                data-testid="collapsibleFormStaticInput"
+            />
 
             {/* the button that enables and disables the form */}
             <InputGroup.Text>
-                <button className="reset" onClick={open} disabled={disabled}>
+                <button
+                    className="reset"
+                    onClick={open}
+                    disabled={disabled}
+                    data-testid="collapsibleFormEnable"
+                >
                     <BsPencilFill />
                 </button>
             </InputGroup.Text>
