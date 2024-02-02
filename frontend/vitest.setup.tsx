@@ -12,6 +12,7 @@ vi.mock("next/image", () =>
 afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+    localStorage.clear();
 });
 
 global.console = {

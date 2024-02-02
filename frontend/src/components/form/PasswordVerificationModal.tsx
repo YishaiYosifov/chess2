@@ -18,6 +18,15 @@ export interface PasswordVerificationRefProps {
     verifyPassword: () => boolean;
 }
 
+/**
+ * Modal to prompt the user they need to verify their password.
+ *
+ * Using a ref and calling verifyPassword will return
+ * weather the user currently has a verified password.
+ *
+ * If the user does not have a verified password, the modal will pop up and the form
+ * provided by the formRef prop will be re-submitted.
+ */
 const PasswordVerificationModal: ForwardRefRenderFunction<
     PasswordVerificationRefProps,
     { formRef: RefObject<HTMLFormElement> }
@@ -35,7 +44,9 @@ const PasswordVerificationModal: ForwardRefRenderFunction<
      * @returns whether the user needs to confirm their password
      */
     function needsPasswordConfirm(): boolean {
-        const lastLogin = new Date(localStorage.getItem("lastLogin")!);
+        const lastLogin = new Date(
+            localStorage.getItem(constants.LAST_LOGIN_LOCAL_STORAGE)!
+        );
         if (isNaN(lastLogin.valueOf())) return true;
 
         const currDate = new Date();
@@ -105,6 +116,7 @@ const PasswordVerificationModal: ForwardRefRenderFunction<
                 <FormField>
                     <PasswordInput
                         value={password}
+                        data-testid="modalPasswordInput"
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </FormField>
@@ -115,7 +127,8 @@ const PasswordVerificationModal: ForwardRefRenderFunction<
                 <Button
                     variant="secondary"
                     onClick={confirmPasswordNSubmit}
-                    disabled={false}
+                    disabled={!password}
+                    data-testid="modalVerifyButton"
                 >
                     Verify
                 </Button>
