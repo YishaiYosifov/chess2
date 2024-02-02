@@ -13,13 +13,12 @@ import PasswordVerificationModal, {
 vi.mock("@/lib/apis");
 vi.mock("@/components/contexts/AuthContext");
 
-const modalBodyText = "For security purposes, please confirm your password";
-
-const mockFormRef = {
-    current: { dispatchEvent: vi.fn() },
-} as unknown as RefObject<HTMLFormElement>;
-
 describe("PasswordVerificationModal", () => {
+    const modalBodyText = "For security purposes, please confirm your password";
+    const mockFormRef = {
+        current: { dispatchEvent: vi.fn() },
+    } as unknown as RefObject<HTMLFormElement>;
+
     /**
      * Render the password verification modal and provide a ref
      *
