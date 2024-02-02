@@ -11,7 +11,6 @@ export const ACCESS_TOKEN = "access_token";
 export const REFRESH_TOKEN = "refresh_token";
 
 export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
-
 export const GENERIC_ERROR = "Something went wrong.";
 
 export enum Piece {
