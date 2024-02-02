@@ -6,8 +6,8 @@ import ProfilePicture from "../ProfilePicture";
 
 describe("ProfilePicture", () => {
     it("should render with default props", () => {
-        const { getByAltText } = render(<ProfilePicture />);
-        const profilePicture = getByAltText("profile picture");
+        const { queryByAltText } = render(<ProfilePicture />);
+        const profilePicture = queryByAltText("profile picture");
 
         expect(profilePicture).toBeInTheDocument();
     });

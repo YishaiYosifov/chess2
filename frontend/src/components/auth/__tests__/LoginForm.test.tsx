@@ -22,10 +22,10 @@ describe("LoginForm", () => {
 
     it("should display the login form", () => {
         render(<LoginForm />);
-        expect(screen.getByLabelText("username")).toBeInTheDocument();
-        expect(screen.getByLabelText("password")).toBeInTheDocument();
-        expect(screen.getByTestId("submitForm")).toBeInTheDocument();
-        expect(screen.getByRole("form")).toBeInTheDocument();
+        expect(screen.queryByLabelText("username")).toBeInTheDocument();
+        expect(screen.queryByLabelText("password")).toBeInTheDocument();
+        expect(screen.queryByTestId("submitForm")).toBeInTheDocument();
+        expect(screen.queryByRole("form")).toBeInTheDocument();
     });
 
     it.each([

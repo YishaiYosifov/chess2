@@ -10,14 +10,14 @@ describe("Profile", () => {
     it("should render the profile correcetly", () => {
         render(<Profile profile={profileMock} />);
 
-        expect(screen.getByAltText("profile picture")).toBeInTheDocument();
-        expect(screen.getByTestId("aboutArea")).toBeInTheDocument();
+        expect(screen.queryByAltText("profile picture")).toBeInTheDocument();
+        expect(screen.queryByTestId("aboutArea")).toBeInTheDocument();
     });
 
     it("should display the username", () => {
         render(<Profile profile={profileMock} />);
         expect(
-            screen.getByText(
+            screen.queryByText(
                 `${
                     (countries as TypedCountries)[profileMock.countryAlpha3]
                         .flag

@@ -23,9 +23,9 @@ describe("RatingsCard", () => {
             <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
         );
 
-        expect(screen.getByTestId("ratingChart")).toBeInTheDocument();
-        expect(screen.getByText(Variant.Anarchy)).toBeInTheDocument();
-        expect(screen.getByTestId("ratingInfoSection")).toBeInTheDocument();
+        expect(screen.queryByTestId("ratingChart")).toBeInTheDocument();
+        expect(screen.queryByText(Variant.Anarchy)).toBeInTheDocument();
+        expect(screen.queryByTestId("ratingInfoSection")).toBeInTheDocument();
     });
 
     it("should correctly render the rating history chart", () => {

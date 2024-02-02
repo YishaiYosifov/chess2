@@ -5,7 +5,7 @@ describe("PlayPage", () => {
     it("should render play options and chessboard", () => {
         render(<PlayPage />);
 
-        expect(screen.getByTestId("chessboard")).toBeInTheDocument();
-        expect(screen.getByTestId("playOptions")).toBeInTheDocument();
+        expect(screen.queryByTestId("chessboard")).toBeInTheDocument();
+        expect(screen.queryByTestId("playOptions")).toBeInTheDocument();
     });
 });
