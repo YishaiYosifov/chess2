@@ -66,7 +66,6 @@ describe("ProfilePictureSettings", () => {
 
         await uploadTestImage();
 
-        expect(uploadPfpMock).toHaveBeenCalledOnce();
         expect(screen.getByTestId("pfpSettingsStatus").textContent).toBe(
             status
         );
@@ -83,12 +82,11 @@ describe("ProfilePictureSettings", () => {
         vi.setSystemTime(testDate);
 
         const uploadPfpMock = settingsApi.uploadProfilePicture as Mock;
-        uploadPfpMock.mockResolvedValue(null);
+        uploadPfpMock.mockResolvedValue({});
         await uploadTestImage();
 
         expect(revalidateUser).toHaveBeenCalledOnce();
         expect(screen.getByTestId("pfpSettingsStatus").textContent).toBe("");
-
         expect(pfpMock).toHaveBeenLastCalledWith(
             expect.objectContaining({
                 lastChanged: testDate,

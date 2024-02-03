@@ -38,12 +38,15 @@ describe("LoginForm", () => {
     ])(
         "should correctly handle submit failures",
         async (response, statusText) => {
+            const { replace } = mockRouter();
+
             const mockLogin = authApi.login as Mock;
             mockLogin.mockRejectedValue(response);
             await renderAndFillLogin();
 
             const status = screen.getByTestId("formStatus");
             expect(status.textContent).toBe(statusText);
+            expect(replace).not.toHaveBeenCalled();
         }
     );
 
