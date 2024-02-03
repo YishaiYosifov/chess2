@@ -68,7 +68,7 @@ export const createFormRenderer =
  */
 export function responseErrFactory(
     body: BodyInit | null,
-    response: ResponseInit
+    response: ResponseInit = {}
 ): ResponseError {
     return new ResponseError(new Response(body, response));
 }

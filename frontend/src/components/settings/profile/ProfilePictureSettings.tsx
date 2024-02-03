@@ -4,7 +4,7 @@ import { Button } from "react-bootstrap";
 
 import { useRef, useState, ChangeEvent } from "react";
 
-import { useAuthedProfile } from "../contexts/AuthContext";
+import { useAuthedProfile } from "../../contexts/AuthContext";
 import styles from "./ChangeProfilePicture.module.scss";
 import { revalidateUser } from "@/app/actions";
 import { settingsApi } from "@/lib/apis";
@@ -12,7 +12,7 @@ import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/ProfilePicture";
 
-const ChangeProfilePicture = () => {
+const ProfilePictureSettings = () => {
     const { username, pfpLastChanged } = useAuthedProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
@@ -37,7 +37,7 @@ const ChangeProfilePicture = () => {
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);
-                    throw err;
+                    console.error(err);
             }
             return;
         }
@@ -62,17 +62,27 @@ const ChangeProfilePicture = () => {
                     ref={uploadPfpInput}
                     onChange={uploadPfp}
                     hidden
+                    data-testid="pfpSettingsFileSelector"
                 />
 
                 <div className={styles["upload-button-container"]}>
-                    <Button variant="dark" onClick={openFileSelector}>
+                    <Button
+                        variant="dark"
+                        onClick={openFileSelector}
+                        data-testid="pfpSettingsSubmit"
+                    >
                         Update Profile Picture
                     </Button>
-                    <span className="text-invalid">{status}</span>
+                    <span
+                        className="text-invalid"
+                        data-testid="pfpSettingsStatus"
+                    >
+                        {status}
+                    </span>
                 </div>
                 <p>Must be JPEG, PNG, WEBP or GIF and cannot exceed 1MB</p>
             </div>
         </div>
     );
 };
-export default ChangeProfilePicture;
+export default ProfilePictureSettings;
