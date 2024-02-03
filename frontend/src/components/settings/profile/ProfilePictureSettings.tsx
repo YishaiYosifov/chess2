@@ -5,7 +5,7 @@ import { Button } from "react-bootstrap";
 import { useRef, useState, ChangeEvent } from "react";
 
 import { useAuthedProfile } from "../../contexts/AuthContext";
-import styles from "./ChangeProfilePicture.module.scss";
+import styles from "./ProfilePictureSettings.module.scss";
 import { revalidateUser } from "@/app/actions";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
@@ -24,6 +24,8 @@ const ProfilePictureSettings = () => {
     async function uploadPfp(event: ChangeEvent<HTMLInputElement>) {
         const files = (event.target as HTMLInputElement).files;
         if (!files) return;
+
+        const a = settingsApi;
 
         try {
             await settingsApi.uploadProfilePicture({

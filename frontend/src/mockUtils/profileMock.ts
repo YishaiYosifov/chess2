@@ -1,4 +1,4 @@
-import { PublicUserOut } from "@/client";
+import { PrivateUserOut, PublicUserOut } from "@/client";
 
 export const profileMock: PublicUserOut = {
     userId: 1,
@@ -7,6 +7,12 @@ export const profileMock: PublicUserOut = {
 
     countryAlpha3: "ISR",
     pfpLastChanged: new Date("2023-01-01T12:00:00Z"),
+};
+
+export const privateProfileMock: PrivateUserOut = {
+    ...profileMock,
+    email: "test@example.com",
+    usernameLastChanged: new Date("2023-01-01T12:00:00Z"),
 };
 
 export function createProfile(

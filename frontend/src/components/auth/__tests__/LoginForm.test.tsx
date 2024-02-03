@@ -52,11 +52,7 @@ describe("LoginForm", () => {
 
     it("should redirect when successfull", async () => {
         const { replace } = mockRouter();
-
-        const mockLogin = authApi.login as Mock;
-        mockLogin.mockResolvedValue({});
         await renderAndFillLogin();
-
         expect(replace).toHaveBeenCalledWith("/");
     });
 });

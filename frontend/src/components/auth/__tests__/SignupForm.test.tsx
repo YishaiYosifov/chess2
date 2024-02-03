@@ -75,10 +75,8 @@ describe("SignupForm", () => {
         expect(screen.queryByText("this is a test error")).toBeInTheDocument();
     });
 
-    it("should redirect when successfull", async () => {
+    it("should redirect when successful", async () => {
         const { push } = mockRouter();
-        signupMock.mockResolvedValue({ ok: true });
-
         await renderAndFillSignup();
         expect(push).toHaveBeenCalledWith("/login");
     });
