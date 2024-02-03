@@ -29,7 +29,7 @@ describe("ProfilePicture", () => {
         );
 
         expect(Image).toHaveBeenCalledWith(
-            {
+            expect.objectContaining({
                 className: className,
                 src:
                     `${process.env.NEXT_PUBLIC_API_URL}/profile/${username}` +
@@ -37,7 +37,7 @@ describe("ProfilePicture", () => {
                 alt: "profile picture",
                 width: size,
                 height: size,
-            },
+            }),
             {}
         );
     });

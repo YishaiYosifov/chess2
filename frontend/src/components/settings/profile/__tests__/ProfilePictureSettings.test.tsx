@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Mock } from "vitest";
+import { Mock, MockInstance } from "vitest";
 
 import { responseErrFactory } from "@/lib/utils/testUtils";
 import { settingsApi } from "@/lib/apis";
@@ -17,7 +17,11 @@ vi.mock("@/lib/apis");
 
 describe("ProfilePictureSettings", () => {
     const testErr = '{"detail": "testErr"}';
-    const pfpMock = vi.spyOn(ProfilePicture, "default");
+    let pfpMock: MockInstance;
+
+    beforeEach(() => {
+        pfpMock = vi.spyOn(ProfilePicture, "default");
+    });
 
     /**
      * Render and submit a profile picture
@@ -81,8 +85,6 @@ describe("ProfilePictureSettings", () => {
         const testDate = new Date(69420);
         vi.setSystemTime(testDate);
 
-        const uploadPfpMock = settingsApi.uploadProfilePicture as Mock;
-        uploadPfpMock.mockResolvedValue({});
         await uploadTestImage();
 
         expect(revalidateUser).toHaveBeenCalledOnce();
