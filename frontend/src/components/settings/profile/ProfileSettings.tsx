@@ -68,6 +68,7 @@ const ProfileSettings = () => {
                                 data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="firstName"
+                                maxlength={50}
                             />
                         </FormField>
 
@@ -76,6 +77,7 @@ const ProfileSettings = () => {
                                 data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="lastName"
+                                maxlength={50}
                             />
                         </FormField>
 
@@ -100,6 +102,7 @@ const ProfileSettings = () => {
                                 data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="location"
+                                maxlength={40}
                             />
                         </FormField>
                     </section>
