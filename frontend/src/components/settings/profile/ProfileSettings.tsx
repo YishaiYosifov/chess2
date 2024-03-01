@@ -62,45 +62,47 @@ const ProfileSettings = () => {
                     noValidate
                     onSubmit={handleSubmit}
                 >
-                    <FormField label="First Name" hasValidation>
-                        <FormikField
-                            data-testid="profileSettingsCountry"
-                            asInput={FormInput}
-                            name="firstName"
-                        />
-                    </FormField>
+                    <section className={styles["main-section"]}>
+                        <FormField label="First Name" hasValidation>
+                            <FormikField
+                                data-testid="profileSettingsCountry"
+                                asInput={FormInput}
+                                name="firstName"
+                            />
+                        </FormField>
 
-                    <FormField label="Last Name" hasValidation>
-                        <FormikField
-                            data-testid="profileSettingsCountry"
-                            asInput={FormInput}
-                            name="lastName"
-                        />
-                    </FormField>
+                        <FormField label="Last Name" hasValidation>
+                            <FormikField
+                                data-testid="profileSettingsCountry"
+                                asInput={FormInput}
+                                name="lastName"
+                            />
+                        </FormField>
 
-                    <FormField label="Country" hasValidation>
-                        <FormikField
-                            data-testid="profileSettingsCountry"
-                            asInput={FormSelect}
-                            name="countryAlpha3"
-                        >
-                            {Object.entries(countries).map(
-                                ([alpha3, country]) => (
-                                    <option key={alpha3} value={alpha3}>
-                                        {country.name}
-                                    </option>
-                                )
-                            )}
-                        </FormikField>
-                    </FormField>
+                        <FormField label="Country" hasValidation>
+                            <FormikField
+                                data-testid="profileSettingsCountry"
+                                asInput={FormSelect}
+                                name="countryAlpha3"
+                            >
+                                {Object.entries(countries).map(
+                                    ([alpha3, country]) => (
+                                        <option key={alpha3} value={alpha3}>
+                                            {country.name}
+                                        </option>
+                                    )
+                                )}
+                            </FormikField>
+                        </FormField>
 
-                    <FormField label="Location" hasValidation>
-                        <FormikField
-                            data-testid="profileSettingsCountry"
-                            asInput={FormInput}
-                            name="location"
-                        />
-                    </FormField>
+                        <FormField label="Location" hasValidation>
+                            <FormikField
+                                data-testid="profileSettingsCountry"
+                                asInput={FormInput}
+                                name="location"
+                            />
+                        </FormField>
+                    </section>
 
                     <FormField label="About" hasValidation>
                         <FormikField
