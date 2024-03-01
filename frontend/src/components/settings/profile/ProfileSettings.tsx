@@ -65,7 +65,6 @@ const ProfileSettings = () => {
                     <section className={styles["main-section"]}>
                         <FormField label="First Name" hasValidation>
                             <FormikField
-                                data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="firstName"
                                 maxlength={50}
@@ -74,7 +73,6 @@ const ProfileSettings = () => {
 
                         <FormField label="Last Name" hasValidation>
                             <FormikField
-                                data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="lastName"
                                 maxlength={50}
@@ -83,7 +81,6 @@ const ProfileSettings = () => {
 
                         <FormField label="Country" hasValidation>
                             <FormikField
-                                data-testid="profileSettingsCountry"
                                 asInput={FormSelect}
                                 name="countryAlpha3"
                             >
@@ -99,7 +96,6 @@ const ProfileSettings = () => {
 
                         <FormField label="Location" hasValidation>
                             <FormikField
-                                data-testid="profileSettingsCountry"
                                 asInput={FormInput}
                                 name="location"
                                 maxlength={40}
@@ -109,7 +105,6 @@ const ProfileSettings = () => {
 
                     <FormField label="About" hasValidation>
                         <FormikField
-                            data-testid="profileSettingsAbout"
                             asInput={FormInput}
                             as="textarea"
                             name="about"
