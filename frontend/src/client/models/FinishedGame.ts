@@ -19,12 +19,12 @@ import {
     GameResultFromJSONTyped,
     GameResultToJSON,
 } from './GameResult';
-import type { PublicUserOut } from './PublicUserOut';
+import type { UnauthedProfileOut } from './UnauthedProfileOut';
 import {
-    PublicUserOutFromJSON,
-    PublicUserOutFromJSONTyped,
-    PublicUserOutToJSON,
-} from './PublicUserOut';
+    UnauthedProfileOutFromJSON,
+    UnauthedProfileOutFromJSONTyped,
+    UnauthedProfileOutToJSON,
+} from './UnauthedProfileOut';
 import type { Variant } from './Variant';
 import {
     VariantFromJSON,
@@ -46,16 +46,16 @@ export interface FinishedGame {
     token: string;
     /**
      * 
-     * @type {PublicUserOut}
+     * @type {UnauthedProfileOut}
      * @memberof FinishedGame
      */
-    userWhite: PublicUserOut | null;
+    userWhite: UnauthedProfileOut | null;
     /**
      * 
-     * @type {PublicUserOut}
+     * @type {UnauthedProfileOut}
      * @memberof FinishedGame
      */
-    userBlack: PublicUserOut | null;
+    userBlack: UnauthedProfileOut | null;
     /**
      * 
      * @type {GameResult}
@@ -116,8 +116,8 @@ export function FinishedGameFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return {
         
         'token': json['token'],
-        'userWhite': PublicUserOutFromJSON(json['user_white']),
-        'userBlack': PublicUserOutFromJSON(json['user_black']),
+        'userWhite': UnauthedProfileOutFromJSON(json['user_white']),
+        'userBlack': UnauthedProfileOutFromJSON(json['user_black']),
         'results': GameResultFromJSON(json['results']),
         'variant': VariantFromJSON(json['variant']),
         'timeControl': json['time_control'],
@@ -136,8 +136,8 @@ export function FinishedGameToJSON(value?: FinishedGame | null): any {
     return {
         
         'token': value.token,
-        'user_white': PublicUserOutToJSON(value.userWhite),
-        'user_black': PublicUserOutToJSON(value.userBlack),
+        'user_white': UnauthedProfileOutToJSON(value.userWhite),
+        'user_black': UnauthedProfileOutToJSON(value.userBlack),
         'results': GameResultToJSON(value.results),
         'variant': VariantToJSON(value.variant),
         'time_control': value.timeControl,

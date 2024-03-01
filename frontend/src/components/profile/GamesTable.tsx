@@ -2,7 +2,7 @@
 
 import { Table } from "react-bootstrap";
 
-import type { FinishedGame, PublicUserOut } from "@/client";
+import type { FinishedGame, AuthedProfileOut } from "@/client";
 import styles from "./GamesTable.module.scss";
 
 import GameRow from "./GameRow";
@@ -12,7 +12,7 @@ const GamesTable = ({
     viewingProfile,
 }: {
     games: FinishedGame[];
-    viewingProfile: PublicUserOut;
+    viewingProfile: AuthedProfileOut;
 }) => {
     const MAX_EMPTY_ROWS = 3;
 

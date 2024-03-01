@@ -19,68 +19,76 @@ import {
     ColorFromJSONTyped,
     ColorToJSON,
 } from './Color';
-import type { UnauthedProfileOut } from './UnauthedProfileOut';
+import type { PieceType } from './PieceType';
 import {
-    UnauthedProfileOutFromJSON,
-    UnauthedProfileOutFromJSONTyped,
-    UnauthedProfileOutToJSON,
-} from './UnauthedProfileOut';
+    PieceTypeFromJSON,
+    PieceTypeFromJSONTyped,
+    PieceTypeToJSON,
+} from './PieceType';
 
 /**
  * 
  * @export
- * @interface Player
+ * @interface Piece
  */
-export interface Player {
+export interface Piece {
     /**
      * 
-     * @type {UnauthedProfileOut}
-     * @memberof Player
+     * @type {PieceType}
+     * @memberof Piece
      */
-    user: UnauthedProfileOut;
+    pieceType: PieceType;
     /**
      * 
      * @type {Color}
-     * @memberof Player
+     * @memberof Piece
      */
     color: Color;
     /**
      * 
      * @type {number}
-     * @memberof Player
+     * @memberof Piece
      */
-    timeRemaining: number;
+    x: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof Piece
+     */
+    y: number;
 }
 
 /**
- * Check if a given object implements the Player interface.
+ * Check if a given object implements the Piece interface.
  */
-export function instanceOfPlayer(value: object): boolean {
+export function instanceOfPiece(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "user" in value;
+    isInstance = isInstance && "pieceType" in value;
     isInstance = isInstance && "color" in value;
-    isInstance = isInstance && "timeRemaining" in value;
+    isInstance = isInstance && "x" in value;
+    isInstance = isInstance && "y" in value;
 
     return isInstance;
 }
 
-export function PlayerFromJSON(json: any): Player {
-    return PlayerFromJSONTyped(json, false);
+export function PieceFromJSON(json: any): Piece {
+    return PieceFromJSONTyped(json, false);
 }
 
-export function PlayerFromJSONTyped(json: any, ignoreDiscriminator: boolean): Player {
+export function PieceFromJSONTyped(json: any, ignoreDiscriminator: boolean): Piece {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'user': UnauthedProfileOutFromJSON(json['user']),
+        'pieceType': PieceTypeFromJSON(json['piece_type']),
         'color': ColorFromJSON(json['color']),
-        'timeRemaining': json['time_remaining'],
+        'x': json['x'],
+        'y': json['y'],
     };
 }
 
-export function PlayerToJSON(value?: Player | null): any {
+export function PieceToJSON(value?: Piece | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -89,9 +97,10 @@ export function PlayerToJSON(value?: Player | null): any {
     }
     return {
         
-        'user': UnauthedProfileOutToJSON(value.user),
+        'piece_type': PieceTypeToJSON(value.pieceType),
         'color': ColorToJSON(value.color),
-        'time_remaining': value.timeRemaining,
+        'x': value.x,
+        'y': value.y,
     };
 }
 

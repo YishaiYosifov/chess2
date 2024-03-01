@@ -15,17 +15,19 @@
 
 import * as runtime from '../runtime';
 import type {
+  AuthedProfileOut,
   ErrorResponseDictStrStr,
   ErrorResponseStr,
   FinishedGame,
   HTTPValidationError,
-  PrivateUserOut,
-  PublicUserOut,
+  PrivateAuthedProfileOut,
   Rating,
   RatingOverview,
   Variant,
 } from '../models/index';
 import {
+    AuthedProfileOutFromJSON,
+    AuthedProfileOutToJSON,
     ErrorResponseDictStrStrFromJSON,
     ErrorResponseDictStrStrToJSON,
     ErrorResponseStrFromJSON,
@@ -34,10 +36,8 @@ import {
     FinishedGameToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
-    PrivateUserOutFromJSON,
-    PrivateUserOutToJSON,
-    PublicUserOutFromJSON,
-    PublicUserOutToJSON,
+    PrivateAuthedProfileOutFromJSON,
+    PrivateAuthedProfileOutToJSON,
     RatingFromJSON,
     RatingToJSON,
     RatingOverviewFromJSON,
@@ -108,7 +108,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch a user\'s profile
      * Get Info
      */
-    async getInfoRaw(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PublicUserOut>> {
+    async getInfoRaw(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AuthedProfileOut>> {
         if (requestParameters.target === null || requestParameters.target === undefined) {
             throw new runtime.RequiredError('target','Required parameter requestParameters.target was null or undefined when calling getInfo.');
         }
@@ -133,14 +133,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PublicUserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AuthedProfileOutFromJSON(jsonValue));
     }
 
     /**
      * Fetch a user\'s profile
      * Get Info
      */
-    async getInfo(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PublicUserOut> {
+    async getInfo(requestParameters: GetInfoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AuthedProfileOut> {
         const response = await this.getInfoRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -149,7 +149,7 @@ export class ProfileApi extends runtime.BaseAPI {
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitiveRaw(requestParameters: GetInfoSensitiveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
+    async getInfoSensitiveRaw(requestParameters: GetInfoSensitiveRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateAuthedProfileOut>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -170,14 +170,14 @@ export class ProfileApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateUserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateAuthedProfileOutFromJSON(jsonValue));
     }
 
     /**
      * Fetch the sensitive profile of user
      * Get Info Sensitive
      */
-    async getInfoSensitive(requestParameters: GetInfoSensitiveRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+    async getInfoSensitive(requestParameters: GetInfoSensitiveRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateAuthedProfileOut> {
         const response = await this.getInfoSensitiveRaw(requestParameters, initOverrides);
         return await response.value();
     }

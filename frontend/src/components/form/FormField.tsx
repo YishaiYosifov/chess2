@@ -4,8 +4,6 @@ import { Form, InputGroup } from "react-bootstrap";
 
 import { ReactNode, forwardRef } from "react";
 
-import styles from "./FormField.module.scss";
-
 export interface SettingsFieldProps {
     label?: string | boolean;
     hasValidation?: boolean;
@@ -18,18 +16,14 @@ export interface SettingsFieldProps {
 const FormField = forwardRef<HTMLInputElement, SettingsFieldProps>(
     ({ children, label, hasValidation = false }, ref) => {
         return (
-            <Form.Group className={styles["input-container"]}>
+            <Form.Group>
                 {label && (
                     <Form.Label data-testid="formFieldLabel">
                         {label}
                     </Form.Label>
                 )}
 
-                <InputGroup
-                    hasValidation={hasValidation}
-                    ref={ref}
-                    className={(label && styles["label-input"]) || undefined}
-                >
+                <InputGroup hasValidation={hasValidation} ref={ref}>
                     {children}
                 </InputGroup>
             </Form.Group>

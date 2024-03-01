@@ -34,13 +34,7 @@ main {
     color: white;
 
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
-
-    transition: box-shadow 0.3s;
-
-    &:hover {
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    }
+    box-shadow: 0 0px 8px rgba(0, 0, 0, 1);
 }
 
 hr {

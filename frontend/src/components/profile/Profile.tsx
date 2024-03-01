@@ -5,12 +5,12 @@ import { Card } from "react-bootstrap";
 import styles from "./Profile.module.scss";
 
 import ProfilePicture from "../ProfilePicture";
-import type { PublicUserOut } from "@/client";
+import type { AuthedProfileOut } from "@/client";
 import countries from "@/data/countries.json";
 import { TypedCountries } from "@/lib/types";
 
 /** Show basic information about a user */
-const Profile = ({ profile }: { profile: PublicUserOut }) => {
+const Profile = ({ profile }: { profile: AuthedProfileOut }) => {
     return (
         <Card className={styles.profile}>
             <ProfilePicture

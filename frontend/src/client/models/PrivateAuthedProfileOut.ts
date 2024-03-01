@@ -13,65 +13,100 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { UserType } from './UserType';
+import {
+    UserTypeFromJSON,
+    UserTypeFromJSONTyped,
+    UserTypeToJSON,
+} from './UserType';
+
 /**
  * 
  * @export
- * @interface PrivateUserOut
+ * @interface PrivateAuthedProfileOut
  */
-export interface PrivateUserOut {
+export interface PrivateAuthedProfileOut {
     /**
      * 
      * @type {number}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     userId: number;
     /**
      * 
+     * @type {UserType}
+     * @memberof PrivateAuthedProfileOut
+     */
+    userType: UserType;
+    /**
+     * 
      * @type {string}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     username: string;
     /**
      * 
      * @type {string}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
+     */
+    firstName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PrivateAuthedProfileOut
+     */
+    lastName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PrivateAuthedProfileOut
      */
     about: string;
     /**
      * 
      * @type {string}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     countryAlpha3: string;
     /**
      * 
+     * @type {string}
+     * @memberof PrivateAuthedProfileOut
+     */
+    location: string;
+    /**
+     * 
      * @type {Date}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     pfpLastChanged: Date;
     /**
      * 
      * @type {string}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     email: string;
     /**
      * 
      * @type {Date}
-     * @memberof PrivateUserOut
+     * @memberof PrivateAuthedProfileOut
      */
     usernameLastChanged: Date | null;
 }
 
 /**
- * Check if a given object implements the PrivateUserOut interface.
+ * Check if a given object implements the PrivateAuthedProfileOut interface.
  */
-export function instanceOfPrivateUserOut(value: object): boolean {
+export function instanceOfPrivateAuthedProfileOut(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "userType" in value;
     isInstance = isInstance && "username" in value;
+    isInstance = isInstance && "firstName" in value;
+    isInstance = isInstance && "lastName" in value;
     isInstance = isInstance && "about" in value;
     isInstance = isInstance && "countryAlpha3" in value;
+    isInstance = isInstance && "location" in value;
     isInstance = isInstance && "pfpLastChanged" in value;
     isInstance = isInstance && "email" in value;
     isInstance = isInstance && "usernameLastChanged" in value;
@@ -79,27 +114,31 @@ export function instanceOfPrivateUserOut(value: object): boolean {
     return isInstance;
 }
 
-export function PrivateUserOutFromJSON(json: any): PrivateUserOut {
-    return PrivateUserOutFromJSONTyped(json, false);
+export function PrivateAuthedProfileOutFromJSON(json: any): PrivateAuthedProfileOut {
+    return PrivateAuthedProfileOutFromJSONTyped(json, false);
 }
 
-export function PrivateUserOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): PrivateUserOut {
+export function PrivateAuthedProfileOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): PrivateAuthedProfileOut {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'userId': json['user_id'],
+        'userType': UserTypeFromJSON(json['user_type']),
         'username': json['username'],
+        'firstName': json['first_name'],
+        'lastName': json['last_name'],
         'about': json['about'],
         'countryAlpha3': json['country_alpha3'],
+        'location': json['location'],
         'pfpLastChanged': (new Date(json['pfp_last_changed'])),
         'email': json['email'],
         'usernameLastChanged': (json['username_last_changed'] === null ? null : new Date(json['username_last_changed'])),
     };
 }
 
-export function PrivateUserOutToJSON(value?: PrivateUserOut | null): any {
+export function PrivateAuthedProfileOutToJSON(value?: PrivateAuthedProfileOut | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -109,9 +148,13 @@ export function PrivateUserOutToJSON(value?: PrivateUserOut | null): any {
     return {
         
         'user_id': value.userId,
+        'user_type': UserTypeToJSON(value.userType),
         'username': value.username,
+        'first_name': value.firstName,
+        'last_name': value.lastName,
         'about': value.about,
         'country_alpha3': value.countryAlpha3,
+        'location': value.location,
         'pfp_last_changed': (value.pfpLastChanged.toISOString()),
         'email': value.email,
         'username_last_changed': (value.usernameLastChanged === null ? null : value.usernameLastChanged.toISOString()),

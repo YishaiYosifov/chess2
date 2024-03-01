@@ -1,12 +1,14 @@
-import { PrivateUserOut } from "@/client";
+import { PrivateAuthedProfileOut } from "@/client";
 
 import ProfilePictureSettings from "@/components/settings/profile/ProfilePictureSettings";
 import ProfileSettings from "@/components/settings/profile/ProfileSettings";
 import StoreInitializer from "@/components/StoreInitializer";
 import withAuth from "@/components/hocs/withAuth";
 
+export const metadata = { title: "Profile - Settings - Chess 2" };
+
 const ProfilePage = withAuth(
-    async ({ profile }: { profile: PrivateUserOut }) => {
+    async ({ profile }: { profile: PrivateAuthedProfileOut }) => {
         return (
             <div style={{ maxWidth: "1426px" }}>
                 <StoreInitializer

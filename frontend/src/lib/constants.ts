@@ -13,6 +13,13 @@ export const REFRESH_TOKEN = "refresh_token";
 export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
 export const GENERIC_ERROR = "Something went wrong.";
 
+export const SETTING_PAGES = [
+    { name: "Profile", url: "profile" },
+    { name: "Live Game", url: "live-game" },
+    { name: "Blocked", url: "blocked" },
+    { name: "Security", url: "security" },
+];
+
 export enum Piece {
     King = "king",
     Queen = "queen",
@@ -113,5 +120,6 @@ const exported = {
     REFRESH_TOKEN,
     LAST_LOGIN_LOCAL_STORAGE,
     GENERIC_ERROR,
+    SETTING_PAGES,
 };
 export default exported;

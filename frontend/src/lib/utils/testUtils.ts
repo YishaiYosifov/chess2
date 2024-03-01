@@ -1,7 +1,8 @@
-import { ResponseError } from "@/client";
 import { RenderResult, render, screen } from "@testing-library/react";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
+
+import { ResponseError } from "@/client";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 

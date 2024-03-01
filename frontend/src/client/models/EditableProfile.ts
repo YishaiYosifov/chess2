@@ -24,7 +24,25 @@ export interface EditableProfile {
      * @type {string}
      * @memberof EditableProfile
      */
+    firstName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditableProfile
+     */
+    lastName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditableProfile
+     */
     countryAlpha3: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof EditableProfile
+     */
+    location: string;
     /**
      * 
      * @type {string}
@@ -38,7 +56,10 @@ export interface EditableProfile {
  */
 export function instanceOfEditableProfile(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "firstName" in value;
+    isInstance = isInstance && "lastName" in value;
     isInstance = isInstance && "countryAlpha3" in value;
+    isInstance = isInstance && "location" in value;
     isInstance = isInstance && "about" in value;
 
     return isInstance;
@@ -54,7 +75,10 @@ export function EditableProfileFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
+        'firstName': json['first_name'],
+        'lastName': json['last_name'],
         'countryAlpha3': json['country_alpha3'],
+        'location': json['location'],
         'about': json['about'],
     };
 }
@@ -68,7 +92,10 @@ export function EditableProfileToJSON(value?: EditableProfile | null): any {
     }
     return {
         
+        'first_name': value.firstName,
+        'last_name': value.lastName,
         'country_alpha3': value.countryAlpha3,
+        'location': value.location,
         'about': value.about,
     };
 }
