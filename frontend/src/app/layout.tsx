@@ -6,7 +6,6 @@ import constants from "@/lib/constants";
 import "./globals.scss";
 
 import NavbarProvider from "@/components/navbar/NavbarProvider";
-import StoreInitializer from "@/components/StoreInitializer";
 
 import { cookies } from "next/headers";
 

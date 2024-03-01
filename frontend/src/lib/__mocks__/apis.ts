@@ -18,4 +18,5 @@ export const gameRequestApi = {
 };
 export const settingsApi = {
     uploadProfilePicture: vi.fn(async () => null),
+    updateProfile: vi.fn(async () => null),
 };

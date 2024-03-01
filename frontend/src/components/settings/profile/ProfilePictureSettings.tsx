@@ -25,8 +25,6 @@ const ProfilePictureSettings = () => {
         const files = (event.target as HTMLInputElement).files;
         if (!files) return;
 
-        const a = settingsApi;
-
         try {
             await settingsApi.uploadProfilePicture({
                 pfp: files[0],

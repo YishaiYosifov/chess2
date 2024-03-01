@@ -1,12 +1,12 @@
 "use client";
 
 import { ReactNode, createContext, useContext, useState } from "react";
-import { PrivateUserOut } from "@/client";
+import { PrivateAuthedProfileOut } from "@/client";
 
 interface AuthContext {
     setIsAuthed: (isAuthed: boolean) => void;
-    setAuthedProfile: (profile: PrivateUserOut) => void;
-    authedProfile: PrivateUserOut;
+    setAuthedProfile: (profile: PrivateAuthedProfileOut) => void;
+    authedProfile: PrivateAuthedProfileOut;
 }
 
 type ConditionalAuth =
@@ -32,7 +32,7 @@ export function useAuthedContext(): Required<ConditionalAuth> {
  *
  * @returns the authed user profile
  */
-export function useAuthedProfile(): PrivateUserOut {
+export function useAuthedProfile(): PrivateAuthedProfileOut {
     return useAuthedContext().authedProfile;
 }
 
@@ -40,7 +40,7 @@ const AuthContextProvider = ({
     profile,
     children,
 }: {
-    profile: PrivateUserOut;
+    profile: PrivateAuthedProfileOut;
     children: ReactNode;
 }) => {
     const [isAuthed, setIsAuthed] = useState(true);

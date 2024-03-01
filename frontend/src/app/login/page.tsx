@@ -1,9 +1,7 @@
 import withoutAuth from "@/components/hocs/withoutAuth";
 import AuthPage from "@/components/auth/AuthPage";
 
-export const metadata = {
-    title: "Chess 2 - Login",
-};
+export const metadata = { title: "Login - Chess 2" };
 
 const LoginPage = withoutAuth(() => <AuthPage login />);
 export default LoginPage;

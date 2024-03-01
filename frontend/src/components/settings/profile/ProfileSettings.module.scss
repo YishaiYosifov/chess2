@@ -1,7 +1,11 @@
 $form-gap: 20px;
 
-.form-gap {
-    display: flex;
-    flex-direction: column;
+.profile-settings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: $form-gap;
+
+    :nth-child(n + 5) {
+        grid-column: 1 / 3;
+    }
 }

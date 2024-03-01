@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
-import { ResponseError } from "@/client";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 

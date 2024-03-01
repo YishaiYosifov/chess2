@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { AppSchemasGameSchemaPiece } from './AppSchemasGameSchemaPiece';
+import type { Piece } from './Piece';
 import {
-    AppSchemasGameSchemaPieceFromJSON,
-    AppSchemasGameSchemaPieceFromJSONTyped,
-    AppSchemasGameSchemaPieceToJSON,
-} from './AppSchemasGameSchemaPiece';
+    PieceFromJSON,
+    PieceFromJSONTyped,
+    PieceToJSON,
+} from './Piece';
 import type { Player } from './Player';
 import {
     PlayerFromJSON,
@@ -58,10 +58,10 @@ export interface LiveGame {
     turnPlayerId: number;
     /**
      * 
-     * @type {Array<AppSchemasGameSchemaPiece>}
+     * @type {Array<Piece>}
      * @memberof LiveGame
      */
-    pieces: Array<AppSchemasGameSchemaPiece>;
+    pieces: Array<Piece>;
 }
 
 /**
@@ -92,7 +92,7 @@ export function LiveGameFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'playerWhite': PlayerFromJSON(json['player_white']),
         'playerBlack': PlayerFromJSON(json['player_black']),
         'turnPlayerId': json['turn_player_id'],
-        'pieces': ((json['pieces'] as Array<any>).map(AppSchemasGameSchemaPieceFromJSON)),
+        'pieces': ((json['pieces'] as Array<any>).map(PieceFromJSON)),
     };
 }
 
@@ -109,7 +109,7 @@ export function LiveGameToJSON(value?: LiveGame | null): any {
         'player_white': PlayerToJSON(value.playerWhite),
         'player_black': PlayerToJSON(value.playerBlack),
         'turn_player_id': value.turnPlayerId,
-        'pieces': ((value.pieces as Array<any>).map(AppSchemasGameSchemaPieceToJSON)),
+        'pieces': ((value.pieces as Array<any>).map(PieceToJSON)),
     };
 }
 

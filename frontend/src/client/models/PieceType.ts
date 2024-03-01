@@ -17,7 +17,7 @@
  * @export
  * @enum {string}
  */
-export enum AppConstantsEnumsPiece {
+export enum PieceType {
     King = 'king',
     Queen = 'queen',
     Rook = 'rook',
@@ -32,15 +32,15 @@ export enum AppConstantsEnumsPiece {
 }
 
 
-export function AppConstantsEnumsPieceFromJSON(json: any): AppConstantsEnumsPiece {
-    return AppConstantsEnumsPieceFromJSONTyped(json, false);
+export function PieceTypeFromJSON(json: any): PieceType {
+    return PieceTypeFromJSONTyped(json, false);
 }
 
-export function AppConstantsEnumsPieceFromJSONTyped(json: any, ignoreDiscriminator: boolean): AppConstantsEnumsPiece {
-    return json as AppConstantsEnumsPiece;
+export function PieceTypeFromJSONTyped(json: any, ignoreDiscriminator: boolean): PieceType {
+    return json as PieceType;
 }
 
-export function AppConstantsEnumsPieceToJSON(value?: AppConstantsEnumsPiece | null): any {
+export function PieceTypeToJSON(value?: PieceType | null): any {
     return value as any;
 }
 

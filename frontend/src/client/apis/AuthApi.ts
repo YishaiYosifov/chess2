@@ -20,7 +20,7 @@ import type {
   ErrorResponseDictStrStr,
   ErrorResponseStr,
   HTTPValidationError,
-  PrivateUserOut,
+  PrivateAuthedProfileOut,
   UserIn,
 } from '../models/index';
 import {
@@ -34,8 +34,8 @@ import {
     ErrorResponseStrToJSON,
     HTTPValidationErrorFromJSON,
     HTTPValidationErrorToJSON,
-    PrivateUserOutFromJSON,
-    PrivateUserOutToJSON,
+    PrivateAuthedProfileOutFromJSON,
+    PrivateAuthedProfileOutToJSON,
     UserInFromJSON,
     UserInToJSON,
 } from '../models/index';
@@ -240,7 +240,7 @@ export class AuthApi extends runtime.BaseAPI {
      * Takes a username, email and password and creates registers a new user. This path operation will also send a verification email.
      * Signup
      */
-    async signupRaw(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateUserOut>> {
+    async signupRaw(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<PrivateAuthedProfileOut>> {
         if (requestParameters.userIn === null || requestParameters.userIn === undefined) {
             throw new runtime.RequiredError('userIn','Required parameter requestParameters.userIn was null or undefined when calling signup.');
         }
@@ -259,14 +259,14 @@ export class AuthApi extends runtime.BaseAPI {
             body: UserInToJSON(requestParameters.userIn),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateUserOutFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => PrivateAuthedProfileOutFromJSON(jsonValue));
     }
 
     /**
      * Takes a username, email and password and creates registers a new user. This path operation will also send a verification email.
      * Signup
      */
-    async signup(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+    async signup(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateAuthedProfileOut> {
         const response = await this.signupRaw(requestParameters, initOverrides);
         return await response.value();
     }

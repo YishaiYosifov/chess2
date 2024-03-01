@@ -1,74 +1,31 @@
 "use client";
 
-import { FormikHelpers } from "formik";
+import { Button, Form } from "react-bootstrap";
+import { FormikHelpers, Formik } from "formik";
 
-import { useAuthedContext } from "@/components/contexts/AuthContext";
+import {
+    useAuthedContext,
+    useAuthedProfile,
+} from "@/components/contexts/AuthContext";
 import styles from "./ProfileSettings.module.scss";
+import { revalidateUser } from "@/app/actions";
+import countries from "@/data/countries.json";
 import { EditableProfile } from "@/client";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
-import UsernameForm, { UsernameSchema } from "./UsernameForm";
-import EmailForm, { EmailSchema } from "./EmailForm";
-import ProfileForm from "./ProfileForm";
+import {
+    FormInput,
+    FormSelect,
+    FormikField,
+} from "@/components/form/FormElements";
+import FormField from "@/components/form/FormField";
 
 const ProfileSettings = () => {
+    const { username, about, countryAlpha3, location, firstName, lastName } =
+        useAuthedProfile();
     const { setAuthedProfile } = useAuthedContext();
 
-    /**
-     * Update a single field setting
-     *
-     * @param apiFunction - the api function binded to the api class
-     * @param value - value to send
-     * @param helpers - formik helpers
-     */
-    async function updateField<V>(
-        apiFunction: (requestParams: { body: V }) => Promise<any>,
-        value: V,
-        helpers: FormikHelpers<any>
-    ) {
-        try {
-            await apiFunction({
-                body: value,
-            });
-            location.reload();
-        } catch (err: any) {
-            switch (err?.response?.status) {
-                case 409:
-                    helpers.setErrors((await err.response.json()).detail);
-                    break;
-                default:
-                    helpers.setStatus(constants.GENERIC_ERROR);
-                    throw err;
-            }
-        }
-    }
-
-    async function updateUsername(
-        values: UsernameSchema,
-        helpers: FormikHelpers<UsernameSchema>
-    ) {
-        updateField(
-            settingsApi.changeUsername.bind(settingsApi),
-            values.username,
-            helpers
-        );
-    }
-
-    async function updateEmail(
-        values: EmailSchema,
-        helpers: FormikHelpers<EmailSchema>
-    ) {
-        updateField(
-            settingsApi.changeEmail.bind(settingsApi),
-            values.email,
-            helpers
-        );
-    }
-
-    /**
-     * Update the profile settings
-     */
     async function updateProfile(
         values: EditableProfile,
         helpers: FormikHelpers<EditableProfile>
@@ -78,6 +35,7 @@ const ProfileSettings = () => {
                 editableProfile: values,
             });
             setAuthedProfile(profile);
+            revalidateUser(username);
         } catch (err) {
             helpers.setStatus(constants.GENERIC_ERROR);
             throw err;
@@ -86,17 +44,89 @@ const ProfileSettings = () => {
     }
 
     return (
-        <div className={styles["form-gap"]}>
-            <UsernameForm onSubmit={updateUsername} />
+        <Formik
+            onSubmit={updateProfile}
+            initialValues={{
+                about,
+                countryAlpha3,
+                location,
+                firstName,
+                lastName,
+            }}
+            enableReinitialize
+        >
+            {({ handleSubmit, dirty, isValid, status, isSubmitting }) => (
+                <Form
+                    className={styles["profile-settings"]}
+                    aria-label="profile form"
+                    noValidate
+                    onSubmit={handleSubmit}
+                >
+                    <FormField label="First Name" hasValidation>
+                        <FormikField
+                            data-testid="profileSettingsCountry"
+                            asInput={FormInput}
+                            name="firstName"
+                        />
+                    </FormField>
 
-            <hr />
+                    <FormField label="Last Name" hasValidation>
+                        <FormikField
+                            data-testid="profileSettingsCountry"
+                            asInput={FormInput}
+                            name="lastName"
+                        />
+                    </FormField>
 
-            <EmailForm onSubmit={updateEmail} />
+                    <FormField label="Country" hasValidation>
+                        <FormikField
+                            data-testid="profileSettingsCountry"
+                            asInput={FormSelect}
+                            name="countryAlpha3"
+                        >
+                            {Object.entries(countries).map(
+                                ([alpha3, country]) => (
+                                    <option key={alpha3} value={alpha3}>
+                                        {country.name}
+                                    </option>
+                                )
+                            )}
+                        </FormikField>
+                    </FormField>
 
-            <hr />
+                    <FormField label="Location" hasValidation>
+                        <FormikField
+                            data-testid="profileSettingsCountry"
+                            asInput={FormInput}
+                            name="location"
+                        />
+                    </FormField>
 
-            <ProfileForm onSubmit={updateProfile} />
-        </div>
+                    <FormField label="About" hasValidation>
+                        <FormikField
+                            data-testid="profileSettingsAbout"
+                            asInput={FormInput}
+                            as="textarea"
+                            name="about"
+                            rows="5"
+                            maxLength={300}
+                            id="about"
+                        />
+                    </FormField>
+
+                    <span className="text-invalid">{status}</span>
+
+                    <Button
+                        variant="dark"
+                        type="submit"
+                        disabled={!dirty || !isValid || isSubmitting}
+                        data-testid="submitForm"
+                    >
+                        Save
+                    </Button>
+                </Form>
+            )}
+        </Formik>
     );
 };
 export default ProfileSettings;

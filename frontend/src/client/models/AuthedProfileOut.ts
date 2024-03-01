@@ -13,77 +13,116 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { UserType } from './UserType';
+import {
+    UserTypeFromJSON,
+    UserTypeFromJSONTyped,
+    UserTypeToJSON,
+} from './UserType';
+
 /**
  * 
  * @export
- * @interface PublicUserOut
+ * @interface AuthedProfileOut
  */
-export interface PublicUserOut {
+export interface AuthedProfileOut {
     /**
      * 
      * @type {number}
-     * @memberof PublicUserOut
+     * @memberof AuthedProfileOut
      */
     userId: number;
     /**
      * 
+     * @type {UserType}
+     * @memberof AuthedProfileOut
+     */
+    userType: UserType;
+    /**
+     * 
      * @type {string}
-     * @memberof PublicUserOut
+     * @memberof AuthedProfileOut
      */
     username: string;
     /**
      * 
      * @type {string}
-     * @memberof PublicUserOut
+     * @memberof AuthedProfileOut
+     */
+    firstName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthedProfileOut
+     */
+    lastName: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthedProfileOut
      */
     about: string;
     /**
      * 
      * @type {string}
-     * @memberof PublicUserOut
+     * @memberof AuthedProfileOut
      */
     countryAlpha3: string;
     /**
      * 
+     * @type {string}
+     * @memberof AuthedProfileOut
+     */
+    location: string;
+    /**
+     * 
      * @type {Date}
-     * @memberof PublicUserOut
+     * @memberof AuthedProfileOut
      */
     pfpLastChanged: Date;
 }
 
 /**
- * Check if a given object implements the PublicUserOut interface.
+ * Check if a given object implements the AuthedProfileOut interface.
  */
-export function instanceOfPublicUserOut(value: object): boolean {
+export function instanceOfAuthedProfileOut(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "userId" in value;
+    isInstance = isInstance && "userType" in value;
     isInstance = isInstance && "username" in value;
+    isInstance = isInstance && "firstName" in value;
+    isInstance = isInstance && "lastName" in value;
     isInstance = isInstance && "about" in value;
     isInstance = isInstance && "countryAlpha3" in value;
+    isInstance = isInstance && "location" in value;
     isInstance = isInstance && "pfpLastChanged" in value;
 
     return isInstance;
 }
 
-export function PublicUserOutFromJSON(json: any): PublicUserOut {
-    return PublicUserOutFromJSONTyped(json, false);
+export function AuthedProfileOutFromJSON(json: any): AuthedProfileOut {
+    return AuthedProfileOutFromJSONTyped(json, false);
 }
 
-export function PublicUserOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): PublicUserOut {
+export function AuthedProfileOutFromJSONTyped(json: any, ignoreDiscriminator: boolean): AuthedProfileOut {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'userId': json['user_id'],
+        'userType': UserTypeFromJSON(json['user_type']),
         'username': json['username'],
+        'firstName': json['first_name'],
+        'lastName': json['last_name'],
         'about': json['about'],
         'countryAlpha3': json['country_alpha3'],
+        'location': json['location'],
         'pfpLastChanged': (new Date(json['pfp_last_changed'])),
     };
 }
 
-export function PublicUserOutToJSON(value?: PublicUserOut | null): any {
+export function AuthedProfileOutToJSON(value?: AuthedProfileOut | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -93,9 +132,13 @@ export function PublicUserOutToJSON(value?: PublicUserOut | null): any {
     return {
         
         'user_id': value.userId,
+        'user_type': UserTypeToJSON(value.userType),
         'username': value.username,
+        'first_name': value.firstName,
+        'last_name': value.lastName,
         'about': value.about,
         'country_alpha3': value.countryAlpha3,
+        'location': value.location,
         'pfp_last_changed': (value.pfpLastChanged.toISOString()),
     };
 }
