@@ -2,32 +2,28 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { Mock } from "vitest";
 
 import { setAuthedProfile } from "@/components/contexts/__mocks__/AuthContext";
-import { createFormRenderer } from "@/lib/utils/testUtils";
 import { profileMock } from "@/mockUtils/profileMock";
+import { fillForm } from "@/lib/utils/testUtils";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
-import { EditableProfile } from "@/client";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
 import ProfileSettings from "../ProfileSettings";
+import userEvent from "@testing-library/user-event";
 
 vi.mock("@/components/contexts/AuthContext");
 vi.mock("@/app/actions");
 vi.mock("@/lib/apis");
 
 describe("ProfileSettings", () => {
-    const defaultFieldValues = {
+    const editProfileValues = {
         location: "a",
         countryAlpha3: "USA",
         about: "b",
         firstName: "c",
         lastName: "d",
     };
-    const renderAndFillForm = createFormRenderer<EditableProfile>(
-        <ProfileSettings />,
-        defaultFieldValues
-    );
 
     it("should successfully render", () => {
         render(<ProfileSettings />);
@@ -58,7 +54,17 @@ describe("ProfileSettings", () => {
         const returnedProfile = { test: "ing" };
         (settingsApi.updateProfile as Mock).mockResolvedValue(returnedProfile);
 
-        await renderAndFillForm();
+        const user = userEvent.setup();
+        render(<ProfileSettings />);
+
+        // check the submit button is disabled before editing
+        const submitButton = screen.getByText<HTMLButtonElement>("Save");
+        expect(submitButton.disabled).toBeTruthy();
+
+        await fillForm(user, editProfileValues);
+        await user.click(submitButton);
+
+        // check everything was updated correctly
         expect(revalidateUser).toHaveBeenCalledOnce();
         expect(revalidateUser).toHaveBeenCalledWith(profileMock.username);
 

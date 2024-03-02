@@ -10,7 +10,12 @@ import * as yup from "yup";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
-import { FormInput, FormikField, PasswordInput } from "../form/FormElements";
+import {
+    FormInput,
+    FormikField,
+    PasswordInput,
+    SubmitButton,
+} from "../form/FormElements";
 import FormField from "../form/FormField";
 
 export interface LoginFormValues {
@@ -55,60 +60,48 @@ const LoginForm = () => {
     }
 
     return (
-        <>
-            <Formik
-                onSubmit={onSubmit}
-                validationSchema={loginSchema}
-                initialValues={{
-                    username: "",
-                    password: "",
-                }}
-            >
-                {({ handleSubmit, isSubmitting, status }) => (
-                    <Form
-                        data-testid="loginForm"
-                        aria-label="signup form"
-                        noValidate
-                        onSubmit={handleSubmit}
-                    >
-                        <FormField hasValidation>
-                            <FormikField
-                                asInput={FormInput}
-                                name="username"
-                                placeholder="Username"
-                                icon={<BsPersonFill />}
-                            />
-                        </FormField>
+        <Formik
+            onSubmit={onSubmit}
+            validationSchema={loginSchema}
+            initialValues={{
+                username: "",
+                password: "",
+            }}
+        >
+            {({ handleSubmit, isSubmitting, status }) => (
+                <Form
+                    data-testid="loginForm"
+                    aria-label="signup form"
+                    noValidate
+                    onSubmit={handleSubmit}
+                >
+                    <FormField hasValidation>
+                        <FormikField
+                            asInput={FormInput}
+                            name="username"
+                            placeholder="Username"
+                            icon={<BsPersonFill />}
+                        />
+                    </FormField>
 
-                        <FormField hasValidation>
-                            <FormikField
-                                asInput={PasswordInput}
-                                name="password"
-                                placeholder="Password"
-                            />
-                        </FormField>
+                    <FormField hasValidation>
+                        <FormikField
+                            asInput={PasswordInput}
+                            name="password"
+                            placeholder="Password"
+                        />
+                    </FormField>
 
-                        <Button
-                            type="submit"
-                            variant="secondary"
-                            disabled={isSubmitting}
-                            data-testid="submitForm"
-                        >
-                            Log In
-                        </Button>
+                    <SubmitButton variant="secondary">Log In</SubmitButton>
 
-                        {status && (
-                            <span
-                                data-testid="formStatus"
-                                className="text-invalid"
-                            >
-                                {status}
-                            </span>
-                        )}
-                    </Form>
-                )}
-            </Formik>
-        </>
+                    {status && (
+                        <span data-testid="formStatus" className="text-invalid">
+                            {status}
+                        </span>
+                    )}
+                </Form>
+            )}
+        </Formik>
     );
 };
 export default LoginForm;
