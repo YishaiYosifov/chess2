@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-
-import { profileApi } from "@/lib/apis";
 import { ComponentType } from "react";
+
 import AuthContextProvider from "../contexts/AuthContext";
+import { profileApi } from "@/lib/apis";
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
