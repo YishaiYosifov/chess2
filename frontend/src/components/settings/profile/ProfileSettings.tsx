@@ -18,6 +18,7 @@ import {
     FormInput,
     FormSelect,
     FormikField,
+    SubmitButton,
 } from "@/components/form/FormElements";
 import FormField from "@/components/form/FormField";
 
@@ -55,7 +56,7 @@ const ProfileSettings = () => {
             }}
             enableReinitialize
         >
-            {({ handleSubmit, dirty, isValid, status, isSubmitting }) => (
+            {({ handleSubmit, status }) => (
                 <Form
                     className={styles["profile-settings"]}
                     aria-label="profile form"
@@ -67,7 +68,7 @@ const ProfileSettings = () => {
                             <FormikField
                                 asInput={FormInput}
                                 name="firstName"
-                                maxlength={50}
+                                maxLength={50}
                             />
                         </FormField>
 
@@ -75,7 +76,7 @@ const ProfileSettings = () => {
                             <FormikField
                                 asInput={FormInput}
                                 name="lastName"
-                                maxlength={50}
+                                maxLength={50}
                             />
                         </FormField>
 
@@ -98,7 +99,7 @@ const ProfileSettings = () => {
                             <FormikField
                                 asInput={FormInput}
                                 name="location"
-                                maxlength={40}
+                                maxLength={40}
                             />
                         </FormField>
                     </section>
@@ -116,14 +117,7 @@ const ProfileSettings = () => {
 
                     <span className="text-invalid">{status}</span>
 
-                    <Button
-                        variant="dark"
-                        type="submit"
-                        disabled={!dirty || !isValid || isSubmitting}
-                        data-testid="submitForm"
-                    >
-                        Save
-                    </Button>
+                    <SubmitButton variant="dark">Save</SubmitButton>
                 </Form>
             )}
         </Formik>

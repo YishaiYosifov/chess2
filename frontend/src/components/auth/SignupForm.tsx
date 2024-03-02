@@ -11,7 +11,12 @@ import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
-import { FormInput, FormikField, PasswordInput } from "../form/FormElements";
+import {
+    FormInput,
+    FormikField,
+    PasswordInput,
+    SubmitButton,
+} from "../form/FormElements";
 import FormField from "../form/FormField";
 
 export interface SignupFormValues {
@@ -66,7 +71,7 @@ const SignupForm = () => {
                 password: "",
             }}
         >
-            {({ handleSubmit, isSubmitting, status }) => (
+            {({ handleSubmit, isSubmitting, status, dirty, isValid }) => (
                 <Form
                     data-testid="signupForm"
                     aria-label="signup form"
@@ -100,14 +105,7 @@ const SignupForm = () => {
                         />
                     </FormField>
 
-                    <Button
-                        type="submit"
-                        variant="secondary"
-                        disabled={isSubmitting}
-                        data-testid="submitForm"
-                    >
-                        Sign Up
-                    </Button>
+                    <SubmitButton variant="secondary">Sign Up</SubmitButton>
                     {status && <span className="text-invalid">{status}</span>}
                 </Form>
             )}

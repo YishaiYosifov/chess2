@@ -1,32 +1,27 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Mock } from "vitest";
 
 import {
-    createFormRenderer,
     fillForm,
     responseErrFactory,
+    submitForm,
 } from "@/lib/utils/testUtils";
 import constants from "@/lib/constants";
 
-import SignupForm, { SignupFormValues } from "../SignupForm";
 import { mockRouter } from "@/mockUtils/mockRouter";
+import SignupForm from "../SignupForm";
 import { authApi } from "@/lib/apis";
 
 vi.mock("@/lib/apis");
 
 describe("SignupForm", () => {
     const signupMock = authApi.signup as Mock;
-    const defaultFieldValues = {
+    const loginValues = {
         username: "a",
         email: "a@b.c",
         password: "123456Aa",
     };
-
-    const renderAndFillSignup = createFormRenderer<SignupFormValues>(
-        <SignupForm />,
-        defaultFieldValues
-    );
 
     it("should display the signup form", () => {
         render(<SignupForm />);
@@ -55,11 +50,14 @@ describe("SignupForm", () => {
         "should set status on unknown error",
         async (response) => {
             signupMock.mockRejectedValue(response);
-            await renderAndFillSignup();
+            render(<SignupForm />);
+            submitForm();
 
-            expect(
-                screen.queryByText(constants.GENERIC_ERROR)
-            ).toBeInTheDocument();
+            waitFor(() =>
+                expect(
+                    screen.queryByText(constants.GENERIC_ERROR)
+                ).toBeInTheDocument()
+            );
         }
     );
 
@@ -70,14 +68,27 @@ describe("SignupForm", () => {
                 { status: 409 }
             )
         );
+        render(<SignupForm />);
+        submitForm();
 
-        await renderAndFillSignup();
-        expect(screen.queryByText("this is a test error")).toBeInTheDocument();
+        waitFor(() =>
+            expect(
+                screen.queryByText("this is a test error")
+            ).toBeInTheDocument()
+        );
     });
 
     it("should redirect when successful", async () => {
         const { push } = mockRouter();
-        await renderAndFillSignup();
+
+        const user = userEvent.setup();
+        render(<SignupForm />);
+
+        const signupButton = screen.getByText<HTMLButtonElement>("Sign Up");
+        expect(signupButton.disabled).toBeTruthy();
+        await fillForm(user, loginValues);
+        await user.click(signupButton);
+
         expect(push).toHaveBeenCalledWith("/login");
     });
 });
