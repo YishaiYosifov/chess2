@@ -68,7 +68,7 @@ const LoginForm = () => {
                 password: "",
             }}
         >
-            {({ handleSubmit, isSubmitting, status }) => (
+            {({ handleSubmit, status }) => (
                 <Form
                     data-testid="loginForm"
                     aria-label="signup form"
