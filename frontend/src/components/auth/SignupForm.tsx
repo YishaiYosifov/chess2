@@ -1,7 +1,7 @@
 "use client";
 
 import { BsPersonFill, BsEnvelopeFill } from "react-icons/bs";
-import { Form, Button } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 
 import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
@@ -71,7 +71,7 @@ const SignupForm = () => {
                 password: "",
             }}
         >
-            {({ handleSubmit, isSubmitting, status, dirty, isValid }) => (
+            {({ handleSubmit, status }) => (
                 <Form
                     data-testid="signupForm"
                     aria-label="signup form"
