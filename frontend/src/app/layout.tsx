@@ -8,6 +8,7 @@ import "./globals.scss";
 import NavbarProvider from "@/components/navbar/NavbarProvider";
 
 import { cookies } from "next/headers";
+import AuthContextProvider from "@/components/contexts/AuthContext";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -37,8 +38,10 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={secularOne.className}>
-                <NavbarProvider hasAuthCookies={hasAuthCookies} />
-                <main>{children}</main>
+                <AuthContextProvider hasAuthCookies={hasAuthCookies}>
+                    <NavbarProvider />
+                    <main>{children}</main>
+                </AuthContextProvider>
             </body>
         </html>
     );

@@ -7,7 +7,7 @@ import { useAuthedContext } from "@/components/contexts/AuthContext";
 
 const LogoutPage = () => {
     const router = useRouter();
-    const { setIsAuthed } = useAuthedContext();
+    const { setHasAuthCookies: setIsAuthed } = useAuthedContext();
 
     authApi.logout().then(() => {
         setIsAuthed(false);

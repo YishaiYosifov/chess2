@@ -17,6 +17,8 @@ import {
     SubmitButton,
 } from "../form/FormElements";
 import FormField from "../form/FormField";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
 export interface LoginFormValues {
     username: string;
@@ -29,6 +31,7 @@ const loginSchema = yup.object({
 });
 
 const LoginForm = () => {
+    const { setHasAuthCookies: setIsAuthed } = useContext(AuthContext);
     const router = useRouter();
 
     async function onSubmit(
@@ -56,6 +59,7 @@ const LoginForm = () => {
             constants.LAST_LOGIN_LOCAL_STORAGE,
             new Date().toUTCString()
         );
+        setIsAuthed(true);
         router.replace("/");
     }
 

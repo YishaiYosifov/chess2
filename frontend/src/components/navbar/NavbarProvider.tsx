@@ -5,13 +5,17 @@ import Container from "react-bootstrap/Container";
 import Offcanvas from "react-bootstrap/Offcanvas";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
+import { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { AuthContext } from "../contexts/AuthContext";
 import styles from "./navbar.module.scss";
 import "./navbar.scss";
 
-const NavbarProvider = ({ hasAuthCookies }: { hasAuthCookies: boolean }) => {
+const NavbarProvider = () => {
+    const { hasAuthCookies } = useContext(AuthContext);
+
     const expand = "md";
     const Logo = () => (
         <Image

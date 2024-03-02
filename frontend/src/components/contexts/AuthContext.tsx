@@ -4,27 +4,25 @@ import { ReactNode, createContext, useContext, useState } from "react";
 import { PrivateAuthedProfileOut } from "@/client";
 
 interface AuthContext {
-    setIsAuthed: (isAuthed: boolean) => void;
+    hasAuthCookies: boolean;
+    setHasAuthCookies: (isAuthed: boolean) => void;
     setAuthedProfile: (profile: PrivateAuthedProfileOut) => void;
-    authedProfile: PrivateAuthedProfileOut;
+    authedProfile?: PrivateAuthedProfileOut;
 }
 
-type ConditionalAuth =
-    | ({ isAuthed: true } & AuthContext)
-    | ({ isAuthed: false } & Partial<AuthContext>);
-
-export const AuthContext = createContext<ConditionalAuth>({ isAuthed: false });
+export const AuthContext = createContext<AuthContext>({} as AuthContext);
 
 /**
  * Get the authed user context, or raise an error if not loaded
  *
  * @returns the auth context object
  */
-export function useAuthedContext(): Required<ConditionalAuth> {
+export function useAuthedContext(): Required<AuthContext> {
     const context = useContext(AuthContext);
-    if (!context.isAuthed) throw Error("Profile Not Loaded");
+    if (!context.hasAuthCookies || context.authedProfile === undefined)
+        throw Error("Profile Not Loaded");
 
-    return context;
+    return context as Required<AuthContext>;
 }
 
 /**
@@ -37,20 +35,23 @@ export function useAuthedProfile(): PrivateAuthedProfileOut {
 }
 
 const AuthContextProvider = ({
+    hasAuthCookies = false,
     profile,
     children,
 }: {
-    profile: PrivateAuthedProfileOut;
+    profile?: PrivateAuthedProfileOut;
+    hasAuthCookies?: boolean;
     children: ReactNode;
 }) => {
-    const [isAuthed, setIsAuthed] = useState(true);
+    const [hasAuthCookiesState, setHasAuthCookiesState] =
+        useState(hasAuthCookies);
     const [authedProfile, setAuthedProfile] = useState(profile);
 
     return (
         <AuthContext.Provider
             value={{
-                isAuthed,
-                setIsAuthed,
+                hasAuthCookies: hasAuthCookiesState,
+                setHasAuthCookies: setHasAuthCookiesState,
                 setAuthedProfile,
                 authedProfile,
             }}
