@@ -3,26 +3,28 @@
 import { ReactNode, createContext, useContext, useState } from "react";
 import { PrivateAuthedProfileOut } from "@/client";
 
-interface AuthContext {
+export interface AuthContextInterface {
     hasAuthCookies: boolean;
     setHasAuthCookies: (isAuthed: boolean) => void;
     setAuthedProfile: (profile: PrivateAuthedProfileOut) => void;
     authedProfile?: PrivateAuthedProfileOut;
 }
 
-export const AuthContext = createContext<AuthContext>({} as AuthContext);
+export const AuthContext = createContext<AuthContextInterface>(
+    {} as AuthContextInterface
+);
 
 /**
  * Get the authed user context, or raise an error if not loaded
  *
  * @returns the auth context object
  */
-export function useAuthedContext(): Required<AuthContext> {
+export function useAuthedContext(): Required<AuthContextInterface> {
     const context = useContext(AuthContext);
     if (!context.hasAuthCookies || context.authedProfile === undefined)
         throw Error("Profile Not Loaded");
 
-    return context as Required<AuthContext>;
+    return context as Required<AuthContextInterface>;
 }
 
 /**

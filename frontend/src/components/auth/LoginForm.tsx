@@ -1,10 +1,11 @@
 "use client";
 
-import { Form, Button } from "react-bootstrap";
 import { BsPersonFill } from "react-icons/bs";
+import { Form } from "react-bootstrap";
 
 import { Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
+import { useContext } from "react";
 import * as yup from "yup";
 
 import constants from "@/lib/constants";
@@ -16,9 +17,8 @@ import {
     PasswordInput,
     SubmitButton,
 } from "../form/FormElements";
+import { AuthContext, useAuthedProfile } from "../contexts/AuthContext";
 import FormField from "../form/FormField";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
 
 export interface LoginFormValues {
     username: string;
@@ -31,7 +31,7 @@ const loginSchema = yup.object({
 });
 
 const LoginForm = () => {
-    const { setHasAuthCookies: setIsAuthed } = useContext(AuthContext);
+    const { setHasAuthCookies } = useContext(AuthContext);
     const router = useRouter();
 
     async function onSubmit(
@@ -59,7 +59,7 @@ const LoginForm = () => {
             constants.LAST_LOGIN_LOCAL_STORAGE,
             new Date().toUTCString()
         );
-        setIsAuthed(true);
+        setHasAuthCookies(true);
         router.replace("/");
     }
 

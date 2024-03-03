@@ -1,16 +1,17 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Mock } from "vitest";
 
 import {
     fillForm,
-    responseErrFactory,
     submitForm,
+    responseErrFactory,
+    renderWithAuthContext,
 } from "@/lib/utils/testUtils";
-import LoginForm, { LoginFormValues } from "../LoginForm";
 import { mockRouter } from "@/mockUtils/mockRouter";
 import constants from "@/lib/constants";
+import LoginForm from "../LoginForm";
 import { authApi } from "@/lib/apis";
-import userEvent from "@testing-library/user-event";
 
 vi.mock("@/lib/apis");
 
@@ -22,6 +23,7 @@ describe("LoginForm", () => {
 
     it("should display the login form", () => {
         render(<LoginForm />);
+
         expect(screen.queryByLabelText("username")).toBeInTheDocument();
         expect(screen.queryByLabelText("password")).toBeInTheDocument();
         expect(screen.queryByText("Log In")).toBeInTheDocument();
@@ -42,6 +44,7 @@ describe("LoginForm", () => {
 
             const mockLogin = authApi.login as Mock;
             mockLogin.mockRejectedValue(response);
+
             render(<LoginForm />);
             submitForm();
 
@@ -53,11 +56,12 @@ describe("LoginForm", () => {
         }
     );
 
-    it("should redirect when successfull", async () => {
+    it("should redirect when successful", async () => {
         const { replace } = mockRouter();
+        const setHasAuthCookies = vi.fn();
 
         const user = userEvent.setup();
-        render(<LoginForm />);
+        renderWithAuthContext(<LoginForm />, { setHasAuthCookies });
 
         // check the button is disabled before entering information
         const loginButton = screen.getByText<HTMLButtonElement>("Log In");
@@ -67,6 +71,7 @@ describe("LoginForm", () => {
         await fillForm(user, loginValues);
         await user.click(loginButton);
 
+        expect(setHasAuthCookies).toHaveBeenCalledWith(true);
         expect(replace).toHaveBeenCalledWith("/");
     });
 });
