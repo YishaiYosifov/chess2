@@ -52,6 +52,8 @@ next-env.d.ts
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+# Playwright e2e tests
 /test-results/
 /playwright-report/
 /blob-report/
