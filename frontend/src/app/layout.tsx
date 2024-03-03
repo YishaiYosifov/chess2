@@ -1,14 +1,13 @@
 import { Secular_One } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.css";
+import { cookies } from "next/headers";
 import { ReactNode } from "react";
 
 import constants from "@/lib/constants";
 import "./globals.scss";
 
-import NavbarProvider from "@/components/navbar/NavbarProvider";
-
-import { cookies } from "next/headers";
 import AuthContextProvider from "@/components/contexts/AuthContext";
+import NavbarProvider from "@/components/navbar/NavbarProvider";
 
 const secularOne = Secular_One({
     weight: ["400"],

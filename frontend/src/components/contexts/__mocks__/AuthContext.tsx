@@ -1,12 +1,12 @@
-import { profileMock } from "@/mockUtils/profileMock";
+import { privateProfileMock } from "@/mockUtils/profileMock";
 
-export const setIsAuthed = vi.fn();
+export const setHasAuthCookies = vi.fn();
 export const setAuthedProfile = vi.fn();
 
-export const useAuthedProfile = () => profileMock;
+export const useAuthedProfile = () => privateProfileMock;
 export const useAuthedContext = () => ({
-    isAuthed: true,
-    setIsAuthed,
+    hasAuthCookies: true,
+    setHasAuthCookies,
     setAuthedProfile,
-    authedProfile: profileMock,
+    authedProfile: privateProfileMock,
 });
