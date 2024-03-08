@@ -1,5 +1,5 @@
-@import "@/lib/variables.module.scss";
-@import "@/lib/mixins.scss";
+@import "@/styles/variables.module";
+@import "@/styles/functions";
 
 $item-selected-color: $purple;
 $item-color: $text;
