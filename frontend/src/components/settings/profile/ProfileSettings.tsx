@@ -1,12 +1,9 @@
 "use client";
 
-import { Button, Form } from "react-bootstrap";
 import { FormikHelpers, Formik } from "formik";
+import { Form } from "react-bootstrap";
 
-import {
-    useAuthedContext,
-    useAuthedProfile,
-} from "@/components/contexts/AuthContext";
+import { useAuthedContext, useAuthedProfile } from "@/hooks/authHooks";
 import styles from "./ProfileSettings.module.scss";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";

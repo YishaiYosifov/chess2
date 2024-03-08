@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 
+import { useAuthedContext } from "@/hooks/authHooks";
 import { authApi } from "@/lib/apis";
-import { useAuthedContext } from "@/components/contexts/AuthContext";
 
 const LogoutPage = () => {
     const router = useRouter();

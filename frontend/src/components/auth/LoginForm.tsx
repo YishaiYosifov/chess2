@@ -17,7 +17,7 @@ import {
     PasswordInput,
     SubmitButton,
 } from "../form/FormElements";
-import { AuthContext, useAuthedProfile } from "../contexts/AuthContext";
+import { AuthContext } from "../contexts/AuthContext";
 import FormField from "../form/FormField";
 
 export interface LoginFormValues {

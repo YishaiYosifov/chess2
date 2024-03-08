@@ -11,6 +11,7 @@ import {
     defaultChessboard,
 } from "@/lib/constants";
 import styles from "./Chessboard.module.scss";
+import useWebSocket from "react-use-websocket";
 
 interface Breakpoint {
     widthBreakpoint: number;

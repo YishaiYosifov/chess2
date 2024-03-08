@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { Mock } from "vitest";
 
-import { setAuthedProfile } from "@/components/contexts/__mocks__/AuthContext";
+import { setAuthedProfile } from "@/hooks/__mocks__/authHooks";
 import { profileMock } from "@/mockUtils/profileMock";
 import { fillForm } from "@/lib/utils/testUtils";
 import { revalidateUser } from "@/app/actions";
@@ -9,10 +9,10 @@ import countries from "@/data/countries.json";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
-import ProfileSettings from "../ProfileSettings";
 import userEvent from "@testing-library/user-event";
+import ProfileSettings from "../ProfileSettings";
 
-vi.mock("@/components/contexts/AuthContext");
+vi.mock("@/hooks/authHooks");
 vi.mock("@/app/actions");
 vi.mock("@/lib/apis");
 
