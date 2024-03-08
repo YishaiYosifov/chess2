@@ -1,5 +1,5 @@
-@import "@/lib/variables.module";
-@import "@/lib/mixins";
+@import "@/styles/variables.module";
+@import "@/styles/functions";
 
 .profile {
     width: container($lg);

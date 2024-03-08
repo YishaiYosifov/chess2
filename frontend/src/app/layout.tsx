@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { ReactNode } from "react";
 
 import constants from "@/lib/constants";
-import "./globals.scss";
+import "@/styles/globals.scss";
 
 import AuthContextProvider from "@/contexts/authContext";
 import NavbarProvider from "@/components/navbar/NavbarProvider";

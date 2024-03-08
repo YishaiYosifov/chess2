@@ -1,4 +1,4 @@
-import scssVariables from "@/lib/variables.module.scss";
+import scssVariables from "@/styles/variables.module.scss";
 import { Variant } from "@/lib/constants";
 import styles from "./play.module.scss";
 
