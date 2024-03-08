@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { ComponentType } from "react";
 
-import AuthContextProvider from "../contexts/AuthContext";
+import AuthContextProvider from "../../contexts/authContext";
 import { profileApi } from "@/lib/apis";
 
 /**

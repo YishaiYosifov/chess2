@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import constants from "@/lib/constants";
 import "./globals.scss";
 
-import AuthContextProvider from "@/components/contexts/AuthContext";
+import AuthContextProvider from "@/contexts/authContext";
 import NavbarProvider from "@/components/navbar/NavbarProvider";
 
 const secularOne = Secular_One({

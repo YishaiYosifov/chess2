@@ -9,7 +9,7 @@ import { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "../../contexts/authContext";
 import styles from "./navbar.module.scss";
 import "./navbar.scss";
 
