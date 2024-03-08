@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { useAuthedContext } from "@/contexts/authContext";
+import { useAuthedContext } from "@/hooks/useAuthed";
 import { authApi } from "@/lib/apis";
 
 const LogoutPage = () => {
