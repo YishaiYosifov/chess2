@@ -1,4 +1,4 @@
-import withoutAuth from "@/components/hocs/withoutAuth";
+import withoutAuth from "@/hocs/withoutAuth";
 import AuthPage from "@/components/auth/AuthPage";
 
 export const metadata = { title: "Login - Chess 2" };
