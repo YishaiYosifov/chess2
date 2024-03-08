@@ -10,7 +10,7 @@ import GamesTable from "@/components/profile/GamesTable";
 import Profile from "@/components/profile/Profile";
 import { RatingMap } from "@/lib/types";
 
-//export const revalidate = 60;
+export const revalidate = 60;
 
 export async function generateMetadata({
     params: { username },
@@ -18,7 +18,7 @@ export async function generateMetadata({
     params: { username: string };
 }) {
     return {
-        title: `Chess 2 - ${username}`,
+        title: `${username} - Chess 2 Profile - Chess 2`,
     };
 }
 
