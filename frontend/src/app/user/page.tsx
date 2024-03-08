@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { PrivateAuthedProfileOut } from "@/client";
-import withAuth from "@/components/hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 
 const RedirectUserPage = withAuth(
     async ({ profile }: { profile: PrivateAuthedProfileOut }) => {

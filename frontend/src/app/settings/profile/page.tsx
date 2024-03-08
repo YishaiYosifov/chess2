@@ -3,7 +3,7 @@ import { PrivateAuthedProfileOut } from "@/client";
 import ProfilePictureSettings from "@/components/settings/profile/ProfilePictureSettings";
 import ProfileSettings from "@/components/settings/profile/ProfileSettings";
 import StoreInitializer from "@/components/StoreInitializer";
-import withAuth from "@/components/hocs/withAuth";
+import withAuth from "@/hocs/withAuth";
 
 export const metadata = { title: "Profile - Settings - Chess 2" };
 
