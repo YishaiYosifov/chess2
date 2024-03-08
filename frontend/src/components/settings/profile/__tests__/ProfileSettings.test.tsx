@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { Mock } from "vitest";
 
-import { setAuthedProfile } from "@/contexts/__mocks__/authContext";
+import { setAuthedProfile } from "@/hooks/__mocks__/useAuthed";
 import { profileMock } from "@/mockUtils/profileMock";
 import { fillForm } from "@/lib/utils/testUtils";
 import { revalidateUser } from "@/app/actions";
@@ -12,7 +12,7 @@ import constants from "@/lib/constants";
 import userEvent from "@testing-library/user-event";
 import ProfileSettings from "../ProfileSettings";
 
-vi.mock("@/contexts/authContext");
+vi.mock("@/hooks/useAuthed");
 vi.mock("@/app/actions");
 vi.mock("@/lib/apis");
 

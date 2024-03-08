@@ -5,7 +5,7 @@ import { Button } from "react-bootstrap";
 import { useRef, useState, ChangeEvent } from "react";
 
 import styles from "./ProfilePictureSettings.module.scss";
-import { useAuthedProfile } from "@/contexts/authContext";
+import { useAuthedProfile } from "@/hooks/useAuthed";
 import { revalidateUser } from "@/app/actions";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";

@@ -3,8 +3,8 @@
 import { FormikHelpers, Formik } from "formik";
 import { Form } from "react-bootstrap";
 
-import { useAuthedProfile } from "@/contexts/authContext";
-import { useAuthedContext } from "@/contexts/authContext";
+import { useAuthedProfile } from "@/hooks/useAuthed";
+import { useAuthedContext } from "@/hooks/useAuthed";
 import styles from "./ProfileSettings.module.scss";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
