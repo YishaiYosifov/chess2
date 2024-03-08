@@ -2,7 +2,6 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { StoreApi, UseBoundStore } from "zustand";
 import { devtools } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
-import { WSSlice, createWSSlice } from "./slices/wsSlice";
 
 type WithSelectors<S> = S extends { getState: () => infer T }
     ? S & { use: { [K in keyof T]: () => T[K] } }
@@ -23,11 +22,11 @@ export function createSelectors<S extends UseBoundStore<StoreApi<object>>>(
     return store;
 }
 
-export type State = WSSlice;
+export type State = {};
 
 export const useStore = createSelectors(
     createWithEqualityFn<State>()(
-        devtools((...a) => ({ ...createWSSlice(...a) })),
+        devtools((...a) => ({})),
         shallow
     )
 );
