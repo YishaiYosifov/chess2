@@ -7,16 +7,11 @@ import {
 import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
-import { ResponseError } from "@/client";
 import {
     AuthContext,
     AuthContextInterface,
 } from "@/components/contexts/AuthContext";
-import { privateProfileMock } from "@/mockUtils/profileMock";
-import {
-    setAuthedProfile,
-    setHasAuthCookies,
-} from "@/components/contexts/__mocks__/AuthContext";
+import { ResponseError } from "@/client";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 

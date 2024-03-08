@@ -11,7 +11,7 @@ import ProfilePictureSettings from "../ProfilePictureSettings";
 import { profileMock } from "@/mockUtils/profileMock";
 import { revalidateUser } from "@/app/actions";
 
-vi.mock("@/components/contexts/AuthContext");
+vi.mock("@/hooks/authHooks");
 vi.mock("@/app/actions");
 vi.mock("@/lib/apis");
 
