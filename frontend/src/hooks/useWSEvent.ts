@@ -26,7 +26,7 @@ type WSEventMessageMap = {
  */
 export default function useWSEvent<E extends WSEvent>(
     event: E
-): WSEventMessageMap[E] {
+): WSEventMessageMap[E] | null {
     const { lastMessage } = useWebSocket(process.env.NEXT_PUBLIC_WS_URL!, {
         shouldReconnect: () => true,
         reconnectInterval: 3000,
@@ -38,7 +38,7 @@ export default function useWSEvent<E extends WSEvent>(
         },
     });
 
-    if (!lastMessage) return;
+    if (!lastMessage) return null;
 
     // parse the data
     const data = lastMessage.data.split(/:(.*)/s)[1];
