@@ -21,7 +21,8 @@ import {
 } from './UserType';
 
 /**
- * 
+ * Should be used where it is not possible for the user to be a guest.
+ * Provides additional information which a guest user would not have.
  * @export
  * @interface AuthedProfileOut
  */
