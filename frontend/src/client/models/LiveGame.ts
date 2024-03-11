@@ -13,12 +13,6 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { Piece } from './Piece';
-import {
-    PieceFromJSON,
-    PieceFromJSONTyped,
-    PieceToJSON,
-} from './Piece';
 import type { Player } from './Player';
 import {
     PlayerFromJSON,
@@ -58,10 +52,10 @@ export interface LiveGame {
     turnPlayerId: number;
     /**
      * 
-     * @type {Array<Piece>}
+     * @type {string}
      * @memberof LiveGame
      */
-    pieces: Array<Piece>;
+    fen: string;
 }
 
 /**
@@ -73,7 +67,7 @@ export function instanceOfLiveGame(value: object): boolean {
     isInstance = isInstance && "playerWhite" in value;
     isInstance = isInstance && "playerBlack" in value;
     isInstance = isInstance && "turnPlayerId" in value;
-    isInstance = isInstance && "pieces" in value;
+    isInstance = isInstance && "fen" in value;
 
     return isInstance;
 }
@@ -92,7 +86,7 @@ export function LiveGameFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'playerWhite': PlayerFromJSON(json['player_white']),
         'playerBlack': PlayerFromJSON(json['player_black']),
         'turnPlayerId': json['turn_player_id'],
-        'pieces': ((json['pieces'] as Array<any>).map(PieceFromJSON)),
+        'fen': json['fen'],
     };
 }
 
@@ -109,7 +103,7 @@ export function LiveGameToJSON(value?: LiveGame | null): any {
         'player_white': PlayerToJSON(value.playerWhite),
         'player_black': PlayerToJSON(value.playerBlack),
         'turn_player_id': value.turnPlayerId,
-        'pieces': ((value.pieces as Array<any>).map(PieceToJSON)),
+        'fen': value.fen,
     };
 }
 

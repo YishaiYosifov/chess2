@@ -13,8 +13,6 @@ export * from './GameSettings';
 export * from './HTTPValidationError';
 export * from './LiveGame';
 export * from './LocationInner';
-export * from './Piece';
-export * from './PieceType';
 export * from './Player';
 export * from './PrivateAuthedProfileOut';
 export * from './Rating';

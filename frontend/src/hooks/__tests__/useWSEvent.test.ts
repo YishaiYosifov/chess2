@@ -1,8 +1,9 @@
-import useWSEvent, { WSEvent } from "../useWSEvent";
 import useWebSocket, {
     Options as useWebsocketOptions,
 } from "react-use-websocket";
 import { Mock } from "vitest";
+
+import useWSEvent, { WSEvent } from "../useWSEvent";
 
 vi.mock("react-use-websocket");
 

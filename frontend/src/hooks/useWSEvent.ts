@@ -14,8 +14,8 @@ interface GameStart {
 }
 
 type WSEventMessageMap = {
-    [WSEvent.Notification]?: Notification;
-    [WSEvent.GameStart]?: GameStart;
+    [WSEvent.Notification]: Notification;
+    [WSEvent.GameStart]: GameStart;
 };
 
 /**

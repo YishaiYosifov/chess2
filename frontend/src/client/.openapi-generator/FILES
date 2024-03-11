@@ -19,8 +19,6 @@ models/GameSettings.ts
 models/HTTPValidationError.ts
 models/LiveGame.ts
 models/LocationInner.ts
-models/Piece.ts
-models/PieceType.ts
 models/Player.ts
 models/PrivateAuthedProfileOut.ts
 models/Rating.ts
