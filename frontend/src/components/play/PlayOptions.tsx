@@ -3,6 +3,7 @@
 import { BsAlarmFill, BsPlayFill } from "react-icons/bs";
 import { Card, Spinner } from "react-bootstrap";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import constants, { TIME_CONTROLS } from "@/lib/constants";
@@ -28,6 +29,8 @@ const PlayOptions = () => {
 
     const [status, setStatus] = useState<string>("");
 
+    const router = useRouter();
+
     /**
      * Cancels the outgoing game request
      */
@@ -46,13 +49,18 @@ const PlayOptions = () => {
         variant: Variant
     ): Promise<void> {
         try {
-            await gameRequestApi.startPoolGame({
+            const response = await gameRequestApi.startPoolGameRaw({
                 gameSettings: {
                     variant: variant,
                     timeControl: timeControl,
                     increment,
                 },
             });
+
+            // if the status is 200, it means a game was found and started
+            // redirect the user to the game page
+            if (response.raw.status == 200)
+                router.push(`/game/${await response.value()}`);
         } catch (err) {
             cancelRequest();
             setStatus(constants.GENERIC_ERROR);

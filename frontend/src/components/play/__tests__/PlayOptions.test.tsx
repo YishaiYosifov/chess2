@@ -5,6 +5,8 @@ import { TIME_CONTROLS } from "@/lib/constants";
 import PlayOptions from "../PlayOptions";
 import { Variant } from "@/client";
 import { gameRequestApi } from "@/lib/apis";
+import { Mock } from "vitest";
+import { mockRouter } from "@/mockUtils/mockRouter";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
     ...(await importOriginal<typeof import("@/lib/constants")>()),
@@ -78,8 +80,8 @@ describe("PlayOptions", () => {
         );
 
         expect(timeControlButton).toHaveClass("selected-time-control");
-        expect(gameRequestApi.startPoolGame).toHaveBeenCalledOnce();
-        expect(gameRequestApi.startPoolGame).toHaveBeenCalledWith({
+        expect(gameRequestApi.startPoolGameRaw).toHaveBeenCalledOnce();
+        expect(gameRequestApi.startPoolGameRaw).toHaveBeenCalledWith({
             gameSettings: {
                 variant: Variant.Anarchy,
                 timeControl: timeControl.timeControl,
@@ -88,6 +90,24 @@ describe("PlayOptions", () => {
         });
 
         expect(gameRequestApi.cancel).not.toHaveBeenCalled();
+    });
+
+    it("should redirect when the game starts", async () => {
+        const { push } = mockRouter();
+
+        const token = "test-token";
+        const startPoolGameRawMock = gameRequestApi.startPoolGameRaw as Mock;
+        startPoolGameRawMock.mockResolvedValue({
+            raw: { status: 200 },
+            value: () => token,
+        });
+
+        const user = userEvent.setup();
+        render(<PlayOptions />);
+        await joinPoolFirstButton(user);
+
+        expect(push).toHaveBeenCalledOnce();
+        expect(push).toHaveBeenCalledWith(`/game/${token}`);
     });
 
     it("should cancel outgoing requests when changing time control", async () => {

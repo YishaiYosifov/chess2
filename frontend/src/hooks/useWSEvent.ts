@@ -10,7 +10,7 @@ interface Notification {
 }
 
 interface GameStart {
-    otherValue: string;
+    token: string;
 }
 
 type WSEventMessageMap = {

@@ -4,6 +4,7 @@ import {
     Configuration,
     FetchParams,
     SettingsApi,
+    LiveGameApi,
     ProfileApi,
     AuthApi,
 } from "../client";
@@ -32,6 +33,7 @@ export const apiConfig = new Configuration({
 });
 
 export const gameRequestApi = new GameRequestsApi(apiConfig);
+export const liveGameApi = new LiveGameApi(apiConfig);
 export const settingsApi = new SettingsApi(apiConfig);
 export const profileApi = new ProfileApi(apiConfig);
 export const authApi = new AuthApi(apiConfig);
