@@ -14,6 +14,7 @@ export const authApi = {
 };
 export const gameRequestApi = {
     startPoolGame: vi.fn(async () => null),
+    startPoolGameRaw: vi.fn(async () => ({ raw: { status: 201 } })),
     cancel: vi.fn(async () => null),
 };
 export const settingsApi = {

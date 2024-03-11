@@ -8,6 +8,7 @@ import "@/styles/globals.scss";
 
 import AuthContextProvider from "@/contexts/authContext";
 import NavbarProvider from "@/components/navbar/NavbarProvider";
+import WSPushAction from "@/components/WSPushAction";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -38,6 +39,8 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         <html lang="en" data-bs-theme="dark">
             <body className={secularOne.className}>
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
+                    <WSPushAction />
+
                     <NavbarProvider />
                     <main>{children}</main>
                 </AuthContextProvider>
