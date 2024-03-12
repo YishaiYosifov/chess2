@@ -1,7 +1,14 @@
+import Chessboard from "@/components/game/Chessboard";
 import { liveGameApi } from "@/lib/apis";
 
-const page = async ({ params: { token } }: { params: { token: string } }) => {
+export const metadata = { title: "Live Game - Chess 2" };
+
+const GamePage = async ({
+    params: { token },
+}: {
+    params: { token: string };
+}) => {
     console.log(await liveGameApi.getLiveGame({ token }));
-    return;
+    return <Chessboard />;
 };
-export default page;
+export default GamePage;

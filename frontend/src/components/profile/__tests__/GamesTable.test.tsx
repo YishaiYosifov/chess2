@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFinishedGame } from "@/mockUtils/gameMock";
 import { createProfile, profileMock } from "@/mockUtils/profileMock";
+import { createFinishedGame } from "@/mockUtils/gameMock";
 
 import GamesTable from "../GamesTable";
 

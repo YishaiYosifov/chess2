@@ -3,8 +3,8 @@ import { Mock } from "vitest";
 
 import { Chart } from "react-google-charts";
 
+import { Variant } from "@/components/game/chess.types";
 import { RatingOverview } from "@/client";
-import { Variant } from "@/lib/constants";
 
 import RatingCard from "../RatingsCard";
 
