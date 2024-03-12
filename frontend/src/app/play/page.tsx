@@ -1,9 +1,9 @@
 import scssVariables from "@/styles/variables.module.scss";
-import { Variant } from "@/lib/constants";
+import { Variant } from "@/components/game/chess.types";
 import styles from "./play.module.scss";
 
 import PlayOptions from "@/components/play/PlayOptions";
-import Chessboard from "@/components/Chessboard";
+import Chessboard from "@/components/game/Chessboard";
 
 const PlayPage = () => {
     const breakpoint = parseInt(scssVariables.xl);

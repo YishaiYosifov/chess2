@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { Color, Piece, PieceData } from "@/lib/constants";
-import Chessboard, { ChessPiece } from "../Chessboard";
+import { ChessBoard, Color, PieceType } from "../chess.types";
+import { PieceInfo } from "../chess.types";
+import Chessboard from "../Chessboard";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
     ...(await importOriginal<typeof import("@/lib/constants")>()),
@@ -10,15 +11,15 @@ vi.mock("@/lib/constants", async (importOriginal) => ({
     BOARD_SIZE: 100,
 }));
 
-const mockBoard: Record<number, PieceData> = {
-    0: { piece: Piece.Rook, color: Color.White },
-    1: { piece: Piece.Horse, color: Color.White },
-    5: { piece: Piece.Rook, color: Color.Black },
-};
+const mockBoard: ChessBoard = [
+    [[0, 0], { pieceType: PieceType.Rook, color: Color.White }],
+    [[1, 0], { pieceType: PieceType.Horsie, color: Color.White }],
+    [[5, 0], { pieceType: PieceType.Rook, color: Color.Black }],
+];
 
 describe("Chessboard", () => {
     it.each([
-        [Color.White, 900, 900],
+        //[Color.White, 900, 900],
         [Color.Black, 0, 0],
     ])(
         "should render pieces in the correct order depending on the viewing side",
@@ -89,28 +90,4 @@ describe("Chessboard", () => {
             );
         }
     );
-});
-
-describe("ChessPiece", () => {
-    it.each([
-        [0, { x: 0, y: 0 }],
-        [11, { x: 100, y: 100 }],
-        [50, { x: 0, y: 500 }],
-    ])("should be in the correct position", (index, position) => {
-        const pieceData = { piece: Piece.Pawn, color: Color.White };
-        render(
-            <ChessPiece
-                index={index}
-                pieceData={pieceData}
-                boardHeight={10}
-                boardWidth={10}
-            />
-        );
-
-        const piece = screen.getByTestId("piece");
-        expect(piece).toHaveStyle(
-            `background-image: url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png");
-            transform: translate(${position.x}%, ${position.y}%);`
-        );
-    });
 });

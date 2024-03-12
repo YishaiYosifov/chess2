@@ -13,10 +13,10 @@ interface GameStart {
     token: string;
 }
 
-type WSEventMessageMap = {
+interface WSEventMessageMap {
     [WSEvent.Notification]: Notification;
     [WSEvent.GameStart]: GameStart;
-};
+}
 
 /**
  * a hook to listen for specific websocket events

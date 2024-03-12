@@ -2,16 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import {
-    BOARD_HEIGHT,
-    BOARD_WIDTH,
-    Color,
-    PieceData,
-    Variant,
-    defaultChessboard,
-} from "@/lib/constants";
+import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
+import { PieceInfo, Variant, Color, ChessBoard } from "./chess.types";
 import styles from "./Chessboard.module.scss";
-import useWebSocket from "react-use-websocket";
+import ChessPiece from "./ChessPiece";
 
 interface Breakpoint {
     widthBreakpoint: number;
@@ -34,7 +28,7 @@ interface Breakpoint {
 const Chessboard = ({
     variant = Variant.Anarchy,
     offsetBreakpoints = [],
-    startingBoard = defaultChessboard,
+    startingBoard = defaultChessBoard,
     boardHeight = BOARD_HEIGHT,
     boardWidth = BOARD_WIDTH,
     side = Color.White,
@@ -42,7 +36,7 @@ const Chessboard = ({
 }: {
     variant?: Variant;
     offsetBreakpoints?: Breakpoint[];
-    startingBoard?: Record<number, PieceData>;
+    startingBoard?: ChessBoard;
     boardWidth?: number;
     boardHeight?: number;
     fixed?: boolean;
@@ -99,18 +93,15 @@ const Chessboard = ({
                 height: `${boardSize}px`,
             }}
         >
-            {Object.entries(startingBoard).map(([i, pieceData]) => {
-                // Flip the board depending on which side you are viewing from
-                let numIndex = parseInt(i);
-                if (side == Color.White)
-                    numIndex = boardWidth * boardHeight - 1 - numIndex;
-
+            {startingBoard.map(([position, pieceInfo], i) => {
                 return (
                     <ChessPiece
-                        index={numIndex}
-                        pieceData={pieceData}
+                        position={position}
+                        pieceInfo={pieceInfo}
                         boardWidth={boardWidth}
                         boardHeight={boardHeight}
+                        fixed={fixed}
+                        side={side}
                         key={i}
                     />
                 );
@@ -120,31 +111,3 @@ const Chessboard = ({
 };
 
 export default Chessboard;
-
-export const ChessPiece = ({
-    index,
-    pieceData,
-    boardWidth,
-    boardHeight,
-}: {
-    index: number;
-    pieceData: PieceData;
-    boardWidth: number;
-    boardHeight: number;
-}) => {
-    const row = Math.floor(index / boardWidth);
-    const column = index % boardWidth;
-    const boardSize = boardWidth * boardHeight;
-    return (
-        <div
-            data-testid="piece"
-            className={styles.piece}
-            style={{
-                backgroundImage: `url("/assets/pieces/${pieceData.piece}-${pieceData.color}.png")`,
-                transform: `translate(${column * boardWidth * boardHeight}%, ${
-                    row * boardSize
-                }%)`,
-            }}
-        />
-    );
-};

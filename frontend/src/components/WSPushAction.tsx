@@ -10,8 +10,6 @@ const WSPushAction = () => {
 
     useEffect(() => {
         if (!gameStart) return;
-
-        console.log(gameStart);
         router.push(`/game/${gameStart.token}`);
     }, [gameStart, router]);
 
