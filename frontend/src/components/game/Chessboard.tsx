@@ -19,7 +19,6 @@ interface Breakpoint {
 /**
  * Display a chessboard
  *
- * @param variant - the variant of the game
  * @param offsetBreakpoints - the offset for each dimention of the screen.
  *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
  *  it will parse the width as 1420 before choosing the board size.
@@ -27,7 +26,6 @@ interface Breakpoint {
  * @returns
  */
 const Chessboard = ({
-    variant = Variant.Anarchy,
     offsetBreakpoints = [],
     startingPieces = defaultChessBoard,
     boardHeight = BOARD_HEIGHT,
@@ -35,7 +33,6 @@ const Chessboard = ({
     viewingFrom = Color.White,
     fixed = false,
 }: {
-    variant?: Variant;
     offsetBreakpoints?: Breakpoint[];
     startingPieces?: ChessBoard;
     boardWidth?: number;
@@ -102,16 +99,15 @@ const Chessboard = ({
                 height: `${boardSize}px`,
             }}
         >
-            <ChessProvider pieces={idPieces}>
+            <ChessProvider
+                pieces={idPieces}
+                viewingFrom={viewingFrom}
+                fixed={fixed}
+                boardWidth={boardWidth}
+                boardHeight={boardHeight}
+            >
                 {[...idPieces].map(([id]) => (
-                    <ChessPiece
-                        boardWidth={boardWidth}
-                        boardHeight={boardHeight}
-                        fixed={fixed}
-                        viewingFrom={viewingFrom}
-                        id={id}
-                        key={id}
-                    />
+                    <ChessPiece id={id} key={id} />
                 ))}
             </ChessProvider>
         </div>

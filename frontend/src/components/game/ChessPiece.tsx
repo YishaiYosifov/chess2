@@ -1,25 +1,14 @@
-import { Color } from "@/client";
-import styles from "./ChessPiece.module.scss";
 import { useChessStore } from "@/contexts/chessStoreContext";
+import styles from "./ChessPiece.module.scss";
 
-export const ChessPiece = ({
-    boardWidth,
-    boardHeight,
-    id,
-    fixed = false,
-    viewingFrom: side = Color.White,
-}: {
-    boardWidth: number;
-    boardHeight: number;
-    id: string;
-    fixed?: boolean;
-    viewingFrom?: Color;
-}) => {
+export const ChessPiece = ({ id }: { id: string }) => {
     const piece = useChessStore((state) => state.pieces.get(id));
     if (!piece) throw Error;
 
+    const boardWidth = useChessStore((state) => state.boardWidth);
+    const boardHeight = useChessStore((state) => state.boardHeight);
+
     const { position, pieceType, color } = piece;
-    if (side == Color.Black) position[1] = boardHeight - position[1] - 1;
 
     const boardSize = boardWidth * boardHeight;
     const [x, y] = position;
