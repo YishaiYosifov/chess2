@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import { PieceInfo, Variant, Color, ChessBoard } from "./chess.types";
+import { Variant, Color, ChessBoard, Piece } from "./chess.types";
 import styles from "./Chessboard.module.scss";
 import ChessPiece from "./ChessPiece";
+import { ChessProvider } from "@/contexts/chessStoreContext";
 
 interface Breakpoint {
     widthBreakpoint: number;
@@ -21,26 +22,26 @@ interface Breakpoint {
  * @param variant - the variant of the game
  * @param offsetBreakpoints - the offset for each dimention of the screen.
  *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
- *  it will parse the width as 1420 before choosing the board size
- * The largest width breakpoint will be used for any screen size larger than it.
+ *  it will parse the width as 1420 before choosing the board size.
+ *  The largest width breakpoint will be used for any screen size larger than it.
  * @returns
  */
 const Chessboard = ({
     variant = Variant.Anarchy,
     offsetBreakpoints = [],
-    startingBoard = defaultChessBoard,
+    startingPieces = defaultChessBoard,
     boardHeight = BOARD_HEIGHT,
     boardWidth = BOARD_WIDTH,
-    side = Color.White,
+    viewingFrom = Color.White,
     fixed = false,
 }: {
     variant?: Variant;
     offsetBreakpoints?: Breakpoint[];
-    startingBoard?: ChessBoard;
+    startingPieces?: ChessBoard;
     boardWidth?: number;
     boardHeight?: number;
     fixed?: boolean;
-    side?: Color;
+    viewingFrom?: Color;
 }) => {
     const [boardSize, setBoardSize] = useState<number>(0);
 
@@ -53,36 +54,44 @@ const Chessboard = ({
         [offsetBreakpoints]
     );
 
-    /**
-     * Calculate the width and height offset based on the offsetBreakpoints param and window width
-     */
-    function calculateOffset(): { width: number; height: number } {
-        const width = window.innerWidth;
-        for (const { widthBreakpoint, offset } of sortedBreakpoints) {
-            if (widthBreakpoint > width) return offset;
+    useEffect(() => {
+        /**
+         * Calculate the width and height offset based on the offsetBreakpoints param and window width
+         */
+        function calculateOffset(): { width: number; height: number } {
+            const width = window.innerWidth;
+            for (const { widthBreakpoint, offset } of sortedBreakpoints) {
+                if (widthBreakpoint > width) return offset;
+            }
+
+            return sortedBreakpoints.at(-1)?.offset || { width: 0, height: 0 };
         }
 
-        return offsetBreakpoints.at(-1)?.offset || { width: 0, height: 0 };
-    }
+        /**
+         * Set the board size based on the viewport size and the offset
+         */
+        function resizeBoard(): void {
+            const { width: offsetWidth, height: offsetHeight } =
+                calculateOffset();
+            const width = window.innerWidth - offsetWidth;
+            const height = window.innerHeight - offsetHeight;
 
-    /**
-     * Set the board size based on the viewport size and the offset
-     */
-    function resizeBoard(): void {
-        const { width: offsetWidth, height: offsetHeight } = calculateOffset();
-        const width = window.innerWidth - offsetWidth;
-        const height = window.innerHeight - offsetHeight;
+            const minSize = Math.min(width, height);
+            setBoardSize(minSize);
+        }
 
-        const minSize = Math.min(width, height);
-        setBoardSize(minSize);
-    }
-
-    useEffect(() => {
         window.addEventListener("resize", resizeBoard);
         resizeBoard();
 
         return () => window.removeEventListener("resize", resizeBoard);
-    }, []);
+    }, [sortedBreakpoints]);
+
+    const idPieces = useMemo(() => {
+        const idBoard = new Map<string, Piece>();
+        startingPieces.forEach((piece, i) => idBoard.set(i.toString(), piece));
+
+        return idBoard;
+    }, [startingPieces]);
 
     return (
         <div
@@ -93,19 +102,18 @@ const Chessboard = ({
                 height: `${boardSize}px`,
             }}
         >
-            {startingBoard.map(([position, pieceInfo], i) => {
-                return (
+            <ChessProvider pieces={idPieces}>
+                {[...idPieces].map(([id]) => (
                     <ChessPiece
-                        position={position}
-                        pieceInfo={pieceInfo}
                         boardWidth={boardWidth}
                         boardHeight={boardHeight}
                         fixed={fixed}
-                        side={side}
-                        key={i}
+                        viewingFrom={viewingFrom}
+                        id={id}
+                        key={id}
                     />
-                );
-            })}
+                ))}
+            </ChessProvider>
         </div>
     );
 };

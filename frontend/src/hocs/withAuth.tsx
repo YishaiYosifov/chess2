@@ -15,12 +15,10 @@ const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
         try {
             const profile = await profileApi.getInfoSensitive(
                 {},
-                {
-                    cache: "no-cache",
-                }
+                { cache: "no-cache" }
             );
             return (
-                <AuthContextProvider profile={profile}>
+                <AuthContextProvider hasAuthCookies={true} profile={profile}>
                     <WrappedComponent {...props} profile={profile} />
                 </AuthContextProvider>
             );
