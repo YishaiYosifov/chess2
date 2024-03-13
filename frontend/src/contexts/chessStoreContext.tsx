@@ -4,19 +4,17 @@ import { ReactNode, createContext, useContext, useRef } from "react";
 import { type StoreApi, useStore } from "zustand";
 
 import { type ChessStore, createChessStore } from "@/stores/chessStore";
-import { Piece } from "@/components/game/chess.types";
 
 const ChessStoreContext = createContext<StoreApi<ChessStore> | null>(null);
 
 export const ChessProvider = ({
-    pieces,
     children,
+    ...state
 }: {
-    pieces: Map<string, Piece>;
     children: ReactNode;
-}) => {
+} & Partial<ChessStore>) => {
     const storeRef = useRef<StoreApi<ChessStore>>();
-    if (!storeRef.current) storeRef.current = createChessStore({ pieces });
+    if (!storeRef.current) storeRef.current = createChessStore(state);
 
     return (
         <ChessStoreContext.Provider value={storeRef.current}>
