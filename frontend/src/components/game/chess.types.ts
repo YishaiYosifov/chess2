@@ -1,5 +1,3 @@
-export type Point = [x: number, y: number];
-
 export enum PieceType {
     King = "k",
     Queen = "q",
@@ -19,12 +17,15 @@ export enum Color {
     Black = "black",
 }
 
-export interface PieceInfo {
+export type Point = [x: number, y: number];
+
+export interface Piece {
+    position: Point;
     pieceType: PieceType;
     color: Color;
 }
 
-export type ChessBoard = [Point, PieceInfo][];
+export type ChessBoard = Piece[];
 
 export enum Variant {
     Anarchy = "anarchy",

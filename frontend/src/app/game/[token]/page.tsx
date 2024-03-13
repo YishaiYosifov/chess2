@@ -8,7 +8,7 @@ const GamePage = async ({
 }: {
     params: { token: string };
 }) => {
-    console.log(await liveGameApi.getLiveGame({ token }));
+    //console.log(await liveGameApi.getLiveGame({ token }));
     return <Chessboard />;
 };
 export default GamePage;
