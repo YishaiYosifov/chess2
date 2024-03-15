@@ -1,5 +1,6 @@
 import { useChessStore } from "@/contexts/chessStoreContext";
 import styles from "./ChessPiece.module.scss";
+import { memo } from "react";
 
 export const ChessPiece = ({ id }: { id: string }) => {
     const piece = useChessStore((state) => state.pieces.get(id));
@@ -35,4 +36,4 @@ export const ChessPiece = ({ id }: { id: string }) => {
     );
 };
 
-export default ChessPiece;
+export default memo(ChessPiece);
