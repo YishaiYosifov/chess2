@@ -1,14 +1,12 @@
-import { useChessStore } from "@/contexts/chessStoreContext";
-import styles from "./ChessPiece.module.scss";
 import { memo } from "react";
 
-export const ChessPiece = ({ id }: { id: string }) => {
-    const piece = useChessStore((state) => state.pieces.get(id));
-    if (!piece) throw Error;
+import { useBoardSize, usePiece } from "@/hooks/useChess";
+import styles from "./ChessPiece.module.scss";
 
-    const boardWidth = useChessStore((state) => state.boardWidth);
-    const boardHeight = useChessStore((state) => state.boardHeight);
-    const movePiece = useChessStore((state) => state.movePiece);
+export const ChessPiece = ({ id }: { id: string }) => {
+    const piece = usePiece(id);
+    const [boardWidth, boardHeight] = useBoardSize();
+    if (!piece) return;
 
     const { position, pieceType, color } = piece;
 
@@ -22,12 +20,6 @@ export const ChessPiece = ({ id }: { id: string }) => {
         <div
             data-testid="piece"
             className={styles.piece}
-            onClick={() =>
-                movePiece(position, [
-                    Math.floor(Math.random() * 10),
-                    Math.floor(Math.random() * 10),
-                ])
-            }
             style={{
                 backgroundImage: `url("/assets/pieces/${pieceType}-${color}.png")`,
                 transform: `translate(${physicalX}%, ${physicalY}%)`,
