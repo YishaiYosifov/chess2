@@ -8,6 +8,7 @@ import styles from "./Chessboard.module.scss";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "./ChessPiece";
+import PieceRenderer from "./PieceRenderer";
 
 interface Breakpoint {
     widthBreakpoint: number;
@@ -107,9 +108,7 @@ const Chessboard = ({
                 boardWidth={boardWidth}
                 boardHeight={boardHeight}
             >
-                {[...idPieces].map(([id]) => (
-                    <ChessPiece id={id} key={id} />
-                ))}
+                <PieceRenderer />
             </ChessProvider>
         </div>
     );
