@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import { Variant, Color, ChessBoard, Piece } from "./chess.types";
+import { Color, ChessBoard, Piece } from "./chess.types";
 import styles from "./Chessboard.module.scss";
-import ChessPiece from "./ChessPiece";
+
 import { ChessProvider } from "@/contexts/chessStoreContext";
+import ChessPiece from "./ChessPiece";
 
 interface Breakpoint {
     widthBreakpoint: number;
@@ -43,7 +44,7 @@ const Chessboard = ({
     const [boardSize, setBoardSize] = useState<number>(0);
 
     // Sort the offset breakpoints in ascending order
-    const sortedBreakpoints = useMemo<Breakpoint[]>(
+    const sortedBreakpoints = useMemo(
         () =>
             offsetBreakpoints.sort(
                 (a, b) => a.widthBreakpoint - b.widthBreakpoint
