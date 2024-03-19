@@ -8,15 +8,15 @@ describe("ChessPiece", () => {
     it.each([
         [
             [0, 0],
-            [0, 0],
+            [900, 900],
         ],
         [
             [1, 1],
-            [100, 100],
+            [800, 800],
         ],
         [
             [0, 5],
-            [0, 500],
+            [900, 400],
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
         const pieceInfo: Piece = {
