@@ -5,12 +5,12 @@ import { ChessStoreContext } from "@/contexts/chessStoreContext";
 import { type ChessStore } from "@/stores/chessStore";
 
 export function useChessStore<T>(selector: (store: ChessStore) => T): T {
-    const counterStoreContext = useContext(ChessStoreContext);
+    const chessStoreContext = useContext(ChessStoreContext);
 
-    if (!counterStoreContext)
-        throw new Error(`useCounterStore must be use within ChessProvider`);
+    if (!chessStoreContext)
+        throw new Error("useChessStore must be use within ChessProvider");
 
-    return useStore(counterStoreContext, selector);
+    return useStore(chessStoreContext, selector);
 }
 
 export const usePieces = () => useChessStore((state) => state.pieces);

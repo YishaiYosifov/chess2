@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import { Color, ChessBoard, Piece } from "./chess.types";
+import { Color, PieceMap } from "./chess.types";
 import styles from "./Chessboard.module.scss";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
-import ChessPiece from "./ChessPiece";
 import PieceRenderer from "./PieceRenderer";
 
 interface Breakpoint {
@@ -25,7 +24,6 @@ interface Breakpoint {
  *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
  *  it will parse the width as 1420 before choosing the board size.
  *  The largest width breakpoint will be used for any screen size larger than it.
- * @returns
  */
 const Chessboard = ({
     offsetBreakpoints = [],
@@ -36,7 +34,7 @@ const Chessboard = ({
     fixed = false,
 }: {
     offsetBreakpoints?: Breakpoint[];
-    startingPieces?: ChessBoard;
+    startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
     fixed?: boolean;
@@ -85,13 +83,6 @@ const Chessboard = ({
         return () => window.removeEventListener("resize", resizeBoard);
     }, [sortedBreakpoints]);
 
-    const idPieces = useMemo(() => {
-        const idBoard = new Map<string, Piece>();
-        startingPieces.forEach((piece, i) => idBoard.set(i.toString(), piece));
-
-        return idBoard;
-    }, [startingPieces]);
-
     return (
         <div
             data-testid="chessboard"
@@ -102,7 +93,7 @@ const Chessboard = ({
             }}
         >
             <ChessProvider
-                pieces={idPieces}
+                pieces={startingPieces}
                 viewingFrom={viewingFrom}
                 fixed={fixed}
                 boardWidth={boardWidth}

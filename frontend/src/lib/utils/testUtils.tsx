@@ -38,7 +38,6 @@ export function submitForm(): void {
  * @param ui - the element to render
  * @param contextOptions - what to pass to the context provider
  * @param renderOptions - options to pass to the render function
- * @returns
  */
 export function renderWithAuthContext(
     ui: ReactElement,
