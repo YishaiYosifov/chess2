@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { ChessBoard, Color, PieceType } from "../chess.types";
-import { PieceInfo } from "../chess.types";
+import { PieceMap, Color, PieceType } from "../chess.types";
 import Chessboard from "../Chessboard";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
@@ -11,11 +10,32 @@ vi.mock("@/lib/constants", async (importOriginal) => ({
     BOARD_SIZE: 100,
 }));
 
-const mockBoard: ChessBoard = [
-    [[0, 0], { pieceType: PieceType.Rook, color: Color.White }],
-    [[1, 0], { pieceType: PieceType.Horsie, color: Color.White }],
-    [[5, 0], { pieceType: PieceType.Rook, color: Color.Black }],
-];
+const mockBoard: PieceMap = new Map([
+    [
+        "1",
+        {
+            position: [0, 0],
+            pieceType: PieceType.Rook,
+            color: Color.White,
+        },
+    ],
+    [
+        "2",
+        {
+            position: [1, 0],
+            pieceType: PieceType.Horsie,
+            color: Color.White,
+        },
+    ],
+    [
+        "3",
+        {
+            position: [5, 0],
+            pieceType: PieceType.Rook,
+            color: Color.Black,
+        },
+    ],
+]);
 
 describe("Chessboard", () => {
     it.each([

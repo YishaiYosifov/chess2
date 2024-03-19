@@ -25,7 +25,7 @@ export interface Piece {
     color: Color;
 }
 
-export type ChessBoard = Piece[];
+export type PieceMap = Map<string, Piece>;
 
 export enum Variant {
     Anarchy = "anarchy",

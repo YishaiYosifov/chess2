@@ -1,5 +1,4 @@
 import scssVariables from "@/styles/variables.module.scss";
-import { Variant } from "@/components/game/chess.types";
 import styles from "./play.module.scss";
 
 import PlayOptions from "@/components/play/PlayOptions";
@@ -10,7 +9,6 @@ const PlayPage = () => {
     return (
         <div className={styles.container}>
             <Chessboard
-                variant={Variant.Anarchy}
                 offsetBreakpoints={[
                     {
                         widthBreakpoint: breakpoint,

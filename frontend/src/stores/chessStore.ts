@@ -2,7 +2,11 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 
-import { type Point, type Piece, Color } from "@/components/game/chess.types";
+import {
+    type Point,
+    type PieceMap,
+    Color,
+} from "@/components/game/chess.types";
 import constants from "@/lib/constants";
 import { enableMapSet } from "immer";
 
@@ -12,7 +16,7 @@ export interface ChessStore {
     boardHeight: number;
     fixed: boolean;
 
-    pieces: Map<string, Piece>;
+    pieces: PieceMap;
     highlighted: Point[];
 
     legalMoves: Point[];
@@ -42,7 +46,13 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
             ...defaultState,
             ...initState,
 
-            movePiece(from, to) {
+            /**
+             * Move a piece from one position to another
+             *
+             * @param from - the current position of the piece
+             * @param to - the new position of the piece
+             */
+            movePiece(from: Point, to: Point): void {
                 const pieceId = get().position2Id(from);
                 if (!pieceId) return;
 
@@ -51,6 +61,12 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
             },
 
+            /**
+             * Find the id of the piece that is at a certain position
+             *
+             * @param position - the position to convert to piece id
+             * @returns the id of the piece if it was found, undefined otherwise
+             */
             position2Id(position: Point): string | undefined {
                 const pieces = get().pieces;
                 for (const [id, piece] of pieces) {

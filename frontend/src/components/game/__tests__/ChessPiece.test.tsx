@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 
-import { Color, PieceInfo, PieceType, Point } from "../chess.types";
+import { Color, PieceMap, PieceType, Piece, Point } from "../chess.types";
 import ChessPiece from "../ChessPiece";
+import { ChessProvider } from "@/contexts/chessStoreContext";
 
 describe("ChessPiece", () => {
     it.each([
@@ -18,17 +19,17 @@ describe("ChessPiece", () => {
             [0, 500],
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
-        const pieceInfo: PieceInfo = {
+        const pieceInfo: Piece = {
+            position: position as Point,
             pieceType: PieceType.Pawn,
             color: Color.White,
         };
+        const pieces: PieceMap = new Map([["0", pieceInfo]]);
+
         render(
-            <ChessPiece
-                position={position as Point}
-                pieceInfo={pieceInfo}
-                boardHeight={10}
-                boardWidth={10}
-            />
+            <ChessProvider pieces={pieces}>
+                <ChessPiece id="0" />
+            </ChessProvider>
         );
 
         const piece = screen.getByTestId("piece");
