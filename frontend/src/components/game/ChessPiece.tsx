@@ -1,11 +1,6 @@
 import { memo } from "react";
 
-import {
-    useBoardSize,
-    useChessStore,
-    usePiece,
-    useViewingFrom,
-} from "@/hooks/useChess";
+import { useBoardSize, usePiece, useViewingFrom } from "@/hooks/useChess";
 import styles from "./ChessPiece.module.scss";
 import { Color } from "./chess.types";
 

@@ -1,4 +1,4 @@
-import { Color, type PieceMap, PieceType } from "@/components/game/chess.types";
+import { type PieceMap, PieceType, Color } from "@/components/game/chess.types";
 
 export const USERNAME_EDIT_EVERY = 2419200;
 
