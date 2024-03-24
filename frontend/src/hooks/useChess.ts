@@ -22,5 +22,3 @@ export const useBoardSize = (): [boardWidth: number, boardHeight: number] => [
     useChessStore((state) => state.boardWidth),
     useChessStore((state) => state.boardHeight),
 ];
-
-export const useViewingFrom = () => useChessStore((state) => state.viewingFrom);

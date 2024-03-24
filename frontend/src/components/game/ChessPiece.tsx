@@ -1,16 +1,25 @@
-import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
+import {
+    memo,
+    useRef,
+    useState,
+    MouseEvent as ReactMouseEvent,
+    TouchEvent as ReactTouchEvent,
+} from "react";
 
-import { useBoardSize, usePiece, useViewingFrom } from "@/hooks/useChess";
+import { useBoardSize, useChessStore, usePiece } from "@/hooks/useChess";
 import styles from "./ChessPiece.module.scss";
 import { Color, Point } from "./chess.types";
 
 export const ChessPiece = ({ id }: { id: string }) => {
+    const pieceRef = useRef<HTMLDivElement>(null);
+    const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
+
     const piece = usePiece(id);
     const [boardWidth, boardHeight] = useBoardSize();
-    const viewingFrom = useViewingFrom();
-    const pieceRef = useRef<HTMLDivElement>(null);
 
-    const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
+    const isFixed = useChessStore((state) => state.fixed);
+    const playingSide = useChessStore((state) => state.playingSide);
+    const viewingFrom = useChessStore((state) => state.viewingFrom);
 
     if (!piece) return;
 
@@ -19,44 +28,47 @@ export const ChessPiece = ({ id }: { id: string }) => {
     const boardSize = boardWidth * boardHeight;
     let [x, y] = position;
 
-    // flip the board if we are viewing from the white prespective
-    if (viewingFrom == Color.White)
+    // flip the board if we are viewing from the black prespective
+    if (viewingFrom == Color.Black)
         [x, y] = [boardWidth - x - 1, boardHeight - y - 1];
 
     const physicalX = x * boardWidth * boardHeight;
     const physicalY = y * boardSize;
 
-    /**
-     * Start piece dragging
-     */
     function startDragging(event: ReactMouseEvent): void {
-        // calculate the initial starting position
+        const canDrag = !isFixed && playingSide == color;
+        if (!canDrag) return;
 
+        // calculate the dragging offset
         // snap the center of the piece to the mouse when dragging start
         const rect = pieceRef.current!.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
 
-        const startX = event.clientX + (centerX - event.clientX);
-        const startY = event.clientY + (centerY - event.clientY);
+        const offsetX = event.clientX + (centerX - event.clientX);
+        const offsetY = event.clientY + (centerY - event.clientY);
 
-        // calculate the new offset when the mouse moves
-        function handleMouseMove(event: MouseEvent): void {
-            const x = event.clientX - startX;
-            const y = event.clientY - startY;
+        function updateDraggingOffset(mouseX: number, mouseY: number): void {
+            const x = mouseX - offsetX;
+            const y = mouseY - offsetY;
             setDraggingOffset([x, y]);
         }
 
+        // calculate the new offset when the mouse moves
+        const handleMove = (event: MouseEvent) =>
+            updateDraggingOffset(event.clientX, event.clientY);
+
         // reset the event listeners and the dragging offset
-        function stopDragging() {
+        function stopDragging(): void {
             setDraggingOffset([0, 0]);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseup", stopDragging);
+            window.removeEventListener("pointermove", handleMove);
+            window.removeEventListener("pointerup", stopDragging);
         }
 
         // add event listeners for mouse movement and release
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseup", stopDragging);
+        window.addEventListener("pointermove", handleMove);
+        window.addEventListener("pointerup", stopDragging);
+        updateDraggingOffset(event.clientX, event.clientY);
     }
 
     return (
@@ -64,7 +76,7 @@ export const ChessPiece = ({ id }: { id: string }) => {
             data-testid="piece"
             className={styles.piece}
             ref={pieceRef}
-            onMouseDown={startDragging}
+            onPointerDown={startDragging}
             style={{
                 backgroundImage: `url("/assets/pieces/${pieceType}-${color}.png")`,
                 transform: `translate(${physicalX}%, ${physicalY}%)`,
