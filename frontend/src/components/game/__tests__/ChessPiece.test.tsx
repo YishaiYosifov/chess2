@@ -1,22 +1,22 @@
 import { render, screen } from "@testing-library/react";
 
 import { Color, PieceMap, PieceType, Piece, Point } from "../chess.types";
-import ChessPiece from "../ChessPiece";
 import { ChessProvider } from "@/contexts/chessStoreContext";
+import ChessPiece from "../ChessPiece";
 
 describe("ChessPiece", () => {
     it.each([
         [
             [0, 0],
-            [900, 900],
+            [0, 0],
         ],
         [
             [1, 1],
-            [800, 800],
+            [100, 100],
         ],
         [
             [0, 5],
-            [900, 400],
+            [0, 500],
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
         const pieceInfo: Piece = {

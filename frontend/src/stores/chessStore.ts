@@ -12,6 +12,7 @@ import { enableMapSet } from "immer";
 
 export interface ChessStore {
     viewingFrom: Color;
+    playingSide: Color;
     boardWidth: number;
     boardHeight: number;
     fixed: boolean;
@@ -28,6 +29,7 @@ export interface ChessStore {
 
 const defaultState = {
     viewingFrom: Color.White,
+    playingSide: Color.White,
     boardWidth: constants.BOARD_WIDTH,
     boardHeight: constants.BOARD_HEIGHT,
     fixed: false,
