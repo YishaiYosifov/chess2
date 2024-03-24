@@ -30,9 +30,15 @@ export const ChessPiece = ({ id }: { id: string }) => {
      * Start piece dragging
      */
     function startDragging(event: ReactMouseEvent): void {
-        // calculate the initial position relative to the mouse
-        const startX = event.clientX;
-        const startY = event.clientY;
+        // calculate the initial starting position
+
+        // snap the center of the piece to the mouse when dragging start
+        const rect = pieceRef.current!.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const startX = event.clientX + (centerX - event.clientX);
+        const startY = event.clientY + (centerY - event.clientY);
 
         // calculate the new offset when the mouse moves
         function handleMouseMove(event: MouseEvent): void {
