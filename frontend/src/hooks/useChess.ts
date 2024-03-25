@@ -14,6 +14,8 @@ export function useChessStore<T>(selector: (store: ChessStore) => T): T {
 }
 
 export const usePieces = () => useChessStore((state) => state.pieces);
+export const useHighlightedLegalMoves = () =>
+    useChessStore((state) => state.highlightedLegalMoves);
 
 export const usePiece = (pieceId: string) =>
     useChessStore((state) => state.pieces.get(pieceId));
