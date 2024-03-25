@@ -1,14 +1,9 @@
-import {
-    memo,
-    useRef,
-    useState,
-    MouseEvent as ReactMouseEvent,
-    TouchEvent as ReactTouchEvent,
-} from "react";
+import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
 import { useBoardSize, useChessStore, usePiece } from "@/hooks/useChess";
+import { position2Offset } from "@/lib/utils/chessUtils";
 import styles from "./ChessPiece.module.scss";
-import { Color, Point } from "./chess.types";
+import { type Point } from "./chess.types";
 
 export const ChessPiece = ({ id }: { id: string }) => {
     const pieceRef = useRef<HTMLDivElement>(null);
@@ -24,16 +19,12 @@ export const ChessPiece = ({ id }: { id: string }) => {
     if (!piece) return;
 
     const { position, pieceType, color } = piece;
-
-    const boardSize = boardWidth * boardHeight;
-    let [x, y] = position;
-
-    // flip the board if we are viewing from the black prespective
-    if (viewingFrom == Color.Black)
-        [x, y] = [boardWidth - x - 1, boardHeight - y - 1];
-
-    const physicalX = x * boardWidth * boardHeight;
-    const physicalY = y * boardSize;
+    const [physicalX, physicalY] = position2Offset(
+        position,
+        viewingFrom,
+        boardWidth,
+        boardHeight
+    );
 
     function startDragging(event: ReactMouseEvent): void {
         const canDrag = !isFixed && playingSide == color;

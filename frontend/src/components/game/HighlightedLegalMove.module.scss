@@ -1,0 +1,14 @@
+.highlightedLegalMove {
+    height: 10%;
+    width: 10%;
+    position: absolute;
+
+    background: radial-gradient(rgba(0, 0, 0, 0.25) 20%, rgba(0, 0, 0, 0) 23%);
+    background-size: 100% 100%;
+    background-position: center;
+
+    transition: all 0.1s ease-out;
+    &:hover {
+        background-size: 140% 140%;
+    }
+}
