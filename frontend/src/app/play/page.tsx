@@ -4,6 +4,8 @@ import styles from "./play.module.scss";
 import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/game/Chessboard";
 
+export const metadata = { title: "Play - Chess 2" };
+
 const PlayPage = () => {
     const breakpoint = parseInt(scssVariables.xl);
     return (
