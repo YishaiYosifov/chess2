@@ -20,11 +20,12 @@ export interface ChessStore {
     pieces: PieceMap;
     highlighted: Point[];
 
-    legalMoves: Point[];
+    legalMoves: Map<string, Point[]>;
     highlightedLegalMoves: Point[];
 
     movePiece(from: Point, to: Point): void;
     position2Id(position: Point): string | undefined;
+    showLegalMoves(pieceId: string): void;
 }
 
 const defaultState = {
@@ -37,7 +38,7 @@ const defaultState = {
     pieces: new Map(),
     highlighted: [],
 
-    legalMoves: [],
+    legalMoves: new Map(),
     highlightedLegalMoves: [],
 };
 
@@ -78,6 +79,21 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     )
                         return id;
                 }
+            },
+
+            /**
+             * Highlight the legal moves of a piece
+             *
+             * @param pieceId - the id of the piece to highlight moves for
+             */
+            showLegalMoves(pieceId: string): void {
+                const { legalMoves } = get();
+                let toHighlight = legalMoves.get(pieceId);
+                toHighlight ??= [];
+
+                set((state) => {
+                    state.highlightedLegalMoves = toHighlight;
+                });
             },
         })),
         shallow

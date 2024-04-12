@@ -16,6 +16,8 @@ export const ChessPiece = ({ id }: { id: string }) => {
     const playingSide = useChessStore((state) => state.playingSide);
     const viewingFrom = useChessStore((state) => state.viewingFrom);
 
+    const showLegalMoves = useChessStore((state) => state.showLegalMoves);
+
     if (!piece) return;
 
     const { position, pieceType, color } = piece;
@@ -67,7 +69,10 @@ export const ChessPiece = ({ id }: { id: string }) => {
             data-testid="piece"
             className={styles.piece}
             ref={pieceRef}
-            onPointerDown={startDragging}
+            onPointerDown={(event) => {
+                showLegalMoves(id);
+                startDragging(event);
+            }}
             style={{
                 backgroundImage: `url("/assets/pieces/${pieceType}-${color}.png")`,
                 transform: `translate(${physicalX}%, ${physicalY}%)`,

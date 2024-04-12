@@ -44,12 +44,12 @@ describe("ChessPiece", () => {
     ])("should be in the correct position", (position, physicalPosition) => {
         const { pieceInfo, piece } = renderPiece(position as Point);
 
-        expect(piece).toHaveStyle(
-            `background-image: url("/assets/pieces/${pieceInfo.pieceType}-${pieceInfo.color}.png");
+        expect(piece).toHaveStyle(`
+            background-image: url("/assets/pieces/${pieceInfo.pieceType}-${pieceInfo.color}.png");
             transform: translate(${physicalPosition[0]}%, ${physicalPosition[1]}%);
             left: 0px;
-            top: 0px`
-        );
+            top: 0px
+        `);
     });
 
     it("should snap to the mouse when clicked", async () => {
