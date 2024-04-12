@@ -1,32 +1,24 @@
 import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
-import { useBoardSize, useChessStore, usePiece } from "@/hooks/useChess";
-import { position2Offset } from "@/lib/utils/chessUtils";
+import { useChessStore, usePiece } from "@/hooks/useChess";
 import styles from "./ChessPiece.module.scss";
 import { type Point } from "./chess.types";
+import ChessSquare from "./ChessSquare";
 
 export const ChessPiece = ({ id }: { id: string }) => {
     const pieceRef = useRef<HTMLDivElement>(null);
     const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
 
     const piece = usePiece(id);
-    const [boardWidth, boardHeight] = useBoardSize();
 
     const isFixed = useChessStore((state) => state.fixed);
     const playingSide = useChessStore((state) => state.playingSide);
-    const viewingFrom = useChessStore((state) => state.viewingFrom);
 
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
 
     if (!piece) return;
 
     const { position, pieceType, color } = piece;
-    const [physicalX, physicalY] = position2Offset(
-        position,
-        viewingFrom,
-        boardWidth,
-        boardHeight
-    );
 
     function startDragging(event: ReactMouseEvent): void {
         const canDrag = !isFixed && playingSide == color;
@@ -65,8 +57,9 @@ export const ChessPiece = ({ id }: { id: string }) => {
     }
 
     return (
-        <div
+        <ChessSquare
             data-testid="piece"
+            position={position}
             className={styles.piece}
             ref={pieceRef}
             onPointerDown={(event) => {
@@ -75,7 +68,6 @@ export const ChessPiece = ({ id }: { id: string }) => {
             }}
             style={{
                 backgroundImage: `url("/assets/pieces/${pieceType}-${color}.png")`,
-                transform: `translate(${physicalX}%, ${physicalY}%)`,
                 left: draggingOffset[0],
                 top: draggingOffset[1],
             }}
