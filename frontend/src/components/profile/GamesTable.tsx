@@ -2,7 +2,7 @@
 
 import { Table } from "react-bootstrap";
 
-import type { FinishedGame, AuthedProfileOut } from "@/client";
+import type { FinishedGame, AuthedProfileOut } from "@/apiClient";
 import styles from "./GamesTable.module.scss";
 
 import GameRow from "./GameRow";

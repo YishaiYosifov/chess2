@@ -1,8 +1,10 @@
-import { ResponseError } from "@/client";
-import Chessboard from "@/components/game/Chessboard";
-import { liveGameApi } from "@/lib/apis";
-import { parseFen } from "@/lib/utils/chessUtils";
 import { notFound } from "next/navigation";
+
+import { parseFen } from "@/lib/utils/chessUtils";
+import { ResponseError } from "@/apiClient";
+import { liveGameApi } from "@/lib/apis";
+
+import Chessboard from "@/components/game/Chessboard";
 
 export const metadata = { title: "Live Game - Chess 2" };
 

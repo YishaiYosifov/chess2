@@ -95,6 +95,7 @@ const exported = {
     LAST_LOGIN_LOCAL_STORAGE,
     GENERIC_ERROR,
     SETTING_PAGES,
+    TIME_CONTROLS,
     defaultChessBoard,
 };
 export default exported;

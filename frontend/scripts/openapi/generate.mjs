@@ -20,7 +20,11 @@ async function processOpenapiContent(openapiContent) {
     return openapiContent;
 }
 
-async function generateClient() {
+async function generateClient({
+    outputFolder,
+    template,
+    additionalProperties,
+}) {
     const openapiContent = await processOpenapiContent(
         await getOpenapiContent()
     );
@@ -29,15 +33,26 @@ async function generateClient() {
         JSON.stringify(openapiContent)
     );
 
-    if (existsSync("./src/client")) rmSync("./src/client", { recursive: true });
+    if (existsSync(outputFolder)) rmSync(outputFolder, { recursive: true });
+    const additionalPropertiesFormatted = Object.entries(additionalProperties)
+        .map(([property, value]) => `${property}=${value}`)
+        .join(",");
 
     execSync(
         "npx openapi-generator-cli generate " +
             "-i ./scripts/openapi/openapi.json " +
             "-g typescript-fetch " +
-            "-o ./src/client " +
-            "--additional-properties=stringEnums=true"
+            `-t ${template} ` +
+            `-o  ${outputFolder} ` +
+            `--additional-properties=${additionalPropertiesFormatted}`
     );
 }
 
-generateClient();
+generateClient({
+    outputFolder: "./src/apiClient",
+    template: "openapiTemplate",
+    additionalProperties: {
+        stringEnums: true,
+        supportsES6: true,
+    },
+});

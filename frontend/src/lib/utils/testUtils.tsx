@@ -8,7 +8,7 @@ import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
 import { AuthContext, AuthContextInterface } from "@/contexts/authContext";
-import { ResponseError } from "@/client";
+import { ResponseError } from "@/apiClient";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 

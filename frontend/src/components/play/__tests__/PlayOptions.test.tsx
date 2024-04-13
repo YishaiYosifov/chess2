@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 
-import { TIME_CONTROLS } from "@/lib/constants";
-import PlayOptions from "../PlayOptions";
-import { Variant } from "@/client";
-import { gameRequestApi } from "@/lib/apis";
-import { Mock } from "vitest";
 import { mockRouter } from "@/mockUtils/mockRouter";
+import { TIME_CONTROLS } from "@/lib/constants";
+import { gameRequestApi } from "@/lib/apis";
+import PlayOptions from "../PlayOptions";
+import { Variant } from "@/apiClient";
+import { Mock } from "vitest";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
     ...(await importOriginal<typeof import("@/lib/constants")>()),

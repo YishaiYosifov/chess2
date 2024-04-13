@@ -4,9 +4,12 @@ import Link from "next/link";
 
 import styles from "./GameRow.module.scss";
 
-import type { AuthedProfileOut, FinishedGame } from "@/client";
+import {
+    type AuthedProfileOut,
+    type FinishedGame,
+    GameResult,
+} from "@/apiClient";
 import { Color } from "@/components/game/chess.types";
-import { GameResult } from "@/client";
 
 const GameRow = ({
     game,
