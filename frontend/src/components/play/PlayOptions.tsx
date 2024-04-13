@@ -9,7 +9,7 @@ import { useState } from "react";
 import constants, { TIME_CONTROLS } from "@/lib/constants";
 import styles from "./PlayOptions.module.scss";
 import { gameRequestApi } from "@/lib/apis";
-import { Variant } from "@/client";
+import { Variant } from "@/apiClient";
 
 interface TimeControl {
     timeControl: number;

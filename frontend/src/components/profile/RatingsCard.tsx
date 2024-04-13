@@ -4,8 +4,8 @@ import { Chart } from "react-google-charts";
 import { Card } from "react-bootstrap";
 import Image from "next/image";
 
+import type { RatingOverview } from "@/apiClient";
 import styles from "./RatingsCard.module.scss";
-import type { RatingOverview } from "@/client";
 
 const RatingCard = ({
     variant,

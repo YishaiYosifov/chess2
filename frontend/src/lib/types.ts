@@ -1,6 +1,6 @@
 import type { FormikHelpers } from "formik";
 
-import type { RatingOverview } from "@/client";
+import type { RatingOverview } from "@/apiClient";
 
 export type RatingMap = { [key: string]: RatingOverview };
 export type FormikOnSubmit<V> = (values: V, helpers: FormikHelpers<V>) => void;

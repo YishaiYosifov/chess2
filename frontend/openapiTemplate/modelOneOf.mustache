@@ -1,0 +1,7 @@
+{{#hasImports}}
+{{#oneOf}}
+import type { {{{.}}} } from './{{.}}{{importFileExtension}}';
+{{/oneOf}}
+
+{{/hasImports}}
+{{>modelOneOfInterfaces}}

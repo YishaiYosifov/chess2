@@ -89,10 +89,9 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
             showLegalMoves(pieceId: string): void {
                 const { legalMoves } = get();
                 let toHighlight = legalMoves.get(pieceId);
-                toHighlight ??= [];
 
                 set((state) => {
-                    state.highlightedLegalMoves = toHighlight;
+                    state.highlightedLegalMoves = toHighlight ?? [];
                 });
             },
         })),

@@ -4,7 +4,7 @@ import { Mock } from "vitest";
 import { Chart } from "react-google-charts";
 
 import { Variant } from "@/components/game/chess.types";
-import { RatingOverview } from "@/client";
+import { RatingOverview } from "@/apiClient";
 
 import RatingCard from "../RatingsCard";
 
