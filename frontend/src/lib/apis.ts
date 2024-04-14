@@ -29,7 +29,7 @@ async function addServerCookies(
 export const apiConfig = new Configuration({
     basePath: process.env.NEXT_PUBLIC_API_URL,
     credentials: "include",
-    middleware: [{ pre: addServerCookies }],
+    preRequest: addServerCookies,
 });
 
 export const gameRequestApi = new GameRequestsApi(apiConfig);

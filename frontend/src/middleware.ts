@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
 
         response.headers.set(
             "Set-Cookie",
-            tokens.raw.headers.get("Set-Cookie")!
+            tokens.response.headers.get("Set-Cookie")!
         );
     } catch {
         response.cookies.delete(constants.REFRESH_TOKEN);
