@@ -59,7 +59,7 @@ const PlayOptions = () => {
 
             // if the status is 200, it means a game was found and started
             // redirect the user to the game page
-            if (response.raw.status == 200)
+            if (response.response.status == 200)
                 router.push(`/game/${await response.value()}`);
         } catch (err) {
             cancelRequest();
