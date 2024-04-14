@@ -2,7 +2,6 @@ import {
     GameRequestsApi,
     RequestContext,
     Configuration,
-    FetchParams,
     SettingsApi,
     LiveGameApi,
     ProfileApi,
@@ -14,7 +13,7 @@ import {
  */
 async function addServerCookies(
     context: RequestContext
-): Promise<FetchParams | void> {
+): Promise<RequestContext | void> {
     if (typeof window !== "undefined") return;
 
     const { cookies } = await import("next/headers");
