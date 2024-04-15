@@ -10,7 +10,7 @@ export class BaseAPI {
      * @param initOverrides - override the default fetch options
      * @returns a promise that resolves to the api response
      */
-    protected async request(
+    async request(
         options: RequestOpts,
         initOverrides?: RequestInit
     ): Promise<Response> {
@@ -37,17 +37,21 @@ export class BaseAPI {
         options: RequestOpts,
         initOverrides?: RequestInit
     ): RequestContext {
-        const headers = this.config.headers ?? new Headers();
+        const headers = {
+            ...this.config.headers,
+            ...options.headers,
+        };
+
         // If the body is an object, it means we are sending json
         if (typeof options.body === "object")
-            headers.set("Content-Type", "application/json");
+            headers["Content-Type"] = "application/json";
 
         if (options.query)
             options.path += this.processQueryParams(options.query);
 
         const url = this.config.basePath + options.path;
         const init: RequestInit = {
-            headers: this.config.headers,
+            headers,
             credentials: this.config.credentials,
             method: options.method,
             ...initOverrides,
@@ -100,6 +104,8 @@ export class BaseAPI {
     };
 }
 
+export type HTTPHeaders = Record<string, string>;
+
 export class ResponseError extends Error {
     override name: "ResponseError" = "ResponseError";
     constructor(public response: Response, msg?: string) {
@@ -110,8 +116,9 @@ export class ResponseError extends Error {
 export interface RequestOpts {
     path: string;
     method: string;
-    query: Record<string, any>;
-    body: string;
+    query?: Record<string, any>;
+    body?: string | object;
+    headers?: HTTPHeaders;
 }
 
 export interface RequestContext {

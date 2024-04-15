@@ -1,4 +1,4 @@
-import type { RequestContext } from "./runtime";
+import type { RequestContext, HTTPHeaders } from "./runtime";
 
 export const BASE_PATH = "http://localhost";
 
@@ -9,7 +9,7 @@ export interface ConfigurationParameters {
     postRequest?: PostRequest;
     onError?: OnError;
 
-    headers?: Headers; //header params we want to use on every request
+    headers?: HTTPHeaders; //header params we want to use on every request
     credentials?: RequestCredentials; //value for the credentials param we want to use on each request
 }
 
@@ -36,12 +36,12 @@ export class Configuration {
         return this.configuration.onError;
     }
 
-    get headers(): Headers | undefined {
-        return this.configuration.headers;
+    get headers(): HTTPHeaders {
+        return this.configuration.headers ?? {};
     }
 
-    get credentials(): RequestCredentials | undefined {
-        return this.configuration.credentials;
+    get credentials(): RequestCredentials {
+        return this.configuration.credentials ?? "include";
     }
 }
 
