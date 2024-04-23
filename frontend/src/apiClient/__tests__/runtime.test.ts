@@ -72,12 +72,17 @@ describe("BaseAPI request", () => {
         }
     );
 
-    it("should correctly set headers for json data", async () => {
-        const options = { ...requestOpts, body: { testing: "123" } };
+    it("should correctly set proccess json data", async () => {
+        const body = { testIng: 123, aB: ["a", "bC"] };
+        const expectedBody = '{"test_ing":123,"a_b":["a","bC"]}';
+
+        const options = { ...requestOpts, body };
         await baseAPI.request(options);
 
-        const headers = fetchSpy.mock.calls[0][1].headers;
-        expect(headers["Content-Type"]).toBe("application/json");
+        const receivedHeaders = fetchSpy.mock.calls[0][1].headers;
+        const receivedBody = fetchSpy.mock.calls[0][1].body;
+        expect(receivedHeaders["Content-Type"]).toBe("application/json");
+        expect(receivedBody).toBe(expectedBody);
     });
 
     it("should correctly parse query params", async () => {
