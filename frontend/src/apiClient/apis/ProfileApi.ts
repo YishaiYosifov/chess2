@@ -98,7 +98,12 @@ export class ProfileApi extends BaseAPI {
             {
                 path: `/profile/${encodeURIComponent(target)}/rating-history`,
                 method: "GET",
-                query: requestParameters,
+                query: {
+                    ...requestParameters,
+                    since: requestParameters.since
+                        .toISOString()
+                        .substring(0, 10),
+                },
             },
             initOverrides
         );
