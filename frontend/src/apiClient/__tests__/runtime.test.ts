@@ -47,13 +47,12 @@ describe("BaseAPI request", () => {
             cache: "force-cache",
         };
 
-        baseAPI.request(
-            { ...requestOpts, body: { testing: "123" } },
-            requestInit
-        );
+        const body = { testing: "123" };
+        baseAPI.request({ ...requestOpts, body }, requestInit);
 
         expect(fetchSpy).toHaveBeenCalledWith(defaultRequestContext.url, {
             method: requestOpts.method,
+            body: JSON.stringify(body),
             ...requestInit,
         });
 
