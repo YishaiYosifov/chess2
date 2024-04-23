@@ -13,10 +13,9 @@ import { profileApi } from "@/lib/apis";
 const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
     return async (props: any) => {
         try {
-            const profile = await profileApi.getInfoSensitive(
-                {},
-                { cache: "no-cache" }
-            );
+            const profile = await profileApi.getInfoSensitive({
+                cache: "no-cache",
+            });
             return (
                 <AuthContextProvider hasAuthCookies={true} profile={profile}>
                     <WrappedComponent {...props} profile={profile} />

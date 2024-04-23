@@ -26,9 +26,7 @@ const ProfilePictureSettings = () => {
         if (!files) return;
 
         try {
-            await settingsApi.uploadProfilePicture({
-                pfp: files[0],
-            });
+            await settingsApi.uploadProfilePicture(files[0]);
         } catch (err: any) {
             switch (err?.response?.status) {
                 case 400:

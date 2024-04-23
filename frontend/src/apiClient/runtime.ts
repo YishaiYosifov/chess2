@@ -1,4 +1,5 @@
 import { DefaultConfig } from "./apiConfig";
+import { UserIn } from "./models";
 
 export class BaseAPI {
     constructor(protected config = DefaultConfig) {}
@@ -43,8 +44,8 @@ export class BaseAPI {
         };
 
         // If the body is an object, it means we are sending json
-        if (typeof options.body === "object")
-            headers["Content-Type"] = "application/json";
+        const bodyType = options.body?.constructor.name;
+        if (bodyType === "Object") headers["Content-Type"] = "application/json";
 
         if (options.query)
             options.path += this.processQueryParams(options.query);
@@ -54,6 +55,7 @@ export class BaseAPI {
             headers,
             credentials: this.config.credentials,
             method: options.method,
+            body: options.body as any,
             ...initOverrides,
         };
 
@@ -76,7 +78,7 @@ export class BaseAPI {
      * @param fetchContext - info about the request
      * @returns a promise that resolves to the api response
      */
-    private fetchApi = async (fetchContext: RequestContext) => {
+    private async fetchApi(fetchContext: RequestContext) {
         if (this.config.preRequest)
             fetchContext =
                 (await this.config.preRequest(fetchContext)) ?? fetchContext;
@@ -101,7 +103,18 @@ export class BaseAPI {
         }
 
         return response;
-    };
+    }
+
+    protected createFriendlyRoute<T extends any[], R>(
+        rawFunc: (...args: T) => Promise<ApiResponse<R>>
+    ): (...args: T) => Promise<R> {
+        rawFunc = rawFunc.bind(this);
+
+        return async (...args: T) => {
+            const response = await rawFunc(...args);
+            return await response.value();
+        };
+    }
 }
 
 export type HTTPHeaders = Record<string, string>;
@@ -163,7 +176,7 @@ export class JSONApiResponse<T> {
 }
 
 export class VoidApiResponse {
-    constructor(public raw: Response) {}
+    constructor(public response: Response) {}
 
     async value(): Promise<void> {
         return undefined;
@@ -171,17 +184,17 @@ export class VoidApiResponse {
 }
 
 export class BlobApiResponse {
-    constructor(public raw: Response) {}
+    constructor(public response: Response) {}
 
     async value(): Promise<Blob> {
-        return await this.raw.blob();
+        return await this.response.blob();
     }
 }
 
 export class TextApiResponse {
-    constructor(public raw: Response) {}
+    constructor(public response: Response) {}
 
     async value(): Promise<string> {
-        return await this.raw.text();
+        return await this.response.text();
     }
 }
