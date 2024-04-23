@@ -82,11 +82,9 @@ describe("PlayOptions", () => {
         expect(timeControlButton).toHaveClass("selected-time-control");
         expect(gameRequestApi.startPoolGameRaw).toHaveBeenCalledOnce();
         expect(gameRequestApi.startPoolGameRaw).toHaveBeenCalledWith({
-            gameSettings: {
-                variant: Variant.Anarchy,
-                timeControl: timeControl.timeControl,
-                increment: timeControl.increment,
-            },
+            variant: Variant.Anarchy,
+            timeControl: timeControl.timeControl,
+            increment: timeControl.increment,
         });
 
         expect(gameRequestApi.cancel).not.toHaveBeenCalled();
@@ -98,7 +96,7 @@ describe("PlayOptions", () => {
         const token = "test-token";
         const startPoolGameRawMock = gameRequestApi.startPoolGameRaw as Mock;
         startPoolGameRawMock.mockResolvedValue({
-            raw: { status: 200 },
+            response: { status: 200 },
             value: () => token,
         });
 

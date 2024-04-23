@@ -45,7 +45,10 @@ export class BaseAPI {
 
         // If the body is an object, it means we are sending json
         const bodyType = options.body?.constructor.name;
-        if (bodyType === "Object") headers["Content-Type"] = "application/json";
+        if (bodyType === "Object") {
+            headers["Content-Type"] = "application/json";
+            options.body = JSON.stringify(camelToSnake(options.body));
+        }
 
         if (options.query)
             options.path += this.processQueryParams(options.query);
@@ -148,30 +151,7 @@ export class JSONApiResponse<T> {
     constructor(public response: Response) {}
 
     async value(): Promise<T> {
-        return this.snakeToCamel(await this.response.json());
-    }
-
-    /**
-     * Converts an object with snake_case keys to camelCase recursively.
-     *
-     * @param obj - the input object to be camelCased
-     * @returns a new object with camelCase keys
-     */
-    snakeToCamel(obj: any): any {
-        if (obj === null || typeof obj !== "object") return obj;
-        if (Array.isArray(obj))
-            return obj.map((item) => this.snakeToCamel(item));
-
-        const camelCased: Record<any, any> = {};
-        for (const [key, value] of Object.entries(obj)) {
-            const camelKey = key.replace(
-                /_([a-z])/g,
-                (match: string, p1: string) => p1.toUpperCase()
-            );
-
-            camelCased[camelKey] = this.snakeToCamel(value);
-        }
-        return camelCased;
+        return snakeToCamel(await this.response.json());
     }
 }
 
@@ -198,3 +178,42 @@ export class TextApiResponse {
         return await this.response.text();
     }
 }
+
+/**
+ * Convert an object from one case to another
+ *
+ * @param obj - the input object to transform the keys of
+ * @param regex - the regex to match what characters to transform
+ * @param replaceFunc - the function that runs with the regex matches
+ * @returns a new object with transformed keys
+ */
+function transformCase(
+    obj: any,
+    regex: RegExp,
+    replaceFunc: (match: string, p1: string) => string
+): any {
+    if (obj === null || typeof obj !== "object") return obj;
+    if (Array.isArray(obj))
+        return obj.map((item) => transformCase(item, regex, replaceFunc));
+
+    const transformed: Record<any, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+        const transformedKey = key.replace(regex, replaceFunc);
+        transformed[transformedKey] = transformCase(value, regex, replaceFunc);
+    }
+    return transformed;
+}
+
+/**
+ * Converts an object from snake_case to camelCase
+ */
+export const snakeToCamel = (obj: any) =>
+    transformCase(obj, /_([a-z])/g, (match: string, p1: string) =>
+        p1.toUpperCase()
+    );
+
+/**
+ * Converts an object from camelCase to snake_case
+ */
+export const camelToSnake = (obj: any) =>
+    transformCase(obj, /([A-Z])/g, (match, p1) => "_" + p1.toLowerCase());
