@@ -39,6 +39,5 @@ export function parseFen(fen: string): PieceMap {
             pieceIdx += 1;
         }
     }
-    console.log(board);
     return board;
 }

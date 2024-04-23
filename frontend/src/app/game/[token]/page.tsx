@@ -15,7 +15,7 @@ const GamePage = async ({
 }) => {
     let game;
     try {
-        game = await liveGameApi.getLiveGame({ token });
+        game = await liveGameApi.getLiveGame(token);
     } catch (err) {
         if (!(err instanceof ResponseError)) throw err;
 

@@ -37,19 +37,15 @@ const UserPage = async ({
 
     try {
         [profile, ratings, games] = await Promise.all([
-            profileApi.getInfo(
-                { target: username },
-                { next: { tags: cacheTags } }
-            ),
+            profileApi.getInfo(username, { next: { tags: cacheTags } }),
             profileApi.getRatingsHistory(
-                {
-                    target: username,
-                    since: dateMonthAgo,
-                },
+                username,
+                { since: dateMonthAgo },
                 { next: { tags: cacheTags } }
             ),
             profileApi.paginateGames(
-                { target: username },
+                username,
+                {},
                 { next: { tags: cacheTags } }
             ),
         ]);

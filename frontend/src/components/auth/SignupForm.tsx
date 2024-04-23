@@ -40,11 +40,9 @@ const SignupForm = () => {
     ) {
         try {
             await authApi.signup({
-                userIn: {
-                    username: values.username,
-                    email: values.email,
-                    password: values.password,
-                },
+                username: values.username,
+                email: values.email,
+                password: values.password,
             });
         } catch (err: any) {
             switch (err?.response?.status) {

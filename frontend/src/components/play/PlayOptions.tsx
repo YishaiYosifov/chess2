@@ -50,11 +50,9 @@ const PlayOptions = () => {
     ): Promise<void> {
         try {
             const response = await gameRequestApi.startPoolGameRaw({
-                gameSettings: {
-                    variant: variant,
-                    timeControl: timeControl,
-                    increment,
-                },
+                variant: variant,
+                timeControl: timeControl,
+                increment,
             });
 
             // if the status is 200, it means a game was found and started

@@ -13,9 +13,7 @@ export async function middleware(request: NextRequest) {
 
     const response = NextResponse.redirect(request.url);
     try {
-        const tokens = await authApi.refreshAccessTokenRaw({
-            refreshToken: refreshToken?.value,
-        });
+        const tokens = await authApi.refreshAccessTokenRaw(refreshToken.value);
 
         response.headers.set(
             "Set-Cookie",

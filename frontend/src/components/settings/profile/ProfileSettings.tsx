@@ -30,9 +30,7 @@ const ProfileSettings = () => {
         helpers: FormikHelpers<EditableProfile>
     ) {
         try {
-            const profile = await settingsApi.updateProfile({
-                editableProfile: values,
-            });
+            const profile = await settingsApi.updateProfile(values);
             setAuthedProfile(profile);
             revalidateUser(username);
         } catch (err) {
