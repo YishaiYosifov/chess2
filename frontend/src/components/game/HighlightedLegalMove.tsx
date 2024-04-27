@@ -1,6 +1,6 @@
 import styles from "./HighlightedLegalMove.module.scss";
-import { Point } from "./chess.types";
 import ChessSquare from "./ChessSquare";
+import { Point } from "@/models";
 
 const HighlightedLegalMove = ({ position }: { position: Point }) => {
     return (

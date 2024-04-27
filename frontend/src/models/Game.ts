@@ -33,6 +33,13 @@ export enum PieceType {
 
 export type Point = [x: number, y: number];
 export type LegalMoves = Record<string, string[]>;
+export type PieceMap = Map<string, Piece>;
+
+export interface Piece {
+    position: Point;
+    pieceType: PieceType;
+    color: Color;
+}
 
 export interface LiveGame {
     token: string;
