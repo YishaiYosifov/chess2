@@ -28,7 +28,12 @@ const NavbarProvider = () => {
     );
 
     return (
-        <Navbar fixed="top" collapseOnSelect expand={expand}>
+        <Navbar
+            fixed="top"
+            collapseOnSelect
+            expand={expand}
+            data-testid="navbar"
+        >
             <Container fluid="md">
                 <Navbar.Brand href="/">
                     <Logo />
