@@ -2,11 +2,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 
-import {
-    type Point,
-    type PieceMap,
-    Color,
-} from "@/components/game/chess.types";
+import { type Point, type PieceMap, Color } from "@/models";
 import constants from "@/lib/constants";
 import { enableMapSet } from "immer";
 

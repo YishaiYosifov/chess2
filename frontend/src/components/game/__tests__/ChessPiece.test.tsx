@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { Color, PieceMap, PieceType, Piece, Point } from "../chess.types";
+import { Color, PieceMap, PieceType, Piece, Point } from "@/models";
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";

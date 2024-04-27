@@ -1,4 +1,4 @@
-import { Color, PieceMap, PieceType } from "@/components/game/chess.types";
+import { Color, PieceMap, PieceType } from "@/models";
 
 /**
  * Parse a fen into a PieceMap

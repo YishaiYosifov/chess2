@@ -2,8 +2,8 @@ import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
 import { useChessStore, usePiece } from "@/hooks/useChess";
 import styles from "./ChessPiece.module.scss";
-import { type Point } from "./chess.types";
 import ChessSquare from "./ChessSquare";
+import { type Point } from "@/models";
 
 export const ChessPiece = ({ id }: { id: string }) => {
     const pieceRef = useRef<HTMLDivElement>(null);

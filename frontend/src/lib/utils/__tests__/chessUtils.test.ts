@@ -1,4 +1,4 @@
-import { PieceMap, PieceType } from "@/components/game/chess.types";
+import { PieceMap, PieceType } from "@/models";
 import { parseFen } from "../chessUtils";
 import constants from "@/lib/constants";
 import { Color } from "@/models";

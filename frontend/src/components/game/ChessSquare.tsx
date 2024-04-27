@@ -5,9 +5,9 @@ import {
     ForwardRefRenderFunction,
 } from "react";
 
-import styles from "./ChessSquare.module.scss";
-import { Color, Point } from "./chess.types";
 import { useBoardSize, useChessStore } from "@/hooks/useChess";
+import styles from "./ChessSquare.module.scss";
+import { Color, Point } from "@/models";
 
 type ChessSquareProps = {
     position: Point;
