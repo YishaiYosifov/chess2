@@ -2,7 +2,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 
-import { type Point, type PieceMap, Color } from "@/models";
+import { type Point, type PieceMap, Color, LegalMoves } from "@/models";
 import constants from "@/lib/constants";
 import { enableMapSet } from "immer";
 
@@ -16,7 +16,7 @@ export interface ChessStore {
     pieces: PieceMap;
     highlighted: Point[];
 
-    legalMoves: Map<string, Point[]>;
+    legalMoves: LegalMoves;
     highlightedLegalMoves: Point[];
 
     movePiece(from: Point, to: Point): void;
