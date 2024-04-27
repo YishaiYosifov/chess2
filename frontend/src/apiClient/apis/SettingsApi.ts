@@ -1,10 +1,10 @@
-import type { EditableProfile, PrivateAuthedProfileOut } from "../models/index";
 import {
-    ApiResponse,
-    BaseAPI,
     JSONApiResponse,
     VoidApiResponse,
+    ApiResponse,
+    BaseAPI,
 } from "../runtime";
+import type { EditableProfile, PrivateAuthedProfileOut } from "@/models";
 
 export class SettingsApi extends BaseAPI {
     /**

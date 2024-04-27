@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { createFinishedGame } from "@/mockUtils/gameMock";
 import { profileMock } from "@/mockUtils/profileMock";
 import { gameMock } from "@/mockUtils/gameMock";
-import { GameResult } from "@/apiClient";
+import { GameResult } from "@/models";
 
 import GameRow from "../GameRow";
 

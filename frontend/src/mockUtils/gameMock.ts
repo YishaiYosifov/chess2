@@ -1,4 +1,4 @@
-import { GameResult, FinishedGame, Variant } from "@/apiClient";
+import { GameResult, FinishedGame, Variant } from "@/models";
 import { createProfile } from "./profileMock";
 
 export const gameMock: FinishedGame = {

@@ -1,8 +1,4 @@
-import {
-    PrivateAuthedProfileOut,
-    AuthedProfileOut,
-    UserType,
-} from "@/apiClient";
+import { PrivateAuthedProfileOut, AuthedProfileOut, UserType } from "@/models";
 
 export const profileMock: AuthedProfileOut = {
     userId: 1,

@@ -1,5 +1,5 @@
 import { DefaultConfig } from "./apiConfig";
-import { UserIn } from "./models";
+import { UserIn } from "../models";
 
 export class BaseAPI {
     constructor(protected config = DefaultConfig) {}

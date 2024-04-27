@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import styles from "./user.module.scss";
 
-import type { FinishedGame, AuthedProfileOut } from "@/apiClient";
+import type { FinishedGame, AuthedProfileOut } from "@/models";
 import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";

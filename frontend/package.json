@@ -10,14 +10,13 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "e2e": "playwright test",
-        "e2e:ui": "playwright test --ui",
-        "generate-client": "node ./scripts/openapi/generate.mjs"
+        "e2e:ui": "playwright test --ui"
     },
     "dependencies": {
         "bootstrap": "^5.3.2",
         "formik": "^2.4.5",
         "immer": "^10.0.3",
-        "next": "^14.2.0",
+        "next": "^14.2.3",
         "react": "^18.2.0",
         "react-bootstrap": "^2.10.0",
         "react-dom": "^18.2.0",
