@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { parseFen } from "@/lib/utils/chessUtils";
 import { ResponseError } from "@/apiClient";
 import { liveGameApi } from "@/lib/apis";
+import { LiveGame } from "@/models";
 
 import Chessboard from "@/components/game/Chessboard";
 
@@ -13,7 +14,7 @@ const GamePage = async ({
 }: {
     params: { token: string };
 }) => {
-    let game;
+    let game: LiveGame;
     try {
         game = await liveGameApi.getLiveGame(token);
     } catch (err) {
@@ -22,6 +23,7 @@ const GamePage = async ({
         if (err.response.status == 404) notFound();
         throw err;
     }
+    console.log(game);
 
     return <Chessboard startingPieces={parseFen(game.fen)} />;
 };

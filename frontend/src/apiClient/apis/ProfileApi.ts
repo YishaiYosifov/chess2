@@ -1,14 +1,15 @@
 import type {
-    AuthedProfileOut,
-    FinishedGame,
     PrivateAuthedProfileOut,
-    Rating,
+    AuthedProfileOut,
     RatingOverview,
+    FinishedGame,
+    Rating,
     Variant,
-} from "../models/index";
+} from "@/models/index";
+
 import {
-    ApiResponse,
     BaseAPI,
+    ApiResponse,
     BlobApiResponse,
     JSONApiResponse,
 } from "../runtime";
