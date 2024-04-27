@@ -6,10 +6,16 @@ import { defineConfig, devices } from "@playwright/test";
  */
 // require('dotenv').config();
 
-const projectSetup = {
-    storageState: "playwright/.auth/user.json",
-    dependencies: ["setup"],
-};
+function createProject(name: string, device: string) {
+    return {
+        name,
+        use: {
+            ...devices[device],
+            storageState: "e2e-tests/.auth/user.json",
+        },
+        dependencies: ["setup"],
+    };
+}
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -41,23 +47,9 @@ export default defineConfig({
     projects: [
         { name: "setup", testMatch: /.*\.setup\.ts/ },
 
-        {
-            name: "chromium",
-            use: { ...devices["Desktop Chrome"] },
-            ...projectSetup,
-        },
-
-        {
-            name: "firefox",
-            use: { ...devices["Desktop Firefox"] },
-            ...projectSetup,
-        },
-
-        {
-            name: "webkit",
-            use: { ...devices["Desktop Safari"] },
-            ...projectSetup,
-        },
+        createProject("chromium", "Desktop Chrome"),
+        createProject("firefox", "Desktop Firefox"),
+        createProject("webkit", "Desktop Safari"),
 
         /* Test against mobile viewports. */
         // {
