@@ -3,6 +3,7 @@ import { useStore } from "zustand";
 
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
 import { type ChessStore } from "@/stores/chessStore";
+import { PieceID } from "@/models";
 
 export function useChessStore<T>(selector: (store: ChessStore) => T): T {
     const chessStoreContext = useContext(ChessStoreContext);
@@ -17,7 +18,7 @@ export const usePieces = () => useChessStore((state) => state.pieces);
 export const useHighlightedLegalMoves = () =>
     useChessStore((state) => state.highlightedLegalMoves);
 
-export const usePiece = (pieceId: string) =>
+export const usePiece = (pieceId: PieceID) =>
     useChessStore((state) => state.pieces.get(pieceId));
 
 export const useBoardSize = (): [boardWidth: number, boardHeight: number] => [

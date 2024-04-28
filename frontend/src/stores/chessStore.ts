@@ -2,9 +2,16 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 
-import { type Point, type PieceMap, Color, LegalMoves } from "@/models";
+import {
+    type Point,
+    type PieceMap,
+    type LegalMoves,
+    type PieceID,
+    Color,
+} from "@/models";
 import constants from "@/lib/constants";
 import { enableMapSet } from "immer";
+import { strPointToArray } from "@/lib/utils/chessUtils";
 
 export interface ChessStore {
     viewingFrom: Color;
@@ -20,7 +27,7 @@ export interface ChessStore {
     highlightedLegalMoves: Point[];
 
     movePiece(from: Point, to: Point): void;
-    position2Id(position: Point): string | undefined;
+    position2Id(position: Point): PieceID | undefined;
     showLegalMoves(pieceId: string): void;
 }
 
@@ -34,7 +41,7 @@ const defaultState = {
     pieces: new Map(),
     highlighted: [],
 
-    legalMoves: new Map(),
+    legalMoves: {},
     highlightedLegalMoves: [],
 };
 
@@ -66,7 +73,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              * @param position - the position to convert to piece id
              * @returns the id of the piece if it was found, undefined otherwise
              */
-            position2Id(position: Point): string | undefined {
+            position2Id(position: Point): PieceID | undefined {
                 const pieces = get().pieces;
                 for (const [id, piece] of pieces) {
                     if (
@@ -82,12 +89,16 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              *
              * @param pieceId - the id of the piece to highlight moves for
              */
-            showLegalMoves(pieceId: string): void {
+            showLegalMoves(pieceId: PieceID): void {
                 const { legalMoves } = get();
-                let toHighlight = legalMoves.get(pieceId);
+                let toHighlight = legalMoves[pieceId];
+                if (!toHighlight) return;
 
+                const toHighlightPoints = toHighlight.map((x) =>
+                    strPointToArray(x)
+                );
                 set((state) => {
-                    state.highlightedLegalMoves = toHighlight ?? [];
+                    state.highlightedLegalMoves = toHighlightPoints;
                 });
             },
         })),

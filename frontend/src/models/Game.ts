@@ -31,9 +31,13 @@ export enum PieceType {
     ChildPawn = "d",
 }
 
+export type PieceID = `${number}`;
+
 export type Point = [x: number, y: number];
-export type LegalMoves = Map<string, string[]>;
-export type PieceMap = Map<string, Piece>;
+export type StrPoint = `${number},${number}`;
+
+export type LegalMoves = Record<PieceID, StrPoint[]>;
+export type PieceMap = Map<PieceID, Piece>;
 
 export interface Piece {
     position: Point;
