@@ -1,4 +1,4 @@
-import { Color, PieceMap, PieceType } from "@/models";
+import { Color, PieceID, PieceMap, PieceType, Point, StrPoint } from "@/models";
 
 /**
  * Parse a fen into a PieceMap
@@ -25,7 +25,7 @@ export function parseFen(fen: string): PieceMap {
                 continue;
             }
 
-            const pieceId = pieceIdx.toString();
+            const pieceId = pieceIdx.toString() as PieceID;
             const color =
                 square == square.toUpperCase() ? Color.White : Color.Black;
             const pieceType = square.toLowerCase() as PieceType;
@@ -40,4 +40,8 @@ export function parseFen(fen: string): PieceMap {
         }
     }
     return board;
+}
+
+export function strPointToArray(point: StrPoint): Point {
+    return point.split(",").map((x) => Number(x)) as Point;
 }
