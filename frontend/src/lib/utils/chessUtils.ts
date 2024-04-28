@@ -42,6 +42,10 @@ export function parseFen(fen: string): PieceMap {
     return board;
 }
 
-export function strPointToArray(point: StrPoint): Point {
+export function stringToPoint(point: StrPoint): Point {
     return point.split(",").map((x) => Number(x)) as Point;
+}
+
+export function pointToString(point: Point): StrPoint {
+    return point.toString() as StrPoint;
 }

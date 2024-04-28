@@ -8,10 +8,11 @@ import {
     type LegalMoves,
     type PieceID,
     Color,
+    StrPoint,
 } from "@/models";
 import constants from "@/lib/constants";
 import { enableMapSet } from "immer";
-import { strPointToArray } from "@/lib/utils/chessUtils";
+import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 
 export interface ChessStore {
     viewingFrom: Color;
@@ -28,7 +29,7 @@ export interface ChessStore {
 
     movePiece(from: Point, to: Point): void;
     position2Id(position: Point): PieceID | undefined;
-    showLegalMoves(pieceId: string): void;
+    showLegalMoves(position: Point): void;
 }
 
 const defaultState = {
@@ -89,13 +90,15 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              *
              * @param pieceId - the id of the piece to highlight moves for
              */
-            showLegalMoves(pieceId: PieceID): void {
+            showLegalMoves(position: Point): void {
                 const { legalMoves } = get();
-                let toHighlight = legalMoves[pieceId];
+
+                const positionStr = pointToString(position);
+                let toHighlight = legalMoves[positionStr];
                 if (!toHighlight) return;
 
                 const toHighlightPoints = toHighlight.map((x) =>
-                    strPointToArray(x)
+                    stringToPoint(x)
                 );
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;

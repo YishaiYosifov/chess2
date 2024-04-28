@@ -63,7 +63,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             className={styles.piece}
             ref={pieceRef}
             onPointerDown={(event) => {
-                showLegalMoves(id);
+                showLegalMoves(position);
                 startDragging(event);
             }}
             style={{

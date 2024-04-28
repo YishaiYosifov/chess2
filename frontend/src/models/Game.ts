@@ -36,7 +36,7 @@ export type PieceID = `${number}`;
 export type Point = [x: number, y: number];
 export type StrPoint = `${number},${number}`;
 
-export type LegalMoves = Record<PieceID, StrPoint[]>;
+export type LegalMoves = Record<StrPoint, StrPoint[]>;
 export type PieceMap = Map<PieceID, Piece>;
 
 export interface Piece {
