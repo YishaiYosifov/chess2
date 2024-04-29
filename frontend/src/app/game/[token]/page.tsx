@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 
+import { Color, LiveGame, PrivateAuthedProfileOut } from "@/models";
 import { parseFen } from "@/lib/utils/chessUtils";
 import { ResponseError } from "@/apiClient";
 import { liveGameApi } from "@/lib/apis";
-import { Color, LiveGame, PrivateAuthedProfileOut } from "@/models";
 
 import Chessboard from "@/components/game/Chessboard";
 import withAuth from "@/hocs/withAuth";
@@ -48,6 +48,7 @@ const GamePage = async ({
     return (
         <Chessboard
             startingPieces={parseFen(game.fen)}
+            legalMoves={game.legalMoves}
             playingAs={playingAs}
             playingSide={playingSide}
         />

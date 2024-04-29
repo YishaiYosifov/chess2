@@ -93,7 +93,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 const { legalMoves } = get();
 
                 const positionStr = pointToString(position);
-                let toHighlight = legalMoves[positionStr];
+                const toHighlight = legalMoves[positionStr];
                 if (!toHighlight) return;
 
                 const toHighlightPoints = toHighlight.map((x) =>
