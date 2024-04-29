@@ -12,7 +12,7 @@ describe("movePiece", () => {
 
         // piece not found
         [new Map(), [0, 0], [1, 2]],
-    ])("", (pieces, from, to) => {
+    ])("should correctly move and capture pieces", (pieces, from, to) => {
         const chessStore = createChessStore({ pieces });
 
         const { movePiece, position2Id } = chessStore.getState();
