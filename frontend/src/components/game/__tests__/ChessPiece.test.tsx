@@ -15,7 +15,7 @@ describe("ChessPiece", () => {
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
 
         const renderResults = render(
-            <ChessProvider pieces={pieces}>
+            <ChessProvider pieces={pieces} playingAs={Color.White}>
                 <ChessPiece id="0" />
             </ChessProvider>
         );

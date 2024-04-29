@@ -8,7 +8,6 @@ import {
     type PieceMap,
     type LegalMoves,
     type PieceID,
-    type Player,
     Color,
 } from "@/models";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
@@ -19,7 +18,7 @@ export interface ChessStore {
     playingSide: Color;
     boardWidth: number;
     boardHeight: number;
-    playingAs?: Player;
+    playingAs?: Color;
 
     pieces: PieceMap;
     highlighted: Point[];
