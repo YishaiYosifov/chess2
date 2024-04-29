@@ -1,9 +1,9 @@
-import { type PieceMap, type Point, Color, PieceType } from "@/models";
-import constants from "@/lib/constants";
+import { PieceID, PieceMap, type LegalMoves, type Point } from "@/models";
 import { createChessStore } from "../chessStore";
+import constants from "@/lib/constants";
 
 describe("position2Id", () => {
-    it.each([
+    it.each<[PieceMap, Point, PieceID | undefined]>([
         // happy path
         [constants.defaultChessBoard, [0, 0], "0"],
 
@@ -15,9 +15,48 @@ describe("position2Id", () => {
     ])(
         "should select the correct piece id from the position",
         (pieces, position, expectedId) => {
-            const chessStore = createChessStore({ pieces: pieces as PieceMap });
+            const chessStore = createChessStore({ pieces });
             const { position2Id } = chessStore.getState();
-            expect(position2Id(position as Point)).equals(expectedId);
+            expect(position2Id(position)).toEqual(expectedId);
+        }
+    );
+});
+
+describe("showLegalMoves", () => {
+    it.each<[LegalMoves, Point, Point[]]>([
+        // happy path
+        [
+            {
+                "3,3": ["3,4", "3,5"],
+                "4,4": ["5,4", "6,4"],
+            },
+            [3, 3],
+            [
+                [3, 4],
+                [3, 5],
+            ],
+        ],
+
+        // no legal moves for a position
+        [
+            {
+                "3,3": ["1,2"],
+            },
+            [1, 2],
+            [],
+        ],
+
+        // no legal moves at all
+        [{}, [1, 1], []],
+    ])(
+        "should highlight the correct squares depending on the position",
+        (legalMoves, position, expectedLegalMoves) => {
+            const chessStore = createChessStore({ legalMoves });
+            const { showLegalMoves } = chessStore.getState();
+
+            showLegalMoves(position);
+            const { highlightedLegalMoves } = chessStore.getState();
+            expect(highlightedLegalMoves).toEqual(expectedLegalMoves);
         }
     );
 });
