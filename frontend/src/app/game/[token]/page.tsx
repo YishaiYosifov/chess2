@@ -49,7 +49,7 @@ const GamePage = async ({
         <Chessboard
             startingPieces={parseFen(game.fen)}
             legalMoves={game.legalMoves}
-            playingAs={playingAs}
+            playingAs={playingAs.color}
             playingSide={playingSide}
         />
     );

@@ -25,7 +25,7 @@ interface Breakpoint {
  *  it will parse the width as 1420 before choosing the board size.
  *  The largest width breakpoint will be used for any screen size larger than it.
  * @param playingSide - the color of the side whose turn it is to play
- * @param playingAs - the player that is controlling the chessboard.
+ * @param playingAs - the color of the player that is controlling the chessboard.
  *  leave undefined if no player should be controlling this chessboard, thus making it a fixed position
  */
 const Chessboard = ({
@@ -34,16 +34,20 @@ const Chessboard = ({
     boardHeight = BOARD_HEIGHT,
     boardWidth = BOARD_WIDTH,
     legalMoves = {},
-    playingAs,
+
+    viewingFrom,
     playingSide,
+    playingAs,
 }: {
     offsetBreakpoints?: Breakpoint[];
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
     legalMoves?: LegalMoves;
+
+    viewingFrom?: Color;
     playingSide?: Color;
-    playingAs?: Player;
+    playingAs?: Color;
 }) => {
     const [boardSize, setBoardSize] = useState<number>(0);
 
@@ -88,7 +92,7 @@ const Chessboard = ({
         return () => window.removeEventListener("resize", resizeBoard);
     }, [sortedBreakpoints]);
 
-    const viewingFrom = playingAs?.color ?? Color.White;
+    viewingFrom ??= playingAs;
     return (
         <div
             data-testid="chessboard"
