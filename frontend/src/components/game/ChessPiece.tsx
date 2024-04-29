@@ -10,10 +10,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
 
     const piece = usePiece(id);
-
-    const isFixed = useChessStore((state) => state.fixed);
     const playingSide = useChessStore((state) => state.playingSide);
-
+    const player = useChessStore((state) => state.playingAs);
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
 
     if (!piece) return;
@@ -21,7 +19,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const { position, pieceType, color } = piece;
 
     function startDragging(event: ReactMouseEvent): void {
-        const canDrag = !isFixed && playingSide == color;
+        const canDrag = player?.color == playingSide && color == playingSide;
         if (!canDrag) return;
 
         // calculate the dragging offset

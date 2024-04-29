@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
+import { type Player, type PieceMap, Color } from "@/models";
 import styles from "./Chessboard.module.scss";
-import { Color, PieceMap } from "@/models";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
@@ -30,15 +30,15 @@ const Chessboard = ({
     startingPieces = defaultChessBoard,
     boardHeight = BOARD_HEIGHT,
     boardWidth = BOARD_WIDTH,
-    viewingFrom = Color.White,
-    fixed = false,
+    playingAs,
+    playingSide,
 }: {
     offsetBreakpoints?: Breakpoint[];
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
-    fixed?: boolean;
-    viewingFrom?: Color;
+    playingSide?: Color;
+    playingAs?: Player;
 }) => {
     const [boardSize, setBoardSize] = useState<number>(0);
 
@@ -83,6 +83,7 @@ const Chessboard = ({
         return () => window.removeEventListener("resize", resizeBoard);
     }, [sortedBreakpoints]);
 
+    const viewingFrom = playingAs?.color ?? Color.White;
     return (
         <div
             data-testid="chessboard"
@@ -95,7 +96,8 @@ const Chessboard = ({
             <ChessProvider
                 pieces={startingPieces}
                 viewingFrom={viewingFrom}
-                fixed={fixed}
+                playingSide={playingSide}
+                playingAs={playingAs}
                 boardWidth={boardWidth}
                 boardHeight={boardHeight}
             >

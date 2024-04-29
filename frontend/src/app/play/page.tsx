@@ -21,7 +21,6 @@ const PlayPage = () => {
                         offset: { width: 626, height: 100 },
                     },
                 ]}
-                fixed
             />
 
             <PlayOptions />

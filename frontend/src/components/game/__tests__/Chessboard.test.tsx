@@ -47,7 +47,7 @@ describe("Chessboard", () => {
             render(
                 <Chessboard
                     startingPieces={mockBoard}
-                    viewingFrom={side}
+                    playingSide={side}
                     boardWidth={10}
                     boardHeight={10}
                 />
