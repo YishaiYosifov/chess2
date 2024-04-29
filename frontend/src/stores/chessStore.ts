@@ -87,7 +87,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
             /**
              * Highlight the legal moves of a piece
              *
-             * @param pieceId - the id of the piece to highlight moves for
+             * @param position - the position of the piece to highlight the legal moves of
              */
             showLegalMoves(position: Point): void {
                 const { legalMoves } = get();
