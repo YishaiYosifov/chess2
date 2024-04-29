@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import { type Player, type PieceMap, Color } from "@/models";
+import { type Player, type PieceMap, type LegalMoves, Color } from "@/models";
 import styles from "./Chessboard.module.scss";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
@@ -33,6 +33,7 @@ const Chessboard = ({
     startingPieces = defaultChessBoard,
     boardHeight = BOARD_HEIGHT,
     boardWidth = BOARD_WIDTH,
+    legalMoves = {},
     playingAs,
     playingSide,
 }: {
@@ -40,6 +41,7 @@ const Chessboard = ({
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
+    legalMoves?: LegalMoves;
     playingSide?: Color;
     playingAs?: Player;
 }) => {
@@ -98,6 +100,7 @@ const Chessboard = ({
         >
             <ChessProvider
                 pieces={startingPieces}
+                legalMoves={legalMoves}
                 viewingFrom={viewingFrom}
                 playingSide={playingSide}
                 playingAs={playingAs}
