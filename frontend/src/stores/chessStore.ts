@@ -30,7 +30,7 @@ export interface ChessStore {
     selectedPiecePosition?: Point;
 
     movePiece(from: Point, to: Point): void;
-    sendMovePieceSocket(to: Point): void;
+    sendPieceMovement(to: Point): void;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
 }
@@ -65,7 +65,13 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 const { position2Id } = get();
 
                 const pieceId = position2Id(from);
-                if (!pieceId) return;
+                if (!pieceId) {
+                    console.warn(
+                        `Could not move piece from ${from} to ${to} ` +
+                            `because no piece was found at ${from}`
+                    );
+                    return;
+                }
 
                 const captureId = position2Id(to);
                 set((state) => {
@@ -74,7 +80,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
             },
 
-            sendMovePieceSocket(to: Point): void {
+            sendPieceMovement(to: Point): void {
                 const from = get().selectedPiecePosition;
                 if (!from) return;
 
