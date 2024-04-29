@@ -19,9 +19,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const { position, pieceType, color } = piece;
 
     function startDragging(event: ReactMouseEvent): void {
-        const canDrag = playingAs == playingSide && color == playingSide;
-        if (!canDrag) return;
-
         // calculate the dragging offset
         // snap the center of the piece to the mouse when dragging start
         const rect = pieceRef.current!.getBoundingClientRect();
@@ -61,6 +58,10 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             className={styles.piece}
             ref={pieceRef}
             onPointerDown={(event) => {
+                const canDrag =
+                    playingAs == playingSide && color == playingSide;
+                if (!canDrag) return;
+
                 showLegalMoves(position);
                 startDragging(event);
             }}

@@ -16,17 +16,21 @@ import constants from "@/lib/constants";
 export interface ChessStore {
     viewingFrom: Color;
     playingSide: Color;
-    boardWidth: number;
-    boardHeight: number;
     playingAs?: Color;
 
-    pieces: PieceMap;
-    highlighted: Point[];
+    boardWidth: number;
+    boardHeight: number;
 
+    pieces: PieceMap;
     legalMoves: LegalMoves;
+
+    highlighted: Point[];
     highlightedLegalMoves: Point[];
 
+    selectedPiecePosition?: Point;
+
     movePiece(from: Point, to: Point): void;
+    sendMovePieceSocket(to: Point): void;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
 }
@@ -38,9 +42,9 @@ const defaultState = {
     boardHeight: constants.BOARD_HEIGHT,
 
     pieces: new Map(),
-    highlighted: [],
-
     legalMoves: {},
+
+    highlighted: [],
     highlightedLegalMoves: [],
 };
 
@@ -68,6 +72,13 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     state.pieces.get(pieceId)!.position = to;
                     if (captureId) state.pieces.delete(captureId);
                 });
+            },
+
+            sendMovePieceSocket(to: Point): void {
+                const from = get().selectedPiecePosition;
+                if (!from) return;
+
+                console.log(from, to);
             },
 
             /**
@@ -104,6 +115,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 );
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
+                    state.selectedPiecePosition = position;
                 });
             },
         })),
