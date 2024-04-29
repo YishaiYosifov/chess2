@@ -2,6 +2,38 @@ import { PieceID, PieceMap, type LegalMoves, type Point } from "@/models";
 import { createChessStore } from "../chessStore";
 import constants from "@/lib/constants";
 
+describe("movePiece", () => {
+    it.each<[PieceMap, from: Point, to: Point]>([
+        // happy path
+        [constants.defaultChessBoard, [0, 0], [69, 420]],
+
+        // captures
+        [constants.defaultChessBoard, [0, 0], [1, 2]],
+
+        // piece not found
+        [new Map(), [0, 0], [1, 2]],
+    ])("", (pieces, from, to) => {
+        const chessStore = createChessStore({ pieces });
+
+        const { movePiece, position2Id } = chessStore.getState();
+        const fromId = position2Id(from);
+        const toId = position2Id(to);
+
+        movePiece(from, to);
+
+        const { pieces: newPieces } = chessStore.getState();
+
+        const movedPiece = newPieces.get(fromId!);
+        const capturedPiece = newPieces.get(toId!);
+
+        // if the piece does not exist, it should still not exist after moving it
+        if (fromId) expect(movedPiece?.position).toEqual(to);
+        else expect(movedPiece).toBeUndefined();
+
+        expect(capturedPiece).toBeUndefined();
+    });
+});
+
 describe("position2Id", () => {
     it.each<[PieceMap, Point, PieceID | undefined]>([
         // happy path

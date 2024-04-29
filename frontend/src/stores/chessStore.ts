@@ -58,11 +58,15 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              * @param to - the new position of the piece
              */
             movePiece(from: Point, to: Point): void {
-                const pieceId = get().position2Id(from);
+                const { position2Id } = get();
+
+                const pieceId = position2Id(from);
                 if (!pieceId) return;
 
+                const captureId = position2Id(to);
                 set((state) => {
                     state.pieces.get(pieceId)!.position = to;
+                    if (captureId) state.pieces.delete(captureId);
                 });
             },
 
