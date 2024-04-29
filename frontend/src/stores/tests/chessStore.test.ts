@@ -1,36 +1,16 @@
 import { type PieceMap, type Point, Color, PieceType } from "@/models";
+import constants from "@/lib/constants";
 import { createChessStore } from "../chessStore";
 
 describe("position2Id", () => {
     it.each([
-        [
-            new Map([
-                [
-                    "1",
-                    {
-                        position: [1, 2],
-                        pieceType: PieceType.King,
-                        color: Color.White,
-                    },
-                ],
-            ]),
-            [1, 2],
-            "1",
-        ],
-        [
-            new Map([
-                [
-                    "1",
-                    {
-                        position: [1, 2],
-                        pieceType: PieceType.King,
-                        color: Color.White,
-                    },
-                ],
-            ]),
-            [1, 3],
-            undefined,
-        ],
+        // happy path
+        [constants.defaultChessBoard, [0, 0], "0"],
+
+        // no piece with the position
+        [constants.defaultChessBoard, [67, 33], undefined],
+
+        // no pieces at all
         [new Map(), [1, 2], undefined],
     ])(
         "should select the correct piece id from the position",
