@@ -1,25 +1,25 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
+import { enableMapSet } from "immer";
 
 import {
     type Point,
     type PieceMap,
     type LegalMoves,
     type PieceID,
+    type Player,
     Color,
-    StrPoint,
 } from "@/models";
-import constants from "@/lib/constants";
-import { enableMapSet } from "immer";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
+import constants from "@/lib/constants";
 
 export interface ChessStore {
     viewingFrom: Color;
     playingSide: Color;
     boardWidth: number;
     boardHeight: number;
-    fixed: boolean;
+    playingAs?: Player;
 
     pieces: PieceMap;
     highlighted: Point[];
@@ -37,7 +37,6 @@ const defaultState = {
     playingSide: Color.White,
     boardWidth: constants.BOARD_WIDTH,
     boardHeight: constants.BOARD_HEIGHT,
-    fixed: false,
 
     pieces: new Map(),
     highlighted: [],
