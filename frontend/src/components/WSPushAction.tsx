@@ -1,8 +1,10 @@
 "use client";
 
-import { useSharedWSEvent, WSEvent } from "@/hooks/useSharedWS";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import { useSharedWSEvent } from "@/hooks/useSharedWS";
+import { useRouter } from "next/navigation";
+import { WSEvent } from "@/models";
 
 const WSPushAction = () => {
     const router = useRouter();

@@ -1,3 +1,4 @@
+export * from "./Websocket";
 export * from "./Rating";
 export * from "./Auth";
 export * from "./Game";

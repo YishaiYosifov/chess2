@@ -1,25 +1,9 @@
 import useWebSocket, { Options as WSOptions } from "react-use-websocket";
 import { WebSocketHook } from "react-use-websocket/dist/lib/types";
 
-export const enum WSEvent {
-    Notification = "notification",
-    GameStart = "game_start",
-}
+import { WSEvent, WSEventMessageMap } from "@/models";
 
-interface Notification {
-    someValue: boolean;
-}
-
-interface GameStart {
-    token: string;
-}
-
-interface WSEventMessageMap {
-    [WSEvent.Notification]: Notification;
-    [WSEvent.GameStart]: GameStart;
-}
-
-type WSEventHook<E extends WSEvent> = WebSocketHook & {
+export type WSEventHook<E extends WSEvent> = WebSocketHook & {
     data: WSEventMessageMap[E] | null;
 };
 
