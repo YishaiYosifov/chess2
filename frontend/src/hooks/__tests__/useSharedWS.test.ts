@@ -3,7 +3,8 @@ import useWebSocket, {
 } from "react-use-websocket";
 import { Mock } from "vitest";
 
-import { useSharedWSSilent, useSharedWSEvent, WSEvent } from "../useSharedWS";
+import { useSharedWSSilent, useSharedWSEvent } from "../useSharedWS";
+import { WSEvent } from "@/models";
 
 vi.mock("react-use-websocket");
 const useWebSocketMock = useWebSocket as Mock;
