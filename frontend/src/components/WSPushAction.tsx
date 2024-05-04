@@ -1,14 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { useSharedWSEvent } from "@/hooks/useSharedWS";
-import { useRouter } from "next/navigation";
-import { WSEvent } from "@/models";
+import { useEventWebSocket } from "@/hooks/useEventWS";
+import { WSEventIn } from "@/models";
 
 const WSPushAction = () => {
     const router = useRouter();
-    const { data: gameStart } = useSharedWSEvent(WSEvent.GameStart);
+    const { lastData: gameStart } = useEventWebSocket(WSEventIn.GameStart);
 
     useEffect(() => {
         if (!gameStart) return;
