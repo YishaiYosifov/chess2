@@ -9,9 +9,12 @@ import {
     type LegalMoves,
     type PieceID,
     Color,
+    OutgoingMove,
+    WSEventOut,
 } from "@/models";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 import constants from "@/lib/constants";
+import { SendEventMessageFunction } from "@/hooks/useEventWS";
 
 export interface ChessStore {
     viewingFrom: Color;
@@ -30,7 +33,7 @@ export interface ChessStore {
     selectedPiecePosition?: Point;
 
     movePiece(from: Point, to: Point): void;
-    sendPieceMovement(to: Point): void;
+    sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
 }
@@ -80,11 +83,18 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
             },
 
-            sendPieceMovement(to: Point): void {
+            sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void {
                 const from = get().selectedPiecePosition;
-                if (!from) return;
+                if (!from) {
+                    console.warn(
+                        `Could not send piece movement from ${from} to ${to}` +
+                            "because no piece was selected"
+                    );
+                    return;
+                }
 
-                console.log(from, to);
+                const message = { origin: from, destination: to };
+                wsSendMethod(WSEventOut.Move, message);
             },
 
             /**

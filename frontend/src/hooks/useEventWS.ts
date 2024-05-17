@@ -1,6 +1,6 @@
 import useWebSocket, { Options as WSOptions } from "react-use-websocket";
 import { WebSocketHook } from "react-use-websocket/dist/lib/types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import {
     WSEventIn,
@@ -9,12 +9,13 @@ import {
     WSOutEventMessageMap,
 } from "@/models";
 
+export type SendEventMessageFunction = <T extends WSEventOut>(
+    event: T,
+    message: WSOutEventMessageMap[T],
+    keep?: boolean
+) => void;
 type EventWebSocketHook<E extends WSEventIn> = WebSocketHook & {
-    sendEventMessage: <T extends WSEventOut>(
-        event: T,
-        message: WSOutEventMessageMap[T],
-        keep?: boolean
-    ) => void;
+    sendEventMessage: SendEventMessageFunction;
     lastData: WSInEventMessageMap[E] | null;
 };
 

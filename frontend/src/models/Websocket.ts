@@ -1,3 +1,5 @@
+import { Point } from "./Game";
+
 export const enum WSEventIn {
     Notification = "notification",
     GameStart = "game_start",
@@ -8,20 +10,17 @@ export const enum WSEventOut {
     Resign = "resign",
 }
 
-export interface Notification {
-    someValue: boolean;
-}
-
-export interface GameStart {
-    token: string;
-}
-
 export interface WSInEventMessageMap {
-    [WSEventIn.Notification]: Notification;
-    [WSEventIn.GameStart]: GameStart;
+    [WSEventIn.Notification]: null;
+    [WSEventIn.GameStart]: null;
+}
+
+export interface OutgoingMove {
+    origin: Point;
+    destination: Point;
 }
 
 export interface WSOutEventMessageMap {
-    [WSEventOut.Move]: null;
+    [WSEventOut.Move]: OutgoingMove;
     [WSEventOut.Resign]: null;
 }
