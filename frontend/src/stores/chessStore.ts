@@ -9,7 +9,6 @@ import {
     type LegalMoves,
     type PieceID,
     Color,
-    OutgoingMove,
     WSEventOut,
 } from "@/models";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";

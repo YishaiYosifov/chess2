@@ -19,7 +19,7 @@ export interface WSInEventMessageMap {
     [WSEventIn.GameStart]: GameStart;
 }
 
-export interface OutgoingMove {
+interface OutgoingMove {
     origin: Point;
     destination: Point;
 }
