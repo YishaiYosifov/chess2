@@ -10,9 +10,13 @@ export const enum WSEventOut {
     Resign = "resign",
 }
 
+interface GameStart {
+    token: string;
+}
+
 export interface WSInEventMessageMap {
     [WSEventIn.Notification]: null;
-    [WSEventIn.GameStart]: null;
+    [WSEventIn.GameStart]: GameStart;
 }
 
 export interface OutgoingMove {
