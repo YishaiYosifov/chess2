@@ -14,11 +14,15 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const playingAs = useChessStore((state) => state.playingAs);
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
 
+    const [isDragging, setIsDragging] = useState(false);
+
     if (!piece) return;
 
     const { position, pieceType, color } = piece;
 
     function startDragging(event: ReactMouseEvent): void {
+        setIsDragging(true);
+
         // calculate the dragging offset
         // snap the center of the piece to the mouse when dragging start
         const rect = pieceRef.current!.getBoundingClientRect();
@@ -40,6 +44,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
 
         // reset the event listeners and the dragging offset
         function stopDragging(): void {
+            setIsDragging(false);
+
             setDraggingOffset([0, 0]);
             window.removeEventListener("pointermove", handleMove);
             window.removeEventListener("pointerup", stopDragging);
@@ -55,7 +61,9 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         <ChessSquare
             data-testid="piece"
             position={position}
-            className={styles.piece}
+            className={`${styles.piece} ${
+                isDragging && styles["dragging-piece"]
+            }`}
             ref={pieceRef}
             onPointerDown={(event) => {
                 const canDrag =
