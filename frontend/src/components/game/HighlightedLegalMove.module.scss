@@ -4,6 +4,8 @@
     background-size: 100% 100%;
     background-position: center;
 
+    z-index: 2;
+
     transition: all 0.1s ease-out;
     &:hover {
         background-size: 140% 140%;
