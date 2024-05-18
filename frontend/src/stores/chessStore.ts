@@ -35,6 +35,7 @@ export interface ChessStore {
     sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
+    clearLegalMoves(): void;
 }
 
 const defaultState = {
@@ -82,8 +83,18 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
             },
 
+            /**
+             * Send a websocket event to move the selected piece to a point
+             *
+             * @param wsSendMethod - the method to call to send the websocket event
+             * @param to - the position to move the piece to
+             */
             sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void {
-                const from = get().selectedPiecePosition;
+                const {
+                    selectedPiecePosition: from,
+                    movePiece,
+                    clearLegalMoves,
+                } = get();
                 if (!from) {
                     console.warn(
                         `Could not send piece movement from ${from} to ${to}` +
@@ -92,8 +103,13 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     return;
                 }
 
-                const message = { origin: from, destination: to };
-                wsSendMethod(WSEventOut.Move, message);
+                clearLegalMoves();
+                wsSendMethod(WSEventOut.Move, {
+                    origin: from,
+                    destination: to,
+                });
+
+                movePiece(from, to);
             },
 
             /**
@@ -131,6 +147,16 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
                     state.selectedPiecePosition = position;
+                });
+            },
+
+            /**
+             * Hide all highlighted legal moves
+             */
+            clearLegalMoves(): void {
+                set((state) => {
+                    state.highlightedLegalMoves = [];
+                    state.selectedPiecePosition = undefined;
                 });
             },
         })),

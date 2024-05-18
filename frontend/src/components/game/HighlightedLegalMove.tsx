@@ -1,8 +1,9 @@
 import styles from "./HighlightedLegalMove.module.scss";
-import { useChessStore } from "@/hooks/useChess";
-import ChessSquare from "./ChessSquare";
-import { Point, WSEventOut } from "@/models";
 import { useEventWebSocket } from "@/hooks/useEventWS";
+import { useChessStore } from "@/hooks/useChess";
+import { Point } from "@/models";
+
+import ChessSquare from "./ChessSquare";
 
 const HighlightedLegalMove = ({ position }: { position: Point }) => {
     const { sendEventMessage } = useEventWebSocket();
