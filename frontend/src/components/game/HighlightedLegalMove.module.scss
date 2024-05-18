@@ -9,6 +9,7 @@
     transition: all 0.1s ease-out;
     &:hover {
         border: solid rgba(255, 255, 255, 0.5) 5px;
+        background-color: rgba(105, 105, 105, 0.2);
     }
 
     animation: fadeIn 0.15s ease-out;
