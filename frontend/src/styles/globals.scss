@@ -2,7 +2,7 @@
 @import "./variables.module";
 
 * {
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     padding: 0;
     margin: 0;
 }
