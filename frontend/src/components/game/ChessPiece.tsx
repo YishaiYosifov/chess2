@@ -45,8 +45,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         // reset the event listeners and the dragging offset
         function stopDragging(): void {
             setIsDragging(false);
-
             setDraggingOffset([0, 0]);
+
             window.removeEventListener("pointermove", handleMove);
             window.removeEventListener("pointerup", stopDragging);
         }
