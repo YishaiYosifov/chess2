@@ -1,6 +1,10 @@
-﻿using System.Text;
+﻿namespace Chess2Backend.Models;
 
-namespace Chess2Backend.Models;
+public class AppConfig
+{
+    public required string SecretKey { get; set; }
+    public required DatabaseConfig Database { get; set; }
+}
 
 public class DatabaseConfig
 {
