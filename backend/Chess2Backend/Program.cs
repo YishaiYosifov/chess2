@@ -1,23 +1,28 @@
 using Chess2Backend.Models;
+using Chess2Backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.Configure<DatabaseConfig>(
-    builder.Configuration.GetSection(nameof(DatabaseConfig)));
-
-var dbConfig = builder.Configuration.GetSection(nameof(DatabaseConfig)).Get<DatabaseConfig>()
-    ?? throw new ArgumentException("Database config not provided in appsettings");
-
-builder.Services.AddDbContextPool<Chess2DbContext>(options =>
-    options.UseNpgsql(dbConfig.GetConnectionString()));
+var appConfigSection = builder.Configuration.GetSection(nameof(AppConfig));
+builder.Services.Configure<AppConfig>(appConfigSection);
+var appConfig = appConfigSection.Get<AppConfig>()
+    ?? throw new InvalidOperationException("App config not provided in appsettings");
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
+    options.UseNpgsql(appConfig.Database.GetConnectionString())
+    .UseInternalServiceProvider(serviceProvider));
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+builder.Services.AddSingleton<TokenService>();
 
 var app = builder.Build();
 
