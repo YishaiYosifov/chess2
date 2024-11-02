@@ -11,9 +11,9 @@ public class AuthController(TokenService tokenService, ILogger<AuthController> l
     private readonly TokenService _tokenService = tokenService;
     private readonly ILogger<AuthController> _logger = logger;
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public void Register([FromBody] UserLogin userLogin)
     {
-        _logger.LogInformation(userLogin.UserName);
+        _logger.LogInformation(userLogin.Username);
     }
 }

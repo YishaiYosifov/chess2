@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2Backend", "Chess2Backend\Chess2Backend.csproj", "{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2Backend", "Chess2Backend\Chess2Backend.csproj", "{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2Backend.Integration", "Chess2Backend.Integration\Chess2Backend.Integration.csproj", "{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6} = {905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB364029-8E15-4337-926F-4DD1EEC5FD12}
