@@ -6,13 +6,14 @@ namespace Chess2Backend.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthController(TokenService tokenService) : Controller
+public class AuthController(TokenService tokenService, ILogger<AuthController> logger) : Controller
 {
     private readonly TokenService _tokenService = tokenService;
+    private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("Register")]
     public void Register([FromBody] UserLogin userLogin)
     {
-        Console.WriteLine(userLogin);
+        _logger.LogInformation(userLogin.UserName);
     }
 }

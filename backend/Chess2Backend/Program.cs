@@ -1,10 +1,18 @@
 using Chess2Backend.Models;
 using Chess2Backend.Services;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File("chess2.log")
+    .CreateLogger();
+builder.Services.AddSerilog();
 
 var appConfigSection = builder.Configuration.GetSection(nameof(AppConfig));
 builder.Services.Configure<AppConfig>(appConfigSection);
