@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Chess2Backend\Chess2Backend.csproj" />
+    <ProjectReference Include="..\..\Chess2Backend\Chess2Backend.csproj" />
   </ItemGroup>
 
   <ItemGroup>
