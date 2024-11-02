@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2Backend", "Chess2Back
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2Backend.Integration", "Chess2Backend.Integration\Chess2Backend.Integration.csproj", "{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2Backend.Integration", "Tests\Chess2Backend.Integration\Chess2Backend.Integration.csproj", "{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
