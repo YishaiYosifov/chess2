@@ -13,9 +13,10 @@ public interface IUserRepository
     public Task<Result<User>> RegisterUser(UserIn user, CancellationToken cancellation = default);
 }
 
-public class UserRepository(Chess2DbContext dbContext) : IUserRepository
+public class UserRepository(Chess2DbContext dbContext, PasswordHasher passwordHasher) : IUserRepository
 {
     private readonly Chess2DbContext _dbContext = dbContext;
+    private readonly PasswordHasher _passwordHasher = passwordHasher;
 
     public async Task<bool> IsUsernameTaken(string username, CancellationToken cancellation = default) =>
         await _dbContext.Users.AnyAsync(user => user.Username == username, cancellation);
@@ -30,10 +31,14 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
         if (await IsEmailTaken(user.Email, cancellation))
             return Result<User>.Failure(UserErrors.EmailTaken);
 
+        var salt = _passwordHasher.GenerateSalt();
+        var hash = _passwordHasher.HashPassword(user.Password, salt);
         var dbUser = new User()
         {
             Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
+            PasswordHash = hash,
+            PasswordSalt = salt,
         };
         await _dbContext.Users.AddAsync(dbUser, cancellation);
         await _dbContext.SaveChangesAsync(cancellation);
