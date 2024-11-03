@@ -18,10 +18,10 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
     private readonly Chess2DbContext _dbContext = dbContext;
 
     public async Task<bool> IsUsernameTaken(string username, CancellationToken cancellation = default) =>
-        await _dbContext.Users.AnyAsync(user => user.Username.ToLower() == username.ToLower(), cancellation);
+        await _dbContext.Users.AnyAsync(user => user.Username.Equals(username, StringComparison.CurrentCultureIgnoreCase), cancellation);
 
     public async Task<bool> IsEmailTaken(string email, CancellationToken cancellation = default) =>
-        await _dbContext.Users.AnyAsync(user => user.Email.ToLower() == email.ToLower(), cancellation);
+        await _dbContext.Users.AnyAsync(user => user.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase), cancellation);
 
     public async Task<Result<User>> RegisterUser(UserIn user, CancellationToken cancellation = default)
     {
