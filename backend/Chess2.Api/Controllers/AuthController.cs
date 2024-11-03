@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models.Requests;
+﻿using Chess2.Api.Errors;
+using Chess2.Api.Models.Requests;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,8 +15,9 @@ public class AuthController(ILogger<AuthController> logger, TokenService tokenSe
     private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] UserInRequest userIn, CancellationToken cancellation)
+    public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        throw new Exception("test");
+        var result = await _userRepository.RegisterUser(userIn, cancellation);
+        return result.ToResult();
     }
 }
