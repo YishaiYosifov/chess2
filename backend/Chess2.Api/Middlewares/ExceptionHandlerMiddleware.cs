@@ -18,8 +18,8 @@ public class ExceptionHandlerMiddleware(ILogger<ExceptionHandlerMiddleware> logg
             var traceId = Activity.Current?.Id;
             _logger.LogError(
                 ex,
-                "Could not process a request on machine {Machine}. TraceId: {TraceId}",
-                Environment.MachineName,
+                "Could not process a request for path {Path}. TraceId: {TraceId}",
+                context.Request.Path,
                 traceId);
 
             await Results.Problem(
@@ -27,7 +27,7 @@ public class ExceptionHandlerMiddleware(ILogger<ExceptionHandlerMiddleware> logg
                 statusCode: StatusCodes.Status500InternalServerError,
                 extensions: new Dictionary<string, object?>()
                 {
-                    {"traceOd", traceId }
+                    {"traceId", traceId }
                 }).ExecuteAsync(context);
         }
     }
