@@ -1,4 +1,6 @@
+using Chess2.Api.Middlewares;
 using Chess2.Api.Models;
+using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -24,9 +26,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddTransient<ExceptionHandlerMiddleware>();
+
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
-    options.UseNpgsql(appConfig.Database.GetConnectionString())
-    .UseInternalServiceProvider(serviceProvider));
+    options.UseNpgsql(appConfig.Database.GetConnectionString()));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
@@ -40,6 +44,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
