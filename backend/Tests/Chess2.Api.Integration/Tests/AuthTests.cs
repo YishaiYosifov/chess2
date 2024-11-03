@@ -10,7 +10,7 @@ namespace Chess2.Api.Integration.Tests;
 public class AuthTests(Chess2WebApplicationFactory factory) : IClassFixture<Chess2WebApplicationFactory>
 {
     private readonly Chess2WebApplicationFactory _factory = factory;
-    private readonly IChess2Api _apiClient = RestService.For<IChess2Api>(factory.CreateClient());
+    private readonly IChess2Api _apiClient = factory.CreateTypedClient();
 
     [Fact]
     public async Task Test()

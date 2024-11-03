@@ -11,11 +11,11 @@ public class TokenService(IOptions<AppConfig> config)
 {
     private readonly AppConfig _config = config.Value;
 
-    public string GenerateToken(string username)
+    public string GenerateToken(int userId)
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, username),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.SecretKey));
