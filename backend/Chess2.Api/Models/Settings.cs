@@ -18,7 +18,6 @@ public class DatabaseConfig
 
     public string GetConnectionString()
     {
-        var encodedPassword = Uri.EscapeDataString(Password);
-        return $"postgresql://{Username}:{encodedPassword}@{Host}:{Port}/{Database}";
+        return $"Host={Host};Port={Port};Username={Username};Password={Password};Database={Database}";
     }
 }

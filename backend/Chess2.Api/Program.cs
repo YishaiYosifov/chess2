@@ -29,7 +29,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
-    options.UseNpgsql(appConfig.Database.GetConnectionString()));
+    options.UseNpgsql(appConfig.Database.GetConnectionString())
+    .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddAuthorization();
