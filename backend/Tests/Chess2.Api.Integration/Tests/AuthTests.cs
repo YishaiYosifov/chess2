@@ -12,6 +12,7 @@ public class AuthTests(Chess2WebApplicationFactory factory) : IClassFixture<Ches
         {
             Username = "asd",
             Password = "password",
+            Email = "email",
         });
     }
 }
