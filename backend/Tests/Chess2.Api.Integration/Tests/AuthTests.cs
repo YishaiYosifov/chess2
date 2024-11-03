@@ -1,11 +1,4 @@
-﻿using Refit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Chess2.Api.Integration.Tests;
+﻿namespace Chess2.Api.Integration.Tests;
 
 public class AuthTests(Chess2WebApplicationFactory factory) : IClassFixture<Chess2WebApplicationFactory>
 {
@@ -15,7 +8,8 @@ public class AuthTests(Chess2WebApplicationFactory factory) : IClassFixture<Ches
     [Fact]
     public async Task Test()
     {
-        await _apiClient.Register(new() {
+        await _apiClient.Register(new()
+        {
             Username = "asd",
             Password = "password",
         });
