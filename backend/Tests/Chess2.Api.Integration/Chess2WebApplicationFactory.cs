@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>
         builder.ConfigureServices(services =>
         {
             // remove the existing database context, use an in-memory one instead
-            var dbDescriptor = services.SingleOrDefault(d =>
-                d.ServiceType == typeof(DbContextOptions<Chess2DbContext>));
-            if (dbDescriptor != null)
-                services.Remove(dbDescriptor);
-
+            services.RemoveAll(typeof(DbContextOptions<Chess2DbContext>));
             services.AddDbContextPool<Chess2DbContext>(options =>
                 options.UseInMemoryDatabase("TestDB"));
         });
