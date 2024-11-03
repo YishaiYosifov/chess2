@@ -36,6 +36,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<PasswordHasher>();
 
 var app = builder.Build();
 
