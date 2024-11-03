@@ -1,47 +1,51 @@
-﻿using Chess2.Api.Errors;
+﻿using System.Diagnostics;
 
 namespace Chess2.Api.Services;
 
 public class Result<TValue>
 {
-    private Result(TValue value)
+    private readonly TValue? _value;
+    public Error? Error { get; }
+
+    public bool IsSuccess => Error == null;
+    public TValue Value
     {
-        Value = value;
+        get
+        {
+            return _value
+                ?? throw new ArgumentNullException("value");
+        }
     }
 
-    private Result(Error error)
+    protected Result(TValue value)
+    {
+        _value = value;
+    }
+
+    protected Result(Error error)
     {
         Error = error;
     }
-
-    public TValue? Value { get; }
-    public Error? Error { get; }
-    public bool IsSuccess => Error == null;
 
     public static Result<TValue> Success(TValue value) => new(value);
     public static Result<TValue> Failure(Error error) => new(error);
 
     public IResult ToResult()
     {
-        if (Error is null) return CreateSuccessResult();
-        else
-        {
-            return Results.Problem(
-                statusCode: Error.StatusCode,
-                title: Error.Title,
-                type: Error.Type,
-                extensions: new Dictionary<string, object?>
-                {
-                    { "code", Error.Code },
-                    { "description", Error.Description }
-                }
-            );
-        }
-    }
+        if (Error is null)
+            return Results.Ok(Value);
 
-    private IResult CreateSuccessResult()
-    {
-        if (Value is null) return Results.NoContent();
-        else return Results.Ok(Value);
+
+        return Results.Problem(
+            statusCode: Error.StatusCode,
+            title: Error.Title,
+            type: Error.Type,
+            extensions: new Dictionary<string, object?>
+            {
+                { "code", Error.Code },
+                { "description", Error.Description },
+                { "traceId", Activity.Current?.Id }
+            }
+        );
     }
 }
