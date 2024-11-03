@@ -1,8 +1,8 @@
-﻿using Chess2Backend.Models;
-using Chess2Backend.Services;
+﻿using Chess2.Api.Models;
+using Chess2.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chess2Backend.Controllers;
+namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
