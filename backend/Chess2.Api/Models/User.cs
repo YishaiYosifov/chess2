@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Chess2.Api.Models;
+﻿namespace Chess2.Api.Models;
 
 public class User
 {
