@@ -1,19 +1,21 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Models.Requests;
+using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class AuthController(TokenService tokenService, ILogger<AuthController> logger) : Controller
+[Route("api/[controller]")]
+public class AuthController(ILogger<AuthController> logger, TokenService tokenService, IUserRepository userRepository) : Controller
 {
+    private readonly IUserRepository _userRepository = userRepository;
     private readonly TokenService _tokenService = tokenService;
     private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("register")]
-    public void Register([FromBody] UserLogin userLogin)
+    public async Task<IActionResult> Register([FromBody] UserInRequest userIn, CancellationToken cancellation)
     {
-        _logger.LogInformation(userLogin.Username);
+        throw new Exception("test");
     }
 }
