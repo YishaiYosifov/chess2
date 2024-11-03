@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
-using Chess2Backend.Models;
+using Chess2.Api.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Chess2Backend.Services;
+namespace Chess2.Api.Services;
 
 public class TokenService(IOptions<AppConfig> config)
 {

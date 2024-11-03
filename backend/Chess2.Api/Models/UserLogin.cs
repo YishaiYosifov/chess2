@@ -1,4 +1,4 @@
-﻿namespace Chess2Backend.Models;
+﻿namespace Chess2.Api.Models;
 
 public class UserLogin
 {

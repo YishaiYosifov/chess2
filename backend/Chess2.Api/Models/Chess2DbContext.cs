@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Chess2Backend.Models;
+namespace Chess2.Api.Models;
 
 public class Chess2DbContext(DbContextOptions<DbContext> options) : DbContext(options)
 {
