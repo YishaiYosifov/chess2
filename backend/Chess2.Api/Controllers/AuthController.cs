@@ -18,6 +18,8 @@ public class AuthController(ILogger<AuthController> logger, TokenService tokenSe
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
         var result = await _userRepository.RegisterUser(userIn, cancellation);
+        if (result.IsSuccess)
+            _logger.LogInformation("Created user {Username}", userIn.Username);
         return result.ToResult();
     }
 }
