@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Errors;
 using Chess2.Api.Models;
-using Chess2.Api.Models.Requests;
+using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.EntityFrameworkCore;
 

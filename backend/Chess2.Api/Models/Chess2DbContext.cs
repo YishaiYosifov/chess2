@@ -10,19 +10,4 @@ public class Chess2DbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
-
-    /// <summary>
-    /// Make comparisons case insensitive
-    /// </summary>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.UseCollation("NOCASE");
-        foreach (var p in modelBuilder.Model.GetEntityTypes()
-            .SelectMany(t => t.GetProperties())
-            .Where(p => p.ClrType == typeof(string)))
-        {
-            p.SetCollation("NOCASE");
-        }
-
-    }
 }

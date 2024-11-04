@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿using Chess2.Api.Errors;
 
 namespace Chess2.Api.Services;
 
@@ -30,22 +30,15 @@ public class Result<TValue>
     public static Result<TValue> Success(TValue value) => new(value);
     public static Result<TValue> Failure(Error error) => new(error);
 
-    public IResult ToResult()
+    public IResult Match(Func<TValue, IResult> onSuccess) =>
+        IsSuccess ? onSuccess(Value) : ToProblemDetails();
+
+    public IResult ToProblemDetails()
     {
         if (Error is null)
-            return Results.Ok(Value);
+            throw new InvalidOperationException();
 
 
-        return Results.Problem(
-            statusCode: Error.StatusCode,
-            title: Error.Title,
-            type: Error.Type,
-            extensions: new Dictionary<string, object?>
-            {
-                { "code", Error.Code },
-                { "description", Error.Description },
-                { "traceId", Activity.Current?.Id }
-            }
-        );
+        return Results.Problem(Error);
     }
 }
