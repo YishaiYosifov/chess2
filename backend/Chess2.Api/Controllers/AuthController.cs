@@ -18,7 +18,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [ProducesResponseType(typeof(ConflictError), StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        var result = await userService.RegisterUser(userIn, cancellation);
+        var result = await _userService.RegisterUser(userIn, cancellation);
         if (result.IsSuccess)
             _logger.LogInformation("Created user {Username}", userIn.Username);
 
