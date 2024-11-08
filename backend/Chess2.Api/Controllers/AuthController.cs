@@ -47,6 +47,6 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [Authorize]
     public async Task Test(CancellationToken cancellation)
     {
-        
+
     }
 }

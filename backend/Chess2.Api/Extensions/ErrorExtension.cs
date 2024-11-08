@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using System.Diagnostics;
-using static System.Net.WebRequestMethods;
 
 namespace Chess2.Api.Extensions;
 
