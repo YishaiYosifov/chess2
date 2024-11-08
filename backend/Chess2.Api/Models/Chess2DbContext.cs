@@ -10,5 +10,5 @@ public class Chess2DbContext : DbContext
         Database.EnsureCreated();
     }
 
-    public DbSet<UserEntity> Users { get; set; }
+    public DbSet<User> Users { get; set; }
 }

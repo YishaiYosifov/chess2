@@ -17,7 +17,7 @@ public class TestClaimsProvider
         Claims = [];
     }
 
-    public static TestClaimsProvider WithUser(UserEntity user)
+    public static TestClaimsProvider WithUser(User user)
     {
         return new TestClaimsProvider([new Claim(
             ClaimTypes.NameIdentifier,

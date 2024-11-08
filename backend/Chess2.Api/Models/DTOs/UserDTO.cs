@@ -9,7 +9,7 @@ public class UserIn
     public required string Password { get; set; }
 }
 
-public class UserOut(UserEntity user)
+public class UserOut(User user)
 {
     public int UserId { get; set; } = user.UserId;
     public string Username { get; set; } = user.Username;

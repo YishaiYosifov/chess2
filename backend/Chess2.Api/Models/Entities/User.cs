@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.Models.Entities;
 
-public class UserEntity
+public class User
 {
     public int UserId { get; set; }
     public required string Username { get; set; }
