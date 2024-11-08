@@ -8,7 +8,9 @@ public class AppSettings
 
 public class JwtSettings
 {
-    public int ExpiresInMinutes { get; set; }
+    public required string SecretKey {  get; set; }
+    public int AccessExpiresInMinute { get; set; }
+    public int RefreshExpiresInDays { get; set; }
     public required string Issuer { get; set; }
     public required string Audience { get; set; }
 }

@@ -10,26 +10,41 @@ namespace Chess2.Api.Services;
 
 public interface ITokenProvider
 {
-    string GenerateToken(User user);
+    string GenerateAccessToken(User user);
+    string GenerateRefreshToken(User user);
 }
 
 public class TokenProvider(IOptions<AppSettings> config) : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = config.Value.Jwt;
 
-    public string GenerateToken(User user)
+    public string GenerateAccessToken(User user)
     {
-        var claims = new ClaimsIdentity(
-        [
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
-        ]);
+        return GenerateToken(
+            new ClaimsIdentity(
+            [
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim("type", "access"),
+            ]), DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute));
+    }
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret-secret-secret-secret-secret-secret"));
+    public string GenerateRefreshToken(User user)
+    {
+        return GenerateToken(
+            new ClaimsIdentity([
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim("type", "refresh"),
+            ]), DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays));
+    }
+
+    private string GenerateToken(ClaimsIdentity claims, DateTime expires)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = claims,
-            Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresInMinutes),
+            Expires = expires,
             SigningCredentials = creds,
             Issuer = _jwtSettings.Issuer,
             Audience = _jwtSettings.Audience,
