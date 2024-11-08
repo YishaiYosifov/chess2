@@ -3,6 +3,7 @@ using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Chess2.Api.Controllers;
 
@@ -47,6 +48,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [Authorize]
     public async Task Test(CancellationToken cancellation)
     {
-
+        var userId = User.FindFirst(JwtRegisteredClaimNames.Sub);
+        _logger.LogError(userId?.Value);
     }
 }
