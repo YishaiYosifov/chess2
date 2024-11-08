@@ -23,7 +23,7 @@ public class TokenProvider(IOptions<AppSettings> config) : ITokenProvider
         return GenerateToken(
             new ClaimsIdentity(
             [
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("type", "access"),
             ]), DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute));
     }
@@ -32,7 +32,7 @@ public class TokenProvider(IOptions<AppSettings> config) : ITokenProvider
     {
         return GenerateToken(
             new ClaimsIdentity([
-                new Claim(JwtRegisteredClaimNames.Sub, user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("type", "refresh"),
             ]), DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays));
     }

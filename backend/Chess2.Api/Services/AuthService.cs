@@ -5,6 +5,8 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
+using Microsoft.IdentityModel.JsonWebTokens;
+using System.Security.Claims;
 
 namespace Chess2.Api.Services;
 
@@ -12,14 +14,17 @@ public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
+    Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation);
 }
 
 public class AuthService(
     IValidator<UserIn> userValidator,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    ITokenProvider tokenProvider) : IAuthService
+    ITokenProvider tokenProvider,
+    IHttpContextAccessor httpContextAccessor) : IAuthService
 {
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IValidator<UserIn> _userValidator = userValidator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
@@ -80,5 +85,19 @@ public class AuthService(
             AccessToken = _tokenProvider.GenerateAccessToken(dbUser),
             RefreshToken = _tokenProvider.GenerateRefreshToken(dbUser),
         };
+    }
+
+    public async Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation)
+    {
+        var userIdentities = _httpContextAccessor.HttpContext?.User;
+        var userIdClaim = userIdentities?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim is null
+            || !int.TryParse(userIdClaim.Value, out var userId))
+            return Error.Unauthorized();
+
+        var user = await _userRepository.GetByUserIdAsync(userId);
+        if (user is null) return Error.Unauthorized();
+
+        return user;
     }
 }

@@ -8,6 +8,7 @@ public interface IUserRepository
 {
     public Task<User?> GetByUsernameAsync(string username, CancellationToken cancellation = default);
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default);
+    public Task<User?> GetByUserIdAsync(int userId, CancellationToken cancellation = default);
     public Task AddUserAsync(User user, CancellationToken cancellation = default);
 }
 
@@ -20,6 +21,9 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default) =>
         await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == email, cancellation);
+
+    public async Task<User?> GetByUserIdAsync(int userId, CancellationToken cancellation = default) =>
+        await _dbContext.Users.FirstOrDefaultAsync(user => user.UserId == userId, cancellation);
 
     public async Task AddUserAsync(User user, CancellationToken cancellation = default)
     {
