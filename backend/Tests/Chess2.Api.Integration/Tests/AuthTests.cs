@@ -1,12 +1,7 @@
-﻿using AutoFixture;
-using AutoFixture.Xunit2;
-using Chess2.Api.Integration.Fakes;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Integration.Fakes;
 using Chess2.Api.Models.DTOs;
-using Chess2.Api.Models.Entities;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 
 namespace Chess2.Api.Integration.Tests;
@@ -30,7 +25,7 @@ public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTes
         registeredUser.Should().NotBeNull();
         (registeredUser?.Username).Should().Be(userIn.Username);
         (registeredUser?.Email).Should().Be(userIn.Email);
-        
+
         allUsers.Should().HaveCount(1);
         var dbUser = allUsers.First();
         dbUser.Username.Should().Be(userIn.Username);

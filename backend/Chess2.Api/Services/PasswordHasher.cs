@@ -8,6 +8,7 @@ public interface IPasswordHasher
 {
     Task<byte[]> HashPasswordAsync(string password, byte[] salt);
     byte[] GenerateSalt();
+    Task<bool> VerifyPassword(string password, byte[] hash, byte[] salt);
 }
 
 public class PasswordHasher : IPasswordHasher
@@ -44,5 +45,14 @@ public class PasswordHasher : IPasswordHasher
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(salt);
         return salt;
+    }
+
+    /// <summary>
+    /// Verify the password matches the hash and salt
+    /// </summary>
+    public async Task<bool> VerifyPassword(string password, byte[] hash, byte[] salt)
+    {
+        var verifyHash = await HashPasswordAsync(password, salt);
+        return verifyHash.SequenceEqual(hash);
     }
 }

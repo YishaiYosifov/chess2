@@ -10,47 +10,69 @@ namespace Chess2.Api.Services;
 
 public interface IUserService
 {
-    Task<ErrorOr<User>> RegisterUserAsync(UserIn user, CancellationToken cancellation);
+    Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
+
+    Task<ErrorOr<string>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
 }
 
-public class UserService(IValidator<UserIn> userValidator, IUserRepository userRepository, IPasswordHasher passwordHasher) : IUserService
+public class UserService(
+    IValidator<UserIn> userValidator,
+    IUserRepository userRepository,
+    IPasswordHasher passwordHasher,
+    ITokenProvider tokenProvider) : IUserService
 {
     private readonly IValidator<UserIn> _userValidator = userValidator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly ITokenProvider _tokenProvider = tokenProvider;
 
     /// <summary>
     /// Register a new user
     /// </summary>
-    /// <param name="user">The user DTO received from the client</param>
-    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn user, CancellationToken cancellation)
+    /// <param name="userIn">The user DTO received from the client</param>
+    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation)
     {
-        var validationResult = await _userValidator.ValidateAsync(user, cancellation);
+        var validationResult = await _userValidator.ValidateAsync(userIn, cancellation);
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList();
 
         // make sure there are no conflicts
         var conflictErrors = new List<Error>();
-        if (await _userRepository.IsUsernameTaken(user.Username, cancellation))
+        if (await _userRepository.GetByUsernameAsync(userIn.Username, cancellation) is not null)
             conflictErrors.Add(UserErrors.UsernameTaken);
-        if (await _userRepository.IsEmailTaken(user.Email, cancellation))
+        if (await _userRepository.GetByEmailAsync(userIn.Email, cancellation) is not null)
             conflictErrors.Add(UserErrors.EmailTaken);
 
         if (conflictErrors.Count != 0) return conflictErrors;
 
         // create the user
         var salt = _passwordHasher.GenerateSalt();
-        var hash = await _passwordHasher.HashPasswordAsync(user.Password, salt);
+        var hash = await _passwordHasher.HashPasswordAsync(userIn.Password, salt);
 
         var dbUser = new User()
         {
-            Username = user.Username,
-            Email = user.Email,
+            Username = userIn.Username,
+            Email = userIn.Email,
             PasswordHash = hash,
             PasswordSalt = salt,
         };
         await _userRepository.AddUserAsync(dbUser, cancellation);
 
         return dbUser;
+    }
+
+    public async Task<ErrorOr<string>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
+    {
+        var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
+            ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
+        if (dbUser is null) return UserErrors.UserNotFound;
+
+        var isPasswordCorrect = await _passwordHasher.VerifyPassword(
+            userAuth.Password,
+            dbUser.PasswordHash,
+            dbUser.PasswordSalt);
+        if (!isPasswordCorrect) return UserErrors.Unauthorized;
+
+        return _tokenProvider.GenerateToken(dbUser);
     }
 }

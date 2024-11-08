@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Controllers;
@@ -19,11 +20,30 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
         var result = await _userService.RegisterUserAsync(userIn, cancellation);
-
         return result.Match((value) =>
         {
             _logger.LogInformation("Created user {Username}", userIn.Username);
             return Results.Ok(new UserOut(value));
         }, (errors) => errors.ToProblemDetails());
+    }
+
+    [HttpPost("login")]
+    public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
+    {
+        var result = await _userService.LoginUserAsync(userAuth, cancellation);
+        return result.Match((value) =>
+        {
+            _logger.LogInformation(
+                "User logged in with username/email {UsernameOrEmail}",
+                userAuth.UsernameOrEmail);
+            return Results.Ok(result.Value);
+        }, (errors) => errors.ToProblemDetails());
+    }
+
+    [HttpPost("test")]
+    [Authorize]
+    public async Task Test(CancellationToken cancellation)
+    {
+        
     }
 }
