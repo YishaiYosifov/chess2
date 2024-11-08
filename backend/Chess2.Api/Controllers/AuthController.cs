@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Errors;
+using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
@@ -15,14 +16,16 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
 
     [HttpPost("register")]
     [ProducesResponseType(typeof(UserOut), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ConflictError), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
         var result = await _userService.RegisterUser(userIn, cancellation);
-        if (result.IsSuccess)
-            _logger.LogInformation("Created user {Username}", userIn.Username);
 
-        return result.Match(value =>
-            Results.Ok(new UserOut(result.Value)));
+        return result.Match((value) =>
+        {
+            _logger.LogInformation("Created user {Username}", userIn.Username);
+            return Results.Ok(new UserOut(value));
+        }, (errors) => errors.ToProblemDetails());
     }
 }
