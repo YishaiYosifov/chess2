@@ -6,8 +6,8 @@ namespace Chess2.Api.Repositories;
 
 public interface IUserRepository
 {
-    public Task<bool> IsUsernameTaken(string username, CancellationToken cancellation = default);
-    public Task<bool> IsEmailTaken(string email, CancellationToken cancellation = default);
+    public Task<User?> GetByUsernameAsync(string username, CancellationToken cancellation = default);
+    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default);
     public Task AddUserAsync(User user, CancellationToken cancellation = default);
 }
 
@@ -15,11 +15,11 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
 {
     private readonly Chess2DbContext _dbContext = dbContext;
 
-    public async Task<bool> IsUsernameTaken(string username, CancellationToken cancellation = default) =>
-        await _dbContext.Users.AnyAsync(user => user.Username == username, cancellation);
+    public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellation = default) =>
+        await _dbContext.Users.Where(user => user.Username == username).FirstOrDefaultAsync(cancellation);
 
-    public async Task<bool> IsEmailTaken(string email, CancellationToken cancellation = default) =>
-        await _dbContext.Users.AnyAsync(user => user.Email == email, cancellation);
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default) =>
+        await _dbContext.Users.Where(user => user.Email == email).FirstOrDefaultAsync(cancellation);
 
     public async Task AddUserAsync(User user, CancellationToken cancellation = default)
     {

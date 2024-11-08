@@ -1,12 +1,19 @@
 ﻿namespace Chess2.Api.Models;
 
-public class AppConfig
+public class AppSettings
 {
-    public required string SecretKey { get; set; }
-    public required DatabaseConfig Database { get; set; }
+    public required DatabaseSettings Database { get; set; }
+    public required JwtSettings Jwt { get; set; }
 }
 
-public class DatabaseConfig
+public class JwtSettings
+{
+    public int ExpiresInMinutes { get; set; }
+    public required string Issuer { get; set; }
+    public required string Audience { get; set; }
+}
+
+public class DatabaseSettings
 {
     public required string Host { get; set; }
     public required string Port { get; set; }

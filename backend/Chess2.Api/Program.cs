@@ -5,8 +5,11 @@ using Chess2.Api.Models.Validators;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,10 +22,10 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Services.AddSerilog();
 
-var appConfigSection = builder.Configuration.GetSection(nameof(AppConfig));
-builder.Services.Configure<AppConfig>(appConfigSection);
-var appConfig = appConfigSection.Get<AppConfig>()
-    ?? throw new InvalidOperationException("App config not provided in appsettings");
+var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
+builder.Services.Configure<AppSettings>(appSettingsSection);
+var appSettings = appSettingsSection.Get<AppSettings>()
+    ?? throw new InvalidOperationException("App settings not provided in appsettings");
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -33,16 +36,28 @@ builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 
 # region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
-    options.UseNpgsql(appConfig.Database.GetConnectionString())
+    options.UseNpgsql(appSettings.Database.GetConnectionString())
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 # endregion
 
 # region Authentication
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opts =>
+    {
+        opts.RequireHttpsMetadata = false;
+        opts.TokenValidationParameters = new TokenValidationParameters()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("")),
+            ValidIssuer = appSettings.Jwt.Issuer,
+            ValidAudience = appSettings.Jwt.Audience,
+            ClockSkew = TimeSpan.Zero,
+        };
+    });
+
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 # endregion
 
 # region Services
@@ -66,6 +81,7 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
