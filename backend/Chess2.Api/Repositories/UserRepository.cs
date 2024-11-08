@@ -16,10 +16,10 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
     private readonly Chess2DbContext _dbContext = dbContext;
 
     public async Task<User?> GetByUsernameAsync(string username, CancellationToken cancellation = default) =>
-        await _dbContext.Users.Where(user => user.Username == username).FirstOrDefaultAsync(cancellation);
+        await _dbContext.Users.FirstOrDefaultAsync(user => user.Username == username, cancellation);
 
     public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default) =>
-        await _dbContext.Users.Where(user => user.Email == email).FirstOrDefaultAsync(cancellation);
+        await _dbContext.Users.FirstOrDefaultAsync(user => user.Email == email, cancellation);
 
     public async Task AddUserAsync(User user, CancellationToken cancellation = default)
     {
