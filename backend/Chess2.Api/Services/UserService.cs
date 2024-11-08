@@ -10,7 +10,7 @@ namespace Chess2.Api.Services;
 
 public interface IUserService
 {
-    Task<ErrorOr<User>> RegisterUser(UserIn user, CancellationToken cancellation);
+    Task<ErrorOr<User>> RegisterUserAsync(UserIn user, CancellationToken cancellation);
 }
 
 public class UserService(IValidator<UserIn> userValidator, IUserRepository userRepository, IPasswordHasher passwordHasher) : IUserService
@@ -23,9 +23,9 @@ public class UserService(IValidator<UserIn> userValidator, IUserRepository userR
     /// Register a new user
     /// </summary>
     /// <param name="user">The user DTO received from the client</param>
-    public async Task<ErrorOr<User>> RegisterUser(UserIn user, CancellationToken cancellation)
+    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn user, CancellationToken cancellation)
     {
-        var validationResult = _userValidator.Validate(user);
+        var validationResult = await _userValidator.ValidateAsync(user, cancellation);
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList();
 
@@ -40,7 +40,7 @@ public class UserService(IValidator<UserIn> userValidator, IUserRepository userR
 
         // create the user
         var salt = _passwordHasher.GenerateSalt();
-        var hash = await _passwordHasher.HashPassword(user.Password, salt);
+        var hash = await _passwordHasher.HashPasswordAsync(user.Password, salt);
 
         var dbUser = new User()
         {
@@ -49,7 +49,7 @@ public class UserService(IValidator<UserIn> userValidator, IUserRepository userR
             PasswordHash = hash,
             PasswordSalt = salt,
         };
-        await _userRepository.AddUser(dbUser, cancellation);
+        await _userRepository.AddUserAsync(dbUser, cancellation);
 
         return dbUser;
     }

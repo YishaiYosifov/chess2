@@ -20,7 +20,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        var result = await _userService.RegisterUser(userIn, cancellation);
+        var result = await _userService.RegisterUserAsync(userIn, cancellation);
 
         return result.Match((value) =>
         {

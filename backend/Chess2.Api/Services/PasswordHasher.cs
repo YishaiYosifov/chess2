@@ -6,7 +6,7 @@ namespace Chess2.Api.Services;
 
 public interface IPasswordHasher
 {
-    Task<byte[]> HashPassword(string password, byte[] salt);
+    Task<byte[]> HashPasswordAsync(string password, byte[] salt);
     byte[] GenerateSalt();
 }
 
@@ -23,7 +23,7 @@ public class PasswordHasher : IPasswordHasher
     /// </summary>
     /// <param name="password">The password to hash</param>
     /// <param name="salt">The salt to add to the password to make the has unique</param>
-    public Task<byte[]> HashPassword(string password, byte[] salt)
+    public Task<byte[]> HashPasswordAsync(string password, byte[] salt)
     {
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
         {
