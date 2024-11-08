@@ -4,7 +4,13 @@ using System.Text;
 
 namespace Chess2.Api.Services;
 
-public class PasswordHasher
+public interface IPasswordHasher
+{
+    Task<byte[]> HashPassword(string password, byte[] salt);
+    byte[] GenerateSalt();
+}
+
+public class PasswordHasher : IPasswordHasher
 {
     private const int SaltLength = 16;
     private const int HashLength = 32;
@@ -12,7 +18,12 @@ public class PasswordHasher
     private const int MemorySize = 65536;
     private const int DegreeOfParallelism = 4;
 
-    public byte[] HashPassword(string password, byte[] salt)
+    /// <summary>
+    /// Generate an argon2id hash for a password with a salt
+    /// </summary>
+    /// <param name="password">The password to hash</param>
+    /// <param name="salt">The salt to add to the password to make the has unique</param>
+    public Task<byte[]> HashPassword(string password, byte[] salt)
     {
         var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
         {
@@ -21,9 +32,12 @@ public class PasswordHasher
             Iterations = Iterations,
             Salt = salt,
         };
-        return argon2.GetBytes(HashLength);
+        return argon2.GetBytesAsync(HashLength);
     }
 
+    /// <summary>
+    /// Generate a random salt
+    /// </summary>
     public byte[] GenerateSalt()
     {
         var salt = new byte[SaltLength];

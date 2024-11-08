@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Models.Entities;
 using System.Security.Claims;
 
 namespace Chess2.Api.Integration;
@@ -17,7 +17,7 @@ public class TestClaimsProvider
         Claims = [];
     }
 
-    public static TestClaimsProvider WithUser(User user)
+    public static TestClaimsProvider WithUser(UserEntity user)
     {
         return new TestClaimsProvider([new Claim(
             ClaimTypes.NameIdentifier,

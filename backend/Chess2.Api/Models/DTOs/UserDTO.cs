@@ -1,4 +1,6 @@
-﻿namespace Chess2.Api.Models.DTOs;
+﻿using Chess2.Api.Models.Entities;
+
+namespace Chess2.Api.Models.DTOs;
 
 public class UserIn
 {
@@ -7,7 +9,7 @@ public class UserIn
     public required string Password { get; set; }
 }
 
-public class UserOut(User user)
+public class UserOut(UserEntity user)
 {
     public int UserId { get; set; } = user.UserId;
     public string Username { get; set; } = user.Username;

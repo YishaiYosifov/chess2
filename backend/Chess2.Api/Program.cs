@@ -1,7 +1,10 @@
 using Chess2.Api.Middlewares;
 using Chess2.Api.Models;
+using Chess2.Api.Models.DTOs;
+using Chess2.Api.Models.Validators;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -28,15 +31,27 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 
+# region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     options.UseNpgsql(appConfig.Database.GetConnectionString())
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+# endregion
 
+# region Authentication
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<TokenService>();
-builder.Services.AddSingleton<PasswordHasher>();
+# endregion
+
+# region Services
+builder.Services.AddScoped<IUserService, UserService>();
+# endregion
+
+# region Validation
+builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
+#endregion
 
 var app = builder.Build();
 

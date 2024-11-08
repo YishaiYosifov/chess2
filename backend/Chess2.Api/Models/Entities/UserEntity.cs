@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Chess2.Api.Models;
+namespace Chess2.Api.Models.Entities;
 
-public class User
+public class UserEntity
 {
     public int UserId { get; set; }
     public required string Username { get; set; }
