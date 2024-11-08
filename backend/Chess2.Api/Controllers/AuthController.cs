@@ -9,9 +9,9 @@ namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ILogger<AuthController> logger, IUserService userService) : Controller
+public class AuthController(ILogger<AuthController> logger, IAuthService authService) : Controller
 {
-    private readonly IUserService _userService = userService;
+    private readonly IAuthService _authService = authService;
     private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("register")]
@@ -20,7 +20,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        var result = await _userService.RegisterUserAsync(userIn, cancellation);
+        var result = await _authService.RegisterUserAsync(userIn, cancellation);
         return result.Match((value) =>
         {
             _logger.LogInformation("Created user {Username}", userIn.Username);
@@ -34,7 +34,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
     {
-        var result = await _userService.LoginUserAsync(userAuth, cancellation);
+        var result = await _authService.LoginUserAsync(userAuth, cancellation);
         return result.Match((value) =>
         {
             _logger.LogInformation(

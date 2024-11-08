@@ -8,17 +8,17 @@ using FluentValidation;
 
 namespace Chess2.Api.Services;
 
-public interface IUserService
+public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
 }
 
-public class UserService(
+public class AuthService(
     IValidator<UserIn> userValidator,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
-    ITokenProvider tokenProvider) : IUserService
+    ITokenProvider tokenProvider) : IAuthService
 {
     private readonly IValidator<UserIn> _userValidator = userValidator;
     private readonly IUserRepository _userRepository = userRepository;
@@ -60,6 +60,9 @@ public class UserService(
         return dbUser;
     }
 
+    /// <summary>
+    /// Log a user in if the username/email and passwords are correct
+    /// </summary>
     public async Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
     {
         var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
@@ -70,7 +73,7 @@ public class UserService(
             userAuth.Password,
             dbUser.PasswordHash,
             dbUser.PasswordSalt);
-        if (!isPasswordCorrect) return UserErrors.Unauthorized;
+        if (!isPasswordCorrect) return UserErrors.BadCredentials;
 
         return new Tokens()
         {

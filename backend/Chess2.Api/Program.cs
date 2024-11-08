@@ -62,7 +62,7 @@ builder.Services.AddTransient<JwtCookieMiddleware>();
 # endregion
 
 # region Services
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 # endregion
 
 # region Validation
