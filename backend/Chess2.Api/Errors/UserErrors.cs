@@ -12,5 +12,5 @@ public static class UserErrors
 
     public static Error UserNotFound => Error.NotFound("User.NotFound", "This user could not be found");
 
-    public static Error Unauthorized => Error.Unauthorized("User.Unauthorized", "Could not authorize user");
+    public static Error BadCredentials => Error.Unauthorized("User.BadCredentials", "Username/email/password is connect");
 }
