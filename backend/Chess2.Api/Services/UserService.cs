@@ -11,8 +11,7 @@ namespace Chess2.Api.Services;
 public interface IUserService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
-
-    Task<ErrorOr<string>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
+    Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
 }
 
 public class UserService(
@@ -61,7 +60,7 @@ public class UserService(
         return dbUser;
     }
 
-    public async Task<ErrorOr<string>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
+    public async Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
     {
         var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
             ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
@@ -73,6 +72,10 @@ public class UserService(
             dbUser.PasswordSalt);
         if (!isPasswordCorrect) return UserErrors.Unauthorized;
 
-        return _tokenProvider.GenerateToken(dbUser);
+        return new Tokens()
+        {
+            AccessToken = _tokenProvider.GenerateAccessToken(dbUser),
+            RefreshToken = _tokenProvider.GenerateRefreshToken(dbUser),
+        };
     }
 }

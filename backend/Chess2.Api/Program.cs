@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         opts.RequireHttpsMetadata = false;
         opts.TokenValidationParameters = new TokenValidationParameters()
         {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("")),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
             ValidIssuer = appSettings.Jwt.Issuer,
             ValidAudience = appSettings.Jwt.Audience,
             ClockSkew = TimeSpan.Zero,

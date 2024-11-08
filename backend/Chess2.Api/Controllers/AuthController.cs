@@ -14,7 +14,7 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("register")]
-    [ProducesResponseType(typeof(UserOut), StatusCodes.Status200OK)]
+    [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
@@ -28,6 +28,9 @@ public class AuthController(ILogger<AuthController> logger, IUserService userSer
     }
 
     [HttpPost("login")]
+    [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
     {
         var result = await _userService.LoginUserAsync(userAuth, cancellation);
