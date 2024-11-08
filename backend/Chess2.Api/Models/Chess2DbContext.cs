@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Chess2.Api.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Models;
 
@@ -9,5 +10,5 @@ public class Chess2DbContext : DbContext
         Database.EnsureCreated();
     }
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<UserEntity> Users { get; set; }
 }
