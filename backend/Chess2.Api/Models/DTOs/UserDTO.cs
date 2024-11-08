@@ -9,9 +9,18 @@ public class UserIn
     public required string Password { get; set; }
 }
 
-public class UserOut(User user)
+public class UserOut
 {
-    public int UserId { get; set; } = user.UserId;
-    public string Username { get; set; } = user.Username;
-    public string Email { get; set; } = user.Email;
+    public int UserId { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+
+    public UserOut() { }
+
+    public UserOut(User user)
+    {
+        UserId = user.UserId;
+        Username = user.Username;
+        Email = user.Email;
+    }
 }
