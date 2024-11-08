@@ -9,6 +9,12 @@ public class UserIn
     public required string Password { get; set; }
 }
 
+public class UserLogin
+{
+    public required string UsernameOrEmail { get; set; }
+    public required string Password { get; set; }
+}
+
 public class UserOut
 {
     public int UserId { get; set; }
