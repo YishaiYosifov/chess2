@@ -1,7 +1,5 @@
-﻿using Chess2.Api.Errors;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
-using Chess2.Api.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Repositories;
