@@ -13,6 +13,9 @@ public class JwtSettings
     public int RefreshExpiresInDays { get; set; }
     public required string Issuer { get; set; }
     public required string Audience { get; set; }
+
+    public required string AccessTokenCookieName { get; set; }
+    public required string RefreshTokenCookieName { get; set; }
 }
 
 public class DatabaseSettings

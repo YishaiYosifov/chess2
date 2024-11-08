@@ -44,10 +44,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 # region Authentication
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(opts =>
+    .AddJwtBearer(options =>
     {
-        opts.RequireHttpsMetadata = false;
-        opts.TokenValidationParameters = new TokenValidationParameters()
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters()
         {
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
             ValidIssuer = appSettings.Jwt.Issuer,
@@ -58,6 +58,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
+builder.Services.AddTransient<JwtCookieMiddleware>();
 # endregion
 
 # region Services
@@ -81,6 +82,7 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<JwtCookieMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
