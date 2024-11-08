@@ -29,7 +29,7 @@ public class UserService(IValidator<UserIn> userValidator, IUserRepository userR
         var salt = _passwordHasher.GenerateSalt();
         var hash = await _passwordHasher.HashPassword(user.Password, salt);
 
-        var userEntity = new UserEntity()
+        var userEntity = new User()
         {
             Username = user.Username,
             Email = user.Email,
