@@ -36,10 +36,11 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         var result = await _authService.LoginUserAsync(userAuth, cancellation);
         return result.Match((value) =>
         {
+            _authService.SetTokenCookies(value, HttpContext);
             _logger.LogInformation(
                 "User logged in with username/email {UsernameOrEmail}",
                 userAuth.UsernameOrEmail);
-            return Results.Ok(result.Value);
+            return Results.Ok();
         }, (errors) => errors.ToProblemDetails());
     }
 
