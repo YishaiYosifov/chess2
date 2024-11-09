@@ -116,4 +116,4 @@ app.MapControllers();
 app.Run();
 
 // for integration testing :)
-public partial class Program { }
+public partial class Program;

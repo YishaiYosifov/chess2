@@ -5,7 +5,8 @@ namespace Chess2.Api.Integration.Fakes;
 
 public class UserFaker : Faker<User>
 {
-    // TestPassword
+    public static readonly string Password = "TestPassword";
+
     private readonly byte[] PasswordHash = [
         171, 142, 166, 22,
         88, 125, 26, 236,
@@ -29,6 +30,7 @@ public class UserFaker : Faker<User>
             .RuleFor(x => x.Username, f => f.Person.UserName)
             .RuleFor(x => x.Email, f => f.Person.Email)
             .RuleFor(x => x.PasswordHash, PasswordHash)
-            .RuleFor(x => x.PasswordSalt, PasswordSalt);
+            .RuleFor(x => x.PasswordSalt, PasswordSalt)
+            .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow);
     }
 }
