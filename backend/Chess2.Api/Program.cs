@@ -5,6 +5,7 @@ using Chess2.Api.Models.Validators;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -48,18 +49,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new TokenValidationParameters()
+        options.TokenValidationParameters = new()
         {
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
             ValidIssuer = appSettings.Jwt.Issuer,
             ValidAudience = appSettings.Jwt.Audience,
             ClockSkew = TimeSpan.Zero,
         };
+
+        options.Events = new JwtBearerEvents()
+        {
+            OnMessageReceived = ctx =>
+            {
+                ctx.Request.Cookies.TryGetValue(appSettings.Jwt.AccessTokenCookieName, out var acessToken);
+                if (!string.IsNullOrEmpty(acessToken)) ctx.Token = acessToken;
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
-builder.Services.AddTransient<JwtCookieMiddleware>();
 # endregion
 
 # region Services
@@ -85,7 +95,6 @@ app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtCookieMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

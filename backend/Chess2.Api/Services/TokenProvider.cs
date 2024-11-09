@@ -14,9 +14,9 @@ public interface ITokenProvider
     string GenerateRefreshToken(User user);
 }
 
-public class TokenProvider(IOptions<AppSettings> config) : ITokenProvider
+public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
 {
-    private readonly JwtSettings _jwtSettings = config.Value.Jwt;
+    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
 
     public string GenerateAccessToken(User user)
     {

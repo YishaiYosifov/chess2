@@ -1,11 +1,12 @@
 ﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 namespace Chess2.Api.Services;
@@ -14,21 +15,26 @@ public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
+    void SetTokenCookies(Tokens tokens, HttpContext context);
     Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation);
 }
 
 public class AuthService(
+    IHttpContextAccessor httpContextAccessor,
+    IWebHostEnvironment hostEnvironment,
     IValidator<UserIn> userValidator,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
     ITokenProvider tokenProvider,
-    IHttpContextAccessor httpContextAccessor) : IAuthService
+    IOptions<AppSettings> settings) : IAuthService
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly IValidator<UserIn> _userValidator = userValidator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
+    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
 
     /// <summary>
     /// Register a new user
@@ -87,6 +93,39 @@ public class AuthService(
         };
     }
 
+    /// <summary>
+    /// Add the access and refresh tokens to the response
+    /// </summary>
+    public void SetTokenCookies(Tokens tokens, HttpContext context)
+    {
+        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute);
+        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
+
+        context.Response.Cookies.Append(
+            _jwtSettings.AccessTokenCookieName,
+            tokens.AccessToken,
+            new()
+            {
+                Expires = accessTokenExpires,
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = _hostEnvironment.IsDevelopment(),
+                SameSite = SameSiteMode.Strict,
+            });
+
+        context.Response.Cookies.Append(
+            _jwtSettings.RefreshTokenCookieName,
+            tokens.AccessToken,
+            new()
+            {
+                Expires = refreshTokenExpires,
+                HttpOnly = true,
+                IsEssential = true,
+                Secure = _hostEnvironment.IsDevelopment(),
+                SameSite = SameSiteMode.Strict,
+            });
+    }
+
     public async Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation)
     {
         var userIdentities = _httpContextAccessor.HttpContext?.User;
@@ -95,7 +134,7 @@ public class AuthService(
             || !int.TryParse(userIdClaim.Value, out var userId))
             return Error.Unauthorized();
 
-        var user = await _userRepository.GetByUserIdAsync(userId);
+        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
         if (user is null) return Error.Unauthorized();
 
         return user;
