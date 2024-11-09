@@ -7,6 +7,7 @@ using Chess2.Api.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -44,29 +45,44 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 # endregion
 
 # region Authentication
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = false;
-        options.TokenValidationParameters = new()
-        {
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
-            ValidIssuer = appSettings.Jwt.Issuer,
-            ValidAudience = appSettings.Jwt.Audience,
-            ClockSkew = TimeSpan.Zero,
-        };
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RefreshToken", policy =>
+            policy.RequireClaim("type", "refresh")
+            .AddAuthenticationSchemes("RefreshBearer"));
+    options.AddPolicy("AccessToken", policy =>
+            policy.RequireClaim("type", "access")
+            .AddAuthenticationSchemes("AccessBearer"));
+    options.DefaultPolicy = options.GetPolicy("AccessToken")!;
+});
 
-        options.Events = new JwtBearerEvents()
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer("AccessBearer", options =>
+        ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName))
+    .AddJwtBearer("RefreshBearer", options =>
+        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName));
+
+void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
+{
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new()
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
+        ValidIssuer = appSettings.Jwt.Issuer,
+        ValidAudience = appSettings.Jwt.Audience,
+        ClockSkew = TimeSpan.Zero,
+    };
+
+    options.Events = new JwtBearerEvents()
+    {
+        OnMessageReceived = ctx =>
         {
-            OnMessageReceived = ctx =>
-            {
-                ctx.Request.Cookies.TryGetValue(appSettings.Jwt.AccessTokenCookieName, out var acessToken);
-                if (!string.IsNullOrEmpty(acessToken)) ctx.Token = acessToken;
-                return Task.CompletedTask;
-            }
-        };
-    });
+            ctx.Request.Cookies.TryGetValue(cookieName, out var token);
+            if (!string.IsNullOrEmpty(token)) ctx.Token = token;
+            return Task.CompletedTask;
+        }
+    };
+}
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();

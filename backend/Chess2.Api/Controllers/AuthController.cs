@@ -1,17 +1,20 @@
 ﻿using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ILogger<AuthController> logger, IAuthService authService) : Controller
+public class AuthController(ILogger<AuthController> logger, IAuthService authService, IOptions<AppSettings> settings) : Controller
 {
-    private readonly IAuthService _authService = authService;
+    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthController> _logger = logger;
+    private readonly IAuthService _authService = authService;
 
     [HttpPost("register")]
     [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
@@ -44,9 +47,9 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         }, (errors) => errors.ToProblemDetails());
     }
 
-    [HttpPost("test")]
-    [Authorize]
-    public async Task<IResult> Test(CancellationToken cancellation)
+    [HttpPost("refresh")]
+    [Authorize("RefreshToken")]
+    public async Task<IResult> Refresh(CancellationToken cancellation)
     {
         var userResult = await _authService.GetLoggedInUser(cancellation);
         if (userResult.IsError) return userResult.Errors.ToProblemDetails();
