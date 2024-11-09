@@ -1,9 +1,6 @@
 ﻿using Chess2.Api.Integration.Collections;
 using Chess2.Api.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using System.Transactions;
 
 namespace Chess2.Api.Integration.Tests;
 
