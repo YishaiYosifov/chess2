@@ -55,4 +55,8 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
             return Results.Ok();
         }, (errors) => errors.ToProblemDetails());
     }
+
+    [HttpPost("test")]
+    [Authorize]
+    public IResult Test() => Results.Ok();
 }

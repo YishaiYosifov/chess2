@@ -1,12 +1,13 @@
-﻿using Chess2.Api.Integration.Fakes;
+﻿using Chess2.Api.Integration.Collections;
+using Chess2.Api.Integration.Fakes;
 using Chess2.Api.Models.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Integration.Tests.AuthTests;
 
-public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
+public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
 {
     [Fact]
     public async Task User_registration_saves_user_to_database()
@@ -17,9 +18,9 @@ public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTes
             Email = "test@email.com",
             Password = "TestPassword",
         };
-        var response = await _apiClient.RegisterAsync(userIn);
+        var response = await ApiClient.RegisterAsync(userIn);
         var registeredUser = response.Content;
-        var allUsers = await _dbContext.Users.ToListAsync();
+        var allUsers = await DbContext.Users.ToListAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         registeredUser.Should().NotBeNull();
@@ -47,11 +48,11 @@ public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTes
             Email = email,
             Password = password,
         };
-        var response = await _apiClient.RegisterAsync(userIn);
+        var response = await ApiClient.RegisterAsync(userIn);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.Content.Should().BeNull();
-        _dbContext.Users.Should().HaveCount(0);
+        DbContext.Users.Should().HaveCount(0);
     }
 
     [Theory]
@@ -67,10 +68,10 @@ public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTes
             .RuleFor(x => x.Username, user1Username)
             .RuleFor(x => x.Email, user1Email)
             .Generate();
-        await _dbContext.Users.AddAsync(user1);
-        await _dbContext.SaveChangesAsync();
+        await DbContext.Users.AddAsync(user1);
+        await DbContext.SaveChangesAsync();
 
-        var response = await _apiClient.RegisterAsync(new()
+        var response = await ApiClient.RegisterAsync(new()
         {
             Username = user2Username,
             Email = user2Email,
@@ -79,6 +80,6 @@ public class AuthTests(Chess2WebApplicationFactory factory) : BaseIntegrationTes
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         response.Content.Should().BeNull();
-        _dbContext.Users.Should().HaveCount(1);
+        DbContext.Users.Should().HaveCount(1);
     }
 }
