@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{905D54B1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.Integration", "Tests\Chess2.Api.Integration\Chess2.Api.Integration.csproj", "{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{02C136E7-B73B-4219-A5AD-5142C97EAB21}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +25,17 @@ Global
 		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6} = {905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}
+		{02C136E7-B73B-4219-A5AD-5142C97EAB21} = {905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB364029-8E15-4337-926F-4DD1EEC5FD12}
