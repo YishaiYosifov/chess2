@@ -1,5 +1,4 @@
-﻿using Bogus;
-using Chess2.Api.Integration.Collections;
+﻿using Chess2.Api.Integration.Collections;
 using Chess2.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
