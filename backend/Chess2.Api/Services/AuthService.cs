@@ -15,8 +15,10 @@ public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
-    void SetTokenCookies(Tokens tokens, HttpContext context);
     Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation);
+
+    string RefreshToken(string refreshToken);
+    void SetTokenCookies(Tokens tokens, HttpContext context);
 }
 
 public class AuthService(
@@ -93,6 +95,20 @@ public class AuthService(
         };
     }
 
+    public async Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation)
+    {
+        var userIdentities = _httpContextAccessor.HttpContext?.User;
+        var userIdClaim = userIdentities?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim is null
+            || !int.TryParse(userIdClaim.Value, out var userId))
+            return Error.Unauthorized();
+
+        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
+        if (user is null) return Error.Unauthorized();
+
+        return user;
+    }
+
     /// <summary>
     /// Add the access and refresh tokens to the response
     /// </summary>
@@ -115,7 +131,7 @@ public class AuthService(
 
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
-            tokens.AccessToken,
+            tokens.RefreshToken,
             new()
             {
                 Expires = refreshTokenExpires,
@@ -126,17 +142,8 @@ public class AuthService(
             });
     }
 
-    public async Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation)
+    public string RefreshToken(string refreshToken)
     {
-        var userIdentities = _httpContextAccessor.HttpContext?.User;
-        var userIdClaim = userIdentities?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-        if (userIdClaim is null
-            || !int.TryParse(userIdClaim.Value, out var userId))
-            return Error.Unauthorized();
-
-        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
-        if (user is null) return Error.Unauthorized();
-
-        return user;
+        return "";
     }
 }
