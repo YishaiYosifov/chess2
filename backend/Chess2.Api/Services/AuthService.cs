@@ -15,9 +15,8 @@ namespace Chess2.Api.Services;
 public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
-    Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
+    Task<ErrorOr<(string AccessToken, string RefreshToken)>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
     Task<ErrorOr<User>> GetLoggedInUser(HttpContext context, CancellationToken cancellation);
-    void SetTokenCookies(Tokens tokens, HttpContext context);
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
     Task<ErrorOr<string>> RefreshToken(HttpContext context, CancellationToken cancellation);
@@ -78,7 +77,7 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
+    public async Task<ErrorOr<(string AccessToken, string RefreshToken)>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
     {
         var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
             ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
@@ -90,11 +89,8 @@ public class AuthService(
             dbUser.PasswordSalt);
         if (!isPasswordCorrect) return UserErrors.BadCredentials;
 
-        return new Tokens()
-        {
-            AccessToken = _tokenProvider.GenerateAccessToken(dbUser),
-            RefreshToken = _tokenProvider.GenerateRefreshToken(dbUser),
-        };
+        return (_tokenProvider.GenerateAccessToken(dbUser),
+            _tokenProvider.GenerateRefreshToken(dbUser));
     }
 
     /// <summary>
@@ -120,15 +116,6 @@ public class AuthService(
         }
 
         return user;
-    }
-
-    /// <summary>
-    /// Add the access and refresh tokens to the response cookies
-    /// </summary>
-    public void SetTokenCookies(Tokens tokens, HttpContext context)
-    {
-        SetAccessCookie(tokens.AccessToken, context);
-        SetRefreshCookie(tokens.RefreshToken, context);
     }
 
     public void SetAccessCookie(string accessToken, HttpContext context)
