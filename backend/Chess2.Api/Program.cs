@@ -86,9 +86,6 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
-# endregion
-
-# region Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 # endregion
 
