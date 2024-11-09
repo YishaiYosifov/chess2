@@ -28,7 +28,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     }
 
     [HttpPost("login")]
-    [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
@@ -40,11 +40,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
             _logger.LogInformation(
                 "User logged in with username/email {UsernameOrEmail}",
                 userAuth.UsernameOrEmail);
-            return Results.Ok();
+            return Results.NoContent();
         }, (errors) => errors.ToProblemDetails());
     }
 
     [HttpPost("refresh")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize("RefreshToken")]
     public async Task<IResult> Refresh(CancellationToken cancellation)
     {
@@ -52,11 +54,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         return result.Match((value) =>
         {
             _authService.SetAccessCookie(value, HttpContext);
-            return Results.Ok();
+            return Results.NoContent();
         }, (errors) => errors.ToProblemDetails());
     }
 
     [HttpPost("test")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public IResult Test() => Results.Ok();
+    public IResult Test() => Results.NoContent();
 }
