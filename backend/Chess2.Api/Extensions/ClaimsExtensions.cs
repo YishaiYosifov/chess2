@@ -1,6 +1,5 @@
 ﻿using ErrorOr;
 using System.Diagnostics.CodeAnalysis;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Chess2.Api.Extensions;

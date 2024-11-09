@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Integration.Collections;
-using Chess2.Api.Integration.Fakes;
+﻿using Chess2.Api.Integration.Fakes;
 using Chess2.Api.Models.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
