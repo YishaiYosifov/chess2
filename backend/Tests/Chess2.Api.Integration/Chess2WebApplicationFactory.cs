@@ -69,18 +69,20 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     public async Task InitializeAsync()
     {
-        await _dbContainer.StartAsync();
-
-        using (var scope = Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
-            await dbContext.Database.EnsureCreatedAsync();
-        }
-
+        await InitializeDbContainer();
         await InitializeRespawner();
     }
 
     public new Task DisposeAsync() => _dbContainer.StopAsync();
+
+    private async Task InitializeDbContainer()
+    {
+        await _dbContainer.StartAsync();
+
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        await dbContext.Database.EnsureCreatedAsync();
+    }
 
     private async Task InitializeRespawner()
     {
