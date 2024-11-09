@@ -1,18 +1,15 @@
 ﻿using Chess2.Api.Extensions;
-using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ILogger<AuthController> logger, IAuthService authService, IOptions<AppSettings> settings) : Controller
+public class AuthController(ILogger<AuthController> logger, IAuthService authService) : Controller
 {
-    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
 
@@ -51,10 +48,11 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [Authorize("RefreshToken")]
     public async Task<IResult> Refresh(CancellationToken cancellation)
     {
-        var userResult = await _authService.GetLoggedInUser(cancellation);
-        if (userResult.IsError) return userResult.Errors.ToProblemDetails();
-        var user = userResult.Value;
-
-        return Results.Ok(new UserOut(user));
+        var result = await _authService.RefreshToken(HttpContext, cancellation);
+        return result.Match((value) =>
+        {
+            _authService.SetAccessCookie(value, HttpContext);
+            return Results.Ok();
+        }, (errors) => errors.ToProblemDetails());
     }
 }

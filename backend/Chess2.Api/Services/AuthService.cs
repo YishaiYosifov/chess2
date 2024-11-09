@@ -7,6 +7,7 @@ using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Chess2.Api.Services;
@@ -15,28 +16,29 @@ public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
-    Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation);
-
-    string RefreshToken(string refreshToken);
+    Task<ErrorOr<User>> GetLoggedInUser(HttpContext context, CancellationToken cancellation);
     void SetTokenCookies(Tokens tokens, HttpContext context);
+    void SetAccessCookie(string accessToken, HttpContext context);
+    void SetRefreshCookie(string refreshToken, HttpContext context);
+    Task<ErrorOr<string>> RefreshToken(HttpContext context, CancellationToken cancellation);
 }
 
 public class AuthService(
-    IHttpContextAccessor httpContextAccessor,
     IWebHostEnvironment hostEnvironment,
     IValidator<UserIn> userValidator,
     IUserRepository userRepository,
     IPasswordHasher passwordHasher,
+    IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
-    IOptions<AppSettings> settings) : IAuthService
+    ILogger<AuthService> logger) : IAuthService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly IValidator<UserIn> _userValidator = userValidator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
+    private readonly ILogger<AuthService> _logger = logger;
 
     /// <summary>
     /// Register a new user
@@ -95,55 +97,91 @@ public class AuthService(
         };
     }
 
-    public async Task<ErrorOr<User>> GetLoggedInUser(CancellationToken cancellation)
+    /// <summary>
+    /// Get the user that is logged in to the http context
+    /// </summary>
+    public async Task<ErrorOr<User>> GetLoggedInUser(HttpContext context, CancellationToken cancellation)
     {
-        var userIdentities = _httpContextAccessor.HttpContext?.User;
-        var userIdClaim = userIdentities?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-        if (userIdClaim is null
-            || !int.TryParse(userIdClaim.Value, out var userId))
-            return Error.Unauthorized();
+        var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
+        if (userIdClaimResult.IsError)
+        {
+            _logger.LogWarning("A user tried to access an authorized endpoint but the user id claim could not be found");
+            return userIdClaimResult.Errors;
+        }
+        var userId = Convert.ToInt32(userIdClaimResult.Value.Value);
 
         var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
-        if (user is null) return Error.Unauthorized();
+        if (user is null)
+        {
+            _logger.LogWarning(
+                "A user tried to access an authorized enpoint with id {UserId} but the user could not be found",
+                userId);
+            return Error.Unauthorized();
+        }
 
         return user;
     }
 
     /// <summary>
-    /// Add the access and refresh tokens to the response
+    /// Add the access and refresh tokens to the response cookies
     /// </summary>
     public void SetTokenCookies(Tokens tokens, HttpContext context)
     {
-        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute);
-        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
+        SetAccessCookie(tokens.AccessToken, context);
+        SetRefreshCookie(tokens.RefreshToken, context);
+    }
 
+    public void SetAccessCookie(string accessToken, HttpContext context)
+    {
+        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute);
         context.Response.Cookies.Append(
             _jwtSettings.AccessTokenCookieName,
-            tokens.AccessToken,
+            accessToken,
             new()
             {
                 Expires = accessTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = _hostEnvironment.IsDevelopment(),
+                Secure = !_hostEnvironment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
             });
+    }
 
+    public void SetRefreshCookie(string refreshToken, HttpContext context)
+    {
+        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
-            tokens.RefreshToken,
+            refreshToken,
             new()
             {
                 Expires = refreshTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = _hostEnvironment.IsDevelopment(),
+                Secure = !_hostEnvironment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
             });
     }
 
-    public string RefreshToken(string refreshToken)
+    /// <summary>
+    /// Validate the refresh token is valid and
+    /// create an access token from it
+    /// </summary>
+    public async Task<ErrorOr<string>> RefreshToken(HttpContext context, CancellationToken cancellation)
     {
-        return "";
+        var tokenCreationTimeClaimResult = context.User.GetClaim(JwtRegisteredClaimNames.Iat);
+        if (tokenCreationTimeClaimResult.IsError) return tokenCreationTimeClaimResult.Errors;
+
+        var userResult = await GetLoggedInUser(context, cancellation);
+        if (userResult.IsError) return userResult.Errors;
+        var user = userResult.Value;
+
+        // make sure the password hasn't changed since the refresh token was created
+        // this way we can invalidate leaked tokens
+        var tokenCreationTime = DateTimeOffset.FromUnixTimeSeconds(
+            Convert.ToInt64(tokenCreationTimeClaimResult.Value.Value));
+        if (tokenCreationTime < user.PasswordLastChanged) return Error.Unauthorized();
+
+        return _tokenProvider.GenerateAccessToken(user);
     }
 }

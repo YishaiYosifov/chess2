@@ -1,4 +1,8 @@
-﻿namespace Chess2.Api.Models.Entities;
+﻿
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Chess2.Api.Models.Entities;
 
 public class User
 {
@@ -8,4 +12,6 @@ public class User
 
     public required byte[] PasswordHash { get; set; }
     public required byte[] PasswordSalt { get; set; }
+
+    public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
 }
