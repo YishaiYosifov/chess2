@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace Chess2.Api.Extensions;
 
-public static class ErrorExtension
+public static class ErrorExtensions
 {
     public static IResult ToProblemDetails(this IEnumerable<Error> errors)
     {
