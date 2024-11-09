@@ -25,7 +25,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
             Password = UserFaker.Password,
         });
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         var cookies = response.Headers.GetValues("Set-Cookie");
         cookies.Should().HaveCount(2);
         (await IsHttpClientAuthenticated()).Should().BeTrue();
@@ -67,6 +67,6 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
     private async Task<bool> IsHttpClientAuthenticated()
     {
         var testAuthResponse = await ApiClient.TestAuthAsync();
-        return testAuthResponse.StatusCode == HttpStatusCode.OK;
+        return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 }
