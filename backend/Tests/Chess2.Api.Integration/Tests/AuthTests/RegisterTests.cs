@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Integration.Fakes;
+using Chess2.Api.Integration.Utils;
 using Chess2.Api.Models.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -63,12 +64,9 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegratio
         string user2Username,
         string user2Email)
     {
-        var user1 = new UserFaker()
-            .RuleFor(x => x.Username, user1Username)
-            .RuleFor(x => x.Email, user1Email)
-            .Generate();
-        await DbContext.Users.AddAsync(user1);
-        await DbContext.SaveChangesAsync();
+        var user1 = await FakerUtils.StoreFaker(
+            DbContext, new UserFaker().RuleFor(x => x.Username, user1Username)
+            .RuleFor(x => x.Email, user1Email));
 
         var response = await ApiClient.RegisterAsync(new()
         {

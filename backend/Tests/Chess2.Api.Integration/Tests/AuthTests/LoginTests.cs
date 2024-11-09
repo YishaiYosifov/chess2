@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Integration.Fakes;
+using Chess2.Api.Integration.Utils;
 using FluentAssertions;
 using System.Net;
 
@@ -6,43 +7,66 @@ namespace Chess2.Api.Integration.Tests.AuthTests;
 
 public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
 {
-    [Fact]
-    public async Task Login_with_existing_user()
+    [Theory]
+    [InlineData("TestUsername", "test@email.com", "TestUsername")]
+    [InlineData("TestUsername", "test@email.com", "test@email.com")]
+    public async Task Login_with_existing_user(
+        string username,
+        string email,
+        string loginWithIdentifier)
     {
-        var user = new UserFaker().Generate();
-        await DbContext.Users.AddAsync(user);
-        await DbContext.SaveChangesAsync();
+        var user = await FakerUtils.StoreFaker(
+            DbContext, new UserFaker().RuleFor(x => x.Username, username)
+            .RuleFor(x => x.Email, email));
 
         var response = await ApiClient.LoginAsync(new()
         {
-            UsernameOrEmail = user.Email,
+            UsernameOrEmail = loginWithIdentifier,
             Password = UserFaker.Password,
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var cookies = response.Headers.GetValues("Set-Cookie");
         cookies.Should().HaveCount(2);
+        (await IsHttpClientAuthenticated()).Should().BeTrue();
+    }
 
-        var testAuthResponse = await ApiClient.TestAuthAsync();
-        testAuthResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+    [Fact]
+    public async Task Login_with_bad_credentials()
+    {
+        await FakerUtils.StoreFaker(DbContext, new UserFaker());
+
+        var response = await ApiClient.LoginAsync(new()
+        {
+            UsernameOrEmail = "random email or username doesn't exist",
+            Password = UserFaker.Password,
+        });
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await IsHttpClientAuthenticated()).Should().BeFalse();
     }
 
     [Fact]
     public async Task Login_with_wrong_password()
     {
-        var user = new UserFaker().Generate();
-        await DbContext.Users.AddAsync(user);
-        await DbContext.SaveChangesAsync();
+        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
         var response = await ApiClient.LoginAsync(new()
         {
-            UsernameOrEmail = user.Email,
-            Password = "Wrong password",
+            UsernameOrEmail = user.Username,
+            Password = "wrong password",
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        (await IsHttpClientAuthenticated()).Should().BeFalse();
+    }
 
+    /// <summary>
+    /// Attempt to call a test route to check if we are authenticated
+    /// </summary>
+    private async Task<bool> IsHttpClientAuthenticated()
+    {
         var testAuthResponse = await ApiClient.TestAuthAsync();
-        testAuthResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        return testAuthResponse.StatusCode == HttpStatusCode.OK;
     }
 }
