@@ -1,33 +1,37 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Integration.Collections;
+using Chess2.Api.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using System.Transactions;
 
 namespace Chess2.Api.Integration.Tests;
 
-public class BaseIntegrationTest : IClassFixture<Chess2WebApplicationFactory>, IAsyncLifetime
+[Collection(nameof(SharedWebApplication))]
+public class BaseIntegrationTest : IAsyncLifetime
 {
-    protected readonly Chess2WebApplicationFactory _factory;
-    protected readonly IChess2Api _apiClient;
+    private readonly Chess2WebApplicationFactory _factory;
+    private readonly IServiceScope _scope;
 
-    protected readonly IServiceScope _serviceScope;
-    protected readonly Chess2DbContext _dbContext;
+    protected readonly IChess2Api ApiClient;
+    protected readonly Chess2DbContext DbContext;
 
-    public BaseIntegrationTest(Chess2WebApplicationFactory factory)
+    protected BaseIntegrationTest(Chess2WebApplicationFactory factory)
     {
         _factory = factory;
-        _apiClient = factory.CreateTypedClient();
+        _scope = _factory.Services.CreateScope();
 
-        _serviceScope = _factory.Server.Services.CreateScope();
-        _dbContext = _serviceScope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        ApiClient = _factory.CreateTypedClient();
+        DbContext = _scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        DbContext.Database.EnsureCreated();
     }
 
-    public async Task InitializeAsync()
-    {
-        await _dbContext.Database.EnsureCreatedAsync();
-    }
+    public Task InitializeAsync() => Task.CompletedTask;
 
     public async Task DisposeAsync()
     {
-        await _dbContext.Database.EnsureDeletedAsync();
-        _serviceScope.Dispose();
+        await _factory.ResetDatabaseAsync();
+        _scope?.Dispose();
+        DbContext?.Dispose();
     }
 }

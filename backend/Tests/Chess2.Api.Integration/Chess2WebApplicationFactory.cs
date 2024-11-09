@@ -5,20 +5,37 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Npgsql;
 using Refit;
+using Respawn;
+using System.Data.Common;
+using Testcontainers.PostgreSql;
 
 namespace Chess2.Api.Integration;
 
-public class Chess2WebApplicationFactory : WebApplicationFactory<Program>
+public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
+        .WithImage("postgres:latest")
+        .WithDatabase("chess2")
+        .WithUsername("postgres")
+        .WithPassword("postgres")
+        .Build();
+
+    private DbConnection _dbConnection = null!;
+    private Respawner _respawner = null!;
+
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
         {
-            // remove the existing database context, use an in-memory one instead
+            // remove the existing database context, use the one in a test container instead
             services.RemoveAll(typeof(DbContextOptions<Chess2DbContext>));
             services.AddDbContextPool<Chess2DbContext>(options =>
-                options.UseInMemoryDatabase("TestDB"));
+                options
+                    .UseNpgsql(_dbContainer.GetConnectionString())
+                    .UseSnakeCaseNamingConvention());
         });
     }
 
@@ -47,4 +64,32 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>
     /// </summary>
     public IChess2Api CreateTypedClient() =>
         RestService.For<IChess2Api>(CreateClient());
+
+    public Task ResetDatabaseAsync() => _respawner.ResetAsync(_dbConnection);
+
+    public async Task InitializeAsync()
+    {
+        await _dbContainer.StartAsync();
+
+        using (var scope = Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+            await dbContext.Database.EnsureCreatedAsync();
+        }
+
+        await InitializeRespawner();
+    }
+
+    public new Task DisposeAsync() => _dbContainer.StopAsync();
+
+    private async Task InitializeRespawner()
+    {
+        _dbConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
+        await _dbConnection.OpenAsync();
+
+        _respawner = await Respawner.CreateAsync(_dbConnection, new()
+        {
+            DbAdapter = DbAdapter.Postgres,
+        });
+    }
 }
