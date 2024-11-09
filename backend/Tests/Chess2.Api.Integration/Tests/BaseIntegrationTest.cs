@@ -23,7 +23,6 @@ public class BaseIntegrationTest : IAsyncLifetime
 
         ApiClient = _factory.CreateTypedClient();
         DbContext = _scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
-        DbContext.Database.EnsureCreated();
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
