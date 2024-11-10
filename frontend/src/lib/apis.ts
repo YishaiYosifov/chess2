@@ -6,7 +6,7 @@ import {
     LiveGameApi,
     ProfileApi,
     AuthApi,
-} from "@/apiClient";
+} from "@/lib/apiClient";
 
 /**
  * Update the cookies when a request is sent from the server

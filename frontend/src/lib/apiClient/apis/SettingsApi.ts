@@ -4,7 +4,7 @@ import {
     ApiResponse,
     BaseAPI,
 } from "../runtime";
-import type { EditableProfile, PrivateAuthedProfileOut } from "@/models";
+import type { EditableProfile, PrivateAuthedProfileOut } from "@/lib/models";
 
 export class SettingsApi extends BaseAPI {
     /**

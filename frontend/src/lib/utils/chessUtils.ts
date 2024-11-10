@@ -1,4 +1,11 @@
-import { Color, PieceID, PieceMap, PieceType, Point, StrPoint } from "@/models";
+import {
+    Color,
+    PieceID,
+    PieceMap,
+    PieceType,
+    Point,
+    StrPoint,
+} from "@/lib/models";
 
 /**
  * Parse a fen into a PieceMap

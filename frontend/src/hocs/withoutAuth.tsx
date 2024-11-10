@@ -10,7 +10,7 @@ import constants from "@/lib/constants";
  */
 const withoutAuth = <T,>(WrappedComponent: ComponentType<T>) => {
     return async (props: any) => {
-        const nextCookies = cookies();
+        const nextCookies = await cookies();
         if (
             nextCookies.has(constants.ACCESS_TOKEN) ||
             nextCookies.has(constants.REFRESH_TOKEN)

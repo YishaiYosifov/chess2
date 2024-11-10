@@ -1,5 +1,5 @@
 import { ApiResponse, BaseAPI, JSONApiResponse } from "../runtime";
-import type { LiveGame } from "@/models";
+import type { LiveGame } from "@/lib/models";
 
 export class LiveGameApi extends BaseAPI {
     /**

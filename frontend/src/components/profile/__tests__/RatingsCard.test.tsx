@@ -3,7 +3,7 @@ import { Mock } from "vitest";
 
 import { Chart } from "react-google-charts";
 
-import { RatingOverview, Variant } from "@/models";
+import { RatingOverview, Variant } from "@/lib/models";
 
 import RatingCard from "../RatingsCard";
 

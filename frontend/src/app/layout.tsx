@@ -31,7 +31,7 @@ export const metadata: Metadata = {
  *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-    const nextCookies = cookies();
+    const nextCookies = await cookies();
     const hasAuthCookies =
         nextCookies.has(constants.REFRESH_TOKEN) &&
         nextCookies.has(constants.ACCESS_TOKEN);

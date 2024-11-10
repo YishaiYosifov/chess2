@@ -1,7 +1,7 @@
 import styles from "./HighlightedLegalMove.module.scss";
 import { useEventWebSocket } from "@/hooks/useEventWS";
 import { useChessStore } from "@/hooks/useChess";
-import { Point } from "@/models";
+import { Point } from "@/lib/models";
 
 import ChessSquare from "./ChessSquare";
 

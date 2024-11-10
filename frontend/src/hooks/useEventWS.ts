@@ -7,7 +7,7 @@ import {
     WSInEventMessageMap,
     WSEventOut,
     WSOutEventMessageMap,
-} from "@/models";
+} from "@/lib/models";
 
 export type SendEventMessageFunction = <T extends WSEventOut>(
     event: T,

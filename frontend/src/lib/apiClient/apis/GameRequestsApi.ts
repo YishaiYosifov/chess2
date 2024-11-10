@@ -1,4 +1,4 @@
-import type { GameSettings } from "@/models/index";
+import type { GameSettings } from "@/lib/models/index";
 import {
     ApiResponse,
     BaseAPI,

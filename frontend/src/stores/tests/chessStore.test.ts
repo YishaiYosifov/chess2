@@ -1,4 +1,4 @@
-import { PieceID, PieceMap, type LegalMoves, type Point } from "@/models";
+import { PieceID, PieceMap, type LegalMoves, type Point } from "@/lib/models";
 import { createChessStore } from "../chessStore";
 import constants from "@/lib/constants";
 

@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import { type Player, type PieceMap, type LegalMoves, Color } from "@/models";
+import {
+    type Player,
+    type PieceMap,
+    type LegalMoves,
+    Color,
+} from "@/lib/models";
 import styles from "./Chessboard.module.scss";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";

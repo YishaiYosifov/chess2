@@ -5,7 +5,7 @@ import type {
     FinishedGame,
     Rating,
     Variant,
-} from "@/models/index";
+} from "@/lib/models/index";
 
 import {
     BaseAPI,

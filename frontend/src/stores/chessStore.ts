@@ -10,7 +10,7 @@ import {
     type PieceID,
     Color,
     WSEventOut,
-} from "@/models";
+} from "@/lib/models";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 import constants from "@/lib/constants";
 import { SendEventMessageFunction } from "@/hooks/useEventWS";

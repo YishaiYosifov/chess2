@@ -1,4 +1,4 @@
-import { type PieceMap, PieceType, Color } from "@/models";
+import { type PieceMap, PieceType, Color } from "@/lib/models";
 
 export const USERNAME_EDIT_EVERY = 2419200;
 
