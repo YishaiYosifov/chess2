@@ -3,7 +3,7 @@ import type {
     AccessToken,
     AuthTokens,
     UserIn,
-} from "@/models";
+} from "@/lib/models";
 
 import {
     ApiResponse,

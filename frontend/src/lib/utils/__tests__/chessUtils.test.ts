@@ -1,7 +1,7 @@
-import { PieceMap, PieceType } from "@/models";
+import { PieceMap, PieceType } from "@/lib/models";
 import { parseFen } from "../chessUtils";
 import constants from "@/lib/constants";
-import { Color } from "@/models";
+import { Color } from "@/lib/models";
 
 describe("parseFen", () => {
     it("should parse a standard starting position correctly", () => {

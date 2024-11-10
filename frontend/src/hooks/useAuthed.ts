@@ -1,5 +1,5 @@
 import { AuthContextInterface, AuthContext } from "@/contexts/authContext";
-import { PrivateAuthedProfileOut } from "@/models";
+import { PrivateAuthedProfileOut } from "@/lib/models";
 
 import { useContext } from "react";
 

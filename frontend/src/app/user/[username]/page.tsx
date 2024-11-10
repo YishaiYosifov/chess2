@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import styles from "./user.module.scss";
 
-import type { FinishedGame, AuthedProfileOut } from "@/models";
+import type { FinishedGame, AuthedProfileOut } from "@/lib/models";
 import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";
@@ -49,7 +49,7 @@ const UserPage = async ({
                 { next: { tags: cacheTags } }
             ),
         ]);
-    } catch (err) {
+    } catch {
         // TODO error handing
         notFound();
     }

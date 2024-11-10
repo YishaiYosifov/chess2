@@ -5,7 +5,7 @@ import { mockRouter } from "@/mockUtils/mockRouter";
 import { TIME_CONTROLS } from "@/lib/constants";
 import { gameRequestApi } from "@/lib/apis";
 import PlayOptions from "../PlayOptions";
-import { Variant } from "@/models";
+import { Variant } from "@/lib/models";
 import { Mock } from "vitest";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({

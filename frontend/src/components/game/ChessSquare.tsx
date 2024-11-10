@@ -7,7 +7,7 @@ import {
 
 import { useBoardSize, useChessStore } from "@/hooks/useChess";
 import styles from "./ChessSquare.module.scss";
-import { Color, Point } from "@/models";
+import { Color, Point } from "@/lib/models";
 
 type ChessSquareProps = {
     position: Point;

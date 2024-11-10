@@ -1,6 +1,6 @@
 import type { FormikHelpers } from "formik";
 
-import type { RatingOverview } from "@/models";
+import type { RatingOverview } from "@/lib/models";
 
 export type RatingMap = { [key: string]: RatingOverview };
 export type FormikOnSubmit<V> = (values: V, helpers: FormikHelpers<V>) => void;

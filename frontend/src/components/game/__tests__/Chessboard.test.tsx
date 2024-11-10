@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap, Color, PieceType } from "@/models";
+import { PieceMap, Color, PieceType } from "@/lib/models";
 import Chessboard from "../Chessboard";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({

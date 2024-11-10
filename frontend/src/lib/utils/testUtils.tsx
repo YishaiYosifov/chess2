@@ -4,11 +4,12 @@ import {
     render,
     screen,
 } from "@testing-library/react";
+
 import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
 import { AuthContext, AuthContextInterface } from "@/contexts/authContext";
-import { ResponseError } from "@/apiClient";
+import { ResponseError } from "@/lib/apiClient";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 

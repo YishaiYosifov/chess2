@@ -4,8 +4,12 @@ import Link from "next/link";
 
 import styles from "./GameRow.module.scss";
 
-import { type AuthedProfileOut, type FinishedGame, GameResult } from "@/models";
-import { Color } from "@/models";
+import {
+    type AuthedProfileOut,
+    type FinishedGame,
+    GameResult,
+} from "@/lib/models";
+import { Color } from "@/lib/models";
 
 const GameRow = ({
     game,

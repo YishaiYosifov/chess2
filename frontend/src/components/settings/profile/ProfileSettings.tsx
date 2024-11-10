@@ -7,7 +7,7 @@ import { useAuthedProfile, useAuthedContext } from "@/hooks/useAuthed";
 import styles from "./ProfileSettings.module.scss";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
-import { EditableProfile } from "@/models";
+import { EditableProfile } from "@/lib/models";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 

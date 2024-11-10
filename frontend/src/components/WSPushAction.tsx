@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useEventWebSocket } from "@/hooks/useEventWS";
-import { WSEventIn } from "@/models";
+import { WSEventIn } from "@/lib/models";
 
 const WSPushAction = () => {
     const router = useRouter();

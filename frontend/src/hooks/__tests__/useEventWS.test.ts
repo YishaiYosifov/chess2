@@ -4,7 +4,7 @@ import useWebSocket, {
 import { Mock } from "vitest";
 
 import { useEventWebSocket } from "../useEventWS";
-import { WSEventIn } from "@/models";
+import { WSEventIn } from "@/lib/models";
 import { renderHook } from "@testing-library/react";
 
 vi.mock("react-use-websocket");

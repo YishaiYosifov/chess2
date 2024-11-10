@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { PrivateAuthedProfileOut } from "@/models";
+import { PrivateAuthedProfileOut } from "@/lib/models";
 import withAuth from "@/hocs/withAuth";
 
 const RedirectUserPage = withAuth(
