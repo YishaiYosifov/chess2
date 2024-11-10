@@ -3,8 +3,6 @@
 import { usePathname } from "next/navigation";
 import { BsGearFill } from "react-icons/bs";
 
-import styles from "./SettingsNavbar.module.scss";
-
 const SettingsNavbar = ({
     settings,
 }: {

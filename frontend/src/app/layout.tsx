@@ -1,11 +1,10 @@
 import { Secular_One } from "next/font/google";
-import "bootstrap/dist/css/bootstrap.css";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
 import constants from "@/lib/constants";
-import "@/styles/globals.scss";
+import "./globals.css";
 
 import AuthContextProvider from "@/contexts/authContext";
 import NavbarProvider from "@/components/navbar/NavbarProvider";
@@ -38,12 +37,12 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
 
     return (
         <html lang="en" data-bs-theme="dark">
-            <body className={secularOne.className}>
+            <body className={`${secularOne.className} bg-background`}>
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
                     <NavbarProvider />
-                    <main>{children}</main>
+                    {/* <main>{children}</main> */}
                 </AuthContextProvider>
             </body>
         </html>

@@ -4,8 +4,6 @@ import { Button } from "react-bootstrap";
 import Image from "next/image";
 import Link from "next/link";
 
-import styles from "./AuthPage.module.scss";
-
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
 

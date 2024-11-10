@@ -4,7 +4,6 @@ import { FormikHelpers, Formik } from "formik";
 import { Form } from "react-bootstrap";
 
 import { useAuthedProfile, useAuthedContext } from "@/hooks/useAuthed";
-import styles from "./ProfileSettings.module.scss";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
 import { EditableProfile } from "@/lib/models";

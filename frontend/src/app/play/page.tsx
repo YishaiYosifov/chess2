@@ -1,6 +1,3 @@
-import scssVariables from "@/styles/variables.module.scss";
-import styles from "./play.module.scss";
-
 import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/game/Chessboard";
 
