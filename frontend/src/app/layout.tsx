@@ -1,6 +1,7 @@
 import { Secular_One } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.css";
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import { ReactNode } from "react";
 
 import constants from "@/lib/constants";
@@ -15,7 +16,7 @@ const secularOne = Secular_One({
     subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
     icons: {
         icon: "./public/favicon.ico",
     },
