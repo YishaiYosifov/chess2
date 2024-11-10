@@ -9,7 +9,6 @@ import {
     type LegalMoves,
     Color,
 } from "@/lib/models";
-import styles from "./Chessboard.module.scss";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";

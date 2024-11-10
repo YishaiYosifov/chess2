@@ -5,7 +5,6 @@ import { Card } from "react-bootstrap";
 import Image from "next/image";
 
 import type { RatingOverview } from "@/lib/models";
-import styles from "./RatingsCard.module.scss";
 
 const RatingCard = ({
     variant,

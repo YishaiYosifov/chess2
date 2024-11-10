@@ -1,7 +1,5 @@
 import Image from "next/image";
 
-import styles from "./index.module.scss";
-
 export const metadata = { title: "Home - Chess 2" };
 
 const IndexPage = async () => {

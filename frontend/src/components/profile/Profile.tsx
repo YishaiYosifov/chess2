@@ -2,8 +2,6 @@
 
 import { Card } from "react-bootstrap";
 
-import styles from "./Profile.module.scss";
-
 import type { AuthedProfileOut } from "@/lib/models";
 import type { TypedCountries } from "@/lib/types";
 import countries from "@/data/countries.json";

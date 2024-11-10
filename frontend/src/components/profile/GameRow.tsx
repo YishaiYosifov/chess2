@@ -2,8 +2,6 @@ import { BsPlusSlashMinus, BsPlus, BsDash } from "react-icons/bs";
 import Image from "next/image";
 import Link from "next/link";
 
-import styles from "./GameRow.module.scss";
-
 import {
     type AuthedProfileOut,
     type FinishedGame,

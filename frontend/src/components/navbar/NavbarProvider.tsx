@@ -1,17 +1,10 @@
 "use client";
 
-import { BsArrowRight, BsBoxArrowRight, BsGearFill } from "react-icons/bs";
-import Container from "react-bootstrap/Container";
-import Offcanvas from "react-bootstrap/Offcanvas";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
 import { useContext } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { AuthContext } from "../../contexts/authContext";
-import styles from "./navbar.module.scss";
-import "./navbar.scss";
 
 const NavbarProvider = () => {
     const { hasAuthCookies } = useContext(AuthContext);
@@ -23,17 +16,12 @@ const NavbarProvider = () => {
             alt="logo"
             height={40}
             width={147}
-            className="d-inline-block align-top rounded m-0"
+            className="inline-block align-top rounded"
         />
     );
 
     return (
-        <Navbar
-            fixed="top"
-            collapseOnSelect
-            expand={expand}
-            data-testid="navbar"
-        >
+        <header className="fixed top-0 z-10 bg-background" data-testid="navbar">
             <Container fluid="md">
                 <Navbar.Brand href="/">
                     <Logo />
@@ -98,7 +86,7 @@ const NavbarProvider = () => {
                     </Offcanvas.Body>
                 </Navbar.Offcanvas>
             </Container>
-        </Navbar>
+        </header>
     );
 };
 export default NavbarProvider;

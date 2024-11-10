@@ -3,7 +3,6 @@
 import { Table } from "react-bootstrap";
 
 import type { FinishedGame, AuthedProfileOut } from "@/lib/models";
-import styles from "./GamesTable.module.scss";
 
 import GameRow from "./GameRow";
 

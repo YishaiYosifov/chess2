@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 
-import styles from "./SettingsLayout.module.scss";
 import constants from "@/lib/constants";
 
 import SettingsNavbar from "@/components/settings/SettingsNavbar";

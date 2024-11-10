@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
 
-import styles from "./user.module.scss";
-
 import type { FinishedGame, AuthedProfileOut } from "@/lib/models";
 import { profileApi } from "@/lib/apis";
 
