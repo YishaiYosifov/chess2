@@ -9,25 +9,32 @@ import { AuthContext } from "../../contexts/authContext";
 const NavbarProvider = () => {
     const { hasAuthCookies } = useContext(AuthContext);
 
-    const expand = "md";
     const Logo = () => (
         <Image
             src="/assets/logo-text.svg"
             alt="logo"
             height={40}
             width={147}
-            className="inline-block align-top rounded"
+            className="inline-block rounded align-top"
         />
     );
 
     return (
-        <header className="fixed top-0 z-10 bg-background" data-testid="navbar">
-            <Container fluid="md">
-                <Navbar.Brand href="/">
+        <header className="border-white/20 fixed z-10 w-full border-b">
+            <nav
+                className="mx-auto flex max-w-4xl items-center justify-between p-4 text-2xl"
+                data-testid="navbar"
+            >
+                <section className="flex h-full items-center justify-between space-x-8">
                     <Logo />
-                </Navbar.Brand>
+                    <Link href="#">Home</Link>
+                    <Link href="/play">Play</Link>
+                    <Link href="/login">Login</Link>
+                </section>
 
-                <Navbar.Toggle
+                <Signup />
+
+                {/*<Navbar.Toggle
                     aria-controls={`offcanvasNavbar-expand-${expand}`}
                 />
 
@@ -84,8 +91,8 @@ const NavbarProvider = () => {
                             )}
                         </Nav>
                     </Offcanvas.Body>
-                </Navbar.Offcanvas>
-            </Container>
+                </Navbar.Offcanvas>*/}
+            </nav>
         </header>
     );
 };
@@ -93,10 +100,10 @@ export default NavbarProvider;
 
 const Signup = () => {
     return (
-        <Nav.Link as={Link} href="/signup" id={styles["signup-container"]}>
-            <span id={styles.signup}>Signup</span>
-            <span id={styles["signup-helper"]}>Signup</span>
-            <BsArrowRight />
-        </Nav.Link>
+        <Link href="/signup">
+            <span className="from-teal-200 to-teal-600 text-transparent bg-gradient-to-r bg-clip-text">
+                Signup
+            </span>
+        </Link>
     );
 };

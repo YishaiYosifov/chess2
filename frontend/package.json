@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "next dev --turbopack",
+        "dev": "next dev --turbo",
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
@@ -33,6 +33,7 @@
         "eslint": "^8",
         "eslint-config-next": "15.0.3",
         "postcss": "^8",
+        "prettier-plugin-tailwindcss": "^0.6.8",
         "tailwindcss": "^3.4.1",
         "typescript": "^5",
         "vite-tsconfig-paths": "^5.1.1",

@@ -3,6 +3,7 @@ import Image from "next/image";
 export const metadata = { title: "Home - Chess 2" };
 
 const IndexPage = async () => {
+    return;
     return (
         <header className={styles["main-container"]}>
             <div className={styles.header}>
