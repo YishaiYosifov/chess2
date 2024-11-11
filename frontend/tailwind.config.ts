@@ -6,8 +6,14 @@ export default {
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
-        colors: {
-            background: "#272838",
+        extend: {
+            colors: {
+                text: "#e0e4f0",
+                background: "#090c12",
+                primary: "#9cadce",
+                secondary: "#764e3a",
+                accent: "#a1b364",
+            },
         },
     },
     plugins: [],
