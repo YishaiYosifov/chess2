@@ -37,7 +37,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
 
     return (
         <html lang="en" data-bs-theme="dark">
-            <body className={`${secularOne.className} text-text bg-background`}>
+            <body className={`${secularOne.className} bg-background text-text`}>
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
