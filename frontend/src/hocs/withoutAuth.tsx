@@ -8,8 +8,10 @@ import constants from "@/lib/constants";
  * HOC to make sure the page is not accessible when the user is logged in.
  * If the user has an access / refresh token cookie they will be redirected to the home page.
  */
-const withoutAuth = <T,>(WrappedComponent: ComponentType<T>) => {
-    return async (props: any) => {
+const withoutAuth = <P extends JSX.IntrinsicAttributes>(
+    WrappedComponent: ComponentType<P>,
+) => {
+    const NewComponent = async (props: P) => {
         const nextCookies = await cookies();
         if (
             nextCookies.has(constants.ACCESS_TOKEN) ||
@@ -19,5 +21,6 @@ const withoutAuth = <T,>(WrappedComponent: ComponentType<T>) => {
 
         return <WrappedComponent {...props} />;
     };
+    return NewComponent;
 };
 export default withoutAuth;
