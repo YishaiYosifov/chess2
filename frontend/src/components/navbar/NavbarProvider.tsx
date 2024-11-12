@@ -19,7 +19,7 @@ const NavbarProvider = () => {
     };
 
     return (
-        <header className="fixed z-10 w-full border-b border-primary/50 p-4 text-2xl">
+        <header className="fixed bg-background z-10 w-full border-b border-primary/50 p-4 text-2xl">
             <section
                 className="mx-auto flex max-w-4xl items-center justify-between"
                 data-testid="navbar"
