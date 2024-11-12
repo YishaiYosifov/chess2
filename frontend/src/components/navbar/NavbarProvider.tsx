@@ -3,7 +3,8 @@
 import { useContext, useRef } from "react";
 import Image from "next/image";
 
-import { AuthContext } from "../../contexts/authContext";
+import { AuthContext } from "@/contexts/authContext";
+import LogoText from "@public/assets/logo-text.svg";
 import NavItem from "./NavItem";
 
 const NavbarProvider = () => {
@@ -25,7 +26,7 @@ const NavbarProvider = () => {
                 data-testid="navbar"
             >
                 <Image
-                    src="/assets/logo-text.svg"
+                    src={LogoText}
                     alt="logo"
                     height={40}
                     width={147}
