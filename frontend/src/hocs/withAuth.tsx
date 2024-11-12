@@ -10,8 +10,10 @@ import { profileApi } from "@/lib/apis";
  * This HOC will send a request to `/profile/me/info-sensitive`, and if an unauthorized
  * HTTP status is returned the user will be redirected to the home page
  */
-const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
-    return async (props: any) => {
+const withAuth = <P extends JSX.IntrinsicAttributes>(
+    WrappedComponent: ComponentType<P>,
+) => {
+    const NewComponent = async (props: P) => {
         try {
             const profile = await profileApi.getInfoSensitive({
                 cache: "no-cache",
@@ -25,5 +27,6 @@ const withAuth = <T,>(WrappedComponent: ComponentType<T>) => {
             redirect("/");
         }
     };
+    return NewComponent;
 };
 export default withAuth;
