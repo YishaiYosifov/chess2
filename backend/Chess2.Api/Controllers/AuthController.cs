@@ -28,7 +28,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
@@ -41,7 +41,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
             _logger.LogInformation(
                 "User logged in with username/email {UsernameOrEmail}",
                 userAuth.UsernameOrEmail);
-            return Results.NoContent();
+            return Results.Ok(value);
         }, (errors) => errors.ToProblemDetails());
     }
 
@@ -59,9 +59,11 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         }, (errors) => errors.ToProblemDetails());
     }
 
+#if DEBUG
     [HttpPost("test")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
     public IResult Test() => Results.NoContent();
+#endif
 }

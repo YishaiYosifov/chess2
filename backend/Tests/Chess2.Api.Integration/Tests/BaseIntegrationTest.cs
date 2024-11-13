@@ -7,18 +7,18 @@ namespace Chess2.Api.Integration.Tests;
 [Collection(nameof(SharedWebApplication))]
 public class BaseIntegrationTest : IAsyncLifetime
 {
-    private readonly Chess2WebApplicationFactory _factory;
     private readonly IServiceScope _scope;
 
     protected readonly IChess2Api ApiClient;
     protected readonly Chess2DbContext DbContext;
+    protected readonly Chess2WebApplicationFactory Factory;
 
     protected BaseIntegrationTest(Chess2WebApplicationFactory factory)
     {
-        _factory = factory;
-        _scope = _factory.Services.CreateScope();
+        Factory = factory;
+        _scope = Factory.Services.CreateScope();
 
-        ApiClient = _factory.CreateTypedClient();
+        ApiClient = Factory.CreateTypedClient();
         DbContext = _scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
     }
 
@@ -26,7 +26,7 @@ public class BaseIntegrationTest : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _factory.ResetDatabaseAsync();
+        await Factory.ResetDatabaseAsync();
         _scope?.Dispose();
         DbContext?.Dispose();
     }

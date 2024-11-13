@@ -25,10 +25,10 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
             Password = UserFaker.Password,
         });
 
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        response.IsSuccessful.Should().BeTrue();
         var cookies = response.Headers.GetValues("Set-Cookie");
         cookies.Should().HaveCount(2);
-        (await IsHttpClientAuthenticated()).Should().BeTrue();
+        (await AuthTestUtils.IsHttpClientAuthenticated(ApiClient)).Should().BeTrue();
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        (await IsHttpClientAuthenticated()).Should().BeFalse();
+        (await AuthTestUtils.IsHttpClientAuthenticated(ApiClient)).Should().BeFalse();
     }
 
     [Fact]
@@ -58,15 +58,6 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        (await IsHttpClientAuthenticated()).Should().BeFalse();
-    }
-
-    /// <summary>
-    /// Attempt to call a test route to check if we are authenticated
-    /// </summary>
-    private async Task<bool> IsHttpClientAuthenticated()
-    {
-        var testAuthResponse = await ApiClient.TestAuthAsync();
-        return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
+        (await AuthTestUtils.IsHttpClientAuthenticated(ApiClient)).Should().BeFalse();
     }
 }
