@@ -1,14 +1,20 @@
 ﻿using Chess2.Api.Models;
+using Chess2.Api.Models.DTOs;
+using Chess2.Api.Models.Entities;
+using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Refit;
 using Respawn;
 using System.Data.Common;
+using System.Net;
 using Testcontainers.PostgreSql;
 
 namespace Chess2.Api.Integration;
@@ -43,20 +49,27 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     /// Create a client that follows the chess2 api schema
     /// and is authenticated with the api
     /// </summary>
-    public IChess2Api CreateTypedAuthedClient(TestClaimsProvider claimsProvider)
+    public async Task<IChess2Api> CreateTypedAuthedClient(User user, string password)
     {
-        var httpClient = WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices((services) =>
-            {
-                services.AddAuthentication(defaultScheme: "TestScheme")
-                    .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(
-                        "TestScheme", options => { });
-                services.AddScoped(_ => claimsProvider);
-            });
-        }).CreateClient();
+        var httpClient = CreateTypedClient();
+        await httpClient.LoginAsync(user, password);
+        return httpClient;
+    }
 
-        return RestService.For<IChess2Api>(httpClient);
+    /// <summary>
+    /// Create a client that follows the chess2 api schema
+    /// and has specific authentication tokens
+    /// </summary>
+    public IChess2Api CreateTypedClientWithTokens(string? accessToken = null, string? refreshToken = null)
+    {
+        var cookieContainer = new CookieContainer();
+        if (!accessToken.IsNullOrEmpty())
+            cookieContainer.Add(Server.BaseAddress, new Cookie("accessToken", accessToken));
+        if (!refreshToken.IsNullOrEmpty())
+            cookieContainer.Add(Server.BaseAddress, new Cookie("refreshToken", refreshToken));
+
+        var handler = new CookieContainerHandler(cookieContainer);
+        return RestService.For<IChess2Api>(CreateDefaultClient(handler));
     }
 
     /// <summary>
