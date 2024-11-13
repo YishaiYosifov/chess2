@@ -1,0 +1,21 @@
+﻿using Refit;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Chess2.Api.Integration.Utils;
+
+public static class AuthTestUtils
+{
+    /// <summary>
+    /// Attempt to call a test route to check if we are authenticated
+    /// </summary>
+    public static async Task<bool> IsHttpClientAuthenticated(IChess2Api apiClient)
+    {
+        var testAuthResponse = await apiClient.TestAuthAsync();
+        return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
+    }
+}
