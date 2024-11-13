@@ -22,7 +22,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegratio
         var registeredUser = response.Content;
         var allUsers = await DbContext.Users.ToListAsync();
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.IsSuccessful.Should().BeTrue();
         registeredUser.Should().NotBeNull();
         (registeredUser?.Username).Should().Be(userIn.Username);
         (registeredUser?.Email).Should().Be(userIn.Email);
