@@ -12,13 +12,6 @@ public interface IChess2Api
     [Post("/api/auth/login")]
     Task<IApiResponse<Tokens>> LoginAsync([Body] UserLogin userLogin);
 
-    Task<IApiResponse<Tokens>> LoginAsync(User user, string password) =>
-        LoginAsync(new UserLogin()
-        {
-            UsernameOrEmail = user.Username,
-            Password = password,
-        });
-
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();
 
