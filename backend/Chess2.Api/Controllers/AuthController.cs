@@ -52,7 +52,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [Authorize("RefreshToken")]
     public async Task<IResult> Refresh(CancellationToken cancellation)
     {
-        var result = await _authService.RefreshToken(HttpContext, cancellation);
+        var result = await _authService.RefreshTokenAsync(HttpContext, cancellation);
         return result.Match((value) =>
         {
             _authService.SetAccessCookie(value, HttpContext);
