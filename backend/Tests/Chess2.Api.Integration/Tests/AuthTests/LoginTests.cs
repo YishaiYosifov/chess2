@@ -28,7 +28,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
         response.IsSuccessful.Should().BeTrue();
         var cookies = response.Headers.GetValues("Set-Cookie");
         cookies.Should().HaveCount(2);
-        await AuthTestUtils.AssertHttpClientAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        await AuthTestUtils.AssertHttpClientUnauthenticated(ApiClient);
+        await AuthTestUtils.AssertUnauthenticated(ApiClient);
     }
 
     [Fact]
@@ -58,6 +58,6 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        await AuthTestUtils.AssertHttpClientUnauthenticated(ApiClient);
+        await AuthTestUtils.AssertUnauthenticated(ApiClient);
     }
 }
