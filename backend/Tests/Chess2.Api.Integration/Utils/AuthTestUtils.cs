@@ -35,11 +35,11 @@ public static class AuthTestUtils
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public static Task Authenticate(IChess2Api apiClient, User user, string password) =>
+    public static Task Authenticate(IChess2Api apiClient, User user, string? password = null) =>
         apiClient.LoginAsync(new()
         {
             UsernameOrEmail = user.Username,
-            Password = password
+            Password = password ?? UserFaker.Password
         });
 
     public async static Task<User> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext)
