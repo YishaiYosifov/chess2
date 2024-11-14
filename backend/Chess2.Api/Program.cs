@@ -34,14 +34,14 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 
-# region Database
+#region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     options.UseNpgsql(appSettings.Database.GetConnectionString())
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-# endregion
+#endregion
 
-# region Authentication
+#region Authentication
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RefreshToken", policy =>
@@ -84,9 +84,9 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-# endregion
+#endregion
 
-# region Validation
+#region Validation
 builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
 #endregion
 
