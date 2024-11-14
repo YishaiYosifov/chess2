@@ -1,9 +1,4 @@
-﻿using Chess2.Api.Integration.Utils;
-using Chess2.Api.Models;
-using Chess2.Api.Models.DTOs;
-using Chess2.Api.Models.Entities;
-using FluentAssertions;
-using Microsoft.AspNetCore.Authentication;
+﻿using Chess2.Api.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;

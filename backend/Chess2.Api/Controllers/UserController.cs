@@ -2,7 +2,6 @@
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Controllers;
