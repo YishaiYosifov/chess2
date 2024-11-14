@@ -90,7 +90,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
 #endregion
 
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
