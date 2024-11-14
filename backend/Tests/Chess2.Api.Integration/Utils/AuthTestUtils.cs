@@ -35,18 +35,17 @@ public static class AuthTestUtils
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public static Task<IApiResponse<Tokens>> Authenticate(IChess2Api apiClient, User user, string password) =>
+    public static Task Authenticate(IChess2Api apiClient, User user, string password) =>
         apiClient.LoginAsync(new()
         {
             UsernameOrEmail = user.Username,
             Password = password
         });
 
-    public async static Task<IApiResponse<Tokens>> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext) =>
-        await Authenticate(
-            apiClient,
-            await FakerUtils.StoreFaker(
-                dbContext,
-                new UserFaker()),
-            UserFaker.Password);
+    public async static Task<User> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext)
+    {
+        var user = await FakerUtils.StoreFaker(dbContext, new UserFaker());
+        await Authenticate(apiClient, user, UserFaker.Password);
+        return user;
+    }
 }
