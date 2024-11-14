@@ -22,5 +22,8 @@ public interface IChess2Api
     #region User Controller
     [Get("/api/user/authed")]
     Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
+
+    [Get("/api/user/{username}")]
+    Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
     #endregion
 }

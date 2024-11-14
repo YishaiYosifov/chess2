@@ -8,8 +8,9 @@ namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IAuthService authService) : ControllerBase
+public class UserController(IUserService userService, IAuthService authService) : ControllerBase
 {
+    private readonly IUserService _userService = userService;
     private readonly IAuthService _authService = authService;
 
     [HttpGet("authed")]
@@ -21,6 +22,17 @@ public class UserController(IAuthService authService) : ControllerBase
         var result = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         return result.Match(
             (value) => Results.Ok(new PrivateUserOut(value)),
+            (errors) => errors.ToProblemDetails());
+    }
+
+    [HttpGet("{username}")]
+    [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IResult> GetUser(string username, CancellationToken cancellation)
+    {
+        var result = await _userService.GetUserByUsernameAsync(username);
+        return result.Match(
+            (value) => Results.Ok(new UserOut(value)),
             (errors) => errors.ToProblemDetails());
     }
 }
