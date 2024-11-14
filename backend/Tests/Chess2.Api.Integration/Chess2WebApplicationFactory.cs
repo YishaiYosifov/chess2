@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Integration.Utils;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using FluentAssertions;
@@ -43,17 +44,6 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                     .UseNpgsql(_dbContainer.GetConnectionString())
                     .UseSnakeCaseNamingConvention());
         });
-    }
-
-    /// <summary>
-    /// Create a client that follows the chess2 api schema
-    /// and is authenticated with the api
-    /// </summary>
-    public async Task<IChess2Api> CreateTypedAuthedClient(User user, string password)
-    {
-        var httpClient = CreateTypedClient();
-        await httpClient.LoginAsync(user, password);
-        return httpClient;
     }
 
     /// <summary>
