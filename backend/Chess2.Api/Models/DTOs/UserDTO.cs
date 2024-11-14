@@ -15,11 +15,26 @@ public class UserLogin
     public required string Password { get; set; }
 }
 
-public class UserOut
+public class PrivateUserOut
 {
     public int UserId { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+
+    public PrivateUserOut() { }
+
+    public PrivateUserOut(User user)
+    {
+        UserId = user.UserId;
+        Username = user.Username;
+        Email = user.Email;
+    }
+}
+
+public class UserOut
+{
+    public int UserId { get; set; }
+    public string Username { get; set; } = string.Empty;
 
     public UserOut() { }
 
@@ -27,6 +42,5 @@ public class UserOut
     {
         UserId = user.UserId;
         Username = user.Username;
-        Email = user.Email;
     }
 }

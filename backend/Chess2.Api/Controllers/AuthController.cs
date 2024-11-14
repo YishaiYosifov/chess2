@@ -14,7 +14,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     private readonly IAuthService _authService = authService;
 
     [HttpPost("register")]
-    [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
@@ -23,7 +23,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
         return result.Match((value) =>
         {
             _logger.LogInformation("Created user {Username}", userIn.Username);
-            return Results.Ok(new UserOut(value));
+            return Results.Ok(new PrivateUserOut(value));
         }, (errors) => errors.ToProblemDetails());
     }
 
