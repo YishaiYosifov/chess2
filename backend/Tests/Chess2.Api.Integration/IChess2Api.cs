@@ -16,4 +16,7 @@ public interface IChess2Api
 
     [Post("/api/auth/test")]
     Task<IApiResponse> TestAuthAsync();
+
+    [Get("/api/user/authed")]
+    Task<IApiResponse<PrivateUserOut>> GetAuthedUser();
 }
