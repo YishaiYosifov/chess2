@@ -39,7 +39,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegratio
     [InlineData("TestUser", "bad-email", "TestPassword")]
     [InlineData("TestUser", "test@email.com", "")]
     [InlineData("TestUser", "test@email.com", "ShtPwd")]
-    public async Task Invalid_parameters_returns_error(string username, string email, string password)
+    public async Task Register_with_bad_parameters(string username, string email, string password)
     {
         var userIn = new UserIn()
         {
@@ -57,7 +57,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegratio
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername", "other-test@email.com")]
     [InlineData("TestUsername", "test@email.com", "OtherTestUsername", "test@email.com")]
-    public async Task Conflicting_parameters_with_other_users_returns_error(
+    public async Task Register_with_conflicting_credentials_with_another_user(
         string user1Username,
         string user1Email,
         string user2Username,

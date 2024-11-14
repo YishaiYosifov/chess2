@@ -10,7 +10,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername")]
     [InlineData("TestUsername", "test@email.com", "test@email.com")]
-    public async Task Login_with_existing_user(
+    public async Task Login_with_existing_user_creates_tokens(
         string username,
         string email,
         string loginWithIdentifier)
@@ -32,7 +32,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTe
     }
 
     [Fact]
-    public async Task Login_with_bad_credentials()
+    public async Task Login_with_non_existing_user()
     {
         await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
