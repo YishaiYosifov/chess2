@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Models.DTOs;
-using Chess2.Api.Models.Entities;
 using Refit;
 
 namespace Chess2.Api.Integration;

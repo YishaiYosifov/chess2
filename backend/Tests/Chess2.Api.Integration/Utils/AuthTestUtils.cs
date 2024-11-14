@@ -4,12 +4,7 @@ using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using FluentAssertions;
 using Refit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.Integration.Utils;
 
