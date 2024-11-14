@@ -28,7 +28,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     }
 
     [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
@@ -48,6 +48,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
     public async Task<IResult> Refresh(CancellationToken cancellation)
     {
