@@ -18,7 +18,7 @@ public class UserController(IAuthService authService) : ControllerBase
     [Authorize]
     public async Task<IResult> GetAuthedUser(CancellationToken cancellation)
     {
-        var result = await _authService.GetLoggedInUser(HttpContext, cancellation);
+        var result = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         return result.Match(
             (value) => Results.Ok(new PrivateUserOut(value)),
             (errors) => errors.ToProblemDetails());

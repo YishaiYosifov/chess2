@@ -10,7 +10,7 @@ public class UserControllerTests(Chess2WebApplicationFactory factory) : BaseInte
     {
         var user = await AuthTestUtils.Authenticate(ApiClient, DbContext);
 
-        var response = await ApiClient.GetAuthedUser();
+        var response = await ApiClient.GetAuthedUserAsync();
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(
