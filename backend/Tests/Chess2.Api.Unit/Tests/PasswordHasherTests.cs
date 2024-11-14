@@ -8,7 +8,7 @@ public class PasswordHasherTests
     private readonly PasswordHasher _passwordHasher = new();
 
     [Fact]
-    public async Task Should_generate_a_hash()
+    public async Task Password_is_hashed_correctly()
     {
         var password = "TestPassword";
         var salt = _passwordHasher.GenerateSalt();
@@ -20,7 +20,7 @@ public class PasswordHasherTests
     }
 
     [Fact]
-    public void Should_generate_a_random_salt()
+    public void Salt_generation_is_random()
     {
         var salt1 = _passwordHasher.GenerateSalt();
         var salt2 = _passwordHasher.GenerateSalt();
@@ -36,7 +36,7 @@ public class PasswordHasherTests
     [Theory]
     [InlineData("TestPassword", "TestPassword")]
     [InlineData("TestPassword", "OtherTestPassword")]
-    public async Task Should_correctly_verify_a_password(string password1, string password2)
+    public async Task Correctly_verifies_password_with_hash_and_salt(string password1, string password2)
     {
         var salt = _passwordHasher.GenerateSalt();
         var hash = await _passwordHasher.HashPasswordAsync(password1, salt);
