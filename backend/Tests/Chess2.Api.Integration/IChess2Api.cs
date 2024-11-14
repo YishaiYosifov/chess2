@@ -5,6 +5,7 @@ namespace Chess2.Api.Integration;
 
 public interface IChess2Api
 {
+    #region Auth Controller
     [Post("/api/auth/register")]
     Task<IApiResponse<PrivateUserOut>> RegisterAsync([Body] UserIn userIn);
 
@@ -16,7 +17,10 @@ public interface IChess2Api
 
     [Post("/api/auth/test")]
     Task<IApiResponse> TestAuthAsync();
+    #endregion
 
+    #region User Controller
     [Get("/api/user/authed")]
-    Task<IApiResponse<PrivateUserOut>> GetAuthedUser();
+    Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
+    #endregion
 }

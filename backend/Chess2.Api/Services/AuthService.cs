@@ -16,10 +16,10 @@ public interface IAuthService
 {
     Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
-    Task<ErrorOr<User>> GetLoggedInUser(HttpContext context, CancellationToken cancellation);
+    Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation);
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
-    Task<ErrorOr<string>> RefreshToken(HttpContext context, CancellationToken cancellation);
+    Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation);
 }
 
 public class AuthService(
@@ -99,7 +99,7 @@ public class AuthService(
     /// <summary>
     /// Get the user that is logged in to the http context
     /// </summary>
-    public async Task<ErrorOr<User>> GetLoggedInUser(HttpContext context, CancellationToken cancellation)
+    public async Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation)
     {
         var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
         if (userIdClaimResult.IsError)
@@ -157,12 +157,12 @@ public class AuthService(
     /// Validate the refresh token is valid and
     /// create an access token from it
     /// </summary>
-    public async Task<ErrorOr<string>> RefreshToken(HttpContext context, CancellationToken cancellation)
+    public async Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation)
     {
         var tokenCreationTimeClaimResult = context.User.GetClaim(JwtRegisteredClaimNames.Iat);
         if (tokenCreationTimeClaimResult.IsError) return tokenCreationTimeClaimResult.Errors;
 
-        var userResult = await GetLoggedInUser(context, cancellation);
+        var userResult = await GetLoggedInUserAsync(context, cancellation);
         if (userResult.IsError) return userResult.Errors;
         var user = userResult.Value;
 
