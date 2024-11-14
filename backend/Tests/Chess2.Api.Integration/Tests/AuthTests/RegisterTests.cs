@@ -24,14 +24,13 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegratio
 
         response.IsSuccessful.Should().BeTrue();
         registeredUser.Should().NotBeNull();
-        (registeredUser?.Username).Should().Be(userIn.Username);
-        (registeredUser?.Email).Should().Be(userIn.Email);
+        registeredUser.Should().BeEquivalentTo(
+            userIn, opts => opts.ExcludingMissingMembers());
 
         allUsers.Should().HaveCount(1);
         var dbUser = allUsers.First();
-        dbUser.Username.Should().Be(userIn.Username);
-        dbUser.Email.Should().Be(userIn.Email);
-        dbUser.UserId.Should().Be(registeredUser?.UserId);
+        registeredUser.Should().BeEquivalentTo(
+            dbUser, opts => opts.ExcludingMissingMembers());
     }
 
     [Theory]
