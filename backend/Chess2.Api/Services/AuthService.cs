@@ -168,9 +168,9 @@ public class AuthService(
 
         // make sure the password hasn't changed since the refresh token was created
         // this way we can invalidate leaked tokens
-        var tokenCreationTime = DateTimeOffset.FromUnixTimeSeconds(
-            Convert.ToInt64(tokenCreationTimeClaimResult.Value.Value));
-        if (tokenCreationTime < user.PasswordLastChanged) return Error.Unauthorized();
+        var passwordChangedTimestamp = ((DateTimeOffset)user.PasswordLastChanged).ToUnixTimeSeconds();
+        var tokenCreationTimestamp = Convert.ToInt64(tokenCreationTimeClaimResult.Value.Value);
+        if (tokenCreationTimestamp < passwordChangedTimestamp) return Error.Unauthorized();
 
         return _tokenProvider.GenerateAccessToken(user);
     }
