@@ -19,7 +19,6 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        throw new Exception();
         var result = await _authService.RegisterUserAsync(userIn, cancellation);
         return result.Match((value) =>
         {
