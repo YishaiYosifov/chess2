@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35506.116 d17.12
+VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api", "Chess2.Api\Chess2.Api.csproj", "{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Functional", "Tests\Chess2.Api.Functional\Chess2.Api.Functional.csproj", "{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{2F55EE9C-E541-4ED4-9977-1D7B783E3922}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.TestInfrastructure", "Tests\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj", "{57378491-71D7-44DD-96AC-5CD803606583}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57378491-71D7-44DD-96AC-5CD803606583}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57378491-71D7-44DD-96AC-5CD803606583}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57378491-71D7-44DD-96AC-5CD803606583}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57378491-71D7-44DD-96AC-5CD803606583}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,5 +42,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 		{2F55EE9C-E541-4ED4-9977-1D7B783E3922} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
+		{57378491-71D7-44DD-96AC-5CD803606583} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 	EndGlobalSection
 EndGlobal
