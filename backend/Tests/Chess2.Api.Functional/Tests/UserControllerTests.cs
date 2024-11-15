@@ -1,5 +1,6 @@
-﻿using Chess2.Api.Functional.Fakes;
-using Chess2.Api.Functional.Utils;
+﻿using Chess2.Api.Functional.Utils;
+using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests;
@@ -33,7 +34,7 @@ public class UserControllerTests(Chess2WebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task Get_non_existing_user()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
         var response = await ApiClient.GetUserAsync("wrong username doesn't exist");
 

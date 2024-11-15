@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Models.DTOs;
 using Refit;
 
-namespace Chess2.Api.Functional;
+namespace Chess2.Api.TestInfrastructure;
 
 public interface IChess2Api
 {

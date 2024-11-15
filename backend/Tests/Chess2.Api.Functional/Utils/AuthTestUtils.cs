@@ -1,7 +1,7 @@
-﻿using Chess2.Api.Functional.Fakes;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
+using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 using System.Net;
 
