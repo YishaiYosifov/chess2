@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,9 +31,24 @@ public class UserController(IUserService userService, IAuthService authService) 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> GetUser(string username, CancellationToken cancellation)
     {
-        var result = await _userService.GetUserByUsernameAsync(username);
+        var result = await _userService.GetUserByUsernameAsync(username, cancellation);
         return result.Match(
             (value) => Results.Ok(new UserOut(value)),
+            (errors) => errors.ToProblemDetails());
+    }
+
+    [HttpPatch("profile-settings")]
+    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
+    public async Task<IResult> UpdateProfileSettings([FromBody] UserProfileEdit userEdit, CancellationToken cancellation)
+    {
+        var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
+        if (userResult.IsError) return userResult.Errors.ToProblemDetails();
+
+        var editResult = await _userService.UpdateProfileAsync(userResult.Value, userEdit, cancellation);
+        return editResult.Match(
+            (value) => Results.Ok(new PrivateUserOut(value)),
             (errors) => errors.ToProblemDetails());
     }
 }
