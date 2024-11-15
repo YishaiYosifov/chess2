@@ -1,9 +1,7 @@
 ﻿using Chess2.Api.Functional.Fakes;
 using Chess2.Api.Models;
-using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using FluentAssertions;
-using Refit;
 using System.Net;
 
 namespace Chess2.Api.Functional.Utils;
