@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Functional.Utils;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using System.Net;
 
