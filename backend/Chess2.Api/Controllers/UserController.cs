@@ -40,7 +40,7 @@ public class UserController(IUserService userService, IAuthService authService) 
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IResult> UpdateProfileSettings([FromBody] UserProfileEdit userEdit, CancellationToken cancellation)
+    public async Task<IResult> UpdateProfileSettings([FromBody] UserProfileUpdate userEdit, CancellationToken cancellation)
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         if (userResult.IsError) return userResult.Errors.ToProblemDetails();

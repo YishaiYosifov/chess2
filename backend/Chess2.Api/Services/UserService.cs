@@ -11,12 +11,12 @@ namespace Chess2.Api.Services;
 public interface IUserService
 {
     Task<ErrorOr<User>> GetUserByUsernameAsync(string username, CancellationToken cancellation = default);
-    Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default);
+    Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileUpdate userEdit, CancellationToken cancellation = default);
 }
 
-public class UserService(IValidator<UserProfileEdit> userEditValidator, IUserRepository userRepository) : IUserService
+public class UserService(IValidator<UserProfileUpdate> userEditValidator, IUserRepository userRepository) : IUserService
 {
-    private readonly IValidator<UserProfileEdit> _userEditValidator = userEditValidator;
+    private readonly IValidator<UserProfileUpdate> _userEditValidator = userEditValidator;
     private readonly IUserRepository _userRepository = userRepository;
 
     /// <summary>
@@ -29,7 +29,7 @@ public class UserService(IValidator<UserProfileEdit> userEditValidator, IUserRep
         return user is null ? UserErrors.UserNotFound : user;
     }
 
-    public async Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default)
+    public async Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileUpdate userEdit, CancellationToken cancellation = default)
     {
         var validationResult = _userEditValidator.Validate(userEdit);
         if (!validationResult.IsValid)
