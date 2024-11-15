@@ -86,6 +86,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 #region Validation
 builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
+builder.Services.AddScoped<IValidator<UserProfileEdit>, UserEditValidator>();
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
