@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.11.35327.3
+VisualStudioVersion = 17.12.35506.116 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api", "Chess2.Api\Chess2.Api.csproj", "{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api", "Chess2.Api\Chess2.Api.csproj", "{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.Integration", "Tests\Chess2.Api.Integration\Chess2.Api.Integration.csproj", "{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Functional", "Tests\Chess2.Api.Functional\Chess2.Api.Functional.csproj", "{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{02C136E7-B73B-4219-A5AD-5142C97EAB21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{2F55EE9C-E541-4ED4-9977-1D7B783E3922}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,27 +17,24 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{420BC1E4-4ED4-4660-B88C-AA97EF2C7A81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02C136E7-B73B-4219-A5AD-5142C97EAB21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F55EE9C-E541-4ED4-9977-1D7B783E3922}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{5ACFF5AB-30D0-44CE-A132-CB360578B3D6} = {905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}
-		{02C136E7-B73B-4219-A5AD-5142C97EAB21} = {905D54B1-5C6E-4838-A2CB-A7D8B546A0D5}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {AB364029-8E15-4337-926F-4DD1EEC5FD12}
+		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
+		{2F55EE9C-E541-4ED4-9977-1D7B783E3922} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 	EndGlobalSection
 EndGlobal
