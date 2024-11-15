@@ -4,5 +4,5 @@ using Chess2.Api.TestInfrastructure.Fixtures;
 
 namespace Chess2.Api.Functional.Tests;
 
-[Collection(nameof(SharedWebApplication))]
+[Collection(nameof(SharedFunctionalContext))]
 public class BaseFunctionalTest(Chess2WebApplicationFactory factory) : ApiTestFixture(factory);
