@@ -1,13 +1,13 @@
-﻿using Chess2.Api.Integration.Fakes;
-using Chess2.Api.Integration.Utils;
+﻿using Chess2.Api.Functional.Fakes;
+using Chess2.Api.Functional.Utils;
 using Chess2.Api.Models.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
-namespace Chess2.Api.Integration.Tests.AuthTests;
+namespace Chess2.Api.Functional.Tests.AuthTests;
 
-public class RegisterTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
+public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
     public async Task User_registration_saves_user_to_database()

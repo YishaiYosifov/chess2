@@ -1,11 +1,11 @@
-﻿using Chess2.Api.Integration.Fakes;
-using Chess2.Api.Integration.Utils;
+﻿using Chess2.Api.Functional.Fakes;
+using Chess2.Api.Functional.Utils;
 using FluentAssertions;
 using System.Net;
 
-namespace Chess2.Api.Integration.Tests.AuthTests;
+namespace Chess2.Api.Functional.Tests.AuthTests;
 
-public class LoginTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
+public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername")]

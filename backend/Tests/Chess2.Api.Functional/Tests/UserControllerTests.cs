@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Integration.Fakes;
-using Chess2.Api.Integration.Utils;
+﻿using Chess2.Api.Functional.Fakes;
+using Chess2.Api.Functional.Utils;
 using FluentAssertions;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Functional.Tests;
 
-public class UserControllerTests(Chess2WebApplicationFactory factory) : BaseIntegrationTest(factory)
+public class UserControllerTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
     public async Task Get_authenticated_user()
