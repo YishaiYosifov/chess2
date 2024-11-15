@@ -14,12 +14,12 @@ namespace Chess2.Api.Services;
 
 public interface IAuthService
 {
-    Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation);
-    Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation);
-    Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation);
+    Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation = default);
+    Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation = default);
+    Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation = default);
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
-    Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation);
+    Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation = default);
 }
 
 public class AuthService(
@@ -43,7 +43,7 @@ public class AuthService(
     /// Register a new user
     /// </summary>
     /// <param name="userIn">The user DTO received from the client</param>
-    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation)
+    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation = default)
     {
         var validationResult = await _userValidator.ValidateAsync(userIn, cancellation);
         if (!validationResult.IsValid)
@@ -78,7 +78,7 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation)
+    public async Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation = default)
     {
         var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
             ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
@@ -100,7 +100,7 @@ public class AuthService(
     /// <summary>
     /// Get the user that is logged in to the http context
     /// </summary>
-    public async Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation)
+    public async Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation = default)
     {
         var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
         if (userIdClaimResult.IsError)
@@ -158,7 +158,7 @@ public class AuthService(
     /// Validate the refresh token is valid and
     /// create an access token from it
     /// </summary>
-    public async Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation)
+    public async Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation = default)
     {
         var tokenCreationTimeClaimResult = context.User.GetClaim(JwtRegisteredClaimNames.Iat);
         if (tokenCreationTimeClaimResult.IsError) return tokenCreationTimeClaimResult.Errors;
