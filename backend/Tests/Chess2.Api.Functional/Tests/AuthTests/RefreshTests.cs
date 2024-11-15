@@ -39,7 +39,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task Refresh_after_password_change()
     {
-        var passwordChanged = DateTime.UtcNow.AddYears(1);
+        var passwordChanged = DateTime.UtcNow.AddSeconds(2);
         var user = await FakerUtils.StoreFaker(
             DbContext, new UserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged));
         var tokens = await AuthTestUtils.Authenticate(ApiClient, user, UserFaker.Password);
