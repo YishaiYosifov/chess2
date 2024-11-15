@@ -113,5 +113,5 @@ app.MapControllers();
 
 app.Run();
 
-// for integration testing :)
+// expose the program for WebApplicationFactory
 public partial class Program;
