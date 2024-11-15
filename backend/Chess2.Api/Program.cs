@@ -1,4 +1,4 @@
-using Chess2.Api.Middlewares;
+using Chess2.Api;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Validators;
@@ -31,8 +31,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddTransient<ExceptionHandlerMiddleware>();
 
 #region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
@@ -90,6 +88,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
 #endregion
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
@@ -101,12 +102,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ExceptionHandlerMiddleware>();
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 
