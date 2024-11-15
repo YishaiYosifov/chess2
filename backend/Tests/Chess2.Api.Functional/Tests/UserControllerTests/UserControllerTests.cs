@@ -4,9 +4,9 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 
-namespace Chess2.Api.Functional.Tests;
+namespace Chess2.Api.Functional.Tests.UserControllerTests;
 
-public class UserControllerTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
+public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
     public async Task Get_authenticated_user()
