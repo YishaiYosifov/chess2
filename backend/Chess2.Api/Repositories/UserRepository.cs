@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Models;
+using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,7 @@ public interface IUserRepository
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default);
     public Task<User?> GetByUserIdAsync(int userId, CancellationToken cancellation = default);
     public Task AddUserAsync(User user, CancellationToken cancellation = default);
+    public Task<User> UpdateUserProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default);
 }
 
 public class UserRepository(Chess2DbContext dbContext) : IUserRepository
@@ -29,5 +31,27 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
     {
         await _dbContext.Users.AddAsync(user, cancellation);
         await _dbContext.SaveChangesAsync(cancellation);
+    }
+
+    /// <summary>
+    /// Update the profile data of a user.
+    /// This method takes the properties of <see cref="UserProfileEdit"/> and
+    /// updates them in the user if it's not null
+    /// </summary>
+    public async Task<User> UpdateUserProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default)
+    {
+        foreach (var prop in userEdit.GetType().GetProperties())
+        {
+            var value = prop.GetValue(userEdit);
+            if (value is null) continue;
+
+            var userProperty = user.GetType().GetProperty(prop.Name);
+            if (userProperty is not null && userProperty.CanWrite)
+                userProperty.SetValue(user, value);
+        }
+
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync(cancellation);
+        return user;
     }
 }
