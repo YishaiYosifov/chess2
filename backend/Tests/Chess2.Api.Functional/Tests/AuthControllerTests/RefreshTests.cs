@@ -5,7 +5,7 @@ using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using System.Net;
 
-namespace Chess2.Api.Functional.Tests.AuthTests;
+namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 
 public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
