@@ -1,11 +1,11 @@
-﻿using Chess2.Api.Integration.Collections;
+﻿using Chess2.Api.Functional.Collections;
 using Chess2.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Functional.Tests;
 
 [Collection(nameof(SharedWebApplication))]
-public class BaseIntegrationTest : IAsyncLifetime
+public class BaseFunctionalTest : IAsyncLifetime
 {
     private readonly IServiceScope _scope;
 
@@ -13,7 +13,7 @@ public class BaseIntegrationTest : IAsyncLifetime
     protected readonly Chess2DbContext DbContext;
     protected readonly Chess2WebApplicationFactory Factory;
 
-    protected BaseIntegrationTest(Chess2WebApplicationFactory factory)
+    protected BaseFunctionalTest(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
         _scope = Factory.Services.CreateScope();

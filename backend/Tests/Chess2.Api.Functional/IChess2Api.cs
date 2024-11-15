@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Models.DTOs;
 using Refit;
 
-namespace Chess2.Api.Integration;
+namespace Chess2.Api.Functional;
 
 public interface IChess2Api
 {

@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using Chess2.Api.Models.Entities;
 
-namespace Chess2.Api.Integration.Fakes;
+namespace Chess2.Api.Functional.Fakes;
 
 public class UserFaker : Faker<User>
 {

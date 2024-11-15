@@ -13,7 +13,7 @@ using System.Data.Common;
 using System.Net;
 using Testcontainers.PostgreSql;
 
-namespace Chess2.Api.Integration;
+namespace Chess2.Api.Functional;
 
 public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
