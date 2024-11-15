@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.TestInfrastructure.Fixtures;
+namespace Chess2.Api.TestInfrastructure;
 
-public class ApiTestFixture : IAsyncLifetime
+public class ApiTestBase : IAsyncLifetime
 {
     private readonly IServiceScope _scope;
 
@@ -11,7 +11,7 @@ public class ApiTestFixture : IAsyncLifetime
     protected readonly Chess2DbContext DbContext;
     protected readonly Chess2WebApplicationFactory Factory;
 
-    protected ApiTestFixture(Chess2WebApplicationFactory factory)
+    protected ApiTestBase(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
         _scope = Factory.Services.CreateScope();
