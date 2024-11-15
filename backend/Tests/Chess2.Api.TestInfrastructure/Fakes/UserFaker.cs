@@ -29,6 +29,8 @@ public class UserFaker : Faker<User>
             .RuleFor(x => x.UserId, 0)
             .RuleFor(x => x.Username, f => f.Person.UserName)
             .RuleFor(x => x.Email, f => f.Person.Email)
+            .RuleFor(x => x.CountryCode, "IL")
+            .RuleFor(x => x.About, f => f.Lorem.Sentence(4))
             .RuleFor(x => x.PasswordHash, PasswordHash)
             .RuleFor(x => x.PasswordSalt, PasswordSalt)
             .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow);

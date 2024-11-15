@@ -66,6 +66,7 @@ public class AuthService(
         {
             Username = userIn.Username,
             Email = userIn.Email,
+            CountryCode = userIn.CountryCode,
             PasswordHash = hash,
             PasswordSalt = salt,
         };
