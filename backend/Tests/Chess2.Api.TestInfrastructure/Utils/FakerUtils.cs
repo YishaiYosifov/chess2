@@ -1,7 +1,7 @@
 ﻿using Bogus;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chess2.Api.Functional.Utils;
+namespace Chess2.Api.TestInfrastructure.Utils;
 
 public static class FakerUtils
 {

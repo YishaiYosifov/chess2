@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Ch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.TestInfrastructure", "Tests\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj", "{57378491-71D7-44DD-96AC-5CD803606583}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Integration", "Tests\Chess2.Api.Integration\Chess2.Api.Integration.csproj", "{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{57378491-71D7-44DD-96AC-5CD803606583}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57378491-71D7-44DD-96AC-5CD803606583}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57378491-71D7-44DD-96AC-5CD803606583}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,5 +49,6 @@ Global
 		{0B22EB37-8C5C-4D12-B942-F9A0E0496E02} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 		{2F55EE9C-E541-4ED4-9977-1D7B783E3922} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 		{57378491-71D7-44DD-96AC-5CD803606583} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
+		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5} = {D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}
 	EndGlobalSection
 EndGlobal

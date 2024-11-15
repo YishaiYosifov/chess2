@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Functional.Utils;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using System.Net;
 
@@ -11,7 +12,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername")]
     [InlineData("TestUsername", "test@email.com", "test@email.com")]
-    public async Task Login_with_existing_user_creates_tokens(
+    public async Task Login_with_correct_credentials(
         string username,
         string email,
         string loginWithIdentifier)
