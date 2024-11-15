@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Functional.Fakes;
 using Chess2.Api.Models;
+using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using FluentAssertions;
 using System.Net;
@@ -33,17 +34,23 @@ public static class AuthTestUtils
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public static Task Authenticate(IChess2Api apiClient, User user, string? password = null) =>
-        apiClient.LoginAsync(new()
+    public static async Task<Tokens> Authenticate(IChess2Api apiClient, User user, string? password = null)
+    {
+        var response = await apiClient.LoginAsync(new()
         {
             UsernameOrEmail = user.Username,
             Password = password ?? UserFaker.Password
         });
+        response.IsSuccessful.Should().BeTrue();
 
-    public async static Task<User> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext)
+        return response.Content!;
+    }
+    
+
+    public async static Task<(User User, Tokens Tokens)> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext)
     {
         var user = await FakerUtils.StoreFaker(dbContext, new UserFaker());
-        await Authenticate(apiClient, user, UserFaker.Password);
-        return user;
+        var tokens = await Authenticate(apiClient, user, UserFaker.Password);
+        return (user, tokens);
     }
 }
