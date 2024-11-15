@@ -47,9 +47,9 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     public IChess2Api CreateTypedClientWithTokens(string? accessToken = null, string? refreshToken = null)
     {
         var cookieContainer = new CookieContainer();
-        if (!accessToken.IsNullOrEmpty())
+        if (!string.IsNullOrEmpty(accessToken))
             cookieContainer.Add(Server.BaseAddress, new Cookie("accessToken", accessToken));
-        if (!refreshToken.IsNullOrEmpty())
+        if (!string.IsNullOrEmpty(refreshToken))
             cookieContainer.Add(Server.BaseAddress, new Cookie("refreshToken", refreshToken));
 
         var handler = new CookieContainerHandler(cookieContainer);
