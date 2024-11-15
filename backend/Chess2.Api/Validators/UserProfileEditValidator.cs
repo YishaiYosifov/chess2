@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace Chess2.Api.Validators;
 
-public class UserProfileEditValidator : AbstractValidator<UserProfileEdit>
+public class UserProfileEditValidator : AbstractValidator<UserProfileUpdate>
 {
     public UserProfileEditValidator()
     {
