@@ -1,9 +1,9 @@
 using Chess2.Api;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
-using Chess2.Api.Models.Validators;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
+using Chess2.Api.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

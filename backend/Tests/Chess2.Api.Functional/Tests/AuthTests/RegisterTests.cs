@@ -18,6 +18,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
             Username = "TestUser",
             Email = "test@email.com",
             Password = "TestPassword",
+            CountryCode = "IL",
         };
         var response = await ApiClient.RegisterAsync(userIn);
         var registeredUser = response.Content;
@@ -35,18 +36,20 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
     }
 
     [Theory]
-    [InlineData("", "test@email.com", "TestPassword")]
-    [InlineData("LongUsernameeeeeeeeeeeeeeeeeeee", "test@email.com", "TestPassword")]
-    [InlineData("TestUser", "bad-email", "TestPassword")]
-    [InlineData("TestUser", "test@email.com", "")]
-    [InlineData("TestUser", "test@email.com", "ShtPwd")]
-    public async Task Register_with_bad_parameters(string username, string email, string password)
+    [InlineData("", "test@email.com", "TestPassword", "IL")]
+    [InlineData("LongUsernameeeeeeeeeeeeeeeeeeee", "test@email.com", "TestPassword", "IL")]
+    [InlineData("TestUser", "bad-email", "TestPassword", "IL")]
+    [InlineData("TestUser", "test@email.com", "", "IL")]
+    [InlineData("TestUser", "test@email.com", "ShtPwd", "IL")]
+    [InlineData("TestUser", "test@email.com", "ShtPwd", "XZ")]
+    public async Task Register_with_bad_parameters(string username, string email, string password, string country)
     {
         var userIn = new UserIn()
         {
             Username = username,
             Email = email,
             Password = password,
+            CountryCode = country,
         };
         var response = await ApiClient.RegisterAsync(userIn);
 
@@ -72,7 +75,8 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
         {
             Username = user2Username,
             Email = user2Email,
-            Password = "TestPassword"
+            Password = "TestPassword",
+            CountryCode = "IL",
         });
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
