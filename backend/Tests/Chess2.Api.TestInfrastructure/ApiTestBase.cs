@@ -5,8 +5,7 @@ namespace Chess2.Api.TestInfrastructure;
 
 public class ApiTestBase : IAsyncLifetime
 {
-    private readonly IServiceScope _scope;
-
+    protected readonly IServiceScope Scope;
     protected readonly IChess2Api ApiClient;
     protected readonly Chess2DbContext DbContext;
     protected readonly Chess2WebApplicationFactory Factory;
@@ -14,10 +13,10 @@ public class ApiTestBase : IAsyncLifetime
     protected ApiTestBase(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
-        _scope = Factory.Services.CreateScope();
+        Scope = Factory.Services.CreateScope();
 
         ApiClient = Factory.CreateTypedClient();
-        DbContext = _scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        DbContext = Scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
@@ -25,7 +24,7 @@ public class ApiTestBase : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await Factory.ResetDatabaseAsync();
-        _scope?.Dispose();
+        Scope?.Dispose();
         DbContext?.Dispose();
     }
 }
