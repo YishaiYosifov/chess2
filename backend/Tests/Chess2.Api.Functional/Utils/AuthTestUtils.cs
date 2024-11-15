@@ -45,7 +45,7 @@ public static class AuthTestUtils
 
         return response.Content!;
     }
-    
+
 
     public async static Task<(User User, Tokens Tokens)> Authenticate(IChess2Api apiClient, Chess2DbContext dbContext)
     {

@@ -27,7 +27,6 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     private DbConnection _dbConnection = null!;
     private Respawner _respawner = null!;
 
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
