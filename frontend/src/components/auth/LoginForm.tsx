@@ -1,24 +1,17 @@
 "use client";
 
-import { BsPersonFill } from "react-icons/bs";
-import { Form } from "react-bootstrap";
-
-import { Formik, FormikHelpers } from "formik";
+import { FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import * as yup from "yup";
 
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
-import {
-    FormInput,
-    FormikField,
-    PasswordInput,
-    SubmitButton,
-} from "../form/FormElements";
-import { AuthContext } from "../../contexts/authContext";
-import FormField from "../form/FormField";
+import { AuthContext } from "@/contexts/authContext";
+import LogoText from "@public/assets/logo-text.svg";
 
 export interface LoginFormValues {
     username: string;
@@ -36,7 +29,7 @@ const LoginForm = () => {
 
     async function onSubmit(
         values: LoginFormValues,
-        { setStatus }: FormikHelpers<LoginFormValues>
+        { setStatus }: FormikHelpers<LoginFormValues>,
     ) {
         try {
             await authApi.login({
@@ -57,55 +50,54 @@ const LoginForm = () => {
 
         localStorage.setItem(
             constants.LAST_LOGIN_LOCAL_STORAGE,
-            new Date().toUTCString()
+            new Date().toUTCString(),
         );
         setHasAuthCookies(true);
         router.replace("/");
     }
 
     return (
-        <Formik
-            onSubmit={onSubmit}
-            validationSchema={loginSchema}
-            initialValues={{
-                username: "",
-                password: "",
-            }}
-        >
-            {({ handleSubmit, status }) => (
-                <Form
-                    data-testid="loginForm"
-                    aria-label="signup form"
-                    noValidate
-                    onSubmit={handleSubmit}
+        <section className="flex max-w-5xl flex-col items-center justify-center gap-10 px-10">
+            <Image src={LogoText} alt="logo" />
+
+            <form
+                data-testid="loginForm"
+                aria-label="signup form"
+                className="flex w-4/5 flex-col gap-5 text-center"
+            >
+                <div className="flex flex-col gap-3 text-black">
+                    <input
+                        className="w-full rounded-md p-1"
+                        placeholder="Username"
+                    />
+                    <input
+                        className="w-full rounded-md p-1"
+                        placeholder="Email"
+                        type="email"
+                    />
+                    <input
+                        className="w-full rounded-md p-1"
+                        placeholder="Password"
+                        type="password"
+                    />
+                </div>
+
+                <button
+                    className="rounded-md bg-cta p-2 text-3xl"
+                    type="submit"
                 >
-                    <FormField hasValidation>
-                        <FormikField
-                            asInput={FormInput}
-                            name="username"
-                            placeholder="Username"
-                            icon={<BsPersonFill />}
-                        />
-                    </FormField>
-
-                    <FormField hasValidation>
-                        <FormikField
-                            asInput={PasswordInput}
-                            name="password"
-                            placeholder="Password"
-                        />
-                    </FormField>
-
-                    <SubmitButton variant="secondary">Log In</SubmitButton>
-
-                    {status && (
-                        <span data-testid="formStatus" className="text-invalid">
-                            {status}
-                        </span>
-                    )}
-                </Form>
-            )}
-        </Formik>
+                    Sign Up
+                </button>
+                <span data-testid="signupLink">
+                    Don&#39;t have an account? Click{" "}
+                    {
+                        <Link href="/signup" className="text-link">
+                            here to sign up
+                        </Link>
+                    }
+                </span>
+            </form>
+        </section>
     );
 };
 export default LoginForm;
