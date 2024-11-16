@@ -12,6 +12,7 @@ import { authApi } from "@/lib/apis";
 import { FormikField, SubmitButton } from "../form/FormElements";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
+import { ResponseError } from "@/lib/apiClient";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -39,12 +40,17 @@ const LoginForm = () => {
                 password: values.password,
             });
         } catch (err) {
-            if (!(err instanceof Error)) setStatus(constants.GENERIC_ERROR);
-            switch (err?.response?.status) {
+            if (!(err instanceof ResponseError)) {
+                setStatus(constants.GENERIC_ERROR);
+                throw err;
+            }
+
+            switch (err.status) {
                 case 404:
                     setStatus("Wrong username / email / password");
                     break;
                 default:
+                    setStatus(constants.GENERIC_ERROR);
                     throw err;
             }
             return;

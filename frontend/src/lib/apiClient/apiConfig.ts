@@ -7,7 +7,6 @@ export interface ConfigurationParameters {
 
     preRequest?: PreRequest; // middleware to apply before/after fetch requests
     postRequest?: PostRequest;
-    onError?: OnError;
 
     headers?: HTTPHeaders; //header params we want to use on every request
     credentials?: RequestCredentials; //value for the credentials param we want to use on each request
@@ -32,10 +31,6 @@ export class Configuration {
         return this.configuration.postRequest;
     }
 
-    get onError(): OnError | undefined {
-        return this.configuration.onError;
-    }
-
     get headers(): HTTPHeaders {
         return this.configuration.headers ?? {};
     }
@@ -50,9 +45,5 @@ export const DefaultConfig = new Configuration();
 type PreRequest = (context: RequestContext) => Promise<RequestContext | void>;
 type PostRequest = (
     context: RequestContext,
-    response: Response
-) => Promise<Response | undefined>;
-type OnError = (
-    context: RequestContext,
-    error: unknown
+    response: Response,
 ) => Promise<Response | undefined>;
