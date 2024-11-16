@@ -1,4 +1,6 @@
-import { ApiResponse, BaseAPI, HttpMethod, VoidApiResponse } from "../runtime";
+import { BaseAPI, HttpMethod } from "../baseApi";
+import { VoidApiResponse } from "../apiResponse";
+import { ApiResponse } from "../apiResponse";
 
 export interface LoginRequest {
     usernameOrEmail: string;
