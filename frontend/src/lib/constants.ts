@@ -9,8 +9,8 @@ export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 export const ACCESS_TOKEN_EXPIRES_SECONDS = 1800;
 export const REFRESH_TOKEN_EXPIRES_SECONDS = 216000;
 
-export const ACCESS_TOKEN = "access_token";
-export const REFRESH_TOKEN = "refresh_token";
+export const ACCESS_TOKEN = "accessToken";
+export const REFRESH_TOKEN = "refreshToken";
 
 export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
 export const GENERIC_ERROR = "Something went wrong.";
