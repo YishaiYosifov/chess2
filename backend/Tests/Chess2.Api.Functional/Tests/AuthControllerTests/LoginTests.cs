@@ -44,7 +44,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
             Password = UserFaker.Password,
         });
 
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         await AuthTestUtils.AssertUnauthenticated(ApiClient);
     }
 

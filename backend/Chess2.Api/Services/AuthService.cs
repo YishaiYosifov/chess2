@@ -82,7 +82,7 @@ public class AuthService(
     {
         var dbUser = await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
             ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
-        if (dbUser is null) return UserErrors.UserNotFound;
+        if (dbUser is null) return UserErrors.BadCredentials;
 
         var isPasswordCorrect = await _passwordHasher.VerifyPassword(
             userAuth.Password,
