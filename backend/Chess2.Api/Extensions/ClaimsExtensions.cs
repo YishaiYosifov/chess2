@@ -1,12 +1,10 @@
 ﻿using ErrorOr;
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 namespace Chess2.Api.Extensions;
 
 public static class ClaimsExtensions
 {
-    [return: NotNull]
     public static ErrorOr<Claim> GetClaim(this ClaimsPrincipal? claimsPrincipal, string claimType)
     {
         if (claimsPrincipal is null)
