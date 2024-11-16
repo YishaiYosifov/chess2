@@ -1,124 +1,60 @@
-import { BsEyeFill, BsEyeSlashFill } from "react-icons/bs";
-import { InputGroup, Form, Button } from "react-bootstrap";
-import { ButtonProps } from "react-bootstrap/esm/Button";
-import { useField, useFormikContext } from "formik";
+import { useField, useFormik, useFormikContext } from "formik";
 
-import {
-    ComponentProps,
-    ComponentType,
-    ReactNode,
-    useState,
-    createElement,
-} from "react";
+import Button from "../helpers/Button";
+import React from "react";
 
-interface HOCProps {
-    name?: string;
-    icon?: ReactNode;
-}
-
-/**
- * Higher order component that adds optional formim functionality to form components
- * as well as adds additional features
- */
-const withFormElement = <P,>(WrappedComponent: ComponentType<P>) => {
-    const FormikComponent = (props: P & HOCProps) => {
-        return (
-            <>
-                <WrappedComponent {...props} />
-                {props.icon && <InputGroup.Text>{props.icon}</InputGroup.Text>}
-            </>
-        );
-    };
-    return FormikComponent;
-};
-
-export const FormInput = withFormElement<ComponentProps<typeof Form.Control>>(
-    ({ children, ...inputProps }) => {
-        return (
-            <>
-                <Form.Control {...inputProps} aria-label={inputProps.name} />
-                {children}
-            </>
-        );
-    }
-);
-
-export const FormSelect = withFormElement<ComponentProps<typeof Form.Select>>(
-    ({ children, ...inputProps }) => {
-        return (
-            <Form.Select {...inputProps} aria-label={inputProps.name}>
-                {children}
-            </Form.Select>
-        );
-    }
-);
-
-export const PasswordInput = withFormElement<
-    ComponentProps<typeof Form.Control>
->(({ children, ...inputProps }) => {
-    const [isShowingPassword, setIsShowingPassword] = useState(false);
-    const EyeToggle = isShowingPassword ? BsEyeFill : BsEyeSlashFill;
+export const SubmitButton = ({
+    children,
+    disabled,
+    type,
+    ...buttonProps
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
+    const { dirty, isValid, isSubmitting, status } = useFormikContext();
 
     return (
         <>
-            <Form.Control
-                type={isShowingPassword ? "text" : "password"}
-                {...inputProps}
-                aria-label={inputProps.name}
-            />
-
-            <InputGroup.Text>
-                <EyeToggle
-                    onClick={() => setIsShowingPassword(!isShowingPassword)}
-                    role="button"
-                />
-            </InputGroup.Text>
+            <Button
+                type={type ?? "submit"}
+                disabled={disabled || isSubmitting || !dirty || !isValid}
+                data-testid="submitFormButton"
+                {...buttonProps}
+            >
+                {children}
+            </Button>
+            {status && <span className="text-error">{status}</span>}
         </>
-    );
-});
-
-export const SubmitButton = ({ children, ...buttonProps }: ButtonProps) => {
-    const { dirty, isValid, isSubmitting } = useFormikContext();
-
-    return (
-        <Button
-            type="submit"
-            disabled={isSubmitting || !dirty || !isValid}
-            data-testid="submitFormButton"
-            {...buttonProps}
-        >
-            {children}
-        </Button>
     );
 };
 
-type FormikFieldProps<P extends ComponentType> = {
-    asInput: P;
+export const FormikErrorMessage = ({ name }: { name: string }) => {
+    const { error } = useField(name)[1];
+    return <>{error && <span className="text-error">{error}</span>}</>;
+};
+
+type FormikFieldProps<TProps extends React.ComponentType> = {
+    asInput: TProps;
     name: string;
-} & ComponentProps<P>;
+} & React.ComponentProps<TProps>;
 
 /**
  * Render a regular field as a formik field.
  * Adds error handling and formik field props.
  */
-export const FormikField = <P extends ComponentType>({
+export const FormikField = <TProps extends React.ComponentType>({
     asInput,
     name,
     ...props
-}: FormikFieldProps<P>) => {
-    const [field, meta] = useField(name);
+}: FormikFieldProps<TProps>) => {
+    const [field] = useField(name);
 
     return (
         <>
-            {createElement(asInput as any, {
+            {React.createElement(asInput as never, {
                 ...field,
                 ...props,
-                isInvalid: meta.error,
             })}
 
-            <Form.Control.Feedback type="invalid">
-                {meta.error}
-            </Form.Control.Feedback>
+            <FormikErrorMessage name={name} />
         </>
     );
 };

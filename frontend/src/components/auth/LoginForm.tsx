@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import Link from "next/link";
@@ -9,6 +9,8 @@ import * as yup from "yup";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
+import { FormikField, SubmitButton } from "../form/FormElements";
+import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
 
 export interface LoginFormValues {
@@ -31,19 +33,18 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        console.log(123);
         try {
             await authApi.login({
-                username: values.username,
+                usernameOrEmail: values.usernameOrEmail,
                 password: values.password,
             });
-        } catch (err: any) {
+        } catch (err) {
+            if (!(err instanceof Error)) setStatus(constants.GENERIC_ERROR);
             switch (err?.response?.status) {
-                case 401:
-                    setStatus("Wrong username / password");
+                case 404:
+                    setStatus("Wrong username / email / password");
                     break;
                 default:
-                    setStatus(constants.GENERIC_ERROR);
                     throw err;
             }
             return;
@@ -69,31 +70,16 @@ const LoginForm = () => {
                 className="flex w-4/5 flex-col gap-5"
             >
                 <div className="flex flex-col gap-3 text-black">
-                    <span className="text-error">
-                        <ErrorMessage name="usernameOrEmail" />
-                    </span>
-                    <Field
-                        className="w-full rounded-md p-1"
+                    <FormikField
+                        asInput={Input}
                         placeholder="Username or Email"
                         name="usernameOrEmail"
                     />
-                    <span className="text-error">
-                        <ErrorMessage name="password" />
-                    </span>
-                    <Field
-                        className="w-full rounded-md p-1"
-                        placeholder="Password"
-                        name="password"
-                        type="password"
-                    />
+                    <FormikField asInput={PasswordInput} name="password" />
                 </div>
 
-                <button
-                    className="rounded-md bg-cta p-2 text-3xl"
-                    type="submit"
-                >
-                    Log In
-                </button>
+                <SubmitButton>Log In</SubmitButton>
+
                 <span data-testid="signupLink" className="text-center">
                     Don&#39;t have an account? Click{" "}
                     {
