@@ -1,6 +1,6 @@
-import { BaseAPI, HttpMethod } from "../baseApi";
 import { VoidApiResponse } from "../apiResponse";
 import { ApiResponse } from "../apiResponse";
+import { BaseAPI } from "../baseApi";
 
 export interface LoginRequest {
     usernameOrEmail: string;
@@ -16,14 +16,11 @@ export class AuthApi extends BaseAPI {
         requestParameters: LoginRequest,
         initOverrides?: RequestInit,
     ): Promise<ApiResponse<void>> {
-        const response = await this.request(
-            {
-                path: "/auth/login",
-                method: HttpMethod.Post,
-                body: requestParameters,
-            },
-            initOverrides,
-        );
+        const response = await this.request("/auth/login", {
+            ...initOverrides,
+            method: "POST",
+            body: requestParameters,
+        });
 
         return new VoidApiResponse(response);
     }
