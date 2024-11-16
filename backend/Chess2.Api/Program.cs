@@ -1,14 +1,19 @@
 using Chess2.Api;
+using Chess2.Api.Errors;
+using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Chess2.Api.Validators;
+using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Net.Http;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -87,6 +92,15 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
             ctx.Request.Cookies.TryGetValue(cookieName, out var token);
             if (!string.IsNullOrEmpty(token)) ctx.Token = token;
             return Task.CompletedTask;
+        },
+        // set a custom unauthorized response
+        OnChallenge = ctx =>
+        {
+            ctx.HandleResponse();
+            Error error = ctx.Request.Cookies.ContainsKey(cookieName)
+                ? AuthErrors.TokenInvalid
+                : AuthErrors.TokenMissing;
+            return error.ToProblemDetails().ExecuteAsync(ctx.HttpContext);
         }
     };
 }
