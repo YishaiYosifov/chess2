@@ -4,6 +4,9 @@ namespace Chess2.Api.Extensions;
 
 public static class ErrorExtensions
 {
+    public static IResult ToProblemDetails(this Error error) =>
+        new List<Error>() { error }.ToProblemDetails();
+
     public static IResult ToProblemDetails(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
