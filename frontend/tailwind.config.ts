@@ -17,6 +17,7 @@ export default {
                 primary: "#B8ABCE",
                 cta: "#A46496",
                 link: "#60A5FA",
+                error: "#F87171",
             },
         },
     },
