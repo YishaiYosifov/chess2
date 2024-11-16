@@ -7,9 +7,8 @@ public static class ErrorExtensions
 {
     public static IResult ToProblemDetails(this IEnumerable<Error> errors)
     {
-        var traceId = Activity.Current?.Id;
         var errorType = errors.First().Type;
-        var foramttedErrors = errors.Select(error => new Dictionary<string, object?>
+        var formattedErrors = errors.Select(error => new Dictionary<string, object?>
         {
             { "code", error.Code },
             { "detail", error.Description },
@@ -21,8 +20,7 @@ public static class ErrorExtensions
             type: GetType(errorType),
             extensions: new Dictionary<string, object?>
             {
-                { "traceId", traceId },
-                { "errors",  foramttedErrors },
+                { "errors",  formattedErrors },
             }
         );
     }
