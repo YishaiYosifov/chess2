@@ -1,18 +1,10 @@
-import {
-    GameRequestsApi,
-    RequestContext,
-    Configuration,
-    SettingsApi,
-    LiveGameApi,
-    ProfileApi,
-    AuthApi,
-} from "@/lib/apiClient";
+import { RequestContext, Configuration, AuthApi } from "@/lib/apiClient";
 
 /**
  * Update the cookies when a request is sent from the server
  */
 async function addServerCookies(
-    context: RequestContext
+    context: RequestContext,
 ): Promise<RequestContext | void> {
     if (typeof window !== "undefined") return;
 
@@ -26,13 +18,9 @@ async function addServerCookies(
 }
 
 export const apiConfig = new Configuration({
-    basePath: process.env.NEXT_PUBLIC_API_URL,
+    basePath: "http://localhost:5116/api",
     credentials: "include",
     preRequest: addServerCookies,
 });
 
-export const gameRequestApi = new GameRequestsApi(apiConfig);
-export const liveGameApi = new LiveGameApi(apiConfig);
-export const settingsApi = new SettingsApi(apiConfig);
-export const profileApi = new ProfileApi(apiConfig);
 export const authApi = new AuthApi(apiConfig);
