@@ -6,13 +6,14 @@ import { useContext } from "react";
 import Link from "next/link";
 import * as yup from "yup";
 
+import { ResponseError } from "@/lib/models";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
 
-import { FormikField, SubmitButton } from "../form/FormElements";
+import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
-import { ResponseError } from "@/lib/models";
+import FormikField from "../helpers/FormikField";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -84,7 +85,7 @@ const LoginForm = () => {
                     <FormikField asInput={PasswordInput} name="password" />
                 </div>
 
-                <SubmitButton>Log In</SubmitButton>
+                <FormikSubmitButton>Log In</FormikSubmitButton>
 
                 <span data-testid="signupLink" className="text-center">
                     Don&#39;t have an account? Click{" "}

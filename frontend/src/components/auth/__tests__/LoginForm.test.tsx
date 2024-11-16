@@ -8,6 +8,7 @@ import {
     responseErrFactory,
     renderWithAuthContext,
 } from "@/lib/utils/testUtils";
+
 import { mockRouter } from "@/mockUtils/mockRouter";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
@@ -53,7 +54,7 @@ describe("LoginForm", () => {
                 expect(status.textContent).toBe(statusText);
                 expect(replace).not.toHaveBeenCalled();
             });
-        }
+        },
     );
 
     it("should redirect when successful", async () => {
