@@ -46,7 +46,7 @@ const LoginForm = () => {
             }
 
             switch (err.status) {
-                case 404:
+                case 401:
                     setStatus("Wrong username / email / password");
                     break;
                 default:
