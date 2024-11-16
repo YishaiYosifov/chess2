@@ -1,8 +1,6 @@
 import { useField } from "formik";
 import React from "react";
 
-import FormikErrorMessage from "./FormikErrorMessage";
-
 type FormikFieldProps<TProps extends React.ComponentType> = {
     asInput: TProps;
     name: string;
@@ -17,7 +15,7 @@ const FormikField = <TProps extends React.ComponentType>({
     name,
     ...props
 }: FormikFieldProps<TProps>) => {
-    const [field] = useField(name);
+    const [field, meta] = useField(name);
 
     return (
         <>
@@ -26,7 +24,7 @@ const FormikField = <TProps extends React.ComponentType>({
                 ...props,
             })}
 
-            <FormikErrorMessage name={name} />
+            {meta.error && <span className="text-error">{meta.error}</span>}
         </>
     );
 };
