@@ -11,7 +11,6 @@ const AuthPageImage = () => {
                 src={Knook}
                 alt="knook"
                 draggable={false}
-                layout="full"
                 className="h-full max-h-full min-h-0 w-full"
             />
         </section>
