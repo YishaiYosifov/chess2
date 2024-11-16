@@ -12,7 +12,7 @@ import { authApi } from "@/lib/apis";
 import { FormikField, SubmitButton } from "../form/FormElements";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
-import { ResponseError } from "@/lib/apiClient";
+import { ResponseError } from "@/lib/models";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
