@@ -7,7 +7,8 @@ const Button = ({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
     return (
         <button
-            className={`${className ?? ""} cursor-pointer rounded-md bg-cta p-2 text-3xl`}
+            className={`${className ?? ""} rounded-md bg-cta p-2 text-3xl disabled:bg-cta/50
+                disabled:text-text/50`}
             {...buttonProps}
         >
             {children}
