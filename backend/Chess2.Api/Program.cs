@@ -32,6 +32,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+const string AllowCorsOriginName = "AllowCorsOrigin";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        AllowCorsOriginName,
+        policy => policy
+            .WithOrigins(appSettings.CorsOrigins)
+            .AllowCredentials()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 #region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     options.UseNpgsql(appSettings.Database.GetConnectionString())
@@ -102,6 +114,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors(AllowCorsOriginName);
 
 app.UseHttpsRedirection();
 
