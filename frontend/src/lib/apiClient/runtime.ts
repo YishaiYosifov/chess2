@@ -1,5 +1,4 @@
 import { DefaultConfig } from "./apiConfig";
-import { UserIn } from "../models";
 
 export class BaseAPI {
     constructor(protected config = DefaultConfig) {}
@@ -13,7 +12,7 @@ export class BaseAPI {
      */
     async request(
         options: RequestOpts,
-        initOverrides?: RequestInit
+        initOverrides?: RequestInit,
     ): Promise<Response> {
         const fetchContext = this.processRequestOptions(options, initOverrides);
 
@@ -21,7 +20,7 @@ export class BaseAPI {
         if (!response || response.status < 200 || response.status >= 300)
             throw new ResponseError(
                 response,
-                "Response returned an error code"
+                "Response returned an error code",
             );
 
         return response;
@@ -36,18 +35,19 @@ export class BaseAPI {
      */
     private processRequestOptions(
         options: RequestOpts,
-        initOverrides?: RequestInit
+        initOverrides?: RequestInit,
     ): RequestContext {
         const headers = {
             ...this.config.headers,
             ...options.headers,
         };
 
-        // If the body is an object, it means we are sending json
-        const bodyType = options.body?.constructor.name;
-        if (bodyType === "Object") {
+        let processedBody: string;
+        if (typeof options.body === "string") processedBody = options.body;
+        else {
+            // If the body is an object, it means we are sending json
             headers["Content-Type"] = "application/json";
-            options.body = JSON.stringify(camelToSnake(options.body));
+            processedBody = JSON.stringify(options.body);
         }
 
         if (options.query)
@@ -58,7 +58,7 @@ export class BaseAPI {
             headers,
             credentials: this.config.credentials,
             method: options.method,
-            body: options.body as any,
+            body: processedBody,
             ...initOverrides,
         };
 
@@ -68,9 +68,9 @@ export class BaseAPI {
     /**
      * Parse a record into query params
      */
-    private processQueryParams(queryParams: Record<string, any>): string {
+    private processQueryParams(queryParams: QueryParams): string {
         const queryString = Object.entries(queryParams).map(
-            ([key, value]) => `${key}=${value}`
+            ([key, value]) => `${key}=${value}`,
         );
         return "?" + queryString.join("&");
     }
@@ -101,19 +101,25 @@ export class BaseAPI {
             response =
                 (await this.config.postRequest(
                     fetchContext,
-                    response.clone()
+                    response.clone(),
                 )) || response;
         }
 
         return response;
     }
 
-    protected createFriendlyRoute<T extends any[], R>(
-        rawFunc: (...args: T) => Promise<ApiResponse<R>>
-    ): (...args: T) => Promise<R> {
+    /**
+     * Creates a method that returns the value of the api response
+     * instead of the response object
+     *
+     * @param rawFunc - the method that sends the api request
+     */
+    protected createFriendlyRoute<TArgs extends unknown[], TReturn>(
+        rawFunc: (...args: TArgs) => Promise<ApiResponse<TReturn>>,
+    ): (...args: TArgs) => Promise<TReturn> {
         rawFunc = rawFunc.bind(this);
 
-        return async (...args: T) => {
+        return async (...args: TArgs) => {
             const response = await rawFunc(...args);
             return await response.value();
         };
@@ -122,17 +128,30 @@ export class BaseAPI {
 
 export type HTTPHeaders = Record<string, string>;
 
+type QueryParams = Record<string, string | number | boolean | null>;
+
+export enum HttpMethod {
+    Get = "GET",
+    Post = "POST",
+    Patch = "PATCH",
+    Put = "PUT",
+    Delete = "DELETE",
+}
+
 export class ResponseError extends Error {
-    override name: "ResponseError" = "ResponseError";
-    constructor(public response: Response, msg?: string) {
+    override name = "ResponseError";
+    constructor(
+        public response: Response,
+        msg?: string,
+    ) {
         super(msg);
     }
 }
 
 export interface RequestOpts {
     path: string;
-    method: string;
-    query?: Record<string, any>;
+    method: HttpMethod;
+    query?: QueryParams;
     body?: string | object;
     headers?: HTTPHeaders;
 }
@@ -151,7 +170,7 @@ export class JSONApiResponse<T> {
     constructor(public response: Response) {}
 
     async value(): Promise<T> {
-        return snakeToCamel(await this.response.json());
+        return await this.response.json();
     }
 }
 
@@ -178,42 +197,3 @@ export class TextApiResponse {
         return await this.response.text();
     }
 }
-
-/**
- * Convert an object from one case to another
- *
- * @param obj - the input object to transform the keys of
- * @param regex - the regex to match what characters to transform
- * @param replaceFunc - the function that runs with the regex matches
- * @returns a new object with transformed keys
- */
-function transformCase(
-    obj: any,
-    regex: RegExp,
-    replaceFunc: (match: string, p1: string) => string
-): any {
-    if (obj === null || typeof obj !== "object") return obj;
-    if (Array.isArray(obj))
-        return obj.map((item) => transformCase(item, regex, replaceFunc));
-
-    const transformed: Record<any, any> = {};
-    for (const [key, value] of Object.entries(obj)) {
-        const transformedKey = key.replace(regex, replaceFunc);
-        transformed[transformedKey] = transformCase(value, regex, replaceFunc);
-    }
-    return transformed;
-}
-
-/**
- * Converts an object from snake_case to camelCase
- */
-export const snakeToCamel = (obj: any) =>
-    transformCase(obj, /_([a-z])/g, (match: string, p1: string) =>
-        p1.toUpperCase()
-    );
-
-/**
- * Converts an object from camelCase to snake_case
- */
-export const camelToSnake = (obj: any) =>
-    transformCase(obj, /([A-Z])/g, (match, p1) => "_" + p1.toLowerCase());
