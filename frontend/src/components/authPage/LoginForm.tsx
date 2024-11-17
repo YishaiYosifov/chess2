@@ -79,7 +79,7 @@ const LoginForm = () => {
                 <div className="flex flex-col gap-3">
                     <FormikField
                         asInput={Input}
-                        id="username"
+                        id="usernameOrEmail"
                         label="Username / Email"
                         placeholder="Enter your username or email"
                         name="usernameOrEmail"

@@ -14,21 +14,26 @@ import { authApi } from "@/lib/apiClient/client";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
 
-vi.mock("@/apiClient/client");
+vi.mock("@/lib/apiClient/client");
 
 describe("LoginForm", () => {
     const loginValues = {
-        username: "a",
-        password: "b",
+        "Username / Email": "a",
+        Password: "12345678",
     };
 
     it("should display the login form", () => {
         render(<LoginForm />);
 
-        expect(screen.queryByLabelText("username")).toBeInTheDocument();
-        expect(screen.queryByLabelText("password")).toBeInTheDocument();
-        expect(screen.queryByText("Log In")).toBeInTheDocument();
-        expect(screen.queryByRole("form")).toBeInTheDocument();
+        expect(
+            screen.getByLabelText("Username / Email", { selector: "input" }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByLabelText("Password", { selector: "input" }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole("button", { name: "Log In" }),
+        ).toBeInTheDocument();
     });
 
     it.each([
@@ -39,14 +44,16 @@ describe("LoginForm", () => {
         "should correctly handle submit failures",
         async (response, statusText) => {
             const { replace } = mockRouter();
-
             const mockLogin = authApi.login as Mock;
             mockLogin.mockRejectedValue(response);
 
+            const user = userEvent.setup();
             render(<LoginForm />);
-            submitForm();
 
-            waitFor(() => {
+            await fillForm(user, loginValues);
+            await submitForm(user);
+
+            await waitFor(() => {
                 const status = screen.getByTestId("formStatus");
                 expect(status.textContent).toBe(statusText);
                 expect(replace).not.toHaveBeenCalled();
