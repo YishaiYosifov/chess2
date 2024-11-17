@@ -1,6 +1,7 @@
 "use client";
 
 import { useContext, useRef } from "react";
+
 import Image from "next/image";
 
 import { AuthContext } from "@/contexts/authContext";
@@ -55,7 +56,7 @@ const Navbar = () => {
 
             <nav
                 className="absolute left-0 hidden h-screen w-full flex-col items-center gap-5 bg-background
-                    text-6xl md:hidden"
+                    pt-10 text-6xl md:hidden"
                 ref={mobileNav}
                 data-testid="navbarMobile"
             >
@@ -69,18 +70,23 @@ export default Navbar;
 const NavItems = ({ isAuthed }: { isAuthed: boolean }) => {
     const baseLinks = (
         <>
+            <NavItem href="/play" className="text-primary">
+                Play
+            </NavItem>
             <NavItem href="/">Home</NavItem>
-            <NavItem href="/play">Play</NavItem>
         </>
     );
 
-    const authedLinks = <></>;
+    const authedLinks = (
+        <>
+            <NavItem href="/profile">Profile</NavItem>
+            <NavItem href="/settings">Settings</NavItem>
+        </>
+    );
     const unauthedLinks = (
         <>
             <NavItem href="/login">Login</NavItem>
-            <NavItem href="/signup" className="text-primary">
-                Signup
-            </NavItem>
+            <NavItem href="/signup">Signup</NavItem>
         </>
     );
 
