@@ -9,7 +9,7 @@ import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
 import { AuthContext, AuthContextInterface } from "@/contexts/authContext";
-import { ResponseError } from "@/lib/apiClient";
+import { ResponseError } from "@/lib/apiClient/models";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 
@@ -22,7 +22,7 @@ type FormFields<T> = Partial<Record<keyof T, string>>;
  */
 export async function fillForm<T>(
     user: UserEvent,
-    fieldValues: FormFields<T>
+    fieldValues: FormFields<T>,
 ): Promise<void> {
     for (const [fieldName, value] of Object.entries(fieldValues)) {
         await user.type(screen.getByLabelText(fieldName), value as string);
@@ -43,13 +43,13 @@ export function submitForm(): void {
 export function renderWithAuthContext(
     ui: ReactElement,
     contextOptions: AuthContextInterface | {} = {},
-    renderOptions: RenderOptions = {}
+    renderOptions: RenderOptions = {},
 ): RenderResult {
     return render(
         <AuthContext.Provider value={contextOptions as AuthContextInterface}>
             {ui}
         </AuthContext.Provider>,
-        renderOptions
+        renderOptions,
     );
 }
 
@@ -58,7 +58,7 @@ export function renderWithAuthContext(
  */
 export function responseErrFactory(
     body: BodyInit | null,
-    response: ResponseInit = {}
+    response: ResponseInit = {},
 ): ResponseError {
     return new ResponseError(new Response(body, response));
 }

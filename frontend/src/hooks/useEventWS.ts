@@ -7,12 +7,12 @@ import {
     WSInEventMessageMap,
     WSEventOut,
     WSOutEventMessageMap,
-} from "@/lib/models";
+} from "@/lib/apiClient/models";
 
 export type SendEventMessageFunction = <T extends WSEventOut>(
     event: T,
     message: WSOutEventMessageMap[T],
-    keep?: boolean
+    keep?: boolean,
 ) => void;
 type EventWebSocketHook<E extends WSEventIn> = WebSocketHook & {
     sendEventMessage: SendEventMessageFunction;
@@ -29,7 +29,7 @@ type EventWebSocketHook<E extends WSEventIn> = WebSocketHook & {
  */
 export function useEventWebSocket<E extends WSEventIn>(
     event?: E,
-    options?: WSOptions
+    options?: WSOptions,
 ): EventWebSocketHook<E> {
     const wsHook = useWebSocket(process.env.NEXT_PUBLIC_WS_URL!, {
         shouldReconnect: () => true,

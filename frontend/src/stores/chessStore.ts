@@ -10,7 +10,7 @@ import {
     type PieceID,
     Color,
     WSEventOut,
-} from "@/lib/models";
+} from "@/lib/apiClient/models";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 import constants from "@/lib/constants";
 import { SendEventMessageFunction } from "@/hooks/useEventWS";
@@ -71,7 +71,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 if (!pieceId) {
                     console.warn(
                         `Could not move piece from ${from} to ${to} ` +
-                            `because no piece was found at ${from}`
+                            `because no piece was found at ${from}`,
                     );
                     return;
                 }
@@ -98,7 +98,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 if (!from) {
                     console.warn(
                         `Could not send piece movement from ${from} to ${to}` +
-                            "because no piece was selected"
+                            "because no piece was selected",
                     );
                     return;
                 }
@@ -142,7 +142,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 toHighlight ??= [];
 
                 const toHighlightPoints = toHighlight.map((x) =>
-                    stringToPoint(x)
+                    stringToPoint(x),
                 );
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
@@ -160,6 +160,6 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
             },
         })),
-        shallow
+        shallow,
     );
 }

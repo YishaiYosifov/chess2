@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import constants, { TIME_CONTROLS } from "@/lib/constants";
 import { gameRequestApi } from "@/lib/apis";
-import { Variant } from "@/lib/models";
+import { Variant } from "@/lib/apiClient/models";
 
 interface TimeControl {
     timeControl: number;
@@ -21,7 +21,7 @@ interface TimeControl {
  */
 const PlayOptions = () => {
     const [selectedVariant, setSelectedVariant] = useState<Variant>(
-        Variant.Anarchy
+        Variant.Anarchy,
     );
     const [selectedTimeControl, setSelectedTimeControl] =
         useState<TimeControl>();
@@ -45,7 +45,7 @@ const PlayOptions = () => {
     async function enterPool(
         timeControl: number,
         increment: number,
-        variant: Variant
+        variant: Variant,
     ): Promise<void> {
         try {
             const response = await gameRequestApi.startPoolGameRaw({
@@ -72,7 +72,7 @@ const PlayOptions = () => {
      */
     async function onTimeControlChange(
         newTimeControl: number,
-        newIncrement: number
+        newIncrement: number,
     ): Promise<void> {
         if (
             selectedTimeControl?.timeControl == newTimeControl &&
@@ -153,9 +153,8 @@ const VariantButton = ({
     return (
         <Card
             onClick={() => onVariantChange(buttonVariant)}
-            className={`${styles["option-button"]} ${
-                selectedVariant === buttonVariant && styles["selected-variant"]
-            }`}
+            className={`${styles["option-button"]} ${ selectedVariant === buttonVariant &&
+                styles["selected-variant"] }`}
             data-testid="variantButton"
         >
             {buttonVariant}
@@ -196,9 +195,8 @@ const TimeControlButton = ({
     return (
         <Card
             onClick={() => onTimeControlChange(timeControl, increment)}
-            className={`${styles["time-control-option-button"]} ${
-                isSelected && styles["selected-time-control"]
-            }`}
+            className={`${styles["time-control-option-button"]} ${ isSelected &&
+                styles["selected-time-control"] }`}
             data-testid="timeControlButton"
         >
             {isSelected && (

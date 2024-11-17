@@ -8,7 +8,7 @@ import {
     type PieceMap,
     type LegalMoves,
     Color,
-} from "@/lib/models";
+} from "@/lib/apiClient/models";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
@@ -59,9 +59,9 @@ const Chessboard = ({
     const sortedBreakpoints = useMemo(
         () =>
             offsetBreakpoints.sort(
-                (a, b) => a.widthBreakpoint - b.widthBreakpoint
+                (a, b) => a.widthBreakpoint - b.widthBreakpoint,
             ),
-        [offsetBreakpoints]
+        [offsetBreakpoints],
     );
 
     useEffect(() => {

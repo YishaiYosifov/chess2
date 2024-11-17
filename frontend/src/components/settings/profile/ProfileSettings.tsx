@@ -6,7 +6,7 @@ import { Form } from "react-bootstrap";
 import { useAuthedProfile, useAuthedContext } from "@/hooks/useAuthed";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
-import { EditableProfile } from "@/lib/models";
+import { EditableProfile } from "@/lib/apiClient/models";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
@@ -25,7 +25,7 @@ const ProfileSettings = () => {
 
     async function updateProfile(
         values: EditableProfile,
-        helpers: FormikHelpers<EditableProfile>
+        helpers: FormikHelpers<EditableProfile>,
     ) {
         try {
             const profile = await settingsApi.updateProfile(values);
@@ -84,7 +84,7 @@ const ProfileSettings = () => {
                                         <option key={alpha3} value={alpha3}>
                                             {country.name}
                                         </option>
-                                    )
+                                    ),
                                 )}
                             </FormikField>
                         </FormField>

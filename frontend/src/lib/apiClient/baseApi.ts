@@ -1,4 +1,4 @@
-import { ResponseError } from "../models/Errors";
+import { ResponseError } from "./models/Errors";
 import { ApiResponse } from "./apiResponse";
 
 type QueryParams = Record<string, string | number | boolean | null>;

@@ -6,7 +6,7 @@ import {
 } from "react";
 
 import { useBoardSize, useChessStore } from "@/hooks/useChess";
-import { Color, Point } from "@/lib/models";
+import { Color, Point } from "@/lib/apiClient/models";
 
 type ChessSquareProps = {
     position: Point;

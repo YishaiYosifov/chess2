@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { createFinishedGame } from "@/mockUtils/gameMock";
 import { profileMock } from "@/mockUtils/profileMock";
 import { gameMock } from "@/mockUtils/gameMock";
-import { GameResult } from "@/lib/models";
+import { GameResult } from "@/lib/apiClient/models";
 
 import GameRow from "../GameRow";
 
@@ -12,10 +12,10 @@ describe("GameRow", () => {
         render(<GameRow game={gameMock} viewingProfile={profileMock} />);
 
         expect(screen.getByTestId("gameRowUsernameWhite").textContent).toBe(
-            gameMock.userWhite?.username
+            gameMock.userWhite?.username,
         );
         expect(screen.getByTestId("gameRowUsernameBlack").textContent).toBe(
-            gameMock.userBlack?.username
+            gameMock.userBlack?.username,
         );
     });
 
@@ -30,12 +30,12 @@ describe("GameRow", () => {
             render(<GameRow game={newGameMock} viewingProfile={profileMock} />);
 
             expect(screen.getByTestId("gameRowScoreWhite").textContent).toBe(
-                whiteScore
+                whiteScore,
             );
             expect(screen.getByTestId("gameRowScoreBlack").textContent).toBe(
-                blackScore
+                blackScore,
             );
-        }
+        },
     );
 
     it("should display the correct game link", () => {
@@ -44,8 +44,8 @@ describe("GameRow", () => {
             .getAllByTestId("gameRowLink")
             .forEach((gameLink) =>
                 expect(gameLink.getAttribute("href")).toBe(
-                    `/game/${gameMock.token}`
-                )
+                    `/game/${gameMock.token}`,
+                ),
             );
     });
 

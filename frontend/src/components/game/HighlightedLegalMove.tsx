@@ -1,6 +1,6 @@
 import { useEventWebSocket } from "@/hooks/useEventWS";
 import { useChessStore } from "@/hooks/useChess";
-import { Point } from "@/lib/models";
+import { Point } from "@/lib/apiClient/models";
 
 import ChessSquare from "./ChessSquare";
 

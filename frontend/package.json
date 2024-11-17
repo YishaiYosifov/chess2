@@ -12,6 +12,7 @@
         "test:watch": "vitest"
     },
     "dependencies": {
+        "@faker-js/faker": "^9.2.0",
         "@heroicons/react": "^2.1.5",
         "dotenv": "^16.4.5",
         "formik": "^2.4.6",

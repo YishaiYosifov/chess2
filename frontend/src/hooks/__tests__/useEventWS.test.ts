@@ -4,7 +4,7 @@ import useWebSocket, {
 import { Mock } from "vitest";
 
 import { useEventWebSocket } from "../useEventWS";
-import { WSEventIn } from "@/lib/models";
+import { WSEventIn } from "@/lib/apiClient/models";
 import { renderHook } from "@testing-library/react";
 
 vi.mock("react-use-websocket");
@@ -52,14 +52,14 @@ describe("useEventWebSocket", () => {
         });
 
         const { result } = renderHook(() =>
-            useEventWebSocket(WSEventIn.GameStart)
+            useEventWebSocket(WSEventIn.GameStart),
         );
         expect(result.current.lastData).toEqual(data);
     });
 
     it("should return null when lastMessage is not present", () => {
         const { result } = renderHook(() =>
-            useEventWebSocket(WSEventIn.GameStart)
+            useEventWebSocket(WSEventIn.GameStart),
         );
         expect(result.current.lastData).toBeNull();
     });

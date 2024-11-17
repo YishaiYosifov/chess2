@@ -9,12 +9,12 @@ import {
     renderWithAuthContext,
 } from "@/lib/utils/testUtils";
 
-import { mockRouter } from "@/mockUtils/mockRouter";
+import { mockRouter } from "@/lib/testUtils/mocks";
+import { authApi } from "@/lib/apiClient/client";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
-import { authApi } from "@/lib/apis";
 
-vi.mock("@/lib/apis");
+vi.mock("@/apiClient/client");
 
 describe("LoginForm", () => {
     const loginValues = {

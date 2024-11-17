@@ -4,7 +4,7 @@ import { Chart } from "react-google-charts";
 import { Card } from "react-bootstrap";
 import Image from "next/image";
 
-import type { RatingOverview } from "@/lib/models";
+import type { RatingOverview } from "@/lib/apiClient/models";
 
 const RatingCard = ({
     variant,
@@ -44,7 +44,7 @@ const RatingCard = ({
         <Card className={styles["rating-card"]}>
             <Card.Header className={styles.header}>
                 <Image
-                    className="img-fluid rounded-circle border border-3"
+                    className="img-fluid rounded-circle border-3 border"
                     src={`/assets/modes/anarchy.webp`}
                     alt="Mode icon"
                     width={30}

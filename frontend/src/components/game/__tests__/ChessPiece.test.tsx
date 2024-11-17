@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 
-import { Color, PieceMap, PieceType, Piece, Point } from "@/lib/models";
+import {
+    Color,
+    PieceMap,
+    PieceType,
+    Piece,
+    Point,
+} from "@/lib/apiClient/models";
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";
@@ -17,7 +23,7 @@ describe("ChessPiece", () => {
         const renderResults = render(
             <ChessProvider pieces={pieces} playingAs={Color.White}>
                 <ChessPiece id="0" />
-            </ChessProvider>
+            </ChessProvider>,
         );
         const piece = screen.getByTestId("piece");
 
@@ -68,7 +74,7 @@ describe("ChessPiece", () => {
 
         expect(piece).toHaveStyle(
             `left: ${mouseCoords.x}px;
-            top: ${mouseCoords.y}px;`
+            top: ${mouseCoords.y}px;`,
         );
     });
 
@@ -88,7 +94,7 @@ describe("ChessPiece", () => {
 
         expect(piece).toHaveStyle(
             `left: ${mouseCoords.x}px;
-            top: ${mouseCoords.y}px;`
+            top: ${mouseCoords.y}px;`,
         );
     });
 
@@ -107,7 +113,7 @@ describe("ChessPiece", () => {
 
         expect(piece).toHaveStyle(
             `left: 0px;
-            top: 0px;`
+            top: 0px;`,
         );
     });
 });

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap, Color, PieceType } from "@/lib/models";
+import { PieceMap, Color, PieceType } from "@/lib/apiClient/models";
 import Chessboard from "../Chessboard";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
@@ -50,14 +50,14 @@ describe("Chessboard", () => {
                     viewingFrom={side}
                     boardWidth={10}
                     boardHeight={10}
-                />
+                />,
             );
 
             const piece = screen.getAllByTestId("piece")[0];
             expect(piece).toHaveStyle(
-                `transform: translate(${firstRow}%, ${firstColumn}%)`
+                `transform: translate(${firstRow}%, ${firstColumn}%)`,
             );
-        }
+        },
     );
 
     it.each([
@@ -99,15 +99,15 @@ describe("Chessboard", () => {
                     boardWidth={10}
                     boardHeight={10}
                     offsetBreakpoints={breakpoints}
-                />
+                />,
             );
             const chessboard = screen.getByTestId("chessboard");
 
             window.innerWidth = width;
             fireEvent(window, new Event("resize"));
             waitFor(() =>
-                expect(chessboard.style.width).toBe(`${expectedSize}px`)
+                expect(chessboard.style.width).toBe(`${expectedSize}px`),
             );
-        }
+        },
     );
 });
