@@ -9,11 +9,9 @@ using Chess2.Api.Validators;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using System.Net.Http;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
