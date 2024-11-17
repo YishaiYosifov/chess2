@@ -4,7 +4,7 @@ interface ErrorMetadata {
     relatedField?: string;
 }
 
-interface ErrorDetail {
+export interface ErrorDetail {
     code: string;
     detail: string;
     metadata?: ErrorMetadata;
@@ -13,22 +13,15 @@ interface ErrorDetail {
 export class ResponseError extends Error {
     constructor(
         public status: number,
-        public title: string,
-        public type: string,
         public errors: ErrorDetail[],
     ) {
-        super(title);
+        super(`Status ${status} http response`);
     }
 
     static async fromResponse(response: Response): Promise<ResponseError> {
         const parsed = await response.json();
 
-        return new ResponseError(
-            parsed.status,
-            parsed.title,
-            parsed.type,
-            parsed.errors,
-        );
+        return new ResponseError(parsed.status, parsed.errors);
     }
 
     toFormik<TValue>() {
