@@ -7,7 +7,7 @@ import constants from "@/lib/constants";
 import "./globals.css";
 
 import AuthContextProvider from "@/contexts/authContext";
-import NavbarProvider from "@/components/navbar/NavbarProvider";
+import Navbar from "@/components/navbar/Navbar";
 import WSPushAction from "@/components/WSPushAction";
 
 const secularOne = Secular_One({
@@ -41,7 +41,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
-                    <NavbarProvider />
+                    <Navbar />
                     <main className="h-screen w-screen pt-[72px]">
                         {children}
                     </main>

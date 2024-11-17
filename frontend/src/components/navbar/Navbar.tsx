@@ -7,7 +7,7 @@ import { AuthContext } from "@/contexts/authContext";
 import LogoText from "@public/assets/logo-text.svg";
 import NavItem from "./NavItem";
 
-const NavbarProvider = () => {
+const Navbar = () => {
     const { hasAuthCookies } = useContext(AuthContext);
 
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
@@ -20,7 +20,7 @@ const NavbarProvider = () => {
     };
 
     return (
-        <header className="fixed bg-background z-10 w-full border-b border-primary/50 p-4 text-2xl">
+        <header className="fixed z-10 w-full border-b border-primary/50 bg-background p-4 text-2xl">
             <section
                 className="mx-auto flex max-w-4xl items-center justify-between"
                 data-testid="navbar"
@@ -43,19 +43,19 @@ const NavbarProvider = () => {
                     onClick={toggleMenu}
                 >
                     <span
-                        className="absolute left-0 top-4 -mt-0.5 h-1 w-8 rounded before:absolute bg-text
-                            before:-translate-x-4 before:h-1 before:w-8 before:translate-y-3 before:rounded
-                            before:bg-text before:content-[''] after:absolute after:-translate-x-4 after:h-1
-                            after:w-8 after:-translate-y-3 after:rounded after:bg-text after:content-['']
-                            transition-all duration-500 before:transition-all beforeduration-500
-                            after:transition-all after:duration-500"
+                        className="beforeduration-500 absolute left-0 top-4 -mt-0.5 h-1 w-8 rounded bg-text
+                            transition-all duration-500 before:absolute before:h-1 before:w-8
+                            before:-translate-x-4 before:translate-y-3 before:rounded before:bg-text
+                            before:transition-all before:content-[''] after:absolute after:h-1 after:w-8
+                            after:-translate-x-4 after:-translate-y-3 after:rounded after:bg-text
+                            after:transition-all after:duration-500 after:content-['']"
                     />
                 </button>
             </section>
 
             <nav
-                className="absolute left-0 h-screen w-full flex-col items-center gap-5 bg-background
-                    text-6xl md:hidden hidden"
+                className="absolute left-0 hidden h-screen w-full flex-col items-center gap-5 bg-background
+                    text-6xl md:hidden"
                 ref={mobileNav}
                 data-testid="navbarMobile"
             >
@@ -64,7 +64,7 @@ const NavbarProvider = () => {
         </header>
     );
 };
-export default NavbarProvider;
+export default Navbar;
 
 const NavItems = ({ isAuthed }: { isAuthed: boolean }) => {
     const baseLinks = (
