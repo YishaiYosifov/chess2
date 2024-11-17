@@ -33,11 +33,8 @@ describe("LoginForm", () => {
 
     it.each([
         [new Error(), constants.GENERIC_ERROR],
-        [responseErrFactory(null, { status: 500 }), constants.GENERIC_ERROR],
-        [
-            responseErrFactory(null, { status: 401 }),
-            "Wrong username / password",
-        ],
+        [responseErrFactory(500), constants.GENERIC_ERROR],
+        [responseErrFactory(401), "Wrong username / email / password"],
     ])(
         "should correctly handle submit failures",
         async (response, statusText) => {
