@@ -59,9 +59,9 @@ describe("SignupForm", () => {
         await submitForm(user);
 
         waitFor(() =>
-            expect(
-                screen.queryByText(constants.GENERIC_ERROR),
-            ).toBeInTheDocument(),
+            expect(screen.queryByTestId("formStatus")).toHaveValue(
+                constants.GENERIC_ERROR,
+            ),
         );
     });
 
@@ -88,8 +88,8 @@ describe("SignupForm", () => {
         await submitForm(user);
 
         await waitFor(() => {
-            const usernameConflict = screen.getByText("username conflict");
-            const emailConflict = screen.getByText("email conflict");
+            const usernameConflict = screen.queryByText("username conflict");
+            const emailConflict = screen.queryByText("email conflict");
 
             expect(usernameConflict).toBeInTheDocument();
             expect(emailConflict).toBeInTheDocument();
