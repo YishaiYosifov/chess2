@@ -19,7 +19,8 @@ const FormikField = <TProps extends React.ComponentType>({
 
     return (
         <>
-            {React.createElement(asInput as never, {
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {React.createElement(asInput as any, {
                 ...field,
                 ...props,
             })}
