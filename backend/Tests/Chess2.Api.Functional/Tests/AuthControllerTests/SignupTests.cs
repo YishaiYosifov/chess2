@@ -8,10 +8,10 @@ using System.Net;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 
-public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
+public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task User_registration_saves_user_to_database()
+    public async Task User_signup_saves_user_to_database()
     {
         var userIn = new UserIn()
         {
@@ -20,7 +20,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
             Password = "TestPassword",
             CountryCode = "IL",
         };
-        var response = await ApiClient.RegisterAsync(userIn);
+        var response = await ApiClient.SignupAsync(userIn);
         var registeredUser = response.Content;
         var allUsers = await DbContext.Users.ToListAsync();
 
@@ -42,7 +42,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [InlineData("TestUser", "test@email.com", "", "IL")]
     [InlineData("TestUser", "test@email.com", "ShtPwd", "IL")]
     [InlineData("TestUser", "test@email.com", "ShtPwd", "XZ")]
-    public async Task Register_with_bad_parameters(string username, string email, string password, string country)
+    public async Task Signup_with_bad_parameters(string username, string email, string password, string country)
     {
         var userIn = new UserIn()
         {
@@ -51,7 +51,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
             Password = password,
             CountryCode = country,
         };
-        var response = await ApiClient.RegisterAsync(userIn);
+        var response = await ApiClient.SignupAsync(userIn);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         response.Content.Should().BeNull();
@@ -61,7 +61,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername", "other-test@email.com")]
     [InlineData("TestUsername", "test@email.com", "OtherTestUsername", "test@email.com")]
-    public async Task Register_with_conflicting_credentials_with_another_user(
+    public async Task Signup_with_conflicting_credentials_with_another_user(
         string user1Username,
         string user1Email,
         string user2Username,
@@ -71,7 +71,7 @@ public class RegisterTests(Chess2WebApplicationFactory factory) : BaseFunctional
             DbContext, new UserFaker().RuleFor(x => x.Username, user1Username)
             .RuleFor(x => x.Email, user1Email));
 
-        var response = await ApiClient.RegisterAsync(new()
+        var response = await ApiClient.SignupAsync(new()
         {
             Username = user2Username,
             Email = user2Email,

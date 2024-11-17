@@ -6,8 +6,8 @@ namespace Chess2.Api.TestInfrastructure;
 public interface IChess2Api
 {
     #region Auth Controller
-    [Post("/api/auth/register")]
-    Task<IApiResponse<PrivateUserOut>> RegisterAsync([Body] UserIn userIn);
+    [Post("/api/auth/signup")]
+    Task<IApiResponse<PrivateUserOut>> SignupAsync([Body] UserIn userIn);
 
     [Post("/api/auth/login")]
     Task<IApiResponse<Tokens>> LoginAsync([Body] UserLogin userLogin);
