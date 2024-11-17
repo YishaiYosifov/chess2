@@ -1,5 +1,7 @@
-import Link from "next/link";
 import React from "react";
+import clsx from "clsx";
+
+import Link from "next/link";
 
 const NavItem = ({
     href,
@@ -13,7 +15,7 @@ const NavItem = ({
     return (
         <Link
             href={href}
-            className={`${className} hover:opacity-70 transition-opacity`}
+            className={clsx(className, "transition-opacity hover:opacity-70")}
         >
             {children}
         </Link>
