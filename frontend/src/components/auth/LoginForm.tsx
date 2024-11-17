@@ -76,7 +76,7 @@ const LoginForm = () => {
                 aria-label="signup form"
                 className="flex w-4/5 flex-col gap-5"
             >
-                <div className="flex flex-col gap-3 text-black">
+                <div className="flex flex-col gap-3">
                     <FormikField
                         asInput={Input}
                         placeholder="Username or Email"

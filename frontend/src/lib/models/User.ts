@@ -7,6 +7,12 @@ export interface UserIn {
     username: string;
     email: string;
     password: string;
+    countryCode: string;
+}
+
+export interface UserLogin {
+    usernameOrEmail: string;
+    Password: string;
 }
 
 export interface UnauthedProfileOut {
