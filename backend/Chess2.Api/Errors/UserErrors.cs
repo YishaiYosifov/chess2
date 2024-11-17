@@ -5,10 +5,16 @@ namespace Chess2.Api.Errors;
 public static class UserErrors
 {
     public static Error UsernameTaken =>
-        Error.Conflict("User.UsernameTaken", "A user with the same username already exists");
+        Error.Conflict(
+            "User.Conflict",
+            "A user with the same username already exists",
+            new() { { MetadataFields.RelatedField, "username" } });
 
     public static Error EmailTaken =>
-        Error.Conflict("User.EmailTaken", "A user with the same email address already exists");
+        Error.Conflict(
+            "User.Conflict",
+            "A user with the same email address already exists",
+            new() { { MetadataFields.RelatedField, "email" } });
 
     public static Error UserNotFound => Error.NotFound("User.NotFound", "This user could not be found");
 
