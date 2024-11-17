@@ -1,13 +1,13 @@
 "use client";
 
 import { ReactNode, createContext, useState } from "react";
-import { PrivateAuthedProfileOut } from "@/lib/apiClient/models";
+import { PrivateUser } from "@/lib/apiClient/models";
 
 export interface AuthContextInterface {
     hasAuthCookies: boolean;
     setHasAuthCookies: (isAuthed: boolean) => void;
-    setAuthedProfile: (profile: PrivateAuthedProfileOut) => void;
-    authedProfile?: PrivateAuthedProfileOut;
+    setAuthedProfile: (profile: PrivateUser) => void;
+    authedProfile?: PrivateUser;
 }
 
 export const AuthContext = createContext<AuthContextInterface>(
@@ -19,7 +19,7 @@ const AuthContextProvider = ({
     profile,
     children,
 }: {
-    profile?: PrivateAuthedProfileOut;
+    profile?: PrivateUser;
     hasAuthCookies?: boolean;
     children: ReactNode;
 }) => {
