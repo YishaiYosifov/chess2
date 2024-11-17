@@ -10,10 +10,19 @@ public static class ErrorExtensions
     public static IResult ToProblemDetails(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
-        var formattedErrors = errors.Select(error => new Dictionary<string, object?>
+        var formattedErrors = errors.Select(error =>
         {
-            { "code", error.Code },
-            { "detail", error.Description },
+            var errorData = new Dictionary<string, object>
+            {
+                { "code", error.Code },
+                { "detail", error.Description }
+            };
+
+            // include error metadata if there is any
+            if (error.Metadata is not null)
+                errorData.Add("metadata", error.Metadata);
+
+            return errorData;
         });
 
         return Results.Problem(
