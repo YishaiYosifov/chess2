@@ -34,6 +34,7 @@ describe("LoginForm", () => {
         expect(
             screen.queryByRole("button", { name: "Log In" }),
         ).toBeInTheDocument();
+        expect(screen.queryByTestId("signupLink")).toBeInTheDocument();
     });
 
     it.each([
