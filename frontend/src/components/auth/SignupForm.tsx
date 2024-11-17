@@ -2,15 +2,18 @@
 
 import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import * as yup from "yup";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
+import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
+import { ResponseError } from "@/lib/models";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
+
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
-import FormikField from "../helpers/FormikField";
 import Input, { PasswordInput } from "../helpers/Input";
-import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
+import FormikField from "../helpers/FormikField";
 
 export interface SignupFormValues {
     username: string;
@@ -26,6 +29,7 @@ const signupSchema = yup.object({
 
 const SignupForm = () => {
     const router = useRouter();
+    const countryCode = useMemo(getCountryFromUserTimezone, []);
 
     async function onSubmit(
         values: SignupFormValues,
@@ -36,11 +40,17 @@ const SignupForm = () => {
                 username: values.username,
                 email: values.email,
                 password: values.password,
+                countryCode,
             });
-        } catch (err: any) {
-            switch (err?.response?.status) {
+        } catch (err) {
+            if (!(err instanceof ResponseError)) {
+                setStatus(constants.GENERIC_ERROR);
+                throw err;
+            }
+
+            switch (err.status) {
                 case 409:
-                    setErrors((await err.response.json()).detail);
+                    setErrors(err.toFormik());
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);
