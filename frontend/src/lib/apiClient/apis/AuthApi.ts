@@ -1,11 +1,7 @@
+import type { UserIn, UserLogin } from "@/lib/models";
 import { VoidApiResponse } from "../apiResponse";
 import { ApiResponse } from "../apiResponse";
 import { BaseAPI } from "../baseApi";
-
-export interface LoginRequest {
-    usernameOrEmail: string;
-    password: string;
-}
 
 export class AuthApi extends BaseAPI {
     /**
@@ -13,16 +9,28 @@ export class AuthApi extends BaseAPI {
      * Login
      */
     async loginRaw(
-        requestParameters: LoginRequest,
+        requestParams: UserLogin,
         initOverrides?: RequestInit,
     ): Promise<ApiResponse<void>> {
         const response = await this.request("/auth/login", {
             ...initOverrides,
             method: "POST",
-            body: requestParameters,
+            body: requestParams,
         });
-
         return new VoidApiResponse(response);
     }
     login = this.createFriendlyRoute(this.loginRaw);
+
+    async signupRaw(
+        requestParams: UserIn,
+        initOverrides?: RequestInit,
+    ): Promise<ApiResponse<void>> {
+        const response = await this.request("/auth/signup", {
+            ...initOverrides,
+            method: "POST",
+            body: requestParams,
+        });
+        return new VoidApiResponse(response);
+    }
+    signup = this.createFriendlyRoute(this.signupRaw);
 }

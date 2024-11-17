@@ -11,7 +11,7 @@ const Input = ({
 }: React.InputHTMLAttributes<HTMLInputElement>) => {
     return (
         <input
-            className={`${className ?? ""} w-full rounded-md p-1`}
+            className={`${className ?? ""} w-full rounded-md p-1 text-black`}
             {...inputProps}
         />
     );

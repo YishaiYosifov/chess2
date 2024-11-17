@@ -1,23 +1,16 @@
 "use client";
 
-import { BsPersonFill, BsEnvelopeFill } from "react-icons/bs";
-import { Form } from "react-bootstrap";
-
-import { Formik, FormikHelpers } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import * as yup from "yup";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
 import { authApi } from "@/lib/apis";
-
-import {
-    FormInput,
-    FormikField,
-    PasswordInput,
-    SubmitButton,
-} from "../form/FormElements";
-import FormField from "../form/FormField";
+import FormikSubmitButton from "../helpers/FormikSubmitButton";
+import FormikField from "../helpers/FormikField";
+import Input, { PasswordInput } from "../helpers/Input";
+import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
 
 export interface SignupFormValues {
     username: string;
@@ -36,7 +29,7 @@ const SignupForm = () => {
 
     async function onSubmit(
         values: SignupFormValues,
-        { setErrors, setStatus }: FormikHelpers<SignupFormValues>
+        { setErrors, setStatus }: FormikHelpers<SignupFormValues>,
     ) {
         try {
             await authApi.signup({
@@ -69,44 +62,28 @@ const SignupForm = () => {
                 password: "",
             }}
         >
-            {({ handleSubmit, status }) => (
-                <Form
-                    data-testid="signupForm"
-                    aria-label="signup form"
-                    noValidate
-                    onSubmit={handleSubmit}
-                >
-                    <FormField hasValidation>
-                        <FormikField
-                            asInput={FormInput}
-                            name="username"
-                            placeholder="username"
-                            icon={<BsPersonFill />}
-                        />
-                    </FormField>
+            <Form
+                data-testid="signupForm"
+                aria-label="signup form"
+                className="flex w-4/5 flex-col gap-5"
+            >
+                <div className="flex flex-col gap-3">
+                    <FormikField
+                        asInput={Input}
+                        name="username"
+                        placeholder="username"
+                    />
+                    <FormikField
+                        asInput={Input}
+                        name="email"
+                        placeholder="email"
+                        type="email"
+                    />
+                    <FormikField asInput={PasswordInput} name="password" />
+                </div>
 
-                    <FormField hasValidation>
-                        <FormikField
-                            asInput={FormInput}
-                            name="email"
-                            placeholder="email"
-                            type="email"
-                            icon={<BsEnvelopeFill />}
-                        />
-                    </FormField>
-
-                    <FormField hasValidation>
-                        <FormikField
-                            asInput={PasswordInput}
-                            name="password"
-                            placeholder="Password"
-                        />
-                    </FormField>
-
-                    <SubmitButton variant="secondary">Sign Up</SubmitButton>
-                    {status && <span className="text-invalid">{status}</span>}
-                </Form>
-            )}
+                <FormikSubmitButton>Sign Up</FormikSubmitButton>
+            </Form>
         </Formik>
     );
 };
