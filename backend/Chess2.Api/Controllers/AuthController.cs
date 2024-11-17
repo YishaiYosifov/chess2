@@ -13,13 +13,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
 
-    [HttpPost("register")]
+    [HttpPost("signup")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IResult> Register([FromBody] UserIn userIn, CancellationToken cancellation)
+    public async Task<IResult> Signup([FromBody] UserIn userIn, CancellationToken cancellation)
     {
-        var result = await _authService.RegisterUserAsync(userIn, cancellation);
+        var result = await _authService.SignupUserAsync(userIn, cancellation);
         return result.Match((value) =>
         {
             _logger.LogInformation("Created user {Username}", userIn.Username);
