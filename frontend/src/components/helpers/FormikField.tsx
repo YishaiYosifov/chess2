@@ -25,7 +25,11 @@ const FormikField = <TProps extends React.ComponentType>({
                 ...props,
             })}
 
-            {meta.error && <span className="text-error">{meta.error}</span>}
+            {meta.error && (
+                <span className="text-error" data-testid="fieldError">
+                    {meta.error}
+                </span>
+            )}
         </div>
     );
 };

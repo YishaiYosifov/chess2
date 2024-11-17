@@ -11,11 +11,6 @@ yup.addMethod(yup.string, "username", function () {
             "username-spaces",
             "username can't include spaces",
             (value) => !value.includes(" "),
-        )
-        .test(
-            "username-numbers",
-            "username can't be just numbers",
-            (value) => !+value,
         );
 });
 
