@@ -74,15 +74,22 @@ const LoginForm = () => {
             <Form
                 data-testid="loginForm"
                 aria-label="signup form"
-                className="flex w-4/5 flex-col gap-5"
+                className="flex w-4/5 flex-col gap-7"
             >
                 <div className="flex flex-col gap-3">
                     <FormikField
                         asInput={Input}
-                        placeholder="Username or Email"
+                        id="username"
+                        label="Username / Email"
+                        placeholder="Enter your username or email"
                         name="usernameOrEmail"
                     />
-                    <FormikField asInput={PasswordInput} name="password" />
+                    <FormikField
+                        asInput={PasswordInput}
+                        label="Password"
+                        id="password"
+                        name="password"
+                    />
                 </div>
 
                 <FormikSubmitButton>Log In</FormikSubmitButton>

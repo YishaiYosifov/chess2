@@ -1,5 +1,7 @@
 "use client";
 
+import clsx from "clsx";
+
 const Button = ({
     children,
     className,
@@ -7,8 +9,10 @@ const Button = ({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
     return (
         <button
-            className={`${className ?? ""} rounded-md bg-cta p-2 text-3xl disabled:bg-cta/50
-                disabled:text-text/50`}
+            className={clsx(
+                className,
+                "rounded-md bg-cta p-2 text-3xl disabled:bg-cta/50 disabled:text-text/50",
+            )}
             {...buttonProps}
         >
             {children}
