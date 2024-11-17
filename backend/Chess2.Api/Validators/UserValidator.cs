@@ -10,6 +10,8 @@ public class UserValidator : AbstractValidator<UserIn>
         RuleFor(x => x.Username).Length(1, 30);
         RuleFor(x => x.Email).EmailAddress();
         RuleFor(x => x.Password).MinimumLength(8);
-        RuleFor(x => x.CountryCode).MustBeACountryCode();
+        RuleFor(x => x.CountryCode)
+            .MustBeACountryCode()
+            .When(x => x.CountryCode is not null);
     }
 }
