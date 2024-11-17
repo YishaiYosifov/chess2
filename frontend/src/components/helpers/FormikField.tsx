@@ -18,7 +18,7 @@ const FormikField = <TProps extends React.ComponentType>({
     const [field, meta] = useField(name);
 
     return (
-        <>
+        <div>
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {React.createElement(asInput as any, {
                 ...field,
@@ -26,7 +26,7 @@ const FormikField = <TProps extends React.ComponentType>({
             })}
 
             {meta.error && <span className="text-error">{meta.error}</span>}
-        </>
+        </div>
     );
 };
 export default FormikField;
