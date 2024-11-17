@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Mock, MockInstance } from "vitest";
 
-import { responseErrFactory } from "@/lib/utils/testUtils";
+import { responseErrFactory } from "@/lib/testUtils/formUtils";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
@@ -71,13 +71,13 @@ describe("ProfilePictureSettings", () => {
         await uploadTestImage();
 
         expect(screen.getByTestId("pfpSettingsStatus").textContent).toBe(
-            status
+            status,
         );
         expect(pfpMock).toHaveBeenLastCalledWith(
             expect.objectContaining({
                 lastChanged: profileMock.pfpLastChanged,
             }),
-            {}
+            {},
         );
     });
 
@@ -93,7 +93,7 @@ describe("ProfilePictureSettings", () => {
             expect.objectContaining({
                 lastChanged: testDate,
             }),
-            {}
+            {},
         );
     });
 });

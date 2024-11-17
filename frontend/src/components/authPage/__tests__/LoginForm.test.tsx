@@ -7,7 +7,7 @@ import {
     submitForm,
     responseErrFactory,
     renderWithAuthContext,
-} from "@/lib/utils/testUtils";
+} from "@/lib/testUtils/formUtils";
 
 import { mockRouter } from "@/lib/testUtils/mocks";
 import { authApi } from "@/lib/apiClient/client";

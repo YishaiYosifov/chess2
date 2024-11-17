@@ -6,7 +6,7 @@ import {
     fillForm,
     responseErrFactory,
     submitForm,
-} from "@/lib/utils/testUtils";
+} from "@/lib/testUtils/formUtils";
 import constants from "@/lib/constants";
 
 import { mockRouter } from "@/mockUtils/mockRouter";
@@ -55,26 +55,26 @@ describe("SignupForm", () => {
 
             waitFor(() =>
                 expect(
-                    screen.queryByText(constants.GENERIC_ERROR)
-                ).toBeInTheDocument()
+                    screen.queryByText(constants.GENERIC_ERROR),
+                ).toBeInTheDocument(),
             );
-        }
+        },
     );
 
     it("should set errors on conflict", async () => {
         signupMock.mockRejectedValue(
             responseErrFactory(
                 '{ "detail": { "email": "this is a test error" } }',
-                { status: 409 }
-            )
+                { status: 409 },
+            ),
         );
         render(<SignupForm />);
         submitForm();
 
         waitFor(() =>
             expect(
-                screen.queryByText("this is a test error")
-            ).toBeInTheDocument()
+                screen.queryByText("this is a test error"),
+            ).toBeInTheDocument(),
         );
     });
 
