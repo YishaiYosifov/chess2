@@ -13,7 +13,7 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 const Input = ({ className, label, id, icon, ...inputProps }: InputProps) => {
     return (
-        <div>
+        <>
             {label && (
                 <label
                     className="text-sm font-medium text-text/90"
@@ -36,7 +36,7 @@ const Input = ({ className, label, id, icon, ...inputProps }: InputProps) => {
                     </span>
                 )}
             </div>
-        </div>
+        </>
     );
 };
 export default Input;
