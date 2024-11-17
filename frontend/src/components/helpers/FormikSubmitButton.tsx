@@ -19,7 +19,11 @@ const FormikSubmitButton = ({
             >
                 {children}
             </Button>
-            {status && <span className="text-error">{status}</span>}
+            {status && (
+                <span className="text-error" data-testid="formStatus">
+                    {status}
+                </span>
+            )}
         </>
     );
 };

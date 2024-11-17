@@ -11,7 +11,14 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     icon?: React.ReactNode;
 };
 
-const Input = ({ className, label, id, icon, ...inputProps }: InputProps) => {
+const Input = ({
+    className,
+    label,
+    id,
+    icon,
+    "aria-label": ariaLabel,
+    ...inputProps
+}: InputProps) => {
     return (
         <>
             {label && (
@@ -24,6 +31,8 @@ const Input = ({ className, label, id, icon, ...inputProps }: InputProps) => {
             )}
             <div className="relative">
                 <input
+                    id={id}
+                    aria-label={ariaLabel ?? label}
                     className={clsx(
                         className,
                         "w-full rounded-md p-1 text-black",

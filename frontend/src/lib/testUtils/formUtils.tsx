@@ -29,8 +29,8 @@ export async function fillForm<T>(
     }
 }
 
-export function submitForm(): void {
-    screen.getByRole<HTMLFormElement>("form").requestSubmit();
+export async function submitForm(user: UserEvent): Promise<void> {
+    await user.click(screen.getByTestId("submitFormButton"));
 }
 
 /**
