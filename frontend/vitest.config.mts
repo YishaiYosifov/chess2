@@ -9,6 +9,5 @@ export default defineConfig({
         exclude: [...configDefaults.exclude, "**/e2e-tests/**"],
         environment: "jsdom",
         globals: true,
-        css: { modules: { classNameStrategy: "non-scoped" } },
     },
 });
