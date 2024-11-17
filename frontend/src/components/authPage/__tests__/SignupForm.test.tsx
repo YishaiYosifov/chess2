@@ -29,6 +29,7 @@ describe("SignupForm", () => {
         expect(screen.queryByLabelText("Username")).toBeInTheDocument();
         expect(screen.queryByLabelText("Email")).toBeInTheDocument();
         expect(screen.queryByLabelText("Password")).toBeInTheDocument();
+        expect(screen.queryByTestId("loginLink")).toBeInTheDocument();
     });
 
     it("should display errors on invalid fields", async () => {
