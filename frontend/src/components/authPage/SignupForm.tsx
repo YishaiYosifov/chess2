@@ -1,9 +1,11 @@
 "use client";
 
-import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import * as yup from "yup";
+
+import { Form, Formik, FormikHelpers } from "formik";
+import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
@@ -93,6 +95,14 @@ const SignupForm = () => {
                 </div>
 
                 <FormikSubmitButton>Sign Up</FormikSubmitButton>
+                <span data-testid="loginLink" className="text-center">
+                    Already have an account? Click{" "}
+                    {
+                        <Link href="/login" className="text-link">
+                            here to log in
+                        </Link>
+                    }
+                </span>
             </Form>
         </Formik>
     );
