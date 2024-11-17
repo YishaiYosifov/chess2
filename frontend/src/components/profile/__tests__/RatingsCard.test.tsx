@@ -3,7 +3,7 @@ import { Mock } from "vitest";
 
 import { Chart } from "react-google-charts";
 
-import { RatingOverview, Variant } from "@/lib/models";
+import { RatingOverview, Variant } from "@/lib/apiClient/models";
 
 import RatingCard from "../RatingsCard";
 
@@ -19,7 +19,7 @@ const ratingMock: RatingOverview = {
 describe("RatingsCard", () => {
     it("should render the card with variant, rating data, and chart", () => {
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />,
         );
 
         expect(screen.queryByTestId("ratingChart")).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe("RatingsCard", () => {
         vi.setSystemTime(currDate);
 
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />,
         );
 
         const chartMock = Chart as unknown as Mock;
@@ -46,17 +46,17 @@ describe("RatingsCard", () => {
 
     it("should display the provided rating information", () => {
         render(
-            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />
+            <RatingCard variant={Variant.Anarchy} ratingData={ratingMock} />,
         );
 
         expect(screen.getByTestId("maxRating").textContent).toBe(
-            ratingMock.max + ""
+            ratingMock.max + "",
         );
         expect(screen.getByTestId("minRating").textContent).toBe(
-            ratingMock.min + ""
+            ratingMock.min + "",
         );
         expect(screen.getByTestId("currentRating").textContent).toBe(
-            ratingMock.current + ""
+            ratingMock.current + "",
         );
     });
 
@@ -81,12 +81,12 @@ describe("RatingsCard", () => {
                 <RatingCard
                     variant={Variant.Anarchy}
                     ratingData={newMockRating}
-                />
+                />,
             );
 
             const ratingChange = screen.getByTestId("ratingChange");
             expect(ratingChange.textContent).toBe(expectedText);
             expect(ratingChange.className).toBe(colorClass);
-        }
+        },
     );
 });

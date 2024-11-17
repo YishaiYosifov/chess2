@@ -1,4 +1,9 @@
-import { PieceID, PieceMap, type LegalMoves, type Point } from "@/lib/models";
+import {
+    PieceID,
+    PieceMap,
+    type LegalMoves,
+    type Point,
+} from "@/lib/apiClient/models";
 import { createChessStore } from "../chessStore";
 import constants from "@/lib/constants";
 
@@ -50,7 +55,7 @@ describe("position2Id", () => {
             const chessStore = createChessStore({ pieces });
             const { position2Id } = chessStore.getState();
             expect(position2Id(position)).toEqual(expectedId);
-        }
+        },
     );
 });
 
@@ -91,6 +96,6 @@ describe("showLegalMoves", () => {
                 chessStore.getState();
             expect(highlightedLegalMoves).toEqual(expectedLegalMoves);
             expect(selectedPiecePosition).toEqual(position);
-        }
+        },
     );
 });

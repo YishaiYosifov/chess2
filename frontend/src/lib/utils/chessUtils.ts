@@ -5,7 +5,7 @@ import {
     PieceType,
     Point,
     StrPoint,
-} from "@/lib/models";
+} from "@/lib/apiClient/models";
 
 /**
  * Parse a fen into a PieceMap

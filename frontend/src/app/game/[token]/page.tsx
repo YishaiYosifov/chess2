@@ -1,8 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 
-import { Color, LiveGame, PrivateAuthedProfileOut } from "@/lib/models";
+import {
+    Color,
+    LiveGame,
+    PrivateAuthedProfileOut,
+} from "@/lib/apiClient/models";
 import { parseFen } from "@/lib/utils/chessUtils";
-import { ResponseError } from "@/lib/apiClient";
+import { ResponseError } from "@/lib/apiClient/client";
 import { liveGameApi } from "@/lib/apis";
 
 import Chessboard from "@/components/game/Chessboard";

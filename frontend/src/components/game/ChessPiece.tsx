@@ -1,7 +1,7 @@
 import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
 import { useChessStore, usePiece } from "@/hooks/useChess";
-import { PieceID, type Point } from "@/lib/models";
+import { PieceID, type Point } from "@/lib/apiClient/models";
 
 import ChessSquare from "./ChessSquare";
 
@@ -61,9 +61,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         <ChessSquare
             data-testid="piece"
             position={position}
-            className={`${styles.piece} ${
-                isDragging && styles["dragging-piece"]
-            }`}
+            className={`${styles.piece} ${isDragging && styles["dragging-piece"]}`}
             ref={pieceRef}
             onPointerDown={(event) => {
                 const canDrag =

@@ -1,7 +1,7 @@
 import { MockInstance } from "vitest";
 
 import { BaseAPI, type RequestOptions, type RequestContext } from "../baseApi";
-import { ResponseError } from "@/lib/models/Errors";
+import { ResponseError } from "@/lib/apiClient/models/Errors";
 
 vi.mock("fetch");
 

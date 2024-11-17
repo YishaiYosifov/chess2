@@ -5,7 +5,7 @@ import { mockRouter } from "@/mockUtils/mockRouter";
 import { TIME_CONTROLS } from "@/lib/constants";
 import { gameRequestApi } from "@/lib/apis";
 import PlayOptions from "../PlayOptions";
-import { Variant } from "@/lib/models";
+import { Variant } from "@/lib/apiClient/models";
 import { Mock } from "vitest";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
@@ -47,7 +47,7 @@ describe("PlayOptions", () => {
             expect(timeControlButtons[i].textContent).toBe(
                 `${timeControl.timeControl / 60} + ${timeControl.increment}${
                     timeControl.type
-                }`
+                }`,
             );
         });
     });
@@ -75,9 +75,8 @@ describe("PlayOptions", () => {
         const user = userEvent.setup();
         render(<PlayOptions />);
 
-        const { timeControl, timeControlButton } = await joinPoolFirstButton(
-            user
-        );
+        const { timeControl, timeControlButton } =
+            await joinPoolFirstButton(user);
 
         expect(timeControlButton).toHaveClass("selected-time-control");
         expect(gameRequestApi.startPoolGameRaw).toHaveBeenCalledOnce();

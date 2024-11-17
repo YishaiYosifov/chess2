@@ -2,7 +2,7 @@
 
 import { Card } from "react-bootstrap";
 
-import type { AuthedProfileOut } from "@/lib/models";
+import type { AuthedProfileOut } from "@/lib/apiClient/models";
 import type { TypedCountries } from "@/lib/types";
 import countries from "@/data/countries.json";
 

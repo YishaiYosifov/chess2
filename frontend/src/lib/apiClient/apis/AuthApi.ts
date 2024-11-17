@@ -1,4 +1,4 @@
-import type { UserIn, UserLogin } from "@/lib/models";
+import type { UserIn, UserLogin } from "@/lib/apiClient/models";
 import { VoidApiResponse } from "../apiResponse";
 import { ApiResponse } from "../apiResponse";
 import { BaseAPI } from "../baseApi";

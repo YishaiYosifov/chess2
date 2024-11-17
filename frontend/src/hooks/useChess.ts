@@ -3,7 +3,7 @@ import { useStore } from "zustand";
 
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
 import { type ChessStore } from "@/stores/chessStore";
-import { PieceID } from "@/lib/models";
+import { PieceID } from "@/lib/apiClient/models";
 
 export function useChessStore<T>(selector: (store: ChessStore) => T): T {
     const chessStoreContext = useContext(ChessStoreContext);

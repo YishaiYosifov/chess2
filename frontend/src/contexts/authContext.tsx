@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, createContext, useState } from "react";
-import { PrivateAuthedProfileOut } from "@/lib/models";
+import { PrivateAuthedProfileOut } from "@/lib/apiClient/models";
 
 export interface AuthContextInterface {
     hasAuthCookies: boolean;
@@ -11,7 +11,7 @@ export interface AuthContextInterface {
 }
 
 export const AuthContext = createContext<AuthContextInterface>(
-    {} as AuthContextInterface
+    {} as AuthContextInterface,
 );
 
 const AuthContextProvider = ({

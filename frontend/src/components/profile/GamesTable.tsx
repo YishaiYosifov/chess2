@@ -2,7 +2,7 @@
 
 import { Table } from "react-bootstrap";
 
-import type { FinishedGame, AuthedProfileOut } from "@/lib/models";
+import type { FinishedGame, AuthedProfileOut } from "@/lib/apiClient/models";
 
 import GameRow from "./GameRow";
 
@@ -45,7 +45,7 @@ const GamesTable = ({
 
                 {games.length < MAX_EMPTY_ROWS &&
                     [...Array(MAX_EMPTY_ROWS - games.length).keys()].map(
-                        (i) => <EmptyRow key={i} />
+                        (i) => <EmptyRow key={i} />,
                     )}
             </tbody>
         </Table>

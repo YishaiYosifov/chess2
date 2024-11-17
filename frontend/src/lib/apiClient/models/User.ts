@@ -15,29 +15,15 @@ export interface UserLogin {
     password: string;
 }
 
-export interface UnauthedProfileOut {
+export interface User {
     userId: number;
-    userType: UserType;
     username: string;
-}
-
-export interface AuthedProfileOut {
-    userId: number;
-    userType: UserType;
-
-    username: string;
-    firstName: string;
-    lastName: string;
-    location: string;
     about: string;
-
-    countryAlpha3: string;
-    pfpLastChanged: Date;
+    countryCode?: string;
 }
 
-export interface PrivateAuthedProfileOut extends AuthedProfileOut {
+export interface PrivateUser extends User {
     email: string;
-    usernameLastChanged: Date | null;
 }
 
 export interface EditableProfile {

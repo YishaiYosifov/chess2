@@ -6,8 +6,8 @@ import {
     type AuthedProfileOut,
     type FinishedGame,
     GameResult,
-} from "@/lib/models";
-import { Color } from "@/lib/models";
+} from "@/lib/apiClient/models";
+import { Color } from "@/lib/apiClient/models";
 
 const GameRow = ({
     game,
@@ -68,7 +68,7 @@ const GameRow = ({
                 <div className={styles["players-column"]}>
                     <Link
                         href={`/user/${usernameWhite}`}
-                        className="mt-2 limit-text"
+                        className="limit-text mt-2"
                         data-testid="gameRowUsernameWhite"
                     >
                         {usernameWhite}

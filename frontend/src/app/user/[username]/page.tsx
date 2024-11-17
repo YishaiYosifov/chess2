@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import type { FinishedGame, AuthedProfileOut } from "@/lib/models";
+import type { FinishedGame, AuthedProfileOut } from "@/lib/apiClient/models";
 import { profileApi } from "@/lib/apis";
 
 import RatingCard from "@/components/profile/RatingsCard";
@@ -39,12 +39,12 @@ const UserPage = async ({
             profileApi.getRatingsHistory(
                 username,
                 { since: dateMonthAgo },
-                { next: { tags: cacheTags } }
+                { next: { tags: cacheTags } },
             ),
             profileApi.paginateGames(
                 username,
                 {},
-                { next: { tags: cacheTags } }
+                { next: { tags: cacheTags } },
             ),
         ]);
     } catch {

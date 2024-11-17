@@ -9,9 +9,9 @@ import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
-import { ResponseError } from "@/lib/models";
+import { authApi } from "@/lib/apiClient/client";
+import { ResponseError } from "@/lib/apiClient/models";
 import constants from "@/lib/constants";
-import { authApi } from "@/lib/apis";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
