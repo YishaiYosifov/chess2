@@ -26,13 +26,13 @@ describe("LoginForm", () => {
         render(<LoginForm />);
 
         expect(
-            screen.getByLabelText("Username / Email", { selector: "input" }),
+            screen.queryByLabelText("Username / Email", { selector: "input" }),
         ).toBeInTheDocument();
         expect(
-            screen.getByLabelText("Password", { selector: "input" }),
+            screen.queryByLabelText("Password", { selector: "input" }),
         ).toBeInTheDocument();
         expect(
-            screen.getByRole("button", { name: "Log In" }),
+            screen.queryByRole("button", { name: "Log In" }),
         ).toBeInTheDocument();
     });
 
