@@ -50,19 +50,17 @@ export const PasswordInput = ({
     const EyeToggle = isShowingPassword ? EyeIconSolid : EyeIconOutline;
 
     return (
-        <div>
-            <Input
-                aria-label={name}
-                type={isShowingPassword ? "text" : "password"}
-                placeholder={placeholder ?? "Enter a password"}
-                name={name}
-                icon={
-                    <EyeToggle
-                        onClick={() => setIsShowingPassword(!isShowingPassword)}
-                    />
-                }
-                {...inputProps}
-            />
-        </div>
+        <Input
+            aria-label={name}
+            type={isShowingPassword ? "text" : "password"}
+            placeholder={placeholder ?? "Enter a password"}
+            name={name}
+            icon={
+                <EyeToggle
+                    onClick={() => setIsShowingPassword(!isShowingPassword)}
+                />
+            }
+            {...inputProps}
+        />
     );
 };
