@@ -14,7 +14,7 @@ namespace Chess2.Api.Services;
 
 public interface IAuthService
 {
-    Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation = default);
+    Task<ErrorOr<User>> SignupUserAsync(UserIn userIn, CancellationToken cancellation = default);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation = default);
     Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation = default);
     void SetAccessCookie(string accessToken, HttpContext context);
@@ -43,7 +43,7 @@ public class AuthService(
     /// Register a new user
     /// </summary>
     /// <param name="userIn">The user DTO received from the client</param>
-    public async Task<ErrorOr<User>> RegisterUserAsync(UserIn userIn, CancellationToken cancellation = default)
+    public async Task<ErrorOr<User>> SignupUserAsync(UserIn userIn, CancellationToken cancellation = default)
     {
         var validationResult = await _userValidator.ValidateAsync(userIn, cancellation);
         if (!validationResult.IsValid)
