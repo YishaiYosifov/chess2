@@ -3,7 +3,7 @@ import { Mock } from "vitest";
 
 import { setAuthedProfile } from "@/hooks/__mocks__/useAuthed";
 import { profileMock } from "@/mockUtils/profileMock";
-import { fillForm } from "@/lib/utils/testUtils";
+import { fillForm } from "@/lib/testUtils/formUtils";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
 import { settingsApi } from "@/lib/apis";
@@ -36,15 +36,15 @@ describe("ProfileSettings", () => {
         expect(country).toHaveValue(profileMock.countryAlpha3);
 
         expect(screen.getByLabelText("firstName")).toHaveValue(
-            profileMock.firstName
+            profileMock.firstName,
         );
 
         expect(screen.getByLabelText("lastName")).toHaveValue(
-            profileMock.lastName
+            profileMock.lastName,
         );
 
         expect(screen.getByLabelText("location")).toHaveValue(
-            profileMock.location
+            profileMock.location,
         );
 
         expect(screen.getByLabelText("about")).toHaveValue(profileMock.about);
@@ -80,8 +80,8 @@ describe("ProfileSettings", () => {
 
         waitFor(() =>
             expect(
-                screen.getByText(constants.GENERIC_ERROR)
-            ).toBeInTheDocument()
+                screen.getByText(constants.GENERIC_ERROR),
+            ).toBeInTheDocument(),
         );
     });
 });
