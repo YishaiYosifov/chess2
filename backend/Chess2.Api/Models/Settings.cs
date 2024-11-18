@@ -2,7 +2,7 @@
 
 public class AppSettings
 {
-    public required string[] CorsOrigins { get; set; }
+    public string[] CorsOrigins { get; set; } = [];
     public required DatabaseSettings Database { get; set; }
     public required JwtSettings Jwt { get; set; }
 }
