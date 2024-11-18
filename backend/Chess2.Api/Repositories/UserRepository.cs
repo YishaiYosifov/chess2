@@ -49,9 +49,8 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
             if (userProperty is not null && userProperty.CanWrite)
                 userProperty.SetValue(user, value);
         }
-
-        _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync(cancellation);
+
         return user;
     }
 }
