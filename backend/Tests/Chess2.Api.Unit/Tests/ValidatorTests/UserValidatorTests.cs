@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.TestData;
 using Chess2.Api.Validators;
 using FluentAssertions;
 
@@ -38,9 +39,7 @@ public class UserValidatorTests
     }
 
     [Theory]
-    [InlineData("XZ", false)]
-    [InlineData("IL", true)]
-    [InlineData(null, true)]
+    [MemberData(nameof(CountryCodeTestData.CountryValidationData), MemberType = typeof(CountryCodeTestData))]
     public void Validate_country(string? country, bool isValid)
     {
         var userIn = new UserInFaker().RuleFor(x => x.CountryCode, country).Generate();
