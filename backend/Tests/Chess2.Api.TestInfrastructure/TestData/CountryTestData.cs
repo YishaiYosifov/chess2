@@ -1,12 +1,12 @@
 ﻿namespace Chess2.Api.TestInfrastructure.TestData;
 
-public static class CountryTestData
+public class CountryCodeTestData : TheoryData<string?, bool>
 {
-    public static IEnumerable<object?[]> CodeValidationData =>
-        [
-            ["XZ", false],
-            ["USA", false],
-            ["IL", true],
-            [null, true],
-        ];
+    public CountryCodeTestData()
+    {
+        Add("XZ", false);
+        Add("USA", false);
+        Add("IL", true);
+        Add(null, true);
+    }
 }
