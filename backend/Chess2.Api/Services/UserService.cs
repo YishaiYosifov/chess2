@@ -11,12 +11,12 @@ namespace Chess2.Api.Services;
 public interface IUserService
 {
     Task<ErrorOr<User>> GetUserByUsernameAsync(string username, CancellationToken cancellation = default);
-    Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileUpdate userEdit, CancellationToken cancellation = default);
+    Task<ErrorOr<User>> EditProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default);
 }
 
-public class UserService(IValidator<UserProfileUpdate> userEditValidator, IUserRepository userRepository) : IUserService
+public class UserService(IValidator<UserProfileEdit> userEditValidator, IUserRepository userRepository) : IUserService
 {
-    private readonly IValidator<UserProfileUpdate> _userEditValidator = userEditValidator;
+    private readonly IValidator<UserProfileEdit> _profileEditValidator = userEditValidator;
     private readonly IUserRepository _userRepository = userRepository;
 
     /// <summary>
@@ -29,12 +29,12 @@ public class UserService(IValidator<UserProfileUpdate> userEditValidator, IUserR
         return user is null ? UserErrors.UserNotFound : user;
     }
 
-    public async Task<ErrorOr<User>> UpdateProfileAsync(User user, UserProfileUpdate userEdit, CancellationToken cancellation = default)
+    public async Task<ErrorOr<User>> EditProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default)
     {
-        var validationResult = _userEditValidator.Validate(userEdit);
+        var validationResult = _profileEditValidator.Validate(userEdit);
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList();
 
-        return await _userRepository.UpdateUserProfileAsync(user, userEdit, cancellation);
+        return await _userRepository.EditUserProfileAsync(user, userEdit, cancellation);
     }
 }
