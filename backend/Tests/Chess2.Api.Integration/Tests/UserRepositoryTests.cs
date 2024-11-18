@@ -57,12 +57,12 @@ public class UserRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Update_user_profile_and_provide_data()
+    public async Task Update_profile_and_provide_data()
     {
         var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
-        var profileEdit = new UserProfileEditFaker().Generate();
+        var profileEdit = new ProfileEditFaker().Generate();
 
-        await _userRepository.EditUserProfileAsync(user, profileEdit);
+        await _userRepository.EditProfileAsync(user, profileEdit);
 
         var dbUser = await DbContext.Users.SingleAsync();
 
@@ -77,11 +77,11 @@ public class UserRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Update_user_profile_with_null_data()
+    public async Task Update_profile_with_null_data()
     {
         var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
-        await _userRepository.EditUserProfileAsync(user, new());
+        await _userRepository.EditProfileAsync(user, new());
 
         (await DbContext.Users.SingleAsync()).Should().BeEquivalentTo(user);
     }

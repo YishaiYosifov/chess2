@@ -11,7 +11,7 @@ public interface IUserRepository
     public Task<User?> GetByEmailAsync(string email, CancellationToken cancellation = default);
     public Task<User?> GetByUserIdAsync(int userId, CancellationToken cancellation = default);
     public Task AddUserAsync(User user, CancellationToken cancellation = default);
-    public Task<User> EditUserProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default);
+    public Task<User> EditProfileAsync(User user, ProfileEdit userEdit, CancellationToken cancellation = default);
 }
 
 public class UserRepository(Chess2DbContext dbContext) : IUserRepository
@@ -35,10 +35,10 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
 
     /// <summary>
     /// Update the profile data of a user.
-    /// This method takes the properties of <see cref="UserProfileEdit"/> and
+    /// This method takes the properties of <see cref="ProfileEdit"/> and
     /// updates them in the user if it's not null
     /// </summary>
-    public async Task<User> EditUserProfileAsync(User user, UserProfileEdit userEdit, CancellationToken cancellation = default)
+    public async Task<User> EditProfileAsync(User user, ProfileEdit userEdit, CancellationToken cancellation = default)
     {
         foreach (var prop in userEdit.GetType().GetProperties())
         {

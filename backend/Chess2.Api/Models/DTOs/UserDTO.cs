@@ -46,7 +46,7 @@ public class PrivateUserOut : UserOut
     }
 }
 
-public class UserProfileEdit
+public class ProfileEdit
 {
     public string? About { get; set; }
     public string? CountryCode { get; set; }
