@@ -39,7 +39,7 @@ public class UserValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(CountryCodeTestData.CountryValidationData), MemberType = typeof(CountryCodeTestData))]
+    [MemberData(nameof(CountryTestData.CodeValidationData), MemberType = typeof(CountryTestData))]
     public void Validate_country(string? country, bool isValid)
     {
         var userIn = new UserInFaker().RuleFor(x => x.CountryCode, country).Generate();
