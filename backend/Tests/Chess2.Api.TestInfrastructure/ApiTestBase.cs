@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Models;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.TestInfrastructure;
@@ -17,6 +18,16 @@ public class ApiTestBase : IAsyncLifetime
 
         ApiClient = Factory.CreateTypedClient();
         DbContext = Scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+
+        // postgres can only store up to microsecond percision,
+        // while c# DateTime also stores nanoseconds
+        AssertionOptions.AssertEquivalencyUsing(options =>
+            options
+                .Using<DateTime>(ctx =>
+                    ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMicroseconds(1))
+                )
+                .WhenTypeIs<DateTime>()
+        );
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
