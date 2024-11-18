@@ -5,9 +5,9 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.ValidatorTests;
 
-public class UserProfileEditValidatorTests
+public class ProfileEditValidatorTests
 {
-    private readonly UserProfileEditValidator _validator = new();
+    private readonly ProfileEditValidator _validator = new();
 
     private const string longAbout =
         @"Very long about me
@@ -22,7 +22,7 @@ public class UserProfileEditValidatorTests
     [InlineData(longAbout, false)]
     public void Validate_about(string? about, bool isValid)
     {
-        var profileEdit = new UserProfileEdit() { About = about };
+        var profileEdit = new ProfileEdit() { About = about };
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 
@@ -30,7 +30,7 @@ public class UserProfileEditValidatorTests
     [MemberData(nameof(CountryTestData.CodeValidationData), MemberType = typeof(CountryTestData))]
     public void Validate_country(string? country, bool isValid)
     {
-        var profileEdit = new UserProfileEdit() { CountryCode = country };
+        var profileEdit = new ProfileEdit() { CountryCode = country };
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 }

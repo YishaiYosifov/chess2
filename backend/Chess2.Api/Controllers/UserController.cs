@@ -36,11 +36,11 @@ public class UserController(IUserService userService, IAuthService authService) 
             (errors) => errors.ToProblemDetails());
     }
 
-    [HttpPatch("profile-settings")]
+    [HttpPatch("edit-profile")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IResult> EditProfileSettings([FromBody] UserProfileEdit userEdit, CancellationToken cancellation)
+    public async Task<IResult> EditProfileSettings([FromBody] ProfileEdit userEdit, CancellationToken cancellation)
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         if (userResult.IsError) return userResult.Errors.ToProblemDetails();

@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Chess2.Api.Validators;
 
-public class UserProfileEditValidator : AbstractValidator<UserProfileEdit>
+public class ProfileEditValidator : AbstractValidator<ProfileEdit>
 {
-    public UserProfileEditValidator()
+    public ProfileEditValidator()
     {
         RuleFor(x => x.About).MaximumLength(300);
         RuleFor(x => x.CountryCode)
