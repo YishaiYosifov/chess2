@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Chess2.Api\Chess2.Api.csproj" />
+    <ProjectReference Include="..\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
