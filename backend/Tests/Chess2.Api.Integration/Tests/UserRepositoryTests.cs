@@ -65,9 +65,12 @@ public class UserRepositoryTests : BaseIntegrationTest
         await _userRepository.EditUserProfileAsync(user, profileEdit);
 
         var dbUser = await DbContext.Users.SingleAsync();
+
+        // assert the properties in profileEdit were actually updated
         dbUser.Should().BeEquivalentTo(
             profileEdit, opts => opts.ExcludingMissingMembers());
 
+        // assert properties that were NOT in profile edit weren't updated
         var shouldBeUpdated = profileEdit.GetType().GetProperties().Select(x => x.Name);
         dbUser.Should().BeEquivalentTo(
             user, opts => opts.Excluding(ctx => shouldBeUpdated.Contains(ctx.Path)));
