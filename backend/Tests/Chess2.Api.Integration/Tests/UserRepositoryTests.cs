@@ -55,4 +55,31 @@ public class UserRepositoryTests : BaseIntegrationTest
         users.Should().HaveCount(1);
         users.First().Should().BeEquivalentTo(user);
     }
+
+    [Fact]
+    public async Task Update_user_profile_and_provide_data()
+    {
+        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var profileEdit = new UserProfileEditFaker().Generate();
+
+        await _userRepository.EditUserProfileAsync(user, profileEdit);
+
+        var dbUser = await DbContext.Users.SingleAsync();
+        dbUser.Should().BeEquivalentTo(
+            profileEdit, opts => opts.ExcludingMissingMembers());
+
+        var shouldBeUpdated = profileEdit.GetType().GetProperties().Select(x => x.Name);
+        dbUser.Should().BeEquivalentTo(
+            user, opts => opts.Excluding(ctx => shouldBeUpdated.Contains(ctx.Path)));
+    }
+
+    [Fact]
+    public async Task Update_user_profile_with_null_data()
+    {
+        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+
+        await _userRepository.EditUserProfileAsync(user, new());
+
+        (await DbContext.Users.SingleAsync()).Should().BeEquivalentTo(user);
+    }
 }
