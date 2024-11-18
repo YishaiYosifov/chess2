@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Models.DTOs;
-using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.TestData;
 using Chess2.Api.Validators;
 using FluentAssertions;
@@ -28,7 +27,7 @@ public class UserProfileEditValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(CountryCodeTestData.CountryValidationData), MemberType=typeof(CountryCodeTestData))]
+    [MemberData(nameof(CountryCodeTestData.CountryValidationData), MemberType = typeof(CountryCodeTestData))]
     public void Validate_country(string? country, bool isValid)
     {
         var profileEdit = new UserProfileUpdate() { CountryCode = country };
