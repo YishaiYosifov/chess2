@@ -27,7 +27,7 @@ public class ProfileEditValidatorTests
     }
 
     [Theory]
-    [MemberData(nameof(CountryTestData.CodeValidationData), MemberType = typeof(CountryTestData))]
+    [ClassData(typeof(CountryCodeTestData))]
     public void Validate_country(string? country, bool isValid)
     {
         var profileEdit = new ProfileEdit() { CountryCode = country };
