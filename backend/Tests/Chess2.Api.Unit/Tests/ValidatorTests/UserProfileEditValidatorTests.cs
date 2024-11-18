@@ -22,7 +22,7 @@ public class UserProfileEditValidatorTests
     [InlineData(longAbout, false)]
     public void Validate_about(string? about, bool isValid)
     {
-        var profileEdit = new UserProfileUpdate() { About = about };
+        var profileEdit = new UserProfileEdit() { About = about };
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 
@@ -30,7 +30,7 @@ public class UserProfileEditValidatorTests
     [MemberData(nameof(CountryTestData.CodeValidationData), MemberType = typeof(CountryTestData))]
     public void Validate_country(string? country, bool isValid)
     {
-        var profileEdit = new UserProfileUpdate() { CountryCode = country };
+        var profileEdit = new UserProfileEdit() { CountryCode = country };
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 }
