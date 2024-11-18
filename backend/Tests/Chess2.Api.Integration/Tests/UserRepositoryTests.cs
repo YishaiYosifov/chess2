@@ -70,7 +70,7 @@ public class UserRepositoryTests : BaseIntegrationTest
         dbUser.Should().BeEquivalentTo(
             profileEdit, opts => opts.ExcludingMissingMembers());
 
-        // assert properties that were NOT in profile edit weren't updated
+        // assert properties that were NOT in profileEdit weren't updated
         var shouldBeUpdated = profileEdit.GetType().GetProperties().Select(x => x.Name);
         dbUser.Should().BeEquivalentTo(
             user, opts => opts.Excluding(ctx => shouldBeUpdated.Contains(ctx.Path)));
