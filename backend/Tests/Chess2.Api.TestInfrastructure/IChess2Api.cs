@@ -27,6 +27,6 @@ public interface IChess2Api
     Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
 
     [Patch("/api/user/update-profile")]
-    Task<IApiResponse<PrivateUserOut>> UpdateUserProfileAsync(UserProfileUpdate profileUpdate);
+    Task<IApiResponse<PrivateUserOut>> EditUserProfileAsync(UserProfileEdit profileUpdate);
     #endregion
 }
