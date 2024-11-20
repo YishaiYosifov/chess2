@@ -59,21 +59,23 @@ public class UserRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Update_profile_and_provide_data()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var userToEdit = await FakerUtils.StoreFaker(DbContext, new UserFaker());
         var profileEdit = new ProfileEditFaker().Generate();
 
-        await _userRepository.EditProfileAsync(user, profileEdit);
+        var originalUser = await DbContext.Users.AsNoTracking().SingleAsync();
 
-        var dbUser = await DbContext.Users.SingleAsync();
+        await _userRepository.EditProfileAsync(userToEdit, profileEdit);
+
+        var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
 
         // assert the properties in profileEdit were actually updated
-        dbUser.Should().BeEquivalentTo(
+        updatedUser.Should().BeEquivalentTo(
             profileEdit, opts => opts.ExcludingMissingMembers());
 
         // assert properties that were NOT in profileEdit weren't updated
         var shouldBeUpdated = profileEdit.GetType().GetProperties().Select(x => x.Name);
-        dbUser.Should().BeEquivalentTo(
-            user, opts => opts.Excluding(ctx => shouldBeUpdated.Contains(ctx.Path)));
+        updatedUser.Should().BeEquivalentTo(
+            originalUser, opts => opts.Excluding(ctx => shouldBeUpdated.Contains(ctx.Path)));
     }
 
     [Fact]
@@ -81,8 +83,10 @@ public class UserRepositoryTests : BaseIntegrationTest
     {
         var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
-        await _userRepository.EditProfileAsync(user, new());
+        var userToUpdate = DbContext.Users.AsNoTracking().Single();
+        await _userRepository.EditProfileAsync(userToUpdate, new());
 
-        (await DbContext.Users.SingleAsync()).Should().BeEquivalentTo(user);
+        var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
+        updatedUser.Should().BeEquivalentTo(user);
     }
 }
