@@ -24,6 +24,8 @@ services:
     image: docker.dragonflydb.io/dragonflydb/dragonfly
     ulimits:
       memlock: -1
+    environment:
+      DFLY_requirepass: ${DFLY_requirepass}
     ports:
       - "6379:6379"
     volumes:
