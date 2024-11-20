@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api", "Chess2.Api\Chess2.Api.csproj", "{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api", "Chess2.Api\Chess2.Api.csproj", "{2CD98C74-625E-42B3-9A9E-D06B4BFDA890}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{D8BEFF13-C8F1-4723-A91A-8DB01F36A5B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Functional", "Tests\Chess2.Api.Functional\Chess2.Api.Functional.csproj", "{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.Functional", "Tests\Chess2.Api.Functional\Chess2.Api.Functional.csproj", "{0B22EB37-8C5C-4D12-B942-F9A0E0496E02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{2F55EE9C-E541-4ED4-9977-1D7B783E3922}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.Unit", "Tests\Chess2.Api.Unit\Chess2.Api.Unit.csproj", "{2F55EE9C-E541-4ED4-9977-1D7B783E3922}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.TestInfrastructure", "Tests\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj", "{57378491-71D7-44DD-96AC-5CD803606583}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.TestInfrastructure", "Tests\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj", "{57378491-71D7-44DD-96AC-5CD803606583}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess2.Api.Integration", "Tests\Chess2.Api.Integration\Chess2.Api.Integration.csproj", "{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess2.Api.Integration", "Tests\Chess2.Api.Integration\Chess2.Api.Integration.csproj", "{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{0F165322-E47B-4FAD-9B5B-AC8A6B4EF0BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BA701B2-DC42-4ACE-98E0-15F568BB9DE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F165322-E47B-4FAD-9B5B-AC8A6B4EF0BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F165322-E47B-4FAD-9B5B-AC8A6B4EF0BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F165322-E47B-4FAD-9B5B-AC8A6B4EF0BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F165322-E47B-4FAD-9B5B-AC8A6B4EF0BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
