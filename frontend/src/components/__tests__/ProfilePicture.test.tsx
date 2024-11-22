@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 
 import Image from "next/image";
 
-import ProfilePicture from "../ProfilePicture";
+import ProfilePicture from "../profile/ProfilePicture";
 
 describe("ProfilePicture", () => {
     it("should render with default props", () => {
@@ -25,7 +25,7 @@ describe("ProfilePicture", () => {
                 height={size}
                 lastChanged={lastChanged}
                 className={className}
-            />
+            />,
         );
 
         expect(Image).toHaveBeenCalledWith(
@@ -38,7 +38,7 @@ describe("ProfilePicture", () => {
                 width: size,
                 height: size,
             }),
-            {}
+            {},
         );
     });
 });

@@ -6,7 +6,7 @@ import { responseErrFactory } from "@/lib/testUtils/formUtils";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
-import * as ProfilePicture from "@/components/ProfilePicture";
+import * as ProfilePicture from "@/components/profile/ProfilePicture";
 import ProfilePictureSettings from "../ProfilePictureSettings";
 import { profileMock } from "@/mockUtils/profileMock";
 import { revalidateUser } from "@/app/actions";

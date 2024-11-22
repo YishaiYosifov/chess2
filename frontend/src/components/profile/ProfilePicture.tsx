@@ -1,4 +1,4 @@
-import { apiConfig } from "@/lib/apis";
+import clsx from "clsx";
 import Image from "next/image";
 
 export interface ProfilePictureProps {
@@ -21,12 +21,9 @@ const ProfilePicture = ({
     return (
         <Image
             data-testid="profilePicture"
-            className={className}
+            className={clsx("rounded-md", className)}
             alt="profile picture"
-            src={
-                `${apiConfig.basePath}/profile/${username}` +
-                `/profile-picture?${lastChangedTimestamp}`
-            }
+            src="/assets/logo.svg"
             width={width}
             height={height}
         />
