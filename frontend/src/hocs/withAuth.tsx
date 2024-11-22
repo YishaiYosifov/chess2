@@ -4,7 +4,6 @@ import React from "react";
 
 import AuthContextProvider from "../contexts/authContext";
 import type { PrivateUser } from "@/lib/apiClient/models";
-import { ApiResponse } from "@/lib/apiClient/apiResponse";
 import { profileApi } from "@/lib/apiClient/client";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
@@ -22,9 +21,9 @@ const withAuth = <P extends WithAuthProps>(
 ) => {
     const NewComponent = async (props: P) => {
         const nextCookies = await cookies();
-        let profileResponse: ApiResponse<PrivateUser>;
+        let profile: PrivateUser;
         try {
-            profileResponse = await profileApi.getAuthedUser({
+            profile = await profileApi.getAuthedUser({
                 headers: { Cookie: nextCookies.toString() },
             });
         } catch (err) {
@@ -32,7 +31,6 @@ const withAuth = <P extends WithAuthProps>(
             redirect("/login");
         }
 
-        const profile = await profileResponse.value();
         return (
             <AuthContextProvider hasAuthCookies={true} profile={profile}>
                 <WrappedComponent {...props} profile={profile} />
