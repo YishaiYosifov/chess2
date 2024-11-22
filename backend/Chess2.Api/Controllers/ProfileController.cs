@@ -8,7 +8,7 @@ namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserService userService, IAuthService authService) : ControllerBase
+public class ProfileController(IUserService userService, IAuthService authService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
     private readonly IAuthService _authService = authService;

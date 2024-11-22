@@ -19,14 +19,14 @@ public interface IChess2Api
     Task<IApiResponse> TestAuthAsync();
     #endregion
 
-    #region User Controller
-    [Get("/api/user/authed")]
+    #region Profile Controller
+    [Get("/api/profile/authed")]
     Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
 
-    [Get("/api/user/{username}")]
+    [Get("/api/profile/{username}")]
     Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
 
-    [Patch("/api/user/edit-profile")]
+    [Patch("/api/profile/edit-profile")]
     Task<IApiResponse<PrivateUserOut>> EditProfileAsync(ProfileEdit profileUpdate);
     #endregion
 }
