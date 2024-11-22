@@ -16,6 +16,7 @@ export default {
                 background: "#0F0C14",
                 primary: "#A46496",
                 secondary: "#B8ABCE",
+                card: "rgb(164, 100, 150, 0.1)",
                 link: "#60A5FA",
                 error: "#F87171",
             },
