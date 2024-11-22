@@ -1,7 +1,7 @@
 import type { UserIn, UserLogin } from "@/lib/apiClient/models";
+import { BaseAPI, RequestOptions } from "../baseApi";
 import { VoidApiResponse } from "../apiResponse";
 import { ApiResponse } from "../apiResponse";
-import { BaseAPI } from "../baseApi";
 
 export class AuthApi extends BaseAPI {
     /**
@@ -10,7 +10,7 @@ export class AuthApi extends BaseAPI {
      */
     async loginRaw(
         requestParams: UserLogin,
-        initOverrides?: RequestInit,
+        initOverrides?: RequestOptions,
     ): Promise<ApiResponse<void>> {
         const response = await this.request("/auth/login", {
             ...initOverrides,
@@ -23,7 +23,7 @@ export class AuthApi extends BaseAPI {
 
     async signupRaw(
         requestParams: UserIn,
-        initOverrides?: RequestInit,
+        initOverrides?: RequestOptions,
     ): Promise<ApiResponse<void>> {
         const response = await this.request("/auth/signup", {
             ...initOverrides,

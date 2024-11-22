@@ -1,8 +1,15 @@
 import { redirect } from "next/navigation";
-import { ComponentType } from "react";
+import { cookies } from "next/headers";
+import React from "react";
 
 import AuthContextProvider from "../contexts/authContext";
-import { profileApi } from "@/lib/apis";
+import type { PrivateUser } from "@/lib/apiClient/models";
+import { ApiResponse } from "@/lib/apiClient/apiResponse";
+import { profileApi } from "@/lib/apiClient/client";
+
+interface WithAuthProps extends JSX.IntrinsicAttributes {
+    profile: PrivateUser;
+}
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
@@ -10,22 +17,27 @@ import { profileApi } from "@/lib/apis";
  * This HOC will send a request to `/profile/me/info-sensitive`, and if an unauthorized
  * HTTP status is returned the user will be redirected to the home page
  */
-const withAuth = <P extends JSX.IntrinsicAttributes>(
-    WrappedComponent: ComponentType<P>,
+const withAuth = <P extends WithAuthProps>(
+    WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
+        const nextCookies = await cookies();
+        let profileResponse: ApiResponse<PrivateUser>;
         try {
-            const profile = await profileApi.getInfoSensitive({
-                cache: "no-cache",
+            profileResponse = await profileApi.getAuthedUser({
+                headers: { Cookie: nextCookies.toString() },
             });
-            return (
-                <AuthContextProvider hasAuthCookies={true} profile={profile}>
-                    <WrappedComponent {...props} profile={profile} />
-                </AuthContextProvider>
-            );
-        } catch {
-            redirect("/");
+        } catch (err) {
+            console.error("Could not find logged in user:", err);
+            redirect("/login");
         }
+
+        const profile = await profileResponse.value();
+        return (
+            <AuthContextProvider hasAuthCookies={true} profile={profile}>
+                <WrappedComponent {...props} profile={profile} />
+            </AuthContextProvider>
+        );
     };
     return NewComponent;
 };
