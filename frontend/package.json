@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "@faker-js/faker": "^9.2.0",
-        "@heroicons/react": "^2.1.5",
+        "@heroicons/react": "^2.2.0",
         "clsx": "^2.1.1",
         "dotenv": "^16.4.5",
         "formik": "^2.4.6",
@@ -21,7 +21,6 @@
         "next": "15.0.3",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
-        "react-google-charts": "^5.2.1",
         "react-use-websocket": "^4.10.1",
         "yup": "^1.4.0",
         "zustand": "^5.0.1"
