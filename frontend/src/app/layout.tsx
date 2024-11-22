@@ -31,9 +31,7 @@ export const metadata: Metadata = {
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = await cookies();
-    const hasAuthCookies =
-        nextCookies.has(constants.REFRESH_TOKEN) &&
-        nextCookies.has(constants.ACCESS_TOKEN);
+    const hasAuthCookies = nextCookies.has(constants.REFRESH_TOKEN);
 
     return (
         <html lang="en" data-bs-theme="dark">
