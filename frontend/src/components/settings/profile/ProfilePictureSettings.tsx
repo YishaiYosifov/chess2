@@ -9,7 +9,7 @@ import { revalidateUser } from "@/app/actions";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
-import ProfilePicture from "@/components/ProfilePicture";
+import ProfilePicture from "@/components/profile/ProfilePicture";
 
 const ProfilePictureSettings = () => {
     const { username, pfpLastChanged } = useAuthedProfile();

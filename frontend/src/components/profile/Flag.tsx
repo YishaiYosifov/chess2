@@ -7,7 +7,7 @@ const Flag = ({
     countryCode?: string;
     size: number;
 }) => {
-    countryCode ??= "globe";
+    if (!countryCode) return;
 
     return (
         <Image
