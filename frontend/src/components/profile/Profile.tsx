@@ -1,15 +1,12 @@
 "use client";
 
-import { Card } from "react-bootstrap";
-
-import type { AuthedProfileOut } from "@/lib/apiClient/models";
 import type { TypedCountries } from "@/lib/types";
-import countries from "@/data/countries.json";
 
 import ProfilePicture from "../ProfilePicture";
+import { User } from "@/lib/apiClient/models";
 
 /** Show basic information about a user */
-const Profile = ({ profile }: { profile: AuthedProfileOut }) => {
+const Profile = ({ profile }: { profile: User }) => {
     return (
         <Card className={styles.profile}>
             <ProfilePicture
