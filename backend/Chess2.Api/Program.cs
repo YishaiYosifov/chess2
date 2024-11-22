@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +53,8 @@ builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     options.UseNpgsql(appSettings.Database.GetConnectionString())
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.Redis));
 #endregion
 
 #region Authentication
