@@ -13,7 +13,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
     private readonly IUserService _userService = userService;
     private readonly IAuthService _authService = authService;
 
-    [HttpGet("authed")]
+    [HttpGet("me")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
@@ -25,7 +25,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
             (errors) => errors.ToProblemDetails());
     }
 
-    [HttpGet("{username}")]
+    [HttpGet("by-username/{username}")]
     [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IResult> GetUser(string username, CancellationToken cancellation)
