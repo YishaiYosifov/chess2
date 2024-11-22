@@ -24,5 +24,5 @@ export class ProfileApi extends BaseAPI {
         );
         return new JSONApiResponse(response);
     }
-    getUser = this.createFriendlyRoute(this.getAuthedUserRaw);
+    getUser = this.createFriendlyRoute(this.getUserRaw);
 }
