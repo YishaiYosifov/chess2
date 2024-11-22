@@ -2,14 +2,14 @@ import React from "react";
 import clsx from "clsx";
 
 const Card = ({
-    children,
     className,
     ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
     return (
-        <div className={clsx("flex bg-card", className)} {...props}>
-            {children}
-        </div>
+        <div
+            className={clsx("flex rounded-md bg-card", className)}
+            {...props}
+        />
     );
 };
 export default Card;
