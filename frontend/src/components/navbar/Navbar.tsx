@@ -21,7 +21,7 @@ const Navbar = () => {
     };
 
     return (
-        <header className="fixed z-10 w-full border-b border-primary/50 bg-background p-4 text-2xl">
+        <header className="border-secondary/50 fixed z-10 w-full border-b bg-background p-4 text-2xl">
             <section
                 className="mx-auto flex max-w-4xl items-center justify-between"
                 data-testid="navbar"
@@ -70,7 +70,7 @@ export default Navbar;
 const NavItems = ({ isAuthed }: { isAuthed: boolean }) => {
     const baseLinks = (
         <>
-            <NavItem href="/play" className="text-primary">
+            <NavItem href="/play" className="text-secondary">
                 Play
             </NavItem>
             <NavItem href="/">Home</NavItem>
