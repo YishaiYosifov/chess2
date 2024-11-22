@@ -20,10 +20,10 @@ public interface IChess2Api
     #endregion
 
     #region Profile Controller
-    [Get("/api/profile/authed")]
+    [Get("/api/profile/me")]
     Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
 
-    [Get("/api/profile/{username}")]
+    [Get("/api/profile/by-username/{username}")]
     Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
 
     [Patch("/api/profile/edit-profile")]
