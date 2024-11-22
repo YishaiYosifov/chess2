@@ -14,8 +14,8 @@ export default {
             colors: {
                 text: "#EFEDF4",
                 background: "#0F0C14",
-                primary: "#B8ABCE",
-                cta: "#A46496",
+                primary: "#A46496",
+                secondary: "#B8ABCE",
                 link: "#60A5FA",
                 error: "#F87171",
             },
