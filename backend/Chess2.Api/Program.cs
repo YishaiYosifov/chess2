@@ -54,7 +54,7 @@ builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.Redis));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.Redis.Host));
 #endregion
 
 #region Authentication
