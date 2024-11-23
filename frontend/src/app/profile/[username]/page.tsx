@@ -82,10 +82,22 @@ const UserPage = async ({ params }: { params: Params }) => {
             results: GameResult.Draw,
             createdAt: Date.now().valueOf(),
         },
+        {
+            token: "101112",
+
+            userBlack: profile,
+            userWhite: createUser(),
+
+            timeControl: 900,
+            increment: 1,
+
+            results: GameResult.Draw,
+            createdAt: Date.now().valueOf(),
+        },
     ];
 
     return (
-        <div className="mx-5 mt-5 flex flex-col gap-10">
+        <div className="m-5 flex flex-col gap-10">
             <Profile profile={profile} />
             <RatingCard ratingData={testRatingData} />
             <GamesTable games={testGamesData} profileViewpoint={profile} />
