@@ -12,6 +12,7 @@ const Flag = ({
     return (
         <Image
             src={`/assets/flags/${countryCode}.svg`}
+            data-testid="flag"
             alt="flag"
             width={size}
             height={size}
