@@ -40,7 +40,7 @@ describe("Profile", () => {
         render(<Profile profile={profileMock} />);
 
         const profilePicture = screen.getByAltText("profile picture");
-        const profilePictureSrc = `/assets/logo.svg?${profileMock.pfpLastChanged}`;
+        const profilePictureSrc = `/assets/logo-image-temp.webp?${profileMock.pfpLastChanged}`;
         expect(profilePicture).toHaveAttribute("src", profilePictureSrc);
     });
 });
