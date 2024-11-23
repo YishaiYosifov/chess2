@@ -9,7 +9,7 @@ import GameRow from "../GameRow";
 
 describe("GameRow", () => {
     it("should display the correct usernames", () => {
-        render(<GameRow game={gameMock} viewingProfile={profileMock} />);
+        render(<GameRow game={gameMock} profileViewpoint={profileMock} />);
 
         expect(screen.getByTestId("gameRowUsernameWhite").textContent).toBe(
             gameMock.userWhite?.username,
@@ -27,7 +27,9 @@ describe("GameRow", () => {
         "should correctly calculate the score of each player",
         (results, whiteScore, blackScore) => {
             const newGameMock = createFinishedGame({ results });
-            render(<GameRow game={newGameMock} viewingProfile={profileMock} />);
+            render(
+                <GameRow game={newGameMock} profileViewpoint={profileMock} />,
+            );
 
             expect(screen.getByTestId("gameRowScoreWhite").textContent).toBe(
                 whiteScore,
@@ -39,7 +41,7 @@ describe("GameRow", () => {
     );
 
     it("should display the correct game link", () => {
-        render(<GameRow game={gameMock} viewingProfile={profileMock} />);
+        render(<GameRow game={gameMock} profileViewpoint={profileMock} />);
         screen
             .getAllByTestId("gameRowLink")
             .forEach((gameLink) =>
@@ -50,7 +52,7 @@ describe("GameRow", () => {
     });
 
     it("should display the correct date", () => {
-        render(<GameRow game={gameMock} viewingProfile={profileMock} />);
+        render(<GameRow game={gameMock} profileViewpoint={profileMock} />);
         expect(screen.getByTestId("gameRowDate").textContent).toBe("Jan 1, 23");
     });
 });

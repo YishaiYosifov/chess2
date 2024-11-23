@@ -1,23 +1,31 @@
-import { BsPlusSlashMinus, BsPlus, BsDash } from "react-icons/bs";
-import Image from "next/image";
+import {
+    PlusCircleIcon,
+    MinusCircleIcon,
+    PauseCircleIcon,
+} from "@heroicons/react/24/outline";
+
 import Link from "next/link";
 
 import {
-    type AuthedProfileOut,
+    type User,
     type FinishedGame,
     GameResult,
 } from "@/lib/apiClient/models";
+
 import { Color } from "@/lib/apiClient/models";
+import clsx from "clsx";
 
 const GameRow = ({
     game,
-    viewingProfile,
+    profileViewpoint,
+    index,
 }: {
     game: FinishedGame;
-    viewingProfile: AuthedProfileOut;
+    profileViewpoint: User;
+    index: number;
 }) => {
     const color =
-        game.userWhite?.userId == viewingProfile.userId
+        game.userWhite?.userId == profileViewpoint.userId
             ? Color.White
             : Color.Black;
 
@@ -27,55 +35,56 @@ const GameRow = ({
     const GameLink = () => (
         <Link
             data-testid="gameRowLink"
+            className="absolute left-0 right-0 top-0"
             href={`/game/${game.token}`}
-            className={styles["game-link"]}
         />
     );
 
     // Format the game date
-    const gameDate = new Date(game.createdAt);
-    const formattedDate = gameDate.toLocaleDateString("en-us", {
+    const formattedDate = new Date(game.createdAt).toLocaleDateString("en-us", {
         month: "short",
         day: "numeric",
-        year: "2-digit",
+        year: "numeric",
     });
 
     // Find the results icon (whether the profile author is the winner or it's a draw)
     // and find the score for each color
-    const ResultsIcon = isDraw ? BsPlusSlashMinus : isWinner ? BsPlus : BsDash;
-    const getScore = (color: Color): string =>
-        isDraw ? "½" : game.results == color.valueOf() ? "1" : "0";
+    const ResultsIcon = isDraw ? (
+        <PauseCircleIcon className="text-gray-500" />
+    ) : isWinner ? (
+        <PlusCircleIcon className="text-green-400" />
+    ) : (
+        <MinusCircleIcon className="text-red-400" />
+    );
+
+    function getScore(color: Color): string {
+        if (isDraw) return "½";
+        return game.results == color.valueOf() ? "1" : "0";
+    }
 
     const usernameWhite = game.userWhite?.username ?? "DELETED";
     const usernameBlack = game.userBlack?.username ?? "DELETED";
 
     return (
-        <tr className={styles.game} data-testid="gameRow">
-            <td>
+        <tr
+            data-testid="gameRow"
+            className={clsx(
+                index % 2 == 0 ? "bg-gray-400/5" : "bg-gray-600/5",
+                "whitespace-nowrap",
+            )}
+        >
+            <td className="relative p-4">
                 <GameLink />
-                <div className={styles["variant-icon"]}>
-                    <Image
-                        src={`/assets/modes/${game.variant}.webp`}
-                        width={60}
-                        height={60}
-                        alt="Mode"
-                    />
-                </div>
-            </td>
-
-            <td>
-                <GameLink />
-                <div className={styles["players-column"]}>
+                <div className="flex flex-col justify-between">
                     <Link
-                        href={`/user/${usernameWhite}`}
-                        className="limit-text mt-2"
+                        href={`/profile/${usernameWhite}`}
                         data-testid="gameRowUsernameWhite"
                     >
                         {usernameWhite}
                     </Link>
                     <Link
-                        href={`/user/${usernameBlack}`}
-                        className="text-secondary limit-text"
+                        href={`/profile/${usernameBlack}`}
+                        className="text-white/50"
                         data-testid="gameRowUsernameBlack"
                     >
                         {usernameBlack}
@@ -83,26 +92,26 @@ const GameRow = ({
                 </div>
             </td>
 
-            <td>
+            <td className="relative p-4">
                 <GameLink />
-                <div className={styles["results-column"]}>
-                    <div>
+                <div className="flex items-center gap-3">
+                    <div className="flex w-3 flex-col justify-between">
                         <span data-testid="gameRowScoreWhite">
                             {getScore(Color.White)}
                         </span>
-                        <span>-</span>
+
                         <span data-testid="gameRowScoreBlack">
                             {getScore(Color.Black)}
                         </span>
                     </div>
-                    <ResultsIcon />
+                    <span className="size-7">{ResultsIcon}</span>
                 </div>
             </td>
 
-            <td>
+            <td className="relative p-4">
                 <GameLink />
 
-                <div className={styles["date-column"]}>
+                <div>
                     <span data-testid="gameRowDate">{formattedDate}</span>
                 </div>
             </td>

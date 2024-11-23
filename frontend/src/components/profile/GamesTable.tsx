@@ -1,71 +1,49 @@
 "use client";
 
-import { Table } from "react-bootstrap";
-
-import type { FinishedGame, AuthedProfileOut } from "@/lib/apiClient/models";
+import type { FinishedGame, User } from "@/lib/apiClient/models";
 
 import GameRow from "./GameRow";
 
 const GamesTable = ({
     games,
-    viewingProfile,
+    profileViewpoint,
 }: {
     games: FinishedGame[];
-    viewingProfile: AuthedProfileOut;
+    profileViewpoint: User;
 }) => {
-    const MAX_EMPTY_ROWS = 3;
-
     return (
-        <Table responsive className={styles["games-table"]}>
-            <colgroup>
-                <col style={{ width: "15%" }} />
-                <col style={{ width: "45%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "13%" }} />
-            </colgroup>
-            <thead>
-                <tr
-                    className="text-white-50 text-start"
-                    data-testid="gamesTableHeader"
-                >
-                    <th scope="col">Mode</th>
-                    <th scope="col">Players</th>
-                    <th scope="col">Results</th>
-                    <th scope="col">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {games.map((game) => (
-                    <GameRow
-                        key={game.token}
-                        game={game}
-                        viewingProfile={viewingProfile}
-                    />
-                ))}
-
-                {games.length < MAX_EMPTY_ROWS &&
-                    [...Array(MAX_EMPTY_ROWS - games.length).keys()].map(
-                        (i) => <EmptyRow key={i} />,
-                    )}
-            </tbody>
-        </Table>
+        <section className="w-full overflow-x-auto">
+            <table className="w-full table-auto">
+                <colgroup>
+                    <col style={{ width: "50%" }} />
+                    <col style={{ width: "30%" }} />
+                    <col style={{ width: "20%" }} />
+                </colgroup>
+                <thead className="text-xl">
+                    <tr data-testid="gamesTableHeader">
+                        <th scope="col" className="py-3 text-start">
+                            Players
+                        </th>
+                        <th scope="col" className="py-3 text-start">
+                            Results
+                        </th>
+                        <th scope="col" className="py-3 text-start">
+                            Date
+                        </th>
+                    </tr>
+                </thead>
+                <tbody className="text-xl">
+                    {games.map((game, i) => (
+                        <GameRow
+                            key={game.token}
+                            game={game}
+                            profileViewpoint={profileViewpoint}
+                            index={i}
+                        />
+                    ))}
+                </tbody>
+            </table>
+        </section>
     );
 };
 export default GamesTable;
-
-const EmptyRow = () => (
-    <tr data-testid="emptyGamesTableRow">
-        <td>
-            <div className={styles["empty-td"]} />
-        </td>
-        <td>
-            <div className={styles["empty-td"]} />
-        </td>
-        <td>
-            <div className={styles["empty-td"]} />
-        </td>
-        <td>
-            <div className={styles["empty-td"]} />
-        </td>
-    </tr>
-);
