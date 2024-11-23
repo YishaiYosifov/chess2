@@ -33,14 +33,22 @@ const GamesTable = ({
                     </tr>
                 </thead>
                 <tbody className="text-xl">
-                    {games.map((game, i) => (
-                        <GameRow
-                            key={game.token}
-                            game={game}
-                            profileViewpoint={profileViewpoint}
-                            index={i}
-                        />
-                    ))}
+                    {games.length ? (
+                        games.map((game, i) => (
+                            <GameRow
+                                key={game.token}
+                                game={game}
+                                profileViewpoint={profileViewpoint}
+                                index={i}
+                            />
+                        ))
+                    ) : (
+                        <tr className="bg-gray-400/5">
+                            <td colSpan={3} className="p-5 text-center">
+                                This user hasn&#39;t played any games yet
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </section>
