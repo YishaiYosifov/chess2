@@ -1,4 +1,5 @@
 import Profile from "@/components/profile/Profile";
+import RatingCard from "@/components/profile/RatingsCard";
 import { profileApi } from "@/lib/apiClient/client";
 import { User } from "@/lib/apiClient/models";
 import { notFound } from "next/navigation";
@@ -23,8 +24,16 @@ const UserPage = async ({ params }: { params: Params }) => {
     }
 
     return (
-        <div className="mx-5 grid grid-rows-3 gap-10">
+        <div className="mx-5 gap-10">
             <Profile profile={profile} />
+            <RatingCard
+                ratingData={{
+                    min: 0,
+                    max: 6969,
+                    current: 420,
+                    history: [{ elo: 420, achievedAt: new Date() }],
+                }}
+            />
         </div>
     );
 };

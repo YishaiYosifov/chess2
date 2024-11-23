@@ -9,3 +9,7 @@
         [&>span]:bg-transparent [&>span]:rotate-[360deg];
     }
 }
+
+.apexcharts-svg {
+    border-radius: 10px;
+}
