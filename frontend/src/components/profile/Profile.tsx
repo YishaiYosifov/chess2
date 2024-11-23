@@ -13,7 +13,7 @@ const Profile = ({ profile }: { profile: User }) => {
                 username={profile.username}
                 lastChanged={profile.pfpLastChanged}
             />
-            <section className="flex min-w-0 flex-col">
+            <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">
                     <span
                         className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl"
