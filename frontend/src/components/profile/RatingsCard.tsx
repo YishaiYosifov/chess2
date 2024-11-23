@@ -1,18 +1,18 @@
 "use client";
 
-import { Chart } from "react-google-charts";
-import { Card } from "react-bootstrap";
-import Image from "next/image";
+import dynamic from "next/dynamic";
 
 import type { RatingOverview } from "@/lib/apiClient/models";
+import Card from "../helpers/Card";
 
-const RatingCard = ({
-    variant,
-    ratingData,
-}: {
-    variant: string;
-    ratingData: RatingOverview;
-}) => {
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+interface DataPoint {
+    x: number;
+    y: number;
+}
+
+const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
     const {
         history,
         current: currentRating,
@@ -20,13 +20,12 @@ const RatingCard = ({
         max: maxRating,
     } = ratingData;
 
-    // Format the rating history for google charts
-    const title = [["Date", "Elo"]];
-    const formattedRartings: [string, number][] = history.map((rating) => [
-        new Date(rating.achievedAt).toLocaleString(),
-        rating.elo,
-    ]);
-    formattedRartings.push([new Date().toLocaleString(), currentRating]);
+    // Format the rating history for the chart
+    const formattedRartings: DataPoint[] = history.map((rating) => ({
+        x: new Date(rating.achievedAt).getTime(),
+        y: rating.elo,
+    }));
+    formattedRartings.push({ x: new Date().getTime(), y: currentRating });
 
     // This is for the "rating changed last month"
     // This code decides whether the text color and icon (+, - or ±)
@@ -41,72 +40,67 @@ const RatingCard = ({
     else ratingChangeIcon = "±";
 
     return (
-        <Card className={styles["rating-card"]}>
-            <Card.Header className={styles.header}>
-                <Image
-                    className="img-fluid rounded-circle border-3 border"
-                    src={`/assets/modes/anarchy.webp`}
-                    alt="Mode icon"
-                    width={30}
-                    height={30}
-                />
-                <span>{variant}</span>
-                <span data-testid="currentRating">{currentRating}</span>
-            </Card.Header>
-            <Card.Body className="text-start">
-                <Chart
-                    data-testid="ratingChart"
-                    chartType="AreaChart"
-                    data={[...title, ...formattedRartings]}
-                    options={{
-                        legend: "none",
-                        backgroundColor: "transparent",
-                        colors: ["#3ABA5A"],
-                        height: 50,
-                        vAxis: {
-                            textPosition: "none",
-                            gridlines: { color: "transparent" },
+        <Card className="flex-col gap-3">
+            <Chart
+                options={{
+                    chart: {
+                        type: "line",
+                        background: "#0F0C14",
+                        sparkline: {
+                            enabled: true,
                         },
-                        hAxis: {
-                            textPosition: "none",
-                            gridlines: { color: "transparent" },
+                        zoom: {
+                            enabled: false,
                         },
-                        chartArea: {
-                            width: "100%",
-                            height: "100%",
+                        toolbar: {
+                            show: false,
                         },
-                        areaOpacity: 0.5,
-                        focusTarget: "category",
-                    }}
-                />
-
-                <div className={styles.info} data-testid="ratingInfoSection">
-                    <div>
-                        <span>Higest</span>
-                        <span className="text-success" data-testid="maxRating">
-                            {maxRating}
-                        </span>
-                    </div>
-
-                    <div>
-                        <span>Lowest</span>
-                        <span className="text-danger" data-testid="minRating">
-                            {minRating}
-                        </span>
-                    </div>
-
-                    <div>
-                        <span>Rating Change (last month)</span>
-                        <span
-                            className={ratingChangeColorClass}
-                            data-testid="ratingChange"
-                        >
-                            {ratingChangeIcon}
-                            {ratingChange}
-                        </span>
-                    </div>
-                </div>
-            </Card.Body>
+                    },
+                    xaxis: {
+                        labels: {
+                            show: false,
+                        },
+                        crosshairs: {
+                            show: false,
+                        },
+                    },
+                    yaxis: {
+                        labels: {
+                            show: false,
+                        },
+                    },
+                    fill: {
+                        type: "solid",
+                        colors: ["#B8ABCE"],
+                    },
+                    tooltip: {
+                        theme: "dark",
+                        x: {
+                            formatter: (val) =>
+                                new Date(val).toLocaleString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                }),
+                        },
+                    },
+                }}
+                series={[
+                    {
+                        name: "Elo",
+                        data: formattedRartings,
+                    },
+                ]}
+                height="100"
+            />
+            <section className="flex flex-col gap-3">
+                <span>Current</span>
+                <span>Height</span>
+                <span>Lowest</span>
+            </section>
         </Card>
     );
 };
