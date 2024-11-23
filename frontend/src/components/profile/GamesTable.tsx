@@ -21,7 +21,7 @@ const GamesTable = ({
                 </colgroup>
                 <thead className="bg-card text-xl">
                     <tr data-testid="gamesTableHeader">
-                        <th scope="col" className="rounded-l-md p-3 text-start">
+                        <th scope="col" className="rounded-l-md p-4 text-start">
                             Players
                         </th>
                         <th scope="col" className="p-3 text-start">
