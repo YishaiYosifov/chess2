@@ -22,22 +22,10 @@ const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
 
     // Format the rating history for the chart
     const formattedRartings: DataPoint[] = history.map((rating) => ({
-        x: new Date(rating.achievedAt).getTime(),
+        x: rating.achievedAt.getTime(),
         y: rating.elo,
     }));
     formattedRartings.push({ x: new Date().getTime(), y: currentRating });
-
-    // This is for the "rating changed last month"
-    // This code decides whether the text color and icon (+, - or ±)
-    const ratingChange = currentRating - history[0].elo;
-    let ratingChangeColorClass = "";
-    let ratingChangeIcon = "";
-
-    if (ratingChange > 0) {
-        ratingChangeColorClass = "text-success";
-        ratingChangeIcon = "+";
-    } else if (ratingChange < 0) ratingChangeColorClass = "text-danger";
-    else ratingChangeIcon = "±";
 
     return (
         <Card className="flex-col gap-3">
@@ -96,10 +84,13 @@ const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
                 ]}
                 height="100"
             />
-            <section className="flex flex-col gap-3">
+            <section className="grid grid-cols-2 gap-3">
                 <span>Current</span>
+                <span className="justify-self-end">{currentRating}</span>
                 <span>Height</span>
+                <span className="justify-self-end">{maxRating}</span>
                 <span>Lowest</span>
+                <span className="justify-self-end">{minRating}</span>
             </section>
         </Card>
     );
