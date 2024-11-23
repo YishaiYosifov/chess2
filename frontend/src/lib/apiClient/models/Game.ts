@@ -1,4 +1,4 @@
-import { UnauthedProfileOut } from "./User";
+import { User } from "./User";
 
 export enum GameResult {
     White = "white",
@@ -74,13 +74,12 @@ export interface GameSettings {
 export interface FinishedGame {
     token: string;
 
-    userWhite: UnauthedProfileOut | null;
-    userBlack: UnauthedProfileOut | null;
+    userWhite?: User;
+    userBlack?: User;
 
-    variant: Variant;
     timeControl: number;
     increment: number;
 
     results: GameResult;
-    createdAt: Date;
+    createdAt: number;
 }
