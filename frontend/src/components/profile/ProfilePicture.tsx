@@ -5,7 +5,7 @@ export interface ProfilePictureProps {
     username?: string;
     width?: number;
     height?: number;
-    lastChanged?: Date;
+    lastChanged?: number;
     className?: string;
 }
 
@@ -16,8 +16,6 @@ const ProfilePicture = ({
     lastChanged,
     className,
 }: ProfilePictureProps) => {
-    const lastChangedTimestamp = (lastChanged ?? new Date()).valueOf() / 1000;
-
     return (
         <Image
             data-testid="profilePicture"

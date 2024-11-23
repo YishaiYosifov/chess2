@@ -8,6 +8,7 @@ export function createUser(): User {
         username: faker.internet.username(),
         about: faker.lorem.paragraph(),
         countryCode: "IL",
+        pfpLastChanged: new Date().getTime(),
     };
 }
 
