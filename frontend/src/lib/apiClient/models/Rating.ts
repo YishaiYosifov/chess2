@@ -1,12 +1,10 @@
 export interface Rating {
     elo: number;
-    achievedAt: Date;
+    achievedAt: number;
 }
 
 export interface RatingOverview {
-    min: number;
     max: number;
-
     current: number;
     history: Array<Rating>;
 }
