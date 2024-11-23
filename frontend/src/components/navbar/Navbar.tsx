@@ -14,14 +14,20 @@ const Navbar = () => {
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
 
-    const toggleMenu = () => {
+    function toggleMenu(): void {
         toggleMobileButton.current?.classList.toggle("toggle-btn");
         mobileNav.current?.classList.toggle("hidden");
         mobileNav.current?.classList.toggle("flex");
-    };
+    }
+
+    function closeMenu(): void {
+        toggleMobileButton.current?.classList.remove("toggle-btn");
+        mobileNav.current?.classList.add("hidden");
+        mobileNav.current?.classList.remove("flex");
+    }
 
     return (
-        <header className="border-secondary/50 fixed z-10 w-full border-b bg-background p-4 text-2xl">
+        <header className="fixed z-10 w-full border-b border-secondary/50 bg-background p-4 text-2xl">
             <section
                 className="mx-auto flex max-w-4xl items-center justify-between"
                 data-testid="navbar"
@@ -58,6 +64,7 @@ const Navbar = () => {
                 className="absolute left-0 hidden h-screen w-full flex-col items-center gap-5 bg-background
                     pt-10 text-6xl md:hidden"
                 ref={mobileNav}
+                onClick={closeMenu}
                 data-testid="navbarMobile"
             >
                 <NavItems isAuthed={hasAuthCookies} />
