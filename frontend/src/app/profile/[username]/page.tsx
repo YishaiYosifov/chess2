@@ -24,7 +24,7 @@ const UserPage = async ({ params }: { params: Params }) => {
     }
 
     return (
-        <div className="mx-5 gap-10">
+        <div className="mx-5 flex flex-col gap-10">
             <Profile profile={profile} />
             <RatingCard
                 ratingData={{
