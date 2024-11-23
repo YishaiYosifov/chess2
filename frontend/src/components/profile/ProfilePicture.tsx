@@ -21,7 +21,7 @@ const ProfilePicture = ({
             data-testid="profilePicture"
             className={clsx("rounded-md", className)}
             alt="profile picture"
-            src={`/assets/logo.svg?${lastChanged}`}
+            src={`/assets/logo-image-temp.webp?${lastChanged ?? 0}`}
             width={width}
             height={height}
         />
