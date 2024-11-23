@@ -20,6 +20,7 @@ export interface User {
     username: string;
     about: string;
     countryCode?: string;
+    pfpLastChanged: number;
 }
 
 export interface PrivateUser extends User {
