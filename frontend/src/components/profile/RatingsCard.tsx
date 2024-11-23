@@ -83,7 +83,7 @@ const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
             />
 
             <section
-                className="grid grid-cols-[max-content_max-content] justify-between gap-3"
+                className="grid grid-cols-[1fr_min-content] justify-between gap-3"
                 data-testid="ratingInfoSection"
             >
                 <span>Current</span>
