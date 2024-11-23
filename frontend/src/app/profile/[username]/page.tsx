@@ -28,10 +28,18 @@ const UserPage = async ({ params }: { params: Params }) => {
             <Profile profile={profile} />
             <RatingCard
                 ratingData={{
-                    min: 0,
                     max: 6969,
                     current: 420,
-                    history: [{ elo: 420, achievedAt: new Date() }],
+                    history: [
+                        {
+                            elo: 69,
+                            achievedAt: new Date(2024, 10, 21).getTime(),
+                        },
+                        {
+                            elo: 420,
+                            achievedAt: new Date(2024, 10, 22).getTime(),
+                        },
+                    ],
                 }}
             />
         </div>
