@@ -102,7 +102,11 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
             Error error = ctx.Request.Cookies.ContainsKey(cookieName)
                 ? AuthErrors.TokenInvalid
                 : AuthErrors.TokenMissing;
-            return error.ToProblemDetails().ExecuteAsync(ctx.HttpContext);
+            return error.ToProblemDetails()
+                .ExecuteResultAsync(new()
+                {
+                    HttpContext = ctx.HttpContext
+                });
         }
     };
 }

@@ -17,13 +17,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IResult> Signup([FromBody] UserIn userIn, CancellationToken cancellation)
+    public async Task<IActionResult> Signup([FromBody] UserIn userIn, CancellationToken cancellation)
     {
         var result = await _authService.SignupUserAsync(userIn, cancellation);
         return result.Match((value) =>
         {
             _logger.LogInformation("Created user {Username}", userIn.Username);
-            return Results.Ok(new PrivateUserOut(value));
+            return Ok(new PrivateUserOut(value));
         }, (errors) => errors.ToProblemDetails());
     }
 
@@ -31,7 +31,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
+    public async Task<IActionResult> Login([FromBody] UserLogin userAuth, CancellationToken cancellation)
     {
         var result = await _authService.LoginUserAsync(userAuth, cancellation);
         return result.Match((value) =>
@@ -41,7 +41,7 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
             _logger.LogInformation(
                 "User logged in with username/email {UsernameOrEmail}",
                 userAuth.UsernameOrEmail);
-            return Results.Ok(value);
+            return Ok(value);
         }, (errors) => errors.ToProblemDetails());
     }
 
@@ -50,13 +50,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
-    public async Task<IResult> Refresh(CancellationToken cancellation)
+    public async Task<IActionResult> Refresh(CancellationToken cancellation)
     {
         var result = await _authService.RefreshTokenAsync(HttpContext, cancellation);
         return result.Match((value) =>
         {
             _authService.SetAccessCookie(value, HttpContext);
-            return Results.NoContent();
+            return NoContent();
         }, (errors) => errors.ToProblemDetails());
     }
 
@@ -65,6 +65,6 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public IResult Test() => Results.NoContent();
+    public IActionResult Test() => NoContent();
 #endif
 }
