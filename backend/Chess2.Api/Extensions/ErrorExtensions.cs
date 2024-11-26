@@ -1,13 +1,15 @@
 ﻿using ErrorOr;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Extensions;
 
 public static class ErrorExtensions
 {
-    public static IResult ToProblemDetails(this Error error) =>
+    public static IActionResult ToProblemDetails(this Error error) =>
         new List<Error>() { error }.ToProblemDetails();
 
-    public static IResult ToProblemDetails(this IEnumerable<Error> errors)
+    public static IActionResult ToProblemDetails(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
         var formattedErrors = errors.Select(error =>
@@ -25,15 +27,17 @@ public static class ErrorExtensions
             return errorData;
         });
 
-        return Results.Problem(
-            statusCode: GetStatusCode(errorType),
-            title: GetTitle(errorType),
-            type: GetType(errorType),
-            extensions: new Dictionary<string, object?>
+        var problemDetails = new ProblemDetails()
+        {
+            Status = GetStatusCode(errorType),
+            Title = GetTitle(errorType),
+            Type = GetType(errorType),
+            Extensions = new Dictionary<string, object?>
             {
                 { "errors",  formattedErrors },
             }
-        );
+        };
+        return new ObjectResult(problemDetails);
     }
 
     private static int GetStatusCode(ErrorType errorType) =>
