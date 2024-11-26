@@ -31,7 +31,8 @@ builder.Services.Configure<AppSettings>(appSettingsSection);
 var appSettings = appSettingsSection.Get<AppSettings>()
     ?? throw new InvalidOperationException("App settings not provided in appsettings");
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 #endregion
 
 #region Validation
+ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
 builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
 builder.Services.AddScoped<IValidator<ProfileEdit>, ProfileEditValidator>();
 #endregion

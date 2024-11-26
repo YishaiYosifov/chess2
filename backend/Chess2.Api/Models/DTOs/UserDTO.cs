@@ -50,4 +50,12 @@ public class ProfileEdit
 {
     public string? About { get; set; }
     public string? CountryCode { get; set; }
+
+    public ProfileEdit() { }
+
+    public ProfileEdit(User user)
+    {
+        About = user.About;
+        CountryCode = user.CountryCode;
+    }
 }
