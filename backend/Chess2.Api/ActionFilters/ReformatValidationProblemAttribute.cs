@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
-using ErrorOr;
-using Chess2.Api.Errors;
+﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
+using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Chess2.Api.ActionFilters;
 
