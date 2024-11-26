@@ -1,4 +1,5 @@
 using Chess2.Api;
+using Chess2.Api.ActionFilters;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
@@ -32,7 +33,12 @@ var appSettings = appSettingsSection.Get<AppSettings>()
     ?? throw new InvalidOperationException("App settings not provided in appsettings");
 
 builder.Services.AddControllers()
-    .AddNewtonsoftJson();
+    .AddNewtonsoftJson()
+    .AddMvcOptions(options =>
+    {
+        options.Filters.Add(typeof(ReformatValidationProblemAttribute));
+    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
