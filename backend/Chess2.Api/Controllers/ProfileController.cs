@@ -17,22 +17,22 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IResult> GetAuthedUser(CancellationToken cancellation)
+    public async Task<IActionResult> GetAuthedUser(CancellationToken cancellation)
     {
         var result = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         return result.Match(
-            (value) => Results.Ok(new PrivateUserOut(value)),
+            (value) => Ok(new PrivateUserOut(value)),
             (errors) => errors.ToProblemDetails());
     }
 
     [HttpGet("by-username/{username}")]
     [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IResult> GetUser(string username, CancellationToken cancellation)
+    public async Task<IActionResult> GetUser(string username, CancellationToken cancellation)
     {
         var result = await _userService.GetUserByUsernameAsync(username, cancellation);
         return result.Match(
-            (value) => Results.Ok(new UserOut(value)),
+            (value) => Ok(new UserOut(value)),
             (errors) => errors.ToProblemDetails());
     }
 
@@ -40,14 +40,14 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IResult> EditProfileSettings([FromBody] ProfileEdit userEdit, CancellationToken cancellation)
+    public async Task<IActionResult> EditProfileSettings([FromBody] ProfileEdit userEdit, CancellationToken cancellation)
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         if (userResult.IsError) return userResult.Errors.ToProblemDetails();
 
         var editResult = await _userService.EditProfileAsync(userResult.Value, userEdit, cancellation);
         return editResult.Match(
-            (value) => Results.Ok(new PrivateUserOut(value)),
+            (value) => Ok(new PrivateUserOut(value)),
             (errors) => errors.ToProblemDetails());
     }
 }
