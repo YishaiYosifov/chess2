@@ -27,13 +27,12 @@ public class CamelCasePropertyNameResolver
         return null;
     }
 
-    private static string? ToCamelCase(string? s)
+    private static string? ToCamelCase(string? property)
     {
-        if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
-            return s;
+        if (string.IsNullOrEmpty(property) || !char.IsUpper(property[0]))
+            return property;
 
-        var chars = s.ToCharArray();
-
+        var chars = property.ToCharArray();
         for (var i = 0; i < chars.Length; i++)
         {
             if (!char.IsUpper(chars[i]))
