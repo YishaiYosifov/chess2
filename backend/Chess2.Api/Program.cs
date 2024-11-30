@@ -57,11 +57,11 @@ builder.Services.AddCors(options =>
 
 #region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
-    options.UseNpgsql(appSettings.Database.GetConnectionString())
+    options.UseNpgsql(appSettings.DatabaseConnString)
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.Redis.Host));
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.RedisConnString));
 #endregion
 
 #region Authentication
