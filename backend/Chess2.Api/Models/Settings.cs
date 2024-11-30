@@ -4,8 +4,8 @@ public class AppSettings
 {
     public string[] CorsOrigins { get; set; } = [];
     public required JwtSettings Jwt { get; set; }
-    public required RedisSettings Redis { get; set; }
-    public required DatabaseSettings Database { get; set; }
+    public required string RedisConnString { get; set; }
+    public required string DatabaseConnString { get; set; }
 }
 
 public class JwtSettings
@@ -18,27 +18,4 @@ public class JwtSettings
 
     public required string AccessTokenCookieName { get; set; }
     public required string RefreshTokenCookieName { get; set; }
-}
-
-public class RedisSettings
-{
-    public required string Host { get; set; }
-    public required int Port { get; set; }
-    public required string Password { get; set; }
-}
-
-public class DatabaseSettings
-{
-    public required string Host { get; set; }
-    public required int Port { get; set; }
-
-    public required string Username { get; set; }
-    public required string Password { get; set; }
-
-    public required string Database { get; set; }
-
-    public string GetConnectionString()
-    {
-        return $"Host={Host};Port={Port};Username={Username};Password={Password};Database={Database}";
-    }
 }
