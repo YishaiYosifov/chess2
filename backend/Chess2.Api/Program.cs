@@ -2,6 +2,7 @@ using Chess2.Api;
 using Chess2.Api.ActionFilters;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
+using Chess2.Api.Hubs;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;
@@ -55,6 +56,8 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 
+builder.Services.AddSignalR();
+
 #region Database
 builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
     options.UseNpgsql(appSettings.DatabaseConnString)
@@ -73,6 +76,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AccessToken", policy =>
             policy.RequireClaim("type", "access")
             .AddAuthenticationSchemes("AccessBearer"));
+    options.AddPolicy("GuestToken", policy =>
+            policy.RequireClaim("type", "guest")
+            .AddAuthenticationSchemes("AccessBearer"));
     options.DefaultPolicy = options.GetPolicy("AccessToken")!;
 });
 
@@ -80,7 +86,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer("AccessBearer", options =>
         ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName))
     .AddJwtBearer("RefreshBearer", options =>
-        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName));
+        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName))
+    .AddJwtBearer("Guest", options =>
+        ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName));
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
@@ -93,7 +101,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
         ClockSkew = TimeSpan.Zero,
     };
 
-    options.Events = new JwtBearerEvents()
+    options.Events = new()
     {
         OnMessageReceived = ctx =>
         {
@@ -101,6 +109,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
             if (!string.IsNullOrEmpty(token)) ctx.Token = token;
             return Task.CompletedTask;
         },
+
         // set a custom unauthorized response
         OnChallenge = ctx =>
         {
@@ -152,6 +161,8 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 
 app.MapControllers();
+
+app.MapHub<MatchmakingHub>("/api/ws/matchmaking");
 
 app.Run();
 
