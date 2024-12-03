@@ -61,8 +61,8 @@ const UserPage = async ({ params }: { params: Params }) => {
         {
             token: "456",
 
-            userBlack: profile,
             userWhite: createUser(),
+            userBlack: profile,
 
             timeControl: 900,
             increment: 1,
@@ -73,8 +73,8 @@ const UserPage = async ({ params }: { params: Params }) => {
         {
             token: "789",
 
-            userBlack: profile,
             userWhite: createUser(),
+            userBlack: profile,
 
             timeControl: 900,
             increment: 1,
@@ -85,8 +85,8 @@ const UserPage = async ({ params }: { params: Params }) => {
         {
             token: "101112",
 
-            userBlack: profile,
-            userWhite: createUser(),
+            userWhite: profile,
+            userBlack: createUser(),
 
             timeControl: 900,
             increment: 1,
@@ -97,11 +97,41 @@ const UserPage = async ({ params }: { params: Params }) => {
     ];
 
     return (
-        <div className="m-5 flex flex-col gap-10">
-            <Profile profile={profile} />
-            <RatingCard ratingData={testRatingData} />
-            <GamesTable games={testGamesData} profileViewpoint={profile} />
-        </div>
+        <>
+            <div className="m-5 flex flex-col items-center gap-10 md:hidden">
+                <Profile profile={profile} />
+                <RatingCard ratingData={testRatingData} />
+                <section className="w-full overflow-x-auto">
+                    <GamesTable
+                        games={testGamesData}
+                        profileViewpoint={profile}
+                    />
+                </section>
+            </div>
+
+            <div className="hidden h-full max-w-4xl flex-col gap-10 p-10 md:flex">
+                <Profile profile={profile} />
+                <section className="flex flex-shrink-0 flex-nowrap gap-10 overflow-x-auto">
+                    <RatingCard
+                        ratingData={testRatingData}
+                        className="w-min flex-none"
+                    />
+                    <RatingCard
+                        ratingData={testRatingData}
+                        className="w-min flex-none"
+                    />
+                    <RatingCard
+                        ratingData={testRatingData}
+                        className="w-min flex-none"
+                    />
+                </section>
+                <GamesTable
+                    className="max-w-4xl"
+                    games={testGamesData}
+                    profileViewpoint={profile}
+                />
+            </div>
+        </>
     );
 };
 export default UserPage;

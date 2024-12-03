@@ -1,14 +1,22 @@
 "use client";
 
+import clsx from "clsx";
+
 import { User } from "@/lib/apiClient/models";
-import Card from "../helpers/Card";
 import ProfilePicture from "./ProfilePicture";
+import Card from "../helpers/Card";
 import Flag from "./Flag";
 
 /** Show basic information about a user */
-const Profile = ({ profile }: { profile: User }) => {
+const Profile = ({
+    profile,
+    className,
+}: {
+    profile: User;
+    className?: string;
+}) => {
     return (
-        <Card className="min-w-0 gap-3">
+        <Card className={clsx("w-full gap-3", className)}>
             <ProfilePicture
                 username={profile.username}
                 lastChanged={profile.pfpLastChanged}
@@ -24,7 +32,8 @@ const Profile = ({ profile }: { profile: User }) => {
                     <Flag size={40} countryCode={profile.countryCode} />
                 </div>
                 <p className="text-text/70" data-testid="aboutMe">
-                    {profile.about}
+                    {profile.about}Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit, sed do eiusmod tempor
                 </p>
             </section>
         </Card>

@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import clsx from "clsx";
 
 import type { RatingOverview } from "@/lib/apiClient/models";
 import Card from "../helpers/Card";
@@ -12,7 +13,13 @@ interface DataPoint {
     y: number;
 }
 
-const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
+const RatingCard = ({
+    ratingData,
+    className,
+}: {
+    ratingData: RatingOverview;
+    className?: string;
+}) => {
     const { history, current: currentRating, max: maxRating } = ratingData;
 
     // Format the rating history for the chart
@@ -25,7 +32,7 @@ const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
     const ratingChange = currentRating - (history.at(0)?.elo ?? 0);
 
     return (
-        <Card className="flex-col gap-3">
+        <Card className={clsx("w-full flex-col gap-3", className)}>
             <Chart
                 options={{
                     chart: {
