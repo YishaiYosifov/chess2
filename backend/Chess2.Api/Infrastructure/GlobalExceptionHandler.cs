@@ -2,7 +2,7 @@
 using ErrorOr;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace Chess2.Api;
+namespace Chess2.Api.Infrastructure;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
