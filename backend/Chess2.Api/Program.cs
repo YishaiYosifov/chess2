@@ -1,8 +1,8 @@
-using Chess2.Api;
-using Chess2.Api.ActionFilters;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Hubs;
+using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;

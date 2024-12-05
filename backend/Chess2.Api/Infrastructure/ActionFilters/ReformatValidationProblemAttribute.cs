@@ -4,7 +4,7 @@ using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Chess2.Api.ActionFilters;
+namespace Chess2.Api.Infrastructure.ActionFilters;
 
 public class ReformatValidationProblemAttribute : ActionFilterAttribute
 {

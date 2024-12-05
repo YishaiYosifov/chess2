@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Chess2.Api;
+namespace Chess2.Api.Infrastructure;
 
 public class CamelCasePropertyNameResolver
 {
