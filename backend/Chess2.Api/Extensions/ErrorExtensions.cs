@@ -1,10 +1,14 @@
-﻿using ErrorOr;
+﻿using Chess2.Api.Models.DTOs;
+using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Extensions;
 
 public static class ErrorExtensions
 {
+    public static IEnumerable<SignalRError> ToSignalR(this IEnumerable<Error> errors) =>
+        errors.Select(error => new SignalRError(error));
+
     public static IActionResult ToProblemDetails(this Error error) =>
         new List<Error>() { error }.ToProblemDetails();
 
