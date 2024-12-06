@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackExchange.Redis;
 using System.Text;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,22 +74,26 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RefreshToken", policy =>
             policy.RequireClaim("type", "refresh")
             .AddAuthenticationSchemes("RefreshBearer"));
-    options.AddPolicy("AccessToken", policy =>
+    
+    options.AddPolicy("AuthedAccessToken", policy =>
+            policy.RequireAssertion(context => {
+                var isAccess = context.User.HasClaim("type", "access");
+                var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
+                return isAccess && !isAnonymous;
+            }).AddAuthenticationSchemes("AccessBearer"));
+
+    options.AddPolicy("GuestAccessToken", policy =>
             policy.RequireClaim("type", "access")
             .AddAuthenticationSchemes("AccessBearer"));
-    options.AddPolicy("GuestToken", policy =>
-            policy.RequireClaim("type", "guest")
-            .AddAuthenticationSchemes("AccessBearer"));
-    options.DefaultPolicy = options.GetPolicy("AccessToken")!;
+
+    options.DefaultPolicy = options.GetPolicy("AuthedAccessToken")!;
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer("AccessBearer", options =>
         ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName))
     .AddJwtBearer("RefreshBearer", options =>
-        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName))
-    .AddJwtBearer("Guest", options =>
-        ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName));
+        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName));
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
