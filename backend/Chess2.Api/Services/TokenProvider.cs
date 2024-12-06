@@ -37,6 +37,16 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
             ]), DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays));
     }
 
+    public string GenerateGuestToken(string guestId)
+    {
+        return GenerateToken(
+            new ClaimsIdentity([
+                new Claim(ClaimTypes.NameIdentifier, guestId),
+                new Claim(ClaimTypes.Anonymous, "1"),
+                new Claim("type", "access"),
+            ]), DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute));
+    }
+
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
