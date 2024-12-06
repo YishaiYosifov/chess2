@@ -12,7 +12,7 @@ public interface IMatchmakingClient
     public Task ReceiveError(IEnumerable<SignalRError> error);
 }
 
-[Authorize("GuestAccessToken")]
+[Authorize("AccessToken")]
 public class MatchmakingHub(ILogger<MatchmakingHub> logger, IMatchmakingService matchmakingService, IAuthService authService) : Hub<IMatchmakingClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
