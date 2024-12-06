@@ -1,6 +1,6 @@
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
-using Chess2.Api.Hubs;
+using Chess2.Api.SignalR;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Models;
@@ -140,6 +140,7 @@ builder.Services.AddScoped<IValidator<ProfileEdit>, ProfileEditValidator>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddSingleton<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
