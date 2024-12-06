@@ -82,7 +82,7 @@ builder.Services.AddAuthorization(options =>
                 return isAccess && !isAnonymous;
             }).AddAuthenticationSchemes("AccessBearer"));
 
-    options.AddPolicy("GuestAccessToken", policy =>
+    options.AddPolicy("AccessToken", policy =>
             policy.RequireClaim("type", "access")
             .AddAuthenticationSchemes("AccessBearer"));
 
@@ -133,6 +133,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
+builder.Services.AddSingleton<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 #endregion
 
