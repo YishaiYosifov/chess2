@@ -12,6 +12,7 @@ public interface ITokenProvider
 {
     string GenerateAccessToken(User user);
     string GenerateRefreshToken(User user);
+    string GenerateGuestToken(string guestId);
 }
 
 public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
@@ -44,7 +45,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                 new Claim(ClaimTypes.NameIdentifier, guestId),
                 new Claim(ClaimTypes.Anonymous, "1"),
                 new Claim("type", "access"),
-            ]), DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute));
+            ]), DateTime.MaxValue);
     }
 
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)

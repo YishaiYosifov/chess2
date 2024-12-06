@@ -8,8 +8,9 @@ namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(ILogger<AuthController> logger, IAuthService authService) : Controller
+public class AuthController(ILogger<AuthController> logger, IAuthService authService, IGuestService guestService) : Controller
 {
+    private readonly IGuestService _guestService = guestService;
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
 
@@ -67,4 +68,13 @@ public class AuthController(ILogger<AuthController> logger, IAuthService authSer
     [Authorize]
     public IActionResult Test() => NoContent();
 #endif
+
+    [HttpPost("guest")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult CreatesGuestUser()
+    {
+        var guestToken = _guestService.CreateGuestUser();
+        _guestService.SetGuestCookie(guestToken, HttpContext);
+        return NoContent();
+    }
 }
