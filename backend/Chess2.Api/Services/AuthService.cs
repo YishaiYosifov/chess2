@@ -6,6 +6,7 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,6 +18,7 @@ public interface IAuthService
     Task<ErrorOr<User>> SignupUserAsync(UserIn userIn, CancellationToken cancellation = default);
     Task<ErrorOr<Tokens>> LoginUserAsync(UserLogin userAuth, CancellationToken cancellation = default);
     Task<ErrorOr<User>> GetLoggedInUserAsync(HttpContext context, CancellationToken cancellation = default);
+    Task<ErrorOr<User>> GetLoggedInUserAsync(HubCallerContext context, CancellationToken cancellation = default);
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
     Task<ErrorOr<string>> RefreshTokenAsync(HttpContext context, CancellationToken cancellation = default);
@@ -120,6 +122,21 @@ public class AuthService(
         }
 
         return user;
+    }
+
+    /// <summary>
+    /// Get the user that is logged in to the signalr context
+    /// </summary>
+    public async Task<ErrorOr<User>> GetLoggedInUserAsync(HubCallerContext context, CancellationToken cancellation = default)
+    {
+        var httpContext = context.GetHttpContext();
+        if (httpContext is null)
+        {
+            _logger.LogWarning("A user tried to access a signalr endpoint but the http context was not found");
+            return Error.Unauthorized();
+        }
+
+        return await GetLoggedInUserAsync(httpContext, cancellation);
     }
 
     public void SetAccessCookie(string accessToken, HttpContext context)
