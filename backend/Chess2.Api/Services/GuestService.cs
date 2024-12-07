@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Models;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
