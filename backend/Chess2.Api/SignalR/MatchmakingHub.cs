@@ -20,7 +20,7 @@ public class MatchmakingHub(ILogger<MatchmakingHub> logger, IMatchmakingService 
     private readonly IAuthService _authService = authService;
 
     public async Task SeekMatchAsync()
-    {   
+    {
         var userResult = await _authService.GetLoggedInUserAsync(Context);
         if (userResult.IsError)
         {
@@ -33,6 +33,6 @@ public class MatchmakingHub(ILogger<MatchmakingHub> logger, IMatchmakingService 
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        
+
     }
 }
