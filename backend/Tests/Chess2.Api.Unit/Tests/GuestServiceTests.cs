@@ -25,6 +25,31 @@ public class GuestServiceTests : BaseUnitTest
         _guestService = new(_tokenProviderMock, _appSettingsMock, _hostEnvironmentMock);
     }
 
+    [Fact]
+    public void Correct_token_is_returned()
+    {
+        var guestToken = "token";
+        _tokenProviderMock.GenerateGuestToken(Arg.Any<string>()).Returns(guestToken);
+
+        var result = _guestService.CreateGuestUser();
+
+        result.Should().Be(guestToken);
+    }
+
+    [Fact]
+    public void Guest_id_is_created_randomly()
+    {
+        _guestService.CreateGuestUser();
+        _guestService.CreateGuestUser();
+
+        _tokenProviderMock.Received(2).GenerateGuestToken(Arg.Any<string>());
+
+        var calls = _tokenProviderMock.ReceivedCalls();
+        var guestId1 = calls.ElementAt(0).GetArguments()[0];
+        var guestId2 = calls.ElementAt(1).GetArguments()[0];
+        guestId1.Should().NotBe(guestId2);
+    }
+
     [Theory]
     [InlineData("Development")]
     [InlineData("Production")]
@@ -35,7 +60,6 @@ public class GuestServiceTests : BaseUnitTest
         var httpContext = Fixture.Create<HttpContext>();
         _hostEnvironmentMock.EnvironmentName.Returns(environment);
         _appSettingsMock.Value.Jwt.AccessTokenCookieName = accessCookieName;
-
 
         _guestService.SetGuestCookie(guestToken, httpContext);
 
