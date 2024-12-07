@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Chess2.Api.Models;
+using Microsoft.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
@@ -25,7 +26,9 @@ public class BaseUnitTest
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddEnvironmentVariables()
             .Build();
         var appSettings = configuration.GetSection("AppSettings").Get<AppSettings>()!;
         fixture.Register(() => Options.Create(appSettings));
