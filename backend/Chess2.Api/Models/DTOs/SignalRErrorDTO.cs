@@ -13,5 +13,5 @@ public class SignalRError
     {
         Code = error.Code;
         Description = error.Description;
-    }   
+    }
 }

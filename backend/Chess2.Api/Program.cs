@@ -1,12 +1,12 @@
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
-using Chess2.Api.SignalR;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
+using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
 using ErrorOr;
 using FluentValidation;
@@ -15,8 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackExchange.Redis;
-using System.Text;
 using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,9 +74,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RefreshToken", policy =>
             policy.RequireClaim("type", "refresh")
             .AddAuthenticationSchemes("RefreshBearer"));
-    
+
     options.AddPolicy("AuthedAccessToken", policy =>
-            policy.RequireAssertion(context => {
+            policy.RequireAssertion(context =>
+            {
                 var isAccess = context.User.HasClaim("type", "access");
                 var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
                 return isAccess && !isAnonymous;
