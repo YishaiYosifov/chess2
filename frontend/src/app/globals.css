@@ -3,10 +3,29 @@
 @tailwind utilities;
 
 @layer utilities {
+    /* prettier-ignore */
     .toggle-btn {
         @apply [&>span::after]:translate-y-0 [&>span::after]:rotate-45
         [&>span::before]:translate-y-0 [&>span::before]:-rotate-45
         [&>span]:bg-transparent [&>span]:rotate-[360deg];
+    }
+
+    .scrollbar::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .scrollbar::-webkit-scrollbar-track {
+        background: #171717;
+    }
+
+    .scrollbar::-webkit-scrollbar-thumb {
+        background: #959596;
+        border-radius: 100vh;
+    }
+
+    .scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #959596;
     }
 }
 
