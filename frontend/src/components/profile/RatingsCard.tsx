@@ -32,7 +32,7 @@ const RatingCard = ({
     const ratingChange = currentRating - (history.at(0)?.elo ?? 0);
 
     return (
-        <Card className={clsx("w-full flex-col gap-3", className)}>
+        <Card className={clsx("flex flex-col gap-3", className)}>
             <Chart
                 options={{
                     chart: {
@@ -90,7 +90,7 @@ const RatingCard = ({
             />
 
             <section
-                className="grid grid-cols-[1fr_min-content] justify-between gap-3"
+                className="grid grid-cols-[1fr_min-content]"
                 data-testid="ratingInfoSection"
             >
                 <span>Current</span>
