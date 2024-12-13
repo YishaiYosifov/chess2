@@ -8,11 +8,13 @@ public class User
 
     [MaxLength(30)]
     public required string Username { get; set; }
+
     [MaxLength(256)]
     public required string Email { get; set; }
 
     [MaxLength(300)]
     public string About { get; set; } = string.Empty;
+
     [MaxLength(2)]
     public string? CountryCode { get; set; }
 

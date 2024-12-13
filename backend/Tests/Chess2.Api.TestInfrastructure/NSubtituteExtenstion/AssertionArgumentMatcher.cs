@@ -4,7 +4,9 @@ using NSubstitute.Core.Arguments;
 
 namespace Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 
-public class FluentAssertionArgumentMatcher<T>(Action<T> assertion) : IArgumentMatcher<T>, IDescribeNonMatches
+public class FluentAssertionArgumentMatcher<T>(Action<T> assertion)
+    : IArgumentMatcher<T>,
+        IDescribeNonMatches
 {
     private readonly Action<T> _assertion = assertion;
     private string _failedExpectations = string.Empty;
@@ -28,5 +30,4 @@ public class FluentAssertionArgumentMatcher<T>(Action<T> assertion) : IArgumentM
 
         return _failedExpectations.Length == 0;
     }
-
 }

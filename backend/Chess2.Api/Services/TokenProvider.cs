@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Models;
+﻿using System.Security.Claims;
+using System.Text;
+using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
 
 namespace Chess2.Api.Services;
 
@@ -23,29 +23,40 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
     {
         return GenerateToken(
             new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("type", "access"),
-            ]), DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute));
+                [
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim("type", "access"),
+                ]
+            ),
+            DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute)
+        );
     }
 
     public string GenerateRefreshToken(User user)
     {
         return GenerateToken(
-            new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("type", "refresh"),
-            ]), DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays));
+            new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim("type", "refresh"),
+                ]
+            ),
+            DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays)
+        );
     }
 
     public string GenerateGuestToken(string guestId)
     {
         return GenerateToken(
-            new ClaimsIdentity([
-                new Claim(ClaimTypes.NameIdentifier, guestId),
-                new Claim(ClaimTypes.Anonymous, "1"),
-                new Claim("type", "access"),
-            ]), DateTime.MaxValue);
+            new ClaimsIdentity(
+                [
+                    new Claim(ClaimTypes.NameIdentifier, guestId),
+                    new Claim(ClaimTypes.Anonymous, "1"),
+                    new Claim("type", "access"),
+                ]
+            ),
+            DateTime.MaxValue
+        );
     }
 
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)
