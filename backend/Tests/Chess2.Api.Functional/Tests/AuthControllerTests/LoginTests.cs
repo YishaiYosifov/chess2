@@ -20,11 +20,11 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         var user = await FakerUtils.StoreFaker(
             DbContext,
-            new UserFaker().RuleFor(x => x.Username, username).RuleFor(x => x.Email, email)
+            new AuthedUserFaker().RuleFor(x => x.Username, username).RuleFor(x => x.Email, email)
         );
 
         var response = await ApiClient.LoginAsync(
-            new() { UsernameOrEmail = loginWithIdentifier, Password = UserFaker.Password }
+            new() { UsernameOrEmail = loginWithIdentifier, Password = AuthedUserFaker.Password }
         );
 
         response.IsSuccessful.Should().BeTrue();
@@ -36,13 +36,13 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     [Fact]
     public async Task Login_with_non_existing_user()
     {
-        await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var response = await ApiClient.LoginAsync(
             new()
             {
                 UsernameOrEmail = "random email or username doesn't exist",
-                Password = UserFaker.Password,
+                Password = AuthedUserFaker.Password,
             }
         );
 
@@ -53,7 +53,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     [Fact]
     public async Task Login_with_wrong_password()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var response = await ApiClient.LoginAsync(
             new() { UsernameOrEmail = user.Username, Password = "wrong password" }

@@ -15,16 +15,19 @@ namespace Chess2.Api.Services;
 
 public interface IAuthService
 {
-    Task<ErrorOr<User>> SignupUserAsync(UserIn userIn, CancellationToken cancellation = default);
+    Task<ErrorOr<AuthedUser>> SignupUserAsync(
+        UserIn userIn,
+        CancellationToken cancellation = default
+    );
     Task<ErrorOr<Tokens>> LoginUserAsync(
         UserLogin userAuth,
         CancellationToken cancellation = default
     );
-    Task<ErrorOr<User>> GetLoggedInUserAsync(
+    Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
         HttpContext context,
         CancellationToken cancellation = default
     );
-    Task<ErrorOr<User>> GetLoggedInUserAsync(
+    Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
         HubCallerContext context,
         CancellationToken cancellation = default
     );
@@ -58,7 +61,7 @@ public class AuthService(
     /// Register a new user
     /// </summary>
     /// <param name="userIn">The user DTO received from the client</param>
-    public async Task<ErrorOr<User>> SignupUserAsync(
+    public async Task<ErrorOr<AuthedUser>> SignupUserAsync(
         UserIn userIn,
         CancellationToken cancellation = default
     )
@@ -81,7 +84,7 @@ public class AuthService(
         var salt = _passwordHasher.GenerateSalt();
         var hash = await _passwordHasher.HashPasswordAsync(userIn.Password, salt);
 
-        var dbUser = new User()
+        var dbUser = new AuthedUser()
         {
             Username = userIn.Username,
             Email = userIn.Email,
@@ -126,7 +129,7 @@ public class AuthService(
     /// <summary>
     /// Get the user that is logged in to the http context
     /// </summary>
-    public async Task<ErrorOr<User>> GetLoggedInUserAsync(
+    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
         HttpContext context,
         CancellationToken cancellation = default
     )
@@ -157,7 +160,7 @@ public class AuthService(
     /// <summary>
     /// Get the user that is logged in to the signalr context
     /// </summary>
-    public async Task<ErrorOr<User>> GetLoggedInUserAsync(
+    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
         HubCallerContext context,
         CancellationToken cancellation = default
     )
