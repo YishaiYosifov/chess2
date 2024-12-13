@@ -1,9 +1,9 @@
-﻿using Chess2.Api.Functional.Utils;
+﻿using System.Net;
+using Chess2.Api.Functional.Utils;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.UserControllerTests;
 

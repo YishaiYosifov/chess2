@@ -40,7 +40,8 @@ public class PrivateUserOut : UserOut
 
     public PrivateUserOut() { }
 
-    public PrivateUserOut(User user) : base(user)
+    public PrivateUserOut(User user)
+        : base(user)
     {
         Email = user.Email;
     }

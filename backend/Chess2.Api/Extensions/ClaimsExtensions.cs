@@ -1,5 +1,5 @@
-﻿using ErrorOr;
-using System.Security.Claims;
+﻿using System.Security.Claims;
+using ErrorOr;
 
 namespace Chess2.Api.Extensions;
 

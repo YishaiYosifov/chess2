@@ -7,6 +7,7 @@ namespace Chess2.Api.Unit.Tests.ValidatorTests;
 public class CountryCodeValidatorTests
 {
     private readonly InlineValidator<string?> _testValidator = [];
+
     public CountryCodeValidatorTests()
     {
         _testValidator.RuleFor(x => x).MustBeACountryCode();

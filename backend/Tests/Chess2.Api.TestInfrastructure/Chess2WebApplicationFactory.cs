@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Models;
+﻿using System.Data.Common;
+using System.Net;
+using Chess2.Api.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
@@ -8,8 +10,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Refit;
 using Respawn;
-using System.Data.Common;
-using System.Net;
 using Testcontainers.PostgreSql;
 
 namespace Chess2.Api.TestInfrastructure;
@@ -33,9 +33,8 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             // remove the existing database context, use the one in a test container instead
             services.RemoveAll(typeof(DbContextOptions<Chess2DbContext>));
             services.AddDbContextPool<Chess2DbContext>(options =>
-                options
-                    .UseNpgsql(_dbContainer.GetConnectionString())
-                    .UseSnakeCaseNamingConvention());
+                options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
+            );
         });
     }
 
@@ -43,7 +42,10 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     /// Create a client that follows the chess2 api schema
     /// and has specific authentication tokens
     /// </summary>
-    public IChess2Api CreateTypedClientWithTokens(string? accessToken = null, string? refreshToken = null)
+    public IChess2Api CreateTypedClientWithTokens(
+        string? accessToken = null,
+        string? refreshToken = null
+    )
     {
         var cookieContainer = new CookieContainer();
         if (!string.IsNullOrEmpty(accessToken))
@@ -58,8 +60,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     /// <summary>
     /// Create an http client that follows the chess2 api schema
     /// </summary>
-    public IChess2Api CreateTypedClient() =>
-        RestService.For<IChess2Api>(CreateClient());
+    public IChess2Api CreateTypedClient() => RestService.For<IChess2Api>(CreateClient());
 
     public Task ResetDatabaseAsync() => _respawner.ResetAsync(_dbConnection);
 
@@ -85,9 +86,9 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         _dbConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
         await _dbConnection.OpenAsync();
 
-        _respawner = await Respawner.CreateAsync(_dbConnection, new()
-        {
-            DbAdapter = DbAdapter.Postgres,
-        });
+        _respawner = await Respawner.CreateAsync(
+            _dbConnection,
+            new() { DbAdapter = DbAdapter.Postgres }
+        );
     }
 }

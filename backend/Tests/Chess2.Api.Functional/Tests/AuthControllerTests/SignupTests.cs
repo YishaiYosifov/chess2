@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Models.DTOs;
+﻿using System.Net;
+using Chess2.Api.Models.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 
@@ -26,13 +26,11 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
 
         response.IsSuccessful.Should().BeTrue();
         registeredUser.Should().NotBeNull();
-        registeredUser.Should().BeEquivalentTo(
-            userIn, opts => opts.ExcludingMissingMembers());
+        registeredUser.Should().BeEquivalentTo(userIn, opts => opts.ExcludingMissingMembers());
 
         allUsers.Should().HaveCount(1);
         var dbUser = allUsers.First();
-        registeredUser.Should().BeEquivalentTo(
-            dbUser, opts => opts.ExcludingMissingMembers());
+        registeredUser.Should().BeEquivalentTo(dbUser, opts => opts.ExcludingMissingMembers());
     }
 
     [Theory]
@@ -42,7 +40,12 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
     [InlineData("TestUser", "test@email.com", "", "IL")]
     [InlineData("TestUser", "test@email.com", "ShtPwd", "IL")]
     [InlineData("TestUser", "test@email.com", "ShtPwd", "XZ")]
-    public async Task Signup_with_bad_parameters(string username, string email, string password, string country)
+    public async Task Signup_with_bad_parameters(
+        string username,
+        string email,
+        string password,
+        string country
+    )
     {
         var userIn = new UserIn()
         {
@@ -65,19 +68,25 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
         string user1Username,
         string user1Email,
         string user2Username,
-        string user2Email)
+        string user2Email
+    )
     {
         var user1 = await FakerUtils.StoreFaker(
-            DbContext, new UserFaker().RuleFor(x => x.Username, user1Username)
-            .RuleFor(x => x.Email, user1Email));
+            DbContext,
+            new UserFaker()
+                .RuleFor(x => x.Username, user1Username)
+                .RuleFor(x => x.Email, user1Email)
+        );
 
-        var response = await ApiClient.SignupAsync(new()
-        {
-            Username = user2Username,
-            Email = user2Email,
-            Password = "TestPassword",
-            CountryCode = "IL",
-        });
+        var response = await ApiClient.SignupAsync(
+            new()
+            {
+                Username = user2Username,
+                Email = user2Email,
+                Password = "TestPassword",
+                CountryCode = "IL",
+            }
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Conflict);
         response.Content.Should().BeNull();

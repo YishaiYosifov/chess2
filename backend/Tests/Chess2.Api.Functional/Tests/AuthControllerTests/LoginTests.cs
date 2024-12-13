@@ -1,9 +1,9 @@
-﻿using Chess2.Api.Functional.Utils;
+﻿using System.Net;
+using Chess2.Api.Functional.Utils;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 
@@ -15,17 +15,17 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     public async Task Login_with_correct_credentials(
         string username,
         string email,
-        string loginWithIdentifier)
+        string loginWithIdentifier
+    )
     {
         var user = await FakerUtils.StoreFaker(
-            DbContext, new UserFaker().RuleFor(x => x.Username, username)
-            .RuleFor(x => x.Email, email));
+            DbContext,
+            new UserFaker().RuleFor(x => x.Username, username).RuleFor(x => x.Email, email)
+        );
 
-        var response = await ApiClient.LoginAsync(new()
-        {
-            UsernameOrEmail = loginWithIdentifier,
-            Password = UserFaker.Password,
-        });
+        var response = await ApiClient.LoginAsync(
+            new() { UsernameOrEmail = loginWithIdentifier, Password = UserFaker.Password }
+        );
 
         response.IsSuccessful.Should().BeTrue();
         var cookies = response.Headers.GetValues("Set-Cookie");
@@ -38,11 +38,13 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
-        var response = await ApiClient.LoginAsync(new()
-        {
-            UsernameOrEmail = "random email or username doesn't exist",
-            Password = UserFaker.Password,
-        });
+        var response = await ApiClient.LoginAsync(
+            new()
+            {
+                UsernameOrEmail = "random email or username doesn't exist",
+                Password = UserFaker.Password,
+            }
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         await AuthTestUtils.AssertUnauthenticated(ApiClient);
@@ -53,11 +55,9 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
 
-        var response = await ApiClient.LoginAsync(new()
-        {
-            UsernameOrEmail = user.Username,
-            Password = "wrong password",
-        });
+        var response = await ApiClient.LoginAsync(
+            new() { UsernameOrEmail = user.Username, Password = "wrong password" }
+        );
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         await AuthTestUtils.AssertUnauthenticated(ApiClient);
