@@ -8,31 +8,31 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
 
 public interface IAuthService
 {
-    Task<ErrorOr<AuthedUser>> SignupUserAsync(
-        UserIn userIn,
-        CancellationToken cancellation = default
-    );
-    Task<ErrorOr<Tokens>> LoginUserAsync(
-        UserLogin userAuth,
-        CancellationToken cancellation = default
-    );
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
         HttpContext context,
         CancellationToken cancellation = default
     );
-    Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        HubCallerContext context,
+
+    Task<ErrorOr<AuthedUser>> SignupUserAsync(
+        UserIn userIn,
         CancellationToken cancellation = default
     );
+
+    Task<ErrorOr<Tokens>> LoginUserAsync(
+        UserLogin userAuth,
+        CancellationToken cancellation = default
+    );
+
     void SetAccessCookie(string accessToken, HttpContext context);
+
     void SetRefreshCookie(string refreshToken, HttpContext context);
+
     Task<ErrorOr<string>> RefreshTokenAsync(
         HttpContext context,
         CancellationToken cancellation = default
@@ -56,6 +56,37 @@ public class AuthService(
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthService> _logger = logger;
+
+    /// <summary>
+    /// Get the user that is logged in to the http context
+    /// </summary>
+    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
+        HttpContext context,
+        CancellationToken cancellation = default
+    )
+    {
+        var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
+        if (userIdClaimResult.IsError)
+        {
+            _logger.LogWarning(
+                "A user tried to access an authorized endpoint but the user id claim could not be found"
+            );
+            return userIdClaimResult.Errors;
+        }
+        var userId = Convert.ToInt32(userIdClaimResult.Value.Value);
+
+        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
+        if (user is null)
+        {
+            _logger.LogWarning(
+                "A user tried to access an authorized enpoint with id {UserId} but the user could not be found",
+                userId
+            );
+            return Error.Unauthorized();
+        }
+
+        return user;
+    }
 
     /// <summary>
     /// Register a new user
@@ -124,57 +155,6 @@ public class AuthService(
             AccessToken = _tokenProvider.GenerateAccessToken(dbUser),
             RefreshToken = _tokenProvider.GenerateRefreshToken(dbUser),
         };
-    }
-
-    /// <summary>
-    /// Get the user that is logged in to the http context
-    /// </summary>
-    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        HttpContext context,
-        CancellationToken cancellation = default
-    )
-    {
-        var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
-        if (userIdClaimResult.IsError)
-        {
-            _logger.LogWarning(
-                "A user tried to access an authorized endpoint but the user id claim could not be found"
-            );
-            return userIdClaimResult.Errors;
-        }
-        var userId = Convert.ToInt32(userIdClaimResult.Value.Value);
-
-        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
-        if (user is null)
-        {
-            _logger.LogWarning(
-                "A user tried to access an authorized enpoint with id {UserId} but the user could not be found",
-                userId
-            );
-            return Error.Unauthorized();
-        }
-
-        return user;
-    }
-
-    /// <summary>
-    /// Get the user that is logged in to the signalr context
-    /// </summary>
-    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        HubCallerContext context,
-        CancellationToken cancellation = default
-    )
-    {
-        var httpContext = context.GetHttpContext();
-        if (httpContext is null)
-        {
-            _logger.LogWarning(
-                "A user tried to access a signalr endpoint but the http context was not found"
-            );
-            return Error.Unauthorized();
-        }
-
-        return await GetLoggedInUserAsync(httpContext, cancellation);
     }
 
     public void SetAccessCookie(string accessToken, HttpContext context)
