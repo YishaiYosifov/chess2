@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Errors;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
@@ -8,8 +10,6 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Services;
 
