@@ -24,7 +24,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
         return GenerateToken(
             new ClaimsIdentity(
                 [
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.AuthedUserId.ToString()),
                     new Claim("type", "access"),
                 ]
             ),
@@ -37,7 +37,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
         return GenerateToken(
             new ClaimsIdentity(
                 [
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.AuthedUserId.ToString()),
                     new Claim("type", "refresh"),
                 ]
             ),

@@ -70,7 +70,7 @@ public class AuthController(
     [Authorize("RefreshToken")]
     public async Task<IActionResult> Refresh(CancellationToken cancellation)
     {
-        var result = await _authService.RefreshTokenAsync(HttpContext, cancellation);
+        var result = await _authService.RefreshTokenAsync(HttpContext.User, cancellation);
         return result.Match(
             (value) =>
             {

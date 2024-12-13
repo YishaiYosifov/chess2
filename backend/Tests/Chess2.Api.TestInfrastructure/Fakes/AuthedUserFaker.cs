@@ -28,7 +28,7 @@ public class AuthedUserFaker : Faker<AuthedUser>
     public AuthedUserFaker()
     {
         StrictMode(true)
-            .RuleFor(x => x.UserId, 0)
+            .RuleFor(x => x.AuthedUserId, 0)
             .RuleFor(x => x.Username, f => f.Person.UserName)
             .RuleFor(x => x.Email, f => f.Person.Email)
             .RuleFor(x => x.CountryCode, "IL")
