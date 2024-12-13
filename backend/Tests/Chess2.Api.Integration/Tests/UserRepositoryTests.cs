@@ -29,7 +29,7 @@ public class UserRepositoryTests : BaseIntegrationTest
     {
         var user = await FakerUtils.StoreFaker(
             DbContext,
-            new UserFaker().RuleFor(x => x.Username, username)
+            new AuthedUserFaker().RuleFor(x => x.Username, username)
         );
 
         var fetchedUser = await _userRepository.GetByUsernameAsync(getUsername);
@@ -51,7 +51,7 @@ public class UserRepositoryTests : BaseIntegrationTest
     {
         var user = await FakerUtils.StoreFaker(
             DbContext,
-            new UserFaker().RuleFor(x => x.Email, email)
+            new AuthedUserFaker().RuleFor(x => x.Email, email)
         );
 
         var fetchedUser = await _userRepository.GetByEmailAsync(getEmail);
@@ -65,7 +65,7 @@ public class UserRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Create_a_user()
     {
-        var user = new UserFaker().Generate();
+        var user = new AuthedUserFaker().Generate();
         await _userRepository.AddUserAsync(user);
 
         var users = await DbContext.Users.ToListAsync();
@@ -76,7 +76,7 @@ public class UserRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Update_profile_and_provide_data()
     {
-        var userToEdit = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var userToEdit = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
         var profileEdit = new ProfileEditFaker().Generate();
 
         var originalUser = await DbContext.Users.AsNoTracking().SingleAsync();
@@ -101,7 +101,7 @@ public class UserRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Update_profile_with_null_data()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var userToUpdate = DbContext.Users.AsNoTracking().Single();
         await _userRepository.EditProfileAsync(userToUpdate, new());

@@ -10,8 +10,8 @@ namespace Chess2.Api.Services;
 
 public interface ITokenProvider
 {
-    string GenerateAccessToken(User user);
-    string GenerateRefreshToken(User user);
+    string GenerateAccessToken(AuthedUser user);
+    string GenerateRefreshToken(AuthedUser user);
     string GenerateGuestToken(string guestId);
 }
 
@@ -19,7 +19,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
 
-    public string GenerateAccessToken(User user)
+    public string GenerateAccessToken(AuthedUser user)
     {
         return GenerateToken(
             new ClaimsIdentity(
@@ -32,7 +32,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
         );
     }
 
-    public string GenerateRefreshToken(User user)
+    public string GenerateRefreshToken(AuthedUser user)
     {
         return GenerateToken(
             new ClaimsIdentity(

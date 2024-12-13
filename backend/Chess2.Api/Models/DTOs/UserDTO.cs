@@ -25,7 +25,7 @@ public class UserOut
 
     public UserOut() { }
 
-    public UserOut(User user)
+    public UserOut(AuthedUser user)
     {
         UserId = user.UserId;
         Username = user.Username;
@@ -40,7 +40,7 @@ public class PrivateUserOut : UserOut
 
     public PrivateUserOut() { }
 
-    public PrivateUserOut(User user)
+    public PrivateUserOut(AuthedUser user)
         : base(user)
     {
         Email = user.Email;
@@ -54,7 +54,7 @@ public class ProfileEdit
 
     public ProfileEdit() { }
 
-    public ProfileEdit(User user)
+    public ProfileEdit(AuthedUser user)
     {
         About = user.About;
         CountryCode = user.CountryCode;
