@@ -15,7 +15,7 @@ namespace Chess2.Api.Services;
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        HttpContext context,
+        ClaimsPrincipal? userClaims,
         CancellationToken cancellation = default
     );
 
@@ -34,7 +34,7 @@ public interface IAuthService
     void SetRefreshCookie(string refreshToken, HttpContext context);
 
     Task<ErrorOr<string>> RefreshTokenAsync(
-        HttpContext context,
+        ClaimsPrincipal? userClaims,
         CancellationToken cancellation = default
     );
 }
@@ -61,11 +61,11 @@ public class AuthService(
     /// Get the user that is logged in to the http context
     /// </summary>
     public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        HttpContext context,
+        ClaimsPrincipal? userClaims,
         CancellationToken cancellation = default
     )
     {
-        var userIdClaimResult = context.User.GetClaim(ClaimTypes.NameIdentifier);
+        var userIdClaimResult = userClaims.GetClaim(ClaimTypes.NameIdentifier);
         if (userIdClaimResult.IsError)
         {
             _logger.LogWarning(
@@ -196,15 +196,15 @@ public class AuthService(
     /// create an access token from it
     /// </summary>
     public async Task<ErrorOr<string>> RefreshTokenAsync(
-        HttpContext context,
+        ClaimsPrincipal? userClaims,
         CancellationToken cancellation = default
     )
     {
-        var tokenCreationTimeClaimResult = context.User.GetClaim(JwtRegisteredClaimNames.Iat);
+        var tokenCreationTimeClaimResult = userClaims.GetClaim(JwtRegisteredClaimNames.Iat);
         if (tokenCreationTimeClaimResult.IsError)
             return tokenCreationTimeClaimResult.Errors;
 
-        var userResult = await GetLoggedInUserAsync(context, cancellation);
+        var userResult = await GetLoggedInUserAsync(userClaims, cancellation);
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
