@@ -12,27 +12,28 @@ public interface IMatchmakingClient
     public Task ReceiveError(IEnumerable<SignalRError> error);
 }
 
-[Authorize("AccessToken")]
+[Authorize("GuestAccess")]
 public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,
-    IAuthService authService
+    IGuestService guestService
 ) : Hub<IMatchmakingClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
     private readonly ILogger<MatchmakingHub> _logger = logger;
-    private readonly IAuthService _authService = authService;
+    private readonly IGuestService _guestService = guestService;
 
     public async Task SeekMatchAsync()
     {
-        var userResult = await _authService.GetLoggedInUserAsync(Context);
-        if (userResult.IsError)
+        var anonUserResult = _guestService.GetAnonUserAsync(Context.User);
+        if (anonUserResult.IsError)
         {
-            await Clients.Caller.ReceiveError(userResult.Errors.ToSignalR());
+            await Clients.Caller.ReceiveError(anonUserResult.Errors.ToSignalR());
             return;
         }
+        var anonUser = anonUserResult.Value;
 
-        var user = userResult.Value;
+        await _matchmakingService.Seek(anonUser.UserId, 1, 2, 3);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception) { }

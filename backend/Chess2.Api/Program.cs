@@ -84,7 +84,7 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        "AuthedAccessToken",
+        "AuthedAccess",
         policy =>
             policy
                 .RequireAssertion(context =>
@@ -97,11 +97,11 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        "AccessToken",
+        "GuestAccess",
         policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
     );
 
-    options.DefaultPolicy = options.GetPolicy("AuthedAccessToken")!;
+    options.DefaultPolicy = options.GetPolicy("AuthedAccess")!;
 });
 
 builder
