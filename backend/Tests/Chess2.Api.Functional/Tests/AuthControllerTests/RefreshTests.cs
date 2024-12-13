@@ -43,9 +43,9 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var passwordChanged = DateTime.UtcNow.AddSeconds(2);
         var user = await FakerUtils.StoreFaker(
             DbContext,
-            new UserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged)
+            new AuthedUserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged)
         );
-        var tokens = await AuthTestUtils.Authenticate(ApiClient, user, UserFaker.Password);
+        var tokens = await AuthTestUtils.Authenticate(ApiClient, user, AuthedUserFaker.Password);
 
         var refreshTokenClient = Factory.CreateTypedClientWithTokens(
             refreshToken: tokens.RefreshToken

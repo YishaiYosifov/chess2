@@ -10,12 +10,12 @@ namespace Chess2.Api.Services;
 
 public interface IUserService
 {
-    Task<ErrorOr<User>> GetUserByUsernameAsync(
+    Task<ErrorOr<AuthedUser>> GetUserByUsernameAsync(
         string username,
         CancellationToken cancellation = default
     );
-    Task<ErrorOr<User>> EditProfileAsync(
-        User user,
+    Task<ErrorOr<AuthedUser>> EditProfileAsync(
+        AuthedUser user,
         ProfileEdit userEdit,
         CancellationToken cancellation = default
     );
@@ -31,7 +31,7 @@ public class UserService(IValidator<ProfileEdit> userEditValidator, IUserReposit
     /// Gets the user by its username.
     /// If it was not found, return a not found error
     /// </summary>
-    public async Task<ErrorOr<User>> GetUserByUsernameAsync(
+    public async Task<ErrorOr<AuthedUser>> GetUserByUsernameAsync(
         string username,
         CancellationToken cancellation = default
     )
@@ -40,8 +40,8 @@ public class UserService(IValidator<ProfileEdit> userEditValidator, IUserReposit
         return user is null ? UserErrors.UserNotFound : user;
     }
 
-    public async Task<ErrorOr<User>> EditProfileAsync(
-        User user,
+    public async Task<ErrorOr<AuthedUser>> EditProfileAsync(
+        AuthedUser user,
         ProfileEdit userEdit,
         CancellationToken cancellation = default
     )

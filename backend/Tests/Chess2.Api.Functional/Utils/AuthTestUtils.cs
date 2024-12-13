@@ -38,25 +38,29 @@ public static class AuthTestUtils
 
     public static async Task<Tokens> Authenticate(
         IChess2Api apiClient,
-        User user,
+        AuthedUser user,
         string? password = null
     )
     {
         var response = await apiClient.LoginAsync(
-            new() { UsernameOrEmail = user.Username, Password = password ?? UserFaker.Password }
+            new()
+            {
+                UsernameOrEmail = user.Username,
+                Password = password ?? AuthedUserFaker.Password,
+            }
         );
         response.IsSuccessful.Should().BeTrue();
 
         return response.Content!;
     }
 
-    public static async Task<(User User, Tokens Tokens)> Authenticate(
+    public static async Task<(AuthedUser User, Tokens Tokens)> Authenticate(
         IChess2Api apiClient,
         Chess2DbContext dbContext
     )
     {
-        var user = await FakerUtils.StoreFaker(dbContext, new UserFaker());
-        var tokens = await Authenticate(apiClient, user, UserFaker.Password);
+        var user = await FakerUtils.StoreFaker(dbContext, new AuthedUserFaker());
+        var tokens = await Authenticate(apiClient, user, AuthedUserFaker.Password);
         return (user, tokens);
     }
 }

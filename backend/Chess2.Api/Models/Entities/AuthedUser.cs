@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.Models.Entities;
 
-public class User
+public class AuthedUser
 {
     public int UserId { get; set; }
 

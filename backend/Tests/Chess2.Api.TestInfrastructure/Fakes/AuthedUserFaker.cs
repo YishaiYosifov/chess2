@@ -3,7 +3,7 @@ using Chess2.Api.Models.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class UserFaker : Faker<User>
+public class AuthedUserFaker : Faker<AuthedUser>
 {
     public static readonly string Password = "TestPassword";
 
@@ -25,7 +25,7 @@ public class UserFaker : Faker<User>
         84, 171, 75, 101,
         120, 154, 27, 114];
 
-    public UserFaker()
+    public AuthedUserFaker()
     {
         StrictMode(true)
             .RuleFor(x => x.UserId, 0)

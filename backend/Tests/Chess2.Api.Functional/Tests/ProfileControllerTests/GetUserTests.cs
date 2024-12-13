@@ -22,7 +22,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task Get_user()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var response = await ApiClient.GetUserAsync(user.Username);
 
@@ -33,7 +33,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task Get_non_existing_user()
     {
-        await FakerUtils.StoreFaker(DbContext, new UserFaker());
+        await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var response = await ApiClient.GetUserAsync("wrong username doesn't exist");
 
