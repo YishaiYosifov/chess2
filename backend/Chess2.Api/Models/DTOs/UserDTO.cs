@@ -27,7 +27,7 @@ public class UserOut
 
     public UserOut(AuthedUser user)
     {
-        UserId = user.UserId;
+        UserId = user.AuthedUserId;
         Username = user.Username;
         About = user.About;
         CountryCode = user.CountryCode;

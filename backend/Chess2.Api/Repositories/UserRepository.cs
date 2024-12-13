@@ -42,7 +42,11 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
     public async Task<AuthedUser?> GetByUserIdAsync(
         int userId,
         CancellationToken cancellation = default
-    ) => await _dbContext.Users.FirstOrDefaultAsync(user => user.UserId == userId, cancellation);
+    ) =>
+        await _dbContext.Users.FirstOrDefaultAsync(
+            user => user.AuthedUserId == userId,
+            cancellation
+        );
 
     public async Task AddUserAsync(AuthedUser user, CancellationToken cancellation = default)
     {

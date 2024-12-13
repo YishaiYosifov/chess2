@@ -4,7 +4,7 @@ namespace Chess2.Api.Models.Entities;
 
 public class AuthedUser
 {
-    public int UserId { get; set; }
+    public int AuthedUserId { get; set; }
 
     [MaxLength(30)]
     public required string Username { get; set; }

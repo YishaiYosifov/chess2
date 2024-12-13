@@ -19,7 +19,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [Authorize]
     public async Task<IActionResult> GetAuthedUser(CancellationToken cancellation)
     {
-        var result = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
+        var result = await _authService.GetLoggedInUserAsync(HttpContext.User, cancellation);
         return result.Match(
             (value) => Ok(new PrivateUserOut(value)),
             (errors) => errors.ToProblemDetails()
@@ -47,7 +47,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
         CancellationToken cancellation
     )
     {
-        var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
+        var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User, cancellation);
         if (userResult.IsError)
             return userResult.Errors.ToProblemDetails();
 

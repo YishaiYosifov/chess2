@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models;
+﻿using System.Security.Claims;
+using Chess2.Api.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
@@ -7,6 +8,8 @@ public interface IGuestService
 {
     string CreateGuestUser();
     void SetGuestCookie(string guestToken, HttpContext context);
+
+    Task GetAnonUserAsync(ClaimsPrincipal userClaims);
 }
 
 public class GuestService(
@@ -46,8 +49,13 @@ public class GuestService(
         );
     }
 
-    private string GenerateGuestId()
+    private static string GenerateGuestId()
     {
         return $"{Guid.NewGuid()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+    }
+
+    public Task GetAnonUserAsync(ClaimsPrincipal userClaims)
+    {
+        throw new NotImplementedException();
     }
 }
