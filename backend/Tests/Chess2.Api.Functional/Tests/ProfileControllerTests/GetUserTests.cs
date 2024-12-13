@@ -16,8 +16,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.GetAuthedUserAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().BeEquivalentTo(
-            user, opts => opts.ExcludingMissingMembers());
+        response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
     }
 
     [Fact]
@@ -28,8 +27,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.GetUserAsync(user.Username);
 
         response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().BeEquivalentTo(
-            user, opts => opts.ExcludingMissingMembers());
+        response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
     }
 
     [Fact]

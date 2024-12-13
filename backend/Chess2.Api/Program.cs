@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Infrastructure;
@@ -15,8 +17,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,10 +31,12 @@ builder.Services.AddSerilog();
 
 var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
 builder.Services.Configure<AppSettings>(appSettingsSection);
-var appSettings = appSettingsSection.Get<AppSettings>()
+var appSettings =
+    appSettingsSection.Get<AppSettings>()
     ?? throw new InvalidOperationException("App settings not provided in appsettings");
 
-builder.Services.AddControllers()
+builder
+    .Services.AddControllers()
     .AddNewtonsoftJson()
     .AddMvcOptions(options =>
     {
@@ -50,58 +52,77 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         AllowCorsOriginName,
-        policy => policy
-            .WithOrigins(appSettings.CorsOrigins)
-            .AllowCredentials()
-            .AllowAnyHeader()
-            .AllowAnyMethod());
+        policy =>
+            policy
+                .WithOrigins(appSettings.CorsOrigins)
+                .AllowCredentials()
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+    );
 });
 
 builder.Services.AddSignalR();
 
 #region Database
-builder.Services.AddDbContextPool<Chess2DbContext>((serviceProvider, options) =>
-    options.UseNpgsql(appSettings.DatabaseConnString)
-    .UseSnakeCaseNamingConvention());
+builder.Services.AddDbContextPool<Chess2DbContext>(
+    (serviceProvider, options) =>
+        options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention()
+);
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(appSettings.RedisConnString));
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    ConnectionMultiplexer.Connect(appSettings.RedisConnString)
+);
 #endregion
 
 #region Authentication
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RefreshToken", policy =>
-            policy.RequireClaim("type", "refresh")
-            .AddAuthenticationSchemes("RefreshBearer"));
+    options.AddPolicy(
+        "RefreshToken",
+        policy => policy.RequireClaim("type", "refresh").AddAuthenticationSchemes("RefreshBearer")
+    );
 
-    options.AddPolicy("AuthedAccessToken", policy =>
-            policy.RequireAssertion(context =>
-            {
-                var isAccess = context.User.HasClaim("type", "access");
-                var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
-                return isAccess && !isAnonymous;
-            }).AddAuthenticationSchemes("AccessBearer"));
+    options.AddPolicy(
+        "AuthedAccessToken",
+        policy =>
+            policy
+                .RequireAssertion(context =>
+                {
+                    var isAccess = context.User.HasClaim("type", "access");
+                    var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
+                    return isAccess && !isAnonymous;
+                })
+                .AddAuthenticationSchemes("AccessBearer")
+    );
 
-    options.AddPolicy("AccessToken", policy =>
-            policy.RequireClaim("type", "access")
-            .AddAuthenticationSchemes("AccessBearer"));
+    options.AddPolicy(
+        "AccessToken",
+        policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
+    );
 
     options.DefaultPolicy = options.GetPolicy("AuthedAccessToken")!;
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer("AccessBearer", options =>
-        ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName))
-    .AddJwtBearer("RefreshBearer", options =>
-        ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName));
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(
+        "AccessBearer",
+        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName)
+    )
+    .AddJwtBearer(
+        "RefreshBearer",
+        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
+    );
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new()
     {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)),
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
+        ),
         ValidIssuer = appSettings.Jwt.Issuer,
         ValidAudience = appSettings.Jwt.Audience,
         ClockSkew = TimeSpan.Zero,
@@ -112,7 +133,8 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
         OnMessageReceived = ctx =>
         {
             ctx.Request.Cookies.TryGetValue(cookieName, out var token);
-            if (!string.IsNullOrEmpty(token)) ctx.Token = token;
+            if (!string.IsNullOrEmpty(token))
+                ctx.Token = token;
             return Task.CompletedTask;
         },
 
@@ -123,12 +145,10 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
             Error error = ctx.Request.Cookies.ContainsKey(cookieName)
                 ? AuthErrors.TokenInvalid
                 : AuthErrors.TokenMissing;
-            return error.ToProblemDetails()
-                .ExecuteResultAsync(new()
-                {
-                    HttpContext = ctx.HttpContext
-                });
-        }
+            return error
+                .ToProblemDetails()
+                .ExecuteResultAsync(new() { HttpContext = ctx.HttpContext });
+        },
     };
 }
 

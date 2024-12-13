@@ -71,9 +71,12 @@ public class GuestServiceTests : BaseUnitTest
             SameSite = SameSiteMode.Strict,
         };
 
-        httpContext.Response.Cookies.Received(1).Append(
-            accessCookieName,
-            guestToken,
-            ArgEx.FluentAssert<CookieOptions>(x => x.Should().BeEquivalentTo(cookieOptions)));
+        httpContext
+            .Response.Cookies.Received(1)
+            .Append(
+                accessCookieName,
+                guestToken,
+                ArgEx.FluentAssert<CookieOptions>(x => x.Should().BeEquivalentTo(cookieOptions))
+            );
     }
 }

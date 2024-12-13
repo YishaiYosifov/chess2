@@ -20,7 +20,7 @@ public static class ErrorExtensions
             var errorData = new Dictionary<string, object>
             {
                 { "code", error.Code },
-                { "detail", error.Description }
+                { "detail", error.Description },
             };
 
             // include error metadata if there is any
@@ -35,10 +35,7 @@ public static class ErrorExtensions
             Status = GetStatusCode(errorType),
             Title = GetTitle(errorType),
             Type = GetType(errorType),
-            Extensions = new Dictionary<string, object?>
-            {
-                { "errors",  formattedErrors },
-            }
+            Extensions = new Dictionary<string, object?> { { "errors", formattedErrors } },
         };
         return new ObjectResult(problemDetails);
     }

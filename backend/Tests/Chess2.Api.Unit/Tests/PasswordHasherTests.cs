@@ -36,7 +36,10 @@ public class PasswordHasherTests
     [Theory]
     [InlineData("TestPassword", "TestPassword")]
     [InlineData("TestPassword", "OtherTestPassword")]
-    public async Task Correctly_verifies_password_with_hash_and_salt(string password1, string password2)
+    public async Task Correctly_verifies_password_with_hash_and_salt(
+        string password1,
+        string password2
+    )
     {
         var salt = _passwordHasher.GenerateSalt();
         var hash = await _passwordHasher.HashPasswordAsync(password1, salt);

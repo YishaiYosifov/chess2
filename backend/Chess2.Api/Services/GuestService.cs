@@ -12,12 +12,12 @@ public interface IGuestService
 public class GuestService(
     ITokenProvider tokenProvider,
     IOptions<AppSettings> settings,
-    IWebHostEnvironment hostEnvironment) : IGuestService
+    IWebHostEnvironment hostEnvironment
+) : IGuestService
 {
     private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
-
 
     /// <summary>
     /// Create a stateless guest user id and its access token
@@ -42,9 +42,9 @@ public class GuestService(
                 IsEssential = true,
                 Secure = !_hostEnvironment.IsDevelopment(),
                 SameSite = SameSiteMode.Strict,
-            });
+            }
+        );
     }
-
 
     private string GenerateGuestId()
     {

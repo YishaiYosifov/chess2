@@ -22,7 +22,8 @@ public class ProfileController(IUserService userService, IAuthService authServic
         var result = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
         return result.Match(
             (value) => Ok(new PrivateUserOut(value)),
-            (errors) => errors.ToProblemDetails());
+            (errors) => errors.ToProblemDetails()
+        );
     }
 
     [HttpGet("by-username/{username}")]
@@ -33,21 +34,31 @@ public class ProfileController(IUserService userService, IAuthService authServic
         var result = await _userService.GetUserByUsernameAsync(username, cancellation);
         return result.Match(
             (value) => Ok(new UserOut(value)),
-            (errors) => errors.ToProblemDetails());
+            (errors) => errors.ToProblemDetails()
+        );
     }
 
     [HttpPatch("edit-profile")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IActionResult> EditProfileSettings([FromBody] ProfileEdit userEdit, CancellationToken cancellation)
+    public async Task<IActionResult> EditProfileSettings(
+        [FromBody] ProfileEdit userEdit,
+        CancellationToken cancellation
+    )
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext, cancellation);
-        if (userResult.IsError) return userResult.Errors.ToProblemDetails();
+        if (userResult.IsError)
+            return userResult.Errors.ToProblemDetails();
 
-        var editResult = await _userService.EditProfileAsync(userResult.Value, userEdit, cancellation);
+        var editResult = await _userService.EditProfileAsync(
+            userResult.Value,
+            userEdit,
+            cancellation
+        );
         return editResult.Match(
             (value) => Ok(new PrivateUserOut(value)),
-            (errors) => errors.ToProblemDetails());
+            (errors) => errors.ToProblemDetails()
+        );
     }
 }

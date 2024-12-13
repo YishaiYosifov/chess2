@@ -7,6 +7,7 @@ public class UserFaker : Faker<User>
 {
     public static readonly string Password = "TestPassword";
 
+    // csharpier-ignore
     private readonly byte[] PasswordHash = [
         171, 142, 166, 22,
         88, 125, 26, 236,
@@ -17,6 +18,7 @@ public class UserFaker : Faker<User>
         43, 149, 207, 5,
         234, 11, 174, 31];
 
+    // csharpier-ignore
     private readonly byte[] PasswordSalt = [
         192, 47, 30, 58,
         210, 205, 97, 156,

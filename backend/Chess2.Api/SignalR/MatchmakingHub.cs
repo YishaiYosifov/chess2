@@ -13,7 +13,11 @@ public interface IMatchmakingClient
 }
 
 [Authorize("AccessToken")]
-public class MatchmakingHub(ILogger<MatchmakingHub> logger, IMatchmakingService matchmakingService, IAuthService authService) : Hub<IMatchmakingClient>
+public class MatchmakingHub(
+    ILogger<MatchmakingHub> logger,
+    IMatchmakingService matchmakingService,
+    IAuthService authService
+) : Hub<IMatchmakingClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
     private readonly ILogger<MatchmakingHub> _logger = logger;
@@ -31,8 +35,5 @@ public class MatchmakingHub(ILogger<MatchmakingHub> logger, IMatchmakingService 
         var user = userResult.Value;
     }
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-
-    }
+    public override async Task OnDisconnectedAsync(Exception? exception) { }
 }
