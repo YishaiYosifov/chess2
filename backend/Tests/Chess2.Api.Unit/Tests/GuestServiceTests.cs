@@ -1,10 +1,12 @@
-﻿using AutoFixture;
+﻿using System.Security.Claims;
+using AutoFixture;
 using Chess2.Api.Models;
 using Chess2.Api.Services;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
@@ -22,7 +24,8 @@ public class GuestServiceTests : BaseUnitTest
         _hostEnvironmentMock = Fixture.Create<IWebHostEnvironment>();
         _appSettingsMock = Fixture.Create<IOptions<AppSettings>>();
         _tokenProviderMock = Fixture.Create<ITokenProvider>();
-        _guestService = new(_tokenProviderMock, _appSettingsMock, _hostEnvironmentMock);
+        var loggerMock = Fixture.Create<ILogger<GuestService>>();
+        _guestService = new(loggerMock, _tokenProviderMock, _appSettingsMock, _hostEnvironmentMock);
     }
 
     [Fact]
@@ -78,5 +81,20 @@ public class GuestServiceTests : BaseUnitTest
                 guestToken,
                 ArgEx.FluentAssert<CookieOptions>(x => x.Should().BeEquivalentTo(cookieOptions))
             );
+    }
+
+    [Theory]
+    [InlineData("", false)]
+    [InlineData("0", false)]
+    [InlineData("1", true)]
+    public void Guest_is_detected_correctly(string anonymousClaim, bool isGuest)
+    {
+        var principles = new ClaimsPrincipal();
+        var identity = new ClaimsIdentity([new Claim(ClaimTypes.Anonymous, anonymousClaim)]);
+        principles.AddIdentity(identity);
+
+        var result = _guestService.IsGuest(principles);
+
+        result.Should().Be(isGuest);
     }
 }
