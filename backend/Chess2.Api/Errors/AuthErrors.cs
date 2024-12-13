@@ -9,4 +9,7 @@ public static class AuthErrors
 
     public static Error TokenInvalid =>
         Error.Unauthorized("Auth.TokenInvalid", "The authentication token provided is invalid");
+
+    public static Error IncorrectUserType =>
+        Error.Unauthorized("Auth.WrongType", "Authed user type is incorrect");
 }
