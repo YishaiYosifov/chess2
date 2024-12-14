@@ -123,28 +123,16 @@ const UserPage = async ({ params }: { params: Params }) => {
                 </section>
             </div>
 
-            <div className="hidden h-full max-w-4xl flex-col gap-10 p-10 md:flex">
+            <div className="hidden max-w-4xl flex-col gap-10 p-10 md:flex">
                 <Profile profile={profile} />
-                <RatingCard ratingData={testRatingData} className="flex-none" />
-                {/* <RatingScroll>
-                    <RatingCard
-                        ratingData={testRatingData}
-                        className="flex-none"
-                    />
-                    <RatingCard
-                        ratingData={testRatingData}
-                        className="flex-none"
-                    />
-                    <RatingCard
-                        ratingData={testRatingData}
-                        className="flex-none"
-                    />
-                </RatingScroll> */}
-                <GamesTable
-                    className="max-w-4xl"
-                    games={testGamesData}
-                    profileViewpoint={profile}
-                />
+
+                <RatingScroll>
+                    <RatingCard ratingData={testRatingData} />
+                    <RatingCard ratingData={testRatingData} />
+                    <RatingCard ratingData={testRatingData} />
+                </RatingScroll>
+
+                <GamesTable games={testGamesData} profileViewpoint={profile} />
             </div>
         </>
     );
