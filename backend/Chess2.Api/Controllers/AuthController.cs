@@ -81,14 +81,6 @@ public class AuthController(
         );
     }
 
-#if DEBUG
-    [HttpPost("test")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize]
-    public IActionResult Test() => NoContent();
-#endif
-
     [HttpPost("guest")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult CreatesGuestUser()
@@ -97,4 +89,18 @@ public class AuthController(
         _guestService.SetGuestCookie(guestToken, HttpContext);
         return NoContent();
     }
+
+#if DEBUG
+    [HttpPost("test-authed")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
+    public IActionResult TestAuthed() => NoContent();
+
+    [HttpPost("test-guest")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize("GuestAccess")]
+    public IActionResult TestGuest() => NoContent();
+#endif
 }

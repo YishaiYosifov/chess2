@@ -14,26 +14,43 @@ public static class AuthTestUtils
     /// <summary>
     /// Calls <see cref="IsAuthenticated(IChess2Api)"/> and asserts it is successful
     /// </summary>
-    public static async Task AssertAuthenticated(IChess2Api apiClient)
-    {
+    public static async Task AssertAuthenticated(IChess2Api apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeTrue();
-    }
 
     /// <summary>
     /// Calls <see cref="IsAuthenticated(IChess2Api)"/> and asserts it is not successful
     /// </summary>
-    public static async Task AssertUnauthenticated(IChess2Api apiClient)
-    {
+    public static async Task AssertUnauthenticated(IChess2Api apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeFalse();
-    }
 
     /// <summary>
-    /// Attempt to call a test route to check if we are authenticated
+    /// Attempt to call a test auth route to check if we are authenticated
     /// </summary>
     public static async Task<bool> IsAuthenticated(IChess2Api apiClient)
     {
         var testAuthResponse = await apiClient.TestAuthAsync();
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
+    }
+
+    /// <summary>
+    /// Calls <see cref="IsGuestAuthenticated(IChess2Api)"/> and asserts it is successful
+    /// </summary>
+    public static async Task AssertGuestAuthenticated(IChess2Api apiClient) =>
+        (await IsGuestAuthenticated(apiClient)).Should().BeTrue();
+
+    /// <summary>
+    /// Calls <see cref="IsGuestAuthenticated(IChess2Api)"/> and asserts it is not successful
+    /// </summary>
+    public static async Task AssertGuestUnauthenticated(IChess2Api apiClient) =>
+        (await IsGuestAuthenticated(apiClient)).Should().BeFalse();
+
+    /// <summary>
+    /// Attempt to call the test guest auth route to check if we are guest authenticated
+    /// </summary>
+    public static async Task<bool> IsGuestAuthenticated(IChess2Api apiClient)
+    {
+        var testGuestAuthResponse = await apiClient.TestGuestAsync();
+        return testGuestAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
     public static async Task<Tokens> Authenticate(
