@@ -15,8 +15,14 @@ public interface IChess2Api
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();
 
-    [Post("/api/auth/test")]
+    [Post("/api/auth/guest")]
+    Task<IApiResponse> CreateGuestAsync();
+
+    [Post("/api/auth/test-authed")]
     Task<IApiResponse> TestAuthAsync();
+
+    [Post("/api/auth/test-guest")]
+    Task<IApiResponse> TestGuestAsync();
     #endregion
 
     #region Profile Controller
