@@ -10,5 +10,7 @@ public class Rating
     [ForeignKey(nameof(UserId))]
     public required AuthedUser User { get; set; }
 
+    public TimeControl TimeControl { get; set; }
+
     public int Value { get; set; }
 }
