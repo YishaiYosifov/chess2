@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models.Entities;
+﻿using Chess2.Api.Models;
+using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -26,26 +27,52 @@ public class RatingRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Get_all_ratings_for_specific_user()
     {
-        var user1 = new AuthedUserFaker().Generate();
-        var user2 = new AuthedUserFaker().Generate();
-        user2.Ratings = [
-            new RatingFaker(user2).Generate(),
-            new RatingFaker(user2).Generate(),
+        var otherUser1 = new AuthedUserFaker().Generate();
+        var otherUser2 = new AuthedUserFaker().Generate();
+        otherUser2.Ratings = [
+            new RatingFaker(otherUser2).Generate(),
+            new RatingFaker(otherUser2).Generate(),
         ];
 
-        var getFromUser = new AuthedUserFaker().Generate();
+        var targetUser = new AuthedUserFaker().Generate();
         var ratings = new List<Rating>() {
-            new RatingFaker(getFromUser).Generate(),
-            new RatingFaker(getFromUser).Generate(),
-            new RatingFaker(getFromUser).Generate()
+            new RatingFaker(targetUser).Generate(),
+            new RatingFaker(targetUser).Generate(),
+            new RatingFaker(targetUser).Generate()
         };
-        getFromUser.Ratings = ratings;
+        targetUser.Ratings = ratings;
 
-        await DbContext.AddRangeAsync(user1, user2, getFromUser);
+        await DbContext.AddRangeAsync(otherUser1, otherUser2, targetUser);
         await DbContext.SaveChangesAsync();
 
-        var results = await _ratingRepository.GetAllRatings(getFromUser);
+        var results = await _ratingRepository.GetAllRatings(targetUser);
 
         results.Should().BeEquivalentTo(ratings);
+    }
+
+    [Fact]
+    public async Task Get_rating_for_time_control()
+    {
+        var otherUser = new AuthedUserFaker().Generate();
+        otherUser.Ratings = [
+            new RatingFaker(otherUser).Generate(),
+            new RatingFaker(otherUser).Generate(),
+        ];
+
+        var targetUser = new AuthedUserFaker().Generate();
+        var ratings = new List<Rating>() {
+            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Bullet).Generate(),
+            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
+            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Rapid).Generate()
+        };
+        var targetRating = ratings[1];
+        targetUser.Ratings = ratings;
+
+        await DbContext.AddRangeAsync(otherUser, targetUser);
+        await DbContext.SaveChangesAsync();
+
+        var results = await _ratingRepository.GetTimeControlRating(targetUser, targetRating.TimeControl);
+
+        results.Should().BeEquivalentTo(targetRating);
     }
 }
