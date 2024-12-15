@@ -22,4 +22,6 @@ public class AuthedUser
     public required byte[] PasswordSalt { get; set; }
 
     public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
+
+    public ICollection<Rating> Ratings { get; set; } = [];
 }
