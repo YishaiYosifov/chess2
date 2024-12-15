@@ -13,7 +13,6 @@ public interface IGuestService
     void SetGuestCookie(string guestToken, HttpContext context);
 
     bool IsGuest(ClaimsPrincipal? userClaims);
-    ErrorOr<string> GetGuestId(ClaimsPrincipal? userClaims);
 }
 
 public class GuestService(
@@ -63,35 +62,6 @@ public class GuestService(
         var anonymousClaimResult = userClaims.GetClaim(ClaimTypes.Anonymous);
         var isGuest = !anonymousClaimResult.IsError && anonymousClaimResult.Value.Value == "1";
         return isGuest;
-    }
-
-    /// <summary>
-    /// Finds the guest ID for the provided claims.
-    /// If the user is not a guest, an error will be returned
-    /// </summary>
-    public ErrorOr<string> GetGuestId(ClaimsPrincipal? userClaims)
-    {
-        var userIdClaimResult = userClaims.GetClaim(ClaimTypes.NameIdentifier);
-        if (userIdClaimResult.IsError)
-        {
-            _logger.LogWarning(
-                "A user tried to access a guest authorized endpoint "
-                    + "but the user id claim could not be found"
-            );
-            return userIdClaimResult.Errors;
-        }
-        var userIdClaim = userIdClaimResult.Value;
-
-        if (!IsGuest(userClaims))
-        {
-            _logger.LogInformation(
-                "Attempted to get guest id for {GuestId}, but the user is not a guest",
-                userIdClaim.Value
-            );
-            return AuthErrors.IncorrectUserType;
-        }
-
-        return userIdClaim.Value;
     }
 
     private static string GenerateGuestId()
