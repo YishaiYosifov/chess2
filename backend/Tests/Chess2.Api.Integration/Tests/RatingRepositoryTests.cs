@@ -44,7 +44,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user1, user2, getFromUser);
         await DbContext.SaveChangesAsync();
 
-        var results = await _ratingRepository.GetUserRatings(getFromUser);
+        var results = await _ratingRepository.GetAllRatings(getFromUser);
 
         results.Should().BeEquivalentTo(ratings);
     }
