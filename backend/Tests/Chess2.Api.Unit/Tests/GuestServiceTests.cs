@@ -104,47 +104,4 @@ public class GuestServiceTests : BaseUnitTest
         var result = _guestService.IsGuest(null);
         result.Should().BeFalse();
     }
-
-    [Fact]
-    public void Guest_id_is_returned_without_valid_claims()
-    {
-        var id = "test-id";
-
-        var principles = new ClaimsPrincipal();
-        var identity = new ClaimsIdentity(
-            [new Claim(ClaimTypes.NameIdentifier, id), new Claim(ClaimTypes.Anonymous, "1")]
-        );
-        principles.AddIdentity(identity);
-
-        var result = _guestService.GetGuestId(principles);
-
-        result.IsError.Should().BeFalse();
-        result.Value.Should().Be(id);
-    }
-
-    [Fact]
-    public void Unauthorized_is_returned_without_id_claim()
-    {
-        var principles = new ClaimsPrincipal();
-
-        var result = _guestService.GetGuestId(principles);
-
-        result.IsError.Should().BeTrue();
-        result.Errors.Should().HaveCount(1);
-        result.Errors[0].Code.Should().Be("General.Unauthorized");
-    }
-
-    [Fact]
-    public void Unauthorized_is_returned_when_user_is_not_a_guest()
-    {
-        var principles = new ClaimsPrincipal();
-        var identity = new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "test-id")]);
-        principles.AddIdentity(identity);
-
-        var result = _guestService.GetGuestId(principles);
-
-        result.IsError.Should().BeTrue();
-        result.Errors.Should().HaveCount(1);
-        result.Errors[0].Code.Should().Be("Auth.WrongType");
-    }
 }

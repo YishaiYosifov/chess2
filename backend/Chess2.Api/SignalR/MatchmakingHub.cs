@@ -1,39 +1,54 @@
 ﻿using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System.Security.Claims;
 
 namespace Chess2.Api.SignalR;
 
-public interface IMatchmakingClient
+public interface IMatchmakingClient : IChess2HubClient
 {
-    public Task MatchFound(string token);
-    public Task ReceiveError(IEnumerable<SignalRError> error);
+    public Task MatchFoundAsync(string token);
 }
 
 [Authorize("GuestAccess")]
 public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,
-    IGuestService guestService
-) : Hub<IMatchmakingClient>
+    IGuestService guestService,
+    IAuthService authService
+) : Chess2Hub<IMatchmakingClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
-    private readonly ILogger<MatchmakingHub> _logger = logger;
     private readonly IGuestService _guestService = guestService;
+    private readonly ILogger<MatchmakingHub> _logger = logger;
+    private readonly IAuthService _authService = authService;
 
-    public async Task SeekMatchAsync()
+    public async Task SeekMatchAsync(int timeControl, int increment)
     {
-        var anonUserResult = _guestService.GetAnonUserAsync(Context.User);
-        if (anonUserResult.IsError)
+        var userId = Context.UserIdentifier;
+        if (userId is null)
         {
-            await Clients.Caller.ReceiveError(anonUserResult.Errors.ToSignalR());
+            await HandleErrors(Error.Unauthorized());
             return;
         }
-        var anonUser = anonUserResult.Value;
 
-        await _matchmakingService.Seek(anonUser.UserId, 1, 2, 3);
+        var isGuest = _guestService.IsGuest(Context.User);
+        if (isGuest)
+        {
+            await _matchmakingService.SeekGuestAsync(userId, timeControl, increment);
+            return;
+        }
+
+        var userResult = await _authService.GetLoggedInUserAsync(Context.User);
+        if (userResult.IsError)
+        {
+            await HandleErrors(userResult.Errors);
+            return;
+        }
+        await _matchmakingService.SeekAsync(userResult.Value, timeControl, increment);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception) { }
