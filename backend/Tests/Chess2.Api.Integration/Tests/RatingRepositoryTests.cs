@@ -6,6 +6,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Validations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,5 +93,21 @@ public class RatingRepositoryTests : BaseIntegrationTest
         var act = () => _ratingRepository.GetTimeControlRating(user, TimeControl.Blitz);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task Rating_is_created_when_missing()
+    {
+        var timeControl = TimeControl.Blitz;
+        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
+
+        var results = await _ratingRepository.GetTimeControlRating(user, timeControl);
+
+        results.TimeControl.Should().Be(timeControl);
+        results.Value.Should().Be(800);
+        results.User.Should().Be(user);
+
+        user.Ratings.Should().HaveCount(1);
+        user.Ratings.ElementAt(0).Should().BeEquivalentTo(results);
     }
 }
