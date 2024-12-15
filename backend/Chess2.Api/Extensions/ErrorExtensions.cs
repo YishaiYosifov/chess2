@@ -6,6 +6,9 @@ namespace Chess2.Api.Extensions;
 
 public static class ErrorExtensions
 {
+    public static IEnumerable<SignalRError> ToSignalR(this Error error) =>
+        [new SignalRError(error)];
+
     public static IEnumerable<SignalRError> ToSignalR(this IEnumerable<Error> errors) =>
         errors.Select(error => new SignalRError(error));
 
