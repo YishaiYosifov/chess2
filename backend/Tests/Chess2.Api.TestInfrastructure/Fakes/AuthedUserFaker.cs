@@ -35,6 +35,7 @@ public class AuthedUserFaker : Faker<AuthedUser>
             .RuleFor(x => x.About, "")
             .RuleFor(x => x.PasswordHash, PasswordHash)
             .RuleFor(x => x.PasswordSalt, PasswordSalt)
-            .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow);
+            .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow)
+            .RuleFor(x => x.Ratings, []);
     }
 }
