@@ -19,8 +19,20 @@ public class RatingRepository(Chess2DbContext dbContext) : IRatingRepository
             .Where(rating => rating.User == user)
             .ToListAsync();
 
-    public Task<Rating> GetTimeControlRating(AuthedUser user, TimeControl timeControl) =>
-        _dbContext.Ratings
+    public async Task<Rating> GetTimeControlRating(AuthedUser user, TimeControl timeControl) =>
+        await _dbContext.Ratings
             .Where(rating => rating.User == user && rating.TimeControl == timeControl)
-            .SingleAsync();
+            .SingleOrDefaultAsync() ?? await CreateRating(user, timeControl);
+
+    private async Task<Rating> CreateRating(AuthedUser user, TimeControl timeControl)
+    {
+        var rating = new Rating()
+        {
+            User = user,
+            TimeControl = timeControl,
+        };
+        user.Ratings.Add(rating);
+        await _dbContext.AddAsync(rating);
+        return rating;
+    }
 }
