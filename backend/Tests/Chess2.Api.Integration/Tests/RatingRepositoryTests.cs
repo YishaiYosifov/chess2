@@ -75,4 +75,22 @@ public class RatingRepositoryTests : BaseIntegrationTest
 
         results.Should().BeEquivalentTo(targetRating);
     }
+
+    [Fact]
+    public async Task Duplicate_time_control_rating()
+    {
+        var user = new AuthedUserFaker().Generate();
+        var ratings = new List<Rating>() {
+            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
+            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
+        };
+        user.Ratings = ratings;
+
+        await DbContext.AddAsync(user);
+        await DbContext.SaveChangesAsync();
+
+        var act = () => _ratingRepository.GetTimeControlRating(user, TimeControl.Blitz);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
 }
