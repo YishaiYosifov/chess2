@@ -68,11 +68,12 @@ builder.Services.AddDbContextPool<Chess2DbContext>(
     (serviceProvider, options) =>
         options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention()
 );
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect(appSettings.RedisConnString)
 );
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 #endregion
 
 #region Authentication
