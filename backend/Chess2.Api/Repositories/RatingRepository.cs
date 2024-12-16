@@ -32,7 +32,10 @@ public class RatingRepository(Chess2DbContext dbContext) : IRatingRepository
             TimeControl = timeControl,
         };
         user.Ratings.Add(rating);
+        
         await _dbContext.AddAsync(rating);
+        await _dbContext.SaveChangesAsync();
+
         return rating;
     }
 }
