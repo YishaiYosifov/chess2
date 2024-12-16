@@ -46,7 +46,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherUser1, otherUser2, targetUser);
         await DbContext.SaveChangesAsync();
 
-        var results = await _ratingRepository.GetAllRatings(targetUser);
+        var results = await _ratingRepository.GetAllRatingsAsync(targetUser);
 
         results.Should().BeEquivalentTo(ratings);
     }
@@ -72,7 +72,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherUser, targetUser);
         await DbContext.SaveChangesAsync();
 
-        var results = await _ratingRepository.GetTimeControlRating(targetUser, targetRating.TimeControl);
+        var results = await _ratingRepository.GetTimeControlRatingAsync(targetUser, targetRating.TimeControl);
 
         results.Should().BeEquivalentTo(targetRating);
     }
@@ -90,7 +90,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.AddAsync(user);
         await DbContext.SaveChangesAsync();
 
-        var act = () => _ratingRepository.GetTimeControlRating(user, TimeControl.Blitz);
+        var act = () => _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz);
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -101,7 +101,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         var timeControl = TimeControl.Blitz;
         var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
-        var results = await _ratingRepository.GetTimeControlRating(user, timeControl);
+        var results = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl);
 
         results.TimeControl.Should().Be(timeControl);
         results.Value.Should().Be(800);
