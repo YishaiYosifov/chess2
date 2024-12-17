@@ -1,4 +1,9 @@
-﻿using Chess2.Api.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.TestInfrastructure;
@@ -7,11 +12,6 @@ using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Validations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.Integration.Tests;
 
@@ -30,16 +30,18 @@ public class RatingRepositoryTests : BaseIntegrationTest
     {
         var otherUser1 = new AuthedUserFaker().Generate();
         var otherUser2 = new AuthedUserFaker().Generate();
-        otherUser2.Ratings = [
+        otherUser2.Ratings =
+        [
             new RatingFaker(otherUser2).Generate(),
             new RatingFaker(otherUser2).Generate(),
         ];
 
         var targetUser = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>() {
+        var ratings = new List<Rating>()
+        {
             new RatingFaker(targetUser).Generate(),
             new RatingFaker(targetUser).Generate(),
-            new RatingFaker(targetUser).Generate()
+            new RatingFaker(targetUser).Generate(),
         };
         targetUser.Ratings = ratings;
 
@@ -55,16 +57,18 @@ public class RatingRepositoryTests : BaseIntegrationTest
     public async Task Get_rating_for_time_control()
     {
         var otherUser = new AuthedUserFaker().Generate();
-        otherUser.Ratings = [
+        otherUser.Ratings =
+        [
             new RatingFaker(otherUser).Generate(),
             new RatingFaker(otherUser).Generate(),
         ];
 
         var targetUser = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>() {
+        var ratings = new List<Rating>()
+        {
             new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Bullet).Generate(),
             new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
-            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Rapid).Generate()
+            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Rapid).Generate(),
         };
         var targetRating = ratings[1];
         targetUser.Ratings = ratings;
@@ -72,7 +76,10 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherUser, targetUser);
         await DbContext.SaveChangesAsync();
 
-        var results = await _ratingRepository.GetTimeControlRatingAsync(targetUser, targetRating.TimeControl);
+        var results = await _ratingRepository.GetTimeControlRatingAsync(
+            targetUser,
+            targetRating.TimeControl
+        );
 
         results.Should().BeEquivalentTo(targetRating);
     }
@@ -81,7 +88,8 @@ public class RatingRepositoryTests : BaseIntegrationTest
     public async Task Duplicate_time_control_rating()
     {
         var user = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>() {
+        var ratings = new List<Rating>()
+        {
             new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
             new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
         };

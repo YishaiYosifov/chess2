@@ -10,7 +10,8 @@ public interface IChess2HubClient
     Task ReceiveErrorAsync(IEnumerable<SignalRError> error);
 }
 
-public class Chess2Hub<T> : Hub<T> where T : class, IChess2HubClient
+public class Chess2Hub<T> : Hub<T>
+    where T : class, IChess2HubClient
 {
     protected Task HandleErrors(Error error) => HandleErrors([error]);
 
