@@ -34,13 +34,13 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     const hasAuthCookies = nextCookies.has(constants.REFRESH_TOKEN);
 
     return (
-        <html lang="en" data-bs-theme="dark" className="min-w-[320px]">
+        <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
                     <Navbar />
-                    <main className="flex h-screen flex-row justify-center pt-[72px]">
+                    <main className="flex flex-row justify-center pt-[72px]">
                         {children}
                     </main>
                 </AuthContextProvider>

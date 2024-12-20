@@ -16,7 +16,7 @@ const GamesTable = ({
     className?: string;
 }) => {
     return (
-        <table className={clsx("w-full table-auto", className)}>
+        <table className={clsx("h-max w-full table-auto", className)}>
             <colgroup>
                 <col style={{ width: "50%" }} />
                 <col style={{ width: "30%" }} />
