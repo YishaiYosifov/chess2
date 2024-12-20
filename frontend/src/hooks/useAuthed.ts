@@ -1,5 +1,5 @@
 import { AuthContextInterface, AuthContext } from "@/contexts/authContext";
-import { PrivateAuthedProfileOut } from "@/lib/apiClient/models";
+import { PrivateUser } from "@/lib/apiClient/models";
 
 import { useContext } from "react";
 
@@ -22,6 +22,6 @@ export function useAuthedContext(): Required<AuthContextInterface> {
  * @returns the authed user profile
  */
 
-export function useAuthedProfile(): PrivateAuthedProfileOut {
+export function useAuthedProfile(): PrivateUser {
     return useAuthedContext().authedProfile;
 }
