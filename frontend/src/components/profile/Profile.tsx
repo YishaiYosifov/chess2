@@ -16,7 +16,7 @@ const Profile = ({
     className?: string;
 }) => {
     return (
-        <Card className={clsx("w-full flex-col gap-3 md:flex-row", className)}>
+        <Card className={clsx("w-full flex-col gap-3 sm:flex-row", className)}>
             <ProfilePicture
                 className="self-center"
                 username={profile.username}
