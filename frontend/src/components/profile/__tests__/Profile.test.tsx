@@ -1,9 +1,8 @@
 import { render, screen } from "@testing-library/react";
 
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
-
-import Profile from "../Profile";
 import { User } from "@/lib/apiClient/models";
+import Profile from "../Profile";
 
 describe("Profile", () => {
     let profileMock: User;

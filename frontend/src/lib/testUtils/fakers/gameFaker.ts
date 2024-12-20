@@ -1,0 +1,16 @@
+import { faker } from "@faker-js/faker";
+
+import { FinishedGame, GameResult } from "@/lib/apiClient/models";
+import { createUser } from "./userFaker";
+
+export function createFinishedGame(): FinishedGame {
+    return {
+        token: faker.string.uuid(),
+        userWhite: createUser(),
+        userBlack: createUser(),
+        timeControl: 900,
+        increment: 1,
+        results: GameResult.White,
+        createdAt: Date.now().valueOf(),
+    };
+}
