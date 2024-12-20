@@ -19,7 +19,7 @@ const ProfilePicture = ({
     return (
         <Image
             data-testid="profilePicture"
-            className={clsx("rounded-md", className)}
+            className={clsx("aspect-square rounded-md", className)}
             alt="profile picture"
             src={`/assets/logo-image-temp.webp?${lastChanged ?? 0}`}
             width={width}

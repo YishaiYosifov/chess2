@@ -97,10 +97,10 @@ const UserPage = async ({ params }: { params: Params }) => {
     ];
 
     return (
-        <div className="flex max-w-4xl flex-col gap-10 p-10">
+        <div className="flex w-screen max-w-4xl flex-col gap-10 p-10">
             <Profile profile={profile} />
 
-            <RatingScroll>
+            <section className="scrollbar flex flex-shrink-0 gap-10 overflow-x-auto">
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
@@ -109,18 +109,12 @@ const UserPage = async ({ params }: { params: Params }) => {
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
-            </RatingScroll>
+            </section>
 
-            <GamesTable games={testGamesData} profileViewpoint={profile} />
+            <section className="flex-shrink-0 overflow-x-auto">
+                <GamesTable games={testGamesData} profileViewpoint={profile} />
+            </section>
         </div>
     );
 };
 export default UserPage;
-
-const RatingScroll = ({ children }: { children: React.ReactNode }) => {
-    return (
-        <section className="scrollbar flex flex-shrink-0 gap-10 overflow-x-auto">
-            {children}
-        </section>
-    );
-};
