@@ -20,12 +20,9 @@ const Input = ({
     ...inputProps
 }: InputProps) => {
     return (
-        <>
+        <div>
             {label && (
-                <label
-                    className="text-sm font-medium text-text/90"
-                    htmlFor={id}
-                >
+                <label className="font-medium text-text/90" htmlFor={id}>
                     {label}
                 </label>
             )}
@@ -45,7 +42,7 @@ const Input = ({
                     </span>
                 )}
             </div>
-        </>
+        </div>
     );
 };
 export default Input;

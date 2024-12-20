@@ -1,15 +1,16 @@
 "use client";
 
-import { Button } from "react-bootstrap";
-
+import { TrashIcon } from "@heroicons/react/24/outline";
 import { useRef, useState, ChangeEvent } from "react";
 
 import { useAuthedProfile } from "@/hooks/useAuthed";
 import { revalidateUser } from "@/app/actions";
-import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/profile/ProfilePicture";
+import { settingsApi } from "@/lib/apiClient/client";
+import Button from "@/components/helpers/Button";
+import Card from "@/components/helpers/Card";
 
 const ProfilePictureSettings = () => {
     const { username, pfpLastChanged } = useAuthedProfile();
@@ -45,41 +46,37 @@ const ProfilePictureSettings = () => {
     }
 
     return (
-        <div className={styles.container}>
-            <ProfilePicture
-                username={username}
-                lastChanged={lastChanged}
-                className={styles["profile-picture"]}
-            />
+        <Card className="items-center gap-3">
+            <ProfilePicture username={username} lastChanged={lastChanged} />
 
-            <div className={styles["upload-container"]}>
+            <section>
                 <input
                     type="file"
-                    accept=".jpg,.jpeg,.png,.webp,.gif"
+                    accept=".jpg,.jpeg,.png,.webp"
                     ref={uploadPfpInput}
                     onChange={uploadPfp}
                     hidden
                     data-testid="pfpSettingsFileSelector"
                 />
 
-                <div className={styles["upload-button-container"]}>
+                <section className="flex items-center gap-2">
                     <Button
-                        variant="dark"
                         onClick={openFileSelector}
                         data-testid="pfpSettingsSubmit"
                     >
                         Update Profile Picture
                     </Button>
+                    <TrashIcon className="size-9 text-secondary" />
                     <span
                         className="text-invalid"
                         data-testid="pfpSettingsStatus"
                     >
                         {status}
                     </span>
-                </div>
-                <p>Must be JPEG, PNG, WEBP or GIF and cannot exceed 1MB</p>
-            </div>
-        </div>
+                </section>
+                <p>Must be JPEG, PNG or WEBP and cannot exceed 2MB</p>
+            </section>
+        </Card>
     );
 };
 export default ProfilePictureSettings;
