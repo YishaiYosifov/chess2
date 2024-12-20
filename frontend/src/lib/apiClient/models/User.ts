@@ -16,7 +16,7 @@ export interface UserLogin {
 }
 
 export interface User {
-    userId: number;
+    authedUserId: number;
     username: string;
     about: string;
     countryCode?: string;
