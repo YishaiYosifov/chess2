@@ -6,6 +6,7 @@ const SettingsPage = withAuth(async () => {
     return (
         <div className="flex w-screen max-w-4xl flex-col gap-10 p-10">
             <ProfilePictureSettings />
+            <CredentialSettings />
         </div>
     );
 });
