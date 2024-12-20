@@ -5,12 +5,12 @@ import { User } from "@/lib/apiClient/models";
 import Profile from "../Profile";
 
 describe("Profile", () => {
-    let profileMock: User;
+    let userMock: User;
 
-    beforeEach(() => (profileMock = createUser()));
+    beforeEach(() => (userMock = createUser()));
 
     it("should render the profile correcetly", () => {
-        render(<Profile profile={profileMock} />);
+        render(<Profile profile={userMock} />);
 
         expect(screen.queryByAltText("profile picture")).toBeInTheDocument();
         expect(screen.queryByTestId("username")).toBeInTheDocument();
@@ -18,28 +18,26 @@ describe("Profile", () => {
     });
 
     it("should display the username", () => {
-        render(<Profile profile={profileMock} />);
+        render(<Profile profile={userMock} />);
 
-        expect(screen.queryByText(profileMock.username)).toBeInTheDocument();
+        expect(screen.queryByText(userMock.username)).toBeInTheDocument();
         const flag = screen.getByTestId("flag");
         expect(flag).toHaveAttribute(
             "src",
-            `/assets/flags/${profileMock.countryCode}.svg`,
+            `/assets/flags/${userMock.countryCode}.svg`,
         );
     });
 
     it("should display the about me", () => {
-        render(<Profile profile={profileMock} />);
-        expect(screen.getByTestId("aboutMe").textContent).toBe(
-            profileMock.about,
-        );
+        render(<Profile profile={userMock} />);
+        expect(screen.getByTestId("aboutMe").textContent).toBe(userMock.about);
     });
 
     it("should render the profile picture correctly", () => {
-        render(<Profile profile={profileMock} />);
+        render(<Profile profile={userMock} />);
 
         const profilePicture = screen.getByAltText("profile picture");
-        const profilePictureSrc = `/assets/logo-image-temp.webp?${profileMock.pfpLastChanged}`;
+        const profilePictureSrc = `/assets/logo-image-temp.webp?${userMock.pfpLastChanged}`;
         expect(profilePicture).toHaveAttribute("src", profilePictureSrc);
     });
 });

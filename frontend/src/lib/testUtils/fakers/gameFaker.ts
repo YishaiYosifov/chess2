@@ -3,7 +3,9 @@ import { faker } from "@faker-js/faker";
 import { FinishedGame, GameResult } from "@/lib/apiClient/models";
 import { createUser } from "./userFaker";
 
-export function createFinishedGame(): FinishedGame {
+export function createFinishedGame(
+    override?: Partial<FinishedGame>,
+): FinishedGame {
     return {
         token: faker.string.uuid(),
         userWhite: createUser(),
@@ -12,5 +14,6 @@ export function createFinishedGame(): FinishedGame {
         increment: 1,
         results: GameResult.White,
         createdAt: Date.now().valueOf(),
+        ...override,
     };
 }

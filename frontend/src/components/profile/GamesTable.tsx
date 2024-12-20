@@ -47,7 +47,11 @@ const GamesTable = ({
                     ))
                 ) : (
                     <tr className="bg-gray-400/5">
-                        <td colSpan={3} className="p-5 text-center">
+                        <td
+                            colSpan={3}
+                            className="p-5 text-center"
+                            data-testid="noGamesRow"
+                        >
                             This user hasn&#39;t played any games yet
                         </td>
                     </tr>

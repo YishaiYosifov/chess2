@@ -7,28 +7,28 @@ import { createUser } from "@/lib/testUtils/fakers/userFaker";
 import GameRow from "../GameRow";
 
 describe("GameRow", () => {
-    let finishedGame: FinishedGame;
+    let finishedGameMock: FinishedGame;
     let userMock: User;
 
     beforeEach(() => {
-        finishedGame = createFinishedGame();
+        finishedGameMock = createFinishedGame();
         userMock = createUser();
     });
 
     it("should display the correct usernames", () => {
         render(
             <GameRow
-                game={finishedGame}
+                game={finishedGameMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
         );
 
         expect(screen.getByTestId("gameRowUsernameWhite").textContent).toBe(
-            finishedGame.userWhite?.username,
+            finishedGameMock.userWhite?.username,
         );
         expect(screen.getByTestId("gameRowUsernameBlack").textContent).toBe(
-            finishedGame.userBlack?.username,
+            finishedGameMock.userBlack?.username,
         );
     });
 
@@ -39,11 +39,11 @@ describe("GameRow", () => {
     ])(
         "should correctly calculate the score of each player",
         (results, whiteScore, blackScore) => {
-            finishedGame.results = results;
+            finishedGameMock.results = results;
 
             render(
                 <GameRow
-                    game={finishedGame}
+                    game={finishedGameMock}
                     profileViewpoint={userMock}
                     index={0}
                 />,
@@ -61,7 +61,7 @@ describe("GameRow", () => {
     it("should display the correct game link", () => {
         render(
             <GameRow
-                game={finishedGame}
+                game={finishedGameMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
@@ -70,7 +70,7 @@ describe("GameRow", () => {
             .getAllByTestId("gameRowLink")
             .forEach((gameLink) =>
                 expect(gameLink.getAttribute("href")).toBe(
-                    `/game/${finishedGame.token}`,
+                    `/game/${finishedGameMock.token}`,
                 ),
             );
     });
@@ -78,14 +78,14 @@ describe("GameRow", () => {
     it("should display the correct date", () => {
         render(
             <GameRow
-                game={finishedGame}
+                game={finishedGameMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
         );
 
         const formattedDate = new Date(
-            finishedGame.createdAt,
+            finishedGameMock.createdAt,
         ).toLocaleDateString("en-us", {
             month: "short",
             day: "numeric",

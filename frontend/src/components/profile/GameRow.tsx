@@ -25,7 +25,7 @@ const GameRow = ({
     index: number;
 }) => {
     const color =
-        game.userWhite?.userId == profileViewpoint.userId
+        game.userWhite?.authedUserId == profileViewpoint.authedUserId
             ? Color.White
             : Color.Black;
 
