@@ -40,7 +40,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                     <WSPushAction />
 
                     <Navbar />
-                    <main className="flex flex-row justify-center pt-[72px]">
+                    <main className="flex h-max min-h-screen flex-row justify-center pt-[72px]">
                         {children}
                     </main>
                 </AuthContextProvider>
