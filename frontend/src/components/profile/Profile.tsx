@@ -33,8 +33,7 @@ const Profile = ({
                     <Flag size={40} countryCode={profile.countryCode} />
                 </div>
                 <p className="text-text/70" data-testid="aboutMe">
-                    {profile.about}Lorem ipsum dolor sit amet, consectetur
-                    adipiscing elit, sed do eiusmod tempor
+                    {profile.about}
                 </p>
             </section>
         </Card>
