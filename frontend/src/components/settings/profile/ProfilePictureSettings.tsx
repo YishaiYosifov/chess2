@@ -62,6 +62,7 @@ const ProfilePictureSettings = () => {
                 <section className="flex items-center gap-2">
                     <Button
                         onClick={openFileSelector}
+                        className="text-xl"
                         data-testid="pfpSettingsSubmit"
                     >
                         Update Profile Picture

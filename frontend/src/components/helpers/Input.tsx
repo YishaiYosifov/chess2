@@ -20,7 +20,7 @@ const Input = ({
     ...inputProps
 }: InputProps) => {
     return (
-        <div>
+        <div className={className}>
             {label && (
                 <label className="font-medium text-text/90" htmlFor={id}>
                     {label}
