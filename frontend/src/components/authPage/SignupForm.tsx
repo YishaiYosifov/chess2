@@ -1,5 +1,6 @@
 "use client";
 
+import { getCountryForTimezone } from "countries-and-timezones";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import * as yup from "yup";
@@ -8,7 +9,6 @@ import { Form, Formik, FormikHelpers } from "formik";
 import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
-import { getCountryFromUserTimezone } from "@/lib/utils/geolocation";
 import { ResponseError } from "@/lib/apiClient/models";
 import { authApi } from "@/lib/apiClient/client";
 import constants from "@/lib/constants";
@@ -31,7 +31,13 @@ const signupSchema = yup.object({
 
 const SignupForm = () => {
     const router = useRouter();
-    const countryCode = useMemo(getCountryFromUserTimezone, []);
+    const countryCode = useMemo(
+        () =>
+            getCountryForTimezone(
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+            )?.id,
+        [],
+    );
 
     async function onSubmit(
         values: SignupFormValues,
