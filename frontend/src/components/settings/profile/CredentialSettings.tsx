@@ -16,7 +16,7 @@ const CredentialSettings = () => {
     }
 
     return (
-        <Card className="flex-col items-center gap-5 text-lg">
+        <Card className="flex-col gap-5 text-lg">
             <Input
                 label="Username"
                 placeholder={username}

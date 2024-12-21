@@ -1,16 +1,16 @@
 import { useField } from "formik";
 import React from "react";
 
-type FormikFieldProps<TProps extends React.ComponentType> = {
+type FormikFieldProps<TProps extends React.ElementType> = {
     asInput: TProps;
     name: string;
-} & React.ComponentProps<TProps>;
+} & React.ComponentPropsWithoutRef<TProps>;
 
 /**
  * Render a regular field as a formik field.
  * Adds error handling and formik field props.
  */
-const FormikField = <TProps extends React.ComponentType>({
+const FormikField = <TProps extends React.ElementType>({
     asInput,
     name,
     ...props
