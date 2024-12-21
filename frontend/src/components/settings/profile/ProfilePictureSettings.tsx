@@ -46,7 +46,7 @@ const ProfilePictureSettings = () => {
     }
 
     return (
-        <Card className="items-center gap-3">
+        <Card className="flex-col items-center gap-3 sm:flex-row">
             <ProfilePicture username={username} lastChanged={lastChanged} />
 
             <section>
@@ -62,19 +62,21 @@ const ProfilePictureSettings = () => {
                 <section className="flex items-center gap-2">
                     <Button
                         onClick={openFileSelector}
-                        className="text-xl"
+                        className="text-sm"
                         data-testid="pfpSettingsSubmit"
                     >
                         Update Profile Picture
                     </Button>
                     <TrashIcon className="size-9 text-secondary" />
+
                     <span
-                        className="text-invalid"
+                        className="text-error"
                         data-testid="pfpSettingsStatus"
                     >
                         {status}
                     </span>
                 </section>
+
                 <p>Must be JPEG, PNG or WEBP and cannot exceed 2MB</p>
             </section>
         </Card>

@@ -10,7 +10,7 @@ import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
 import userEvent from "@testing-library/user-event";
-import ProfileSettings from "../ProfileSettings";
+import ProfileSettings from "../-ProfileSettings";
 
 vi.mock("@/hooks/useAuthed");
 vi.mock("@/app/actions");

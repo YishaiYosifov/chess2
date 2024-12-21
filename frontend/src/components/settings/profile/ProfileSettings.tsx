@@ -1,120 +1,32 @@
 "use client";
 
-import { FormikHelpers, Formik } from "formik";
-import { Form } from "react-bootstrap";
-
-import { useAuthedProfile, useAuthedContext } from "@/hooks/useAuthed";
-import { revalidateUser } from "@/app/actions";
-import countries from "@/data/countries.json";
-import { EditableProfile } from "@/lib/apiClient/models";
-import { settingsApi } from "@/lib/apis";
-import constants from "@/lib/constants";
-
-import {
-    FormInput,
-    FormSelect,
-    FormikField,
-    SubmitButton,
-} from "@/components/form/FormElements";
-import FormField from "@/components/form/FormField";
+import Card from "@/components/helpers/Card";
+import { useAuthedProfile } from "@/hooks/useAuthed";
+import { useId } from "react";
 
 const ProfileSettings = () => {
-    const { username, about, countryAlpha3, location, firstName, lastName } =
-        useAuthedProfile();
-    const { setAuthedProfile } = useAuthedContext();
-
-    async function updateProfile(
-        values: EditableProfile,
-        helpers: FormikHelpers<EditableProfile>,
-    ) {
-        try {
-            const profile = await settingsApi.updateProfile(values);
-            setAuthedProfile(profile);
-            revalidateUser(username);
-        } catch (err) {
-            helpers.setStatus(constants.GENERIC_ERROR);
-            throw err;
-        }
-        helpers.resetForm();
-    }
+    const { about } = useAuthedProfile();
+    const aboutMeId = useId();
 
     return (
-        <Formik
-            onSubmit={updateProfile}
-            initialValues={{
-                about,
-                countryAlpha3,
-                location,
-                firstName,
-                lastName,
-            }}
-            enableReinitialize
-        >
-            {({ handleSubmit, status }) => (
-                <Form
-                    className={styles["profile-settings"]}
-                    aria-label="profile form"
-                    noValidate
-                    onSubmit={handleSubmit}
-                >
-                    <section className={styles["main-section"]}>
-                        <FormField label="First Name" hasValidation>
-                            <FormikField
-                                asInput={FormInput}
-                                name="firstName"
-                                maxLength={50}
-                            />
-                        </FormField>
+        <Card className="flex-col gap-3 text-lg">
+            <section>
+                <label htmlFor={aboutMeId}>About Me</label>
+                <textarea
+                    id={aboutMeId}
+                    placeholder={about}
+                    className="w-full rounded-md text-black"
+                    maxLength={300}
+                />
+            </section>
 
-                        <FormField label="Last Name" hasValidation>
-                            <FormikField
-                                asInput={FormInput}
-                                name="lastName"
-                                maxLength={50}
-                            />
-                        </FormField>
-
-                        <FormField label="Country" hasValidation>
-                            <FormikField
-                                asInput={FormSelect}
-                                name="countryAlpha3"
-                            >
-                                {Object.entries(countries).map(
-                                    ([alpha3, country]) => (
-                                        <option key={alpha3} value={alpha3}>
-                                            {country.name}
-                                        </option>
-                                    ),
-                                )}
-                            </FormikField>
-                        </FormField>
-
-                        <FormField label="Location" hasValidation>
-                            <FormikField
-                                asInput={FormInput}
-                                name="location"
-                                maxLength={40}
-                            />
-                        </FormField>
-                    </section>
-
-                    <FormField label="About" hasValidation>
-                        <FormikField
-                            asInput={FormInput}
-                            as="textarea"
-                            name="about"
-                            rows="5"
-                            maxLength={300}
-                            id="about"
-                        />
-                    </FormField>
-
-                    <span className="text-invalid">{status}</span>
-
-                    <SubmitButton variant="dark">Save</SubmitButton>
-                </Form>
-            )}
-        </Formik>
+            <section>
+                <label htmlFor="#country">Country</label>
+                <select className="w-full rounded-md text-black">
+                    <option>test</option>
+                </select>
+            </section>
+        </Card>
     );
 };
 export default ProfileSettings;
