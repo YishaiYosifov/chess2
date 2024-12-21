@@ -1,5 +1,3 @@
-import { CountryCode } from "countries-and-timezones";
-
 export enum UserType {
     Authed = "authed",
     Guest = "guest",
@@ -9,7 +7,7 @@ export interface UserIn {
     username: string;
     email: string;
     password: string;
-    countryCode?: CountryCode;
+    countryCode?: string;
 }
 
 export interface UserLogin {
