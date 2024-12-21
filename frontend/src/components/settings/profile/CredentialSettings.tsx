@@ -16,19 +16,17 @@ const CredentialSettings = () => {
     }
 
     return (
-        <Card className="flex flex-col items-center gap-5 text-lg">
+        <Card className="flex-col items-center gap-5 text-lg">
             <Input
                 label="Username"
                 placeholder={username}
                 disabled
-                className="w-full"
                 icon={<PencilSquareIcon />}
             />
             <Input
                 label="Email"
                 disabled
                 placeholder={anonymiseEmail(email)}
-                className="w-full"
                 icon={<PencilSquareIcon />}
             />
             <a className="text-secondary" href="">
