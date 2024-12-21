@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 
 import { EyeIcon as EyeIconOutline } from "@heroicons/react/24/outline";
 import { EyeIcon as EyeIconSolid } from "@heroicons/react/24/solid";
@@ -14,11 +14,11 @@ type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 const Input = ({
     className,
     label,
-    id,
     icon,
     "aria-label": ariaLabel,
     ...inputProps
 }: InputProps) => {
+    const id = useId();
     return (
         <div className={clsx("w-full", className)}>
             {label && (
