@@ -83,14 +83,12 @@ const SignupForm = () => {
                     <FormikField
                         asInput={Input}
                         label="Username"
-                        id="username"
                         name="username"
                         placeholder="Enter a username"
                     />
                     <FormikField
                         asInput={Input}
                         label="Email"
-                        id="email"
                         name="email"
                         placeholder="Enter an email"
                         type="email"
@@ -99,7 +97,6 @@ const SignupForm = () => {
                         asInput={PasswordInput}
                         name="password"
                         label="Password"
-                        id="password"
                     />
                 </div>
 
