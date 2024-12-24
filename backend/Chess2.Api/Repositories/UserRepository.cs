@@ -22,6 +22,8 @@ public interface IUserRepository
         ProfileEdit userEdit,
         CancellationToken cancellation = default
     );
+
+    public Task EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default);
 }
 
 public class UserRepository(Chess2DbContext dbContext) : IUserRepository
@@ -78,5 +80,12 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
         await _dbContext.SaveChangesAsync(cancellation);
 
         return user;
+    }
+
+    public async Task EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default)
+    {
+        user.Username = username;
+        user.UsernameLastChanged = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellation);
     }
 }

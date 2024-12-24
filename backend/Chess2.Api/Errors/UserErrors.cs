@@ -23,4 +23,7 @@ public static class UserErrors
 
     public static Error BadCredentials =>
         Error.Unauthorized("User.BadCredentials", "Username/email/password is connect");
+
+    public static Error SettingOnCooldown =>
+        Error.Forbidden("User.Cooldown.Setting", "Cannot edit a setting, on cooldown");
 }

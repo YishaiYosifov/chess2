@@ -1,10 +1,12 @@
 ﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using FluentValidation;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
 
@@ -19,13 +21,16 @@ public interface IUserService
         ProfileEdit userEdit,
         CancellationToken cancellation = default
     );
+
+    Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default);
 }
 
-public class UserService(IValidator<ProfileEdit> userEditValidator, IUserRepository userRepository)
+public class UserService(IValidator<ProfileEdit> userEditValidator, IUserRepository userRepository, IOptions<AppSettings> settings)
     : IUserService
 {
     private readonly IValidator<ProfileEdit> _profileEditValidator = userEditValidator;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly AppSettings _settings = settings.Value;
 
     /// <summary>
     /// Gets the user by its username.
@@ -51,5 +56,14 @@ public class UserService(IValidator<ProfileEdit> userEditValidator, IUserReposit
             return validationResult.Errors.ToErrorList();
 
         return await _userRepository.EditProfileAsync(user, userEdit, cancellation);
+    }
+
+    public async Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default)
+    {
+        if (DateTime.UtcNow - user.UsernameLastChanged < _settings.UsernameEditCooldown)
+            return UserErrors.SettingOnCooldown;
+
+        await _userRepository.EditUsernameAsync(user, username, cancellation);
+        return Result.Updated;
     }
 }

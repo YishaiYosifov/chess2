@@ -101,12 +101,28 @@ public class UserRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task Update_profile_with_null_data()
     {
-        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
+        var userToEdit = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
+        var originalUser = await DbContext.Users.AsNoTracking().SingleAsync();
 
-        var userToUpdate = DbContext.Users.AsNoTracking().Single();
-        await _userRepository.EditProfileAsync(userToUpdate, new());
+        await _userRepository.EditProfileAsync(userToEdit, new());
 
         var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
-        updatedUser.Should().BeEquivalentTo(user);
+        updatedUser.Should().BeEquivalentTo(originalUser);
+    }
+
+    [Fact]
+    public async Task Update_username_updates_username_last_changed()
+    {
+        var newUsername = "new-test-username";
+        var oldUsernameLastChanged = DateTime.UtcNow - TimeSpan.FromDays(7);
+        var userToEdit = await FakerUtils.StoreFaker(
+            DbContext, new AuthedUserFaker()
+                .RuleFor(x => x.UsernameLastChanged, oldUsernameLastChanged));
+
+        await _userRepository.EditUsernameAsync(userToEdit, newUsername);
+
+        var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
+        updatedUser.Username.Should().BeEquivalentTo(newUsername);
+        updatedUser.UsernameLastChanged.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
 }
