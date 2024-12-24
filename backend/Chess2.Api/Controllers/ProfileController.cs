@@ -3,6 +3,7 @@ using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 
 namespace Chess2.Api.Controllers;
 
@@ -58,6 +59,23 @@ public class ProfileController(IUserService userService, IAuthService authServic
         );
         return editResult.Match(
             (value) => Ok(new PrivateUserOut(value)),
+            (errors) => errors.ToProblemDetails()
+        );
+    }
+
+    [HttpPut("edit-username")]
+    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Authorize]
+    public async Task<IActionResult> EditUsername([FromBody] string username, CancellationToken cancellation)
+    {
+        var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User, cancellation);
+        if (userResult.IsError)
+            return userResult.Errors.ToProblemDetails();
+
+        var editResult = await _userService.EditUsernameAsync(userResult.Value, username, cancellation);
+        return editResult.Match(
+            (value) => NoContent(),
             (errors) => errors.ToProblemDetails()
         );
     }
