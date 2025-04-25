@@ -8,6 +8,7 @@ using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
+using Chess2.Api.Services.Matchmaking;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
 using ErrorOr;
@@ -74,6 +75,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
 #endregion
 
 #region Authentication
@@ -168,7 +170,7 @@ builder.Services.AddScoped<IValidator<ProfileEdit>, ProfileEditValidator>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddSingleton<IMatchmakingService, MatchmakingService>();
+builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();

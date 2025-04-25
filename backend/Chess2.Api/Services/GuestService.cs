@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
-using ErrorOr;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
