@@ -21,7 +21,7 @@ public class ApiTestBase : IAsyncLifetime
 
         // postgres can only store up to microsecond percision,
         // while c# DateTime also stores nanoseconds
-        AssertionOptions.AssertEquivalencyUsing(options =>
+        AssertionConfiguration.Current.Equivalency.Modify(options =>
             options
                 .Using<DateTime>(ctx =>
                     ctx.Subject.Should().BeCloseTo(ctx.Expectation, TimeSpan.FromMicroseconds(1))
