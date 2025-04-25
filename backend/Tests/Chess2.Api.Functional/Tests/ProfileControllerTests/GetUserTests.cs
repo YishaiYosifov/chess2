@@ -4,7 +4,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 
-namespace Chess2.Api.Functional.Tests.UserControllerTests;
+namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
 
 public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
