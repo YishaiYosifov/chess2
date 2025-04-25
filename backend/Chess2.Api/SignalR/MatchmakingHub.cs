@@ -1,10 +1,7 @@
-﻿using System.Security.Claims;
-using Chess2.Api.Extensions;
-using Chess2.Api.Models.DTOs;
-using Chess2.Api.Services;
+﻿using Chess2.Api.Services;
+using Chess2.Api.Services.Matchmaking;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.SignalR;
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.TestInfrastructure;
@@ -11,7 +6,6 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Validations;
 
 namespace Chess2.Api.Integration.Tests;
 
