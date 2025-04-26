@@ -38,7 +38,7 @@ public class AuthController(
         return result.Match(
             (value) =>
             {
-                _logger.LogInformation("Created user {Username}", signupRequest.Username);
+                _logger.LogInformation("Created user {Username}", signupRequest.UserName);
                 return Ok(new PrivateUserOut(value));
             },
             (errors) => errors.ToProblemDetails()
