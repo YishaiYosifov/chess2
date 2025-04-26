@@ -38,8 +38,8 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         builder.ConfigureServices(services =>
         {
             // remove the existing database context, use the one in a test container instead
-            services.RemoveAll<DbContextOptions<Chess2DbContext>>();
-            services.AddDbContextPool<Chess2DbContext>(options =>
+            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+            services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
             );
 
@@ -106,7 +106,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     private async Task InitializeDbContainer()
     {
         using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.EnsureCreatedAsync();
     }
 

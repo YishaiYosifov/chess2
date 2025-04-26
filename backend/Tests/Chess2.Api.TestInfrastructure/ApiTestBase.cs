@@ -8,7 +8,7 @@ public class ApiTestBase : IAsyncLifetime
 {
     protected readonly IServiceScope Scope;
     protected readonly IChess2Api ApiClient;
-    protected readonly Chess2DbContext DbContext;
+    protected readonly ApplicationDbContext DbContext;
     protected readonly Chess2WebApplicationFactory Factory;
 
     protected ApiTestBase(Chess2WebApplicationFactory factory)
@@ -17,7 +17,7 @@ public class ApiTestBase : IAsyncLifetime
         Scope = Factory.Services.CreateScope();
 
         ApiClient = Factory.CreateTypedClient();
-        DbContext = Scope.ServiceProvider.GetRequiredService<Chess2DbContext>();
+        DbContext = Scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
         // postgres can only store up to microsecond percision,
         // while c# DateTime also stores nanoseconds
