@@ -1,19 +1,18 @@
-using System.Security.Claims;
 using System.Text;
-using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
+using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Chess2.Api.Services.Matchmaking;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
-using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -41,7 +40,7 @@ builder
     .AddNewtonsoftJson()
     .AddMvcOptions(options =>
     {
-        options.Filters.Add(typeof(ReformatValidationProblemAttribute));
+        options.Filters.Add<ReformatValidationProblemAttribute>();
     });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -65,7 +64,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSignalR();
 
 #region Database
-builder.Services.AddDbContextPool<Chess2DbContext>(
+builder.Services.AddDbContextPool<ApplicationDbContext>(
     (serviceProvider, options) =>
         options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention()
 );
@@ -79,92 +78,53 @@ builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
 #endregion
 
 #region Authentication
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(
-        "RefreshToken",
-        policy => policy.RequireClaim("type", "refresh").AddAuthenticationSchemes("RefreshBearer")
-    );
-
-    options.AddPolicy(
-        "AuthedAccess",
-        policy =>
-            policy
-                .RequireAssertion(context =>
-                {
-                    var isAccess = context.User.HasClaim("type", "access");
-                    var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
-                    return isAccess && !isAnonymous;
-                })
-                .AddAuthenticationSchemes("AccessBearer")
-    );
-
-    options.AddPolicy(
-        "GuestAccess",
-        policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
-    );
-
-    options.DefaultPolicy = options.GetPolicy("AuthedAccess")!;
-});
+builder.Services.AddAuthorization();
+builder
+    .Services.AddAuthentication(opts =>
+    {
+        opts.DefaultAuthenticateScheme =
+            opts.DefaultChallengeScheme =
+            opts.DefaultForbidScheme =
+            opts.DefaultSignOutScheme =
+            opts.DefaultSignInScheme =
+            opts.DefaultScheme =
+                JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(opts =>
+    {
+        opts.TokenValidationParameters = new()
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
+            ),
+            ValidIssuer = appSettings.Jwt.Issuer,
+            ValidAudience = appSettings.Jwt.Audience,
+        };
+    });
 
 builder
-    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(
-        "AccessBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName)
+    .Services.AddIdentityCore<AuthedUser>(opts =>
+        opts.Password = new()
+        {
+            RequireDigit = false,
+            RequiredLength = 8,
+            RequireLowercase = false,
+            RequireUppercase = false,
+            RequireNonAlphanumeric = false,
+        }
     )
-    .AddJwtBearer(
-        "RefreshBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
-    );
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddApiEndpoints();
 
-void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
-{
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new()
-    {
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
-        ),
-        ValidIssuer = appSettings.Jwt.Issuer,
-        ValidAudience = appSettings.Jwt.Audience,
-        ClockSkew = TimeSpan.Zero,
-    };
-
-    options.Events = new()
-    {
-        OnMessageReceived = ctx =>
-        {
-            ctx.Request.Cookies.TryGetValue(cookieName, out var token);
-            if (!string.IsNullOrEmpty(token))
-                ctx.Token = token;
-            return Task.CompletedTask;
-        },
-
-        // set a custom unauthorized response
-        OnChallenge = ctx =>
-        {
-            ctx.HandleResponse();
-            Error error = ctx.Request.Cookies.ContainsKey(cookieName)
-                ? AuthErrors.TokenInvalid
-                : AuthErrors.TokenMissing;
-            return error
-                .ToProblemDetails()
-                .ExecuteResultAsync(new() { HttpContext = ctx.HttpContext });
-        },
-    };
-}
-
-builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
-builder.Services.AddSingleton<IGuestService, GuestService>();
+builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 #endregion
 
 #region Validation
 ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
-builder.Services.AddScoped<IValidator<UserIn>, UserValidator>();
 builder.Services.AddScoped<IValidator<ProfileEdit>, ProfileEditValidator>();
+builder.Services.AddScoped<IValidator<SignupRequest>, SignupValidator>();
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -180,14 +140,15 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ApplyMigrations();
 }
 
 app.UseCors(AllowCorsOriginName);
 
-app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 

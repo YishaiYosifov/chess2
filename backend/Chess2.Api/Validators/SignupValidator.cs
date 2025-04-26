@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Chess2.Api.Validators;
 
-public class UserValidator : AbstractValidator<UserIn>
+public class SignupValidator : AbstractValidator<SignupRequest>
 {
-    public UserValidator()
+    public SignupValidator()
     {
         RuleFor(x => x.Username).Length(1, 30).NotEmpty();
         RuleFor(x => x.Email).EmailAddress();
