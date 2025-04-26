@@ -9,8 +9,8 @@ public interface IChess2Api
     [Post("/api/auth/signup")]
     Task<IApiResponse<PrivateUserOut>> SignupAsync([Body] SignupRequest userIn);
 
-    [Post("/api/auth/login")]
-    Task<IApiResponse<Tokens>> LoginAsync([Body] SigninRequest userLogin);
+    [Post("/api/auth/signin")]
+    Task<IApiResponse<Tokens>> SigninAsync([Body] SigninRequest userLogin);
 
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();

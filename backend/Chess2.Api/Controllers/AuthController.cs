@@ -46,7 +46,7 @@ public class AuthController(
     [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Login([FromBody] SigninRequest signinRequest)
+    public async Task<IActionResult> Signin([FromBody] SigninRequest signinRequest)
     {
         var result = await _authService.SigninAsync(
             signinRequest.UsernameOrEmail,

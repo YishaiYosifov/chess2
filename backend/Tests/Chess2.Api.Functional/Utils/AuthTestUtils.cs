@@ -59,7 +59,7 @@ public static class AuthTestUtils
         string? password = null
     )
     {
-        var response = await apiClient.LoginAsync(
+        var response = await apiClient.SigninAsync(
             new()
             {
                 UsernameOrEmail = user.UserName!,
