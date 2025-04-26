@@ -26,7 +26,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         .Build();
 
     private readonly RedisContainer _redisContainer = new RedisBuilder()
-        .WithImage("docker.dragonflydb.io/dragonflydb/dragonfly")
+        .WithImage("docker.dragonflydb.io/dragonflydb/dragonfly:latest")
         .Build();
 
     private DbConnection _dbConnection = null!;
@@ -38,12 +38,12 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         builder.ConfigureServices(services =>
         {
             // remove the existing database context, use the one in a test container instead
-            services.RemoveAll(typeof(DbContextOptions<Chess2DbContext>));
+            services.RemoveAll<DbContextOptions<Chess2DbContext>>();
             services.AddDbContextPool<Chess2DbContext>(options =>
                 options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
             );
 
-            services.RemoveAll(typeof(IConnectionMultiplexer));
+            services.RemoveAll<IConnectionMultiplexer>();
             services.AddSingleton<IConnectionMultiplexer>(
                 ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
             );
