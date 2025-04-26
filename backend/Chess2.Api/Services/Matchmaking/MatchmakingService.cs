@@ -32,7 +32,7 @@ public class MatchmakingService(
     {
         var userId = user.Id.ToString();
         var rating = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid);
-        var matchedUserId = await SearchForMatch(timeControl, increment, 1);
+        var matchedUserId = await SearchForMatch(timeControl, increment, rating.Value);
         if (matchedUserId is not null)
         {
             await StartGame(userId, matchedUserId);
