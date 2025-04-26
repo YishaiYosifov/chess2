@@ -166,6 +166,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 
 builder
     .Services.AddIdentityCore<AuthedUser>(options =>
+    {
         options.Password = new()
         {
             RequireDigit = false,
@@ -173,8 +174,9 @@ builder
             RequireLowercase = false,
             RequireUppercase = false,
             RequireNonAlphanumeric = false,
-        }
-    )
+        };
+        options.User.RequireUniqueEmail = true;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 

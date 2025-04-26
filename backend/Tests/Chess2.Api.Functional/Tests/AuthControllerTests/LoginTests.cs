@@ -12,6 +12,8 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     [Theory]
     [InlineData("TestUsername", "test@email.com", "TestUsername")]
     [InlineData("TestUsername", "test@email.com", "test@email.com")]
+    [InlineData("TestUsername", "test@email.com", "tEsT@eMaIl.cOm")]
+    [InlineData("TestUsername", "test@email.com", "tEsTuSeRnAmE")]
     public async Task Login_with_correct_credentials(
         string username,
         string email,
@@ -23,7 +25,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
             new AuthedUserFaker().RuleFor(x => x.UserName, username).RuleFor(x => x.Email, email)
         );
 
-        var response = await ApiClient.LoginAsync(
+        var response = await ApiClient.SigninAsync(
             new() { UsernameOrEmail = loginWithIdentifier, Password = AuthedUserFaker.Password }
         );
 
@@ -38,7 +40,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
-        var response = await ApiClient.LoginAsync(
+        var response = await ApiClient.SigninAsync(
             new()
             {
                 UsernameOrEmail = "random email or username doesn't exist",
@@ -55,7 +57,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
-        var response = await ApiClient.LoginAsync(
+        var response = await ApiClient.SigninAsync(
             new() { UsernameOrEmail = user.UserName!, Password = "wrong password" }
         );
 
