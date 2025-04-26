@@ -33,7 +33,7 @@ public class AuthedUserFaker : Faker<AuthedUser>
             .RuleFor(x => x.Email, f => f.Person.Email)
             .RuleFor(x => x.CountryCode, "IL")
             .RuleFor(x => x.About, "")
-            .RuleFor(x => x.PasswordHash, PasswordHash)
+            .RuleFor(x => x.PasswordHash, "")
             .RuleFor(x => x.PasswordSalt, PasswordSalt)
             .RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow)
             .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow)

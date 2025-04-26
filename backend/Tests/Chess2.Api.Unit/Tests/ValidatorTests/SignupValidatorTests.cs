@@ -5,9 +5,9 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.ValidatorTests;
 
-public class UserValidatorTests
+public class SignupValidatorTests
 {
-    private readonly UserValidator _validator = new();
+    private readonly SignupValidator _validator = new();
 
     [Theory]
     [InlineData("", false)]
@@ -16,7 +16,7 @@ public class UserValidatorTests
     [InlineData("TestUsername", true)]
     public void Validate_username(string username, bool isValid)
     {
-        var userIn = new UserInFaker().RuleFor(x => x.Username, username).Generate();
+        var userIn = new SignupRequestFaker().RuleFor(x => x.Username, username).Generate();
         _validator.Validate(userIn).IsValid.Should().Be(isValid);
     }
 
@@ -25,7 +25,7 @@ public class UserValidatorTests
     [InlineData("a@b.c", true)]
     public void Validate_email(string email, bool isValid)
     {
-        var userIn = new UserInFaker().RuleFor(x => x.Email, email).Generate();
+        var userIn = new SignupRequestFaker().RuleFor(x => x.Email, email).Generate();
         _validator.Validate(userIn).IsValid.Should().Be(isValid);
     }
 
@@ -34,7 +34,7 @@ public class UserValidatorTests
     [InlineData("12345678", true)]
     public void Validate_password(string password, bool isValid)
     {
-        var userIn = new UserInFaker().RuleFor(x => x.Password, password).Generate();
+        var userIn = new SignupRequestFaker().RuleFor(x => x.Password, password).Generate();
         _validator.Validate(userIn).IsValid.Should().Be(isValid);
     }
 
@@ -42,7 +42,7 @@ public class UserValidatorTests
     [ClassData(typeof(CountryCodeTestData))]
     public void Validate_country(string? country, bool isValid)
     {
-        var userIn = new UserInFaker().RuleFor(x => x.CountryCode, country).Generate();
+        var userIn = new SignupRequestFaker().RuleFor(x => x.CountryCode, country).Generate();
         _validator.Validate(userIn).IsValid.Should().Be(isValid);
     }
 }
