@@ -37,6 +37,7 @@ public interface IChess2Api
     Task<IApiResponse> EditProfileAsync([Body] JsonPatchDocument<ProfileEditRequest> profileEdit);
 
     [Put("/api/profile/edit-username")]
+    [Headers("Content-Type: application/json; charset=utf-8")]
     Task<IApiResponse<PrivateUserOut>> EditUsernameAsync([Body] string newUsername);
     #endregion
 }
