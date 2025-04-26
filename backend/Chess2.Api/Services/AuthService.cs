@@ -5,9 +5,8 @@ using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
-using Chess2.Api.Repositories;
 using ErrorOr;
-using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
@@ -19,15 +18,12 @@ public interface IAuthService
         CancellationToken cancellation = default
     );
 
-    Task<ErrorOr<AuthedUser>> SignupUserAsync(
-        UserIn userIn,
+    Task<ErrorOr<AuthedUser>> SignupAsync(
+        SignupRequest userIn,
         CancellationToken cancellation = default
     );
 
-    Task<ErrorOr<Tokens>> LoginUserAsync(
-        UserLogin userAuth,
-        CancellationToken cancellation = default
-    );
+    Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password);
 
     void SetAccessCookie(string accessToken, HttpContext context);
 
@@ -41,19 +37,17 @@ public interface IAuthService
 
 public class AuthService(
     IWebHostEnvironment hostEnvironment,
-    IValidator<UserIn> userValidator,
-    IUserRepository userRepository,
-    IPasswordHasher passwordHasher,
     IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
-    ILogger<AuthService> logger
+    ILogger<AuthService> logger,
+    UserManager<AuthedUser> userManager,
+    SignInManager<AuthedUser> signinManager
 ) : IAuthService
 {
     private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
-    private readonly IValidator<UserIn> _userValidator = userValidator;
-    private readonly IUserRepository _userRepository = userRepository;
-    private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
+    private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly SignInManager<AuthedUser> _signinManager = signinManager;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthService> _logger = logger;
 
@@ -73,9 +67,9 @@ public class AuthService(
             );
             return userIdClaimResult.Errors;
         }
-        var userId = Convert.ToInt32(userIdClaimResult.Value.Value);
+        var userId = userIdClaimResult.Value.Value;
 
-        var user = await _userRepository.GetByUserIdAsync(userId, cancellation);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user is null)
         {
             _logger.LogWarning(
@@ -91,39 +85,33 @@ public class AuthService(
     /// <summary>
     /// Register a new user
     /// </summary>
-    /// <param name="userIn">The user DTO received from the client</param>
-    public async Task<ErrorOr<AuthedUser>> SignupUserAsync(
-        UserIn userIn,
+    /// <param name="signupRequest">The user DTO received from the client</param>
+    public async Task<ErrorOr<AuthedUser>> SignupAsync(
+        SignupRequest signupRequest,
         CancellationToken cancellation = default
     )
     {
-        var validationResult = await _userValidator.ValidateAsync(userIn, cancellation);
-        if (!validationResult.IsValid)
-            return validationResult.Errors.ToErrorList();
-
-        // make sure there are no conflicts
-        var conflictErrors = new List<Error>();
-        if (await _userRepository.GetByUsernameAsync(userIn.Username, cancellation) is not null)
-            conflictErrors.Add(UserErrors.UsernameTaken);
-        if (await _userRepository.GetByEmailAsync(userIn.Email, cancellation) is not null)
-            conflictErrors.Add(UserErrors.EmailTaken);
-
-        if (conflictErrors.Count != 0)
-            return conflictErrors;
-
-        // create the user
-        var salt = _passwordHasher.GenerateSalt();
-        var hash = await _passwordHasher.HashPasswordAsync(userIn.Password, salt);
-
         var dbUser = new AuthedUser()
         {
-            Username = userIn.Username,
-            Email = userIn.Email,
-            CountryCode = userIn.CountryCode,
-            PasswordHash = hash,
-            PasswordSalt = salt,
+            Username = signupRequest.Username,
+            Email = signupRequest.Email,
+            CountryCode = signupRequest.CountryCode,
         };
-        await _userRepository.AddUserAsync(dbUser, cancellation);
+
+        var createdUserResult = await _userManager.CreateAsync(dbUser, signupRequest.Password);
+        if (!createdUserResult.Succeeded)
+        {
+            _logger.LogWarning(
+                "Failed to create user {Username} with errors: {Errors}",
+                signupRequest.Username,
+                createdUserResult.Errors
+            );
+            return createdUserResult
+                .Errors.Select(err =>
+                    Error.Validation(code: err.Code, description: err.Description)
+                )
+                .ToList();
+        }
 
         return dbUser;
     }
@@ -131,29 +119,26 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<Tokens>> LoginUserAsync(
-        UserLogin userAuth,
-        CancellationToken cancellation = default
-    )
+    public async Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password)
     {
-        var dbUser =
-            await _userRepository.GetByEmailAsync(userAuth.UsernameOrEmail, cancellation)
-            ?? await _userRepository.GetByUsernameAsync(userAuth.UsernameOrEmail, cancellation);
-        if (dbUser is null)
+        var user =
+            (await _userManager.FindByEmailAsync(usernameOrEmail))
+            ?? await _userManager.FindByNameAsync(usernameOrEmail);
+        if (user is null)
             return UserErrors.BadCredentials;
 
-        var isPasswordCorrect = await _passwordHasher.VerifyPassword(
-            userAuth.Password,
-            dbUser.PasswordHash,
-            dbUser.PasswordSalt
+        var signinResult = await _signinManager.CheckPasswordSignInAsync(
+            user,
+            password,
+            lockoutOnFailure: false
         );
-        if (!isPasswordCorrect)
+        if (!signinResult.Succeeded)
             return UserErrors.BadCredentials;
 
         return new Tokens()
         {
-            AccessToken = _tokenProvider.GenerateAccessToken(dbUser),
-            RefreshToken = _tokenProvider.GenerateRefreshToken(dbUser),
+            AccessToken = _tokenProvider.GenerateAccessToken(user),
+            RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
     }
 

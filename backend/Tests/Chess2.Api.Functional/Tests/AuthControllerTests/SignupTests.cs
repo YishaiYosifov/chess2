@@ -13,7 +13,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
     [Fact]
     public async Task User_signup_saves_user_to_database()
     {
-        var userIn = new UserIn()
+        var userIn = new SignupRequest()
         {
             Username = "TestUser",
             Email = "test@email.com",
@@ -47,7 +47,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
         string country
     )
     {
-        var userIn = new UserIn()
+        var userIn = new SignupRequest()
         {
             Username = username,
             Email = email,

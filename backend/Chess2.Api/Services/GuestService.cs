@@ -33,6 +33,7 @@ public class GuestService(
     {
         var id = GenerateGuestId();
         var accessToken = _tokenProvider.GenerateGuestToken(id);
+        _logger.LogInformation("Created guest user with id {Id}", id);
         return accessToken;
     }
 

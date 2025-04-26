@@ -3,9 +3,9 @@ using Chess2.Api.Models.DTOs;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class UserInFaker : Faker<UserIn>
+public class SignupRequestFaker : Faker<SignupRequest>
 {
-    public UserInFaker()
+    public SignupRequestFaker()
     {
         StrictMode(true)
             .RuleFor(x => x.Username, f => f.Person.UserName)

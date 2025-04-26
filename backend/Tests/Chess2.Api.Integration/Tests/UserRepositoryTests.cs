@@ -116,13 +116,16 @@ public class UserRepositoryTests : BaseIntegrationTest
         var newUsername = "new-test-username";
         var oldUsernameLastChanged = DateTime.UtcNow - TimeSpan.FromDays(7);
         var userToEdit = await FakerUtils.StoreFaker(
-            DbContext, new AuthedUserFaker()
-                .RuleFor(x => x.UsernameLastChanged, oldUsernameLastChanged));
+            DbContext,
+            new AuthedUserFaker().RuleFor(x => x.UsernameLastChanged, oldUsernameLastChanged)
+        );
 
         await _userRepository.EditUsernameAsync(userToEdit, newUsername);
 
         var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
         updatedUser.Username.Should().BeEquivalentTo(newUsername);
-        updatedUser.UsernameLastChanged.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+        updatedUser
+            .UsernameLastChanged.Should()
+            .BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
     }
 }

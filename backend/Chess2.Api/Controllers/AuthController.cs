@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,43 +12,49 @@ namespace Chess2.Api.Controllers;
 public class AuthController(
     ILogger<AuthController> logger,
     IAuthService authService,
-    IGuestService guestService
+    IGuestService guestService,
+    IValidator<SignupRequest> userValidator
 ) : Controller
 {
     private readonly IGuestService _guestService = guestService;
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
+    private readonly IValidator<SignupRequest> _signupValidator = userValidator;
 
     [HttpPost("signup")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Signup(
-        [FromBody] UserIn userIn,
+        [FromBody] SignupRequest signupRequest,
         CancellationToken cancellation
     )
     {
-        var result = await _authService.SignupUserAsync(userIn, cancellation);
+        var validateResults = await _signupValidator.ValidateAsync(signupRequest, cancellation);
+        if (!validateResults.IsValid)
+            return validateResults.Errors.ToErrorList().ToProblemDetails();
+
+        var result = await _authService.SignupAsync(signupRequest, cancellation);
         return result.Match(
             (value) =>
             {
-                _logger.LogInformation("Created user {Username}", userIn.Username);
+                _logger.LogInformation("Created user {Username}", signupRequest.Username);
                 return Ok(new PrivateUserOut(value));
             },
             (errors) => errors.ToProblemDetails()
         );
     }
 
-    [HttpPost("login")]
+    [HttpPost("signin")]
     [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Login(
-        [FromBody] UserLogin userAuth,
-        CancellationToken cancellation
-    )
+    public async Task<IActionResult> Login([FromBody] SigninRequest signinRequest)
     {
-        var result = await _authService.LoginUserAsync(userAuth, cancellation);
+        var result = await _authService.SigninAsync(
+            signinRequest.UsernameOrEmail,
+            signinRequest.Password
+        );
         return result.Match(
             (value) =>
             {
@@ -55,7 +62,7 @@ public class AuthController(
                 _authService.SetRefreshCookie(value.RefreshToken, HttpContext);
                 _logger.LogInformation(
                     "User logged in with username/email {UsernameOrEmail}",
-                    userAuth.UsernameOrEmail
+                    signinRequest.UsernameOrEmail
                 );
                 return Ok(value);
             },

@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Models.Entities;
 
-public class AuthedUser
+public class AuthedUser : IdentityUser<int>
 {
     public int AuthedUserId { get; set; }
 
     [MaxLength(30)]
-    public required string Username { get; set; }
-
-    [MaxLength(256)]
-    public required string Email { get; set; }
+    public string Username { get; set; } = string.Empty;
 
     [MaxLength(300)]
     public string About { get; set; } = string.Empty;
@@ -18,8 +16,7 @@ public class AuthedUser
     [MaxLength(2)]
     public string? CountryCode { get; set; }
 
-    public required byte[] PasswordHash { get; set; }
-    public required byte[] PasswordSalt { get; set; }
+    public byte[] PasswordSalt { get; set; } = [];
 
     public DateTime UsernameLastChanged { get; set; } = DateTime.UtcNow;
     public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
