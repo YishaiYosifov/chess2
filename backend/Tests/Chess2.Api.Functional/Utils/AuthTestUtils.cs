@@ -73,7 +73,7 @@ public static class AuthTestUtils
 
     public static async Task<(AuthedUser User, Tokens Tokens)> Authenticate(
         IChess2Api apiClient,
-        Chess2DbContext dbContext
+        ApplicationDbContext dbContext
     )
     {
         var user = await FakerUtils.StoreFaker(dbContext, new AuthedUserFaker());
