@@ -8,33 +8,28 @@ public class AuthedUserFaker : Faker<AuthedUser>
     public static readonly string Password = "TestPassword";
 
     // csharpier-ignore
-    private readonly byte[] PasswordHash = [
-        171, 142, 166, 22,
-        88, 125, 26, 236,
-        98, 47, 166, 186,
-        152, 86, 97, 239,
-        1, 220, 24, 117,
-        84, 51, 164, 172,
-        43, 149, 207, 5,
-        234, 11, 174, 31];
-
-    // csharpier-ignore
-    private readonly byte[] PasswordSalt = [
-        192, 47, 30, 58,
-        210, 205, 97, 156,
-        84, 171, 75, 101,
-        120, 154, 27, 114];
+    private const string PasswordHash = "AQAAAAIAAYagAAAAEA2CbBkJ8EhGQjLWKntGA/Rd57QYlcb3Myzv3qJ+O5gNNSGI/mKG83OiktTfuvj5RA==";
 
     public AuthedUserFaker()
     {
         StrictMode(true)
-            .RuleFor(x => x.AuthedUserId, 0)
-            .RuleFor(x => x.Username, f => f.Person.UserName)
+            .RuleFor(x => x.Id, 0)
+            .RuleFor(x => x.UserName, f => f.Person.UserName)
+            .RuleFor(x => x.NormalizedUserName, (string?)null)
             .RuleFor(x => x.Email, f => f.Person.Email)
+            .RuleFor(x => x.NormalizedEmail, (string?)null)
+            .RuleFor(x => x.EmailConfirmed, true)
+            .RuleFor(x => x.SecurityStamp, (string?)null)
+            .RuleFor(x => x.ConcurrencyStamp, (string?)null)
+            .RuleFor(x => x.PhoneNumber, (string?)null)
+            .RuleFor(x => x.PhoneNumberConfirmed, false)
+            .RuleFor(x => x.TwoFactorEnabled, false)
+            .RuleFor(x => x.LockoutEnd, (DateTimeOffset?)null)
+            .RuleFor(x => x.LockoutEnabled, false)
+            .RuleFor(x => x.AccessFailedCount, 0)
             .RuleFor(x => x.CountryCode, "IL")
             .RuleFor(x => x.About, "")
-            .RuleFor(x => x.PasswordHash, "")
-            .RuleFor(x => x.PasswordSalt, PasswordSalt)
+            .RuleFor(x => x.PasswordHash, PasswordHash)
             .RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow)
             .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow)
             .RuleFor(x => x.Ratings, []);

@@ -11,8 +11,6 @@ public class AuthedUser : IdentityUser<int>
     [MaxLength(2)]
     public string? CountryCode { get; set; }
 
-    public byte[] PasswordSalt { get; set; } = [];
-
     public DateTime UsernameLastChanged { get; set; } = DateTime.UtcNow;
     public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
 
