@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Models.DTOs;
+using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 
 namespace Chess2.Api.TestInfrastructure;
@@ -33,7 +34,7 @@ public interface IChess2Api
     Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
 
     [Patch("/api/profile/edit-profile")]
-    Task<IApiResponse<PrivateUserOut>> EditProfileAsync(ProfileEdit profileUpdate);
+    Task<IApiResponse> EditProfileAsync([Body] JsonPatchDocument<ProfileEditRequest> profileEdit);
 
     [Put("/api/profile/edit-username")]
     Task<IApiResponse<PrivateUserOut>> EditUsernameAsync([Body] string newUsername);
