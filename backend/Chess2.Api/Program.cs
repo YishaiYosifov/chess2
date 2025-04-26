@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
@@ -79,16 +80,42 @@ builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
 #endregion
 
 #region Authentication
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        "RefreshToken",
+        policy => policy.RequireClaim("type", "refresh").AddAuthenticationSchemes("RefreshBearer")
+    );
+
+    options.AddPolicy(
+        "AuthedAccess",
+        policy =>
+            policy
+                .RequireAssertion(context =>
+                {
+                    var isAccess = context.User.HasClaim("type", "access");
+                    var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
+                    return isAccess && !isAnonymous;
+                })
+                .AddAuthenticationSchemes("AccessBearer")
+    );
+
+    options.AddPolicy(
+        "GuestAccess",
+        policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
+    );
+
+    options.DefaultPolicy = options.GetPolicy("AuthedAccess")!;
+});
 builder
-    .Services.AddAuthentication(opts =>
+    .Services.AddAuthentication(options =>
     {
-        opts.DefaultAuthenticateScheme =
-            opts.DefaultChallengeScheme =
-            opts.DefaultForbidScheme =
-            opts.DefaultSignOutScheme =
-            opts.DefaultSignInScheme =
-            opts.DefaultScheme =
+        options.DefaultAuthenticateScheme =
+            options.DefaultChallengeScheme =
+            options.DefaultForbidScheme =
+            options.DefaultSignOutScheme =
+            options.DefaultSignInScheme =
+            options.DefaultScheme =
                 JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(
@@ -138,8 +165,8 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 }
 
 builder
-    .Services.AddIdentityCore<AuthedUser>(opts =>
-        opts.Password = new()
+    .Services.AddIdentityCore<AuthedUser>(options =>
+        options.Password = new()
         {
             RequireDigit = false,
             RequiredLength = 8,
