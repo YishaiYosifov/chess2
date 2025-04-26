@@ -5,8 +5,6 @@ namespace Chess2.Api.Models.Entities;
 
 public class AuthedUser : IdentityUser<int>
 {
-    public int AuthedUserId { get; set; }
-
     [MaxLength(30)]
     public string Username { get; set; } = string.Empty;
 

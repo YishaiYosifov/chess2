@@ -30,7 +30,7 @@ public class MatchmakingService(
 
     public async Task SeekAsync(AuthedUser user, int timeControl, int increment)
     {
-        var userId = user.AuthedUserId.ToString();
+        var userId = user.Id.ToString();
         var rating = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid);
         var matchedUserId = await SearchForMatch(timeControl, increment, 1);
         if (matchedUserId is not null)

@@ -72,7 +72,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
     ConnectionMultiplexer.Connect(appSettings.RedisConnString)
 );
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
 #endregion
