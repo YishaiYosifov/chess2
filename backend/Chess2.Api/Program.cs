@@ -1,4 +1,5 @@
 using System.Text;
+using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
@@ -10,6 +11,7 @@ using Chess2.Api.Services;
 using Chess2.Api.Services.Matchmaking;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
+using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -89,17 +91,51 @@ builder
             opts.DefaultScheme =
                 JwtBearerDefaults.AuthenticationScheme;
     })
-    .AddJwtBearer(opts =>
+    .AddJwtBearer(
+        "AccessBearer",
+        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName)
+    )
+    .AddJwtBearer(
+        "RefreshBearer",
+        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
+    );
+
+void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
+{
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new()
     {
-        opts.TokenValidationParameters = new()
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
+        ),
+        ValidIssuer = appSettings.Jwt.Issuer,
+        ValidAudience = appSettings.Jwt.Audience,
+        ClockSkew = TimeSpan.Zero,
+    };
+
+    options.Events = new()
+    {
+        OnMessageReceived = ctx =>
         {
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
-            ),
-            ValidIssuer = appSettings.Jwt.Issuer,
-            ValidAudience = appSettings.Jwt.Audience,
-        };
-    });
+            ctx.Request.Cookies.TryGetValue(cookieName, out var token);
+            if (!string.IsNullOrEmpty(token))
+                ctx.Token = token;
+            return Task.CompletedTask;
+        },
+
+        // set a custom unauthorized response
+        OnChallenge = ctx =>
+        {
+            ctx.HandleResponse();
+            Error error = ctx.Request.Cookies.ContainsKey(cookieName)
+                ? AuthErrors.TokenInvalid
+                : AuthErrors.TokenMissing;
+            return error
+                .ToProblemDetails()
+                .ExecuteResultAsync(new() { HttpContext = ctx.HttpContext });
+        },
+    };
+}
 
 builder
     .Services.AddIdentityCore<AuthedUser>(opts =>
