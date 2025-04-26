@@ -62,7 +62,7 @@ public static class AuthTestUtils
         var response = await apiClient.LoginAsync(
             new()
             {
-                UsernameOrEmail = user.Username,
+                UsernameOrEmail = user.UserName!,
                 Password = password ?? AuthedUserFaker.Password,
             }
         );

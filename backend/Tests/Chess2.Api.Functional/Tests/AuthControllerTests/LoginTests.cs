@@ -20,7 +20,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     {
         var user = await FakerUtils.StoreFaker(
             DbContext,
-            new AuthedUserFaker().RuleFor(x => x.Username, username).RuleFor(x => x.Email, email)
+            new AuthedUserFaker().RuleFor(x => x.UserName, username).RuleFor(x => x.Email, email)
         );
 
         var response = await ApiClient.LoginAsync(
@@ -56,7 +56,7 @@ public class LoginTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
         var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
         var response = await ApiClient.LoginAsync(
-            new() { UsernameOrEmail = user.Username, Password = "wrong password" }
+            new() { UsernameOrEmail = user.UserName!, Password = "wrong password" }
         );
 
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);

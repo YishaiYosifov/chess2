@@ -74,7 +74,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
         var user1 = await FakerUtils.StoreFaker(
             DbContext,
             new AuthedUserFaker()
-                .RuleFor(x => x.Username, user1Username)
+                .RuleFor(x => x.UserName, user1Username)
                 .RuleFor(x => x.Email, user1Email)
         );
 
