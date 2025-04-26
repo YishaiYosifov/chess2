@@ -3,7 +3,7 @@ using Chess2.Api.Models.DTOs;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class ProfileEditFaker : Faker<ProfileEdit>
+public class ProfileEditFaker : Faker<ProfileEditRequest>
 {
     public ProfileEditFaker()
     {
