@@ -2,6 +2,7 @@
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Controllers;
@@ -43,15 +44,14 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
     public async Task<IActionResult> EditProfileSettings(
-        [FromBody] ProfileEdit userEdit,
-        CancellationToken cancellation
+        JsonPatchDocument<ProfileEditRequest> profileEditRequest
     )
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User);
         if (userResult.IsError)
             return userResult.Errors.ToProblemDetails();
 
-        var editResult = await _userService.EditProfileAsync(userResult.Value, userEdit);
+        var editResult = await _userService.EditProfileAsync(userResult.Value, profileEditRequest);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToProblemDetails());
     }
 
@@ -59,10 +59,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IActionResult> EditUsername(
-        [FromBody] string username,
-        CancellationToken cancellation
-    )
+    public async Task<IActionResult> EditUsername([FromBody] string username)
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User);
         if (userResult.IsError)

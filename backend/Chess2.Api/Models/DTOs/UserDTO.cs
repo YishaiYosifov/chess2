@@ -47,14 +47,14 @@ public class PrivateUserOut : UserOut
     }
 }
 
-public class ProfileEdit
+public class ProfileEditRequest
 {
     public string? About { get; set; }
     public string? CountryCode { get; set; }
 
-    public ProfileEdit() { }
+    public ProfileEditRequest() { }
 
-    public ProfileEdit(AuthedUser user)
+    public ProfileEditRequest(AuthedUser user)
     {
         About = user.About;
         CountryCode = user.CountryCode;
