@@ -23,12 +23,16 @@ public interface IUserRepository
         CancellationToken cancellation = default
     );
 
-    public Task EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default);
+    public Task EditUsernameAsync(
+        AuthedUser user,
+        string username,
+        CancellationToken cancellation = default
+    );
 }
 
-public class UserRepository(Chess2DbContext dbContext) : IUserRepository
+public class UserRepository(ApplicationDbContext dbContext) : IUserRepository
 {
-    private readonly Chess2DbContext _dbContext = dbContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     public async Task<AuthedUser?> GetByUsernameAsync(
         string username,
@@ -82,7 +86,11 @@ public class UserRepository(Chess2DbContext dbContext) : IUserRepository
         return user;
     }
 
-    public async Task EditUsernameAsync(AuthedUser user, string username, CancellationToken cancellation = default)
+    public async Task EditUsernameAsync(
+        AuthedUser user,
+        string username,
+        CancellationToken cancellation = default
+    )
     {
         user.Username = username;
         user.UsernameLastChanged = DateTime.UtcNow;

@@ -10,9 +10,9 @@ public interface IRatingRepository
     Task<Rating> GetTimeControlRatingAsync(AuthedUser user, TimeControl timeControl);
 }
 
-public class RatingRepository(Chess2DbContext dbContext) : IRatingRepository
+public class RatingRepository(ApplicationDbContext dbContext) : IRatingRepository
 {
-    private readonly Chess2DbContext _dbContext = dbContext;
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     public Task<List<Rating>> GetAllRatingsAsync(AuthedUser user) =>
         _dbContext.Ratings.Where(rating => rating.User == user).ToListAsync();
