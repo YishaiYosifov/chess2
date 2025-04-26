@@ -16,7 +16,7 @@ public class SignupValidatorTests
     [InlineData("TestUsername", true)]
     public void Validate_username(string username, bool isValid)
     {
-        var userIn = new SignupRequestFaker().RuleFor(x => x.Username, username).Generate();
+        var userIn = new SignupRequestFaker().RuleFor(x => x.UserName, username).Generate();
         _validator.Validate(userIn).IsValid.Should().Be(isValid);
     }
 
