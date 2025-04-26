@@ -25,16 +25,13 @@ public class AuthController(
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Signup(
-        [FromBody] SignupRequest signupRequest,
-        CancellationToken cancellation
-    )
+    public async Task<IActionResult> Signup([FromBody] SignupRequest signupRequest)
     {
-        var validateResults = await _signupValidator.ValidateAsync(signupRequest, cancellation);
+        var validateResults = await _signupValidator.ValidateAsync(signupRequest);
         if (!validateResults.IsValid)
             return validateResults.Errors.ToErrorList().ToProblemDetails();
 
-        var result = await _authService.SignupAsync(signupRequest, cancellation);
+        var result = await _authService.SignupAsync(signupRequest);
         return result.Match(
             (value) =>
             {

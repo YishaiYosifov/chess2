@@ -18,13 +18,5 @@ public static class ValidationExtensions
         ];
 
     public static List<Error> ToErrorList(this IEnumerable<IdentityError> errors) =>
-        [
-            .. errors.Select(error =>
-                Error.Failure(
-                    error.Code,
-                    error.Description,
-                    new() { { MetadataFields.RelatedField, error.Code } }
-                )
-            ),
-        ];
+        [.. errors.Select(error => Error.Failure(error.Code, error.Description))];
 }
