@@ -46,7 +46,7 @@ public static class ErrorExtensions
     private static int GetStatusCode(ErrorType errorType) =>
         errorType switch
         {
-            ErrorType.Validation => StatusCodes.Status400BadRequest,
+            ErrorType.Validation or ErrorType.Failure => StatusCodes.Status400BadRequest,
             ErrorType.Unauthorized => StatusCodes.Status401Unauthorized,
             ErrorType.NotFound => StatusCodes.Status404NotFound,
             ErrorType.Conflict => StatusCodes.Status409Conflict,
@@ -57,7 +57,7 @@ public static class ErrorExtensions
     private static string GetTitle(ErrorType errorType) =>
         errorType switch
         {
-            ErrorType.Validation => "Bad Request",
+            ErrorType.Validation or ErrorType.Failure => "Bad Request",
             ErrorType.Unauthorized => "Unauthorized",
             ErrorType.NotFound => "Not Found",
             ErrorType.Conflict => "Conflict",
@@ -68,7 +68,8 @@ public static class ErrorExtensions
     private static string GetType(ErrorType errorType) =>
         errorType switch
         {
-            ErrorType.Validation => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
+            ErrorType.Validation or ErrorType.Failure =>
+                "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1",
             ErrorType.Unauthorized => "https://datatracker.ietf.org/doc/html/rfc7235#section-3.1",
             ErrorType.NotFound => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.4",
             ErrorType.Conflict => "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.8",

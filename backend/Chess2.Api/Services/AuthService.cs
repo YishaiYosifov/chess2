@@ -13,15 +13,9 @@ namespace Chess2.Api.Services;
 
 public interface IAuthService
 {
-    Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        ClaimsPrincipal? userClaims,
-        CancellationToken cancellation = default
-    );
+    Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
 
-    Task<ErrorOr<AuthedUser>> SignupAsync(
-        SignupRequest userIn,
-        CancellationToken cancellation = default
-    );
+    Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest userIn);
 
     Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password);
 
@@ -54,10 +48,7 @@ public class AuthService(
     /// <summary>
     /// Get the user that is logged in to the http context
     /// </summary>
-    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(
-        ClaimsPrincipal? userClaims,
-        CancellationToken cancellation = default
-    )
+    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims)
     {
         var userIdClaimResult = userClaims.GetClaim(ClaimTypes.NameIdentifier);
         if (userIdClaimResult.IsError)
@@ -86,10 +77,7 @@ public class AuthService(
     /// Register a new user
     /// </summary>
     /// <param name="signupRequest">The user DTO received from the client</param>
-    public async Task<ErrorOr<AuthedUser>> SignupAsync(
-        SignupRequest signupRequest,
-        CancellationToken cancellation = default
-    )
+    public async Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest signupRequest)
     {
         var dbUser = new AuthedUser()
         {
@@ -97,6 +85,16 @@ public class AuthService(
             Email = signupRequest.Email,
             CountryCode = signupRequest.CountryCode,
         };
+
+        // make sure there are no conflicts
+        var conflictErrors = new List<Error>();
+        if (await _userManager.FindByNameAsync(signupRequest.UserName) is not null)
+            conflictErrors.Add(UserErrors.UsernameTaken);
+        if (await _userManager.FindByEmailAsync(signupRequest.Email) is not null)
+            conflictErrors.Add(UserErrors.EmailTaken);
+
+        if (conflictErrors.Count != 0)
+            return conflictErrors;
 
         var createdUserResult = await _userManager.CreateAsync(dbUser, signupRequest.Password);
         if (!createdUserResult.Succeeded)
@@ -106,11 +104,7 @@ public class AuthService(
                 signupRequest.UserName,
                 createdUserResult.Errors
             );
-            return createdUserResult
-                .Errors.Select(err =>
-                    Error.Validation(code: err.Code, description: err.Description)
-                )
-                .ToList();
+            return createdUserResult.Errors.ToErrorList();
         }
 
         return dbUser;
@@ -189,7 +183,7 @@ public class AuthService(
         if (tokenCreationTimeClaimResult.IsError)
             return tokenCreationTimeClaimResult.Errors;
 
-        var userResult = await GetLoggedInUserAsync(userClaims, cancellation);
+        var userResult = await GetLoggedInUserAsync(userClaims);
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
