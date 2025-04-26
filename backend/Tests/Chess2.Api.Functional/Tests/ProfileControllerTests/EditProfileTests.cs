@@ -55,6 +55,6 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
 
         response.IsSuccessful.Should().BeTrue();
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync();
-        dbUser.Username.Should().Be(newUsername);
+        dbUser.UserName.Should().Be(newUsername);
     }
 }

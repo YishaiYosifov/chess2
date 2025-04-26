@@ -24,7 +24,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     {
         var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
 
-        var response = await ApiClient.GetUserAsync(user.Username);
+        var response = await ApiClient.GetUserAsync(user.UserName!);
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
