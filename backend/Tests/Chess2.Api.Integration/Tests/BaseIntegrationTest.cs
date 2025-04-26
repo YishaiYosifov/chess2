@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Integration.Collections;
-using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.TestInfrastructure;
 
 namespace Chess2.Api.Integration.Tests;
 

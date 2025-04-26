@@ -20,11 +20,12 @@ public class BaseUnitTest
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddJsonFile("appsettings.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
-        var appSettings = configuration.GetSection("AppSettings").Get<AppSettings>()!;
+        var appSettings =
+            configuration.GetSection("AppSettings").Get<AppSettings>()
+            ?? throw new NullReferenceException("Could not get appsettings for the tests");
         fixture.Register(() => Options.Create(appSettings));
     }
 }

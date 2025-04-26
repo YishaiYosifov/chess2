@@ -14,18 +14,23 @@ namespace Chess2.Api.Unit.Tests;
 
 public class GuestServiceTests : BaseUnitTest
 {
-    private readonly IWebHostEnvironment _hostEnvironmentMock;
-    private readonly IOptions<AppSettings> _appSettingsMock;
-    private readonly ITokenProvider _tokenProviderMock;
+    private readonly IWebHostEnvironment _hostEnvironmentMock =
+        Substitute.For<IWebHostEnvironment>();
+    private readonly IOptions<AppSettings> _appSettingsMock = Substitute.For<
+        IOptions<AppSettings>
+    >();
+    private readonly ITokenProvider _tokenProviderMock = Substitute.For<ITokenProvider>();
+
     private readonly GuestService _guestService;
 
     public GuestServiceTests()
     {
-        _hostEnvironmentMock = Fixture.Create<IWebHostEnvironment>();
-        _appSettingsMock = Fixture.Create<IOptions<AppSettings>>();
-        _tokenProviderMock = Fixture.Create<ITokenProvider>();
-        var loggerMock = Fixture.Create<ILogger<GuestService>>();
-        _guestService = new(loggerMock, _tokenProviderMock, _appSettingsMock, _hostEnvironmentMock);
+        _guestService = new(
+            Substitute.For<ILogger<GuestService>>(),
+            _tokenProviderMock,
+            _appSettingsMock,
+            _hostEnvironmentMock
+        );
     }
 
     [Fact]
