@@ -3,7 +3,6 @@ using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Redis;
 
 namespace Chess2.Api.Controllers;
 
@@ -30,9 +29,9 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [HttpGet("by-username/{username}")]
     [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUser(string username, CancellationToken cancellation)
+    public async Task<IActionResult> GetUser(string username)
     {
-        var result = await _userService.GetUserByUsernameAsync(username, cancellation);
+        var result = await _userService.GetUserByUsernameAsync(username);
         return result.Match(
             (value) => Ok(new UserOut(value)),
             (errors) => errors.ToProblemDetails()
@@ -52,31 +51,24 @@ public class ProfileController(IUserService userService, IAuthService authServic
         if (userResult.IsError)
             return userResult.Errors.ToProblemDetails();
 
-        var editResult = await _userService.EditProfileAsync(
-            userResult.Value,
-            userEdit,
-            cancellation
-        );
-        return editResult.Match(
-            (value) => Ok(new PrivateUserOut(value)),
-            (errors) => errors.ToProblemDetails()
-        );
+        var editResult = await _userService.EditProfileAsync(userResult.Value, userEdit);
+        return editResult.Match((value) => NoContent(), (errors) => errors.ToProblemDetails());
     }
 
     [HttpPut("edit-username")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IActionResult> EditUsername([FromBody] string username, CancellationToken cancellation)
+    public async Task<IActionResult> EditUsername(
+        [FromBody] string username,
+        CancellationToken cancellation
+    )
     {
         var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User, cancellation);
         if (userResult.IsError)
             return userResult.Errors.ToProblemDetails();
 
-        var editResult = await _userService.EditUsernameAsync(userResult.Value, username, cancellation);
-        return editResult.Match(
-            (value) => NoContent(),
-            (errors) => errors.ToProblemDetails()
-        );
+        var editResult = await _userService.EditUsernameAsync(userResult.Value, username);
+        return editResult.Match((value) => NoContent(), (errors) => errors.ToProblemDetails());
     }
 }
