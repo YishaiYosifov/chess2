@@ -15,7 +15,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
     {
         var userIn = new SignupRequest()
         {
-            Username = "TestUser",
+            UserName = "TestUser",
             Email = "test@email.com",
             Password = "TestPassword",
             CountryCode = "IL",
@@ -49,7 +49,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
     {
         var userIn = new SignupRequest()
         {
-            Username = username,
+            UserName = username,
             Email = email,
             Password = password,
             CountryCode = country,
@@ -81,7 +81,7 @@ public class SignupTests(Chess2WebApplicationFactory factory) : BaseFunctionalTe
         var response = await ApiClient.SignupAsync(
             new()
             {
-                Username = user2Username,
+                UserName = user2Username,
                 Email = user2Email,
                 Password = "TestPassword",
                 CountryCode = "IL",

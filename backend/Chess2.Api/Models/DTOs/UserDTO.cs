@@ -4,7 +4,7 @@ namespace Chess2.Api.Models.DTOs;
 
 public class SignupRequest
 {
-    public required string Username { get; set; }
+    public required string UserName { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }
     public string? CountryCode { get; set; }
@@ -19,8 +19,8 @@ public class SigninRequest
 public class UserOut
 {
     public int UserId { get; set; }
-    public string Username { get; set; } = string.Empty;
-    public string About { get; set; } = string.Empty;
+    public string? UserName { get; set; }
+    public string? About { get; set; }
     public string? CountryCode { get; set; }
 
     public UserOut() { }
@@ -28,7 +28,7 @@ public class UserOut
     public UserOut(AuthedUser user)
     {
         UserId = user.Id;
-        Username = user.Username;
+        UserName = user.UserName;
         About = user.About;
         CountryCode = user.CountryCode;
     }

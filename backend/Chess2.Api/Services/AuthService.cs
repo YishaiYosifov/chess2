@@ -93,7 +93,7 @@ public class AuthService(
     {
         var dbUser = new AuthedUser()
         {
-            Username = signupRequest.Username,
+            UserName = signupRequest.UserName,
             Email = signupRequest.Email,
             CountryCode = signupRequest.CountryCode,
         };
@@ -103,7 +103,7 @@ public class AuthService(
         {
             _logger.LogWarning(
                 "Failed to create user {Username} with errors: {Errors}",
-                signupRequest.Username,
+                signupRequest.UserName,
                 createdUserResult.Errors
             );
             return createdUserResult
