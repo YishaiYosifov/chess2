@@ -19,7 +19,8 @@ public class MatchmakingService(
     IOptions<AppSettings> settings,
     IRatingRepository ratingRepository,
     IMatchmakingRepository matchmakingRepository,
-    IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubCtx
+    IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubCtx,
+    ITimeControlTranslator secondsToTimeControl
 ) : IMatchmakingService
 {
     private readonly GameSettings _gameSettings = settings.Value.Game;
@@ -27,11 +28,12 @@ public class MatchmakingService(
     private readonly IMatchmakingRepository _matchmakingRepository = matchmakingRepository;
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubCtx =
         matchmakingHubCtx;
+    private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
 
     public async Task SeekAsync(AuthedUser user, int timeControl, int increment)
     {
         var userId = user.Id.ToString();
-        var rating = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid);
+        var rating = await _ratingRepository.GetTimeControlRatingAsync(user, _secondsToTimeControl.FromSeconds(timeControl));
         var matchedUserId = await SearchForMatch(timeControl, increment, rating.Value);
         if (matchedUserId is not null)
         {
