@@ -1,4 +1,6 @@
-﻿namespace Chess2.Api.Models;
+﻿using Swashbuckle.AspNetCore.SwaggerGen;
+
+namespace Chess2.Api.Models;
 
 public class AppSettings
 {
@@ -15,6 +17,8 @@ public class AppSettings
 public class GameSettings
 {
     public int MaxMatchRatingDifference { get; set; }
+    // a map of the minimum seconds that 
+    public required Dictionary<TimeControl, int> SecondsToTimeControl { get; set; }
 }
 
 public class JwtSettings
