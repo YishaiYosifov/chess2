@@ -10,16 +10,18 @@ public interface ITimeControlTranslator
 
 public class TimeControlTranslator(IOptions<AppSettings> settings) : ITimeControlTranslator
 {
-    private readonly GameSettings _gameSettings = settings.Value.Game;
+    private readonly Dictionary<TimeControl, int> _secondsToTimeControl = settings
+        .Value.Game.SecondsToTimeControl.OrderByDescending(x => x.Value)
+        .ToDictionary();
 
     public TimeControl FromSeconds(int seconds)
     {
-        foreach ((var timeControl, var minSeconds) in _gameSettings.SecondsToTimeControl)
+        foreach ((var timeControl, var minSeconds) in _secondsToTimeControl)
         {
-            if (seconds < minSeconds)
+            if (seconds >= minSeconds)
                 return timeControl;
         }
         // should never happen
-        return _gameSettings.SecondsToTimeControl.Last().Key;
+        return _secondsToTimeControl.Last().Key;
     }
 }
