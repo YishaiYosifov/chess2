@@ -4,6 +4,6 @@ import withAuth from "@/hocs/withAuth";
 
 // redirect the user to their profile page
 const RedirectUserPage = withAuth(async ({ profile }) => {
-    redirect(`/profile/${profile.username}`);
+    redirect(`/profile/${profile.userName}`);
 });
 export default RedirectUserPage;

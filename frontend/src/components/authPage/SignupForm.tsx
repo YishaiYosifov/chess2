@@ -10,13 +10,12 @@ import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
-import { authApi } from "@/lib/client";
+import { signup } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
-import FormikField from "../helpers/FormikField";
-import { ResponseError } from "@/lib/apiClient";
 import { toFormikErrors } from "@/lib/utils/errorUtils";
+import FormikField from "../helpers/FormikField";
 
 export interface SignupFormValues {
     username: string;
@@ -44,26 +43,22 @@ const SignupForm = () => {
         values: SignupFormValues,
         { setErrors, setStatus }: FormikHelpers<SignupFormValues>,
     ) {
-        try {
-            await authApi.signup({
+        const response = await signup({
+            body: {
                 userName: values.username,
                 email: values.email,
                 password: values.password,
                 countryCode,
-            });
-        } catch (err) {
-            if (!(err instanceof ResponseError)) {
-                setStatus(constants.GENERIC_ERROR);
-                throw err;
-            }
-
-            switch (err.response.status) {
+            },
+        });
+        if (response.error) {
+            console.warn("Error signing up:", response.error);
+            switch (response.error.status) {
                 case 409:
-                    setErrors(await toFormikErrors(err));
+                    setErrors(response.error.errors);
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);
-                    throw err;
             }
             return;
         }
