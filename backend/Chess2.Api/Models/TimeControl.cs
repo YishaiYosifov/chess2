@@ -5,4 +5,5 @@ public enum TimeControl
     Bullet,
     Blitz,
     Rapid,
+    Classical,
 }
