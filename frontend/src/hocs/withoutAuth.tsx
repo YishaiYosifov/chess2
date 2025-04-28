@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { ComponentType } from "react";
+import { ComponentType, JSX } from "react";
 
 import constants from "@/lib/constants";
 

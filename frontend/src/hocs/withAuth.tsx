@@ -1,27 +1,27 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import React from "react";
+import React, { JSX } from "react";
 
+import type { PrivateUserOut } from "@/lib/apiClient/models";
 import AuthContextProvider from "../contexts/authContext";
-import type { PrivateUser } from "@/lib/apiClient/models";
 import { profileApi } from "@/lib/client";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
-    profile: PrivateUser;
+    profile: PrivateUserOut;
 }
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
  *
- * This HOC will send a request to `/profile/me/info-sensitive`, and if an unauthorized
- * HTTP status is returned the user will be redirected to the home page
+ * This HOC will send a request to `check if we are authorized, and if not
+ * the user will be redirected to the home page
  */
 const withAuth = <P extends WithAuthProps>(
     WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
         const nextCookies = await cookies();
-        let profile: PrivateUser;
+        let profile: PrivateUserOut;
         try {
             profile = await profileApi.getAuthedUser({
                 headers: { Cookie: nextCookies.toString() },
@@ -30,6 +30,7 @@ const withAuth = <P extends WithAuthProps>(
             console.error("Could not find logged in user:", err);
             redirect("/login");
         }
+        console.log(profile);
 
         return (
             <AuthContextProvider hasAuthCookies={true} profile={profile}>

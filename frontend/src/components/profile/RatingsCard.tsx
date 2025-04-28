@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import clsx from "clsx";
 
-import type { RatingOverview } from "@/lib/apiClient/models";
+import type { RatingOverview } from "@/lib/tempModels";
 import Card from "../helpers/Card";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -103,7 +103,7 @@ const RatingCard = ({
                 </span>
                 <span>
                     Rating Chaing
-                    <span className="ms-2 text-text/50">last month</span>
+                    <span className="text-text/50 ms-2">last month</span>
                 </span>
                 <span className="justify-self-end" data-testid="ratingChange">
                     {formatNumberWithSign(ratingChange)}

@@ -7,10 +7,11 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "generate-api-client": "node scripts/generateApiClient.mjs"
+        "generate-api-client": "openapi-ts"
     },
     "dependencies": {
         "@heroicons/react": "^2.2.0",
+        "@hey-api/client-fetch": "^0.10.0",
         "clsx": "^2.1.1",
         "countries-and-timezones": "^3.8.0",
         "dotenv": "^16.5.0",
@@ -27,6 +28,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3",
         "@faker-js/faker": "^9.7.0",
+        "@hey-api/openapi-ts": "^0.66.7",
         "@openapitools/openapi-generator-cli": "^2.20.0",
         "@tailwindcss/postcss": "^4",
         "@testing-library/react": "^16.3.0",

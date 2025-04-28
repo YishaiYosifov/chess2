@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 
-import { User } from "@/lib/apiClient/models";
+import { UserOut } from "@/lib/apiClient/models";
 import ProfilePicture from "./ProfilePicture";
 import Card from "../helpers/Card";
 import Flag from "./Flag";
@@ -12,7 +12,7 @@ const Profile = ({
     profile,
     className,
 }: {
-    profile: User;
+    profile: UserOut;
     className?: string;
 }) => {
     return (
@@ -25,7 +25,7 @@ const Profile = ({
             <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">
                     <span
-                        className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl"
+                        className="overflow-hidden text-3xl text-ellipsis whitespace-nowrap"
                         data-testid="username"
                     >
                         {profile.userName}

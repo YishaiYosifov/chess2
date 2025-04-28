@@ -7,13 +7,12 @@ import Link from "next/link";
 import * as yup from "yup";
 
 import constants from "@/lib/constants";
-import { authApi } from "@/lib/client";
+import { signin } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
 import FormikField from "../helpers/FormikField";
-import { ResponseError } from "@/lib/apiClient";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -35,24 +34,20 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        try {
-            await authApi.signin({
+        const response = await signin({
+            body: {
                 usernameOrEmail: values.usernameOrEmail,
                 password: values.password,
-            });
-        } catch (err) {
-            if (!(err instanceof ResponseError)) {
-                setStatus(constants.GENERIC_ERROR);
-                throw err;
-            }
-
-            switch (err.response.status) {
+            },
+        });
+        if (response.error) {
+            console.warn("Error logging in:", response.error);
+            switch (response.error.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);
-                    throw err;
             }
             return;
         }

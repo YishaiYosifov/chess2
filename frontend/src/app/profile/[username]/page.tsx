@@ -2,14 +2,10 @@ import GamesTable from "@/components/profile/GamesTable";
 import RatingCard from "@/components/profile/RatingsCard";
 import { profileApi } from "@/lib/client";
 import Profile from "@/components/profile/Profile";
-import {
-    FinishedGame,
-    GameResult,
-    RatingOverview,
-    User,
-} from "@/lib/apiClient/models";
+import { FinishedGame, GameResult, RatingOverview } from "@/lib/tempModels";
 import { notFound } from "next/navigation";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
+import { UserOut } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
 
@@ -23,7 +19,7 @@ export async function generateMetadata({ params }: { params: Params }) {
 const UserPage = async ({ params }: { params: Params }) => {
     const { username } = await params;
 
-    let profile: User;
+    let profile: UserOut;
     try {
         profile = await profileApi.getUser(username);
     } catch {
