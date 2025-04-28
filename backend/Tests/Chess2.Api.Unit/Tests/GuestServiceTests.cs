@@ -16,19 +16,18 @@ public class GuestServiceTests : BaseUnitTest
 {
     private readonly IWebHostEnvironment _hostEnvironmentMock =
         Substitute.For<IWebHostEnvironment>();
-    private readonly IOptions<AppSettings> _appSettingsMock = Substitute.For<
-        IOptions<AppSettings>
-    >();
     private readonly ITokenProvider _tokenProviderMock = Substitute.For<ITokenProvider>();
 
+    private readonly IOptions<AppSettings> _settings;
     private readonly GuestService _guestService;
 
     public GuestServiceTests()
     {
+        _settings = Fixture.Create<IOptions<AppSettings>>();
         _guestService = new(
             Substitute.For<ILogger<GuestService>>(),
             _tokenProviderMock,
-            _appSettingsMock,
+            _settings,
             _hostEnvironmentMock
         );
     }
@@ -67,7 +66,7 @@ public class GuestServiceTests : BaseUnitTest
         var accessCookieName = "test-cookie";
         var httpContext = Fixture.Create<HttpContext>();
         _hostEnvironmentMock.EnvironmentName.Returns(environment);
-        _appSettingsMock.Value.Jwt.AccessTokenCookieName = accessCookieName;
+        _settings.Value.Jwt.AccessTokenCookieName = accessCookieName;
 
         _guestService.SetGuestCookie(guestToken, httpContext);
 

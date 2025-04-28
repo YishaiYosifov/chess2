@@ -8,7 +8,7 @@ namespace Chess2.Api.Unit.Tests;
 
 public class BaseUnitTest
 {
-    protected Fixture Fixture = new();
+    protected readonly Fixture Fixture = new();
 
     public BaseUnitTest()
     {
