@@ -19,8 +19,14 @@ import {
 import FormField from "@/components/form/FormField";
 
 const ProfileSettings = () => {
-    const { username, about, countryAlpha3, location, firstName, lastName } =
-        useAuthedProfile();
+    const {
+        userName: username,
+        about,
+        countryAlpha3,
+        location,
+        firstName,
+        lastName,
+    } = useAuthedProfile();
     const { setAuthedProfile } = useAuthedContext();
 
     async function updateProfile(

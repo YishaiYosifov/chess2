@@ -7,7 +7,7 @@ import Input from "@/components/helpers/Input";
 import Card from "@/components/helpers/Card";
 
 const CredentialSettings = () => {
-    const { username, email } = useAuthedProfile();
+    const { userName: username, email } = useAuthedProfile();
 
     function anonymiseEmail(email: string): string {
         const [emailUsername, domain] = email.split("@");

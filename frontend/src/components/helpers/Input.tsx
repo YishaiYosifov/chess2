@@ -22,7 +22,7 @@ const Input = ({
     return (
         <div className={clsx("w-full", className)}>
             {label && (
-                <label className="font-medium text-text/90" htmlFor={id}>
+                <label className="text-text/90 font-medium" htmlFor={id}>
                     {label}
                 </label>
             )}
@@ -32,12 +32,12 @@ const Input = ({
                     aria-label={ariaLabel ?? label}
                     className={clsx(
                         className,
-                        "w-full rounded-md p-1 text-black",
+                        "w-full rounded-md bg-white p-1 text-black",
                     )}
                     {...inputProps}
                 />
                 {icon && (
-                    <span className="absolute right-2 top-1/2 size-7 -translate-y-1/2 cursor-pointer text-black">
+                    <span className="absolute top-1/2 right-2 size-7 -translate-y-1/2 cursor-pointer text-black">
                         {icon}
                     </span>
                 )}

@@ -20,7 +20,7 @@ describe("Profile", () => {
     it("should display the username", () => {
         render(<Profile profile={userMock} />);
 
-        expect(screen.queryByText(userMock.username)).toBeInTheDocument();
+        expect(screen.queryByText(userMock.userName)).toBeInTheDocument();
         const flag = screen.getByTestId("flag");
         expect(flag).toHaveAttribute(
             "src",

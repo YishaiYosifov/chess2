@@ -13,7 +13,7 @@ import Button from "@/components/helpers/Button";
 import Card from "@/components/helpers/Card";
 
 const ProfilePictureSettings = () => {
-    const { username, pfpLastChanged } = useAuthedProfile();
+    const { userName: username, pfpLastChanged } = useAuthedProfile();
 
     const uploadPfpInput = useRef<HTMLInputElement>(null);
     const [lastChanged, setLastChanged] = useState(pfpLastChanged);

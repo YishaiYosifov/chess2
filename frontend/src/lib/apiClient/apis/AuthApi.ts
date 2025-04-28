@@ -12,7 +12,7 @@ export class AuthApi extends BaseAPI {
         requestParams: UserLogin,
         initOverrides?: RequestOptions,
     ): Promise<ApiResponse<void>> {
-        const response = await this.request("/auth/login", {
+        const response = await this.request("/auth/signin", {
             ...initOverrides,
             method: "POST",
             body: requestParams,

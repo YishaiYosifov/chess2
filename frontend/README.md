@@ -1,68 +1,36 @@
-# chess2
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-The chess2 website frontend made in NextJS.
+## Getting Started
 
-Chess2 is chess website with many new pieces and rules.
-
-2 players can match against each other if they are rated similarly and choose the same game settings.
-You are also able to play as a guest, but your rating and game history will not be saved.
-
-A video from before the rewrite:
-
-https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/3d51e75d-6b80-496c-b594-1339757b1695
-
-## Installation
-
-First, install the dependencies:
+First, run the development server:
 
 ```bash
-$ npm install
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-then run the dev server:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```bash
-$ npm run dev
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Open http://127.0.0.1:3000 in your browser to view the website.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## OpenAPI SDK
+## Learn More
 
-The backend of this project is made in FastAPI. FastAPI automatically generates openapi specs. Using this, we can automatically generate a typesafe SDK.
+To learn more about Next.js, take a look at the following resources:
 
-This project uses the openapi-generator package. To generate the client, run
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```bash
-$ npm run generate-client
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-The SDK will be generated into `src/client`.
+## Deploy on Vercel
 
-## Features
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out the [backend readme](https://github.com/YishaiYosifov/chess2-backend#features).
-
-## Screenshots
-
-![Signup Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/f352b93f-f6af-4f0b-ab7b-573b71c84f82)
-
-![Profile Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/2208684d-6521-4cbf-92d4-693e5d95d262)
-
-![Play Page](https://github.com/YishaiYosifov/chess2-frontend/assets/74960133/1a5f6eba-7300-4977-a6c4-a125b4a5e44f)
-
-## Testing
-
-To run tests, run the following command:
-
-```bash
-$ npm run test
-```
-
-To run the test watcher, run the following command:
-
-```bash
-$ npm run test:watch
-```
-
-Tests are located in the `__tests__` subdirectory in each directory. Test are made with [React Testing Library](https://github.com/testing-library/react-testing-library) and [vitest](https://github.com/vitest-dev/vitest).
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
