@@ -11,7 +11,7 @@ import {
 import constants from "@/lib/constants";
 
 import { mockRouter } from "@/lib/testUtils/mocks";
-import { authApi } from "@/lib/apiClient/client";
+import { authApi } from "@/lib/client";
 import SignupForm from "../SignupForm";
 
 vi.mock("@/lib/apiClient/client");

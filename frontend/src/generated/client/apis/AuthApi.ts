@@ -115,8 +115,8 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async signin(signinRequest?: SigninRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Tokens> {
-        const response = await this.signinRaw({ signinRequest: signinRequest }, initOverrides);
+    async signin(requestParameters: SigninOperationRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Tokens> {
+        const response = await this.signinRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -142,8 +142,8 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async signup(signupRequest?: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
-        const response = await this.signupRaw({ signupRequest: signupRequest }, initOverrides);
+    async signup(requestParameters: SignupOperationRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+        const response = await this.signupRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

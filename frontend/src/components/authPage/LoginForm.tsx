@@ -6,14 +6,14 @@ import { useContext } from "react";
 import Link from "next/link";
 import * as yup from "yup";
 
-import { authApi } from "@/lib/apiClient/client";
-import { ResponseError } from "@/lib/apiClient/models";
 import constants from "@/lib/constants";
+import { authApi } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
 import FormikField from "../helpers/FormikField";
+import { ResponseError } from "@/lib/apiClient";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -36,7 +36,7 @@ const LoginForm = () => {
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
         try {
-            await authApi.login({
+            await authApi.signin({
                 usernameOrEmail: values.usernameOrEmail,
                 password: values.password,
             });
@@ -46,7 +46,7 @@ const LoginForm = () => {
                 throw err;
             }
 
-            switch (err.status) {
+            switch (err.response.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
                     break;

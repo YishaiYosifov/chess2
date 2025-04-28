@@ -9,13 +9,14 @@ import { Form, Formik, FormikHelpers } from "formik";
 import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
-import { ResponseError } from "@/lib/apiClient/models";
-import { authApi } from "@/lib/apiClient/client";
 import constants from "@/lib/constants";
+import { authApi } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import FormikField from "../helpers/FormikField";
+import { ResponseError } from "@/lib/apiClient";
+import { toFormikErrors } from "@/lib/utils/errorUtils";
 
 export interface SignupFormValues {
     username: string;
@@ -56,9 +57,9 @@ const SignupForm = () => {
                 throw err;
             }
 
-            switch (err.status) {
+            switch (err.response.status) {
                 case 409:
-                    setErrors(err.toFormik());
+                    setErrors(await toFormikErrors(err));
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);

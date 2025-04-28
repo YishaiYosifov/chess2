@@ -4,7 +4,7 @@ import React from "react";
 
 import AuthContextProvider from "../contexts/authContext";
 import type { PrivateUser } from "@/lib/apiClient/models";
-import { profileApi } from "@/lib/apiClient/client";
+import { profileApi } from "@/lib/client";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
     profile: PrivateUser;
