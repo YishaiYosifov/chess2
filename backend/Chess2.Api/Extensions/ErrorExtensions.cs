@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models.DTOs;
+﻿using Chess2.Api.Models;
+using Chess2.Api.Models.DTOs;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,25 +21,25 @@ public static class ErrorExtensions
         var errorType = errors.First().Type;
         var formattedErrors = errors.Select(error =>
         {
-            var errorData = new Dictionary<string, object>
+            var errorData = new ProblemDetailsError()
             {
-                { "code", error.Code },
-                { "detail", error.Description },
+                Code = error.Code,
+                Detail = error.Description,
             };
 
             // include error metadata if there is any
             if (error.Metadata is not null)
-                errorData.Add("metadata", error.Metadata);
+                errorData.Metadata = error.Metadata;
 
             return errorData;
         });
 
-        var problemDetails = new ProblemDetails()
+        var problemDetails = new CustomProblemDetails()
         {
             Status = GetStatusCode(errorType),
             Title = GetTitle(errorType),
             Type = GetType(errorType),
-            Extensions = new Dictionary<string, object?> { { "errors", formattedErrors } },
+            Errors = formattedErrors,
         };
         return new ObjectResult(problemDetails);
     }
