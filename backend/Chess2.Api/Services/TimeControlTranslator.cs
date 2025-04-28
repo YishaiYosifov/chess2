@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Models;
-using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services;
 
@@ -8,20 +7,15 @@ public interface ITimeControlTranslator
     TimeControl FromSeconds(int seconds);
 }
 
-public class TimeControlTranslator(IOptions<AppSettings> settings) : ITimeControlTranslator
+public class TimeControlTranslator : ITimeControlTranslator
 {
-    private readonly Dictionary<TimeControl, int> _secondsToTimeControl = settings
-        .Value.Game.SecondsToTimeControl.OrderByDescending(x => x.Value)
-        .ToDictionary();
-
-    public TimeControl FromSeconds(int seconds)
-    {
-        foreach ((var timeControl, var minSeconds) in _secondsToTimeControl)
+    public TimeControl FromSeconds(int seconds) =>
+        seconds switch
         {
-            if (seconds >= minSeconds)
-                return timeControl;
-        }
-        // should never happen
-        return _secondsToTimeControl.Last().Key;
-    }
+            <= 0 => throw new ArgumentOutOfRangeException(nameof(seconds)),
+            <= 180 => TimeControl.Bullet, // 3 minutes or less
+            <= 300 => TimeControl.Blitz, // 5 minutes or less
+            <= 1200 => TimeControl.Rapid, // 20 minutes or less
+            _ => TimeControl.Classical,
+        };
 }
