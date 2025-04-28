@@ -4,8 +4,8 @@ import { PrivateUser, User } from "@/lib/apiClient/models";
 
 export function createUser(override?: Partial<User>): User {
     return {
-        authedUserId: faker.number.int(),
-        username: faker.internet.username(),
+        userId: faker.number.int(),
+        userName: faker.internet.username(),
         about: faker.lorem.paragraph(),
         countryCode: "IL",
         pfpLastChanged: new Date().getTime(),

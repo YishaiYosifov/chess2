@@ -25,10 +25,10 @@ describe("GameRow", () => {
         );
 
         expect(screen.getByTestId("gameRowUsernameWhite").textContent).toBe(
-            finishedGameMock.userWhite?.username,
+            finishedGameMock.userWhite?.userName,
         );
         expect(screen.getByTestId("gameRowUsernameBlack").textContent).toBe(
-            finishedGameMock.userBlack?.username,
+            finishedGameMock.userBlack?.userName,
         );
     });
 

@@ -19,7 +19,7 @@ const Profile = ({
         <Card className={clsx("w-full flex-col gap-3 sm:flex-row", className)}>
             <ProfilePicture
                 className="self-center"
-                username={profile.username}
+                username={profile.userName}
                 lastChanged={profile.pfpLastChanged}
             />
             <section className="flex min-w-0 flex-col gap-3">
@@ -28,7 +28,7 @@ const Profile = ({
                         className="overflow-hidden text-ellipsis whitespace-nowrap text-3xl"
                         data-testid="username"
                     >
-                        {profile.username}
+                        {profile.userName}
                     </span>
                     <Flag size={40} countryCode={profile.countryCode} />
                 </div>

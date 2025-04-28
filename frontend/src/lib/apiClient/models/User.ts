@@ -4,7 +4,7 @@ export enum UserType {
 }
 
 export interface UserIn {
-    username: string;
+    userName: string;
     email: string;
     password: string;
     countryCode?: string;
@@ -16,8 +16,8 @@ export interface UserLogin {
 }
 
 export interface User {
-    authedUserId: number;
-    username: string;
+    userId: number;
+    userName: string;
     about: string;
     countryCode?: string;
     pfpLastChanged: number;

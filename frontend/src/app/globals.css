@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 @layer utilities {
     /* prettier-ignore */
@@ -27,6 +25,25 @@
     .scrollbar::-webkit-scrollbar-thumb:hover {
         background: #959596;
     }
+
+    .bg-checkerboard {
+        background-image: var(--background-checkerboard);
+    }
+}
+
+@theme {
+    --color-text: #efedf4;
+    --color-background: #0f0c14;
+    --color-primary: #a46496;
+    --color-secondary: #b8abce;
+    --color-card: rgb(164, 100, 150, 0.07);
+    --color-link: #60a5fa;
+    --color-error: #f87171;
+
+    --background-checkerboard: repeating-conic-gradient(
+        #111111 0% 25%,
+        transparent 0% 50%
+    );
 }
 
 .apexcharts-svg {

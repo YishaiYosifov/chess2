@@ -39,11 +39,11 @@ describe("GamesTable", () => {
         const usernamesBlack = screen.getAllByTestId("gameRowUsernameBlack");
         gamesMock.forEach((expectedGame, i) => {
             expect(usernamesWhite[i].textContent).toBe(
-                expectedGame.userWhite?.username,
+                expectedGame.userWhite?.userName,
             );
 
             expect(usernamesBlack[i].textContent).toBe(
-                expectedGame.userBlack?.username,
+                expectedGame.userBlack?.userName,
             );
         });
     });
