@@ -48,7 +48,10 @@ builder
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.OperationFilter<OperationIdFilter>();
+});
 
 const string AllowCorsOriginName = "AllowCorsOrigin";
 builder.Services.AddCors(options =>
@@ -192,7 +195,10 @@ builder.Services.AddScoped<IValidator<SignupRequest>, SignupValidator>();
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = (context, problemDetails) => { };
+});
 
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
