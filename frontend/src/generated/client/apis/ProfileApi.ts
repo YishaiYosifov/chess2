@@ -70,8 +70,8 @@ export class ProfileApi extends runtime.BaseAPI {
 
     /**
      */
-    async editProfileSettings(operation?: Array<Operation>, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
-        const response = await this.editProfileSettingsRaw({ operation: operation }, initOverrides);
+    async editProfileSettings(requestParameters: EditProfileSettingsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+        const response = await this.editProfileSettingsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -97,8 +97,8 @@ export class ProfileApi extends runtime.BaseAPI {
 
     /**
      */
-    async editUsername(body?: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
-        const response = await this.editUsernameRaw({ body: body }, initOverrides);
+    async editUsername(requestParameters: EditUsernameRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PrivateUserOut> {
+        const response = await this.editUsernameRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -152,8 +152,8 @@ export class ProfileApi extends runtime.BaseAPI {
 
     /**
      */
-    async getUser(username: string, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
-        const response = await this.getUserRaw({ username: username }, initOverrides);
+    async getUser(requestParameters: GetUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserOut> {
+        const response = await this.getUserRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

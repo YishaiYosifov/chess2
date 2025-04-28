@@ -1,6 +1,6 @@
 import GamesTable from "@/components/profile/GamesTable";
 import RatingCard from "@/components/profile/RatingsCard";
-import { profileApi } from "@/lib/apiClient/client";
+import { profileApi } from "@/lib/client";
 import Profile from "@/components/profile/Profile";
 import {
     FinishedGame,

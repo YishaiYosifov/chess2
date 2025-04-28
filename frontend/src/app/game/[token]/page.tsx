@@ -6,7 +6,7 @@ import {
     PrivateAuthedProfileOut,
 } from "@/lib/apiClient/models";
 import { parseFen } from "@/lib/utils/chessUtils";
-import { ResponseError } from "@/lib/apiClient/client";
+import { ResponseError } from "@/lib/client";
 import { liveGameApi } from "@/lib/apis";
 
 import Chessboard from "@/components/game/Chessboard";

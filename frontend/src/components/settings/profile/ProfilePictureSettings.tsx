@@ -8,7 +8,7 @@ import { revalidateUser } from "@/app/actions";
 import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/profile/ProfilePicture";
-import { settingsApi } from "@/lib/apiClient/client";
+import { settingsApi } from "@/lib/client";
 import Button from "@/components/helpers/Button";
 import Card from "@/components/helpers/Card";
 
@@ -67,7 +67,7 @@ const ProfilePictureSettings = () => {
                     >
                         Update Profile Picture
                     </Button>
-                    <TrashIcon className="size-9 text-secondary" />
+                    <TrashIcon className="text-secondary size-9" />
 
                     <span
                         className="text-error"

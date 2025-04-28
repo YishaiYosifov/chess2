@@ -10,7 +10,7 @@ import {
 } from "@/lib/testUtils/formUtils";
 
 import { mockRouter } from "@/lib/testUtils/mocks";
-import { authApi } from "@/lib/apiClient/client";
+import { authApi } from "@/lib/client";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
 
