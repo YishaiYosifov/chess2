@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -16,9 +17,9 @@ public class ProfileController(IUserService userService, IAuthService authServic
 
     [HttpGet("me")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public async Task<IActionResult> GetAuthedUser(CancellationToken cancellation)
+    public async Task<IActionResult> GetAuthedUser()
     {
         var result = await _authService.GetLoggedInUserAsync(HttpContext.User);
         return result.Match(
@@ -29,7 +30,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
 
     [HttpGet("by-username/{username}")]
     [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetUser(string username)
     {
         var result = await _userService.GetUserByUsernameAsync(username);
@@ -41,7 +42,8 @@ public class ProfileController(IUserService userService, IAuthService authServic
 
     [HttpPatch("edit-profile")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [Authorize]
     public async Task<IActionResult> EditProfileSettings(
         JsonPatchDocument<ProfileEditRequest> profileEditRequest
@@ -57,7 +59,7 @@ public class ProfileController(IUserService userService, IAuthService authServic
 
     [HttpPut("edit-username")]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [Authorize]
     public async Task<IActionResult> EditUsername([FromBody] string username)
     {

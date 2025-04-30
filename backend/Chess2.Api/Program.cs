@@ -16,7 +16,9 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackExchange.Redis;
@@ -195,10 +197,7 @@ builder.Services.AddScoped<IValidator<SignupRequest>, SignupValidator>();
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails(options =>
-{
-    options.CustomizeProblemDetails = (context, problemDetails) => { };
-});
+builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();

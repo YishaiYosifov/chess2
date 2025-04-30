@@ -19,27 +19,53 @@ public static class ErrorExtensions
     public static IActionResult ToProblemDetails(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
+        return errorType switch
+        {
+            ErrorType.Validation => CreateValidationProblemDetails(errors),
+            _ => CreateProblemDetails(errors)
+        };
+    }
+
+    private static ActionResult CreateValidationProblemDetails(IEnumerable<Error> errors)
+    {
+        var formattedErrors = errors.GroupBy(x => x.Code).ToDictionary(
+            group => group.Key,
+            group => group.Select(err => err.Description).ToArray());
+
+        var problemDetails = new ValidationProblemDetails()
+        {
+            Status = GetStatusCode(ErrorType.Validation),
+            Title = GetTitle(ErrorType.Validation),
+            Type = GetType(ErrorType.Validation),
+            Errors = formattedErrors,
+        };
+        return new ObjectResult(problemDetails);
+    }
+
+    private static ActionResult CreateProblemDetails(IEnumerable<Error> errors)
+    {
+        var errorType = errors.First().Type;
         var formattedErrors = errors.Select(error =>
         {
-            var errorData = new ProblemDetailsError()
+            var errorData = new Dictionary<string, object>
             {
-                Code = error.Code,
-                Detail = error.Description,
+                { "code", error.Code },
+                { "detail", error.Description },
             };
 
             // include error metadata if there is any
             if (error.Metadata is not null)
-                errorData.Metadata = error.Metadata;
+                errorData.Add("metadata", error.Metadata);
 
             return errorData;
         });
 
-        var problemDetails = new CustomProblemDetails()
+        var problemDetails = new ProblemDetails()
         {
             Status = GetStatusCode(errorType),
             Title = GetTitle(errorType),
             Type = GetType(errorType),
-            Errors = formattedErrors,
+            Extensions = new Dictionary<string, object?> { { "errors", formattedErrors } },
         };
         return new ObjectResult(problemDetails);
     }
