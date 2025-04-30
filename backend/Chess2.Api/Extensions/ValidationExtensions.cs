@@ -11,8 +11,8 @@ public static class ValidationExtensions
         [
             .. errors.Select(error =>
                 Error.Validation(
-                    description: error.ErrorMessage,
-                    metadata: new() { { MetadataFields.RelatedField, error.PropertyName } }
+                    code: error.PropertyName,
+                    description: error.ErrorMessage
                 )
             ),
         ];
