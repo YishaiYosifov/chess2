@@ -10,7 +10,7 @@ import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
-import { signup } from "@/lib/client";
+import { signup, ValidationProblemDetails } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
@@ -55,7 +55,7 @@ const SignupForm = () => {
             console.warn("Error signing up:", response.error);
             switch (response.error.status) {
                 case 409:
-                    setErrors(response.error.errors);
+                    setErrors(response.error as ValidationProblemDetails);
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);

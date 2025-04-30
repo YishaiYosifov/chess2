@@ -24,7 +24,14 @@ export type ProblemDetails = {
     status?: number | null;
     detail?: string | null;
     instance?: string | null;
-    [key: string]: unknown | (string | null) | (string | null) | (number | null) | (string | null) | (string | null) | undefined;
+    [key: string]:
+        | unknown
+        | (string | null)
+        | (string | null)
+        | (number | null)
+        | (string | null)
+        | (string | null)
+        | undefined;
 };
 
 export type SigninRequest = {
@@ -51,18 +58,40 @@ export type UserOut = {
     countryCode?: string | null;
 };
 
+export type ValidationProblemDetails = {
+    type?: string | null;
+    title?: string | null;
+    status?: number | null;
+    detail?: string | null;
+    instance?: string | null;
+    errors?: {
+        [key: string]: Array<string>;
+    } | null;
+    [key: string]:
+        | unknown
+        | (string | null)
+        | (string | null)
+        | (number | null)
+        | (string | null)
+        | (string | null)
+        | ({
+              [key: string]: Array<string>;
+          } | null)
+        | undefined;
+};
+
 export type SignupData = {
     body?: SignupRequest;
     path?: never;
     query?: never;
-    url: '/api/Auth/signup';
+    url: "/api/Auth/signup";
 };
 
 export type SignupErrors = {
     /**
      * Bad Request
      */
-    400: ProblemDetails;
+    400: ValidationProblemDetails;
     /**
      * Conflict
      */
@@ -84,7 +113,7 @@ export type SigninData = {
     body?: SigninRequest;
     path?: never;
     query?: never;
-    url: '/api/Auth/signin';
+    url: "/api/Auth/signin";
 };
 
 export type SigninErrors = {
@@ -113,7 +142,7 @@ export type RefreshData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/Auth/refresh';
+    url: "/api/Auth/refresh";
 };
 
 export type RefreshErrors = {
@@ -142,7 +171,7 @@ export type CreatesGuestUserData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/Auth/guest';
+    url: "/api/Auth/guest";
 };
 
 export type CreatesGuestUserResponses = {
@@ -152,13 +181,14 @@ export type CreatesGuestUserResponses = {
     204: void;
 };
 
-export type CreatesGuestUserResponse = CreatesGuestUserResponses[keyof CreatesGuestUserResponses];
+export type CreatesGuestUserResponse =
+    CreatesGuestUserResponses[keyof CreatesGuestUserResponses];
 
 export type TestAuthedData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/Auth/test-authed';
+    url: "/api/Auth/test-authed";
 };
 
 export type TestAuthedErrors = {
@@ -183,7 +213,7 @@ export type TestGuestData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/Auth/test-guest';
+    url: "/api/Auth/test-guest";
 };
 
 export type TestGuestErrors = {
@@ -208,7 +238,7 @@ export type GetAuthedUserData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/api/Profile/me';
+    url: "/api/Profile/me";
 };
 
 export type GetAuthedUserErrors = {
@@ -227,7 +257,8 @@ export type GetAuthedUserResponses = {
     200: PrivateUserOut;
 };
 
-export type GetAuthedUserResponse = GetAuthedUserResponses[keyof GetAuthedUserResponses];
+export type GetAuthedUserResponse =
+    GetAuthedUserResponses[keyof GetAuthedUserResponses];
 
 export type GetUserData = {
     body?: never;
@@ -235,7 +266,7 @@ export type GetUserData = {
         username: string;
     };
     query?: never;
-    url: '/api/Profile/by-username/{username}';
+    url: "/api/Profile/by-username/{username}";
 };
 
 export type GetUserErrors = {
@@ -260,17 +291,22 @@ export type EditProfileSettingsData = {
     body?: Array<Operation>;
     path?: never;
     query?: never;
-    url: '/api/Profile/edit-profile';
+    url: "/api/Profile/edit-profile";
 };
 
 export type EditProfileSettingsErrors = {
+    /**
+     * Bad Request
+     */
+    400: ValidationProblemDetails;
     /**
      * Unauthorized
      */
     401: ProblemDetails;
 };
 
-export type EditProfileSettingsError = EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
+export type EditProfileSettingsError =
+    EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
 
 export type EditProfileSettingsResponses = {
     /**
@@ -279,13 +315,14 @@ export type EditProfileSettingsResponses = {
     200: PrivateUserOut;
 };
 
-export type EditProfileSettingsResponse = EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
+export type EditProfileSettingsResponse =
+    EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
 
 export type EditUsernameData = {
     body?: string;
     path?: never;
     query?: never;
-    url: '/api/Profile/edit-username';
+    url: "/api/Profile/edit-username";
 };
 
 export type EditUsernameErrors = {
@@ -304,8 +341,9 @@ export type EditUsernameResponses = {
     204: PrivateUserOut;
 };
 
-export type EditUsernameResponse = EditUsernameResponses[keyof EditUsernameResponses];
+export type EditUsernameResponse =
+    EditUsernameResponses[keyof EditUsernameResponses];
 
 export type ClientOptions = {
-    baseUrl: 'http://127.0.0.1:5116' | (string & {});
+    baseUrl: "http://127.0.0.1:5116" | (string & {});
 };

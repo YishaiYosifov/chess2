@@ -1,29 +1,17 @@
-import { ResponseError } from "../apiClient";
-import { FormikErrors } from "formik";
+import type { FormikErrors } from "formik";
 
-interface ErrorMetadata {
-    relatedField?: string;
-}
-
-interface ErrorDetail {
-    code: string;
-    detail: string;
-    metadata?: ErrorMetadata;
-}
+import type { ValidationProblemDetails } from "../client";
 
 export async function toFormikErrors<TValue>(
-    error: ResponseError,
+    problemDetails: ValidationProblemDetails,
 ): Promise<FormikErrors<TValue>> {
-    const json = await error.response.json();
-
     const formikErrors: FormikErrors<TValue> = {};
-    for (const error of json.errors) {
-        const field = error.metadata?.relatedField;
-        if (field === undefined) continue;
+    if (!problemDetails.errors) return formikErrors;
 
+    for (const [field, errors] of Object.entries(problemDetails.errors)) {
         const formattedField = `${field[0].toLowerCase()}${field.slice(1)}`;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formikErrors[formattedField as keyof TValue] = error.detail as any;
+        formikErrors[formattedField as keyof TValue] = errors[0] as any;
     }
     return formikErrors;
 }
