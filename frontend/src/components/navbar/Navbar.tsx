@@ -10,6 +10,7 @@ import {
     Cog6ToothIcon,
     ArrowLeftIcon,
     UserCircleIcon,
+    BoltSlashIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
@@ -93,7 +94,7 @@ const UpperNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
             </NavItem>
             <NavItem href="/" icon={<HomeIcon />}>
                 Home
-            </NavItem>{" "}
+            </NavItem>
             {isAuthed ? authedLinks : unauthedLinks}
             <NavItem href="/donate" icon={<HeartIcon color="red" />}>
                 Donate
@@ -104,9 +105,14 @@ const UpperNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
 
 const LowerNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
     const authedLinks = (
-        <NavItem href="/settings" icon={<Cog6ToothIcon />}>
-            Settings
-        </NavItem>
+        <>
+            <NavItem href="/settings" icon={<Cog6ToothIcon />}>
+                Settings
+            </NavItem>
+            <NavItem href="/logout" icon={<BoltSlashIcon />}>
+                Logout
+            </NavItem>
+        </>
     );
     return (
         <>
