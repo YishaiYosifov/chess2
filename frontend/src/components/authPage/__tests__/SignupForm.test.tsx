@@ -4,20 +4,20 @@ import { Mock } from "vitest";
 
 import {
     fillForm,
-    responseErrFactory,
+    problemDetailsFactory,
     submitForm,
 } from "@/lib/testUtils/formUtils";
 
 import constants from "@/lib/constants";
 
 import { mockRouter } from "@/lib/testUtils/mocks";
-import { authApi } from "@/lib/client";
 import SignupForm from "../SignupForm";
+import { ErrorCode, signup } from "@/lib/client";
 
-vi.mock("@/lib/apiClient/client");
+vi.mock("@/lib/client/sdk.gen.ts");
 
 describe("SignupForm", () => {
-    const signupMock = authApi.signup as Mock;
+    const signupMock = signup as Mock;
     const signupValues = {
         Username: "a",
         Email: "a@b.c",
@@ -48,10 +48,10 @@ describe("SignupForm", () => {
     });
 
     it.each([
-        [new Error(), constants.GENERIC_ERROR],
-        [responseErrFactory(500), constants.GENERIC_ERROR],
+        [problemDetailsFactory(123), constants.GENERIC_ERROR],
+        [problemDetailsFactory(500), constants.GENERIC_ERROR],
     ])("should correctly handle submit failures", async (response) => {
-        signupMock.mockRejectedValue(response);
+        signupMock.mockReturnValue({ error: response });
         const user = userEvent.setup();
 
         render(<SignupForm />);
@@ -67,21 +67,19 @@ describe("SignupForm", () => {
     });
 
     it("should set errors on conflict", async () => {
-        signupMock.mockRejectedValue(
-            responseErrFactory(
+        signupMock.mockReturnValue({
+            error: problemDetailsFactory(
                 409,
                 {
-                    code: "General.Conflict",
-                    detail: "username conflict",
-                    metadata: { relatedField: "username" },
+                    errorCode: ErrorCode.USER_CONFLICT_USERNAME,
+                    description: "username conflict",
                 },
                 {
-                    code: "General.Conflict",
-                    detail: "email conflict",
-                    metadata: { relatedField: "email" },
+                    errorCode: ErrorCode.USER_CONFLICT_EMAIL,
+                    description: "email conflict",
                 },
             ),
-        );
+        });
         const user = userEvent.setup();
 
         render(<SignupForm />);

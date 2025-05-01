@@ -14,10 +14,3 @@ afterEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
 });
-
-global.console = {
-    ...global.console,
-    error: vi.fn(),
-    warn: vi.fn(),
-    log: console.log,
-};

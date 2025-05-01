@@ -7,6 +7,9 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
+        "typecheck": "npx tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
         "generate-api-client": "openapi-ts"
     },
     "dependencies": {
@@ -44,6 +47,8 @@
         "prettier-plugin-tailwindcss": "^0.6.11",
         "tailwindcss": "^4",
         "typescript": "^5",
-        "vite-tsconfig-paths": "^5.1.4"
+        "vite-tsconfig-paths": "^5.1.4",
+        "vitest": "^3.1.2",
+        "vitest-dom": "^0.1.1"
     }
 }

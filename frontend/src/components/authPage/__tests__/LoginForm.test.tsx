@@ -5,18 +5,19 @@ import { Mock } from "vitest";
 import {
     fillForm,
     submitForm,
-    responseErrFactory,
+    problemDetailsFactory,
     renderWithAuthContext,
 } from "@/lib/testUtils/formUtils";
 
 import { mockRouter } from "@/lib/testUtils/mocks";
-import { authApi } from "@/lib/client";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
+import { signin } from "@/lib/client";
 
-vi.mock("@/lib/apiClient/client");
+vi.mock("@/lib/client/sdk.gen.ts");
 
 describe("LoginForm", () => {
+    const mockSignin = signin as Mock;
     const loginValues = {
         "Username / Email": "a",
         Password: "12345678",
@@ -38,29 +39,25 @@ describe("LoginForm", () => {
     });
 
     it.each([
-        [new Error(), constants.GENERIC_ERROR],
-        [responseErrFactory(500), constants.GENERIC_ERROR],
-        [responseErrFactory(401), "Wrong username / email / password"],
-    ])(
-        "should correctly handle submit failures",
-        async (response, statusText) => {
-            const { replace } = mockRouter();
-            const mockLogin = authApi.login as Mock;
-            mockLogin.mockRejectedValue(response);
+        [problemDetailsFactory(123), constants.GENERIC_ERROR],
+        [problemDetailsFactory(500), constants.GENERIC_ERROR],
+        [problemDetailsFactory(401), "Wrong username / email / password"],
+    ])("should correctly handle submit failures", async (error, statusText) => {
+        const { replace } = mockRouter();
+        mockSignin.mockReturnValue({ error });
 
-            const user = userEvent.setup();
-            render(<LoginForm />);
+        const user = userEvent.setup();
+        render(<LoginForm />);
 
-            await fillForm(user, loginValues);
-            await submitForm(user);
+        await fillForm(user, loginValues);
+        await submitForm(user);
 
-            await waitFor(() => {
-                const status = screen.getByTestId("formStatus");
-                expect(status.textContent).toBe(statusText);
-                expect(replace).not.toHaveBeenCalled();
-            });
-        },
-    );
+        await waitFor(() => {
+            const status = screen.getByTestId("formStatus");
+            expect(status.textContent).toBe(statusText);
+            expect(replace).not.toHaveBeenCalled();
+        });
+    });
 
     it("should redirect when successful", async () => {
         const { replace } = mockRouter();
