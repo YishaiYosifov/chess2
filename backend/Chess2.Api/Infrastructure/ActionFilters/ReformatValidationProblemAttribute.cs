@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Errors;
-using Chess2.Api.Extensions;
+﻿using Chess2.Api.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -20,15 +19,12 @@ public class ReformatValidationProblemAttribute : ActionFilterAttribute
         base.OnResultExecuting(context);
     }
 
-    private static IActionResult FormatValidationError(IDictionary<string, string[]> errors)
+    private static ActionResult FormatValidationError(IDictionary<string, string[]> errors)
     {
         var formattedErrors = errors.Select(error =>
-            Error.Validation(
-                description: error.Value[0],
-                metadata: new() { { MetadataFields.RelatedField, error.Key } }
-            )
+            Error.Validation(code: error.Key, description: error.Value[0])
         );
 
-        return formattedErrors.ToProblemDetails();
+        return formattedErrors.ToActionResult();
     }
 }

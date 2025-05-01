@@ -13,7 +13,7 @@ public class GlobalExceptionHandler : IExceptionHandler
     )
     {
         var error = Error.Failure(description: "Internal Server Error");
-        await error.ToProblemDetails().ExecuteResultAsync(new() { HttpContext = httpContext });
+        await error.ToActionResult().ExecuteResultAsync(new() { HttpContext = httpContext });
         return true;
     }
 }

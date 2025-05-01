@@ -16,9 +16,7 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using StackExchange.Redis;
@@ -45,14 +43,14 @@ builder
     .AddNewtonsoftJson()
     .AddMvcOptions(options =>
     {
+        options.Conventions.Add(new UnauthorizedResponseConvention());
         options.Filters.Add<ReformatValidationProblemAttribute>();
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddOpenApi(options =>
 {
-    options.OperationFilter<OperationIdFilter>();
+    options.AddSchemaTransformer<OpenAPIErrorCodesSchemaTransformer>();
 });
 
 const string AllowCorsOriginName = "AllowCorsOrigin";
@@ -163,7 +161,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
                 ? AuthErrors.TokenInvalid
                 : AuthErrors.TokenMissing;
             return error
-                .ToProblemDetails()
+                .ToActionResult()
                 .ExecuteResultAsync(new() { HttpContext = ctx.HttpContext });
         },
     };
@@ -208,8 +206,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
     app.ApplyMigrations();
 }
 
