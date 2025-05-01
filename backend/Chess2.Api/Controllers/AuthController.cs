@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Extensions;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Errors;
+using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services;
 using FluentValidation;
@@ -22,15 +22,15 @@ public class AuthController(
     private readonly IAuthService _authService = authService;
     private readonly IValidator<SignupRequest> _signupValidator = userValidator;
 
-    [HttpPost("signup")]
+    [HttpPost("signup", Name = nameof(Signup))]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Signup([FromBody] SignupRequest signupRequest)
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<PrivateUserOut>> Signup([FromBody] SignupRequest signupRequest)
     {
         var validateResults = await _signupValidator.ValidateAsync(signupRequest);
         if (!validateResults.IsValid)
-            return validateResults.Errors.ToErrorList().ToProblemDetails();
+            return validateResults.Errors.ToErrorList().ToActionResult();
 
         var result = await _authService.SignupAsync(signupRequest);
         return result.Match(
@@ -39,15 +39,14 @@ public class AuthController(
                 _logger.LogInformation("Created user {Username}", signupRequest.UserName);
                 return Ok(new PrivateUserOut(value));
             },
-            (errors) => errors.ToProblemDetails()
+            (errors) => errors.ToActionResult()
         );
     }
 
-    [HttpPost("signin")]
+    [HttpPost("signin", Name = nameof(Signin))]
     [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Signin([FromBody] SigninRequest signinRequest)
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<Tokens>> Signin([FromBody] SigninRequest signinRequest)
     {
         var result = await _authService.SigninAsync(
             signinRequest.UsernameOrEmail,
@@ -64,16 +63,15 @@ public class AuthController(
                 );
                 return Ok(value);
             },
-            (errors) => errors.ToProblemDetails()
+            (errors) => errors.ToActionResult()
         );
     }
 
-    [HttpPost("refresh")]
+    [HttpPost("refresh", Name = nameof(Refresh))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
-    public async Task<IActionResult> Refresh(CancellationToken cancellation)
+    public async Task<ActionResult> Refresh(CancellationToken cancellation)
     {
         var result = await _authService.RefreshTokenAsync(HttpContext.User, cancellation);
         return result.Match(
@@ -82,13 +80,13 @@ public class AuthController(
                 _authService.SetAccessCookie(value, HttpContext);
                 return NoContent();
             },
-            (errors) => errors.ToProblemDetails()
+            (errors) => errors.ToActionResult()
         );
     }
 
-    [HttpPost("guest")]
+    [HttpPost("guest", Name = nameof(CreateGuestUser))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult CreatesGuestUser()
+    public ActionResult CreateGuestUser()
     {
         var guestToken = _guestService.CreateGuestUser();
         _guestService.SetGuestCookie(guestToken, HttpContext);
@@ -96,16 +94,14 @@ public class AuthController(
     }
 
 #if DEBUG
-    [HttpPost("test-authed")]
+    [HttpPost("test-authed", Name = nameof(TestAuthed))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [Authorize]
-    public IActionResult TestAuthed() => NoContent();
+    public ActionResult TestAuthed() => NoContent();
 
-    [HttpPost("test-guest")]
+    [HttpPost("test-guest", Name = nameof(TestGuest))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [Authorize("GuestAccess")]
-    public IActionResult TestGuest() => NoContent();
+    public ActionResult TestGuest() => NoContent();
 #endif
 }
