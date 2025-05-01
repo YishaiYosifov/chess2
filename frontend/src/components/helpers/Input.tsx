@@ -63,7 +63,10 @@ export const PasswordInput = ({
             name={name}
             icon={
                 <EyeToggle
-                    onClick={() => setIsShowingPassword(!isShowingPassword)}
+                    data-testid="togglePasswordVisibility"
+                    onClick={() => {
+                        setIsShowingPassword(!isShowingPassword);
+                    }}
                 />
             }
             {...inputProps}
