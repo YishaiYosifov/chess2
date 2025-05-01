@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Errors;
 using Chess2.Api.Models.DTOs;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
@@ -13,24 +13,29 @@ public static class ErrorExtensions
     public static IEnumerable<SignalRError> ToSignalR(this IEnumerable<Error> errors) =>
         errors.Select(error => new SignalRError(error));
 
-    public static IActionResult ToProblemDetails(this Error error) =>
-        new List<Error>() { error }.ToProblemDetails();
+    public static ActionResult ToActionResult(this Error error) =>
+        new List<Error>() { error }.ToActionResult();
 
-    public static IActionResult ToProblemDetails(this IEnumerable<Error> errors)
+    public static ActionResult ToActionResult(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
         return errorType switch
         {
-            ErrorType.Validation => CreateValidationProblemDetails(errors),
-            _ => CreateProblemDetails(errors)
+            ErrorType.Validation => new ObjectResult(CreateValidationProblemDetails(errors)),
+            _ => new ObjectResult(CreateApiProblemDetails(errors)),
         };
     }
 
-    private static ActionResult CreateValidationProblemDetails(IEnumerable<Error> errors)
+    private static ValidationProblemDetails CreateValidationProblemDetails(
+        IEnumerable<Error> errors
+    )
     {
-        var formattedErrors = errors.GroupBy(x => x.Code).ToDictionary(
-            group => group.Key,
-            group => group.Select(err => err.Description).ToArray());
+        var formattedErrors = errors
+            .GroupBy(x => x.Code)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(err => err.Description).ToArray()
+            );
 
         var problemDetails = new ValidationProblemDetails()
         {
@@ -39,35 +44,26 @@ public static class ErrorExtensions
             Type = GetType(ErrorType.Validation),
             Errors = formattedErrors,
         };
-        return new ObjectResult(problemDetails);
+        return problemDetails;
     }
 
-    private static ActionResult CreateProblemDetails(IEnumerable<Error> errors)
+    private static ApiProblemDetails CreateApiProblemDetails(IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
-        var formattedErrors = errors.Select(error =>
+        var formattedErrors = errors.Select(error => new ApiProblemError()
         {
-            var errorData = new Dictionary<string, object>
-            {
-                { "code", error.Code },
-                { "detail", error.Description },
-            };
-
-            // include error metadata if there is any
-            if (error.Metadata is not null)
-                errorData.Add("metadata", error.Metadata);
-
-            return errorData;
+            Code = error.Code,
+            Description = error.Description,
         });
 
-        var problemDetails = new ProblemDetails()
+        var problemDetails = new ApiProblemDetails()
         {
             Status = GetStatusCode(errorType),
             Title = GetTitle(errorType),
             Type = GetType(errorType),
-            Extensions = new Dictionary<string, object?> { { "errors", formattedErrors } },
+            Errors = formattedErrors,
         };
-        return new ObjectResult(problemDetails);
+        return problemDetails;
     }
 
     private static int GetStatusCode(ErrorType errorType) =>

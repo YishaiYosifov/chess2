@@ -40,7 +40,7 @@ public class UserService(
     public async Task<ErrorOr<AuthedUser>> GetUserByUsernameAsync(string username)
     {
         var user = await _userManager.FindByNameAsync(username);
-        return user is null ? UserErrors.UserNotFound : user;
+        return user is null ? UserErrors.NotFound : user;
     }
 
     public async Task<ErrorOr<Updated>> EditProfileAsync(

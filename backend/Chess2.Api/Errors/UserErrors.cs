@@ -6,24 +6,22 @@ public static class UserErrors
 {
     public static Error UsernameTaken =>
         Error.Conflict(
-            "User.Conflict",
-            "A user with the same username already exists",
-            new() { { MetadataFields.RelatedField, "username" } }
+            ErrorCodes.UserUsernameConflict,
+            "A user with the same username already exists"
         );
 
     public static Error EmailTaken =>
         Error.Conflict(
-            "User.Conflict",
-            "A user with the same email address already exists",
-            new() { { MetadataFields.RelatedField, "email" } }
+            ErrorCodes.UserEmailConflict,
+            "A user with the same email address already exists"
         );
 
-    public static Error UserNotFound =>
-        Error.NotFound("User.NotFound", "This user could not be found");
+    public static Error NotFound =>
+        Error.NotFound(ErrorCodes.UserNotFound, "This user could not be found");
 
     public static Error BadCredentials =>
-        Error.Unauthorized("User.BadCredentials", "Username/email/password is connect");
+        Error.Unauthorized(ErrorCodes.UserBadCredentials, "Username/email/password is connect");
 
     public static Error SettingOnCooldown =>
-        Error.Forbidden("User.Cooldown.Setting", "Cannot edit a setting, on cooldown");
+        Error.Forbidden(ErrorCodes.UserSettingOnCooldown, "Cannot edit a setting, on cooldown");
 }

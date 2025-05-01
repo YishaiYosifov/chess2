@@ -48,5 +48,8 @@ public class MatchmakingHub(
         await _matchmakingService.SeekAsync(userResult.Value, timeControl, increment);
     }
 
-    public override async Task OnDisconnectedAsync(Exception? exception) { }
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        throw new NotImplementedException();
+    }
 }
