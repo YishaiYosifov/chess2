@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Infrastructure;
@@ -46,6 +47,10 @@ builder
         options.Conventions.Add(new UnauthorizedResponseConvention());
         options.Filters.Add<ReformatValidationProblemAttribute>();
     });
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
