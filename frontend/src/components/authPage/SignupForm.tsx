@@ -10,11 +10,11 @@ import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
-import { signup, ValidationProblemDetails } from "@/lib/client";
+import { ApiProblemDetails, ErrorCode, signup } from "@/lib/client";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
+import { mapErrorsToFormik } from "@/lib/utils/errorUtils";
 import Input, { PasswordInput } from "../helpers/Input";
-import { toFormikErrors } from "@/lib/utils/errorUtils";
 import FormikField from "../helpers/FormikField";
 
 export interface SignupFormValues {
@@ -43,7 +43,7 @@ const SignupForm = () => {
         values: SignupFormValues,
         { setErrors, setStatus }: FormikHelpers<SignupFormValues>,
     ) {
-        const response = await signup({
+        const { error } = await signup({
             body: {
                 userName: values.username,
                 email: values.email,
@@ -51,11 +51,19 @@ const SignupForm = () => {
                 countryCode,
             },
         });
-        if (response.error) {
-            console.warn("Error signing up:", response.error);
-            switch (response.error.status) {
+        if (error) {
+            console.warn("Error signing up:", error);
+            switch (error.status) {
                 case 409:
-                    setErrors(response.error as ValidationProblemDetails);
+                    setErrors(
+                        mapErrorsToFormik<SignupFormValues>(
+                            error as ApiProblemDetails,
+                            {
+                                [ErrorCode.USER_CONFLICT_USERNAME]: "username",
+                                [ErrorCode.USER_CONFLICT_EMAIL]: "email",
+                            },
+                        ),
+                    );
                     break;
                 default:
                     setStatus(constants.GENERIC_ERROR);

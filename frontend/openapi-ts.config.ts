@@ -1,15 +1,21 @@
-import { defineConfig } from "@hey-api/openapi-ts";
+import { defineConfig, defaultPlugins } from "@hey-api/openapi-ts";
 
 export default defineConfig({
-    input: "http://127.0.0.1:5116/swagger/v1/swagger.json",
+    input: "http://127.0.0.1:5116/openapi/v1.json",
     output: {
         path: "./src/lib/client",
         format: "prettier",
     },
     plugins: [
+        ...defaultPlugins,
         {
             name: "@hey-api/client-next",
             runtimeConfigPath: "./src/lib/apiClientConfig.ts",
+        },
+        {
+            name: "@hey-api/typescript",
+            enums: "typescript",
+            exportInlineEnums: true,
         },
     ],
 });
