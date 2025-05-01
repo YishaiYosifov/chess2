@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Mock, MockInstance } from "vitest";
 
-import { responseErrFactory } from "@/lib/testUtils/formUtils";
+import { problemDetailsFactory } from "@/lib/testUtils/formUtils";
 import { settingsApi } from "@/lib/apis";
 import constants from "@/lib/constants";
 
@@ -62,8 +62,8 @@ describe("ProfilePictureSettings", () => {
 
     it.each([
         [new Error(), constants.GENERIC_ERROR],
-        [responseErrFactory(testErr, { status: 400 }), "testErr"],
-        [responseErrFactory(testErr, { status: 413 }), "testErr"],
+        [problemDetailsFactory(testErr, { status: 400 }), "testErr"],
+        [problemDetailsFactory(testErr, { status: 413 }), "testErr"],
     ])("should handle errors correctly", async (err, status) => {
         const uploadPfpMock = settingsApi.uploadProfilePicture as Mock;
         uploadPfpMock.mockRejectedValue(err);

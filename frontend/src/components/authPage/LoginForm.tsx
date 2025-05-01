@@ -34,15 +34,15 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        const response = await signin({
+        const { error } = await signin({
             body: {
                 usernameOrEmail: values.usernameOrEmail,
                 password: values.password,
             },
         });
-        if (response.error) {
-            console.warn("Error logging in:", response.error);
-            switch (response.error.status) {
+        if (error) {
+            console.warn("Error logging in:", error);
+            switch (error.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
                     break;
@@ -74,7 +74,6 @@ const LoginForm = () => {
                 <div className="flex flex-col gap-3">
                     <FormikField
                         asInput={Input}
-                        id="usernameOrEmail"
                         label="Username / Email"
                         placeholder="Enter your username or email"
                         name="usernameOrEmail"
@@ -82,7 +81,6 @@ const LoginForm = () => {
                     <FormikField
                         asInput={PasswordInput}
                         label="Password"
-                        id="password"
                         name="password"
                     />
                 </div>

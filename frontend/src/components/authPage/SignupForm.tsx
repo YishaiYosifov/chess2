@@ -51,27 +51,28 @@ const SignupForm = () => {
                 countryCode,
             },
         });
-        if (error) {
-            console.warn("Error signing up:", error);
-            switch (error.status) {
-                case 409:
-                    setErrors(
-                        mapErrorsToFormik<SignupFormValues>(
-                            error as ApiProblemDetails,
-                            {
-                                [ErrorCode.USER_CONFLICT_USERNAME]: "username",
-                                [ErrorCode.USER_CONFLICT_EMAIL]: "email",
-                            },
-                        ),
-                    );
-                    break;
-                default:
-                    setStatus(constants.GENERIC_ERROR);
-            }
+
+        if (!error) {
+            router.push("/login");
             return;
         }
 
-        router.push("/login");
+        console.warn("Error signing up:", error);
+        switch (error.status) {
+            case 409:
+                setErrors(
+                    mapErrorsToFormik<SignupFormValues>(
+                        error as ApiProblemDetails,
+                        {
+                            [ErrorCode.USER_CONFLICT_USERNAME]: "username",
+                            [ErrorCode.USER_CONFLICT_EMAIL]: "email",
+                        },
+                    ),
+                );
+                break;
+            default:
+                setStatus(constants.GENERIC_ERROR);
+        }
     }
 
     return (
