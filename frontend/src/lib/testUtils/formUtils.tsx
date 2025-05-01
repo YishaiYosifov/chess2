@@ -9,7 +9,7 @@ import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
 import { AuthContext, AuthContextInterface } from "@/contexts/authContext";
-import { ErrorDetail, ResponseError } from "@/lib/apiClient/models";
+import { ApiProblemError, ApiProblemDetails } from "../client";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;
 
@@ -56,9 +56,10 @@ export function renderWithAuthContext(
 /**
  * Creates a ResponseError instance
  */
-export function responseErrFactory(
+export const problemDetailsFactory = (
     status: number,
-    ...errors: ErrorDetail[]
-): ResponseError {
-    return new ResponseError(status, errors);
-}
+    ...errors: ApiProblemError[]
+): ApiProblemDetails => ({
+    status: status,
+    errors,
+});
