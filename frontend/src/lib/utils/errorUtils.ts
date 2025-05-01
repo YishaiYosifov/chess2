@@ -1,17 +1,24 @@
 import type { FormikErrors } from "formik";
 
-import type { ValidationProblemDetails } from "../client";
+import type { ApiProblemDetails, ErrorCode } from "../client";
 
-export async function toFormikErrors<TValue>(
-    problemDetails: ValidationProblemDetails,
-): Promise<FormikErrors<TValue>> {
+type ErrorMapping<TValue> = {
+    [K in ErrorCode]?: keyof TValue;
+};
+
+export function mapErrorsToFormik<TValue>(
+    problemDetails: ApiProblemDetails,
+    errors: ErrorMapping<TValue>,
+): FormikErrors<TValue> {
     const formikErrors: FormikErrors<TValue> = {};
     if (!problemDetails.errors) return formikErrors;
 
-    for (const [field, errors] of Object.entries(problemDetails.errors)) {
-        const formattedField = `${field[0].toLowerCase()}${field.slice(1)}`;
+    for (const { errorCode, description } of problemDetails.errors) {
+        const resolvedField = errors[errorCode];
+        if (!resolvedField) continue;
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formikErrors[formattedField as keyof TValue] = errors[0] as any;
+        formikErrors[resolvedField] = description as any;
     }
     return formikErrors;
 }

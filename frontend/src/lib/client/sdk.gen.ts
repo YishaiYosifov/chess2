@@ -15,8 +15,8 @@ import type {
     RefreshData,
     RefreshResponse,
     RefreshError,
-    CreatesGuestUserData,
-    CreatesGuestUserResponse,
+    CreateGuestUserData,
+    CreateGuestUserResponse,
     TestAuthedData,
     TestAuthedResponse,
     TestAuthedError,
@@ -56,9 +56,9 @@ export type Options<
 };
 
 export const signup = <ThrowOnError extends boolean = false>(
-    options?: Options<SignupData, ThrowOnError>,
+    options: Options<SignupData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).post<
+    return (options.client ?? _heyApiClient).post<
         SignupResponse,
         SignupError,
         ThrowOnError
@@ -73,9 +73,9 @@ export const signup = <ThrowOnError extends boolean = false>(
 };
 
 export const signin = <ThrowOnError extends boolean = false>(
-    options?: Options<SigninData, ThrowOnError>,
+    options: Options<SigninData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).post<
+    return (options.client ?? _heyApiClient).post<
         SigninResponse,
         SigninError,
         ThrowOnError
@@ -102,11 +102,11 @@ export const refresh = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const createsGuestUser = <ThrowOnError extends boolean = false>(
-    options?: Options<CreatesGuestUserData, ThrowOnError>,
+export const createGuestUser = <ThrowOnError extends boolean = false>(
+    options?: Options<CreateGuestUserData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        CreatesGuestUserResponse,
+        CreateGuestUserResponse,
         unknown,
         ThrowOnError
     >({
@@ -168,9 +168,9 @@ export const getUser = <ThrowOnError extends boolean = false>(
 };
 
 export const editProfileSettings = <ThrowOnError extends boolean = false>(
-    options?: Options<EditProfileSettingsData, ThrowOnError>,
+    options: Options<EditProfileSettingsData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).patch<
+    return (options.client ?? _heyApiClient).patch<
         EditProfileSettingsResponse,
         EditProfileSettingsError,
         ThrowOnError
@@ -185,9 +185,9 @@ export const editProfileSettings = <ThrowOnError extends boolean = false>(
 };
 
 export const editUsername = <ThrowOnError extends boolean = false>(
-    options?: Options<EditUsernameData, ThrowOnError>,
+    options: Options<EditUsernameData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).put<
+    return (options.client ?? _heyApiClient).put<
         EditUsernameResponse,
         EditUsernameError,
         ThrowOnError
