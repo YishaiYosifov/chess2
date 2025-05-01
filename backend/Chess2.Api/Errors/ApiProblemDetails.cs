@@ -10,14 +10,14 @@ public class ApiProblemDetails : ProblemDetails
 public class ApiProblemError
 {
     /// <see cref="ErrorCodes"/>
-    public required string Code { get; set; }
+    public required string ErrorCode { get; set; }
     public required string Description { get; set; }
 }
 
 public static class ErrorCodes
 {
     public const string UserUsernameConflict = "User.Conflict.Username";
-    public const string UserEmailConflict = "User.Conflict.Username";
+    public const string UserEmailConflict = "User.Conflict.Email";
     public const string UserNotFound = "User.NotFound";
     public const string UserBadCredentials = "User.BadCredentials";
     public const string UserSettingOnCooldown = "User.Cooldown.Setting";
