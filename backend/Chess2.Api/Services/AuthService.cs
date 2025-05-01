@@ -147,8 +147,10 @@ public class AuthService(
                 Expires = accessTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = !_hostEnvironment.IsDevelopment(),
-                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                SameSite = _hostEnvironment.IsDevelopment()
+                    ? SameSiteMode.None
+                    : SameSiteMode.Strict,
             }
         );
     }
@@ -164,8 +166,10 @@ public class AuthService(
                 Expires = refreshTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = !_hostEnvironment.IsDevelopment(),
-                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                SameSite = _hostEnvironment.IsDevelopment()
+                    ? SameSiteMode.None
+                    : SameSiteMode.Strict,
             }
         );
     }
