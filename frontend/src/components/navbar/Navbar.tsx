@@ -20,8 +20,6 @@ import LogoText from "@public/assets/logo-text.svg";
 import NavItem from "./NavItem";
 
 const Navbar = () => {
-    const { hasAuthCookies } = useContext(AuthContext);
-
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
 
@@ -51,7 +49,7 @@ const Navbar = () => {
                 className="h-min w-full"
             />
             <ul className="flex flex-col gap-6">
-                <UpperNavItems isAuthed={hasAuthCookies} />
+                <UpperNavItems />
             </ul>
 
             {/* Spacer */}
@@ -59,14 +57,16 @@ const Navbar = () => {
             <div className="flex-grow" />
 
             <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                <LowerNavItems isAuthed={hasAuthCookies} />
+                <LowerNavItems />
             </ul>
         </aside>
     );
 };
 export default Navbar;
 
-const UpperNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
+const UpperNavItems = () => {
+    const { hasAuthCookies } = useContext(AuthContext);
+
     const authedLinks = (
         <NavItem href="/profile" icon={<UserCircleIcon />}>
             Profile
@@ -95,7 +95,7 @@ const UpperNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
             <NavItem href="/" icon={<HomeIcon />}>
                 Home
             </NavItem>
-            {isAuthed ? authedLinks : unauthedLinks}
+            {hasAuthCookies ? authedLinks : unauthedLinks}
             <NavItem href="/donate" icon={<HeartIcon color="red" />}>
                 Donate
             </NavItem>
@@ -103,7 +103,9 @@ const UpperNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
     );
 };
 
-const LowerNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
+const LowerNavItems = () => {
+    const { hasAuthCookies } = useContext(AuthContext);
+
     const authedLinks = (
         <>
             <NavItem href="/settings" icon={<Cog6ToothIcon />}>
@@ -114,12 +116,5 @@ const LowerNavItems = ({ isAuthed }: { isAuthed: boolean }) => {
             </NavItem>
         </>
     );
-    return (
-        <>
-            {isAuthed && authedLinks}
-            <NavItem href="#" icon={<ArrowLeftIcon />}>
-                Collapse
-            </NavItem>
-        </>
-    );
+    return hasAuthCookies && authedLinks;
 };
