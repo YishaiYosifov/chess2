@@ -12,9 +12,12 @@ namespace Chess2.Api.Infrastructure;
 
 /// <summary>
 /// Unfortunately <see cref="Error.Code" /> is a string so openapi doesn't know what it can be.
+///
 /// This transformer will add all values from <see cref="ErrorCodes" > to the schema.
+///
 /// If someone doesn't use the error codes from <see cref="ErrorCodes" />
 /// it's not the end of the world because they will be reminded once it is used in the front.
+/// But please always use <see cref="ErrorCodes" />.
 /// </summary>
 public class OpenAPIErrorCodesSchemaTransformer(
     ILogger<OpenAPIErrorCodesSchemaTransformer> logger,
@@ -33,7 +36,7 @@ public class OpenAPIErrorCodesSchemaTransformer(
         if (context.JsonTypeInfo.Type != typeof(ApiProblemError))
             return Task.CompletedTask;
 
-        var codePropertyName = nameof(ApiProblemError.Code);
+        var codePropertyName = nameof(ApiProblemError.ErrorCode);
         var jsonCodeProperty =
             _jsonOptions.PropertyNamingPolicy?.ConvertName(codePropertyName) ?? codePropertyName;
         if (!schema.Properties.TryGetValue(jsonCodeProperty, out var codeProp))
@@ -53,6 +56,7 @@ public class OpenAPIErrorCodesSchemaTransformer(
             .Where(s => s is not null)
             .Distinct();
         codeProp.Enum = [.. codes.Select(c => new OpenApiString(c) as IOpenApiAny)];
+        codeProp.Type = "enum";
         return Task.CompletedTask;
     }
 }

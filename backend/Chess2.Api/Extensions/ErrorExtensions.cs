@@ -52,7 +52,7 @@ public static class ErrorExtensions
         var errorType = errors.First().Type;
         var formattedErrors = errors.Select(error => new ApiProblemError()
         {
-            Code = error.Code,
+            ErrorCode = error.Code,
             Description = error.Description,
         });
 
