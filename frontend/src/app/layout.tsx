@@ -39,10 +39,12 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                 <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
-                    <Navbar />
-                    <main className="flex h-max min-h-screen flex-row justify-center pt-[72px]">
-                        {children}
-                    </main>
+                    <div className="flex min-h-screen">
+                        <div className="w-64 shrink-0">
+                            <Navbar />
+                        </div>
+                        <main className="flex-1">{children}</main>
+                    </div>
                 </AuthContextProvider>
             </body>
         </html>
