@@ -14,15 +14,18 @@
     }
 
     .scrollbar::-webkit-scrollbar-track {
+    *::-webkit-scrollbar-track {
         background: #171717;
     }
 
     .scrollbar::-webkit-scrollbar-thumb {
+    *::-webkit-scrollbar-thumb {
         background: #959596;
         border-radius: 100vh;
     }
 
     .scrollbar::-webkit-scrollbar-thumb:hover {
+    *::-webkit-scrollbar-thumb:hover {
         background: #959596;
     }
 
@@ -34,6 +37,7 @@
 @theme {
     --color-text: #efedf4;
     --color-background: #0f0c14;
+    --color-navbar: #08050b;
     --color-primary: #a46496;
     --color-secondary: #b8abce;
     --color-card: rgb(164, 100, 150, 0.07);
