@@ -8,7 +8,7 @@ import { revalidateUser } from "@/app/actions";
 import constants from "@/lib/constants";
 
 import ProfilePicture from "@/components/profile/ProfilePicture";
-import { settingsApi } from "@/lib/client";
+import { settingsApi } from "@/lib/apiClient";
 import Button from "@/components/helpers/Button";
 import Card from "@/components/helpers/Card";
 

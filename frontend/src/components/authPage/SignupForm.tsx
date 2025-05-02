@@ -10,7 +10,7 @@ import Link from "next/link";
 
 import { usernameSchema, emailSchema, passwordSchema } from "@/lib/validation";
 import constants from "@/lib/constants";
-import { ApiProblemDetails, ErrorCode, signup } from "@/lib/client";
+import { ApiProblemDetails, ErrorCode, signup } from "@/lib/apiClient";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import { mapErrorsToFormik } from "@/lib/utils/errorUtils";

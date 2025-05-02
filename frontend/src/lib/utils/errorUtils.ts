@@ -1,6 +1,6 @@
 import type { FormikErrors } from "formik";
 
-import type { ApiProblemDetails, ErrorCode } from "../client";
+import type { ApiProblemDetails, ErrorCode } from "../apiClient";
 
 type ErrorMapping<TValue> = {
     [K in ErrorCode]?: keyof TValue;
