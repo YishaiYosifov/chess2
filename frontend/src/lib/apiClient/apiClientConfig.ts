@@ -1,4 +1,4 @@
-import type { CreateClientConfig } from "./client/client.gen";
+import { type CreateClientConfig } from "./definition/client.gen";
 
 export const createClientConfig: CreateClientConfig = (config) => ({
     ...config,

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, createContext, useState } from "react";
-import { PrivateUser } from "@/lib/client/types.gen";
+import { PrivateUser } from "@/lib/apiClient";
 
 export interface AuthContextInterface {
     hasAuthCookies: boolean;
