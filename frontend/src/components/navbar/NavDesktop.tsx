@@ -50,6 +50,7 @@ const NavDesktop = ({
                     width,
                 )}
                 data-testid="navbarDesktop"
+                data-is-collapsed={isCollapsed}
                 aria-label="sidebar"
             >
                 {isCollapsed ? (
