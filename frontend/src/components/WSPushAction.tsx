@@ -7,6 +7,7 @@
 // import { WSEventIn } from "@/lib/apiClient/models";
 
 const WSPushAction = () => {
+    return null;
     // const router = useRouter();
     // const { lastData: gameStart } = useEventWebSocket(WSEventIn.GameStart);
     // useEffect(() => {
