@@ -12,7 +12,7 @@ import {
 import { mockRouter } from "@/lib/testUtils/mocks";
 import constants from "@/lib/constants";
 import LoginForm from "../LoginForm";
-import { signin } from "@/lib/client";
+import { signin } from "@/lib/apiClient";
 
 vi.mock("@/lib/client/sdk.gen.ts");
 

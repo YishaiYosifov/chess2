@@ -7,7 +7,7 @@ import Link from "next/link";
 import * as yup from "yup";
 
 import constants from "@/lib/constants";
-import { signin } from "@/lib/client";
+import { signin } from "@/lib/apiClient";
 
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
