@@ -1,6 +1,7 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useState } from "react";
+import clsx from "clsx";
 
 import {
     PlayIcon,
@@ -14,24 +15,43 @@ import {
     BoltSlashIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/solid";
+import Cookies from "js-cookie";
 import Image from "next/image";
+import Link from "next/link";
+
+import constants from "@/lib/constants";
 
 import { AuthContext } from "@/contexts/authContext";
 import LogoText from "@public/assets/logo-text.svg";
 import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
-import Link from "next/link";
-import clsx from "clsx";
 
-const Navbar = () => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+const Navbar = ({
+    isCollapsedInitialState = false,
+}: {
+    isCollapsedInitialState?: boolean;
+}) => {
+    const [isCollapsed, setIsCollapsed] = useState(isCollapsedInitialState);
 
-    function toggleCollapse(): void {
-        setIsCollapsed((prev) => !prev);
-    }
+    const toggleCollapse = () =>
+        setIsCollapsed((prev) => {
+            const newIsCollapsed = !prev;
+            if (!newIsCollapsed) {
+                Cookies.remove(constants.SIDEBAR_COLLAPSED_COOKIE);
+                return newIsCollapsed;
+            }
+
+            const date = new Date();
+            date.setTime(date.getTime() + 400 * 24 * 60 * 60 * 1000);
+            Cookies.set(constants.SIDEBAR_COLLAPSED_COOKIE, "1", {
+                expires: date,
+            });
+            return newIsCollapsed;
+        });
+
+    if (isCollapsed === null) return null;
 
     const width = isCollapsed ? "w-25" : "w-64";
-
     return (
         <section className={clsx(width, "shrink-0 transition-[width]")}>
             <aside
