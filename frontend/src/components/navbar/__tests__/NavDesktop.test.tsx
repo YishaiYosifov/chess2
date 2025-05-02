@@ -66,24 +66,24 @@ describe("NavDesktop", () => {
         const { unmount } = render(
             <NavDesktop isCollapsedInitialState={false} />,
         );
-        expect(screen.getByTestId("sidebar")).toHaveClass("w-64");
+        expect(screen.getByTestId("navbarDesktop")).toHaveClass("w-64");
 
         unmount();
         render(<NavDesktop isCollapsedInitialState={true} />);
-        expect(screen.getByTestId("sidebar")).toHaveClass("w-25");
+        expect(screen.getByTestId("navbarDesktop")).toHaveClass("w-25");
     });
 
     it("should apply correct width classes based collapse button", async () => {
         const user = userEvent.setup();
         render(<NavDesktop isCollapsedInitialState={false} />);
 
-        expect(screen.getByTestId("sidebar")).toHaveClass("w-64");
+        expect(screen.getByTestId("navbarDesktop")).toHaveClass("w-64");
 
         const collapseButton = screen.getByTestId("collapseButton");
         await user.click(collapseButton);
-        expect(screen.getByTestId("sidebar")).toHaveClass("w-25");
+        expect(screen.getByTestId("navbarDesktop")).toHaveClass("w-25");
 
         await user.click(collapseButton);
-        expect(screen.getByTestId("sidebar")).toHaveClass("w-64");
+        expect(screen.getByTestId("navbarDesktop")).toHaveClass("w-64");
     });
 });

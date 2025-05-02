@@ -49,7 +49,7 @@ const NavDesktop = ({
                     isCollapsed && "items-center",
                     width,
                 )}
-                data-testid="sidebar"
+                data-testid="navbarDesktop"
                 aria-label="sidebar"
             >
                 {isCollapsed ? (
