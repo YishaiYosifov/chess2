@@ -40,8 +40,7 @@ const Navbar = () => {
         mobileNav.current?.classList.remove("flex");
     }
 
-    function toggleCollapse(event): void {
-        event.preventDefault();
+    function toggleCollapse(): void {
         setIsCollapsed((prev) => !prev);
     }
 
