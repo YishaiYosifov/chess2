@@ -49,7 +49,7 @@ export enum OperationType {
     INVALID = "Invalid",
 }
 
-export type PrivateUserOut = {
+export type PrivateUser = {
     email?: string | null;
     userId?: number;
     userName?: string | null;
@@ -74,7 +74,7 @@ export type Tokens = {
     refreshToken: string;
 };
 
-export type UserOut = {
+export type User = {
     userId?: number;
     userName?: string | null;
     about?: string | null;
@@ -116,7 +116,7 @@ export type SignupResponses = {
     /**
      * OK
      */
-    200: PrivateUserOut;
+    200: PrivateUser;
 };
 
 export type SignupResponse = SignupResponses[keyof SignupResponses];
@@ -262,7 +262,7 @@ export type GetAuthedUserResponses = {
     /**
      * OK
      */
-    200: PrivateUserOut;
+    200: PrivateUser;
 };
 
 export type GetAuthedUserResponse =
@@ -290,7 +290,7 @@ export type GetUserResponses = {
     /**
      * OK
      */
-    200: UserOut;
+    200: User;
 };
 
 export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
@@ -320,7 +320,7 @@ export type EditProfileSettingsResponses = {
     /**
      * OK
      */
-    200: PrivateUserOut;
+    200: PrivateUser;
 };
 
 export type EditProfileSettingsResponse =
@@ -346,7 +346,7 @@ export type EditUsernameResponses = {
     /**
      * No Content
      */
-    204: PrivateUserOut;
+    204: PrivateUser;
 };
 
 export type EditUsernameResponse =
