@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import {
     PlayIcon,
@@ -9,6 +9,7 @@ import {
     PencilSquareIcon,
     Cog6ToothIcon,
     ArrowLeftIcon,
+    ArrowRightIcon,
     UserCircleIcon,
     BoltSlashIcon,
 } from "@heroicons/react/24/outline";
@@ -17,11 +18,15 @@ import Image from "next/image";
 
 import { AuthContext } from "@/contexts/authContext";
 import LogoText from "@public/assets/logo-text.svg";
+import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
+import Link from "next/link";
+import Button from "../helpers/Button";
 
 const Navbar = () => {
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     function toggleMenu(): void {
         toggleMobileButton.current?.classList.toggle("toggle-btn");
@@ -35,52 +40,82 @@ const Navbar = () => {
         mobileNav.current?.classList.remove("flex");
     }
 
+    function toggleCollapse(event): void {
+        event.preventDefault();
+        setIsCollapsed((prev) => !prev);
+    }
+
     return (
         <aside
-            className="border-secondary/50 bg-navbar flex h-screen w-64 flex-col justify-between gap-10
-                overflow-auto border-r px-5 py-10 text-3xl"
+            className={`border-secondary/50 bg-navbar flex h-screen
+                ${isCollapsed ? "w-25 items-center" : "w-64"} flex-col justify-between gap-10
+                overflow-auto border-r px-5 py-10 text-3xl transition-[width]`}
             aria-label="sidebar"
         >
-            <Image
-                src={LogoText}
-                alt="logo"
-                height={60}
-                width={167}
-                className="h-min w-full"
-            />
+            {isCollapsed ? (
+                <Image src={Logo} alt="Logo" width={60} height={60} />
+            ) : (
+                <Image
+                    src={LogoText}
+                    alt="Logo with text"
+                    height={60}
+                    width={200}
+                    className="self-center"
+                />
+            )}
             <ul className="flex flex-col gap-6">
-                <UpperNavItems />
+                <UpperNavItems isCollapsed={isCollapsed} />
             </ul>
 
             {/* Spacer */}
-
             <div className="flex-grow" />
 
             <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                <LowerNavItems />
-                <NavItem href="#" icon={<ArrowLeftIcon />}>
+                <LowerNavItems isCollapsed={isCollapsed} />
+                <NavItem
+                    as="button"
+                    icon={isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />}
+                    onClick={toggleCollapse}
+                    isCollapsed={isCollapsed}
+                >
                     Collapse
                 </NavItem>
             </ul>
         </aside>
     );
 };
+
 export default Navbar;
 
-const UpperNavItems = () => {
+const UpperNavItems = ({ isCollapsed }: { isCollapsed: boolean }) => {
     const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
-        <NavItem href="/profile" icon={<UserCircleIcon />}>
+        <NavItem
+            as={Link}
+            href="/profile"
+            icon={<UserCircleIcon />}
+            isCollapsed={isCollapsed}
+        >
             Profile
         </NavItem>
     );
     const unauthedLinks = (
         <>
-            <NavItem href="/login" icon={<ArrowRightEndOnRectangleIcon />}>
+            <NavItem
+                as={Link}
+                href="/login"
+                icon={<ArrowRightEndOnRectangleIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Login
             </NavItem>
-            <NavItem href="/signup" icon={<PencilSquareIcon />}>
+            <NavItem
+                as={Link}
+                href="/signup"
+                icon={<PencilSquareIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Signup
             </NavItem>
         </>
@@ -89,32 +124,55 @@ const UpperNavItems = () => {
     return (
         <>
             <NavItem
+                as={Link}
                 href="/play"
                 className="text-secondary"
                 icon={<PlayIcon />}
+                isCollapsed={isCollapsed}
             >
                 Play
             </NavItem>
-            <NavItem href="/" icon={<HomeIcon />}>
+            <NavItem
+                as={Link}
+                href="/"
+                icon={<HomeIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Home
             </NavItem>
             {hasAuthCookies ? authedLinks : unauthedLinks}
-            <NavItem href="/donate" icon={<HeartIcon color="red" />}>
+            <NavItem
+                as={Link}
+                href="/donate"
+                icon={<HeartIcon color="red" />}
+                isCollapsed={isCollapsed}
+            >
                 Donate
             </NavItem>
         </>
     );
 };
 
-const LowerNavItems = () => {
+const LowerNavItems = ({ isCollapsed }: { isCollapsed: boolean }) => {
     const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
         <>
-            <NavItem href="/settings" icon={<Cog6ToothIcon />}>
+            <NavItem
+                as={Link}
+                href="/settings"
+                icon={<Cog6ToothIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Settings
             </NavItem>
-            <NavItem href="/logout" icon={<BoltSlashIcon />}>
+
+            <NavItem
+                as={Link}
+                href="/logout"
+                icon={<BoltSlashIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Logout
             </NavItem>
         </>
