@@ -2,12 +2,12 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import React, { JSX } from "react";
 
-import type { PrivateUserOut } from "@/lib/apiClient/models";
+import type { PrivateUser } from "@/lib/apiClient/models";
 import AuthContextProvider from "../contexts/authContext";
 import { profileApi } from "@/lib/client";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
-    profile: PrivateUserOut;
+    profile: PrivateUser;
 }
 
 /**
@@ -21,7 +21,7 @@ const withAuth = <P extends WithAuthProps>(
 ) => {
     const NewComponent = async (props: P) => {
         const nextCookies = await cookies();
-        let profile: PrivateUserOut;
+        let profile: PrivateUser;
         try {
             profile = await profileApi.getAuthedUser({
                 headers: { Cookie: nextCookies.toString() },

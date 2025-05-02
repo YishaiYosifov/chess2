@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 
-import { UserOut } from "@/lib/apiClient/models";
+import { User } from "@/lib/apiClient/models";
 import ProfilePicture from "./ProfilePicture";
 import Card from "../helpers/Card";
 import Flag from "./Flag";
@@ -12,7 +12,7 @@ const Profile = ({
     profile,
     className,
 }: {
-    profile: UserOut;
+    profile: User;
     className?: string;
 }) => {
     return (

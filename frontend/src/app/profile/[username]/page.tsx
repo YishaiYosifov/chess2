@@ -5,7 +5,7 @@ import Profile from "@/components/profile/Profile";
 import { FinishedGame, GameResult, RatingOverview } from "@/lib/tempModels";
 import { notFound } from "next/navigation";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
-import { UserOut } from "@/lib/apiClient";
+import { User } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
 
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Params }) {
 const UserPage = async ({ params }: { params: Params }) => {
     const { username } = await params;
 
-    let profile: UserOut;
+    let profile: User;
     try {
         profile = await profileApi.getUser(username);
     } catch {
