@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import clsx from "clsx";
 
 import {
@@ -31,9 +31,20 @@ const Navbar = ({
 }: {
     isCollapsedInitialState?: boolean;
 }) => {
+    return (
+        <>
+            <DesktopNavbar isCollapsedInitialState={isCollapsedInitialState} />
+        </>
+    );
+};
+const DesktopNavbar = ({
+    isCollapsedInitialState,
+}: {
+    isCollapsedInitialState: boolean;
+}) => {
     const [isCollapsed, setIsCollapsed] = useState(isCollapsedInitialState);
 
-    const toggleCollapse = () =>
+    function toggleCollapse(): void {
         setIsCollapsed((prev) => {
             const newIsCollapsed = !prev;
             if (!newIsCollapsed) {
@@ -48,61 +59,52 @@ const Navbar = ({
             });
             return newIsCollapsed;
         });
+    }
 
-    if (isCollapsed === null) return null;
-
-    const width = isCollapsed ? "w-25" : "w-64";
     return (
-        <section className={clsx(width, "shrink-0 transition-[width]")}>
-            <aside
-                className={clsx(
-                    `border-secondary/50 bg-navbar fixed z-50 flex h-screen flex-col justify-between
-                    gap-10 overflow-auto border-r px-5 py-10 text-3xl transition-[width]`,
-                    isCollapsed && "items-center",
-                    width,
-                )}
-                aria-label="sidebar"
-            >
-                {isCollapsed ? (
-                    <Image src={Logo} alt="Logo" width={60} height={60} />
-                ) : (
-                    <Image
-                        src={LogoText}
-                        alt="Logo with text"
-                        height={60}
-                        width={200}
-                        className="self-center"
-                    />
-                )}
-                <ul className="flex flex-col gap-6">
-                    <UpperNavItems isCollapsed={isCollapsed} />
-                </ul>
+        <aside
+            className={clsx(
+                `border-secondary/50 bg-navbar sticky z-50 flex h-screen flex-col justify-between
+                gap-10 overflow-auto border-r px-5 py-10 text-3xl transition-[width]`,
+                isCollapsed ? "w-25 items-center" : "w-64",
+            )}
+            aria-label="sidebar"
+        >
+            {isCollapsed ? (
+                <Image src={Logo} alt="Logo" width={60} height={60} />
+            ) : (
+                <Image
+                    src={LogoText}
+                    alt="Logo with text"
+                    height={60}
+                    width={200}
+                    className="self-center"
+                />
+            )}
+            <ul className="flex flex-col gap-6">
+                <UpperNavItems isCollapsed={isCollapsed} />
+            </ul>
 
-                {/* Spacer */}
-                <div className="flex-grow" />
+            {/* Spacer */}
+            <div className="flex-grow" />
 
-                <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                    <LowerNavItems isCollapsed={isCollapsed} />
-                    <NavItem
-                        as="button"
-                        className="cursor-pointer"
-                        icon={
-                            isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
-                        }
-                        onClick={toggleCollapse}
-                        isCollapsed={isCollapsed}
-                    >
-                        Collapse
-                    </NavItem>
-                </ul>
-            </aside>
-        </section>
+            <ul className="flex flex-col gap-5 justify-self-end opacity-70">
+                <LowerNavItems isCollapsed={isCollapsed} />
+                <NavItem
+                    as="button"
+                    className="cursor-pointer"
+                    icon={isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />}
+                    onClick={toggleCollapse}
+                    isCollapsed={isCollapsed}
+                >
+                    Collapse
+                </NavItem>
+            </ul>
+        </aside>
     );
 };
 
-export default Navbar;
-
-const UpperNavItems = ({ isCollapsed }: { isCollapsed: boolean }) => {
+const UpperNavItems = ({ isCollapsed = false }: { isCollapsed?: boolean }) => {
     const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
@@ -168,7 +170,7 @@ const UpperNavItems = ({ isCollapsed }: { isCollapsed: boolean }) => {
     );
 };
 
-const LowerNavItems = ({ isCollapsed }: { isCollapsed: boolean }) => {
+const LowerNavItems = ({ isCollapsed = false }: { isCollapsed?: boolean }) => {
     const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
