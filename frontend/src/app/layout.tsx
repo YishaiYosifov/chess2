@@ -7,8 +7,8 @@ import constants from "@/lib/constants";
 import "./globals.css";
 
 import AuthContextProvider from "@/contexts/authContext";
-import Navbar from "@/components/navbar/Navbar";
 import WSPushAction from "@/components/WSPushAction";
+import Navbar from "@/components/navbar/Navbar";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -32,6 +32,7 @@ export const metadata: Metadata = {
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = await cookies();
     const hasAuthCookies = nextCookies.has(constants.REFRESH_TOKEN);
+    const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
 
     return (
         <html lang="en" data-bs-theme="dark">
@@ -40,7 +41,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                     <WSPushAction />
 
                     <div className="flex min-h-screen">
-                        <Navbar />
+                        <Navbar isCollapsedInitialState={isNavCollapsed} />
                         <main className="flex-1">{children}</main>
                     </div>
                 </AuthContextProvider>

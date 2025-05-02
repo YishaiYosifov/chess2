@@ -11,6 +11,8 @@ export const ACCESS_TOKEN = "accessToken";
 export const REFRESH_TOKEN = "refreshToken";
 
 export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
+export const SIDEBAR_COLLAPSED_COOKIE = "sidebarCollapsed";
+
 export const GENERIC_ERROR = "Something went wrong.";
 
 export const SETTING_PAGES = [
@@ -91,6 +93,7 @@ const exported = {
     ACCESS_TOKEN,
     REFRESH_TOKEN,
     LAST_LOGIN_LOCAL_STORAGE,
+    SIDEBAR_COLLAPSED_COOKIE,
     GENERIC_ERROR,
     SETTING_PAGES,
     TIME_CONTROLS,
