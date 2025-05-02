@@ -37,8 +37,8 @@ const Navbar = () => {
 
     return (
         <aside
-            className="border-secondary/50 bg-background flex h-full w-64 flex-col justify-between
-                gap-10 border-r px-5 py-10 text-3xl"
+            className="border-secondary/50 bg-navbar flex h-screen w-64 flex-col justify-between gap-10
+                overflow-auto border-r px-5 py-10 text-3xl"
             aria-label="sidebar"
         >
             <Image
@@ -58,6 +58,9 @@ const Navbar = () => {
 
             <ul className="flex flex-col gap-5 justify-self-end opacity-70">
                 <LowerNavItems />
+                <NavItem href="#" icon={<ArrowLeftIcon />}>
+                    Collapse
+                </NavItem>
             </ul>
         </aside>
     );
