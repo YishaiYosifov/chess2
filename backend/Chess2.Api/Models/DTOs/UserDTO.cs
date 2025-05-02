@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models.Entities;
+﻿using System.ComponentModel;
+using Chess2.Api.Models.Entities;
 
 namespace Chess2.Api.Models.DTOs;
 
@@ -16,6 +17,7 @@ public class SigninRequest
     public required string Password { get; set; }
 }
 
+[DisplayName("User")]
 public class UserOut
 {
     public int UserId { get; set; }
@@ -34,6 +36,7 @@ public class UserOut
     }
 }
 
+[DisplayName("PrivateUser")]
 public class PrivateUserOut : UserOut
 {
     public string? Email { get; set; }

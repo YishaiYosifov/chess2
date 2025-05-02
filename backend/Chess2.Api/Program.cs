@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -17,6 +19,7 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -57,6 +60,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {
     options.AddSchemaTransformer<OpenAPIErrorCodesSchemaTransformer>();
+    options.CreateSchemaReferenceId = typeInfo =>
+    {
+        var type = typeInfo.Type;
+        var attribute = type.GetCustomAttribute<DisplayNameAttribute>();
+        if (attribute is null)
+            return OpenApiOptions.CreateDefaultSchemaReferenceId(typeInfo);
+
+        return attribute.DisplayName;
+    };
 });
 
 const string AllowCorsOriginName = "AllowCorsOrigin";
