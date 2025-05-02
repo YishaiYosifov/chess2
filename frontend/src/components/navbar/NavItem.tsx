@@ -1,31 +1,39 @@
+"use client";
+
 import React from "react";
-
-import Link from "next/link";
 import clsx from "clsx";
+import Link from "next/link";
 
-const NavItem = ({
-    href,
-    className,
-    icon,
-    children,
-}: {
-    href: string;
-    className?: string;
+import type { PolymorphicProps } from "@/lib/polymorphicProps";
+
+interface NavItemOwnProps {
     icon?: React.ReactNode;
-    children?: React.ReactNode;
-}) => {
+    isCollapsed?: boolean;
+}
+
+const NavItem = <TProps extends React.ElementType>({
+    icon,
+    as,
+    className,
+    children,
+    isCollapsed,
+    ...props
+}: PolymorphicProps<TProps, NavItemOwnProps>) => {
+    const Component = as || Link;
     return (
-        <div
+        <Component
+            {...(props as React.ComponentProps<TProps>)}
             className={clsx(
+                "flex items-center gap-4 transition-opacity hover:opacity-70",
                 className,
-                "relative flex items-center gap-4 transition-opacity hover:opacity-70",
             )}
         >
             {icon && (
                 <span className="size-9 cursor-pointer opacity-70">{icon}</span>
             )}
-            <Link href={href}>{children}</Link>
-        </div>
+            {!isCollapsed && children}
+        </Component>
     );
 };
+
 export default NavItem;
