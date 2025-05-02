@@ -1,4 +1,4 @@
-import { UserOut } from "./client";
+import { User } from "./client";
 
 export enum GameResult {
     White = "white",
@@ -59,7 +59,7 @@ export interface LiveGame {
 
 export interface Player {
     playerId: number;
-    user: UserOut;
+    user: User;
 
     color: Color;
     timeRemaining: number;
@@ -74,8 +74,8 @@ export interface GameSettings {
 export interface FinishedGame {
     token: string;
 
-    userWhite?: UserOut;
-    userBlack?: UserOut;
+    userWhite?: User;
+    userBlack?: User;
 
     timeControl: number;
     increment: number;
