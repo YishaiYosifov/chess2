@@ -21,67 +21,62 @@ import LogoText from "@public/assets/logo-text.svg";
 import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
 import Link from "next/link";
-import Button from "../helpers/Button";
+import clsx from "clsx";
 
 const Navbar = () => {
-    const toggleMobileButton = useRef<HTMLButtonElement>(null);
-    const mobileNav = useRef<HTMLDivElement>(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
-
-    function toggleMenu(): void {
-        toggleMobileButton.current?.classList.toggle("toggle-btn");
-        mobileNav.current?.classList.toggle("hidden");
-        mobileNav.current?.classList.toggle("flex");
-    }
-
-    function closeMenu(): void {
-        toggleMobileButton.current?.classList.remove("toggle-btn");
-        mobileNav.current?.classList.add("hidden");
-        mobileNav.current?.classList.remove("flex");
-    }
 
     function toggleCollapse(): void {
         setIsCollapsed((prev) => !prev);
     }
 
+    const width = isCollapsed ? "w-25" : "w-64";
+
     return (
-        <aside
-            className={`border-secondary/50 bg-navbar flex h-screen
-                ${isCollapsed ? "w-25 items-center" : "w-64"} flex-col justify-between gap-10
-                overflow-auto border-r px-5 py-10 text-3xl transition-[width]`}
-            aria-label="sidebar"
-        >
-            {isCollapsed ? (
-                <Image src={Logo} alt="Logo" width={60} height={60} />
-            ) : (
-                <Image
-                    src={LogoText}
-                    alt="Logo with text"
-                    height={60}
-                    width={200}
-                    className="self-center"
-                />
-            )}
-            <ul className="flex flex-col gap-6">
-                <UpperNavItems isCollapsed={isCollapsed} />
-            </ul>
+        <section className={clsx(width, "shrink-0 transition-[width]")}>
+            <aside
+                className={clsx(
+                    `border-secondary/50 bg-navbar fixed z-50 flex h-screen flex-col justify-between
+                    gap-10 overflow-auto border-r px-5 py-10 text-3xl transition-[width]`,
+                    isCollapsed && "items-center",
+                    width,
+                )}
+                aria-label="sidebar"
+            >
+                {isCollapsed ? (
+                    <Image src={Logo} alt="Logo" width={60} height={60} />
+                ) : (
+                    <Image
+                        src={LogoText}
+                        alt="Logo with text"
+                        height={60}
+                        width={200}
+                        className="self-center"
+                    />
+                )}
+                <ul className="flex flex-col gap-6">
+                    <UpperNavItems isCollapsed={isCollapsed} />
+                </ul>
 
-            {/* Spacer */}
-            <div className="flex-grow" />
+                {/* Spacer */}
+                <div className="flex-grow" />
 
-            <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                <LowerNavItems isCollapsed={isCollapsed} />
-                <NavItem
-                    as="button"
-                    className="cursor-pointer"
-                    icon={isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />}
-                    onClick={toggleCollapse}
-                    isCollapsed={isCollapsed}
-                >
-                    Collapse
-                </NavItem>
-            </ul>
-        </aside>
+                <ul className="flex flex-col gap-5 justify-self-end opacity-70">
+                    <LowerNavItems isCollapsed={isCollapsed} />
+                    <NavItem
+                        as="button"
+                        className="cursor-pointer"
+                        icon={
+                            isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
+                        }
+                        onClick={toggleCollapse}
+                        isCollapsed={isCollapsed}
+                    >
+                        Collapse
+                    </NavItem>
+                </ul>
+            </aside>
+        </section>
     );
 };
 

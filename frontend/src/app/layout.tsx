@@ -40,9 +40,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                     <WSPushAction />
 
                     <div className="flex min-h-screen">
-                        <div className="w-min shrink-0">
-                            <Navbar />
-                        </div>
+                        <Navbar />
                         <main className="flex-1">{children}</main>
                     </div>
                 </AuthContextProvider>
