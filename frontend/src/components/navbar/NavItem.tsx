@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 import clsx from "clsx";
-import Link from "next/link";
 
 import type { PolymorphicProps } from "@/lib/polymorphicProps";
 
@@ -11,7 +11,7 @@ interface NavItemOwnProps {
     isCollapsed?: boolean;
 }
 
-const NavItem = <TProps extends React.ElementType>({
+const NavItem = <TProps extends React.ElementType = typeof Link>({
     icon,
     as,
     className,
