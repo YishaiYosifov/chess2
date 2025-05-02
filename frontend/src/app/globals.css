@@ -8,23 +8,20 @@
         [&>span]:bg-transparent [&>span]:rotate-[360deg];
     }
 
-    .scrollbar::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+    *::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
     }
 
-    .scrollbar::-webkit-scrollbar-track {
     *::-webkit-scrollbar-track {
         background: #171717;
     }
 
-    .scrollbar::-webkit-scrollbar-thumb {
     *::-webkit-scrollbar-thumb {
         background: #959596;
         border-radius: 100vh;
     }
 
-    .scrollbar::-webkit-scrollbar-thumb:hover {
     *::-webkit-scrollbar-thumb:hover {
         background: #959596;
     }

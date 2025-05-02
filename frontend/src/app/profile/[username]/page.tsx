@@ -96,7 +96,7 @@ const UserPage = async ({ params }: { params: Params }) => {
         <div className="flex w-screen max-w-4xl flex-col gap-10 p-10">
             <Profile profile={profile} />
 
-            <section className="scrollbar flex flex-shrink-0 gap-10 overflow-x-auto">
+            <section className="flex flex-shrink-0 gap-10 overflow-x-auto">
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
                 <RatingCard ratingData={testRatingData} className="min-w-96" />
