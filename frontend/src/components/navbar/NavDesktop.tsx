@@ -49,6 +49,7 @@ const NavDesktop = ({
                     isCollapsed && "items-center",
                     width,
                 )}
+                data-testid="sidebar"
                 aria-label="sidebar"
             >
                 {isCollapsed ? (
@@ -76,6 +77,7 @@ const NavDesktop = ({
                     <NavItem
                         as="button"
                         className="cursor-pointer"
+                        data-testid="collapseButton"
                         icon={
                             isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
                         }
