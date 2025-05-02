@@ -21,7 +21,7 @@ export enum AuthPageType {
  */
 const AuthPage = ({ form }: { form: React.ReactNode }) => {
     return (
-        <div className="grid justify-items-center md:grid-cols-[1fr_1.5fr]">
+        <div className="grid w-full justify-items-center md:grid-cols-[1fr_1.5fr]">
             <section className="flex max-w-5xl flex-col items-center justify-center gap-10 px-10">
                 <Image src={LogoText} alt="logo" />
                 {form}

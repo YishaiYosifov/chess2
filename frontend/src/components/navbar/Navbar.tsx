@@ -120,47 +120,53 @@ const DesktopNavbar = ({
         });
     }
 
+    const width = isCollapsed ? "w-25" : "w-64";
     return (
-        <aside
-            className={clsx(
-                `border-secondary/50 bg-navbar sticky z-50 hidden h-screen flex-col
-                justify-between gap-10 overflow-auto border-r px-5 py-10 text-3xl
-                transition-[width] md:flex`,
-                isCollapsed ? "w-25 items-center" : "w-64",
-            )}
-            aria-label="sidebar"
-        >
-            {isCollapsed ? (
-                <Image src={Logo} alt="Logo" width={60} height={60} />
-            ) : (
-                <Image
-                    src={LogoText}
-                    alt="Logo with text"
-                    height={60}
-                    width={200}
-                    className="self-center"
-                />
-            )}
-            <ul className="flex flex-col gap-6">
-                <UpperNavItems isCollapsed={isCollapsed} />
-            </ul>
+        <section className={clsx(width, "shrink-0 transition-[width]")}>
+            <aside
+                className={clsx(
+                    `border-secondary/50 bg-navbar fixed z-50 hidden h-screen flex-col
+                    justify-between gap-10 overflow-auto border-r px-5 py-10 text-3xl
+                    transition-[width] md:flex`,
+                    isCollapsed && "items-center",
+                    width,
+                )}
+                aria-label="sidebar"
+            >
+                {isCollapsed ? (
+                    <Image src={Logo} alt="Logo" width={60} height={60} />
+                ) : (
+                    <Image
+                        src={LogoText}
+                        alt="Logo with text"
+                        height={60}
+                        width={200}
+                        className="self-center"
+                    />
+                )}
+                <ul className="flex flex-col gap-6">
+                    <UpperNavItems isCollapsed={isCollapsed} />
+                </ul>
 
-            {/* Spacer */}
-            <div className="flex-grow" />
+                {/* Spacer */}
+                <div className="flex-grow" />
 
-            <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                <LowerNavItems isCollapsed={isCollapsed} />
-                <NavItem
-                    as="button"
-                    className="cursor-pointer"
-                    icon={isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />}
-                    onClick={toggleCollapse}
-                    isCollapsed={isCollapsed}
-                >
-                    Collapse
-                </NavItem>
-            </ul>
-        </aside>
+                <ul className="flex flex-col gap-5 justify-self-end opacity-70">
+                    <LowerNavItems isCollapsed={isCollapsed} />
+                    <NavItem
+                        as="button"
+                        className="cursor-pointer"
+                        icon={
+                            isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
+                        }
+                        onClick={toggleCollapse}
+                        isCollapsed={isCollapsed}
+                    >
+                        Collapse
+                    </NavItem>
+                </ul>
+            </aside>
+        </section>
     );
 };
 
