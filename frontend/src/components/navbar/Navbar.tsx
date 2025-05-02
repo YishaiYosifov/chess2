@@ -73,6 +73,7 @@ const Navbar = () => {
                 <LowerNavItems isCollapsed={isCollapsed} />
                 <NavItem
                     as="button"
+                    className="cursor-pointer"
                     icon={isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />}
                     onClick={toggleCollapse}
                     isCollapsed={isCollapsed}
