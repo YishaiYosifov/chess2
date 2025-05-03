@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Chess2.Api.Controllers;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
@@ -35,7 +36,8 @@ public class AuthService(
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
     UserManager<AuthedUser> userManager,
-    SignInManager<AuthedUser> signinManager
+    SignInManager<AuthedUser> signinManager,
+    LinkGenerator linkGenerator
 ) : IAuthService
 {
     private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
@@ -44,6 +46,7 @@ public class AuthService(
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthService> _logger = logger;
+    private readonly LinkGenerator _linkGenerator = linkGenerator;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -157,6 +160,7 @@ public class AuthService(
 
     public void SetRefreshCookie(string refreshToken, HttpContext context)
     {
+        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
         var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
@@ -170,6 +174,7 @@ public class AuthService(
                 SameSite = _hostEnvironment.IsDevelopment()
                     ? SameSiteMode.None
                     : SameSiteMode.Strict,
+                Path = refreshPath,
             }
         );
     }
