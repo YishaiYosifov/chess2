@@ -8,11 +8,11 @@
             "name": "Next.js: debug full stack",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/node_modules/.bin/next",
+            "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
             "runtimeArgs": ["--inspect"],
             "skipFiles": ["<node_internals>/**"],
             "serverReadyAction": {
-                "action": "debugWithEdge",
+                "action": "debugWithChrome",
                 "killOnServerStop": true,
                 "pattern": "- Local:.+(https?://.+)",
                 "uriFormat": "%s",
