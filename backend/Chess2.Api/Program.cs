@@ -166,7 +166,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     {
         OnMessageReceived = ctx =>
         {
-            if (!ctx.Request.Cookies.TryGetValue(cookieName, out var token))
+            if (ctx.Request.Cookies.TryGetValue(cookieName, out var token))
                 ctx.Token = token;
             return Task.CompletedTask;
         },
