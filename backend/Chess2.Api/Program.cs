@@ -12,6 +12,7 @@ using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
+using Chess2.Api.Services.Auth;
 using Chess2.Api.Services.Matchmaking;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;

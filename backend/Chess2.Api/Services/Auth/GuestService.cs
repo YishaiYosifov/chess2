@@ -3,7 +3,7 @@ using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Microsoft.Extensions.Options;
 
-namespace Chess2.Api.Services;
+namespace Chess2.Api.Services.Auth;
 
 public interface IGuestService
 {

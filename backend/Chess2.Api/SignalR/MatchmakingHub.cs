@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Services;
+﻿using Chess2.Api.Services.Auth;
 using Chess2.Api.Services.Matchmaking;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
