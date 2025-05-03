@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Chess2.Api.Services;
+namespace Chess2.Api.Services.Auth;
 
 public interface ITokenProvider
 {
