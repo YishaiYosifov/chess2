@@ -14,10 +14,12 @@ public class AuthController(
     ILogger<AuthController> logger,
     IAuthService authService,
     IGuestService guestService,
+    IAuthCookieSetter authCookieSetter,
     IValidator<SignupRequest> userValidator
 ) : Controller
 {
     private readonly IGuestService _guestService = guestService;
+    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
     private readonly IValidator<SignupRequest> _signupValidator = userValidator;
@@ -55,8 +57,8 @@ public class AuthController(
         return result.Match(
             (value) =>
             {
-                _authService.SetAccessCookie(value.AccessToken, HttpContext);
-                _authService.SetRefreshCookie(value.RefreshToken, HttpContext);
+                _authCookieSetter.SetAccessCookie(value.AccessToken, HttpContext);
+                _authCookieSetter.SetRefreshCookie(value.RefreshToken, HttpContext);
                 _logger.LogInformation(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
@@ -77,7 +79,7 @@ public class AuthController(
         return result.Match(
             (value) =>
             {
-                _authService.SetAccessCookie(value, HttpContext);
+                _authCookieSetter.SetAccessCookie(value, HttpContext);
                 return NoContent();
             },
             (errors) => errors.ToActionResult()
