@@ -37,6 +37,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         ContentSerializer = new NewtonsoftJsonContentSerializer(),
     };
+    private readonly Uri _baseUrl = new("https://localhost");
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -71,14 +72,14 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             cookieContainer.Add(Server.BaseAddress, new Cookie("refreshToken", refreshToken));
 
         var handler = new CookieContainerHandler(cookieContainer);
-        return RestService.For<IChess2Api>(CreateDefaultClient(handler), _refitSettings);
+        return RestService.For<IChess2Api>(CreateDefaultClient(_baseUrl, handler), _refitSettings);
     }
 
     /// <summary>
     /// Create an http client that follows the chess2 api schema
     /// </summary>
     public IChess2Api CreateTypedClient() =>
-        RestService.For<IChess2Api>(CreateClient(), _refitSettings);
+        RestService.For<IChess2Api>(CreateClient(new() { BaseAddress = _baseUrl }), _refitSettings);
 
     public async Task ResetDatabaseAsync()
     {
