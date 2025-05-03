@@ -31,7 +31,7 @@ public class AuthCookieSetter(
                 Expires = accessTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = _hostEnvironment.IsProduction(),
+                Secure = true,
                 SameSite = _hostEnvironment.IsDevelopment()
                     ? SameSiteMode.None
                     : SameSiteMode.Strict,
@@ -51,7 +51,7 @@ public class AuthCookieSetter(
                 Expires = refreshTokenExpires,
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = _hostEnvironment.IsProduction(),
+                Secure = true,
                 SameSite = _hostEnvironment.IsDevelopment()
                     ? SameSiteMode.None
                     : SameSiteMode.Strict,
