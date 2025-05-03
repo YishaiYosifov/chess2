@@ -150,7 +150,7 @@ builder
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = builder.Environment.IsProduction();
     options.TokenValidationParameters = new()
     {
         IssuerSigningKey = new SymmetricSecurityKey(
@@ -165,8 +165,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     {
         OnMessageReceived = ctx =>
         {
-            ctx.Request.Cookies.TryGetValue(cookieName, out var token);
-            if (!string.IsNullOrEmpty(token))
+            if (!ctx.Request.Cookies.TryGetValue(cookieName, out var token))
                 ctx.Token = token;
             return Task.CompletedTask;
         },
