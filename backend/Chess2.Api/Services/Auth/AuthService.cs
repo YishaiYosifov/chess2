@@ -10,7 +10,7 @@ using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Chess2.Api.Services;
+namespace Chess2.Api.Services.Auth;
 
 public interface IAuthService
 {
@@ -119,7 +119,7 @@ public class AuthService(
     public async Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password)
     {
         var user =
-            (await _userManager.FindByEmailAsync(usernameOrEmail))
+            await _userManager.FindByEmailAsync(usernameOrEmail)
             ?? await _userManager.FindByNameAsync(usernameOrEmail);
         if (user is null)
             return UserErrors.BadCredentials;

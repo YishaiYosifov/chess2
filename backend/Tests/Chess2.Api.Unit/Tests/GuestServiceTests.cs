@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using AutoFixture;
 using Chess2.Api.Models;
-using Chess2.Api.Services;
+using Chess2.Api.Services.Auth;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
