@@ -204,6 +204,7 @@ builder
 builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+builder.Services.AddSingleton<IAuthCookieSetter, AuthCookieSetter>();
 #endregion
 
 #region Validation
