@@ -1,29 +1,19 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Chess2.Api.Controllers;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
-using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
-
     Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest userIn);
-
     Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password);
-
-    void SetAccessCookie(string accessToken, HttpContext context);
-
-    void SetRefreshCookie(string refreshToken, HttpContext context);
-
     Task<ErrorOr<string>> RefreshTokenAsync(
         ClaimsPrincipal? userClaims,
         CancellationToken cancellation = default
@@ -31,22 +21,16 @@ public interface IAuthService
 }
 
 public class AuthService(
-    IWebHostEnvironment hostEnvironment,
-    IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
     UserManager<AuthedUser> userManager,
-    SignInManager<AuthedUser> signinManager,
-    LinkGenerator linkGenerator
+    SignInManager<AuthedUser> signinManager
 ) : IAuthService
 {
-    private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
-    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<AuthService> _logger = logger;
-    private readonly LinkGenerator _linkGenerator = linkGenerator;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -137,46 +121,6 @@ public class AuthService(
             AccessToken = _tokenProvider.GenerateAccessToken(user),
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
-    }
-
-    public void SetAccessCookie(string accessToken, HttpContext context)
-    {
-        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute);
-        context.Response.Cookies.Append(
-            _jwtSettings.AccessTokenCookieName,
-            accessToken,
-            new()
-            {
-                Expires = accessTokenExpires,
-                HttpOnly = true,
-                IsEssential = true,
-                Secure = true,
-                SameSite = _hostEnvironment.IsDevelopment()
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict,
-            }
-        );
-    }
-
-    public void SetRefreshCookie(string refreshToken, HttpContext context)
-    {
-        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
-        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
-        context.Response.Cookies.Append(
-            _jwtSettings.RefreshTokenCookieName,
-            refreshToken,
-            new()
-            {
-                Expires = refreshTokenExpires,
-                HttpOnly = true,
-                IsEssential = true,
-                Secure = true,
-                SameSite = _hostEnvironment.IsDevelopment()
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict,
-                Path = refreshPath,
-            }
-        );
     }
 
     /// <summary>
