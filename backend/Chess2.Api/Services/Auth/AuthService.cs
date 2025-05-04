@@ -2,10 +2,12 @@
 using System.Security.Claims;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Services.Auth;
 
@@ -13,20 +15,24 @@ public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
     Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest userIn);
-    Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password);
-    Task<ErrorOr<string>> RefreshTokenAsync(
-        ClaimsPrincipal? userClaims,
-        CancellationToken cancellation = default
+    Task<ErrorOr<(Tokens tokens, AuthedUser user)>> SigninAsync(
+        string usernameOrEmail,
+        string password
+    );
+    Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
+        ClaimsPrincipal? userClaims
     );
 }
 
 public class AuthService(
+    IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
     UserManager<AuthedUser> userManager,
     SignInManager<AuthedUser> signinManager
 ) : IAuthService
 {
+    private readonly AppSettings _settings = settings.Value;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
@@ -100,7 +106,10 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<Tokens>> SigninAsync(string usernameOrEmail, string password)
+    public async Task<ErrorOr<(Tokens tokens, AuthedUser user)>> SigninAsync(
+        string usernameOrEmail,
+        string password
+    )
     {
         var user =
             await _userManager.FindByEmailAsync(usernameOrEmail)
@@ -116,20 +125,21 @@ public class AuthService(
         if (!signinResult.Succeeded)
             return UserErrors.BadCredentials;
 
-        return new Tokens()
+        var tokens = new Tokens()
         {
             AccessToken = _tokenProvider.GenerateAccessToken(user),
+            AccessTokenExpiresInSeconds = _settings.Jwt.AccessExpiresInSeconds,
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
+        return (tokens, user);
     }
 
     /// <summary>
     /// Validate the refresh token is valid and
     /// create an access token from it
     /// </summary>
-    public async Task<ErrorOr<string>> RefreshTokenAsync(
-        ClaimsPrincipal? userClaims,
-        CancellationToken cancellation = default
+    public async Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
+        ClaimsPrincipal? userClaims
     )
     {
         var tokenCreationTimeClaimResult = userClaims.GetClaim(JwtRegisteredClaimNames.Iat);
@@ -150,6 +160,15 @@ public class AuthService(
         if (tokenCreationTimestamp < passwordChangedTimestamp)
             return Error.Unauthorized();
 
-        return _tokenProvider.GenerateAccessToken(user);
+        var newAccessToken = _tokenProvider.GenerateAccessToken(user);
+        var newRefreshToken = ""; // TODO!!!!
+        var newTokens = new Tokens()
+        {
+            AccessToken = newAccessToken,
+            AccessTokenExpiresInSeconds = _settings.Jwt.AccessExpiresInSeconds,
+            RefreshToken = newRefreshToken,
+        };
+
+        return (newTokens, user);
     }
 }

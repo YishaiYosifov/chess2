@@ -46,9 +46,9 @@ public class AuthController(
     }
 
     [HttpPost("signin", Name = nameof(Signin))]
-    [ProducesResponseType<Tokens>(StatusCodes.Status200OK)]
+    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<Tokens>> Signin([FromBody] SigninRequest signinRequest)
+    public async Task<ActionResult<AuthResponseDTO>> Signin([FromBody] SigninRequest signinRequest)
     {
         var result = await _authService.SigninAsync(
             signinRequest.UsernameOrEmail,
@@ -57,30 +57,32 @@ public class AuthController(
         return result.Match(
             (value) =>
             {
-                _authCookieSetter.SetAccessCookie(value.AccessToken, HttpContext);
-                _authCookieSetter.SetRefreshCookie(value.RefreshToken, HttpContext);
+                _authCookieSetter.SetAccessCookie(value.tokens.AccessToken, HttpContext);
+                _authCookieSetter.SetRefreshCookie(value.tokens.RefreshToken, HttpContext);
                 _logger.LogInformation(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
                 );
-                return Ok(value);
+                return Ok(new AuthResponseDTO() { AuthTokens = value.tokens, User = value.user });
             },
             (errors) => errors.ToActionResult()
         );
     }
 
     [HttpPost("refresh", Name = nameof(Refresh))]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
-    public async Task<ActionResult> Refresh(CancellationToken cancellation)
+    public async Task<ActionResult<AuthResponseDTO>> Refresh()
     {
-        var result = await _authService.RefreshTokenAsync(HttpContext.User, cancellation);
+        var result = await _authService.RefreshTokenAsync(HttpContext.User);
         return result.Match(
             (value) =>
             {
-                _authCookieSetter.SetAccessCookie(value, HttpContext);
-                return NoContent();
+                _authCookieSetter.SetAccessCookie(value.newTokens.AccessToken, HttpContext);
+                return Ok(
+                    new AuthResponseDTO() { AuthTokens = value.newTokens, User = value.user }
+                );
             },
             (errors) => errors.ToActionResult()
         );
