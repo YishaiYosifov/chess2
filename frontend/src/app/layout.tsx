@@ -33,6 +33,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     const nextCookies = await cookies();
     const hasAuthCookies = nextCookies.has(constants.REFRESH_TOKEN);
     const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
+    console.log(nextCookies);
 
     return (
         <html lang="en" data-bs-theme="dark">

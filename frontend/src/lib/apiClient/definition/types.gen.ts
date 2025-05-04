@@ -31,6 +31,34 @@ export type ApiProblemError = {
     description: string;
 };
 
+export type AuthedUser = {
+    about?: string | null;
+    countryCode?: string | null;
+    usernameLastChanged?: string;
+    passwordLastChanged?: string;
+    ratings?: Array<Rating>;
+    id?: number;
+    userName?: string | null;
+    normalizedUserName?: string | null;
+    email?: string | null;
+    normalizedEmail?: string | null;
+    emailConfirmed?: boolean;
+    passwordHash?: string | null;
+    securityStamp?: string | null;
+    concurrencyStamp?: string | null;
+    phoneNumber?: string | null;
+    phoneNumberConfirmed?: boolean;
+    twoFactorEnabled?: boolean;
+    lockoutEnd?: string | null;
+    lockoutEnabled?: boolean;
+    accessFailedCount?: number;
+};
+
+export type AuthResponseDto = {
+    authTokens: Tokens;
+    user: AuthedUser;
+};
+
 export type Operation = {
     value?: unknown;
     operationType?: OperationType;
@@ -57,6 +85,14 @@ export type PrivateUser = {
     countryCode?: string | null;
 };
 
+export type Rating = {
+    ratingId?: number;
+    userId?: number;
+    user: AuthedUser;
+    timeControl: TimeControl;
+    value?: number;
+};
+
 export type SigninRequest = {
     usernameOrEmail: string;
     password: string;
@@ -69,8 +105,16 @@ export type SignupRequest = {
     countryCode?: string | null;
 };
 
+export enum TimeControl {
+    BULLET = "Bullet",
+    BLITZ = "Blitz",
+    RAPID = "Rapid",
+    CLASSICAL = "Classical",
+}
+
 export type Tokens = {
     accessToken: string;
+    accessTokenExpiresInSeconds: number;
     refreshToken: string;
 };
 
@@ -141,7 +185,7 @@ export type SigninResponses = {
     /**
      * OK
      */
-    200: Tokens;
+    200: AuthResponseDto;
 };
 
 export type SigninResponse = SigninResponses[keyof SigninResponses];
@@ -170,7 +214,7 @@ export type RefreshResponses = {
     /**
      * No Content
      */
-    204: void;
+    204: AuthResponseDto;
 };
 
 export type RefreshResponse = RefreshResponses[keyof RefreshResponses];
