@@ -28,7 +28,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim("type", "access"),
                 ]
             ),
-            DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute)
+            DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInSeconds)
         );
     }
 
@@ -41,7 +41,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim("type", "refresh"),
                 ]
             ),
-            DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays)
+            DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInSeconds)
         );
     }
 

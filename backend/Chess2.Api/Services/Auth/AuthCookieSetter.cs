@@ -22,7 +22,7 @@ public class AuthCookieSetter(
 
     public void SetAccessCookie(string accessToken, HttpContext context)
     {
-        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInMinute);
+        var accessTokenExpires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessExpiresInSeconds);
         context.Response.Cookies.Append(
             _jwtSettings.AccessTokenCookieName,
             accessToken,
@@ -42,7 +42,7 @@ public class AuthCookieSetter(
     public void SetRefreshCookie(string refreshToken, HttpContext context)
     {
         var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
-        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
+        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInSeconds);
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
             refreshToken,
