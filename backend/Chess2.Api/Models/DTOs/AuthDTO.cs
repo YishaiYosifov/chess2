@@ -1,6 +1,4 @@
-﻿using Chess2.Api.Models.Entities;
-
-namespace Chess2.Api.Models.DTOs;
+﻿namespace Chess2.Api.Models.DTOs;
 
 public class Tokens
 {
@@ -13,5 +11,5 @@ public class Tokens
 public class AuthResponseDTO
 {
     public required Tokens AuthTokens { get; set; }
-    public required AuthedUser User { get; set; }
+    public required PrivateUserOut User { get; set; }
 }
