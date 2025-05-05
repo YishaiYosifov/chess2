@@ -1,44 +1,7 @@
-import NextAuth, { Account, NextAuthOptions, User } from "next-auth";
+import NextAuth, { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { JWT } from "next-auth/jwt";
-import { cookies } from "next/headers";
 
-import { AuthedUser, refresh, signin } from "./apiClient";
-
-async function refreshAccessToken(token: JWT) {
-    // this is our refresh token method
-    console.log("Now refreshing the expired token...");
-    try {
-        const { data, response, error } = await refresh();
-        if (!response.ok || !data) {
-            console.log("The token could not be refreshed!");
-            throw error;
-        }
-
-        console.log("The token has been refreshed successfully.");
-
-        // get some data from the new access token such as exp (expiration time)
-        const decodedAccessToken = JSON.parse(
-            Buffer.from(data.accessToken.split(".")[1], "base64").toString(),
-        );
-
-        return {
-            ...token,
-            accessToken: data.authTokens.accessToken,
-            refreshToken: data.authTokens.refreshToken ?? token.refreshToken,
-            accessTokenExpires: decodedAccessToken["exp"] * 1000,
-            error: "",
-        };
-    } catch (error) {
-        console.log(error);
-
-        // return an error if somethings goes wrong
-        return {
-            ...token,
-            error: "RefreshAccessTokenError", // attention!
-        };
-    }
-}
+import { refresh, signin } from "./apiClient";
 
 export const config: NextAuthOptions = {
     providers: [
@@ -66,12 +29,14 @@ export const config: NextAuthOptions = {
                 if (error) throw error;
                 if (!data) return null;
 
-                const user: User = { user: data.user, tokens: data.authTokens };
-                return;
+                const user: User = {
+                    id: data.user.id,
+                    tokens: data.authTokens,
+                };
+                return user;
             },
         }),
     ],
-    // this is required
     secret: process.env.AUTH_SECRET,
     // our custom login page
     pages: {
@@ -109,13 +74,8 @@ export const config: NextAuthOptions = {
                 ...session,
                 user: {
                     ...session.user,
-                    id: token.id as string,
-                    email: token.email as string,
-                    accessToken: token.accessToken as string,
-                    accessTokenExpires: token.accessTokenExpires as number,
-                    role: token.role as string,
+                    tokens: token,
                 },
-                error: token.error,
             };
         },
     },
