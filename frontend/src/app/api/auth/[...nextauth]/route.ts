@@ -3,7 +3,7 @@ import NextAuth, { User } from "next-auth";
 
 import { parseSetCookieHeader } from "@/lib/utils/requestUtils";
 import { signin, refresh } from "@/lib/apiClient";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const handler = NextAuth({
     providers: [
@@ -39,7 +39,7 @@ export const handler = NextAuth({
                 }
 
                 const user: User = {
-                    id: data.user.id,
+                    id: data.user.userId,
                     tokens: data.authTokens,
                 };
                 return user;
@@ -56,22 +56,27 @@ export const handler = NextAuth({
             if (user) {
                 token.accessToken = user.tokens.accessToken;
                 token.refreshToken = user.tokens.refreshToken;
-                token.accessTokenExpiresInSeconds =
-                    user.tokens.accessTokenExpiresInSeconds;
+                token.accessTokenExpiresTimestamp =
+                    user.tokens.accessTokenExpiresTimestamp;
             }
 
             // if our access token has not expired yet, return all information except the refresh token
-            if (Date.now() < Number(token.accessTokenExpires)) return token;
+            if (Date.now() / 1000 < token.accessTokenExpiresTimestamp)
+                return token;
 
-            const { data, error } = await refresh();
+            const { data, error } = await refresh({
+                headers: {
+                    Cookie: `refreshToken=${token.refreshToken}`,
+                },
+            });
             if (error || !data) {
                 console.error("Could not refresh token:", error);
                 return token;
             }
 
             token.accessToken = data.authTokens.accessToken;
-            token.accessTokenExpiresInSeconds =
-                data.authTokens.accessTokenExpiresInSeconds;
+            token.accessTokenExpiresTimestamp =
+                data.authTokens.accessTokenExpiresTimestamp;
             token.refreshToken = data.authTokens.refreshToken;
             return token;
         },
@@ -81,7 +86,7 @@ export const handler = NextAuth({
 
             return {
                 ...session,
-                accessTokenExpiresInSeconds: token.accessTokenExpiresInSeconds,
+                accessTokenExpiresTimestamp: token.accessTokenExpiresInSeconds,
             };
         },
     },

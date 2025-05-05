@@ -1,5 +1,4 @@
 import type { Tokens } from "@/lib/apiClient/definition/types.gen";
-import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
     interface User {
@@ -9,14 +8,14 @@ declare module "next-auth" {
 
     interface Session {
         userId?: int;
-        accessTokenExpiresInSeconds: number;
+        accessTokenExpiresTimestamp: number;
     }
 }
 
 declare module "next-auth/jwt" {
     interface JWT {
         accessToken: string;
-        accessTokenExpiresInSeconds: number;
+        accessTokenExpiresTimestamp: number;
         refreshToken: string;
     }
 }
