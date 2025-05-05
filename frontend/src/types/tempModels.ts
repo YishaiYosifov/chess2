@@ -1,4 +1,4 @@
-import { User } from "./apiClient";
+import { User } from "../lib/apiClient";
 
 export enum GameResult {
     White = "white",
