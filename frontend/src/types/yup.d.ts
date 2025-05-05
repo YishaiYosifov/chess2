@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as yup from "yup";
+import "yup";
 
 declare module "yup" {
     interface StringSchema {
