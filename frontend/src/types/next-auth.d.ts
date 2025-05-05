@@ -1,16 +1,14 @@
-import type { AuthedUser, Tokens } from "@/lib/apiClient/definition/types.gen";
+import type { Tokens } from "@/lib/apiClient/definition/types.gen";
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
     interface User {
-        user: AuthedUser;
+        id?: number;
         tokens: Tokens;
     }
 
     interface Session {
         user: User & DefaultSession["user"];
-        expires: string;
-        error: string;
     }
 }
 

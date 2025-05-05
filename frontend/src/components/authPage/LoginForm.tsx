@@ -13,6 +13,7 @@ import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import { AuthContext } from "@/contexts/authContext";
 import FormikField from "../helpers/FormikField";
+import { signIn } from "next-auth/react";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -34,15 +35,13 @@ const LoginForm = () => {
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        const { error } = await signin({
-            body: {
-                usernameOrEmail: values.usernameOrEmail,
-                password: values.password,
-            },
+        const response = await signIn("credentials", {
+            usernameOrEmail: values.usernameOrEmail,
+            password: values.password,
+            redirect: false,
         });
-        if (error) {
-            console.warn("Error logging in:", error);
-            switch (error.status) {
+        if (!response?.ok) {
+            switch (response?.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
                     break;
