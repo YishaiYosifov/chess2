@@ -1,4 +1,6 @@
 import { Secular_One } from "next/font/google";
+import { getServerSession } from "next-auth";
+import { signOut } from "next-auth/react";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -6,9 +8,10 @@ import { ReactNode } from "react";
 import constants from "@/lib/constants";
 import "./globals.css";
 
-import AuthContextProvider from "@/contexts/authContext";
+import ClientSessionProvider from "@/components/ClientSessionProvider";
 import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
+import authOptions from "@/lib/authOptions";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -30,21 +33,21 @@ export const metadata: Metadata = {
  *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
+    const session = await getServerSession(authOptions);
     const nextCookies = await cookies();
-    const hasAuthCookies = nextCookies.has(constants.REFRESH_TOKEN);
     const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
 
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <AuthContextProvider hasAuthCookies={hasAuthCookies}>
+                <ClientSessionProvider session={session}>
                     <WSPushAction />
 
                     <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
                         <Navbar isCollapsedInitialState={isNavCollapsed} />
                         <main className="flex flex-1">{children}</main>
                     </div>
-                </AuthContextProvider>
+                </ClientSessionProvider>
             </body>
         </html>
     );

@@ -21,7 +21,6 @@ export function parseSetCookieHeader(header: string): ParsedCookie {
         switch (key) {
             case "expires":
                 const date = new Date(val);
-                console.log(val);
                 if (!isNaN(date.valueOf())) options.expires = date;
                 break;
             case "max-age":
