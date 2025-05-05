@@ -76,7 +76,7 @@ export type SignupRequest = {
 
 export type Tokens = {
     accessToken: string;
-    accessTokenExpiresInSeconds: number;
+    accessTokenExpiresTimestamp: number;
     refreshToken: string;
 };
 
