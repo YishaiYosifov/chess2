@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import clsx from "clsx";
 
-import type { RatingOverview } from "@/lib/tempModels";
+import type { RatingOverview } from "@/types/tempModels";
 import Card from "../helpers/Card";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });

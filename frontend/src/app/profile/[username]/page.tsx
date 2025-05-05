@@ -2,7 +2,7 @@ import GamesTable from "@/components/profile/GamesTable";
 import RatingCard from "@/components/profile/RatingsCard";
 import { profileApi } from "@/lib/apiClient";
 import Profile from "@/components/profile/Profile";
-import { FinishedGame, GameResult, RatingOverview } from "@/lib/tempModels";
+import { FinishedGame, GameResult, RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
 import { User } from "@/lib/apiClient";
