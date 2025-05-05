@@ -63,7 +63,13 @@ public class AuthController(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
                 );
-                return Ok(new AuthResponseDTO() { AuthTokens = value.tokens, User = value.user });
+                return Ok(
+                    new AuthResponseDTO()
+                    {
+                        AuthTokens = value.tokens,
+                        User = new PrivateUserOut(value.user),
+                    }
+                );
             },
             (errors) => errors.ToActionResult()
         );
@@ -81,7 +87,11 @@ public class AuthController(
             {
                 _authCookieSetter.SetAccessCookie(value.newTokens.AccessToken, HttpContext);
                 return Ok(
-                    new AuthResponseDTO() { AuthTokens = value.newTokens, User = value.user }
+                    new AuthResponseDTO()
+                    {
+                        AuthTokens = value.newTokens,
+                        User = new PrivateUserOut(value.user),
+                    }
                 );
             },
             (errors) => errors.ToActionResult()
