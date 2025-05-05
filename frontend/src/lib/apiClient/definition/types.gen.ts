@@ -31,32 +31,9 @@ export type ApiProblemError = {
     description: string;
 };
 
-export type AuthedUser = {
-    about?: string | null;
-    countryCode?: string | null;
-    usernameLastChanged?: string;
-    passwordLastChanged?: string;
-    ratings?: Array<Rating>;
-    id?: number;
-    userName?: string | null;
-    normalizedUserName?: string | null;
-    email?: string | null;
-    normalizedEmail?: string | null;
-    emailConfirmed?: boolean;
-    passwordHash?: string | null;
-    securityStamp?: string | null;
-    concurrencyStamp?: string | null;
-    phoneNumber?: string | null;
-    phoneNumberConfirmed?: boolean;
-    twoFactorEnabled?: boolean;
-    lockoutEnd?: string | null;
-    lockoutEnabled?: boolean;
-    accessFailedCount?: number;
-};
-
 export type AuthResponseDto = {
     authTokens: Tokens;
-    user: AuthedUser;
+    user: PrivateUser;
 };
 
 export type Operation = {
@@ -85,14 +62,6 @@ export type PrivateUser = {
     countryCode?: string | null;
 };
 
-export type Rating = {
-    ratingId?: number;
-    userId?: number;
-    user: AuthedUser;
-    timeControl: TimeControl;
-    value?: number;
-};
-
 export type SigninRequest = {
     usernameOrEmail: string;
     password: string;
@@ -104,13 +73,6 @@ export type SignupRequest = {
     password: string;
     countryCode?: string | null;
 };
-
-export enum TimeControl {
-    BULLET = "Bullet",
-    BLITZ = "Blitz",
-    RAPID = "Rapid",
-    CLASSICAL = "Classical",
-}
 
 export type Tokens = {
     accessToken: string;
