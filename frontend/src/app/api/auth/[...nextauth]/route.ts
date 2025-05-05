@@ -1,9 +1,11 @@
-import NextAuth, { NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import NextAuth, { User } from "next-auth";
 
-import { refresh, signin } from "./apiClient";
+import { parseSetCookieHeader } from "@/lib/utils/requestUtils";
+import { signin, refresh } from "@/lib/apiClient";
+import { cookies } from "next/headers";
 
-export const config: NextAuthOptions = {
+export const handler = NextAuth({
     providers: [
         CredentialsProvider({
             credentials: {
@@ -19,7 +21,7 @@ export const config: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials) return null;
 
-                const { error, data } = await signin({
+                const { error, response, data } = await signin({
                     body: {
                         usernameOrEmail: credentials.usernameOrEmail,
                         password: credentials.password,
@@ -28,6 +30,13 @@ export const config: NextAuthOptions = {
 
                 if (error) throw error;
                 if (!data) return null;
+
+                const cookieStore = await cookies();
+                for (const cookie of response.headers.getSetCookie()) {
+                    const { name, value, options } =
+                        parseSetCookieHeader(cookie);
+                    cookieStore.set(name, value, options);
+                }
 
                 const user: User = {
                     id: data.user.id,
@@ -72,14 +81,10 @@ export const config: NextAuthOptions = {
 
             return {
                 ...session,
-                user: {
-                    ...session.user,
-                    tokens: token,
-                },
+                accessTokenExpiresInSeconds: token.accessTokenExpiresInSeconds,
             };
         },
     },
     debug: process.env.NODE_ENV === "development",
-};
-
-export const { auth, handlers } = NextAuth(config);
+});
+export { handler as GET, handler as POST };
