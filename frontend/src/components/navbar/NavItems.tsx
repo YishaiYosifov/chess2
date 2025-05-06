@@ -1,7 +1,5 @@
 "use client";
 
-import { useContext } from "react";
-
 import {
     PlayIcon,
     HomeIcon,
@@ -14,15 +12,15 @@ import {
 import { HeartIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 
-import { AuthContext } from "@/contexts/authContext";
 import NavItem from "./NavItem";
+import { useSession } from "next-auth/react";
 
 export const UpperNavItems = ({
     isCollapsed = false,
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { hasAuthCookies } = useContext(AuthContext);
+    const { status: authStatus } = useSession();
 
     const authedLinks = (
         <NavItem
@@ -74,7 +72,7 @@ export const UpperNavItems = ({
             >
                 Home
             </NavItem>
-            {hasAuthCookies ? authedLinks : unauthedLinks}
+            {authStatus == "authenticated" ? authedLinks : unauthedLinks}
             <NavItem
                 as={Link}
                 href="/donate"
@@ -92,7 +90,7 @@ export const LowerNavItems = ({
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { hasAuthCookies } = useContext(AuthContext);
+    const { status: authStatus } = useSession();
 
     const authedLinks = (
         <>
@@ -115,5 +113,5 @@ export const LowerNavItems = ({
             </NavItem>
         </>
     );
-    return hasAuthCookies && authedLinks;
+    return authStatus === "authenticated" && authedLinks;
 };
