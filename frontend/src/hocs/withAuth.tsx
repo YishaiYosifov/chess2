@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import React, { JSX } from "react";
 
-import { PrivateUser, getAuthedUser } from "@/lib/apiClient";
-import AuthContextProvider from "../contexts/authContext";
+import getConfiguredServerSession from "@/lib/auth/getConfiguredServerSession";
+import type { PrivateUser } from "@/lib/apiClient";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
     profile: PrivateUser;
@@ -19,21 +18,10 @@ const withAuth = <P extends WithAuthProps>(
     WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
-        const nextCookies = await cookies();
+        const session = await getConfiguredServerSession();
+        if (!session) redirect("/login");
 
-        const { data, error } = await getAuthedUser({
-            headers: { Cookie: nextCookies.toString() },
-        });
-        if (error || !data) {
-            console.error("Could not find logged in user:", error);
-            redirect("/login");
-        }
-
-        return (
-            <AuthContextProvider hasAuthCookies={true} profile={data}>
-                <WrappedComponent {...props} profile={data} />
-            </AuthContextProvider>
-        );
+        return <WrappedComponent {...props} />;
     };
     return NewComponent;
 };
