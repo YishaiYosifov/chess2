@@ -125,10 +125,13 @@ public class AuthService(
         if (!signinResult.Succeeded)
             return UserErrors.BadCredentials;
 
+        var accessTokenExpiresTimestamp = DateTimeOffset
+            .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
+            .ToUnixTimeSeconds();
         var tokens = new Tokens()
         {
             AccessToken = _tokenProvider.GenerateAccessToken(user),
-            AccessTokenExpiresInSeconds = _settings.Jwt.AccessExpiresInSeconds,
+            AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
         return (tokens, user);
@@ -160,12 +163,15 @@ public class AuthService(
         if (tokenCreationTimestamp < passwordChangedTimestamp)
             return Error.Unauthorized();
 
+        var accessTokenExpiresTimestamp = DateTimeOffset
+            .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
+            .ToUnixTimeSeconds();
         var newAccessToken = _tokenProvider.GenerateAccessToken(user);
         var newRefreshToken = ""; // TODO!!!!
         var newTokens = new Tokens()
         {
             AccessToken = newAccessToken,
-            AccessTokenExpiresInSeconds = _settings.Jwt.AccessExpiresInSeconds,
+            AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = newRefreshToken,
         };
 
