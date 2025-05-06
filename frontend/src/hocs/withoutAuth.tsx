@@ -12,10 +12,10 @@ const withoutAuth = <P extends JSX.IntrinsicAttributes>(
     WrappedComponent: ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
-        const nextCookies = await cookies();
+        const cookieStore = await cookies();
         if (
-            nextCookies.has(constants.ACCESS_TOKEN) ||
-            nextCookies.has(constants.REFRESH_TOKEN)
+            cookieStore.has(constants.ACCESS_TOKEN) ||
+            cookieStore.has(constants.REFRESH_TOKEN)
         )
             redirect("/");
 

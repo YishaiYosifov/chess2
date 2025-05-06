@@ -1,8 +1,8 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import { AuthOptions, User } from "next-auth";
+import type { AuthOptions, User, Session } from "next-auth";
 
-import { parseSetCookieHeader } from "@/lib/utils/requestUtils";
 import { signin, refresh, getAuthedUser } from "@/lib/apiClient";
+import { parseSetCookieHeader } from "@/lib/utils/requestUtils";
 import { cookies } from "next/headers";
 
 async function copyCookiesFromResponse(response: Response): Promise<void> {
@@ -63,11 +63,17 @@ const authOptions: AuthOptions = {
                     user.tokens.accessTokenExpiresTimestamp;
             }
 
+            const cookieStore = await cookies();
+            cookieStore.set(
+                "ASDASDASD",
+                "A SDlkj aSD lkj;aSD Ljh aSD LJIkh aSD JHL  aSDLJ",
+            );
             // if our access token has not expired yet, return all information except the refresh token
+            console.log(Date.now() / 1000 < token.accessTokenExpiresTimestamp);
             if (Date.now() / 1000 < token.accessTokenExpiresTimestamp)
                 return token;
 
-            const { data, error, response } = await refresh({
+            const { data, error } = await refresh({
                 headers: {
                     Cookie: `refreshToken=${token.refreshToken}`,
                 },
@@ -76,7 +82,6 @@ const authOptions: AuthOptions = {
                 console.error("Could not refresh token:", error);
                 return token;
             }
-            await copyCookiesFromResponse(response);
 
             token.accessToken = data.authTokens.accessToken;
             token.accessTokenExpiresTimestamp =
@@ -90,12 +95,13 @@ const authOptions: AuthOptions = {
                 headers: { Cookie: `accessToken=${token.accessToken}` },
             });
 
-            return {
+            const newSession: Session = {
                 ...session,
                 user: fetchedUser ?? session.user,
                 accessTokenExpiresTimestamp: token.accessTokenExpiresTimestamp,
-                querySuccessfull: !error && fetchedUser,
+                userQuerySuccessful: !error && fetchedUser !== undefined,
             };
+            return newSession;
         },
     },
     debug: process.env.NODE_ENV === "development",

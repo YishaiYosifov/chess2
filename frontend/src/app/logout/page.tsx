@@ -1,18 +1,19 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-import { useAuthedContext } from "@/hooks/useAuthed";
-import { authApi } from "@/lib/apis";
+import { useEffect } from "react";
 
 const LogoutPage = () => {
     const router = useRouter();
-    const { setHasAuthCookies } = useAuthedContext();
 
-    authApi.logout().then(() => {
-        setHasAuthCookies(false);
-        router.replace("/");
-    });
+    useEffect(() => {
+        async function signOutAsync() {
+            await signOut({ redirect: false });
+            router.replace("/login");
+        }
+        signOutAsync();
+    }, [router]);
 };
 
 export default LogoutPage;

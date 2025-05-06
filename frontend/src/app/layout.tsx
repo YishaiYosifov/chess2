@@ -1,6 +1,4 @@
 import { Secular_One } from "next/font/google";
-import { getServerSession } from "next-auth";
-import { signOut } from "next-auth/react";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
@@ -8,10 +6,10 @@ import { ReactNode } from "react";
 import constants from "@/lib/constants";
 import "./globals.css";
 
+import getConfiguredServerSession from "@/lib/auth/getConfiguredServerSession";
 import ClientSessionProvider from "@/components/ClientSessionProvider";
 import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
-import authOptions from "@/lib/authOptions";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -33,7 +31,8 @@ export const metadata: Metadata = {
  *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-    const session = await getServerSession(authOptions);
+    const session = await getConfiguredServerSession();
+
     const nextCookies = await cookies();
     const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
 
