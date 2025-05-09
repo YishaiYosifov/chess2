@@ -11,8 +11,6 @@ import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import FormikField from "../helpers/FormikField";
 import { signin } from "@/lib/apiClient";
-import { useContext } from "react";
-import { AuthContext } from "@/contexts/authContext";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -27,7 +25,6 @@ const loginSchema = yup.object({
 });
 
 const LoginForm = () => {
-    const { setHasAccessToken, setAuthedProfile } = useContext(AuthContext);
     const router = useRouter();
 
     async function onSubmit(
@@ -51,9 +48,8 @@ const LoginForm = () => {
             return;
         }
 
-        setHasAccessToken(true);
-        setAuthedProfile(data);
-        router.replace("/");
+        router.push("/");
+        router.refresh();
     }
 
     return (

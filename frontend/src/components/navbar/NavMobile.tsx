@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef } from "react";
 
 import Image from "next/image";
@@ -5,7 +7,7 @@ import Image from "next/image";
 import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
 
-const NavMobile = () => {
+const NavMobile = ({ hasAccessToken }: { hasAccessToken: boolean }) => {
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
 
@@ -53,8 +55,8 @@ const NavMobile = () => {
                 onClick={toggleMenu}
                 data-testid="navbarMobileOpened"
             >
-                <UpperNavItems />
-                <LowerNavItems />
+                <UpperNavItems hasAccessToken={hasAccessToken} />
+                <LowerNavItems hasAccessToken={hasAccessToken} />
             </nav>
         </header>
     );

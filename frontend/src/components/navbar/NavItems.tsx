@@ -18,12 +18,12 @@ import { AuthContext } from "@/contexts/authContext";
 import NavItem from "./NavItem";
 
 export const UpperNavItems = ({
+    hasAccessToken,
     isCollapsed = false,
 }: {
+    hasAccessToken: boolean;
     isCollapsed?: boolean;
 }) => {
-    const { hasAccessToken: hasAuthCookies } = useContext(AuthContext);
-
     const authedLinks = (
         <NavItem
             as={Link}
@@ -74,7 +74,7 @@ export const UpperNavItems = ({
             >
                 Home
             </NavItem>
-            {hasAuthCookies ? authedLinks : unauthedLinks}
+            {hasAccessToken ? authedLinks : unauthedLinks}
             <NavItem
                 as={Link}
                 href="/donate"
@@ -88,12 +88,12 @@ export const UpperNavItems = ({
 };
 
 export const LowerNavItems = ({
+    hasAccessToken,
     isCollapsed = false,
 }: {
+    hasAccessToken: boolean;
     isCollapsed?: boolean;
 }) => {
-    const { hasAccessToken: hasAuthCookies } = useContext(AuthContext);
-
     const authedLinks = (
         <>
             <NavItem
@@ -115,5 +115,5 @@ export const LowerNavItems = ({
             </NavItem>
         </>
     );
-    return hasAuthCookies && authedLinks;
+    return hasAccessToken && authedLinks;
 };
