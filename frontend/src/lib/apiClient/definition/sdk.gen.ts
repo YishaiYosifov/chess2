@@ -15,6 +15,8 @@ import type {
     RefreshData,
     RefreshResponse,
     RefreshError,
+    LogoutData,
+    LogoutResponse,
     CreateGuestUserData,
     CreateGuestUserResponse,
     TestAuthedData,
@@ -98,6 +100,19 @@ export const refresh = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Auth/refresh",
+        ...options,
+    });
+};
+
+export const logout = <ThrowOnError extends boolean = false>(
+    options?: Options<LogoutData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).post<
+        LogoutResponse,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/Auth/logout",
         ...options,
     });
 };
