@@ -1,5 +1,5 @@
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { AuthOptions, User, Session } from "next-auth";
+import NextAuth, { User, Session } from "next-auth";
 
 import { signin, refresh, getAuthedUser } from "@/lib/apiClient";
 import { parseSetCookieHeader } from "@/lib/utils/requestUtils";
@@ -13,7 +13,7 @@ async function copyCookiesFromResponse(response: Response): Promise<void> {
     }
 }
 
-const authOptions: AuthOptions = {
+export const { handlers, signOut, auth } = NextAuth((req) => ({
     providers: [
         CredentialsProvider({
             credentials: {
@@ -35,10 +35,9 @@ const authOptions: AuthOptions = {
                         password: credentials.password,
                     },
                 });
-
                 if (error) throw error;
                 if (!data) return null;
-                await copyCookiesFromResponse(response);
+                //await copyCookiesFromResponse(response);
 
                 const user: User = {
                     id: data.user.userId,
@@ -63,13 +62,7 @@ const authOptions: AuthOptions = {
                     user.tokens.accessTokenExpiresTimestamp;
             }
 
-            const cookieStore = await cookies();
-            cookieStore.set(
-                "ASDASDASD",
-                "A SDlkj aSD lkj;aSD Ljh aSD LJIkh aSD JHL  aSDLJ",
-            );
             // if our access token has not expired yet, return all information except the refresh token
-            console.log(Date.now() / 1000 < token.accessTokenExpiresTimestamp);
             if (Date.now() / 1000 < token.accessTokenExpiresTimestamp)
                 return token;
 
@@ -105,5 +98,4 @@ const authOptions: AuthOptions = {
         },
     },
     debug: process.env.NODE_ENV === "development",
-};
-export default authOptions;
+}));

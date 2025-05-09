@@ -6,10 +6,10 @@ import { ReactNode } from "react";
 import constants from "@/lib/constants";
 import "./globals.css";
 
-import getConfiguredServerSession from "@/lib/auth/getConfiguredServerSession";
 import ClientSessionProvider from "@/components/ClientSessionProvider";
 import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
+import { auth } from "@/lib/auth";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
  *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-    const session = await getConfiguredServerSession();
+    const session = await auth();
 
     const nextCookies = await cookies();
     const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
