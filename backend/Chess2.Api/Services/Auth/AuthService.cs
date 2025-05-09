@@ -22,6 +22,7 @@ public interface IAuthService
     Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
         ClaimsPrincipal? userClaims
     );
+    void Logout(HttpContext context);
 }
 
 public class AuthService(
@@ -29,7 +30,8 @@ public class AuthService(
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
     UserManager<AuthedUser> userManager,
-    SignInManager<AuthedUser> signinManager
+    SignInManager<AuthedUser> signinManager,
+    IAuthCookieSetter authCookieSetter
 ) : IAuthService
 {
     private readonly AppSettings _settings = settings.Value;
@@ -37,6 +39,7 @@ public class AuthService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
     private readonly ILogger<AuthService> _logger = logger;
+    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -176,5 +179,12 @@ public class AuthService(
         };
 
         return (newTokens, user);
+    }
+
+    public void Logout(HttpContext context)
+    {
+        _authCookieSetter.RemoveRefreshCookie(context);
+        _authCookieSetter.RemoveAccessCookie(context);
+        _authCookieSetter.RemoveIsAuthedCookie(context);
     }
 }

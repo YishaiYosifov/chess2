@@ -59,6 +59,7 @@ public class AuthController(
             {
                 _authCookieSetter.SetAccessCookie(value.tokens.AccessToken, HttpContext);
                 _authCookieSetter.SetRefreshCookie(value.tokens.RefreshToken, HttpContext);
+                _authCookieSetter.SetIsAuthedCookie(HttpContext);
                 _logger.LogInformation(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
@@ -76,7 +77,7 @@ public class AuthController(
     }
 
     [HttpPost("refresh", Name = nameof(Refresh))]
-    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
     public async Task<ActionResult<AuthResponseDTO>> Refresh()
@@ -94,8 +95,20 @@ public class AuthController(
                     }
                 );
             },
-            (errors) => errors.ToActionResult()
+            (errors) =>
+            {
+                _authService.Logout(HttpContext);
+                return errors.ToActionResult();
+            }
         );
+    }
+
+    [HttpPost("logout", Name = nameof(Logout))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public ActionResult Logout()
+    {
+        _authService.Logout(HttpContext);
+        return NoContent();
     }
 
     [HttpPost("guest", Name = nameof(CreateGuestUser))]

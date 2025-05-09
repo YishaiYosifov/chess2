@@ -8,16 +8,22 @@ public interface IAuthCookieSetter
 {
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
+    void SetIsAuthedCookie(HttpContext context);
+    void RemoveAccessCookie(HttpContext context);
+    void RemoveRefreshCookie(HttpContext context);
+    void RemoveIsAuthedCookie(HttpContext context);
 }
 
-public class AuthCookieSetter(
+public class AuthCookieService(
     IOptions<AppSettings> settings,
     IWebHostEnvironment hostEnvironment,
     LinkGenerator linkGenerator
 ) : IAuthCookieSetter
 {
+    private readonly SameSiteMode _sameSiteMode = hostEnvironment.IsDevelopment()
+        ? SameSiteMode.None
+        : SameSiteMode.Strict;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
-    private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
 
     public void SetAccessCookie(string accessToken, HttpContext context)
@@ -32,16 +38,17 @@ public class AuthCookieSetter(
                 HttpOnly = true,
                 IsEssential = true,
                 Secure = true,
-                SameSite = _hostEnvironment.IsDevelopment()
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict,
+                SameSite = _sameSiteMode,
             }
         );
     }
 
+    public void RemoveAccessCookie(HttpContext context) =>
+        context.Response.Cookies.Delete(_jwtSettings.AccessTokenCookieName);
+
     public void SetRefreshCookie(string refreshToken, HttpContext context)
     {
-        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
+        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController));
         var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
@@ -52,11 +59,37 @@ public class AuthCookieSetter(
                 HttpOnly = true,
                 IsEssential = true,
                 Secure = true,
-                SameSite = _hostEnvironment.IsDevelopment()
-                    ? SameSiteMode.None
-                    : SameSiteMode.Strict,
+                SameSite = _sameSiteMode,
                 Path = refreshPath,
             }
         );
     }
+
+    public void RemoveRefreshCookie(HttpContext context)
+    {
+        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController));
+        context.Response.Cookies.Delete(
+            _jwtSettings.RefreshTokenCookieName,
+            new() { Path = refreshPath }
+        );
+    }
+
+    public void SetIsAuthedCookie(HttpContext context)
+    {
+        var refreshTokenExpires = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
+        context.Response.Cookies.Append(
+            _jwtSettings.IsAuthedCookieName,
+            "true",
+            new()
+            {
+                Expires = refreshTokenExpires,
+                IsEssential = true,
+                Secure = true,
+                SameSite = _sameSiteMode,
+            }
+        );
+    }
+
+    public void RemoveIsAuthedCookie(HttpContext context) =>
+        context.Response.Cookies.Delete(_jwtSettings.IsAuthedCookieName);
 }
