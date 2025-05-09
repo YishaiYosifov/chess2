@@ -64,7 +64,9 @@ describe("LoginForm", () => {
         const setHasAuthCookies = vi.fn();
 
         const user = userEvent.setup();
-        renderWithAuthContext(<LoginForm />, { setHasAuthCookies });
+        renderWithAuthContext(<LoginForm />, {
+            setHasAccessToken: setHasAuthCookies,
+        });
 
         // check the button is disabled before entering information
         const loginButton = screen.getByText<HTMLButtonElement>("Log In");

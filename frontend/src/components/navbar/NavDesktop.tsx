@@ -25,13 +25,13 @@ const NavDesktop = ({
         setIsCollapsed((prev) => {
             const newIsCollapsed = !prev;
             if (!newIsCollapsed) {
-                Cookies.remove(constants.SIDEBAR_COLLAPSED_COOKIE);
+                Cookies.remove(constants.COOKIES.SIDEBAR_COLLAPSED);
                 return newIsCollapsed;
             }
 
             const date = new Date();
             date.setTime(date.getTime() + 400 * 24 * 60 * 60 * 1000);
-            Cookies.set(constants.SIDEBAR_COLLAPSED_COOKIE, "1", {
+            Cookies.set(constants.COOKIES.SIDEBAR_COLLAPSED, "1", {
                 expires: date,
             });
             return newIsCollapsed;

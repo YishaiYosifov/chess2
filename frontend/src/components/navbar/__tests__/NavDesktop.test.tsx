@@ -50,7 +50,7 @@ describe("NavDesktop", () => {
         await user.click(collapseButton);
 
         expect(setCookieMock).toHaveBeenCalledWith(
-            constants.SIDEBAR_COLLAPSED_COOKIE,
+            constants.COOKIES.SIDEBAR_COLLAPSED,
             "1",
             expect.any(Object),
         );
@@ -58,7 +58,7 @@ describe("NavDesktop", () => {
         await user.click(collapseButton);
 
         expect(removeCookieMock).toHaveBeenCalledWith(
-            constants.SIDEBAR_COLLAPSED_COOKIE,
+            constants.COOKIES.SIDEBAR_COLLAPSED,
         );
     });
 
