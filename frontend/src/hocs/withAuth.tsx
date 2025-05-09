@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import React, { JSX } from "react";
 
-import getConfiguredServerSession from "@/lib/auth/getConfiguredServerSession";
 import type { PrivateUser } from "@/lib/apiClient";
+import { auth } from "@/lib/auth";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
     profile: PrivateUser;
@@ -18,7 +18,7 @@ const withAuth = <P extends WithAuthProps>(
     WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
-        const session = await getConfiguredServerSession();
+        const session = await auth();
         if (!session) redirect("/login");
 
         return <WrappedComponent {...props} />;
