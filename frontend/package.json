@@ -23,7 +23,7 @@
         "immer": "^10.1.1",
         "js-cookie": "^3.0.5",
         "next": "15.3.1",
-        "next-auth": "^4.24.11",
+        "next-auth": "^5.0.0-beta.27",
         "react": "^19.0.0",
         "react-apexcharts": "^1.7.0",
         "react-dom": "^19.0.0",

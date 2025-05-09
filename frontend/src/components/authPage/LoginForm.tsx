@@ -2,6 +2,7 @@
 
 import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import * as yup from "yup";
 
@@ -10,7 +11,6 @@ import constants from "@/lib/constants";
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import FormikField from "../helpers/FormikField";
-import { signIn } from "next-auth/react";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
