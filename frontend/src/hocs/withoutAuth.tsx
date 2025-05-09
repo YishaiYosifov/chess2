@@ -1,6 +1,6 @@
+import { ComponentType, JSX } from "react";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { ComponentType, JSX } from "react";
 
 import constants from "@/lib/constants";
 
@@ -13,11 +13,7 @@ const withoutAuth = <P extends JSX.IntrinsicAttributes>(
 ) => {
     const NewComponent = async (props: P) => {
         const cookieStore = await cookies();
-        if (
-            cookieStore.has(constants.ACCESS_TOKEN) ||
-            cookieStore.has(constants.REFRESH_TOKEN)
-        )
-            redirect("/");
+        if (cookieStore.has(constants.IS_AUTHED_COOKIE)) redirect("/");
 
         return <WrappedComponent {...props} />;
     };

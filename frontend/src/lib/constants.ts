@@ -4,13 +4,8 @@ export const BOARD_WIDTH = 10;
 export const BOARD_HEIGHT = 10;
 export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 
-export const ACCESS_TOKEN_EXPIRES_SECONDS = 1800;
-export const REFRESH_TOKEN_EXPIRES_SECONDS = 216000;
-
-export const ACCESS_TOKEN = "accessToken";
-export const REFRESH_TOKEN = "refreshToken";
-
-export const LAST_LOGIN_LOCAL_STORAGE = "lastLogin";
+export const REFRESH_TOKEN_COOKIE = "refreshToken";
+export const IS_AUTHED_COOKIE = "isAuthed";
 export const SIDEBAR_COLLAPSED_COOKIE = "sidebarCollapsed";
 
 export const GENERIC_ERROR = "Something went wrong.";
@@ -88,11 +83,8 @@ const exported = {
     BOARD_WIDTH,
     BOARD_HEIGHT,
     BOARD_SIZE,
-    ACCESS_TOKEN_EXPIRES_SECONDS,
-    REFRESH_TOKEN_EXPIRES_SECONDS,
-    ACCESS_TOKEN,
-    REFRESH_TOKEN,
-    LAST_LOGIN_LOCAL_STORAGE,
+    REFRESH_TOKEN_COOKIE,
+    IS_AUTHED_COOKIE,
     SIDEBAR_COLLAPSED_COOKIE,
     GENERIC_ERROR,
     SETTING_PAGES,
