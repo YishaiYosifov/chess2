@@ -5,7 +5,7 @@ import AuthContextProvider from "@/contexts/authContext";
 
 const renderWithAuth = (authenticated: boolean, children: React.ReactNode) =>
     render(
-        <AuthContextProvider hasAuthCookies={authenticated}>
+        <AuthContextProvider hasAccessToken={authenticated}>
             {children}
         </AuthContextProvider>,
     );

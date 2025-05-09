@@ -13,7 +13,7 @@ const withoutAuth = <P extends JSX.IntrinsicAttributes>(
 ) => {
     const NewComponent = async (props: P) => {
         const cookieStore = await cookies();
-        if (cookieStore.has(constants.IS_AUTHED_COOKIE)) redirect("/");
+        if (cookieStore.has(constants.COOKIES.ACCESS_TOKEN)) redirect("/");
 
         return <WrappedComponent {...props} />;
     };

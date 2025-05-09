@@ -4,36 +4,36 @@ import { createContext, useState } from "react";
 import { PrivateUser } from "@/lib/apiClient";
 
 export interface AuthContextInterface {
-    hasAuthCookies: boolean;
-    setHasAuthCookies: (isAuthed: boolean) => void;
+    hasAccessToken: boolean;
+    setHasAccessToken: (isAuthed: boolean) => void;
     setAuthedProfile: (profile: PrivateUser) => void;
     authedProfile?: PrivateUser;
 }
 
 export const AuthContext = createContext<AuthContextInterface>({
-    hasAuthCookies: false,
-    setHasAuthCookies: () => {},
+    hasAccessToken: false,
+    setHasAccessToken: () => {},
     setAuthedProfile: () => {},
 });
 
 const AuthContextProvider = ({
-    hasAuthCookies = false,
+    hasAccessToken = false,
     user,
     children,
 }: {
     user?: PrivateUser;
-    hasAuthCookies?: boolean;
+    hasAccessToken?: boolean;
     children: React.ReactNode;
 }) => {
-    const [hasAuthCookiesState, setHasAuthCookiesState] =
-        useState(hasAuthCookies);
+    const [hasAccessTokenState, setHasAccessTokenState] =
+        useState(hasAccessToken);
     const [authedProfile, setAuthedProfile] = useState(user);
 
     return (
         <AuthContext.Provider
             value={{
-                hasAuthCookies: hasAuthCookiesState,
-                setHasAuthCookies: setHasAuthCookiesState,
+                hasAccessToken: hasAccessTokenState,
+                setHasAccessToken: setHasAccessTokenState,
                 setAuthedProfile,
                 authedProfile,
             }}

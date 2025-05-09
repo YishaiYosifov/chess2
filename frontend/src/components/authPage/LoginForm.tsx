@@ -27,20 +27,20 @@ const loginSchema = yup.object({
 });
 
 const LoginForm = () => {
-    const { setHasAuthCookies } = useContext(AuthContext);
+    const { setHasAccessToken, setAuthedProfile } = useContext(AuthContext);
     const router = useRouter();
 
     async function onSubmit(
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        const { error, response } = await signin({
+        const { error, data, response } = await signin({
             body: {
                 usernameOrEmail: values.usernameOrEmail,
                 password: values.password,
             },
         });
-        if (error) {
+        if (error || !data) {
             switch (response?.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
@@ -51,7 +51,8 @@ const LoginForm = () => {
             return;
         }
 
-        setHasAuthCookies(true);
+        setHasAccessToken(true);
+        setAuthedProfile(data);
         router.replace("/");
     }
 
