@@ -9,6 +9,7 @@ const GENERIC_ERROR = "Something went wrong.";
 const COOKIES = {
     REFRESH_TOKEN: "refreshToken",
     ACCESS_TOKEN: "accessToken",
+    LAST_REFRESH: "lastRefresh",
     SIDEBAR_COLLAPSED: "sidebarCollapsed",
 };
 

@@ -11,10 +11,8 @@ import {
 } from "@heroicons/react/24/outline";
 
 import { HeartIcon } from "@heroicons/react/24/solid";
-import { useContext } from "react";
 import Link from "next/link";
 
-import { AuthContext } from "@/contexts/authContext";
 import NavItem from "./NavItem";
 
 export const UpperNavItems = ({
