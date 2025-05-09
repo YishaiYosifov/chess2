@@ -90,7 +90,7 @@ const TIME_CONTROLS = [
 //     ["43", { position: [9, 9], pieceType: PieceType.Rook, color: Color.White }],
 // ]);
 
-const exported = {
+const constants = {
     USERNAME_EDIT_EVERY,
     BOARD_WIDTH,
     BOARD_HEIGHT,
@@ -103,4 +103,4 @@ const exported = {
     HEADERS
     //defaultChessBoard,
 }
-export default exported;
+export default constants;

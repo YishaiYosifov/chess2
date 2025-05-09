@@ -1,9 +1,7 @@
 import { Secular_One } from "next/font/google";
-import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
-import constants from "@/lib/constants";
 import "./globals.css";
 
 import AuthContextProvider from "@/contexts/authContext";
@@ -21,27 +19,15 @@ export const metadata: Metadata = {
     },
 };
 
-/**
- * The root layout.
- *
- * This will:
- * * Create the navbar element
- * * Initializes the store with whether the user is authorized or not.
- *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
- */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-    const cookieStore = await cookies();
-    const hasAccessToken = cookieStore.has(constants.COOKIES.ACCESS_TOKEN);
-    const isNavCollapsed = cookieStore.has(constants.COOKIES.SIDEBAR_COLLAPSED);
-
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <AuthContextProvider hasAccessToken={hasAccessToken}>
+                <AuthContextProvider>
                     <WSPushAction />
 
                     <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
-                        <Navbar isCollapsedInitialState={isNavCollapsed} />
+                        <Navbar />
                         <main className="flex flex-1">{children}</main>
                     </div>
                 </AuthContextProvider>

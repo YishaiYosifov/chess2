@@ -15,8 +15,10 @@ import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
 
 const NavDesktop = ({
+    hasAccessToken,
     isCollapsedInitialState,
 }: {
+    hasAccessToken: boolean;
     isCollapsedInitialState: boolean;
 }) => {
     const [isCollapsed, setIsCollapsed] = useState(isCollapsedInitialState);
@@ -65,14 +67,20 @@ const NavDesktop = ({
                     />
                 )}
                 <ul className="flex flex-col gap-6">
-                    <UpperNavItems isCollapsed={isCollapsed} />
+                    <UpperNavItems
+                        hasAccessToken={hasAccessToken}
+                        isCollapsed={isCollapsed}
+                    />
                 </ul>
 
                 {/* Spacer */}
                 <div className="flex-grow" />
 
                 <ul className="flex flex-col gap-5 justify-self-end opacity-70">
-                    <LowerNavItems isCollapsed={isCollapsed} />
+                    <LowerNavItems
+                        hasAccessToken={hasAccessToken}
+                        isCollapsed={isCollapsed}
+                    />
 
                     {/* Collapse button */}
                     <NavItem
