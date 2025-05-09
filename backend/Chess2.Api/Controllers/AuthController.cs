@@ -59,7 +59,6 @@ public class AuthController(
             {
                 _authCookieSetter.SetAccessCookie(value.tokens.AccessToken, HttpContext);
                 _authCookieSetter.SetRefreshCookie(value.tokens.RefreshToken, HttpContext);
-                _authCookieSetter.SetIsAuthedCookie(HttpContext);
                 _logger.LogInformation(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
