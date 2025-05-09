@@ -2,7 +2,6 @@
 
 import { Form, Formik, FormikHelpers } from "formik";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import * as yup from "yup";
 
@@ -11,6 +10,9 @@ import constants from "@/lib/constants";
 import FormikSubmitButton from "../helpers/FormikSubmitButton";
 import Input, { PasswordInput } from "../helpers/Input";
 import FormikField from "../helpers/FormikField";
+import { signin } from "@/lib/apiClient";
+import { useContext } from "react";
+import { AuthContext } from "@/contexts/authContext";
 
 export interface LoginFormValues {
     usernameOrEmail: string;
@@ -25,18 +27,20 @@ const loginSchema = yup.object({
 });
 
 const LoginForm = () => {
+    const { setHasAuthCookies } = useContext(AuthContext);
     const router = useRouter();
 
     async function onSubmit(
         values: LoginFormValues,
         { setStatus }: FormikHelpers<LoginFormValues>,
     ): Promise<void> {
-        const response = await signIn("credentials", {
-            usernameOrEmail: values.usernameOrEmail,
-            password: values.password,
-            redirect: false,
+        const { error, response } = await signin({
+            body: {
+                usernameOrEmail: values.usernameOrEmail,
+                password: values.password,
+            },
         });
-        if (!response?.ok) {
+        if (error) {
             switch (response?.status) {
                 case 401:
                     setStatus("Wrong username / email / password");
@@ -47,10 +51,7 @@ const LoginForm = () => {
             return;
         }
 
-        localStorage.setItem(
-            constants.LAST_LOGIN_LOCAL_STORAGE,
-            new Date().toUTCString(),
-        );
+        setHasAuthCookies(true);
         router.replace("/");
     }
 
