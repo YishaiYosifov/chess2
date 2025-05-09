@@ -22,7 +22,7 @@ export const UpperNavItems = ({
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { hasAuthCookies } = useContext(AuthContext);
+    const { hasAccessToken: hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
         <NavItem
@@ -92,7 +92,7 @@ export const LowerNavItems = ({
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { hasAuthCookies } = useContext(AuthContext);
+    const { hasAccessToken: hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
         <>

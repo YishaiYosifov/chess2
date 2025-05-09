@@ -31,11 +31,6 @@ export type ApiProblemError = {
     description: string;
 };
 
-export type AuthResponseDto = {
-    authTokens: Tokens;
-    user: PrivateUser;
-};
-
 export type Operation = {
     value?: unknown;
     operationType?: OperationType;
@@ -72,12 +67,6 @@ export type SignupRequest = {
     email: string;
     password: string;
     countryCode?: string | null;
-};
-
-export type Tokens = {
-    accessToken: string;
-    accessTokenExpiresTimestamp: number;
-    refreshToken: string;
 };
 
 export type User = {
@@ -147,7 +136,7 @@ export type SigninResponses = {
     /**
      * OK
      */
-    200: AuthResponseDto;
+    200: PrivateUser;
 };
 
 export type SigninResponse = SigninResponses[keyof SigninResponses];
@@ -174,9 +163,9 @@ export type RefreshError = RefreshErrors[keyof RefreshErrors];
 
 export type RefreshResponses = {
     /**
-     * OK
+     * No Content
      */
-    200: AuthResponseDto;
+    204: void;
 };
 
 export type RefreshResponse = RefreshResponses[keyof RefreshResponses];

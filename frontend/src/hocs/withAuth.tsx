@@ -4,7 +4,6 @@ import React, { JSX } from "react";
 
 import { getAuthedUser, type PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
-import RefreshProvider from "@/components/RefreshProvider";
 
 interface WithAuthProps extends JSX.IntrinsicAttributes {
     profile: PrivateUser;
@@ -21,14 +20,15 @@ const withAuth = <P extends WithAuthProps>(
 ) => {
     const NewComponent = async (props: P) => {
         const cookieStore = await cookies();
-        if (!cookieStore.has(constants.IS_AUTHED_COOKIE)) redirect("/login");
+        if (!cookieStore.has(constants.COOKIES.ACCESS_TOKEN))
+            redirect(constants.PATHS.LOGIN);
+
         const { data, error } = await getAuthedUser({
             headers: { Cookie: cookieStore.toString() },
         });
-
         if (error || !data) {
             console.error(error);
-            return <RefreshProvider />;
+            redirect(constants.PATHS.LOGOUT);
         }
 
         return <WrappedComponent {...props} />;

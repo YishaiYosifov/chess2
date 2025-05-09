@@ -31,13 +31,13 @@ export const metadata: Metadata = {
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     const cookieStore = await cookies();
-    const hasAuthCookies = cookieStore.has(constants.IS_AUTHED_COOKIE);
-    const isNavCollapsed = cookieStore.has(constants.SIDEBAR_COLLAPSED_COOKIE);
+    const hasAccessToken = cookieStore.has(constants.COOKIES.ACCESS_TOKEN);
+    const isNavCollapsed = cookieStore.has(constants.COOKIES.SIDEBAR_COLLAPSED);
 
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <AuthContextProvider hasAuthCookies={hasAuthCookies}>
+                <AuthContextProvider hasAccessToken={hasAccessToken}>
                     <WSPushAction />
 
                     <div className="flex min-h-screen min-w-screen flex-col md:flex-row">

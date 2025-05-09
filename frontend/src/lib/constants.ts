@@ -1,23 +1,35 @@
-export const USERNAME_EDIT_EVERY = 2419200;
+const USERNAME_EDIT_EVERY = 2419200;
 
-export const BOARD_WIDTH = 10;
-export const BOARD_HEIGHT = 10;
-export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 10;
+const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 
-export const REFRESH_TOKEN_COOKIE = "refreshToken";
-export const IS_AUTHED_COOKIE = "isAuthed";
-export const SIDEBAR_COLLAPSED_COOKIE = "sidebarCollapsed";
+const GENERIC_ERROR = "Something went wrong.";
 
-export const GENERIC_ERROR = "Something went wrong.";
+const COOKIES = {
+    REFRESH_TOKEN: "refreshToken",
+    ACCESS_TOKEN: "accessToken",
+    SIDEBAR_COLLAPSED: "sidebarCollapsed",
+};
 
-export const SETTING_PAGES = [
+const PATHS = {
+    LOGIN: "/login",
+    LOGOUT: "/logout",
+    REFRESH: "/api/auth/refresh",
+};
+
+const HEADERS = {
+    REFRESH_REDIRECT: "X-REFRESH-REDIRECT",
+};
+
+const SETTING_PAGES = [
     { name: "Profile", url: "profile" },
     { name: "Live Game", url: "live-game" },
     { name: "Blocked", url: "blocked" },
     { name: "Security", url: "security" },
 ];
 
-export const TIME_CONTROLS = [
+const TIME_CONTROLS = [
     { type: "bullet", timeControl: 60, increment: 0 },
     { type: "bullet", timeControl: 60, increment: 1 },
     { type: "bullet", timeControl: 120, increment: 1 },
@@ -83,12 +95,12 @@ const exported = {
     BOARD_WIDTH,
     BOARD_HEIGHT,
     BOARD_SIZE,
-    REFRESH_TOKEN_COOKIE,
-    IS_AUTHED_COOKIE,
-    SIDEBAR_COLLAPSED_COOKIE,
     GENERIC_ERROR,
     SETTING_PAGES,
     TIME_CONTROLS,
+    COOKIES,
+    PATHS,
+    HEADERS
     //defaultChessBoard,
-};
+}
 export default exported;
