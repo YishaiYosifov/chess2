@@ -46,9 +46,9 @@ public class AuthController(
     }
 
     [HttpPost("signin", Name = nameof(Signin))]
-    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AuthResponseDTO>> Signin([FromBody] SigninRequest signinRequest)
+    public async Task<ActionResult<PrivateUserOut>> Signin([FromBody] SigninRequest signinRequest)
     {
         var result = await _authService.SigninAsync(
             signinRequest.UsernameOrEmail,
@@ -63,36 +63,24 @@ public class AuthController(
                     "User logged in with username/email {UsernameOrEmail}",
                     signinRequest.UsernameOrEmail
                 );
-                return Ok(
-                    new AuthResponseDTO()
-                    {
-                        AuthTokens = value.tokens,
-                        User = new PrivateUserOut(value.user),
-                    }
-                );
+                return Ok(new PrivateUserOut(value.user));
             },
             (errors) => errors.ToActionResult()
         );
     }
 
     [HttpPost("refresh", Name = nameof(Refresh))]
-    [ProducesResponseType<AuthResponseDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
-    public async Task<ActionResult<AuthResponseDTO>> Refresh()
+    public async Task<ActionResult> Refresh()
     {
         var result = await _authService.RefreshTokenAsync(HttpContext.User);
         return result.Match(
             (value) =>
             {
                 _authCookieSetter.SetAccessCookie(value.newTokens.AccessToken, HttpContext);
-                return Ok(
-                    new AuthResponseDTO()
-                    {
-                        AuthTokens = value.newTokens,
-                        User = new PrivateUserOut(value.user),
-                    }
-                );
+                return NoContent();
             },
             (errors) =>
             {
