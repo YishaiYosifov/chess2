@@ -174,12 +174,28 @@ export type RefreshError = RefreshErrors[keyof RefreshErrors];
 
 export type RefreshResponses = {
     /**
-     * No Content
+     * OK
      */
-    204: AuthResponseDto;
+    200: AuthResponseDto;
 };
 
 export type RefreshResponse = RefreshResponses[keyof RefreshResponses];
+
+export type LogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Auth/logout";
+};
+
+export type LogoutResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
 
 export type CreateGuestUserData = {
     body?: never;
