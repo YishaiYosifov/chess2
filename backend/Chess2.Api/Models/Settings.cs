@@ -27,5 +27,4 @@ public class JwtSettings
 
     public required string AccessTokenCookieName { get; set; }
     public required string RefreshTokenCookieName { get; set; }
-    public required string IsAuthedCookieName { get; set; }
 }

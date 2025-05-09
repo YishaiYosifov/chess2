@@ -183,8 +183,9 @@ public class AuthService(
 
     public void Logout(HttpContext context)
     {
-        _authCookieSetter.RemoveRefreshCookie(context);
-        _authCookieSetter.RemoveAccessCookie(context);
-        _authCookieSetter.RemoveIsAuthedCookie(context);
+        foreach (var cookie in context.Request.Cookies)
+        {
+            context.Response.Cookies.Delete(cookie.Key);
+        }
     }
 }
