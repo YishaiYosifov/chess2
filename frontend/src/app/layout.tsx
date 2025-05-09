@@ -6,10 +6,9 @@ import { ReactNode } from "react";
 import constants from "@/lib/constants";
 import "./globals.css";
 
-import ClientSessionProvider from "@/components/ClientSessionProvider";
+import AuthContextProvider from "@/contexts/authContext";
 import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
-import { auth } from "@/lib/auth";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -31,22 +30,21 @@ export const metadata: Metadata = {
  *   Do not use the store to determine whether the user is authorized or not without using the With/WithoutAuth HOCs.
  */
 const RootLayout = async ({ children }: { children: ReactNode }) => {
-    const session = await auth();
-
-    const nextCookies = await cookies();
-    const isNavCollapsed = nextCookies.has(constants.SIDEBAR_COLLAPSED_COOKIE);
+    const cookieStore = await cookies();
+    const hasAuthCookies = cookieStore.has(constants.IS_AUTHED_COOKIE);
+    const isNavCollapsed = cookieStore.has(constants.SIDEBAR_COLLAPSED_COOKIE);
 
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <ClientSessionProvider session={session}>
+                <AuthContextProvider hasAuthCookies={hasAuthCookies}>
                     <WSPushAction />
 
                     <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
                         <Navbar isCollapsedInitialState={isNavCollapsed} />
                         <main className="flex flex-1">{children}</main>
                     </div>
-                </ClientSessionProvider>
+                </AuthContextProvider>
             </body>
         </html>
     );

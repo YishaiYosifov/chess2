@@ -9,18 +9,20 @@ import {
     UserCircleIcon,
     BoltSlashIcon,
 } from "@heroicons/react/24/outline";
+
 import { HeartIcon } from "@heroicons/react/24/solid";
+import { useContext } from "react";
 import Link from "next/link";
 
+import { AuthContext } from "@/contexts/authContext";
 import NavItem from "./NavItem";
-import { useSession } from "next-auth/react";
 
 export const UpperNavItems = ({
     isCollapsed = false,
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { status: authStatus } = useSession();
+    const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
         <NavItem
@@ -72,7 +74,7 @@ export const UpperNavItems = ({
             >
                 Home
             </NavItem>
-            {authStatus == "authenticated" ? authedLinks : unauthedLinks}
+            {hasAuthCookies ? authedLinks : unauthedLinks}
             <NavItem
                 as={Link}
                 href="/donate"
@@ -90,7 +92,7 @@ export const LowerNavItems = ({
 }: {
     isCollapsed?: boolean;
 }) => {
-    const { status: authStatus } = useSession();
+    const { hasAuthCookies } = useContext(AuthContext);
 
     const authedLinks = (
         <>
@@ -113,5 +115,5 @@ export const LowerNavItems = ({
             </NavItem>
         </>
     );
-    return authStatus === "authenticated" && authedLinks;
+    return hasAuthCookies && authedLinks;
 };
