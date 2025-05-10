@@ -68,7 +68,7 @@ public static class AuthTestUtils
         );
         response.IsSuccessful.Should().BeTrue();
 
-        return response.Content!.AuthTokens;
+        return response.Content!;
     }
 
     public static async Task<(AuthedUser User, Tokens Tokens)> Authenticate(
