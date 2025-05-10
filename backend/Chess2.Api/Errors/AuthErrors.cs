@@ -15,4 +15,10 @@ public static class AuthErrors
             ErrorCodes.AuthTokenInvalid,
             "The authentication token provided is invalid"
         );
+
+    public static Error OAuthInvalid =>
+        Error.Unauthorized(ErrorCodes.AuthOAuthInvalid, "Could not authenticate via OAuth");
+
+    public static Error OAuthLoginConflict =>
+        Error.Conflict(ErrorCodes.AuthOauthLoginConflict, "An external login already exists");
 }
