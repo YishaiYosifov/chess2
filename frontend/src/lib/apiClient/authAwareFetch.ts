@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import { logout, refresh } from "./definition";
-import constants from "../constants";
 import { navigate } from "@/actions/navigate";
+import constants from "../constants";
 
 type Pending = {
     resolve: (value: Response | PromiseLike<Response>) => void;
@@ -20,12 +19,7 @@ export default async function authAwareFetch(
 
     // if the server is making this request we don't want to auto refresh
     const isServerRequest = typeof window === "undefined";
-    if (
-        response.status !== 401 ||
-        input.toString().includes("refresh") ||
-        isServerRequest
-    )
-        return response;
+    if (response.status !== 401 || isServerRequest) return response;
 
     if (response.status === 401 && isRefreshing)
         return addToRefreshQueue(input, init);
@@ -55,9 +49,9 @@ export default async function authAwareFetch(
 }
 
 async function handleRefresh(): Promise<boolean> {
-    const { error } = await refresh();
-    if (error) {
-        console.error("Failed refreshing:", error);
+    const response = await fetch(constants.PATHS.REFRESH);
+    if (!response.ok) {
+        console.error("Failed refreshing:", await response.text());
         return false;
     }
 

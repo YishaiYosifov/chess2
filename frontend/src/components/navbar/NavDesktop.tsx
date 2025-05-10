@@ -13,6 +13,7 @@ import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
 import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
+import { getAuthedUser } from "@/lib/apiClient";
 
 const NavDesktop = ({
     hasAccessToken,
@@ -90,7 +91,8 @@ const NavDesktop = ({
                         icon={
                             isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
                         }
-                        onClick={toggleCollapse}
+                        // onClick={toggleCollapse}
+                        onClick={async () => console.log(await getAuthedUser())}
                         isCollapsed={isCollapsed}
                     >
                         Collapse

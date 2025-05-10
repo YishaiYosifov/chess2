@@ -4,11 +4,11 @@ import constants from "@/lib/constants";
 
 export async function middleware(request: NextRequest) {
     const hasAuthCookie = request.cookies.has(constants.COOKIES.ACCESS_TOKEN);
-    const refreshCookie = request.cookies.get(constants.COOKIES.REFRESH_TOKEN);
+    const shouldBeAuthed = request.cookies.has(constants.COOKIES.IS_AUTHED);
 
     // if we have an access token, no need to refresh
-    // if we don't have a refresh token, we can't refresh
-    if (hasAuthCookie || !refreshCookie) return NextResponse.next();
+    // if the user is not authed, we can't refresh
+    if (hasAuthCookie || !shouldBeAuthed) return NextResponse.next();
 
     const originalPathname = request.nextUrl.pathname;
     const url = request.nextUrl.clone();
