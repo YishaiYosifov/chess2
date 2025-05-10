@@ -6,6 +6,11 @@ const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
 
 const GENERIC_ERROR = "Something went wrong.";
 
+export enum OAuthProvider {
+    GOOGLE = "google",
+    APPLE = "apple",
+}
+
 const COOKIES = {
     REFRESH_TOKEN: "refreshToken",
     ACCESS_TOKEN: "accessToken",

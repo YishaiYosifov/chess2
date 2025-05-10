@@ -1,11 +1,9 @@
-import withoutAuth from "@/hocs/withoutAuth";
-
-import LoginForm from "@/components/authPage/LoginForm";
 import AuthPage from "@/components/authPage/AuthPage";
+import withoutAuth from "@/hocs/withoutAuth";
 
 export const metadata = { title: "Login - Chess 2" };
 
 const LoginPage = withoutAuth(() => {
-    return <AuthPage form={<LoginForm />} />;
+    return <AuthPage />;
 });
 export default LoginPage;

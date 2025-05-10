@@ -91,8 +91,7 @@ const NavDesktop = ({
                         icon={
                             isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
                         }
-                        // onClick={toggleCollapse}
-                        onClick={async () => console.log(await getAuthedUser())}
+                        onClick={toggleCollapse}
                         isCollapsed={isCollapsed}
                     >
                         Collapse
