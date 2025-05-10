@@ -1,8 +1,6 @@
 ﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
-using Chess2.Api.Models.DTOs;
 using Chess2.Api.Services.Auth;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,61 +11,30 @@ namespace Chess2.Api.Controllers;
 public class AuthController(
     ILogger<AuthController> logger,
     IAuthService authService,
+    IOAuthService oAuthService,
     IGuestService guestService,
-    IAuthCookieSetter authCookieSetter,
-    IValidator<SignupRequest> userValidator
+    IAuthCookieSetter authCookieSetter
 ) : Controller
 {
     private readonly IGuestService _guestService = guestService;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
-    private readonly IValidator<SignupRequest> _signupValidator = userValidator;
+    private readonly IOAuthService _oAuthService = oAuthService;
 
-    [HttpPost("signup", Name = nameof(Signup))]
-    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<PrivateUserOut>> Signup([FromBody] SignupRequest signupRequest)
+    [HttpGet("signin/google", Name = nameof(SigninGoogle))]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    public ActionResult SigninGoogle([FromQuery] string returnUrl)
     {
-        var validateResults = await _signupValidator.ValidateAsync(signupRequest);
-        if (!validateResults.IsValid)
-            return validateResults.Errors.ToErrorList().ToActionResult();
-
-        var result = await _authService.SignupAsync(signupRequest);
-        return result.Match(
-            (value) =>
-            {
-                _logger.LogInformation("Created user {Username}", signupRequest.UserName);
-                return Ok(new PrivateUserOut(value));
-            },
-            (errors) => errors.ToActionResult()
-        );
+        var properties = _oAuthService.ConfigureGoogleOAuthProperties(returnUrl, HttpContext);
+        return Challenge(properties, ["Google"]);
     }
 
-    [HttpPost("signin", Name = nameof(Signin))]
-    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PrivateUserOut>> Signin([FromBody] SigninRequest signinRequest)
+    [HttpGet("signin/google/callback", Name = nameof(SigninGoogleCallback))]
+    public async Task<ActionResult> SigninGoogleCallback([FromQuery] string returnUrl)
     {
-        var result = await _authService.SigninAsync(
-            signinRequest.UsernameOrEmail,
-            signinRequest.Password
-        );
-        return result.Match(
-            (value) =>
-            {
-                _authCookieSetter.SetAccessCookie(value.tokens.AccessToken, HttpContext);
-                _authCookieSetter.SetRefreshCookie(value.tokens.RefreshToken, HttpContext);
-                _authCookieSetter.SetIsAuthedCookie(HttpContext);
-                _logger.LogInformation(
-                    "User logged in with username/email {UsernameOrEmail}",
-                    signinRequest.UsernameOrEmail
-                );
-                return Ok(new PrivateUserOut(value.user));
-            },
-            (errors) => errors.ToActionResult()
-        );
+        var result = await _oAuthService.AuthenticateGoogleAsync(HttpContext);
+        return result.Match(value => Redirect(returnUrl), errors => errors.ToActionResult());
     }
 
     [HttpPost("refresh", Name = nameof(Refresh))]
