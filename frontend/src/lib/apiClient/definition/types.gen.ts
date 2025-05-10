@@ -17,6 +17,7 @@ export enum ErrorCode {
     USER_COOLDOWN_SETTING = "User.Cooldown.Setting",
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
+    AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
 }
 
 export type ApiProblemError = {
@@ -27,7 +28,8 @@ export type ApiProblemError = {
         | "User.BadCredentials"
         | "User.Cooldown.Setting"
         | "Auth.TokenMissing"
-        | "Auth.TokenInvalid";
+        | "Auth.TokenInvalid"
+        | "Auth.OAuth.Invalid";
     description: string;
 };
 
@@ -57,18 +59,6 @@ export type PrivateUser = {
     countryCode?: string | null;
 };
 
-export type SigninRequest = {
-    usernameOrEmail: string;
-    password: string;
-};
-
-export type SignupRequest = {
-    userName: string;
-    email: string;
-    password: string;
-    countryCode?: string | null;
-};
-
 export type User = {
     userId?: number;
     userName?: string | null;
@@ -87,59 +77,30 @@ export type ValidationProblemDetails = {
     };
 };
 
-export type SignupData = {
-    body: SignupRequest;
+export type SigninGoogleData = {
+    body?: never;
     path?: never;
-    query?: never;
-    url: "/api/Auth/signup";
+    query?: {
+        returnUrl?: string;
+    };
+    url: "/api/Auth/signin/google";
 };
 
-export type SignupErrors = {
-    /**
-     * Bad Request
-     */
-    400: ValidationProblemDetails;
-    /**
-     * Conflict
-     */
-    409: ApiProblemDetails;
+export type SigninGoogleCallbackData = {
+    body?: never;
+    path?: never;
+    query?: {
+        returnUrl?: string;
+    };
+    url: "/api/Auth/signin/google/callback";
 };
 
-export type SignupError = SignupErrors[keyof SignupErrors];
-
-export type SignupResponses = {
+export type SigninGoogleCallbackResponses = {
     /**
      * OK
      */
-    200: PrivateUser;
+    200: unknown;
 };
-
-export type SignupResponse = SignupResponses[keyof SignupResponses];
-
-export type SigninData = {
-    body: SigninRequest;
-    path?: never;
-    query?: never;
-    url: "/api/Auth/signin";
-};
-
-export type SigninErrors = {
-    /**
-     * Not Found
-     */
-    404: ApiProblemDetails;
-};
-
-export type SigninError = SigninErrors[keyof SigninErrors];
-
-export type SigninResponses = {
-    /**
-     * OK
-     */
-    200: PrivateUser;
-};
-
-export type SigninResponse = SigninResponses[keyof SigninResponses];
 
 export type RefreshData = {
     body?: never;
