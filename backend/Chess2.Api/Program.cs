@@ -1,8 +1,3 @@
-using System.ComponentModel;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Serialization;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Infrastructure;
@@ -18,6 +13,7 @@ using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
 using ErrorOr;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OpenApi;
@@ -26,6 +22,11 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.ComponentModel;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -147,7 +148,22 @@ builder
     .AddJwtBearer(
         "RefreshBearer",
         options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
-    );
+    )
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        var clientId = builder.Configuration["Authentication:Google:ClientId"];
+        if (clientId is null)
+            throw new NullReferenceException(nameof(clientId));
+
+        var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        if (clientSecret is null)
+            throw new NullReferenceException(nameof(clientSecret));
+
+        options.ClientId = clientId;
+        options.ClientSecret = clientSecret;
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    });
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
@@ -201,6 +217,7 @@ builder
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
+builder.Services.AddScoped<IOAuthService, OAuthService>();
 builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();

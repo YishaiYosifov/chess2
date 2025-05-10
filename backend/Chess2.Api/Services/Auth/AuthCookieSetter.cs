@@ -41,7 +41,7 @@ public class AuthCookieSetter(
 
     public void SetRefreshCookie(string refreshToken, HttpContext context)
     {
-        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController));
+        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
         context.Response.Cookies.Append(
             _jwtSettings.RefreshTokenCookieName,
             refreshToken,

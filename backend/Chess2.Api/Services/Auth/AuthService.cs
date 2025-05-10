@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Errors;
+﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
@@ -8,17 +6,16 @@ using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
-    Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest userIn);
-    Task<ErrorOr<(Tokens tokens, AuthedUser user)>> SigninAsync(
-        string usernameOrEmail,
-        string password
-    );
+    Task<ErrorOr<AuthedUser>> SignupAsync(string username, string email);
+    Task<ErrorOr<Tokens>> SigninAsync(AuthedUser user, UserLoginInfo loginInfo);
     Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
         ClaimsPrincipal? userClaims
     );
@@ -29,17 +26,13 @@ public class AuthService(
     IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
-    UserManager<AuthedUser> userManager,
-    SignInManager<AuthedUser> signinManager,
-    IAuthCookieSetter authCookieSetter
+    UserManager<AuthedUser> userManager
 ) : IAuthService
 {
     private readonly AppSettings _settings = settings.Value;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
-    private readonly SignInManager<AuthedUser> _signinManager = signinManager;
     private readonly ILogger<AuthService> _logger = logger;
-    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -70,34 +63,19 @@ public class AuthService(
     }
 
     /// <summary>
-    /// Register a new user
+    /// Create a new user
     /// </summary>
     /// <param name="signupRequest">The user DTO received from the client</param>
-    public async Task<ErrorOr<AuthedUser>> SignupAsync(SignupRequest signupRequest)
+    public async Task<ErrorOr<AuthedUser>> SignupAsync(string username, string email)
     {
-        var dbUser = new AuthedUser()
-        {
-            UserName = signupRequest.UserName,
-            Email = signupRequest.Email,
-            CountryCode = signupRequest.CountryCode,
-        };
+        var dbUser = new AuthedUser() { UserName = username, Email = email };
 
-        // make sure there are no conflicts
-        var conflictErrors = new List<Error>();
-        if (await _userManager.FindByNameAsync(signupRequest.UserName) is not null)
-            conflictErrors.Add(UserErrors.UsernameTaken);
-        if (await _userManager.FindByEmailAsync(signupRequest.Email) is not null)
-            conflictErrors.Add(UserErrors.EmailTaken);
-
-        if (conflictErrors.Count != 0)
-            return conflictErrors;
-
-        var createdUserResult = await _userManager.CreateAsync(dbUser, signupRequest.Password);
+        var createdUserResult = await _userManager.CreateAsync(dbUser);
         if (!createdUserResult.Succeeded)
         {
             _logger.LogWarning(
                 "Failed to create user {Username} with errors: {Errors}",
-                signupRequest.UserName,
+                username,
                 createdUserResult.Errors
             );
             return createdUserResult.Errors.ToErrorList();
@@ -109,24 +87,11 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<(Tokens tokens, AuthedUser user)>> SigninAsync(
-        string usernameOrEmail,
-        string password
-    )
+    public async Task<ErrorOr<Tokens>> SigninAsync(AuthedUser user, UserLoginInfo loginInfo)
     {
-        var user =
-            await _userManager.FindByEmailAsync(usernameOrEmail)
-            ?? await _userManager.FindByNameAsync(usernameOrEmail);
-        if (user is null)
-            return UserErrors.BadCredentials;
-
-        var signinResult = await _signinManager.CheckPasswordSignInAsync(
-            user,
-            password,
-            lockoutOnFailure: false
-        );
-        if (!signinResult.Succeeded)
-            return UserErrors.BadCredentials;
+        var loginResult = await HandleLoginMethods(user, loginInfo);
+        if (loginResult.IsError)
+            return loginResult.Errors;
 
         var accessTokenExpiresTimestamp = DateTimeOffset
             .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
@@ -137,7 +102,25 @@ public class AuthService(
             AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
-        return (tokens, user);
+        return tokens;
+    }
+
+    private async Task<ErrorOr<Success>> HandleLoginMethods(
+        AuthedUser user,
+        UserLoginInfo loginInfo
+    )
+    {
+        var existingLogin = await _userManager.FindByLoginAsync(
+            loginInfo.LoginProvider,
+            loginInfo.ProviderKey
+        );
+        if (existingLogin is not null)
+            return existingLogin.Id == user.Id ? Result.Success : AuthErrors.OAuthLoginConflict;
+
+        var loginResult = await _userManager.AddLoginAsync(user, loginInfo);
+        if (!loginResult.Succeeded)
+            return loginResult.Errors.ToErrorList();
+        return Result.Success;
     }
 
     /// <summary>
