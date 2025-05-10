@@ -11,10 +11,10 @@ public interface IChess2Api
     Task<IApiResponse<PrivateUserOut>> SignupAsync([Body] SignupRequest userIn);
 
     [Post("/api/auth/signin")]
-    Task<IApiResponse<AuthResponseDTO>> SigninAsync([Body] SigninRequest userLogin);
+    Task<IApiResponse<PrivateUserOut>> SigninAsync([Body] SigninRequest userLogin);
 
     [Post("/api/auth/refresh")]
-    Task<IApiResponse<AuthResponseDTO>> RefreshTokenAsync();
+    Task<IApiResponse> RefreshTokenAsync();
 
     [Post("/api/auth/guest")]
     Task<IApiResponse> CreateGuestAsync();
