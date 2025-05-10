@@ -9,18 +9,18 @@ const GENERIC_ERROR = "Something went wrong.";
 const COOKIES = {
     REFRESH_TOKEN: "refreshToken",
     ACCESS_TOKEN: "accessToken",
-    LAST_REFRESH: "lastRefresh",
+    IS_AUTHED: "isAuthed",
     SIDEBAR_COLLAPSED: "sidebarCollapsed",
 };
 
 const PATHS = {
     LOGIN: "/login",
     LOGOUT: "/logout",
-    REFRESH: "/api/auth/refresh",
+    REFRESH: "/refresh",
 };
 
 const HEADERS = {
-    REFRESH_REDIRECT: "X-REFRESH-REDIRECT",
+    REFRESH_REDIRECT: "x-refresh-redirect",
 };
 
 const SETTING_PAGES = [

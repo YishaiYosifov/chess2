@@ -2,7 +2,7 @@ import { Secular_One } from "next/font/google";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 
-import "./globals.css";
+import "../globals.css";
 
 import AuthContextProvider from "@/contexts/authContext";
 import WSPushAction from "@/components/WSPushAction";
