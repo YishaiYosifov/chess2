@@ -40,7 +40,7 @@ public class OAuthService(
     {
         var redirectUrl = _linkGenerator.GetPathByAction(
             context,
-            nameof(AuthController.SigninGoogleCallback)
+            nameof(OAuthController.SigninGoogleCallback)
         );
         redirectUrl += $"?returnUrl={frontRedirectUrl}";
 

@@ -9,33 +9,14 @@ namespace Chess2.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(
-    ILogger<AuthController> logger,
     IAuthService authService,
-    IOAuthService oAuthService,
     IGuestService guestService,
     IAuthCookieSetter authCookieSetter
 ) : Controller
 {
     private readonly IGuestService _guestService = guestService;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
-    private readonly ILogger<AuthController> _logger = logger;
     private readonly IAuthService _authService = authService;
-    private readonly IOAuthService _oAuthService = oAuthService;
-
-    [HttpGet("signin/google", Name = nameof(SigninGoogle))]
-    [ProducesResponseType(StatusCodes.Status302Found)]
-    public ActionResult SigninGoogle([FromQuery] string returnUrl)
-    {
-        var properties = _oAuthService.ConfigureGoogleOAuthProperties(returnUrl, HttpContext);
-        return Challenge(properties, ["Google"]);
-    }
-
-    [HttpGet("signin/google/callback", Name = nameof(SigninGoogleCallback))]
-    public async Task<ActionResult> SigninGoogleCallback([FromQuery] string returnUrl)
-    {
-        var result = await _oAuthService.AuthenticateGoogleAsync(HttpContext);
-        return result.Match(value => Redirect(returnUrl), errors => errors.ToActionResult());
-    }
 
     [HttpPost("refresh", Name = nameof(Refresh))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
