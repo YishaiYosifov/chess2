@@ -6,12 +6,8 @@ import type {
     Client,
 } from "@hey-api/client-next";
 import type {
-    SignupData,
-    SignupResponse,
-    SignupError,
-    SigninData,
-    SigninResponse,
-    SigninError,
+    SigninGoogleData,
+    SigninGoogleCallbackData,
     RefreshData,
     RefreshResponse,
     RefreshError,
@@ -57,37 +53,29 @@ export type Options<
     meta?: Record<string, unknown>;
 };
 
-export const signup = <ThrowOnError extends boolean = false>(
-    options: Options<SignupData, ThrowOnError>,
+export const signinGoogle = <ThrowOnError extends boolean = false>(
+    options?: Options<SigninGoogleData, ThrowOnError>,
 ) => {
-    return (options.client ?? _heyApiClient).post<
-        SignupResponse,
-        SignupError,
+    return (options?.client ?? _heyApiClient).get<
+        unknown,
+        unknown,
         ThrowOnError
     >({
-        url: "/api/Auth/signup",
+        url: "/api/Auth/signin/google",
         ...options,
-        headers: {
-            "Content-Type": "application/json-patch+json",
-            ...options?.headers,
-        },
     });
 };
 
-export const signin = <ThrowOnError extends boolean = false>(
-    options: Options<SigninData, ThrowOnError>,
+export const signinGoogleCallback = <ThrowOnError extends boolean = false>(
+    options?: Options<SigninGoogleCallbackData, ThrowOnError>,
 ) => {
-    return (options.client ?? _heyApiClient).post<
-        SigninResponse,
-        SigninError,
+    return (options?.client ?? _heyApiClient).get<
+        unknown,
+        unknown,
         ThrowOnError
     >({
-        url: "/api/Auth/signin",
+        url: "/api/Auth/signin/google/callback",
         ...options,
-        headers: {
-            "Content-Type": "application/json-patch+json",
-            ...options?.headers,
-        },
     });
 };
 

@@ -14,19 +14,4 @@ yup.addMethod(yup.string, "username", function () {
         );
 });
 
-yup.addMethod(yup.string, "email", function () {
-    return this.required("email is required")
-        .matches(/[\w\.-]+@[\w\.-]+(\.[\w]+)+/g, "Invalid Email")
-        .max(256, "Email Too Long");
-});
-
-yup.addMethod(yup.string, "password", function () {
-    return this.required("password is required").min(
-        8,
-        "password must be at least 8 characters long",
-    );
-});
-
 export const usernameSchema = yup.string().username();
-export const emailSchema = yup.string().email();
-export const passwordSchema = yup.string().password();
