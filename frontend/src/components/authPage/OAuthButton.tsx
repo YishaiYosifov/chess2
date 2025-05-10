@@ -31,8 +31,8 @@ const OAuthButton = ({
     return (
         <Button
             className={clsx(
-                `flex w-full items-center justify-center gap-3 bg-white px-2 font-sans
-                text-[20px] font-bold text-black`,
+                `flex items-center justify-center gap-3 bg-white px-2 font-sans text-[20px]
+                font-bold text-black`,
                 className,
             )}
             onClick={oAuthLogin}
