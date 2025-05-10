@@ -59,7 +59,7 @@ public class OAuthService(
             return AuthErrors.OAuthInvalid;
 
         var claimsPrincipal = result.Principal;
-        var userResult = await GetOAuthAuthenticateUserAsync(claimsPrincipal);
+        var userResult = await GetUserFromOAuthClaimsAsync(claimsPrincipal);
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
@@ -81,7 +81,7 @@ public class OAuthService(
         return user;
     }
 
-    private async Task<ErrorOr<AuthedUser>> GetOAuthAuthenticateUserAsync(
+    private async Task<ErrorOr<AuthedUser>> GetUserFromOAuthClaimsAsync(
         ClaimsPrincipal? claimsPrincipal
     )
     {
