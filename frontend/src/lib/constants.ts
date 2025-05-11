@@ -8,7 +8,7 @@ const GENERIC_ERROR = "Something went wrong.";
 
 export enum OAuthProvider {
     GOOGLE = "google",
-    APPLE = "apple",
+    DISCORD = "discord",
 }
 
 const COOKIES = {
