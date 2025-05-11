@@ -14,8 +14,14 @@ public class OAuthController(IOAuthService oAuthService) : Controller
     [ProducesResponseType(StatusCodes.Status302Found)]
     public ActionResult SigninGoogle([FromQuery] string returnUrl)
     {
-        var properties = _oAuthService.ConfigureGoogleOAuthProperties(returnUrl, HttpContext);
-        return Challenge(properties, ["Google"]);
+        const string provider = "google";
+        var properties = _oAuthService.ConfigureOAuthProperties(
+            provider,
+            returnUrl,
+            nameof(SigninGoogleCallback),
+            HttpContext
+        );
+        return Challenge(properties, [provider]);
     }
 
     [HttpGet("google/callback", Name = nameof(SigninGoogleCallback))]
