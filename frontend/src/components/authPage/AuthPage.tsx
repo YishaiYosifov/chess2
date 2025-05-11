@@ -5,7 +5,7 @@ import React from "react";
 
 import { OAuthProvider } from "@/lib/constants";
 import googleIcon from "@public/assets/oauth/google.svg";
-import appleIcon from "@public/assets/oauth/apple.svg";
+import discordIcon from "@public/assets/oauth/discord.svg";
 
 import LogoText from "@public/assets/logo-text.svg";
 import AuthPageImage from "./AuthPageImage";
@@ -23,11 +23,10 @@ const AuthPage = () => {
                         icon={<Image src={googleIcon} alt="Google Icon" />}
                         loginText="Continue with Google"
                     />
-
                     <OAuthButton
-                        oauthProvider={OAuthProvider.APPLE}
-                        icon={<Image src={appleIcon} alt="Apple Icon" />}
-                        loginText="Continue with Apple"
+                        oauthProvider={OAuthProvider.DISCORD}
+                        icon={<Image src={discordIcon} alt="Discord Icon" />}
+                        loginText="Continue with Discord"
                     />
                 </div>
             </section>

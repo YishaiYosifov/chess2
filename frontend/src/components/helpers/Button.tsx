@@ -10,7 +10,7 @@ const Button = ({
     return (
         <button
             className={clsx(
-                "rounded-md bg-primary p-2 text-3xl disabled:bg-primary/50 disabled:text-text/50",
+                "bg-primary disabled:bg-primary/50 disabled:text-text/50 rounded-md p-2 text-3xl",
                 className,
             )}
             {...buttonProps}
