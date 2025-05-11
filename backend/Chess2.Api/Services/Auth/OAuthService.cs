@@ -1,20 +1,20 @@
-﻿using Chess2.Api.Controllers;
+﻿using System.Security.Claims;
 using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IOAuthService
 {
     Task<ErrorOr<AuthedUser>> AuthenticateGoogleAsync(HttpContext context);
-    AuthenticationProperties ConfigureGoogleOAuthProperties(
+    AuthenticationProperties ConfigureOAuthProperties(
+        string provider,
         string frontRedirectUrl,
+        string callbackEndpointName,
         HttpContext context
     );
 }
@@ -29,32 +29,29 @@ public class OAuthService(
 {
     private readonly LinkGenerator _linkGenerator = linkGenerator;
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
+    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
-    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
 
-    public AuthenticationProperties ConfigureGoogleOAuthProperties(
+    public AuthenticationProperties ConfigureOAuthProperties(
+        string provider,
         string frontRedirectUrl,
+        string callbackEndpointName,
         HttpContext context
     )
     {
-        var redirectUrl = _linkGenerator.GetPathByAction(
-            context,
-            nameof(OAuthController.SigninGoogleCallback)
-        );
+        var redirectUrl = _linkGenerator.GetPathByAction(context, callbackEndpointName);
         redirectUrl += $"?returnUrl={frontRedirectUrl}";
 
-        var properties = _signinManager.ConfigureExternalAuthenticationProperties(
-            "google",
-            redirectUrl
-        );
+        var properties = new AuthenticationProperties() { RedirectUri = redirectUrl };
 
         return properties;
     }
 
     public async Task<ErrorOr<AuthedUser>> AuthenticateGoogleAsync(HttpContext context)
     {
-        var result = await context.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        //var result = await context.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        var result = await context.AuthenticateAsync("Google");
         if (!result.Succeeded)
             return AuthErrors.OAuthInvalid;
 
