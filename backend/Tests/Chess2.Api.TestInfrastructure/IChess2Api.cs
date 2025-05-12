@@ -7,11 +7,9 @@ namespace Chess2.Api.TestInfrastructure;
 public interface IChess2Api
 {
     #region Auth Controller
-    [Post("/api/auth/signup")]
-    Task<IApiResponse<PrivateUserOut>> SignupAsync([Body] SignupRequest userIn);
 
-    [Post("/api/auth/signin")]
-    Task<IApiResponse<PrivateUserOut>> SigninAsync([Body] SigninRequest userLogin);
+    [Get("/api/oauth/signin/{provider}")]
+    Task<IApiResponse<Tokens>> OAuthLoginAsync([AliasAs("provider")] string provider);
 
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();

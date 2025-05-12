@@ -59,16 +59,17 @@ public static class AuthTestUtils
         string? password = null
     )
     {
-        var response = await apiClient.SigninAsync(
-            new()
-            {
-                UsernameOrEmail = user.UserName!,
-                Password = password ?? AuthedUserFaker.Password,
-            }
-        );
-        response.IsSuccessful.Should().BeTrue();
+        throw new NotImplementedException();
+        //var response = await apiClient.SigninAsync(
+        //    new()
+        //    {
+        //        UsernameOrEmail = user.UserName!,
+        //        Password = password ?? AuthedUserFaker.Password,
+        //    }
+        //);
+        //response.IsSuccessful.Should().BeTrue();
 
-        return response.Content!;
+        //return response.Content!;
     }
 
     public static async Task<(AuthedUser User, Tokens Tokens)> Authenticate(
