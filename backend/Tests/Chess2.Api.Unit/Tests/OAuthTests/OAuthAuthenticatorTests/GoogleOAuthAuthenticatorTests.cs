@@ -13,15 +13,10 @@ public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleO
 
     protected override GoogleOAuthAuthenticator CreateAuthenticator() => new(AuthServiceMock);
 
-    protected override Claim? CreateProviderKeyClaim(string? key)
-    {
-        if (key is null)
-            return null;
-        return new(ClaimTypes.Email, key);
-    }
+    protected override Claim CreateProviderKeyClaim(string key) => new(ClaimTypes.Email, key);
 
     [Fact]
-    public async Task User_is_created_correctly()
+    public async Task SignUserUp_create_a_user_correctly()
     {
         var user = new AuthedUserFaker().Generate();
         var email = "test@email.com";
