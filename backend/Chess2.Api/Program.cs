@@ -149,23 +149,6 @@ builder
         options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
     );
 
-//.AddCookie()
-//.AddGoogle(options =>
-//{
-//    var clientId = builder.Configuration["Authentication:Google:ClientId"];
-//    if (clientId is null)
-//        throw new NullReferenceException(nameof(clientId));
-
-//    var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-//    if (clientSecret is null)
-//        throw new NullReferenceException(nameof(clientSecret));
-
-//    options.ClientId = clientId;
-//    options.ClientSecret = clientSecret;
-//    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-//})
-
-
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
 {
     options.RequireHttpsMetadata = builder.Environment.IsProduction();
@@ -202,28 +185,30 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     };
 }
 
-builder.Services.AddOpenIddict()
+builder
+    .Services.AddOpenIddict()
     .AddClient(options =>
     {
         options.DisableTokenStorage();
         options.AllowAuthorizationCodeFlow();
 
-        options.UseWebProviders().AddDiscord(options =>
-        {
-            var clientId = builder.Configuration["Authentication:Discord:ClientId"]
-                ?? throw new KeyNotFoundException("Discord OAuth Client Id");
-            var clientSecret = builder.Configuration["Authentication:Discord:ClientSecret"]
-                ?? throw new KeyNotFoundException("Discord OAuth Client Secret");
+        options
+            .UseWebProviders()
+            .AddDiscord(options =>
+            {
+                var clientId =
+                    builder.Configuration["Authentication:Discord:ClientId"]
+                    ?? throw new KeyNotFoundException("Discord OAuth Client Id");
+                var clientSecret =
+                    builder.Configuration["Authentication:Discord:ClientSecret"]
+                    ?? throw new KeyNotFoundException("Discord OAuth Client Secret");
 
-            options.SetClientId(clientId);
-            options.SetClientSecret(clientSecret);
-            options.SetRedirectUri()
-        });
+                options.SetClientId(clientId);
+                options.SetClientSecret(clientSecret);
+                options.SetRedirectUri("api/oauth/google/callback");
+            });
 
-        options.UseAspNetCore()
-                .EnableRedirectionEndpointPassthrough()
-                .DisableAutomaticAuthenticationSchemeForwarding();
-
+        options.UseAspNetCore().EnableRedirectionEndpointPassthrough();
         options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
     });
 
