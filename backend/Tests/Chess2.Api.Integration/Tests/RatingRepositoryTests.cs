@@ -101,7 +101,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
     public async Task Rating_is_created_when_missing()
     {
         var timeControl = TimeControl.Blitz;
-        var user = await FakerUtils.StoreFaker(DbContext, new AuthedUserFaker());
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
         var results = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl);
 
