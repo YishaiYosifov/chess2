@@ -5,8 +5,6 @@ using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using OpenIddict.Client.AspNetCore;
-using OpenIddict.Client.WebIntegration;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace Chess2.Api.Services.Auth;
@@ -14,11 +12,6 @@ namespace Chess2.Api.Services.Auth;
 public interface IOAuthService
 {
     Task<ErrorOr<AuthedUser>> AuthenticateGoogleAsync(HttpContext context);
-    AuthenticationProperties ConfigureOAuthProperties(
-        string provider,
-        string callbackEndpointName,
-        HttpContext context
-    );
 }
 
 public class OAuthService(
@@ -29,30 +22,15 @@ public class OAuthService(
     IAuthCookieSetter authCookieSetter
 ) : IOAuthService
 {
-    private readonly LinkGenerator _linkGenerator = linkGenerator;
     private readonly SignInManager<AuthedUser> _signinManager = signinManager;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
 
-    public AuthenticationProperties ConfigureOAuthProperties(
-        string provider,
-        string callbackEndpointName,
-        HttpContext context
-    )
-    {
-        var redirectUrl = _linkGenerator.GetPathByAction(context, callbackEndpointName);
-        var properties = new AuthenticationProperties(new Dictionary<string, string?>
-        {
-            [OpenIddictClientAspNetCoreConstants.Properties.ProviderName] = provider
-        }) { RedirectUri = redirectUrl };
-        return properties;
-    }
-
     public async Task<ErrorOr<AuthedUser>> AuthenticateGoogleAsync(HttpContext context)
     {
         //var result = await context.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-        var result = await context.AuthenticateAsync(OpenIddictClientWebIntegrationConstants.Providers.Discord);
+        var result = await context.AuthenticateAsync(Providers.Discord);
         if (!result.Succeeded)
             return AuthErrors.OAuthInvalid;
 
