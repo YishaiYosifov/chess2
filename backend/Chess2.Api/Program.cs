@@ -202,6 +202,31 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     };
 }
 
+builder.Services.AddOpenIddict()
+    .AddClient(options =>
+    {
+        options.DisableTokenStorage();
+        options.AllowAuthorizationCodeFlow();
+
+        options.UseWebProviders().AddDiscord(options =>
+        {
+            var clientId = builder.Configuration["Authentication:Discord:ClientId"]
+                ?? throw new KeyNotFoundException("Discord OAuth Client Id");
+            var clientSecret = builder.Configuration["Authentication:Discord:ClientSecret"]
+                ?? throw new KeyNotFoundException("Discord OAuth Client Secret");
+
+            options.SetClientId(clientId);
+            options.SetClientSecret(clientSecret);
+            options.SetRedirectUri()
+        });
+
+        options.UseAspNetCore()
+                .EnableRedirectionEndpointPassthrough()
+                .DisableAutomaticAuthenticationSchemeForwarding();
+
+        options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
+    });
+
 builder
     .Services.AddIdentityCore<AuthedUser>(options =>
     {
