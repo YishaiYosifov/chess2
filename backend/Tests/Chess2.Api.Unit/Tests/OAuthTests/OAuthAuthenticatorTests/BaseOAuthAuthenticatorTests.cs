@@ -27,31 +27,29 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
         provider.Should().Be(Provider);
     }
 
-    [Theory]
-    [InlineData("123123")]
-    [InlineData(null)]
-    public void Correct_provider_key_is_found(string? expectedProviderKey)
+    [Fact]
+    public void GetProviderKey_returns_the_correct_value()
     {
-        var claims = new List<Claim>();
-
-        var claim = CreateProviderKeyClaim(expectedProviderKey);
-        if (claim is not null)
-            claims.Add(claim);
-
-        var identity = new ClaimsIdentity(claims, "TestAuthType");
+        var key = "test";
+        var claim = CreateProviderKeyClaim(key);
+        var identity = new ClaimsIdentity([claim], "TestAuthType");
         var claimsPrincipal = new ClaimsPrincipal(identity);
 
         var providerKeyResult = Authenticator.GetProviderKey(claimsPrincipal);
 
-        if (expectedProviderKey is null)
-        {
-            providerKeyResult.IsError.Should().BeTrue();
-        }
-        else
-        {
-            providerKeyResult.IsError.Should().BeFalse();
-            providerKeyResult.Value.Should().Be(expectedProviderKey);
-        }
+        providerKeyResult.IsError.Should().BeFalse();
+        providerKeyResult.Value.Should().Be(key);
+    }
+
+    [Fact]
+    public void GetProviderKey_returns_an_error_when_the_claim_is_missing()
+    {
+        var identity = new ClaimsIdentity([], "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var providerKeyResult = Authenticator.GetProviderKey(claimsPrincipal);
+
+        providerKeyResult.IsError.Should().BeTrue();
     }
 
     [Fact]
@@ -67,5 +65,5 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
     }
 
     protected abstract TAuthenticator CreateAuthenticator();
-    protected abstract Claim? CreateProviderKeyClaim(string? key);
+    protected abstract Claim CreateProviderKeyClaim(string key);
 }
