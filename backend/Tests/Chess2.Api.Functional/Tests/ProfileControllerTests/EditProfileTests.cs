@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Chess2.Api.Functional.Utils;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -45,7 +44,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     public async Task Edit_username_with_valid_data()
     {
         var newUsername = "new-test-username";
-        var user = await FakerUtils.StoreFaker(
+        var user = await FakerUtils.StoreFakerAsync(
             DbContext,
             new AuthedUserFaker().RuleFor(
                 x => x.UsernameLastChanged,

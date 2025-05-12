@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Chess2.Api.Functional.Utils;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -41,7 +40,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     public async Task Refresh_after_password_change()
     {
         var passwordChanged = DateTime.UtcNow.AddSeconds(2);
-        var user = await FakerUtils.StoreFaker(
+        var user = await FakerUtils.StoreFakerAsync(
             DbContext,
             new AuthedUserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged)
         );
