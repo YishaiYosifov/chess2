@@ -256,7 +256,6 @@ builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
 #region Validation
 ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
 builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>();
-builder.Services.AddScoped<IValidator<SignupRequest>, SignupValidator>();
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
