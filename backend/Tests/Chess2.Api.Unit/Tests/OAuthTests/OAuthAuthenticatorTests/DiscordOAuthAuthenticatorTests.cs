@@ -22,7 +22,19 @@ public class DiscordOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<Discor
     }
 
     [Fact]
-    public async Task User_is_created_correctly()
+    public void GetProviderKey_with_missing_user_id_returns_an_error()
+    {
+        var claim = CreateProviderKeyClaim(null);
+        var identity = new ClaimsIdentity([claim], "TestAuthType");
+        var claimsPrincipal = new ClaimsPrincipal(identity);
+
+        var providerKeyResult = Authenticator.GetProviderKey(claimsPrincipal);
+
+        providerKeyResult.IsError.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SignUserUp_create_a_user_correctly()
     {
         var user = new AuthedUserFaker().Generate();
         AuthServiceMock.SignupAsync("test", default, default).Returns(user);
