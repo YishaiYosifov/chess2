@@ -20,5 +20,8 @@ public static class AuthErrors
         Error.Unauthorized(ErrorCodes.AuthOAuthInvalid, "Could not authenticate via OAuth");
 
     public static Error OAuthLoginConflict =>
-        Error.Conflict(ErrorCodes.AuthOauthLoginConflict, "An external login already exists");
+        Error.Conflict(ErrorCodes.AuthOAuthLoginConflict, "An external login already exists");
+
+    public static Error OAuthProviderNotFound =>
+        Error.NotFound(ErrorCodes.AuthOAuthProviderNotFound, "The OAuth provider was not found");
 }
