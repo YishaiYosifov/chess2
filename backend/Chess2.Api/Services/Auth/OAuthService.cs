@@ -1,8 +1,11 @@
-﻿using Chess2.Api.Errors;
+﻿using System.Security.Claims;
+using Chess2.Api.Errors;
 using Chess2.Api.Models.DTOs;
+using Chess2.Api.Models.Entities;
 using Chess2.Api.Services.Auth.OAuthAuthenticators;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using OpenIddict.Client.AspNetCore;
 
 namespace Chess2.Api.Services.Auth;
@@ -14,12 +17,14 @@ public interface IOAuthService
 
 public class OAuthService(
     IEnumerable<IOAuthAuthenticator> oauthAuthenticators,
+    UserManager<AuthedUser> userManager,
     IAuthService authService
 ) : IOAuthService
 {
-    private readonly Dictionary<string, IOAuthAuthenticator> _oauthAuthenticators =
+    private readonly Dictionary<string, IOAuthAuthenticator> _authenticators =
         oauthAuthenticators.ToDictionary(x => x.Provider, x => x);
 
+    private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
 
     public async Task<ErrorOr<Tokens>> AuthenticateAsync(string provider, HttpContext context)
@@ -31,12 +36,21 @@ public class OAuthService(
             return AuthErrors.OAuthInvalid;
 
         var claimsPrincipal = result.Principal;
-        var oauthAuthenticatorResult = GetOAuthAuthenticator(provider);
+        var oauthAuthenticatorResult = GetAuthenticator(provider);
         if (oauthAuthenticatorResult.IsError)
             return oauthAuthenticatorResult.Errors;
         var oauthAuthenticator = oauthAuthenticatorResult.Value;
 
-        var userResult = await oauthAuthenticator.AuthenticateAsync(claimsPrincipal);
+        var providerKeyResult = oauthAuthenticator.GetProviderKey(claimsPrincipal);
+        if (providerKeyResult.IsError)
+            return providerKeyResult.Errors;
+        var providerKey = providerKeyResult.Value;
+
+        var userResult = await GetOrCreateUserAsync(
+            oauthAuthenticator,
+            claimsPrincipal,
+            providerKey
+        );
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
@@ -49,8 +63,35 @@ public class OAuthService(
         return tokens;
     }
 
-    private ErrorOr<IOAuthAuthenticator> GetOAuthAuthenticator(string provider) =>
-        _oauthAuthenticators.TryGetValue(provider, out var authenticator)
+    private async Task<ErrorOr<AuthedUser>> GetOrCreateUserAsync(
+        IOAuthAuthenticator authenticator,
+        ClaimsPrincipal claimsPrincipal,
+        string providerKey
+    )
+    {
+        var existingLogin = await _userManager.FindByLoginAsync(
+            authenticator.Provider,
+            providerKey
+        );
+        if (existingLogin is not null)
+            return existingLogin;
+
+        var signupResult = await authenticator.SignUserUp(claimsPrincipal, providerKey);
+        if (signupResult.IsError)
+            return signupResult.Errors;
+        var newUser = signupResult.Value;
+
+        var loginInfo = new UserLoginInfo(
+            authenticator.Provider,
+            providerKey,
+            authenticator.Provider
+        );
+        await _userManager.AddLoginAsync(newUser, loginInfo);
+        return signupResult;
+    }
+
+    private ErrorOr<IOAuthAuthenticator> GetAuthenticator(string provider) =>
+        _authenticators.TryGetValue(provider, out var authenticator)
             ? ErrorOrFactory.From(authenticator)
             : AuthErrors.OAuthProviderNotFound;
 }

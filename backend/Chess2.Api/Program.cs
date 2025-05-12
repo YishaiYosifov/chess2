@@ -206,6 +206,7 @@ builder
 
                 options.SetClientId(clientId);
                 options.SetClientSecret(clientSecret);
+                options.AddScopes("email");
                 options.SetRedirectUri("api/oauth/google/callback");
             })
             .AddDiscord(options =>
