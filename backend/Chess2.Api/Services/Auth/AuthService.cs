@@ -103,13 +103,9 @@ public class AuthService(
     /// </summary>
     public ErrorOr<Tokens> Signin(AuthedUser user, HttpContext context)
     {
-        var accessTokenExpiresTimestamp = DateTimeOffset
-            .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
-            .ToUnixTimeSeconds();
         var tokens = new Tokens()
         {
             AccessToken = _tokenProvider.GenerateAccessToken(user),
-            AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
 
@@ -146,15 +142,11 @@ public class AuthService(
         if (tokenCreationTimestamp < passwordChangedTimestamp)
             return Error.Unauthorized();
 
-        var accessTokenExpiresTimestamp = DateTimeOffset
-            .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
-            .ToUnixTimeSeconds();
         var newAccessToken = _tokenProvider.GenerateAccessToken(user);
         var newRefreshToken = ""; // TODO!!!!
         var newTokens = new Tokens()
         {
             AccessToken = newAccessToken,
-            AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = newRefreshToken,
         };
 
