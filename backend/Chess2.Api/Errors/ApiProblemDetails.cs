@@ -25,5 +25,6 @@ public static class ErrorCodes
     public const string AuthTokenMissing = "Auth.TokenMissing";
     public const string AuthTokenInvalid = "Auth.TokenInvalid";
     public const string AuthOAuthInvalid = "Auth.OAuth.Invalid";
-    public const string AuthOauthLoginConflict = "Auth.OAuth.LoginConflict";
+    public const string AuthOAuthLoginConflict = "Auth.OAuth.LoginConflict";
+    public const string AuthOAuthProviderNotFound = "Auth.OAuth.ProviderNotFound";
 }
