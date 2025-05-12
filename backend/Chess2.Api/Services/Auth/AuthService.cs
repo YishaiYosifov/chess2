@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Errors;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
@@ -6,16 +7,18 @@ using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
-    Task<ErrorOr<AuthedUser>> SignupAsync(string username, string email);
-    Task<ErrorOr<Tokens>> SigninAsync(AuthedUser user, UserLoginInfo loginInfo);
+    Task<ErrorOr<AuthedUser>> SignupAsync(
+        string username,
+        string? email = null,
+        string? countryCode = null
+    );
+    ErrorOr<Tokens> Signin(AuthedUser user, HttpContext context);
     Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
         ClaimsPrincipal? userClaims
     );
@@ -26,12 +29,14 @@ public class AuthService(
     IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
-    UserManager<AuthedUser> userManager
+    UserManager<AuthedUser> userManager,
+    IAuthCookieSetter authCookieSetter
 ) : IAuthService
 {
     private readonly AppSettings _settings = settings.Value;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly ILogger<AuthService> _logger = logger;
 
     /// <summary>
@@ -66,9 +71,18 @@ public class AuthService(
     /// Create a new user
     /// </summary>
     /// <param name="signupRequest">The user DTO received from the client</param>
-    public async Task<ErrorOr<AuthedUser>> SignupAsync(string username, string email)
+    public async Task<ErrorOr<AuthedUser>> SignupAsync(
+        string username,
+        string? email = null,
+        string? countryCode = null
+    )
     {
-        var dbUser = new AuthedUser() { UserName = username, Email = email };
+        var dbUser = new AuthedUser()
+        {
+            UserName = username,
+            Email = email,
+            CountryCode = countryCode,
+        };
 
         var createdUserResult = await _userManager.CreateAsync(dbUser);
         if (!createdUserResult.Succeeded)
@@ -87,12 +101,8 @@ public class AuthService(
     /// <summary>
     /// Log a user in if the username/email and passwords are correct
     /// </summary>
-    public async Task<ErrorOr<Tokens>> SigninAsync(AuthedUser user, UserLoginInfo loginInfo)
+    public ErrorOr<Tokens> Signin(AuthedUser user, HttpContext context)
     {
-        var loginResult = await HandleLoginMethods(user, loginInfo);
-        if (loginResult.IsError)
-            return loginResult.Errors;
-
         var accessTokenExpiresTimestamp = DateTimeOffset
             .UtcNow.AddSeconds(_settings.Jwt.AccessExpiresInSeconds)
             .ToUnixTimeSeconds();
@@ -102,25 +112,12 @@ public class AuthService(
             AccessTokenExpiresTimestamp = accessTokenExpiresTimestamp,
             RefreshToken = _tokenProvider.GenerateRefreshToken(user),
         };
+
+        _authCookieSetter.SetAccessCookie(tokens.AccessToken, context);
+        _authCookieSetter.SetRefreshCookie(tokens.RefreshToken, context);
+        _authCookieSetter.SetIsAuthedCookie(context);
+
         return tokens;
-    }
-
-    private async Task<ErrorOr<Success>> HandleLoginMethods(
-        AuthedUser user,
-        UserLoginInfo loginInfo
-    )
-    {
-        var existingLogin = await _userManager.FindByLoginAsync(
-            loginInfo.LoginProvider,
-            loginInfo.ProviderKey
-        );
-        if (existingLogin is not null)
-            return existingLogin.Id == user.Id ? Result.Success : AuthErrors.OAuthLoginConflict;
-
-        var loginResult = await _userManager.AddLoginAsync(user, loginInfo);
-        if (!loginResult.Succeeded)
-            return loginResult.Errors.ToErrorList();
-        return Result.Success;
     }
 
     /// <summary>

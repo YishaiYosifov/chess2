@@ -13,6 +13,7 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services;
 using Chess2.Api.Services.Auth;
+using Chess2.Api.Services.Auth.OAuthAuthenticators;
 using Chess2.Api.Services.Matchmaking;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
@@ -194,6 +195,19 @@ builder
 
         options
             .UseWebProviders()
+            .AddGoogle(options =>
+            {
+                var clientId =
+                    builder.Configuration["Authentication:Google:ClientId"]
+                    ?? throw new KeyNotFoundException("Google OAuth Client Id");
+                var clientSecret =
+                    builder.Configuration["Authentication:Google:ClientSecret"]
+                    ?? throw new KeyNotFoundException("Google OAuth Client Secret");
+
+                options.SetClientId(clientId);
+                options.SetClientSecret(clientSecret);
+                options.SetRedirectUri("api/oauth/google/callback");
+            })
             .AddDiscord(options =>
             {
                 var clientId =
@@ -205,7 +219,7 @@ builder
 
                 options.SetClientId(clientId);
                 options.SetClientSecret(clientSecret);
-                options.SetRedirectUri("api/oauth/google/callback");
+                options.SetRedirectUri("api/oauth/discord/callback");
             });
 
         options.UseAspNetCore().EnableRedirectionEndpointPassthrough();
@@ -223,16 +237,19 @@ builder
             RequireUppercase = false,
             RequireNonAlphanumeric = false,
         };
-        options.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddApiEndpoints();
 
 builder.Services.AddScoped<IOAuthService, OAuthService>();
+builder.Services.AddScoped<IOAuthProviderNameNormalizer, OAuthProviderNameNormalizer>();
 builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddSingleton<IAuthCookieSetter, AuthCookieSetter>();
+
+builder.Services.AddScoped<IOAuthAuthenticator, GoogleOAuthAuthenticator>();
+builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
 #endregion
 
 #region Validation
