@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
@@ -41,19 +42,35 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureServices(services =>
-        {
-            // remove the existing database context, use the one in a test container instead
-            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-            services.AddDbContextPool<ApplicationDbContext>(options =>
-                options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
-            );
+        builder
+            .ConfigureServices(services =>
+            {
+                // remove the existing database context, use the one in a test container instead
+                services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+                services.AddDbContextPool<ApplicationDbContext>(options =>
+                    options
+                        .UseNpgsql(_dbContainer.GetConnectionString())
+                        .UseSnakeCaseNamingConvention()
+                );
 
-            services.RemoveAll<IConnectionMultiplexer>();
-            services.AddSingleton<IConnectionMultiplexer>(
-                ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
+                services.RemoveAll<IConnectionMultiplexer>();
+                services.AddSingleton<IConnectionMultiplexer>(
+                    ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
+                );
+            })
+            .ConfigureAppConfiguration(
+                (context, config) =>
+                {
+                    var secrets = new Dictionary<string, string?>
+                    {
+                        { "Authentication:Google:ClientId", "test-google-client-id" },
+                        { "Authentication:Google:ClientSecret", "test-google-client-secret" },
+                        { "Authentication:Discord:ClientId", "test-discord-client-id" },
+                        { "Authentication:Discord:ClientSecret", "test-discord-client-secret" },
+                    };
+                    config.AddInMemoryCollection(secrets);
+                }
             );
-        });
     }
 
     /// <summary>
@@ -79,7 +96,10 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     /// Create an http client that follows the chess2 api schema
     /// </summary>
     public IChess2Api CreateTypedClient() =>
-        RestService.For<IChess2Api>(CreateClient(new() { BaseAddress = _baseUrl }), _refitSettings);
+        RestService.For<IChess2Api>(
+            CreateClient(new() { BaseAddress = _baseUrl, AllowAutoRedirect = false }),
+            _refitSettings
+        );
 
     public async Task ResetDatabaseAsync()
     {
