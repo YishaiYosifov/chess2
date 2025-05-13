@@ -34,12 +34,6 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     private Respawner _respawner = null!;
     private IDatabase _redisDb = null!;
 
-    private readonly RefitSettings _refitSettings = new()
-    {
-        ContentSerializer = new NewtonsoftJsonContentSerializer(),
-    };
-    private readonly Uri _baseUrl = new("https://localhost");
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder
@@ -73,33 +67,24 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             );
     }
 
-    /// <summary>
-    /// Create a client that follows the chess2 api schema
-    /// and has specific authentication tokens
-    /// </summary>
-    public IChess2Api CreateTypedClientWithTokens(
-        string? accessToken = null,
-        string? refreshToken = null
-    )
+    public ApiClient CreateApiClient()
     {
         var cookieContainer = new CookieContainer();
-        if (!string.IsNullOrEmpty(accessToken))
-            cookieContainer.Add(Server.BaseAddress, new Cookie("accessToken", accessToken));
-        if (!string.IsNullOrEmpty(refreshToken))
-            cookieContainer.Add(Server.BaseAddress, new Cookie("refreshToken", refreshToken));
+        var cookieHandler = new CookieContainerHandler(cookieContainer);
 
-        var handler = new CookieContainerHandler(cookieContainer);
-        return RestService.For<IChess2Api>(CreateDefaultClient(_baseUrl, handler), _refitSettings);
-    }
-
-    /// <summary>
-    /// Create an http client that follows the chess2 api schema
-    /// </summary>
-    public IChess2Api CreateTypedClient() =>
+        var httpClient = CreateDefaultClient(new Uri("https://localhost"), cookieHandler);
+        var apiClient = 
         RestService.For<IChess2Api>(
-            CreateClient(new() { BaseAddress = _baseUrl, AllowAutoRedirect = false }),
-            _refitSettings
+            httpClient,
+            new RefitSettings()
+            {
+                ContentSerializer = new NewtonsoftJsonContentSerializer(),
+            }
         );
+
+        return new(apiClient, httpClient, cookieContainer);
+    }
+        
 
     public async Task ResetDatabaseAsync()
     {
