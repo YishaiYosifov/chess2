@@ -44,7 +44,7 @@ public class OAuthServiceTests : BaseIntegrationTest
     private async Task TestAuthenticateAsync(
         string provider,
         Claim claim,
-        Action<AuthedUser> assertion
+        Action<AuthedUser> userCreationAssertion
     )
     {
         var ticket = ClaimUtils.CreateAuthenticationTicket(claim);
@@ -56,14 +56,12 @@ public class OAuthServiceTests : BaseIntegrationTest
 
         result.IsError.Should().BeFalse();
         var tokens = result.Value;
-        var authedClient = Factory.CreateTypedClientWithTokens(
-            tokens.AccessToken,
-            tokens.RefreshToken
-        );
-        await AuthTestUtils.AssertAuthenticated(authedClient);
+
+        AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
+        await AuthUtils.AssertAuthenticated(ApiClient);
 
         var user = await _userManager.Users.SingleAsync();
-        assertion(user);
+        userCreationAssertion(user);
     }
 
     [Fact]
@@ -116,11 +114,9 @@ public class OAuthServiceTests : BaseIntegrationTest
         var result = await _oauthService.AuthenticateAsync(Providers.Google, _httpContext);
         result.IsError.Should().BeFalse();
         var tokens = result.Value;
-        var authedClient = Factory.CreateTypedClientWithTokens(
-            tokens.AccessToken,
-            tokens.RefreshToken
-        );
-        await AuthTestUtils.AssertAuthenticated(authedClient);
+
+        AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
+        await AuthUtils.AssertAuthenticated(ApiClient);
 
         var users = await _userManager.Users.ToListAsync();
         users.Should().HaveCount(1);
