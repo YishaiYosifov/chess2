@@ -14,11 +14,11 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     [Fact]
     public async Task Edit_profile_with_valid_data()
     {
-        var user = (await AuthTestUtils.Authenticate(ApiClient, DbContext)).User;
+        var user = await AuthUtils.AuthenticateAsync(ApiClient);
         var profileEdit = new JsonPatchDocument<ProfileEditRequest>();
         profileEdit.Replace(profileEdit => profileEdit.CountryCode, "US");
 
-        var response = await ApiClient.EditProfileAsync(profileEdit);
+        var response = await ApiClient.Api.EditProfileAsync(profileEdit);
 
         response.IsSuccessful.Should().BeTrue();
         var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
@@ -29,11 +29,11 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     [Fact]
     public async Task Edit_profile_with_invalid_data()
     {
-        var user = (await AuthTestUtils.Authenticate(ApiClient, DbContext)).User;
+        var user = await AuthUtils.AuthenticateAsync(ApiClient);
         var invalidProfileEdit = new JsonPatchDocument<ProfileEditRequest>();
         invalidProfileEdit.Replace(profileEdit => profileEdit.CountryCode, "XZ");
 
-        var response = await ApiClient.EditProfileAsync(invalidProfileEdit);
+        var response = await ApiClient.Api.EditProfileAsync(invalidProfileEdit);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync();
@@ -51,9 +51,9 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
                 DateTime.UtcNow - TimeSpan.FromDays(365)
             )
         );
-        await AuthTestUtils.Authenticate(ApiClient, user);
+        AuthUtils.AuthenticateWithUser(ApiClient, user);
 
-        var response = await ApiClient.EditUsernameAsync($"\"{newUsername}\"");
+        var response = await ApiClient.Api.EditUsernameAsync($"\"{newUsername}\"");
 
         response.IsSuccessful.Should().BeTrue();
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync();

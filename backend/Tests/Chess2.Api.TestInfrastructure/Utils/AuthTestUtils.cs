@@ -1,82 +1,110 @@
 ﻿using System.Net;
 using Chess2.Api.Models;
-using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
+using Chess2.Api.Services.Auth;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
-public static class AuthTestUtils
+public class AuthTestUtils(ITokenProvider tokenProvider, JwtSettings jwtSettings, DbContext dbContext)
 {
+    private readonly ITokenProvider _tokenProvider = tokenProvider;
+    private readonly JwtSettings _jwtSettings = jwtSettings;
+    private readonly DbContext _dbContext = dbContext;
+
     /// <summary>
-    /// Calls <see cref="IsAuthenticated(IChess2Api)"/> and asserts it is successful
+    /// Calls <see cref="IsAuthenticated(ApiClient)"/> and asserts it is successful
     /// </summary>
-    public static async Task AssertAuthenticated(IChess2Api apiClient) =>
+    public async Task AssertAuthenticated(ApiClient apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeTrue();
 
     /// <summary>
-    /// Calls <see cref="IsAuthenticated(IChess2Api)"/> and asserts it is not successful
+    /// Calls <see cref="IsAuthenticated(ApiClient)"/> and asserts it is not successful
     /// </summary>
-    public static async Task AssertUnauthenticated(IChess2Api apiClient) =>
+    public async Task AssertUnauthenticated(ApiClient apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeFalse();
 
     /// <summary>
     /// Attempt to call a test auth route to check if we are authenticated
     /// </summary>
-    public static async Task<bool> IsAuthenticated(IChess2Api apiClient)
+    public async Task<bool> IsAuthenticated(ApiClient apiClient)
     {
-        var testAuthResponse = await apiClient.TestAuthAsync();
+        var testAuthResponse = await apiClient.Api.TestAuthAsync();
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
     /// <summary>
-    /// Calls <see cref="IsGuestAuthenticated(IChess2Api)"/> and asserts it is successful
+    /// Calls <see cref="IsGuestAuthenticated(ApiClient)"/> and asserts it is successful
     /// </summary>
-    public static async Task AssertGuestAuthenticated(IChess2Api apiClient) =>
+    public async Task AssertGuestAuthenticated(ApiClient apiClient) =>
         (await IsGuestAuthenticated(apiClient)).Should().BeTrue();
 
     /// <summary>
-    /// Calls <see cref="IsGuestAuthenticated(IChess2Api)"/> and asserts it is not successful
+    /// Calls <see cref="IsGuestAuthenticated(ApiClient)"/> and asserts it is not successful
     /// </summary>
-    public static async Task AssertGuestUnauthenticated(IChess2Api apiClient) =>
+    public async Task AssertGuestUnauthenticated(ApiClient apiClient) =>
         (await IsGuestAuthenticated(apiClient)).Should().BeFalse();
 
     /// <summary>
     /// Attempt to call the test guest auth route to check if we are guest authenticated
     /// </summary>
-    public static async Task<bool> IsGuestAuthenticated(IChess2Api apiClient)
+    public async Task<bool> IsGuestAuthenticated(ApiClient apiClient)
     {
-        var testGuestAuthResponse = await apiClient.TestGuestAsync();
+        var testGuestAuthResponse = await apiClient.Api.TestGuestAsync();
         return testGuestAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public static async Task<Tokens> Authenticate(
-        IChess2Api apiClient,
+    public void AuthenticateWithUser(
+        ApiClient apiClient,
         AuthedUser user,
-        string? password = null
+        bool setAccessToken = true,
+        bool setRefreshToken = true
     )
     {
-        throw new NotImplementedException();
-        //var response = await apiClient.SigninAsync(
-        //    new()
-        //    {
-        //        UsernameOrEmail = user.UserName!,
-        //        Password = password ?? AuthedUserFaker.Password,
-        //    }
-        //);
-        //response.IsSuccessful.Should().BeTrue();
+        var accessToken = setAccessToken
+            ? _tokenProvider.GenerateAccessToken(user)
+            : null;
+        var refreshToken = setRefreshToken
+            ? _tokenProvider.GenerateRefreshToken(user)
+            : null;
 
-        //return response.Content!;
+        AuthenticateWithTokens(apiClient, accessToken, refreshToken);
     }
 
-    public static async Task<(AuthedUser User, Tokens Tokens)> Authenticate(
-        IChess2Api apiClient,
-        ApplicationDbContext dbContext
+    public void AuthenticateWithTokens(ApiClient apiClient, string? accessToken = null, string? refreshToken = null)
+    {
+        if (accessToken is not null)
+        {
+            apiClient.CookieContainer.Add(new Cookie()
+            {
+                Name = _jwtSettings.AccessTokenCookieName,
+                Value = accessToken,
+                Domain = apiClient.Client.BaseAddress?.Host
+            });
+        }
+
+        if (refreshToken is not null)
+        {
+            apiClient.CookieContainer.Add(new Cookie()
+            {
+                Name = _jwtSettings.RefreshTokenCookieName,
+                Value = refreshToken,
+                Path = "/api/auth/refresh",
+                Domain = apiClient.Client.BaseAddress?.Host
+            });
+        }
+    }
+
+    public async Task<AuthedUser> AuthenticateAsync(
+        ApiClient apiClient,
+        bool setAccessToken = true,
+        bool setRefreshToken = true
     )
     {
-        var user = await FakerUtils.StoreFakerAsync(dbContext, new AuthedUserFaker());
-        var tokens = await Authenticate(apiClient, user, AuthedUserFaker.Password);
-        return (user, tokens);
+        var user = await FakerUtils.StoreFakerAsync(_dbContext, new AuthedUserFaker());
+        AuthenticateWithUser(apiClient, user, setAccessToken, setRefreshToken);
+        return user;
     }
 }

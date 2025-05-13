@@ -17,7 +17,7 @@ public class OAuthControllerTests(Chess2WebApplicationFactory factory) : BaseFun
         string pathname
     )
     {
-        var response = await ApiClient.OAuthLoginAsync(provider);
+        var response = await ApiClient.Api.OAuthLoginAsync(provider);
 
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
 
@@ -34,7 +34,7 @@ public class OAuthControllerTests(Chess2WebApplicationFactory factory) : BaseFun
     [Fact]
     public async Task OAuthCallback_ReturnsError_WhenProviderIsInvalid()
     {
-        var response = await ApiClient.OAuthLoginAsync("unknown");
+        var response = await ApiClient.Api.OAuthLoginAsync("unknown");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

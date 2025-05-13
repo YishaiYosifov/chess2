@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Functional.Utils;
-using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
@@ -11,9 +10,9 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task Get_authenticated_user()
     {
-        var user = await AuthTestUtils.Authenticate(ApiClient, DbContext);
+        var user = await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var response = await ApiClient.GetAuthedUserAsync();
+        var response = await ApiClient.Api.GetAuthedUserAsync();
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
@@ -24,7 +23,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var response = await ApiClient.GetUserAsync(user.UserName!);
+        var response = await ApiClient.Api.GetUserAsync(user.UserName!);
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
@@ -35,7 +34,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     {
         await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var response = await ApiClient.GetUserAsync("wrong username doesn't exist");
+        var response = await ApiClient.Api.GetUserAsync("wrong username doesn't exist");
 
         response.IsSuccessful.Should().BeFalse();
         response.Content.Should().BeNull();

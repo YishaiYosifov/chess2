@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Functional.Utils;
-using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
@@ -9,12 +8,12 @@ public class GuestTests(Chess2WebApplicationFactory factory) : BaseFunctionalTes
     [Fact]
     public async Task Guest_token_is_created_succesfully()
     {
-        await AuthTestUtils.AssertGuestUnauthenticated(ApiClient);
+        await AuthUtils.AssertGuestUnauthenticated(ApiClient);
 
-        var response = await ApiClient.CreateGuestAsync();
+        var response = await ApiClient.Api.CreateGuestAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        await AuthTestUtils.AssertGuestAuthenticated(ApiClient);
-        await AuthTestUtils.AssertUnauthenticated(ApiClient);
+        await AuthUtils.AssertGuestAuthenticated(ApiClient);
+        await AuthUtils.AssertUnauthenticated(ApiClient);
     }
 }
