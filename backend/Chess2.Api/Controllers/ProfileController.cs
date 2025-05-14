@@ -1,9 +1,11 @@
 ﻿using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
+using Chess2.Api.Models.Entities;
 using Chess2.Api.Services;
-using Chess2.Api.Services.Auth;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,21 +13,21 @@ namespace Chess2.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProfileController(IUserService userService, IAuthService authService) : ControllerBase
+public class ProfileController(IUserService userService, UserManager<AuthedUser> userManager)
+    : ControllerBase
 {
     private readonly IUserService _userService = userService;
-    private readonly IAuthService _authService = authService;
 
     [HttpGet("me", Name = nameof(GetAuthedUser))]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
     [Authorize]
     public async Task<ActionResult<PrivateUserOut>> GetAuthedUser()
     {
-        var result = await _authService.GetLoggedInUserAsync(HttpContext.User);
-        return result.Match(
-            (value) => Ok(new PrivateUserOut(value)),
-            (errors) => errors.ToActionResult()
-        );
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user is null)
+            return Error.Unauthorized().ToActionResult();
+
+        return Ok(user);
     }
 
     [HttpGet("by-username/{username}", Name = nameof(GetUser))]
@@ -45,11 +47,11 @@ public class ProfileController(IUserService userService, IAuthService authServic
         JsonPatchDocument<ProfileEditRequest> profileEditRequest
     )
     {
-        var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User);
-        if (userResult.IsError)
-            return userResult.Errors.ToActionResult();
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user is null)
+            return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userService.EditProfileAsync(userResult.Value, profileEditRequest);
+        var editResult = await _userService.EditProfileAsync(user, profileEditRequest);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 
@@ -58,11 +60,11 @@ public class ProfileController(IUserService userService, IAuthService authServic
     [Authorize]
     public async Task<ActionResult<PrivateUserOut>> EditUsername([FromBody] string username)
     {
-        var userResult = await _authService.GetLoggedInUserAsync(HttpContext.User);
-        if (userResult.IsError)
-            return userResult.Errors.ToActionResult();
+        var user = await userManager.GetUserAsync(HttpContext.User);
+        if (user is null)
+            return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userService.EditUsernameAsync(userResult.Value, username);
+        var editResult = await _userService.EditUsernameAsync(user, username);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 }

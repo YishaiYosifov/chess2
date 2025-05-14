@@ -12,7 +12,11 @@ namespace Chess2.Api.Services.Auth;
 
 public interface IOAuthService
 {
-    Task<ErrorOr<Tokens>> AuthenticateAsync(string provider, HttpContext context);
+    Task<ErrorOr<Tokens>> AuthenticateAsync(
+        string provider,
+        HttpContext context,
+        CancellationToken token = default
+    );
 }
 
 public class OAuthService(
@@ -27,7 +31,11 @@ public class OAuthService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
 
-    public async Task<ErrorOr<Tokens>> AuthenticateAsync(string provider, HttpContext context)
+    public async Task<ErrorOr<Tokens>> AuthenticateAsync(
+        string provider,
+        HttpContext context,
+        CancellationToken token = default
+    )
     {
         var result = await context.AuthenticateAsync(
             OpenIddictClientAspNetCoreDefaults.AuthenticationScheme
@@ -55,11 +63,7 @@ public class OAuthService(
             return userResult.Errors;
         var user = userResult.Value;
 
-        var signinResult = _authService.Signin(user, context);
-        if (signinResult.IsError)
-            return signinResult.Errors;
-        var tokens = signinResult.Value;
-
+        var tokens = await _authService.GenerateAuthTokensAsync(user, token);
         return tokens;
     }
 

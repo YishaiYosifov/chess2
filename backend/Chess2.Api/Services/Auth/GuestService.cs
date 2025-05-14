@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Extensions;
 using Chess2.Api.Models;
 using Microsoft.Extensions.Options;
+using OpenIddict.Abstractions;
 
 namespace Chess2.Api.Services.Auth;
 
@@ -58,8 +58,11 @@ public class GuestService(
     /// </summary>
     public bool IsGuest(ClaimsPrincipal? userClaims)
     {
-        var anonymousClaimResult = userClaims.GetClaim(ClaimTypes.Anonymous);
-        var isGuest = !anonymousClaimResult.IsError && anonymousClaimResult.Value.Value == "1";
+        if (userClaims is null)
+            return false;
+
+        var isAnnonymous = userClaims.GetClaim(ClaimTypes.Anonymous);
+        var isGuest = isAnnonymous is not null && isAnnonymous == "1";
         return isGuest;
     }
 
