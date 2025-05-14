@@ -1,16 +1,16 @@
-﻿using System.Net;
-using Chess2.Api.Models;
+﻿using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Services.Auth;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
-public class AuthTestUtils(ITokenProvider tokenProvider, JwtSettings jwtSettings, DbContext dbContext)
+public class AuthTestUtils(IAuthService authService, JwtSettings jwtSettings, DbContext dbContext)
 {
-    private readonly ITokenProvider _tokenProvider = tokenProvider;
+    private readonly IAuthService _authService = authService;
     private readonly JwtSettings _jwtSettings = jwtSettings;
     private readonly DbContext _dbContext = dbContext;
 
@@ -63,37 +63,41 @@ public class AuthTestUtils(ITokenProvider tokenProvider, JwtSettings jwtSettings
         bool setRefreshToken = true
     )
     {
-        var accessToken = setAccessToken
-            ? _tokenProvider.GenerateAccessToken(user)
-            : null;
-        var refreshToken = setRefreshToken
-            ? _tokenProvider.GenerateRefreshToken(user)
-            : null;
+        var accessToken = setAccessToken ? _authService.GenerateAuthTokensAsync(user);
+        var refreshToken = setRefreshToken ? _authService.GenerateRefreshToken(user) : null;
 
         AuthenticateWithTokens(apiClient, accessToken, refreshToken);
     }
 
-    public void AuthenticateWithTokens(ApiClient apiClient, string? accessToken = null, string? refreshToken = null)
+    public void AuthenticateWithTokens(
+        ApiClient apiClient,
+        string? accessToken = null,
+        string? refreshToken = null
+    )
     {
         if (accessToken is not null)
         {
-            apiClient.CookieContainer.Add(new Cookie()
-            {
-                Name = _jwtSettings.AccessTokenCookieName,
-                Value = accessToken,
-                Domain = apiClient.Client.BaseAddress?.Host
-            });
+            apiClient.CookieContainer.Add(
+                new Cookie()
+                {
+                    Name = _jwtSettings.AccessTokenCookieName,
+                    Value = accessToken,
+                    Domain = apiClient.Client.BaseAddress?.Host,
+                }
+            );
         }
 
         if (refreshToken is not null)
         {
-            apiClient.CookieContainer.Add(new Cookie()
-            {
-                Name = _jwtSettings.RefreshTokenCookieName,
-                Value = refreshToken,
-                Path = "/api/auth/refresh",
-                Domain = apiClient.Client.BaseAddress?.Host
-            });
+            apiClient.CookieContainer.Add(
+                new Cookie()
+                {
+                    Name = _jwtSettings.RefreshTokenCookieName,
+                    Value = refreshToken,
+                    Path = "/api/auth/refresh",
+                    Domain = apiClient.Client.BaseAddress?.Host,
+                }
+            );
         }
     }
 

@@ -2,6 +2,7 @@
 using Chess2.Api.Services.Auth.OAuthAuthenticators;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
@@ -9,9 +10,14 @@ namespace Chess2.Api.Unit.Tests.OAuthTests.OAuthAuthenticatorTests;
 
 public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleOAuthAuthenticator>
 {
+    private ILogger<GoogleOAuthAuthenticator> _loggerMock = Substitute.For<
+        ILogger<GoogleOAuthAuthenticator>
+    >();
+
     protected override string Provider => Providers.Google;
 
-    protected override GoogleOAuthAuthenticator CreateAuthenticator() => new(AuthServiceMock);
+    protected override GoogleOAuthAuthenticator CreateAuthenticator() =>
+        new(_loggerMock, AuthServiceMock);
 
     protected override Claim CreateProviderKeyClaim(string key) => new(ClaimTypes.Email, key);
 
