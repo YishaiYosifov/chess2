@@ -100,6 +100,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 #endregion
 
 #region Authentication
@@ -247,6 +248,7 @@ builder.Services.AddScoped<IOAuthProviderNameNormalizer, OAuthProviderNameNormal
 builder.Services.AddScoped<IGuestService, GuestService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddSingleton<IAuthCookieSetter, AuthCookieSetter>();
 
 builder.Services.AddScoped<IOAuthAuthenticator, GoogleOAuthAuthenticator>();

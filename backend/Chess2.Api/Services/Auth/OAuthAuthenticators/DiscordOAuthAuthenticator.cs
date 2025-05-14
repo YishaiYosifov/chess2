@@ -1,9 +1,9 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using Chess2.Api.Errors;
-using Chess2.Api.Extensions;
 using Chess2.Api.Models.Entities;
 using ErrorOr;
+using OpenIddict.Abstractions;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace Chess2.Api.Services.Auth.OAuthAuthenticators;
@@ -29,15 +29,14 @@ public class DiscordOAuthAuthenticator(
 
     public ErrorOr<string> GetProviderKey(ClaimsPrincipal claimsPrincipal)
     {
-        var userClaimResult = claimsPrincipal.GetClaim("user");
-        if (userClaimResult.IsError)
+        var userClaim = claimsPrincipal.GetClaim("user");
+        if (userClaim is null)
         {
             _logger.LogWarning("Could not get user claim from discord claims principal");
-            return userClaimResult.Errors;
+            return AuthErrors.OAuthInvalid;
         }
-        var userClaim = userClaimResult.Value;
 
-        using var doc = JsonDocument.Parse(userClaim.Value);
+        using var doc = JsonDocument.Parse(userClaim);
         if (!doc.RootElement.TryGetProperty("id", out var userIdElement))
         {
             _logger.LogWarning("Could not get user id from discord claims principal");

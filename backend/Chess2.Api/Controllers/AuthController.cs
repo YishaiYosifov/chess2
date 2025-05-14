@@ -22,21 +22,16 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize("RefreshToken")]
-    public async Task<ActionResult> Refresh()
+    public async Task<ActionResult> Refresh(CancellationToken token = default)
     {
-        var result = await _authService.RefreshTokenAsync(HttpContext.User);
+        var result = await _authService.RefreshTokenAsync(HttpContext.User, token);
         return result.Match(
             (value) =>
             {
-                _authCookieSetter.SetAccessCookie(value.newTokens.AccessToken, HttpContext);
-                _authCookieSetter.SetIsAuthedCookie(HttpContext);
+                _authCookieSetter.SetCookies(value.AccessToken, value.RefreshToken, HttpContext);
                 return NoContent();
             },
-            (errors) =>
-            {
-                _authService.Logout(HttpContext);
-                return errors.ToActionResult();
-            }
+            (errors) => errors.ToActionResult()
         );
     }
 
