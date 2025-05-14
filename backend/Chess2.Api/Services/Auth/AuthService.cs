@@ -1,65 +1,61 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
-using Chess2.Api.Models;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
+using OpenIddict.Abstractions;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
+    Task<Tokens> GenerateAuthTokensAsync(AuthedUser user, CancellationToken token = default);
     Task<ErrorOr<AuthedUser>> SignupAsync(
         string username,
         string? email = null,
         string? countryCode = null
     );
-    ErrorOr<Tokens> Signin(AuthedUser user, HttpContext context);
-    Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
-        ClaimsPrincipal? userClaims
-    );
     void Logout(HttpContext context);
+    Task<ErrorOr<Tokens>> RefreshTokenAsync(
+        ClaimsPrincipal? claimsPrincipal,
+        CancellationToken token = default
+    );
 }
 
 public class AuthService(
-    IOptions<AppSettings> settings,
     ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
     UserManager<AuthedUser> userManager,
-    IAuthCookieSetter authCookieSetter
+    IRefreshTokenService refreshTokenService
 ) : IAuthService
 {
-    private readonly AppSettings _settings = settings.Value;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
-    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly ILogger<AuthService> _logger = logger;
 
     /// <summary>
     /// Get the user that is logged in to the http context
     /// </summary>
-    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims)
+    public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? claimsPrincipal)
     {
-        var userIdClaimResult = userClaims.GetClaim(ClaimTypes.NameIdentifier);
-        if (userIdClaimResult.IsError)
+        if (claimsPrincipal is null)
         {
             _logger.LogWarning(
-                "A user tried to access an authorized endpoint but the user id claim could not be found"
+                "A user tried to access an authorized endpoint but the claims principal was null"
             );
-            return userIdClaimResult.Errors;
+            return Error.Unauthorized();
         }
-        var userId = userIdClaimResult.Value.Value;
 
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.GetUserAsync(claimsPrincipal);
         if (user is null)
         {
             _logger.LogWarning(
-                "A user tried to access an authorized enpoint with id {UserId} but the user could not be found",
-                userId
+                "A user tried to access an authorized endpoint but the user could not be found"
             );
             return Error.Unauthorized();
         }
@@ -98,59 +94,42 @@ public class AuthService(
         return dbUser;
     }
 
-    /// <summary>
-    /// Log a user in if the username/email and passwords are correct
-    /// </summary>
-    public ErrorOr<Tokens> Signin(AuthedUser user, HttpContext context)
+    public async Task<Tokens> GenerateAuthTokensAsync(
+        AuthedUser user,
+        CancellationToken token = default
+    )
     {
-        var tokens = new Tokens()
-        {
-            AccessToken = _tokenProvider.GenerateAccessToken(user),
-            RefreshToken = _tokenProvider.GenerateRefreshToken(user),
-        };
+        var refreshTokenRecord = await _refreshTokenService.CreateRefreshTokenAsync(user, token);
 
-        _authCookieSetter.SetAccessCookie(tokens.AccessToken, context);
-        _authCookieSetter.SetRefreshCookie(tokens.RefreshToken, context);
-        _authCookieSetter.SetIsAuthedCookie(context);
+        var accessToken = _tokenProvider.GenerateAccessToken(user);
+        var refreshToken = _tokenProvider.GenerateRefreshToken(user, refreshTokenRecord.Jti);
 
+        var tokens = new Tokens() { AccessToken = accessToken, RefreshToken = refreshToken };
         return tokens;
     }
 
-    /// <summary>
-    /// Validate the refresh token is valid and
-    /// create an access token from it
-    /// </summary>
-    public async Task<ErrorOr<(Tokens newTokens, AuthedUser user)>> RefreshTokenAsync(
-        ClaimsPrincipal? userClaims
+    public async Task<ErrorOr<Tokens>> RefreshTokenAsync(
+        ClaimsPrincipal? claimsPrincipal,
+        CancellationToken token = default
     )
     {
-        var tokenCreationTimeClaimResult = userClaims.GetClaim(JwtRegisteredClaimNames.Iat);
-        if (tokenCreationTimeClaimResult.IsError)
-            return tokenCreationTimeClaimResult.Errors;
-
-        var userResult = await GetLoggedInUserAsync(userClaims);
+        if (claimsPrincipal is null)
+            return Error.Unauthorized();
+        var userResult = await GetLoggedInUserAsync(claimsPrincipal);
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
 
-        // make sure the password hasn't changed since the refresh token was created
-        // this way we can invalidate leaked tokens
-        var passwordChangedTimestamp = (
-            (DateTimeOffset)user.PasswordLastChanged
-        ).ToUnixTimeSeconds();
-        var tokenCreationTimestamp = Convert.ToInt64(tokenCreationTimeClaimResult.Value.Value);
-        if (tokenCreationTimestamp < passwordChangedTimestamp)
-            return Error.Unauthorized();
+        var jti = claimsPrincipal.GetClaim(JwtRegisteredClaimNames.Jti);
+        if (jti is null)
+            return AuthErrors.TokenInvalid;
 
-        var newAccessToken = _tokenProvider.GenerateAccessToken(user);
-        var newRefreshToken = ""; // TODO!!!!
-        var newTokens = new Tokens()
-        {
-            AccessToken = newAccessToken,
-            RefreshToken = newRefreshToken,
-        };
+        var refreshResult = await _refreshTokenService.ValidateRefreshTokenAsync(user, jti, token);
+        if (refreshResult.IsError)
+            return refreshResult.Errors;
 
-        return (newTokens, user);
+        var tokens = await GenerateAuthTokensAsync(user, token);
+        return tokens;
     }
 
     public void Logout(HttpContext context)

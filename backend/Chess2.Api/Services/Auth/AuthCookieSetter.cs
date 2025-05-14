@@ -9,6 +9,7 @@ public interface IAuthCookieSetter
     void SetAccessCookie(string accessToken, HttpContext context);
     void SetRefreshCookie(string refreshToken, HttpContext context);
     void SetIsAuthedCookie(HttpContext context);
+    void SetCookies(string accessToken, string refreshToken, HttpContext context);
 }
 
 public class AuthCookieSetter(
@@ -70,5 +71,12 @@ public class AuthCookieSetter(
                 SameSite = _sameSiteMode,
             }
         );
+    }
+
+    public void SetCookies(string accessToken, string refreshToken, HttpContext context)
+    {
+        SetAccessCookie(accessToken, context);
+        SetRefreshCookie(refreshToken, context);
+        SetIsAuthedCookie(context);
     }
 }

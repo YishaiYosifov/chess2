@@ -11,7 +11,7 @@ namespace Chess2.Api.Services.Auth;
 public interface ITokenProvider
 {
     string GenerateAccessToken(AuthedUser user);
-    string GenerateRefreshToken(AuthedUser user);
+    string GenerateRefreshToken(AuthedUser user, string jti);
     string GenerateGuestToken(string guestId);
 }
 
@@ -32,13 +32,14 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
         );
     }
 
-    public string GenerateRefreshToken(AuthedUser user)
+    public string GenerateRefreshToken(AuthedUser user, string jti)
     {
         return GenerateToken(
             new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim("type", "refresh"),
+                    new Claim(JwtRegisteredClaimNames.Jti, jti),
                 ]
             ),
             DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays)

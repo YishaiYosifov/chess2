@@ -10,7 +10,7 @@ public class RefreshToken
     [ForeignKey(nameof(UserId))]
     public required AuthedUser User { get; set; }
 
-    public required string Token { get; set; }
-    public bool IsInvalidated { get; set; }
+    public required string Jti { get; set; }
+    public bool IsRevoked { get; set; }
     public required DateTime ExpiresAt { get; set; }
 }

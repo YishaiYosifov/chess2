@@ -8,23 +8,39 @@ namespace Chess2.Api.Controllers;
 [Route("api/[controller]")]
 public class OAuthController(
     IOAuthService oAuthService,
+    IAuthCookieSetter authCookieSetter,
     IOAuthProviderNameNormalizer oAuthProviderNameNormalizer
 ) : Controller
 {
     private readonly IOAuthService _oAuthService = oAuthService;
+    private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IOAuthProviderNameNormalizer _oAuthProviderNameNormalizer =
         oAuthProviderNameNormalizer;
 
     [HttpGet("{provider}/callback", Name = nameof(OAuthCallback))]
-    public async Task<ActionResult> OAuthCallback(string provider)
+    public async Task<ActionResult> OAuthCallback(
+        string provider,
+        CancellationToken token = default
+    )
     {
         var normalizedProviderResult = _oAuthProviderNameNormalizer.NormalizeProviderName(provider);
         if (normalizedProviderResult.IsError)
             return normalizedProviderResult.Errors.ToActionResult();
         var normalizedProvider = normalizedProviderResult.Value;
 
-        var result = await _oAuthService.AuthenticateAsync(normalizedProvider, HttpContext);
-        return result.Match(value => Redirect("/"), errors => errors.ToActionResult());
+        var authResults = await _oAuthService.AuthenticateAsync(
+            normalizedProvider,
+            HttpContext,
+            token
+        );
+        return authResults.Match(
+            value =>
+            {
+                _authCookieSetter.SetCookies(value.AccessToken, value.RefreshToken, HttpContext);
+                return Redirect("/");
+            },
+            errors => errors.ToActionResult()
+        );
     }
 
     [HttpGet("signin/{provider}", Name = nameof(SigninOAuth))]
