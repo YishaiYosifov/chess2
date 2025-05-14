@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.Models.Entities;
 
-public class Rating
+public class RefreshToken
 {
     public int Id { get; set; }
     public int UserId { get; set; }
@@ -10,7 +10,7 @@ public class Rating
     [ForeignKey(nameof(UserId))]
     public required AuthedUser User { get; set; }
 
-    public required TimeControl TimeControl { get; set; }
-
-    public int Value { get; set; } = 800;
+    public required string Token { get; set; }
+    public bool IsInvalidated { get; set; }
+    public required DateTime ExpiresAt { get; set; }
 }
