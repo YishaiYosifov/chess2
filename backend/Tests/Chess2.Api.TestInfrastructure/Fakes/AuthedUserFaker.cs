@@ -5,11 +5,6 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class AuthedUserFaker : Faker<AuthedUser>
 {
-    public static readonly string Password = "TestPassword";
-
-    // csharpier-ignore
-    private const string PasswordHash = "AQAAAAIAAYagAAAAEA2CbBkJ8EhGQjLWKntGA/Rd57QYlcb3Myzv3qJ+O5gNNSGI/mKG83OiktTfuvj5RA==";
-
     public AuthedUserFaker()
     {
         StrictMode(true)
@@ -29,7 +24,7 @@ public class AuthedUserFaker : Faker<AuthedUser>
             .RuleFor(x => x.AccessFailedCount, 0)
             .RuleFor(x => x.CountryCode, "IL")
             .RuleFor(x => x.About, "")
-            .RuleFor(x => x.PasswordHash, PasswordHash)
+            .RuleFor(x => x.PasswordHash, (string?)null)
             .RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow)
             .RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow)
             .RuleFor(x => x.Ratings, []);
