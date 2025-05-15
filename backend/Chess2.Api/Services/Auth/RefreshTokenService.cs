@@ -41,7 +41,7 @@ public class RefreshTokenService(
             Jti = jti,
             ExpiresAt = expiresAt,
         };
-        await _refreshTokenRepository.AddRefreshToken(refreshToken, token);
+        await _refreshTokenRepository.AddRefreshTokenAsync(refreshToken, token);
 
         return refreshToken;
     }
