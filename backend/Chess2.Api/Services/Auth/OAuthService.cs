@@ -22,7 +22,8 @@ public interface IOAuthService
 public class OAuthService(
     IEnumerable<IOAuthAuthenticator> oauthAuthenticators,
     UserManager<AuthedUser> userManager,
-    IAuthService authService
+    IAuthService authService,
+    IUnitOfWork unitOfWork
 ) : IOAuthService
 {
     private readonly Dictionary<string, IOAuthAuthenticator> _authenticators =
@@ -30,6 +31,7 @@ public class OAuthService(
 
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<Tokens>> AuthenticateAsync(
         string provider,
@@ -64,6 +66,7 @@ public class OAuthService(
         var user = userResult.Value;
 
         var tokens = await _authService.GenerateAuthTokensAsync(user, token);
+        await _unitOfWork.CompleteAsync(token);
         return tokens;
     }
 

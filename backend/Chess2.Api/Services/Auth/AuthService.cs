@@ -27,16 +27,18 @@ public interface IAuthService
 }
 
 public class AuthService(
-    ITokenProvider tokenProvider,
     ILogger<AuthService> logger,
+    ITokenProvider tokenProvider,
     UserManager<AuthedUser> userManager,
-    IRefreshTokenService refreshTokenService
+    IRefreshTokenService refreshTokenService,
+    IUnitOfWork _unitOfWork
 ) : IAuthService
 {
+    private readonly ILogger<AuthService> _logger = logger;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
-    private readonly ILogger<AuthService> _logger = logger;
+    private readonly IUnitOfWork _unitOfWork = _unitOfWork;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -129,6 +131,7 @@ public class AuthService(
             return refreshResult.Errors;
 
         var tokens = await GenerateAuthTokensAsync(user, token);
+        await _unitOfWork.CompleteAsync(token);
         return tokens;
     }
 

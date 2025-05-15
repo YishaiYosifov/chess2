@@ -1,16 +1,22 @@
-﻿using Chess2.Api.Models;
+﻿using System.Net;
+using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Services.Auth;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
-public class AuthTestUtils(IAuthService authService, JwtSettings jwtSettings, DbContext dbContext)
+public class AuthTestUtils(
+    ITokenProvider tokenProvider,
+    IRefreshTokenService refreshTokenService,
+    JwtSettings jwtSettings,
+    DbContext dbContext
+)
 {
-    private readonly IAuthService _authService = authService;
+    private readonly ITokenProvider _tokenProvider = tokenProvider;
+    private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly JwtSettings _jwtSettings = jwtSettings;
     private readonly DbContext _dbContext = dbContext;
 
@@ -56,15 +62,22 @@ public class AuthTestUtils(IAuthService authService, JwtSettings jwtSettings, Db
         return testGuestAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public void AuthenticateWithUser(
+    public async Task AuthenticateWithUserAsync(
         ApiClient apiClient,
         AuthedUser user,
         bool setAccessToken = true,
         bool setRefreshToken = true
     )
     {
-        var accessToken = setAccessToken ? _authService.GenerateAuthTokensAsync(user);
-        var refreshToken = setRefreshToken ? _authService.GenerateRefreshToken(user) : null;
+        var accessToken = setAccessToken ? _tokenProvider.GenerateAccessToken(user) : null;
+
+        string? refreshToken = null;
+        if (setRefreshToken)
+        {
+            var refreshTokenRecord = await _refreshTokenService.CreateRefreshTokenAsync(user);
+            refreshToken = _tokenProvider.GenerateRefreshToken(user, refreshTokenRecord.Jti);
+            await _dbContext.SaveChangesAsync();
+        }
 
         AuthenticateWithTokens(apiClient, accessToken, refreshToken);
     }
@@ -108,7 +121,7 @@ public class AuthTestUtils(IAuthService authService, JwtSettings jwtSettings, Db
     )
     {
         var user = await FakerUtils.StoreFakerAsync(_dbContext, new AuthedUserFaker());
-        AuthenticateWithUser(apiClient, user, setAccessToken, setRefreshToken);
+        await AuthenticateWithUserAsync(apiClient, user, setAccessToken, setRefreshToken);
         return user;
     }
 }

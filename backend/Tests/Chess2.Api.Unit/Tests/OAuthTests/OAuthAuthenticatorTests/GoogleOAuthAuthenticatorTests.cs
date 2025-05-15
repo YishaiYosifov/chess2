@@ -10,7 +10,7 @@ namespace Chess2.Api.Unit.Tests.OAuthTests.OAuthAuthenticatorTests;
 
 public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleOAuthAuthenticator>
 {
-    private ILogger<GoogleOAuthAuthenticator> _loggerMock = Substitute.For<
+    private readonly ILogger<GoogleOAuthAuthenticator> _loggerMock = Substitute.For<
         ILogger<GoogleOAuthAuthenticator>
     >();
 
