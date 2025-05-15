@@ -41,7 +41,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
             DbContext,
             new AuthedUserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged)
         );
-        AuthUtils.AuthenticateWithUser(ApiClient, user, setAccessToken: false);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user, setAccessToken: false);
 
         var response = await ApiClient.Api.RefreshTokenAsync();
 

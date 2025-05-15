@@ -51,7 +51,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
                 DateTime.UtcNow - TimeSpan.FromDays(365)
             )
         );
-        AuthUtils.AuthenticateWithUser(ApiClient, user);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
         var response = await ApiClient.Api.EditUsernameAsync($"\"{newUsername}\"");
 
