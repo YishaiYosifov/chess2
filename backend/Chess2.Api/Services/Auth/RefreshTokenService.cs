@@ -4,13 +4,14 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Services.Auth;
 
 public interface IRefreshTokenService
 {
     Task<RefreshToken> CreateRefreshTokenAsync(AuthedUser user, CancellationToken token = default);
-    Task<ErrorOr<Success>> ValidateRefreshTokenAsync(
+    Task<ErrorOr<Success>> ConsumeRefreshTokenAsync(
         AuthedUser user,
         string jti,
         CancellationToken token = default
@@ -40,18 +41,18 @@ public class RefreshTokenService(
             Jti = jti,
             ExpiresAt = expiresAt,
         };
-        await _refreshTokenRepository.CreateRefreshToken(refreshToken, token);
+        await _refreshTokenRepository.AddRefreshToken(refreshToken, token);
 
         return refreshToken;
     }
 
-    public async Task<ErrorOr<Success>> ValidateRefreshTokenAsync(
+    public async Task<ErrorOr<Success>> ConsumeRefreshTokenAsync(
         AuthedUser user,
         string jti,
         CancellationToken token = default
     )
     {
-        var refreshToken = await _refreshTokenRepository.GetTokenAsync(jti, token);
+        var refreshToken = await _refreshTokenRepository.GetTokenByJtiAsync(jti, token);
         if (refreshToken is null)
         {
             _logger.LogInformation(
@@ -72,6 +73,7 @@ public class RefreshTokenService(
             return AuthErrors.TokenInvalid;
         }
 
+        refreshToken.IsRevoked = true;
         return Result.Success;
     }
 
