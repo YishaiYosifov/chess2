@@ -4,6 +4,7 @@ using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
+using Chess2.Api.Repositories;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
@@ -31,14 +32,14 @@ public class AuthService(
     ITokenProvider tokenProvider,
     UserManager<AuthedUser> userManager,
     IRefreshTokenService refreshTokenService,
-    IUnitOfWork _unitOfWork
+    IUnitOfWork unitOfWork
 ) : IAuthService
 {
     private readonly ILogger<AuthService> _logger = logger;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
-    private readonly IUnitOfWork _unitOfWork = _unitOfWork;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     /// <summary>
     /// Get the user that is logged in to the http context
@@ -126,7 +127,7 @@ public class AuthService(
         if (jti is null)
             return AuthErrors.TokenInvalid;
 
-        var refreshResult = await _refreshTokenService.ValidateRefreshTokenAsync(user, jti, token);
+        var refreshResult = await _refreshTokenService.ConsumeRefreshTokenAsync(user, jti, token);
         if (refreshResult.IsError)
             return refreshResult.Errors;
 
