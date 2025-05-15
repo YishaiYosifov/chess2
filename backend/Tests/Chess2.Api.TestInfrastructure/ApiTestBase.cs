@@ -28,8 +28,9 @@ public class ApiTestBase : IAsyncLifetime
         DbContext = Scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         AppSettings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
         TokenProvider = Scope.ServiceProvider.GetRequiredService<ITokenProvider>();
+        var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
 
-        AuthUtils = new(TokenProvider, AppSettings.Jwt, DbContext);
+        AuthUtils = new(TokenProvider, refreshTokenService, AppSettings.Jwt, DbContext);
 
         // postgres can only store up to microsecond percision,
         // while c# DateTime also stores nanoseconds
