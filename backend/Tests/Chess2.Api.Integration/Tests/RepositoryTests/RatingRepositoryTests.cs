@@ -7,7 +7,7 @@ using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Integration.Tests.RepositoryTests;
 
 public class RatingRepositoryTests : BaseIntegrationTest
 {
