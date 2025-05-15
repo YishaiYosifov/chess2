@@ -4,7 +4,7 @@ using Chess2.Api.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace Chess2.Api.Unit.Tests;
+namespace Chess2.Api.Unit;
 
 public class BaseUnitTest
 {
