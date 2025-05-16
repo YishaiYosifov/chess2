@@ -19,7 +19,6 @@ public interface IAuthService
         string? email = null,
         string? countryCode = null
     );
-    void Logout(HttpContext context);
     Task<ErrorOr<Tokens>> RefreshTokenAsync(
         ClaimsPrincipal? claimsPrincipal,
         CancellationToken token = default
@@ -133,13 +132,5 @@ public class AuthService(
         var tokens = await GenerateAuthTokensAsync(user, token);
         await _unitOfWork.CompleteAsync(token);
         return tokens;
-    }
-
-    public void Logout(HttpContext context)
-    {
-        foreach (var cookie in context.Request.Cookies)
-        {
-            context.Response.Cookies.Delete(cookie.Key);
-        }
     }
 }

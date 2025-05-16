@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.Errors;
+﻿using Chess2.Api.Errors;
 using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
