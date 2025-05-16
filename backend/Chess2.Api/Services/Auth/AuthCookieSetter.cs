@@ -6,10 +6,8 @@ namespace Chess2.Api.Services.Auth;
 
 public interface IAuthCookieSetter
 {
-    void SetAccessCookie(string accessToken, HttpContext context);
-    void SetRefreshCookie(string refreshToken, HttpContext context);
-    void SetIsAuthedCookie(HttpContext context);
-    void SetCookies(string accessToken, string refreshToken, HttpContext context);
+    void SetAuthCookies(string accessToken, string refreshToken, HttpContext context);
+    void RemoveAuthCookies(HttpContext context);
 }
 
 public class AuthCookieSetter(
@@ -24,59 +22,76 @@ public class AuthCookieSetter(
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
 
-    public void SetAccessCookie(string accessToken, HttpContext context)
+    public void SetAuthCookies(string accessToken, string refreshToken, HttpContext context)
     {
-        context.Response.Cookies.Append(
+        SetCookie(
+            context,
             _jwtSettings.AccessTokenCookieName,
             accessToken,
-            new()
-            {
-                MaxAge = TimeSpan.FromSeconds(_jwtSettings.AccessExpiresInSeconds),
-                HttpOnly = true,
-                IsEssential = true,
-                Secure = true,
-                SameSite = _sameSiteMode,
-            }
+            TimeSpan.FromSeconds(_jwtSettings.AccessExpiresInSeconds)
         );
-    }
-
-    public void SetRefreshCookie(string refreshToken, HttpContext context)
-    {
-        var refreshPath = _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
-        context.Response.Cookies.Append(
+        SetCookie(
+            context,
             _jwtSettings.RefreshTokenCookieName,
             refreshToken,
-            new()
-            {
-                MaxAge = TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
-                HttpOnly = true,
-                IsEssential = true,
-                Secure = true,
-                SameSite = _sameSiteMode,
-                Path = refreshPath,
-            }
+            TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
+            path: GetRefreshPath(context)
         );
-    }
 
-    public void SetIsAuthedCookie(HttpContext context)
-    {
-        context.Response.Cookies.Append(
+        SetCookie(
+            context,
             _jwtSettings.IsAuthedTokenCookieName,
             "true",
+            TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
+            httpOnly: false
+        );
+    }
+
+    public void RemoveAuthCookies(HttpContext context)
+    {
+        DeleteCookie(_jwtSettings.AccessTokenCookieName, context);
+        DeleteCookie(_jwtSettings.RefreshTokenCookieName, context, path: GetRefreshPath(context));
+
+        DeleteCookie(_jwtSettings.IsAuthedTokenCookieName, context);
+    }
+
+    private void SetCookie(
+        HttpContext context,
+        string name,
+        string value,
+        TimeSpan maxAge,
+        bool httpOnly = true,
+        string? path = "/"
+    )
+    {
+        context.Response.Cookies.Append(
+            name,
+            value,
             new()
             {
-                MaxAge = TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
+                MaxAge = maxAge,
+                HttpOnly = httpOnly,
                 IsEssential = true,
                 Secure = true,
                 SameSite = _sameSiteMode,
+                Path = path,
             }
         );
     }
 
-    public void SetCookies(string accessToken, string refreshToken, HttpContext context)
+    private void DeleteCookie(string name, HttpContext context, string? path = "/")
     {
-        SetAccessCookie(accessToken, context);
-        SetRefreshCookie(refreshToken, context);
-        SetIsAuthedCookie(context);
+        context.Response.Cookies.Delete(
+            name,
+            new()
+            {
+                Secure = true,
+                SameSite = _sameSiteMode,
+                Path = path,
+            }
+        );
     }
+
+    private string? GetRefreshPath(HttpContext context) =>
+        _linkGenerator.GetPathByName(context, nameof(AuthController.Refresh));
 }
