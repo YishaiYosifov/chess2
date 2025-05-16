@@ -5,6 +5,7 @@ using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using Chess2.Api.Services.Auth;
 using Chess2.Api.TestInfrastructure.Fakes;
+using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -74,11 +75,36 @@ public class RefreshTokenServiceTests : BaseUnitTest
     }
 
     [Fact]
-    public async Task ConsumeRefreshTokenAsync_returns_an_error_when_refresh_token_doesnt_exist()
+    public async Task ConsumeRefreshTokenAsync_returns_an_error_when_the_refresh_token_doesnt_exist()
     {
         var result = await _refreshTokenService.ConsumeRefreshTokenAsync(_user, "some jti");
 
         result.IsError.Should().BeTrue();
         result.Errors.Single().Should().Be(AuthErrors.TokenInvalid);
+    }
+
+    [Fact]
+    public async Task ConsumeRefreshTokenAsync_returns_an_error_when_the_refresh_token_is_revoked()
+    {
+        var refreshToken = new RefreshTokenFaker(_user).RuleFor(x => x.IsRevoked, true).Generate();
+        _refreshTokenRepositoryMock.GetTokenByJtiAsync(refreshToken.Jti).Returns(refreshToken);
+
+        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(_user, refreshToken.Jti);
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Single().Should().Be(AuthErrors.TokenInvalid);
+    }
+
+    [Fact]
+    public async Task ConsumeRefreshTokenAsync_revokes_the_refresh_token()
+    {
+        var refreshToken = new RefreshTokenFaker(_user).Generate();
+        _refreshTokenRepositoryMock.GetTokenByJtiAsync(refreshToken.Jti).Returns(refreshToken);
+
+        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(_user, refreshToken.Jti);
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().Be(Result.Success);
+        refreshToken.IsRevoked.Should().BeTrue();
     }
 }
