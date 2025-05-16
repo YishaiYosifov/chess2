@@ -266,6 +266,7 @@ builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
