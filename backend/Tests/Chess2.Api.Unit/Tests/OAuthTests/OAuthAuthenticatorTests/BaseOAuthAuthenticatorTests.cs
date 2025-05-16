@@ -53,7 +53,7 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
     }
 
     [Fact]
-    public async Task Errors_from_signup_are_forwarded()
+    public async Task SignUserUpAsync_forwards_errors_from_signup()
     {
         var error = Error.Failure();
         AuthServiceMock.SignupAsync(Arg.Any<string>(), default, default).ReturnsForAnyArgs(error);

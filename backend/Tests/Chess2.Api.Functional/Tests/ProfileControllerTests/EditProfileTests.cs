@@ -12,7 +12,7 @@ namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
 public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task Edit_profile_with_valid_data()
+    public async Task EditProfile_modifies_the_user_when_provided_with_valid_data()
     {
         var user = await AuthUtils.AuthenticateAsync(ApiClient);
         var profileEdit = new JsonPatchDocument<ProfileEditRequest>();
@@ -27,7 +27,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     }
 
     [Fact]
-    public async Task Edit_profile_with_invalid_data()
+    public async Task EditProfile_rejects_invalid_data()
     {
         var user = await AuthUtils.AuthenticateAsync(ApiClient);
         var invalidProfileEdit = new JsonPatchDocument<ProfileEditRequest>();
@@ -41,7 +41,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     }
 
     [Fact]
-    public async Task Edit_username_with_valid_data()
+    public async Task EditUsername_changes_the_username_when_provided_with_valid_data()
     {
         var newUsername = "new-test-username";
         var user = await FakerUtils.StoreFakerAsync(

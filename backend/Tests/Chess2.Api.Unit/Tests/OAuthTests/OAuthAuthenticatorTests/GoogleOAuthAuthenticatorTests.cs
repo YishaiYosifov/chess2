@@ -22,7 +22,7 @@ public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleO
     protected override Claim CreateProviderKeyClaim(string key) => new(ClaimTypes.Email, key);
 
     [Fact]
-    public async Task SignUserUp_create_a_user_correctly()
+    public async Task SignUserUpAsync_create_a_user_correctly()
     {
         var user = new AuthedUserFaker().Generate();
         var email = "test@email.com";

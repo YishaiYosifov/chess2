@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chess2.Api.Repositories;
+﻿using Chess2.Api.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.RepositoryTests;
@@ -50,7 +44,7 @@ public class RefreshTokenRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task AddRefreshToken_insers_the_refresh_token()
+    public async Task AddRefreshTokenAsync_insers_the_refresh_token()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var refreshToken = new RefreshTokenFaker(user).Generate();

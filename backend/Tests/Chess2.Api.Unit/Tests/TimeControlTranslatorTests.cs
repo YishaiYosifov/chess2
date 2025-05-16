@@ -18,7 +18,7 @@ public class TimeControlTranslatorTests : BaseUnitTest
     [InlineData(600, TimeControl.Rapid)]
     [InlineData(1200, TimeControl.Rapid)]
     [InlineData(123123, TimeControl.Classical)]
-    public void Correct_time_control_is_translated_from_seconds(
+    public void FromSeconds_translates_the_game_length_to_a_time_control(
         int seconds,
         TimeControl expectedTimeControl
     )
@@ -30,7 +30,7 @@ public class TimeControlTranslatorTests : BaseUnitTest
     [Theory]
     [InlineData(0)]
     [InlineData(-123)]
-    public void Invalid_game_length_throws_out_of_range(int seconds)
+    public void FromSeconds_throws_an_exception_when_the_game_length_is_invalid(int seconds)
     {
         Action act = () => _timeControlTranslator.FromSeconds(seconds);
         act.Should().Throw<ArgumentOutOfRangeException>();

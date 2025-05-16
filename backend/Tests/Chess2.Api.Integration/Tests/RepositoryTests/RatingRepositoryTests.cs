@@ -20,7 +20,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Get_all_ratings_for_specific_user()
+    public async Task GetAllRatingsAsync_returns_all_rating_for_a_specific_user()
     {
         var otherUser1 = new AuthedUserFaker().Generate();
         var otherUser2 = new AuthedUserFaker().Generate();
@@ -48,7 +48,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Get_rating_for_time_control()
+    public async Task GetTimeControlRatingAsync_finds_the_correct_rating_for_a_time_control()
     {
         var otherUser = new AuthedUserFaker().Generate();
         otherUser.Ratings =
@@ -79,7 +79,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Duplicate_time_control_rating()
+    public async Task GetTimeControlRatingAsync_throws_an_exception_when_there_are_duplicate_time_controls()
     {
         var user = new AuthedUserFaker().Generate();
         var ratings = new List<Rating>()
@@ -98,7 +98,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Rating_is_created_when_missing()
+    public async Task GetTimeControlRatingAsync_creates_a_rating_when_it_doesnt_exist()
     {
         var timeControl = TimeControl.Blitz;
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
