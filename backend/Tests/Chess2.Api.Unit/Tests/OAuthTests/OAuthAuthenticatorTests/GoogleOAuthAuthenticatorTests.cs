@@ -24,9 +24,15 @@ public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleO
     [Fact]
     public async Task SignUserUpAsync_create_a_user_correctly()
     {
-        var user = new AuthedUserFaker().Generate();
-        var email = "test@email.com";
-        AuthServiceMock.SignupAsync(email, email, default).Returns(user);
+        const string username = "test-username-1234";
+        const string email = "test@email.com";
+        UsernameGeneratorMock.GenerateUniqueUsernameAsync().Returns(username);
+
+        var user = new AuthedUserFaker()
+            .RuleFor(x => x.UserName, username)
+            .RuleFor(x => x.Email, email)
+            .Generate();
+        AuthServiceMock.SignupAsync(username, email, default).Returns(user);
 
         var result = await Authenticator.SignUserUpAsync(new(), email);
 

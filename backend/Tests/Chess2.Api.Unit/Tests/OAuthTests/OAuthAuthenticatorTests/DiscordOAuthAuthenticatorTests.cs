@@ -40,10 +40,13 @@ public class DiscordOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<Discor
     [Fact]
     public async Task SignUserUpAsync_create_a_user_correctly()
     {
-        var user = new AuthedUserFaker().Generate();
-        AuthServiceMock.SignupAsync("test", default, default).Returns(user);
+        const string username = "test-username-1234";
+        UsernameGeneratorMock.GenerateUniqueUsernameAsync().Returns(username);
 
-        var result = await Authenticator.SignUserUpAsync(new(), "");
+        var user = new AuthedUserFaker().RuleFor(x => x.UserName, username).Generate();
+        AuthServiceMock.SignupAsync(username, null, null).Returns(user);
+
+        var result = await Authenticator.SignUserUpAsync(new(), "discord-id-1234");
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEquivalentTo(user);
