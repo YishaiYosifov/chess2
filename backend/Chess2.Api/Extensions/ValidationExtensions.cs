@@ -10,10 +10,7 @@ public static class ValidationExtensions
     public static List<Error> ToErrorList(this IEnumerable<ValidationFailure> errors) =>
         [
             .. errors.Select(error =>
-                Error.Validation(
-                    code: error.PropertyName,
-                    description: error.ErrorMessage
-                )
+                Error.Validation(code: error.PropertyName, description: error.ErrorMessage)
             ),
         ];
 

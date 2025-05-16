@@ -26,7 +26,6 @@ public class MatchmakingServiceTests : BaseUnitTest
     private readonly AuthedUser _testUser;
     private readonly Rating _testRating;
 
-
     private readonly MatchmakingService _matchmakingService;
 
     public MatchmakingServiceTests()
@@ -42,7 +41,8 @@ public class MatchmakingServiceTests : BaseUnitTest
 
         _testUser = new AuthedUserFaker().Generate();
         _testRating = new RatingFaker(_testUser).Generate();
-        _ratingRepositoryMock.GetTimeControlRatingAsync(_testUser, _testRating.TimeControl)
+        _ratingRepositoryMock
+            .GetTimeControlRatingAsync(_testUser, _testRating.TimeControl)
             .Returns(_testRating);
     }
 
@@ -88,7 +88,9 @@ public class MatchmakingServiceTests : BaseUnitTest
 
         var userClientMock = Substitute.For<IMatchmakingClient>();
         _hubContextMock
-            .Clients.User(Arg.Is<string>(arg => arg == _testUser.Id.ToString() || arg == matchedUserId))
+            .Clients.User(
+                Arg.Is<string>(arg => arg == _testUser.Id.ToString() || arg == matchedUserId)
+            )
             .Returns(userClientMock);
 
         await _matchmakingService.SeekAsync(_testUser, timeControl, increment);
