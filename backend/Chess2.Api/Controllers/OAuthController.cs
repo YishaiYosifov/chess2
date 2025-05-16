@@ -1,6 +1,8 @@
 ﻿using Chess2.Api.Extensions;
+using Chess2.Api.Models;
 using Chess2.Api.Services.Auth;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Controllers;
 
@@ -9,13 +11,15 @@ namespace Chess2.Api.Controllers;
 public class OAuthController(
     IOAuthService oAuthService,
     IAuthCookieSetter authCookieSetter,
-    IOAuthProviderNameNormalizer oAuthProviderNameNormalizer
+    IOAuthProviderNameNormalizer oAuthProviderNameNormalizer,
+    IOptions<AppSettings> settings
 ) : Controller
 {
     private readonly IOAuthService _oAuthService = oAuthService;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IOAuthProviderNameNormalizer _oAuthProviderNameNormalizer =
         oAuthProviderNameNormalizer;
+    private readonly AppSettings _settings = settings.Value;
 
     [HttpGet("{provider}/callback", Name = nameof(OAuthCallback))]
     public async Task<ActionResult> OAuthCallback(
@@ -37,7 +41,7 @@ public class OAuthController(
             value =>
             {
                 _authCookieSetter.SetCookies(value.AccessToken, value.RefreshToken, HttpContext);
-                return Redirect("/");
+                return Redirect(_settings.OAuthRedirectUrl);
             },
             errors => errors.ToActionResult()
         );

@@ -7,6 +7,8 @@ public class AppSettings
     public required GameSettings Game { get; set; }
     public required JwtSettings Jwt { get; set; }
 
+    public required string OAuthRedirectUrl { get; set; }
+
     public required string RedisConnString { get; set; }
     public required string DatabaseConnString { get; set; }
     public TimeSpan UsernameEditCooldown { get; set; }
