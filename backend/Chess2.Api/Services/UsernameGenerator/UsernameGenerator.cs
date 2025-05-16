@@ -10,13 +10,14 @@ public interface IUsernameGenerator
 
 public class UsernameGenerator(
     IUsernameWordsProvider usernameWordsProvider,
-    UserManager<AuthedUser> userManager
+    UserManager<AuthedUser> userManager,
+    IIRandomProvider randomProvider
 ) : IUsernameGenerator
 {
     private readonly IUsernameWordsProvider _usernameWordsProvider = usernameWordsProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
-    private readonly Random _random = new();
+    private readonly IIRandomProvider _random = randomProvider;
 
     public async Task<string> GenerateUniqueUsernameAsync()
     {
