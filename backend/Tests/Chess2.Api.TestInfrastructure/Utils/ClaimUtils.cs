@@ -8,12 +8,23 @@ public static class ClaimUtils
 {
     public static AuthenticationTicket CreateAuthenticationTicket(Claim claim)
     {
-        var identity = new ClaimsIdentity([claim], "Test");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        var principal = CreateClaimsPrincipal(claim);
         var ticket = new AuthenticationTicket(
-            claimsPrincipal,
+            principal,
             OpenIddictClientAspNetCoreDefaults.AuthenticationScheme
         );
         return ticket;
     }
+
+    public static ClaimsPrincipal CreateClaimsPrincipal(params IEnumerable<Claim> claims)
+    {
+        var identity = new ClaimsIdentity(claims);
+        var principal = new ClaimsPrincipal(identity);
+        return principal;
+    }
+
+    public static ClaimsPrincipal CreateUserClaims(int userId, params IEnumerable<Claim> claims) =>
+        CreateClaimsPrincipal(
+            claims.Append(new Claim(ClaimTypes.NameIdentifier, userId.ToString()))
+        );
 }
