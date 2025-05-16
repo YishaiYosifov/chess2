@@ -17,10 +17,10 @@ public interface IChess2Api
     [Post("/api/auth/guest")]
     Task<IApiResponse> CreateGuestAsync();
 
-    [Post("/api/auth/test-authed")]
+    [Post("/api/auth/test-auth")]
     Task<IApiResponse> TestAuthAsync();
 
-    [Post("/api/auth/test-guest")]
+    [Post("/api/auth/test-guest-auth")]
     Task<IApiResponse> TestGuestAsync();
     #endregion
 
