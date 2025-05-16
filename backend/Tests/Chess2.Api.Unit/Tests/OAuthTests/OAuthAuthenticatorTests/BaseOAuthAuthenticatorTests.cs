@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Chess2.Api.Services.Auth;
 using Chess2.Api.Services.Auth.OAuthAuthenticators;
+using Chess2.Api.Services.UsernameGenerator;
 using ErrorOr;
 using FluentAssertions;
 using NSubstitute;
@@ -11,6 +12,9 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
     where TAuthenticator : IOAuthAuthenticator
 {
     protected readonly IAuthService AuthServiceMock = Substitute.For<IAuthService>();
+    protected readonly IUsernameGenerator UsernameGeneratorMock =
+        Substitute.For<IUsernameGenerator>();
+
     protected readonly TAuthenticator Authenticator;
 
     protected abstract string Provider { get; }

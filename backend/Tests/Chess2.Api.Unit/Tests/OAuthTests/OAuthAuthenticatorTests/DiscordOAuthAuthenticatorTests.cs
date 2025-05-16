@@ -13,7 +13,11 @@ public class DiscordOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<Discor
     protected override string Provider => Providers.Discord;
 
     protected override DiscordOAuthAuthenticator CreateAuthenticator() =>
-        new(Substitute.For<ILogger<DiscordOAuthAuthenticator>>(), AuthServiceMock);
+        new(
+            Substitute.For<ILogger<DiscordOAuthAuthenticator>>(),
+            AuthServiceMock,
+            UsernameGeneratorMock
+        );
 
     protected override Claim CreateProviderKeyClaim(string? key)
     {

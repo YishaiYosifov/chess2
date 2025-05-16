@@ -17,7 +17,7 @@ public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleO
     protected override string Provider => Providers.Google;
 
     protected override GoogleOAuthAuthenticator CreateAuthenticator() =>
-        new(_loggerMock, AuthServiceMock);
+        new(_loggerMock, AuthServiceMock, UsernameGeneratorMock);
 
     protected override Claim CreateProviderKeyClaim(string key) => new(ClaimTypes.Email, key);
 
