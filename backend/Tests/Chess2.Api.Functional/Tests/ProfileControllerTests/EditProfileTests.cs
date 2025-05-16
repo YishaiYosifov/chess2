@@ -14,7 +14,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     [Fact]
     public async Task EditProfile_modifies_the_user_when_provided_with_valid_data()
     {
-        var user = await AuthUtils.AuthenticateAsync(ApiClient);
+        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
         var profileEdit = new JsonPatchDocument<ProfileEditRequest>();
         profileEdit.Replace(profileEdit => profileEdit.CountryCode, "US");
 
@@ -29,7 +29,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     [Fact]
     public async Task EditProfile_rejects_invalid_data()
     {
-        var user = await AuthUtils.AuthenticateAsync(ApiClient);
+        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
         var invalidProfileEdit = new JsonPatchDocument<ProfileEditRequest>();
         invalidProfileEdit.Replace(profileEdit => profileEdit.CountryCode, "XZ");
 

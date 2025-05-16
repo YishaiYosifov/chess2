@@ -10,7 +10,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task Get_authenticated_user()
     {
-        var user = await AuthUtils.AuthenticateAsync(ApiClient);
+        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
 
         var response = await ApiClient.Api.GetAuthedUserAsync();
 
