@@ -1,45 +1,24 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext } from "react";
+
 import { PrivateUser } from "@/lib/apiClient";
 
 export interface AuthContextInterface {
-    hasAccessToken: boolean;
-    setHasAccessToken: (isAuthed: boolean) => void;
-    setAuthedProfile: (profile: PrivateUser) => void;
-    authedProfile?: PrivateUser;
+    user?: PrivateUser;
 }
 
-export const AuthContext = createContext<AuthContextInterface>({
-    hasAccessToken: false,
-    setHasAccessToken: () => {},
-    setAuthedProfile: () => {},
-});
+export const AuthContext = createContext<AuthContextInterface>({});
 
 const AuthContextProvider = ({
-    hasAccessToken = false,
     user,
     children,
 }: {
-    user?: PrivateUser;
-    hasAccessToken?: boolean;
+    user: PrivateUser;
     children: React.ReactNode;
 }) => {
-    const [hasAccessTokenState, setHasAccessTokenState] =
-        useState(hasAccessToken);
-    const [authedProfile, setAuthedProfile] = useState(user);
-
     return (
-        <AuthContext.Provider
-            value={{
-                hasAccessToken: hasAccessTokenState,
-                setHasAccessToken: setHasAccessTokenState,
-                setAuthedProfile,
-                authedProfile,
-            }}
-        >
-            {children}
-        </AuthContext.Provider>
+        <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
     );
 };
 export default AuthContextProvider;
