@@ -17,7 +17,7 @@ public class GoogleOAuthAuthenticator(
 
     public string Provider => Providers.Google;
 
-    public async Task<ErrorOr<AuthedUser>> SignUserUp(
+    public async Task<ErrorOr<AuthedUser>> SignUserUpAsync(
         ClaimsPrincipal claimsPrincipal,
         string providerKey
     )

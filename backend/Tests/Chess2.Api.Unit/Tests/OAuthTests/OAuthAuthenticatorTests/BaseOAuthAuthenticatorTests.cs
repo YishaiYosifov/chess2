@@ -58,7 +58,7 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
         var error = Error.Failure();
         AuthServiceMock.SignupAsync(Arg.Any<string>(), default, default).ReturnsForAnyArgs(error);
 
-        var result = await Authenticator.SignUserUp(new(), "test");
+        var result = await Authenticator.SignUserUpAsync(new(), "test");
 
         result.IsError.Should().BeTrue();
         result.Errors.Single().Should().Be(error);

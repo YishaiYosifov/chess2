@@ -39,7 +39,7 @@ public class DiscordOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<Discor
         var user = new AuthedUserFaker().Generate();
         AuthServiceMock.SignupAsync("test", default, default).Returns(user);
 
-        var result = await Authenticator.SignUserUp(new(), "");
+        var result = await Authenticator.SignUserUpAsync(new(), "");
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEquivalentTo(user);
