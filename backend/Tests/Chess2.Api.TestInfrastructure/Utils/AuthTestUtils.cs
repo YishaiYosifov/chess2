@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
+public record TestAuthResult(AuthedUser User, string? AccessToken, string? RefreshToken);
+
 public class AuthTestUtils(
     ITokenProvider tokenProvider,
     IRefreshTokenService refreshTokenService,
@@ -62,7 +64,7 @@ public class AuthTestUtils(
         return testGuestAuthResponse.StatusCode == HttpStatusCode.NoContent;
     }
 
-    public async Task AuthenticateWithUserAsync(
+    public async Task<TestAuthResult> AuthenticateWithUserAsync(
         ApiClient apiClient,
         AuthedUser user,
         bool setAccessToken = true,
@@ -80,6 +82,7 @@ public class AuthTestUtils(
         }
 
         AuthenticateWithTokens(apiClient, accessToken, refreshToken);
+        return new(user, accessToken, refreshToken);
     }
 
     public void AuthenticateWithTokens(
@@ -114,14 +117,20 @@ public class AuthTestUtils(
         }
     }
 
-    public async Task<AuthedUser> AuthenticateAsync(
+    public async Task<TestAuthResult> AuthenticateAsync(
         ApiClient apiClient,
         bool setAccessToken = true,
         bool setRefreshToken = true
     )
     {
         var user = await FakerUtils.StoreFakerAsync(_dbContext, new AuthedUserFaker());
-        await AuthenticateWithUserAsync(apiClient, user, setAccessToken, setRefreshToken);
-        return user;
+        var authResult = await AuthenticateWithUserAsync(
+            apiClient,
+            user,
+            setAccessToken,
+            setRefreshToken
+        );
+
+        return authResult;
     }
 }
