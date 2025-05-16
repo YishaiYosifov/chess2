@@ -1,11 +1,5 @@
 ﻿using Bogus;
-using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 

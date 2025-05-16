@@ -1,22 +1,24 @@
-﻿using Chess2.Api.Repositories;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Chess2.Api.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.Integration.Tests.RepositoryTests;
 
 public class RefreshTokenRepositoryTests : BaseIntegrationTest
 {
     private readonly IRefreshTokenRepository _repository;
-    public RefreshTokenRepositoryTests(Chess2WebApplicationFactory factory) : base(factory)
+
+    public RefreshTokenRepositoryTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
         _repository = Scope.ServiceProvider.GetRequiredService<IRefreshTokenRepository>();
     }
@@ -25,7 +27,10 @@ public class RefreshTokenRepositoryTests : BaseIntegrationTest
     public async Task GetTokenByJtiAsync_finds_the_correct_token()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var refreshTokenToFind = await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
+        var refreshTokenToFind = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RefreshTokenFaker(user)
+        );
         await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
 
         var result = await _repository.GetTokenByJtiAsync(refreshTokenToFind.Jti);

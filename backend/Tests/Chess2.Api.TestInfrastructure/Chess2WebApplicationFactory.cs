@@ -73,18 +73,13 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         var cookieHandler = new CookieContainerHandler(cookieContainer);
 
         var httpClient = CreateDefaultClient(new Uri("https://localhost"), cookieHandler);
-        var apiClient = 
-        RestService.For<IChess2Api>(
+        var apiClient = RestService.For<IChess2Api>(
             httpClient,
-            new RefitSettings()
-            {
-                ContentSerializer = new NewtonsoftJsonContentSerializer(),
-            }
+            new RefitSettings() { ContentSerializer = new NewtonsoftJsonContentSerializer() }
         );
 
         return new(apiClient, httpClient, cookieContainer);
     }
-        
 
     public async Task ResetDatabaseAsync()
     {

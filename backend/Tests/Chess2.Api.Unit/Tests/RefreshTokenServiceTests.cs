@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using Castle.Core.Logging;
 using Chess2.Api.Errors;
 using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
@@ -10,23 +9,20 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.Unit.Tests;
 
 public class RefreshTokenServiceTests : BaseUnitTest
 {
-    private readonly ILogger<RefreshTokenService> _loggerMock = Substitute.For<ILogger<RefreshTokenService>>();
-    private readonly IRefreshTokenRepository _refreshTokenRepositoryMock = Substitute.For<IRefreshTokenRepository>();
+    private readonly ILogger<RefreshTokenService> _loggerMock = Substitute.For<
+        ILogger<RefreshTokenService>
+    >();
+    private readonly IRefreshTokenRepository _refreshTokenRepositoryMock =
+        Substitute.For<IRefreshTokenRepository>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly AppSettings _appSettings;
 
     private readonly RefreshTokenService _refreshTokenService;
-
 
     private readonly AuthedUser _user;
 
@@ -39,7 +35,8 @@ public class RefreshTokenServiceTests : BaseUnitTest
             _loggerMock,
             appSettingsOptions,
             _refreshTokenRepositoryMock,
-            _timeProviderMock);
+            _timeProviderMock
+        );
 
         _user = new AuthedUserFaker().Generate();
     }

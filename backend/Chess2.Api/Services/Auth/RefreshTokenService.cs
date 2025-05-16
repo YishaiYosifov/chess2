@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Errors;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Errors;
 using Chess2.Api.Models;
 using Chess2.Api.Models.Entities;
 using Chess2.Api.Repositories;
 using ErrorOr;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Services.Auth;
 
