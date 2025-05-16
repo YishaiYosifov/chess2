@@ -32,4 +32,18 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         await AuthUtils.AssertUnauthenticated(ApiClient);
     }
+
+    [Fact]
+    public async Task RefreshToken_disallows_refreshing_using_the_same_token_twice()
+    {
+        var refreshToken = (await AuthUtils.AuthenticateAsync(ApiClient)).RefreshToken;
+
+        var firstRefreshResponse = await ApiClient.Api.RefreshTokenAsync();
+        firstRefreshResponse.IsSuccessful.Should().BeTrue();
+
+        AuthUtils.AuthenticateWithTokens(ApiClient, refreshToken: refreshToken);
+
+        var secondRefreshResponse = await ApiClient.Api.RefreshTokenAsync();
+        secondRefreshResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
 }
