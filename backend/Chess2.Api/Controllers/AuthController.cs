@@ -28,7 +28,11 @@ public class AuthController(
         return result.Match(
             (value) =>
             {
-                _authCookieSetter.SetCookies(value.AccessToken, value.RefreshToken, HttpContext);
+                _authCookieSetter.SetAuthCookies(
+                    value.AccessToken,
+                    value.RefreshToken,
+                    HttpContext
+                );
                 return NoContent();
             },
             (errors) => errors.ToActionResult()
@@ -39,7 +43,7 @@ public class AuthController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public ActionResult Logout()
     {
-        _authService.Logout(HttpContext);
+        _authCookieSetter.RemoveAuthCookies(HttpContext);
         return NoContent();
     }
 

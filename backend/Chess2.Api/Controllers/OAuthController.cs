@@ -40,7 +40,11 @@ public class OAuthController(
         return authResults.Match(
             value =>
             {
-                _authCookieSetter.SetCookies(value.AccessToken, value.RefreshToken, HttpContext);
+                _authCookieSetter.SetAuthCookies(
+                    value.AccessToken,
+                    value.RefreshToken,
+                    HttpContext
+                );
                 return Redirect(_settings.OAuthRedirectUrl);
             },
             errors => errors.ToActionResult()
