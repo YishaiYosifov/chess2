@@ -4,7 +4,6 @@ using Chess2.Api.Errors;
 using Chess2.Api.Extensions;
 using Chess2.Api.Models.DTOs;
 using Chess2.Api.Models.Entities;
-using Chess2.Api.Repositories;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
