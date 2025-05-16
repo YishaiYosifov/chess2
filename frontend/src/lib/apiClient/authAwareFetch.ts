@@ -9,6 +9,8 @@ type Pending = {
     init?: RequestInit;
 };
 
+const IGNORE_CONTROLLERS: string[] = ["/api/auth"];
+
 let isRefreshing = false;
 let refreshQueue: Pending[] = [];
 export default async function authAwareFetch(
@@ -19,10 +21,15 @@ export default async function authAwareFetch(
 
     // if the server is making this request we don't want to auto refresh
     const isServerRequest = typeof window === "undefined";
-    if (response.status !== 401 || isServerRequest) return response;
 
-    if (response.status === 401 && isRefreshing)
-        return addToRefreshQueue(input, init);
+    const url = new URL(input.toString());
+    const shouldIgnoreController = IGNORE_CONTROLLERS.some((path) =>
+        url.pathname.toLocaleLowerCase().startsWith(path.toLowerCase()),
+    );
+    if (response.status !== 401 || isServerRequest || shouldIgnoreController)
+        return response;
+
+    if (isRefreshing) return addToRefreshQueue(input, init);
 
     const newResponse = addToRefreshQueue(input, init);
     isRefreshing = true;
@@ -30,7 +37,9 @@ export default async function authAwareFetch(
     try {
         isRefreshSuccessful = await handleRefresh();
         refreshQueue.forEach(({ resolve, reject, input, init }) => {
-            fetch(input, init).then(resolve).catch(reject);
+            logoutWhenUnauthorizedFetch(input, init)
+                .then(resolve)
+                .catch(reject);
         });
     } catch (err) {
         refreshQueue.forEach(({ reject }) => reject(err));
@@ -39,23 +48,35 @@ export default async function authAwareFetch(
         refreshQueue = [];
         isRefreshing = false;
 
-        if (!isRefreshSuccessful) {
-            await logout();
-            navigate(constants.PATHS.LOGIN);
-        }
+        if (!isRefreshSuccessful) await handleLogout();
     }
 
     return newResponse;
 }
 
+async function logoutWhenUnauthorizedFetch(
+    input: URL | RequestInfo,
+    init?: RequestInit,
+): Promise<Response> {
+    const response = await fetch(input, init);
+    if (response.status === 401) await handleLogout();
+
+    return response;
+}
+
 async function handleRefresh(): Promise<boolean> {
-    const response = await fetch(constants.PATHS.REFRESH);
-    if (!response.ok) {
-        console.error("Failed refreshing:", await response.text());
+    const { error } = await refresh();
+    if (error) {
+        console.error("Failed refreshing:", error);
         return false;
     }
 
     return true;
+}
+
+async function handleLogout() {
+    await logout();
+    navigate(constants.PATHS.LOGIN);
 }
 
 const addToRefreshQueue = (
