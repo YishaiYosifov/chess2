@@ -34,7 +34,7 @@ public class DiscordOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<Discor
     }
 
     [Fact]
-    public async Task SignUserUp_create_a_user_correctly()
+    public async Task SignUserUpAsync_create_a_user_correctly()
     {
         var user = new AuthedUserFaker().Generate();
         AuthServiceMock.SignupAsync("test", default, default).Returns(user);

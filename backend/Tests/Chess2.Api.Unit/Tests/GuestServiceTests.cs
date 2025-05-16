@@ -33,7 +33,7 @@ public class GuestServiceTests : BaseUnitTest
     }
 
     [Fact]
-    public void Correct_token_is_returned()
+    public void CreateGuestUser_correctly_generates_the_guest_token()
     {
         var guestToken = "token";
         _tokenProviderMock.GenerateGuestToken(Arg.Any<string>()).Returns(guestToken);
@@ -44,7 +44,7 @@ public class GuestServiceTests : BaseUnitTest
     }
 
     [Fact]
-    public void Guest_id_is_created_randomly()
+    public void CreateGuestUser_chooses_a_random_id()
     {
         _guestService.CreateGuestUser();
         _guestService.CreateGuestUser();
@@ -55,12 +55,15 @@ public class GuestServiceTests : BaseUnitTest
         var guestId1 = calls.ElementAt(0).GetArguments()[0];
         var guestId2 = calls.ElementAt(1).GetArguments()[0];
         guestId1.Should().NotBe(guestId2);
+
+        guestId1.ToString()?.Length.Should().BeGreaterThan(36);
+        guestId2?.ToString()?.Length.Should().BeGreaterThan(36);
     }
 
     [Theory]
     [InlineData("Development")]
     [InlineData("Production")]
-    public void Cookie_is_set_with_correct_parameters(string environment)
+    public void SetGuestCookie_sets_the_cookie_with_the_correct_parameters(string environment)
     {
         var guestToken = "token";
         var accessCookieName = "test-cookie";
@@ -91,7 +94,10 @@ public class GuestServiceTests : BaseUnitTest
     [InlineData("", false)]
     [InlineData("0", false)]
     [InlineData("1", true)]
-    public void Guest_is_detected_correctly(string anonymousClaim, bool isGuest)
+    public void IsGuest_correctly_determines_if_a_user_is_a_guest_or_not(
+        string anonymousClaim,
+        bool isGuest
+    )
     {
         var principles = new ClaimsPrincipal();
         var identity = new ClaimsIdentity([new Claim(ClaimTypes.Anonymous, anonymousClaim)]);
@@ -103,7 +109,7 @@ public class GuestServiceTests : BaseUnitTest
     }
 
     [Fact]
-    public void Guest_is_not_detected_without_claims_principal()
+    public void IsGuest_doesnt_detect_null_claims_as_guests()
     {
         var result = _guestService.IsGuest(null);
         result.Should().BeFalse();

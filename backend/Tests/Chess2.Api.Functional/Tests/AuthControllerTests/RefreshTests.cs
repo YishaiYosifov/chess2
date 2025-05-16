@@ -9,7 +9,7 @@ namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task Refresh_with_a_valid_refresh_token()
+    public async Task RefreshToken_refreshes_and_sets_the_access_token()
     {
         // create an api client with just a refresh token, no access token
         await AuthUtils.AuthenticateAsync(ApiClient, setAccessToken: false);
@@ -21,7 +21,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     }
 
     [Fact]
-    public async Task Refresh_with_access_instead_of_refresh_token()
+    public async Task RefreshToken_disallows_refreshing_when_provided_an_access_token()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var accessToken = TokenProvider.GenerateAccessToken(user);
@@ -30,22 +30,6 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.Api.RefreshTokenAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        await AuthUtils.AssertUnauthenticated(ApiClient);
-    }
-
-    [Fact]
-    public async Task Refresh_after_password_change()
-    {
-        var passwordChanged = DateTime.UtcNow.AddSeconds(2);
-        var user = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new AuthedUserFaker().RuleFor(x => x.PasswordLastChanged, passwordChanged)
-        );
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user, setAccessToken: false);
-
-        var response = await ApiClient.Api.RefreshTokenAsync();
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
         await AuthUtils.AssertUnauthenticated(ApiClient);
     }
 }

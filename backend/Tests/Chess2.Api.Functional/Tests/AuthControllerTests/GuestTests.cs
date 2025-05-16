@@ -6,7 +6,7 @@ namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 public class GuestTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task Guest_token_is_created_succesfully()
+    public async Task CreateGuest_generates_and_authenticates_a_guest_successfully()
     {
         await AuthUtils.AssertGuestUnauthenticated(ApiClient);
 
