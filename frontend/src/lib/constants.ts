@@ -22,7 +22,7 @@ const PATHS = {
     LOGIN: "/login",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
-    OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/`,
+    OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
 const HEADERS = {

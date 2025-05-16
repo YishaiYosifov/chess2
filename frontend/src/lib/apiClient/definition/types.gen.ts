@@ -18,6 +18,7 @@ export enum ErrorCode {
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
+    AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
 }
 
 export type ApiProblemError = {
@@ -29,7 +30,8 @@ export type ApiProblemError = {
         | "User.Cooldown.Setting"
         | "Auth.TokenMissing"
         | "Auth.TokenInvalid"
-        | "Auth.OAuth.Invalid";
+        | "Auth.OAuth.Invalid"
+        | "Auth.OAuth.ProviderNotFound";
     description: string;
 };
 
@@ -75,31 +77,6 @@ export type ValidationProblemDetails = {
     errors?: {
         [key: string]: Array<string>;
     };
-};
-
-export type SigninGoogleData = {
-    body?: never;
-    path?: never;
-    query?: {
-        returnUrl?: string;
-    };
-    url: "/api/Auth/signin/google";
-};
-
-export type SigninGoogleCallbackData = {
-    body?: never;
-    path?: never;
-    query?: {
-        returnUrl?: string;
-    };
-    url: "/api/Auth/signin/google/callback";
-};
-
-export type SigninGoogleCallbackResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
 };
 
 export type RefreshData = {
@@ -168,7 +145,7 @@ export type TestAuthedData = {
     body?: never;
     path?: never;
     query?: never;
-    url: "/api/Auth/test-authed";
+    url: "/api/Auth/test-auth";
 };
 
 export type TestAuthedErrors = {
@@ -193,7 +170,7 @@ export type TestGuestData = {
     body?: never;
     path?: never;
     query?: never;
-    url: "/api/Auth/test-guest";
+    url: "/api/Auth/test-guest-auth";
 };
 
 export type TestGuestErrors = {
@@ -213,6 +190,31 @@ export type TestGuestResponses = {
 };
 
 export type TestGuestResponse = TestGuestResponses[keyof TestGuestResponses];
+
+export type OAuthCallbackData = {
+    body?: never;
+    path: {
+        provider: string;
+    };
+    query?: never;
+    url: "/api/OAuth/{provider}/callback";
+};
+
+export type OAuthCallbackResponses = {
+    /**
+     * OK
+     */
+    200: unknown;
+};
+
+export type SigninOAuthData = {
+    body?: never;
+    path: {
+        provider: string;
+    };
+    query?: never;
+    url: "/api/OAuth/signin/{provider}";
+};
 
 export type GetAuthedUserData = {
     body?: never;
