@@ -21,12 +21,14 @@ public interface IRefreshTokenService
 public class RefreshTokenService(
     ILogger<RefreshTokenService> logger,
     IOptions<AppSettings> appSettings,
-    IRefreshTokenRepository refreshTokenRepository
+    IRefreshTokenRepository refreshTokenRepository,
+    TimeProvider timeProvider
 ) : IRefreshTokenService
 {
     private readonly ILogger<RefreshTokenService> _logger = logger;
     private readonly JwtSettings _jwtSettings = appSettings.Value.Jwt;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<RefreshToken> CreateRefreshTokenAsync(
         AuthedUser user,
@@ -34,7 +36,7 @@ public class RefreshTokenService(
     )
     {
         var jti = GenerateJti();
-        var expiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays);
+        var expiresAt = _timeProvider.GetUtcNow().AddDays(_jwtSettings.RefreshExpiresInDays);
         var refreshToken = new RefreshToken()
         {
             User = user,
