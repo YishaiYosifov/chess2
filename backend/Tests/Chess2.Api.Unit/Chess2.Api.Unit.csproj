@@ -4,9 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,12 +30,12 @@
     <ProjectReference Include="..\..\Chess2.Api\Chess2.Api.csproj" />
     <ProjectReference Include="..\Chess2.Api.TestInfrastructure\Chess2.Api.TestInfrastructure.csproj" />
   </ItemGroup>
-	
+    
   <ItemGroup>
     <None Include="..\..\Chess2.Api\appsettings.Example.json">
-	  <Link>appsettings.json</Link>
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
+      <Link>appsettings.json</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
