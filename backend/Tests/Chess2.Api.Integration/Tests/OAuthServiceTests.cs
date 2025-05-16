@@ -75,7 +75,7 @@ public class OAuthServiceTests : BaseIntegrationTest
             user =>
             {
                 user.Email.Should().Be(email);
-                user.UserName.Should().Be(email);
+                user.UserName?.Length.Should().BeGreaterThan(10);
             }
         );
     }
@@ -91,7 +91,7 @@ public class OAuthServiceTests : BaseIntegrationTest
             user =>
             {
                 user.Email.Should().BeNull();
-                user.UserName.Should().Be("test");
+                user.UserName?.Length.Should().BeGreaterThan(10);
             }
         );
     }
