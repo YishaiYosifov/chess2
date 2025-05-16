@@ -1,18 +1,19 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import React, { JSX } from "react";
+import React from "react";
 
 import { getAuthedUser, type PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import AuthContextProvider from "@/contexts/authContext";
 
-interface WithAuthProps extends JSX.IntrinsicAttributes {
-    profile: PrivateUser;
+interface WithAuthProps {
+    user: PrivateUser;
 }
 
 /**
  * HOC to make sure the page is not accessible without the user being logged in.
  *
- * This HOC will send a request to `check if we are authorized, and if not
+ * This HOC will send a request to check if we are authorized, and if not
  * the user will be redirected to the home page
  */
 const withAuth = <P extends WithAuthProps>(
@@ -23,15 +24,19 @@ const withAuth = <P extends WithAuthProps>(
         if (!cookieStore.has(constants.COOKIES.ACCESS_TOKEN))
             redirect(constants.PATHS.LOGIN);
 
-        const { data, error } = await getAuthedUser({
+        const { data: user, error } = await getAuthedUser({
             headers: { Cookie: cookieStore.toString() },
         });
-        if (error || !data) {
+        if (error || !user) {
             console.error(error);
             redirect(constants.PATHS.LOGOUT);
         }
 
-        return <WrappedComponent {...props} />;
+        return (
+            <AuthContextProvider user={user}>
+                <WrappedComponent {...props} user={user} />
+            </AuthContextProvider>
+        );
     };
     return NewComponent;
 };
