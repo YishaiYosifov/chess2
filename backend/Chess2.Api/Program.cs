@@ -15,6 +15,7 @@ using Chess2.Api.Services;
 using Chess2.Api.Services.Auth;
 using Chess2.Api.Services.Auth.OAuthAuthenticators;
 using Chess2.Api.Services.Matchmaking;
+using Chess2.Api.Services.UsernameGenerator;
 using Chess2.Api.SignalR;
 using Chess2.Api.Validators;
 using ErrorOr;
@@ -268,6 +269,9 @@ builder.Services.AddProblemDetails();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
+builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 
 var app = builder.Build();
 
