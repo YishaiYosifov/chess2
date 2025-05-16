@@ -28,7 +28,7 @@ public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleO
         var email = "test@email.com";
         AuthServiceMock.SignupAsync(email, email, default).Returns(user);
 
-        var result = await Authenticator.SignUserUp(new(), email);
+        var result = await Authenticator.SignUserUpAsync(new(), email);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEquivalentTo(user);

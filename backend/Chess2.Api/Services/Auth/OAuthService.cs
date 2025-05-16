@@ -83,7 +83,7 @@ public class OAuthService(
         if (existingLogin is not null)
             return existingLogin;
 
-        var signupResult = await authenticator.SignUserUp(claimsPrincipal, providerKey);
+        var signupResult = await authenticator.SignUserUpAsync(claimsPrincipal, providerKey);
         if (signupResult.IsError)
             return signupResult.Errors;
         var newUser = signupResult.Value;

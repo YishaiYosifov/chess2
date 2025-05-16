@@ -8,6 +8,6 @@ public interface IOAuthAuthenticator
 {
     string Provider { get; }
 
-    Task<ErrorOr<AuthedUser>> SignUserUp(ClaimsPrincipal claimsPrincipal, string providerKey);
+    Task<ErrorOr<AuthedUser>> SignUserUpAsync(ClaimsPrincipal claimsPrincipal, string providerKey);
     ErrorOr<string> GetProviderKey(ClaimsPrincipal claimsPrincipal);
 }
