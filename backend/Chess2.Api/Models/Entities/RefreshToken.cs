@@ -12,5 +12,5 @@ public class RefreshToken
 
     public required string Jti { get; set; }
     public bool IsRevoked { get; set; }
-    public required DateTime ExpiresAt { get; set; }
+    public required DateTimeOffset ExpiresAt { get; set; }
 }
