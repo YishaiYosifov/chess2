@@ -53,12 +53,12 @@ public class AuthController(
     }
 
 #if DEBUG
-    [HttpPost("test-authed", Name = nameof(TestAuthed))]
+    [HttpPost("test-auth", Name = nameof(TestAuthed))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
     public ActionResult TestAuthed() => NoContent();
 
-    [HttpPost("test-guest", Name = nameof(TestGuest))]
+    [HttpPost("test-guest-auth", Name = nameof(TestGuest))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize("GuestAccess")]
     public ActionResult TestGuest() => NoContent();
