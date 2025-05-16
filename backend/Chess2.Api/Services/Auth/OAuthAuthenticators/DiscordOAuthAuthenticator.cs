@@ -18,7 +18,7 @@ public class DiscordOAuthAuthenticator(
     private readonly ILogger<DiscordOAuthAuthenticator> _logger = logger;
     private readonly IAuthService _authService = authService;
 
-    public async Task<ErrorOr<AuthedUser>> SignUserUp(
+    public async Task<ErrorOr<AuthedUser>> SignUserUpAsync(
         ClaimsPrincipal claimsPrincipal,
         string providerKey
     )
