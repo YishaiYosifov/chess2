@@ -23,7 +23,6 @@ const OAuthButton = ({
     function oAuthLogin() {
         const url = new URL(constants.PATHS.OAUTH);
         url.pathname += oauthProvider;
-        url.searchParams.append("returnUrl", window.location.origin);
 
         router.push(url.toString());
     }

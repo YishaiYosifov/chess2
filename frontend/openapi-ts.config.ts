@@ -1,11 +1,12 @@
 import { defineConfig, defaultPlugins } from "@hey-api/openapi-ts";
 
 export default defineConfig({
-    input: "http://127.0.0.1:5116/openapi/v1.json",
+    input: "https://localhost:7266/openapi/v1.json",
     output: {
         path: "./src/lib/apiClient/definition",
         format: "prettier",
     },
+    logs: { file: false },
     plugins: [
         ...defaultPlugins,
         {

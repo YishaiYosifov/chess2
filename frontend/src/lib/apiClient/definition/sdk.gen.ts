@@ -6,8 +6,6 @@ import type {
     Client,
 } from "@hey-api/client-next";
 import type {
-    SigninGoogleData,
-    SigninGoogleCallbackData,
     RefreshData,
     RefreshResponse,
     RefreshError,
@@ -21,6 +19,8 @@ import type {
     TestGuestData,
     TestGuestResponse,
     TestGuestError,
+    OAuthCallbackData,
+    SigninOAuthData,
     GetAuthedUserData,
     GetAuthedUserResponse,
     GetAuthedUserError,
@@ -51,32 +51,6 @@ export type Options<
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
-};
-
-export const signinGoogle = <ThrowOnError extends boolean = false>(
-    options?: Options<SigninGoogleData, ThrowOnError>,
-) => {
-    return (options?.client ?? _heyApiClient).get<
-        unknown,
-        unknown,
-        ThrowOnError
-    >({
-        url: "/api/Auth/signin/google",
-        ...options,
-    });
-};
-
-export const signinGoogleCallback = <ThrowOnError extends boolean = false>(
-    options?: Options<SigninGoogleCallbackData, ThrowOnError>,
-) => {
-    return (options?.client ?? _heyApiClient).get<
-        unknown,
-        unknown,
-        ThrowOnError
-    >({
-        url: "/api/Auth/signin/google/callback",
-        ...options,
-    });
 };
 
 export const refresh = <ThrowOnError extends boolean = false>(
@@ -126,7 +100,7 @@ export const testAuthed = <ThrowOnError extends boolean = false>(
         TestAuthedError,
         ThrowOnError
     >({
-        url: "/api/Auth/test-authed",
+        url: "/api/Auth/test-auth",
         ...options,
     });
 };
@@ -139,7 +113,33 @@ export const testGuest = <ThrowOnError extends boolean = false>(
         TestGuestError,
         ThrowOnError
     >({
-        url: "/api/Auth/test-guest",
+        url: "/api/Auth/test-guest-auth",
+        ...options,
+    });
+};
+
+export const oAuthCallback = <ThrowOnError extends boolean = false>(
+    options: Options<OAuthCallbackData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        unknown,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/OAuth/{provider}/callback",
+        ...options,
+    });
+};
+
+export const signinOAuth = <ThrowOnError extends boolean = false>(
+    options: Options<SigninOAuthData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        unknown,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/OAuth/signin/{provider}",
         ...options,
     });
 };
