@@ -28,7 +28,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim("type", "access"),
                 ]
             ),
-            DateTime.UtcNow.AddSeconds(_jwtSettings.AccessExpiresInSeconds)
+            DateTime.UtcNow.Add(_jwtSettings.AccessMaxAge)
         );
     }
 
@@ -42,7 +42,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim(JwtRegisteredClaimNames.Jti, jti),
                 ]
             ),
-            DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiresInDays)
+            DateTime.UtcNow.Add(_jwtSettings.RefreshMaxAge)
         );
     }
 
