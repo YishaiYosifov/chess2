@@ -28,13 +28,13 @@ public class AuthCookieSetter(
             context,
             _jwtSettings.AccessTokenCookieName,
             accessToken,
-            TimeSpan.FromSeconds(_jwtSettings.AccessExpiresInSeconds)
+            maxAge: _jwtSettings.AccessMaxAge
         );
         SetCookie(
             context,
             _jwtSettings.RefreshTokenCookieName,
             refreshToken,
-            TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
+            maxAge: _jwtSettings.RefreshMaxAge,
             path: GetRefreshPath(context)
         );
 
@@ -42,7 +42,7 @@ public class AuthCookieSetter(
             context,
             _jwtSettings.IsAuthedTokenCookieName,
             "true",
-            TimeSpan.FromDays(_jwtSettings.RefreshExpiresInDays),
+            maxAge: _jwtSettings.RefreshMaxAge,
             httpOnly: false
         );
     }
