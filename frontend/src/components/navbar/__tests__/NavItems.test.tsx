@@ -1,18 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
 import { UpperNavItems, LowerNavItems } from "../NavItems";
-import AuthContextProvider from "@/contexts/authContext";
-
-const renderWithAuth = (authenticated: boolean, children: React.ReactNode) =>
-    render(
-        <AuthContextProvider hasAccessToken={authenticated}>
-            {children}
-        </AuthContextProvider>,
-    );
 
 describe("UpperNavItems", () => {
     it("should render with unauthenticated links when not authenticated", () => {
-        renderWithAuth(false, <UpperNavItems />);
+        render(<UpperNavItems hasAccessCookie={false} />);
 
         expect(screen.getByText("Login")).toBeInTheDocument();
         expect(screen.getByText("Signup")).toBeInTheDocument();
@@ -22,7 +14,7 @@ describe("UpperNavItems", () => {
     });
 
     it("should render with authenticated links when authenticated", () => {
-        renderWithAuth(true, <UpperNavItems />);
+        render(<UpperNavItems hasAccessCookie={true} />);
 
         expect(screen.getByText("Profile")).toBeInTheDocument();
         expect(screen.getByText("Play")).toBeInTheDocument();
@@ -31,7 +23,7 @@ describe("UpperNavItems", () => {
     });
 
     it("should render with the correct href when not authenticated", () => {
-        renderWithAuth(false, <UpperNavItems />);
+        render(<UpperNavItems hasAccessCookie={false} />);
 
         expect(screen.getByText("Login").closest("a")).toHaveAttribute(
             "href",
@@ -56,7 +48,7 @@ describe("UpperNavItems", () => {
     });
 
     it("should render with the correct href when authenticated", () => {
-        renderWithAuth(true, <UpperNavItems />);
+        render(<UpperNavItems hasAccessCookie={true} />);
 
         expect(screen.getByText("Profile").closest("a")).toHaveAttribute(
             "href",
@@ -67,21 +59,21 @@ describe("UpperNavItems", () => {
 
 describe("LowerNavItems", () => {
     it("should render LowerNavItems with authenticated links when authenticated", () => {
-        renderWithAuth(true, <LowerNavItems />);
+        render(<LowerNavItems hasAccessCookie={true} />);
 
         expect(screen.getByText("Settings")).toBeInTheDocument();
         expect(screen.getByText("Logout")).toBeInTheDocument();
     });
 
     it("should not render LowerNavItems when not authenticated", () => {
-        renderWithAuth(false, <LowerNavItems />);
+        render(<LowerNavItems hasAccessCookie={false} />);
 
         expect(screen.queryByText("Settings")).not.toBeInTheDocument();
         expect(screen.queryByText("Logout")).not.toBeInTheDocument();
     });
 
     it("should render with the correct href when authenticated", () => {
-        renderWithAuth(true, <LowerNavItems />);
+        render(<LowerNavItems hasAccessCookie={true} />);
 
         expect(screen.getByText("Settings").closest("a")).toHaveAttribute(
             "href",

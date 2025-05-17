@@ -7,7 +7,7 @@ import Image from "next/image";
 import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
 
-const NavMobile = ({ hasAccessToken }: { hasAccessToken: boolean }) => {
+const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
 
@@ -55,8 +55,8 @@ const NavMobile = ({ hasAccessToken }: { hasAccessToken: boolean }) => {
                 onClick={toggleMenu}
                 data-testid="navbarMobileOpened"
             >
-                <UpperNavItems hasAccessToken={hasAccessToken} />
-                <LowerNavItems hasAccessToken={hasAccessToken} />
+                <UpperNavItems hasAccessCookie={hasAccessCookie} />
+                <LowerNavItems hasAccessCookie={hasAccessCookie} />
             </nav>
         </header>
     );
