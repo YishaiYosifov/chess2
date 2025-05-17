@@ -16,10 +16,10 @@ import Link from "next/link";
 import NavItem from "./NavItem";
 
 export const UpperNavItems = ({
-    hasAccessToken,
+    hasAccessCookie,
     isCollapsed = false,
 }: {
-    hasAccessToken: boolean;
+    hasAccessCookie: boolean;
     isCollapsed?: boolean;
 }) => {
     const authedLinks = (
@@ -72,7 +72,7 @@ export const UpperNavItems = ({
             >
                 Home
             </NavItem>
-            {hasAccessToken ? authedLinks : unauthedLinks}
+            {hasAccessCookie ? authedLinks : unauthedLinks}
             <NavItem
                 as={Link}
                 href="/donate"
@@ -86,10 +86,10 @@ export const UpperNavItems = ({
 };
 
 export const LowerNavItems = ({
-    hasAccessToken,
+    hasAccessCookie,
     isCollapsed = false,
 }: {
-    hasAccessToken: boolean;
+    hasAccessCookie: boolean;
     isCollapsed?: boolean;
 }) => {
     const authedLinks = (
@@ -113,5 +113,5 @@ export const LowerNavItems = ({
             </NavItem>
         </>
     );
-    return hasAccessToken && authedLinks;
+    return hasAccessCookie && authedLinks;
 };

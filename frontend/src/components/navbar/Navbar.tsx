@@ -8,13 +8,13 @@ import NavMobile from "./NavMobile";
 const Navbar = async () => {
     const cookieStore = await cookies();
     const isNavCollapsed = cookieStore.has(constants.COOKIES.SIDEBAR_COLLAPSED);
-    const hasAccessToken = cookieStore.has(constants.COOKIES.ACCESS_TOKEN);
+    const hasAccessCookie = cookieStore.has(constants.COOKIES.IS_AUTHED);
 
     return (
         <>
-            <NavMobile hasAccessToken={hasAccessToken} />
+            <NavMobile hasAccessCookie={hasAccessCookie} />
             <NavDesktop
-                hasAccessToken={hasAccessToken}
+                hasAccessCookie={hasAccessCookie}
                 isCollapsedInitialState={isNavCollapsed}
             />
         </>
