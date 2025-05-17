@@ -35,7 +35,7 @@ public class RefreshTokenService(
     )
     {
         var jti = GenerateJti();
-        var expiresAt = _timeProvider.GetUtcNow().AddDays(_jwtSettings.RefreshExpiresInDays);
+        var expiresAt = _timeProvider.GetUtcNow().Add(_jwtSettings.RefreshMaxAge);
         var refreshToken = new RefreshToken()
         {
             User = user,
