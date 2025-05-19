@@ -65,8 +65,9 @@ public class MatchmakingRepository(
         }
 
         var timeControl = (int)
-            await _redis.HashGetAsync(userId, MatchmakingUserHashFields.TimeControl);
-        var increment = (int)await _redis.HashGetAsync(userId, MatchmakingUserHashFields.Increment);
+            await _redis.HashGetAsync(userSetName, MatchmakingUserHashFields.TimeControl);
+        var increment = (int)
+            await _redis.HashGetAsync(userSetName, MatchmakingUserHashFields.Increment);
         var queueName = GetQueueName(timeControl, increment);
 
         await _redis.SortedSetRemoveAsync(queueName, userId);
