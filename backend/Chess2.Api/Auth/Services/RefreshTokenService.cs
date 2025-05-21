@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Auth.Entities;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Entities;
 using ErrorOr;
 using Microsoft.Extensions.Options;

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;

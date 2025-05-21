@@ -1,7 +1,7 @@
 ﻿using AutoFixture;
 using Chess2.Api.Auth.Controllers;
 using Chess2.Api.Auth.Services;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

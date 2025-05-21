@@ -2,7 +2,7 @@
 using Chess2.Api.Matchmaking.Repositories;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Repositories;

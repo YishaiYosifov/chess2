@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Chess2.Api.Auth.Services;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -11,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using System.Security.Claims;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace Chess2.Api.Integration.Tests;
@@ -58,7 +58,7 @@ public class OAuthServiceTests : BaseIntegrationTest
         var tokens = result.Value;
 
         AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
-        await AuthUtils.AssertAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
 
         var user = await _userManager.Users.SingleAsync();
         userCreationAssertion(user);
@@ -116,7 +116,7 @@ public class OAuthServiceTests : BaseIntegrationTest
         var tokens = result.Value;
 
         AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
-        await AuthUtils.AssertAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
 
         var users = await _userManager.Users.ToListAsync();
         users.Should().HaveCount(1);

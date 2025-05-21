@@ -1,8 +1,3 @@
-using System.ComponentModel;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Serialization;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
@@ -13,8 +8,7 @@ using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Repositories;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Services;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.Users.DTOs;
@@ -31,6 +25,11 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.ComponentModel;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 

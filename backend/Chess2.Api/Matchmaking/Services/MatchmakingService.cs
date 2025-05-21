@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Matchmaking.Repositories;
 using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.Users.Entities;
 using Microsoft.AspNetCore.SignalR;
