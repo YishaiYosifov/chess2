@@ -1,12 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Chess2.Api.Users.Entities;
+﻿using Chess2.Api.Users.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chess2.Api.Auth.Entities;
 
 public class RefreshToken
 {
     public int Id { get; set; }
-    public int UserId { get; set; }
+    public required string UserId { get; set; }
 
     [ForeignKey(nameof(UserId))]
     public required AuthedUser User { get; set; }

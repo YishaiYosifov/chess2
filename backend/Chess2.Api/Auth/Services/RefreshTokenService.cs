@@ -39,6 +39,7 @@ public class RefreshTokenService(
         var expiresAt = _timeProvider.GetUtcNow().Add(_jwtSettings.RefreshMaxAge);
         var refreshToken = new RefreshToken()
         {
+            UserId = user.Id,
             User = user,
             Jti = jti,
             ExpiresAt = expiresAt,

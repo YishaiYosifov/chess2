@@ -26,7 +26,12 @@ public class RatingRepository(ApplicationDbContext dbContext) : IRatingRepositor
 
     private async Task<Rating> CreateRating(AuthedUser user, TimeControl timeControl)
     {
-        var rating = new Rating() { User = user, TimeControl = timeControl };
+        var rating = new Rating()
+        {
+            UserId = user.Id,
+            User = user,
+            TimeControl = timeControl,
+        };
         user.Ratings.Add(rating);
 
         await _dbContext.AddAsync(rating);
