@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Errors;
-using ErrorOr;
+﻿using ErrorOr;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 
