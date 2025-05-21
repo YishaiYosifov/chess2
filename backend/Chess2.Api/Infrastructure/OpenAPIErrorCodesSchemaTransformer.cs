@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using Chess2.Api.Errors;
+using Chess2.Api.Infrastructure.Errors;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;

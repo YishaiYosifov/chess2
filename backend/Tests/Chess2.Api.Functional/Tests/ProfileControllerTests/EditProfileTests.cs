@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using Chess2.Api.Models.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.Users.DTOs;
 using FluentAssertions;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;

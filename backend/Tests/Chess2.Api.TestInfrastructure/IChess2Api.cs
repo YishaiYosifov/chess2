@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Models.DTOs;
+﻿using Chess2.Api.Auth.DTOs;
+using Chess2.Api.Users.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 

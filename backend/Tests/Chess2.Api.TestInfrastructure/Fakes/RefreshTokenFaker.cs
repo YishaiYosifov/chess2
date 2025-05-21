@@ -1,5 +1,6 @@
 ﻿using Bogus;
-using Chess2.Api.Models.Entities;
+using Chess2.Api.Auth.Entities;
+using Chess2.Api.Users.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 

@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Errors;
+﻿using Chess2.Api.Infrastructure.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;

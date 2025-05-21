@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Extensions;
+﻿using Chess2.Api.Infrastructure.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

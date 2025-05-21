@@ -1,7 +1,7 @@
-﻿using Chess2.Api.Models.Entities;
-using Chess2.Api.Services;
-using Chess2.Api.Services.UsernameGenerator;
+﻿using Chess2.Api.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.Users.Entities;
+using Chess2.Api.Users.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;

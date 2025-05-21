@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Chess2.Api.Errors;
-using Chess2.Api.Services.Auth;
+using Chess2.Api.Auth.Errors;
+using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
