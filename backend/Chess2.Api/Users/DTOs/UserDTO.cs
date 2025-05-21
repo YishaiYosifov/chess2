@@ -1,13 +1,13 @@
-﻿using System.ComponentModel;
-using Chess2.Api.Users.Entities;
+﻿using Chess2.Api.Users.Entities;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace Chess2.Api.Users.DTOs;
 
 [DisplayName("User")]
 [method: JsonConstructor]
 public record UserOut(
-    int UserId,
+    string UserId,
     string? UserName = null,
     string? About = null,
     string? CountryCode = null
@@ -20,7 +20,7 @@ public record UserOut(
 [DisplayName("PrivateUser")]
 [method: JsonConstructor]
 public record PrivateUserOut(
-    int UserId,
+    string UserId,
     string? UserName = null,
     string? Email = null,
     string? About = null,

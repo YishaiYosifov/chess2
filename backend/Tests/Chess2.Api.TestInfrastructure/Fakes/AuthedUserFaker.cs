@@ -8,7 +8,7 @@ public class AuthedUserFaker : Faker<AuthedUser>
     public AuthedUserFaker()
     {
         StrictMode(true)
-            .RuleFor(x => x.Id, 0)
+            .RuleFor(x => x.Id, f => f.Random.Guid().ToString())
             .RuleFor(x => x.UserName, f => f.Person.UserName)
             .RuleFor(x => x.NormalizedUserName, (f, p) => p.UserName?.ToUpper())
             .RuleFor(x => x.Email, f => f.Person.Email)

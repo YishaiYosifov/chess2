@@ -67,7 +67,7 @@ public class AuthServiceTests : BaseIntegrationTest
     public async Task GetLoggedInUserAsync_returns_an_error_when_the_user_is_not_found()
     {
         await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var principal = ClaimUtils.CreateUserClaims(69420);
+        var principal = ClaimUtils.CreateUserClaims("69420");
 
         var result = await _authService.GetLoggedInUserAsync(principal);
 

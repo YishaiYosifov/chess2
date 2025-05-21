@@ -1,6 +1,6 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using OpenIddict.Client.AspNetCore;
+using System.Security.Claims;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -23,8 +23,8 @@ public static class ClaimUtils
         return principal;
     }
 
-    public static ClaimsPrincipal CreateUserClaims(int userId, params IEnumerable<Claim> claims) =>
-        CreateClaimsPrincipal(
-            claims.Append(new Claim(ClaimTypes.NameIdentifier, userId.ToString()))
-        );
+    public static ClaimsPrincipal CreateUserClaims(
+        string userId,
+        params IEnumerable<Claim> claims
+    ) => CreateClaimsPrincipal(claims.Append(new Claim(ClaimTypes.NameIdentifier, userId)));
 }
