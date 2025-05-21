@@ -23,10 +23,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
     {
         return GenerateToken(
             new ClaimsIdentity(
-                [
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim("type", "access"),
-                ]
+                [new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim("type", "access")]
             ),
             DateTime.UtcNow.Add(_jwtSettings.AccessMaxAge)
         );
@@ -37,7 +34,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
         return GenerateToken(
             new ClaimsIdentity(
                 [
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim("type", "refresh"),
                     new Claim(JwtRegisteredClaimNames.Jti, jti),
                 ]
