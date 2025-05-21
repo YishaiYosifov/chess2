@@ -2,16 +2,11 @@
 
 namespace Chess2.Api.Models.DTOs;
 
-public class SignalRError
+public record SignalRError(
+    string Code = "General.Failure",
+    string Description = "Internal Server Error"
+)
 {
-    public string Code { get; set; } = "General.Failure";
-    public string Description { get; set; } = "Internal Server Error";
-
-    public SignalRError() { }
-
     public SignalRError(Error error)
-    {
-        Code = error.Code;
-        Description = error.Description;
-    }
+        : this(error.Code, error.Description) { }
 }

@@ -1,65 +1,38 @@
 ﻿using System.ComponentModel;
 using Chess2.Api.Models.Entities;
+using Newtonsoft.Json;
 
 namespace Chess2.Api.Models.DTOs;
 
-public class SignupRequest
-{
-    public required string UserName { get; set; }
-    public required string Email { get; set; }
-    public required string Password { get; set; }
-    public string? CountryCode { get; set; }
-}
-
-public class SigninRequest
-{
-    public required string UsernameOrEmail { get; set; }
-    public required string Password { get; set; }
-}
-
 [DisplayName("User")]
-public class UserOut
+[method: JsonConstructor]
+public record UserOut(
+    int UserId,
+    string? UserName = null,
+    string? About = null,
+    string? CountryCode = null
+)
 {
-    public int UserId { get; set; }
-    public string? UserName { get; set; }
-    public string? About { get; set; }
-    public string? CountryCode { get; set; }
-
-    public UserOut() { }
-
     public UserOut(AuthedUser user)
-    {
-        UserId = user.Id;
-        UserName = user.UserName;
-        About = user.About;
-        CountryCode = user.CountryCode;
-    }
+        : this(user.Id, user.UserName, user.About, user.CountryCode) { }
 }
 
 [DisplayName("PrivateUser")]
-public class PrivateUserOut : UserOut
+[method: JsonConstructor]
+public record PrivateUserOut(
+    int UserId,
+    string? UserName = null,
+    string? Email = null,
+    string? About = null,
+    string? CountryCode = null
+) : UserOut(UserId, UserName, About, CountryCode)
 {
-    public string? Email { get; set; }
-
-    public PrivateUserOut() { }
-
     public PrivateUserOut(AuthedUser user)
-        : base(user)
-    {
-        Email = user.Email;
-    }
+        : this(user.Id, user.UserName, user.Email, user.About, user.CountryCode) { }
 }
 
-public class ProfileEditRequest
+public record ProfileEditRequest(string? About = null, string? CountryCode = null)
 {
-    public string? About { get; set; }
-    public string? CountryCode { get; set; }
-
-    public ProfileEditRequest() { }
-
     public ProfileEditRequest(AuthedUser user)
-    {
-        About = user.About;
-        CountryCode = user.CountryCode;
-    }
+        : this(user.About, user.CountryCode) { }
 }

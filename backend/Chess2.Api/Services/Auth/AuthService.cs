@@ -105,7 +105,7 @@ public class AuthService(
         var accessToken = _tokenProvider.GenerateAccessToken(user);
         var refreshToken = _tokenProvider.GenerateRefreshToken(user, refreshTokenRecord.Jti);
 
-        var tokens = new Tokens() { AccessToken = accessToken, RefreshToken = refreshToken };
+        var tokens = new Tokens(accessToken, refreshToken);
         return tokens;
     }
 
