@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Infrastructure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Infrastructure.Extensions;
 
