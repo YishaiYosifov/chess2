@@ -1,6 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 

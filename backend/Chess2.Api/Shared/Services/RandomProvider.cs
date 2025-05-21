@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Services;
+﻿namespace Chess2.Api.Shared.Services;
 
 public interface IIRandomProvider
 {

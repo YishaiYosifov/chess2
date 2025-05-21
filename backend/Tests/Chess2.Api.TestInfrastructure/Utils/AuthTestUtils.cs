@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Auth.Services;
-using Chess2.Api.Shared.DTOs;
+﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -25,19 +25,19 @@ public class AuthTestUtils(
     /// <summary>
     /// Calls <see cref="IsAuthenticated(ApiClient)"/> and asserts it is successful
     /// </summary>
-    public async Task AssertAuthenticated(ApiClient apiClient) =>
+    public static async Task AssertAuthenticated(ApiClient apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeTrue();
 
     /// <summary>
     /// Calls <see cref="IsAuthenticated(ApiClient)"/> and asserts it is not successful
     /// </summary>
-    public async Task AssertUnauthenticated(ApiClient apiClient) =>
+    public static async Task AssertUnauthenticated(ApiClient apiClient) =>
         (await IsAuthenticated(apiClient)).Should().BeFalse();
 
     /// <summary>
     /// Attempt to call a test auth route to check if we are authenticated
     /// </summary>
-    public async Task<bool> IsAuthenticated(ApiClient apiClient)
+    public static async Task<bool> IsAuthenticated(ApiClient apiClient)
     {
         var testAuthResponse = await apiClient.Api.TestAuthAsync();
         return testAuthResponse.StatusCode == HttpStatusCode.NoContent;
@@ -46,19 +46,19 @@ public class AuthTestUtils(
     /// <summary>
     /// Calls <see cref="IsGuestAuthenticated(ApiClient)"/> and asserts it is successful
     /// </summary>
-    public async Task AssertGuestAuthenticated(ApiClient apiClient) =>
+    public static async Task AssertGuestAuthenticated(ApiClient apiClient) =>
         (await IsGuestAuthenticated(apiClient)).Should().BeTrue();
 
     /// <summary>
     /// Calls <see cref="IsGuestAuthenticated(ApiClient)"/> and asserts it is not successful
     /// </summary>
-    public async Task AssertGuestUnauthenticated(ApiClient apiClient) =>
+    public static async Task AssertGuestUnauthenticated(ApiClient apiClient) =>
         (await IsGuestAuthenticated(apiClient)).Should().BeFalse();
 
     /// <summary>
     /// Attempt to call the test guest auth route to check if we are guest authenticated
     /// </summary>
-    public async Task<bool> IsGuestAuthenticated(ApiClient apiClient)
+    public static async Task<bool> IsGuestAuthenticated(ApiClient apiClient)
     {
         var testGuestAuthResponse = await apiClient.Api.TestGuestAsync();
         return testGuestAuthResponse.StatusCode == HttpStatusCode.NoContent;

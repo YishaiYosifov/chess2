@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 

@@ -1,23 +1,24 @@
-﻿using System.Globalization;
+﻿using FluentValidation.Internal;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
-using FluentValidation.Internal;
 
 namespace Chess2.Api.Infrastructure;
 
 public class CamelCasePropertyNameResolver
 {
     public static string? ResolvePropertyName(
+#pragma warning disable IDE0060 // Remove unused parameter
         Type type,
+#pragma warning restore IDE0060 // Remove unused parameter
         MemberInfo memberInfo,
         LambdaExpression expression
     )
     {
-        return ToCamelCase(DefaultPropertyNameResolver(type, memberInfo, expression));
+        return ToCamelCase(DefaultPropertyNameResolver(memberInfo, expression));
     }
 
     private static string? DefaultPropertyNameResolver(
-        Type type,
         MemberInfo memberInfo,
         LambdaExpression expression
     )
