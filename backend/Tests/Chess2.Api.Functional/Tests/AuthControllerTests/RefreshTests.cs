@@ -1,8 +1,8 @@
-﻿using System.Net;
-using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 
@@ -17,7 +17,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.Api.RefreshTokenAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        await AuthUtils.AssertAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.Api.RefreshTokenAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-        await AuthUtils.AssertUnauthenticated(ApiClient);
+        await AuthTestUtils.AssertUnauthenticated(ApiClient);
     }
 
     [Fact]

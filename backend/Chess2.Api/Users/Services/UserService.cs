@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Errors;

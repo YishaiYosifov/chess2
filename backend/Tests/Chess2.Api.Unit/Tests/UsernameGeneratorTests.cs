@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Services;
+﻿using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Services;

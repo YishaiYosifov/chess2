@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Shared.DTOs;
+﻿namespace Chess2.Api.Shared.Models;
 
 public class AppSettings
 {

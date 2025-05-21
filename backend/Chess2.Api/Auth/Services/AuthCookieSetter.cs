@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Auth.Controllers;
-using Chess2.Api.Shared.DTOs;
+using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Auth.Services;

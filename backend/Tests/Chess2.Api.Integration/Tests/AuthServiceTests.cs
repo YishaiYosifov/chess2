@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Auth.Errors;
+﻿using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -9,6 +7,8 @@ using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Integration.Tests;
 
@@ -85,7 +85,7 @@ public class AuthServiceTests : BaseIntegrationTest
 
         result.Should().NotBeNull();
         AuthUtils.AuthenticateWithTokens(ApiClient, result.AccessToken, result.RefreshToken);
-        await AuthUtils.AssertAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
         var refreshResult = await ApiClient.Api.RefreshTokenAsync();
         refreshResult.IsSuccessful.Should().BeTrue();
     }
@@ -111,7 +111,7 @@ public class AuthServiceTests : BaseIntegrationTest
         var tokens = result.Value;
 
         AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
-        await AuthUtils.AssertAuthenticated(ApiClient);
+        await AuthTestUtils.AssertAuthenticated(ApiClient);
         var refreshResult = await ApiClient.Api.RefreshTokenAsync();
         refreshResult.IsSuccessful.Should().BeTrue();
     }
