@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace Chess2.Api.Errors;
+namespace Chess2.Api.Infrastructure.Errors;
 
 public class ApiProblemDetails : ProblemDetails
 {

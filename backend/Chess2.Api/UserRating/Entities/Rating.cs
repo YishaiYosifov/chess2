@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Users.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chess2.Api.UserRating.Entities;
 

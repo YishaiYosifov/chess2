@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Models;
+﻿namespace Chess2.Api.Game.Models;
 
 public enum TimeControl
 {

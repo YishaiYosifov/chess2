@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Game.Models;
 
-namespace Chess2.Api.Services;
+namespace Chess2.Api.Matchmaking.Services;
 
 public interface ITimeControlTranslator
 {
