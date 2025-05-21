@@ -67,7 +67,7 @@ public class MatchmakingServiceTests : BaseUnitTest
 
         await _matchmakingRepositoryMock
             .Received(1)
-            .CreateSeekAsync(_testUser.Id.ToString(), _testRating.Value, timeControl, increment);
+            .CreateSeekAsync(_testUser.Id, _testRating.Value, timeControl, increment);
     }
 
     [Fact]
@@ -89,9 +89,7 @@ public class MatchmakingServiceTests : BaseUnitTest
 
         var userClientMock = Substitute.For<IMatchmakingClient>();
         _hubContextMock
-            .Clients.User(
-                Arg.Is<string>(arg => arg == _testUser.Id.ToString() || arg == matchedUserId)
-            )
+            .Clients.User(Arg.Is<string>(arg => arg == _testUser.Id || arg == matchedUserId))
             .Returns(userClientMock);
 
         await _matchmakingService.SeekAsync(_testUser, timeControl, increment);
