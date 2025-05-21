@@ -22,7 +22,7 @@ public class ProfileEditValidatorTests
     [InlineData(longAbout, false)]
     public void Validate_about(string? about, bool isValid)
     {
-        var profileEdit = new ProfileEditRequest() { About = about };
+        var profileEdit = new ProfileEditRequest(About: about);
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 

@@ -27,7 +27,8 @@ public class ProfileController(IUserService userService, UserManager<AuthedUser>
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        return Ok(user);
+        var dto = new PrivateUserOut(user);
+        return Ok(dto);
     }
 
     [HttpGet("by-username/{username}", Name = nameof(GetUser))]
