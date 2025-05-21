@@ -1,10 +1,10 @@
 ﻿using AutoFixture;
-using Chess2.Api.Errors;
-using Chess2.Api.Models;
-using Chess2.Api.Models.Entities;
-using Chess2.Api.Repositories;
-using Chess2.Api.Services.Auth;
+using Chess2.Api.Auth.Errors;
+using Chess2.Api.Auth.Repositories;
+using Chess2.Api.Auth.Services;
+using Chess2.Api.Shared.DTOs;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.Users.Entities;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

@@ -1,5 +1,6 @@
-﻿using Chess2.Api.Models;
-using Chess2.Api.Services.Auth;
+﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Infrastructure;
+using Chess2.Api.Shared.DTOs;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

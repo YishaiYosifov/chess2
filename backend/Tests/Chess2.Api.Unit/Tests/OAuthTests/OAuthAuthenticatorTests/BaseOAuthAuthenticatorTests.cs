@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Services.Auth;
-using Chess2.Api.Services.Auth.OAuthAuthenticators;
-using Chess2.Api.Services.UsernameGenerator;
+using Chess2.Api.Auth.Services;
+using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Users.Services;
 using ErrorOr;
 using FluentAssertions;
 using NSubstitute;

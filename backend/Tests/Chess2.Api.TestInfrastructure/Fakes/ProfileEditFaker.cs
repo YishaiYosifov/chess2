@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using Chess2.Api.Models.DTOs;
+using Chess2.Api.Users.DTOs;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 

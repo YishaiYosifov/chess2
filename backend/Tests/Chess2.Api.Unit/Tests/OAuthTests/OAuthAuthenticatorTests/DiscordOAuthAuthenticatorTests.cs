@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Services.Auth.OAuthAuthenticators;
+using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

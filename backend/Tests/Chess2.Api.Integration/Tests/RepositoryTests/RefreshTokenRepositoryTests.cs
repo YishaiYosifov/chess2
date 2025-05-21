@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Repositories;
+﻿using Chess2.Api.Auth.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
