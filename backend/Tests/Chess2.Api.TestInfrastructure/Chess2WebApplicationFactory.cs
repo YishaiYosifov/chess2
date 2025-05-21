@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 using System.Net;
-using Chess2.Api.Models;
+using Chess2.Api.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;

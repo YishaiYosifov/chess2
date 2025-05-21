@@ -1,0 +1,24 @@
+﻿using Chess2.Api.Auth.Entities;
+using Chess2.Api.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
+namespace Chess2.Api.Auth.Repositories;
+
+public interface IRefreshTokenRepository
+{
+    Task AddRefreshTokenAsync(RefreshToken refreshToken, CancellationToken token = default);
+    Task<RefreshToken?> GetTokenByJtiAsync(string jti, CancellationToken token = default);
+}
+
+public class RefreshTokenRepository(ApplicationDbContext dbContext) : IRefreshTokenRepository
+{
+    private readonly ApplicationDbContext _dbContext = dbContext;
+
+    public Task<RefreshToken?> GetTokenByJtiAsync(string jti, CancellationToken token = default) =>
+        _dbContext.RefreshTokens.SingleOrDefaultAsync(t => t.Jti == jti, token);
+
+    public async Task AddRefreshTokenAsync(
+        RefreshToken refreshToken,
+        CancellationToken token = default
+    ) => await _dbContext.RefreshTokens.AddAsync(refreshToken, token);
+}

@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using Chess2.Api.Models;
-using Chess2.Api.Models.Entities;
-using Chess2.Api.Services.Auth;
+using Chess2.Api.Auth.Services;
+using Chess2.Api.Shared.DTOs;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 

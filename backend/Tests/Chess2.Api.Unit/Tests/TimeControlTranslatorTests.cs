@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Services;
 using FluentAssertions;
 

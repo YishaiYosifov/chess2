@@ -1,0 +1,59 @@
+﻿using System.Security.Claims;
+using System.Text.Json;
+using Chess2.Api.Auth.Errors;
+using Chess2.Api.Users.Entities;
+using Chess2.Api.Users.Services;
+using ErrorOr;
+using OpenIddict.Abstractions;
+using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
+
+namespace Chess2.Api.Auth.Services.OAuthAuthenticators;
+
+public class DiscordOAuthAuthenticator(
+    ILogger<DiscordOAuthAuthenticator> logger,
+    IAuthService authService,
+    IUsernameGenerator usernameGenerator
+) : IOAuthAuthenticator
+{
+    public string Provider => Providers.Discord;
+
+    private readonly ILogger<DiscordOAuthAuthenticator> _logger = logger;
+    private readonly IAuthService _authService = authService;
+    private readonly IUsernameGenerator _usernameGenerator = usernameGenerator;
+
+    public async Task<ErrorOr<AuthedUser>> SignUserUpAsync(
+        ClaimsPrincipal claimsPrincipal,
+        string providerKey
+    )
+    {
+        var username = await _usernameGenerator.GenerateUniqueUsernameAsync();
+        var signupResult = await _authService.SignupAsync(username);
+        return signupResult;
+    }
+
+    public ErrorOr<string> GetProviderKey(ClaimsPrincipal claimsPrincipal)
+    {
+        var userClaim = claimsPrincipal.GetClaim("user");
+        if (userClaim is null)
+        {
+            _logger.LogWarning("Could not get user claim from discord claims principal");
+            return AuthErrors.OAuthInvalid;
+        }
+
+        using var doc = JsonDocument.Parse(userClaim);
+        if (!doc.RootElement.TryGetProperty("id", out var userIdElement))
+        {
+            _logger.LogWarning("Could not get user id from discord claims principal");
+            return AuthErrors.OAuthInvalid;
+        }
+
+        var userId = userIdElement.GetString();
+        if (userId is null)
+        {
+            _logger.LogWarning("User id was null in discord claims principal");
+            return AuthErrors.OAuthInvalid;
+        }
+
+        return userId;
+    }
+}
