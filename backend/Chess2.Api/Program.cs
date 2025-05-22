@@ -90,7 +90,7 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddStackExchangeRedis(appSettings.RedisConnString);
 
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(
