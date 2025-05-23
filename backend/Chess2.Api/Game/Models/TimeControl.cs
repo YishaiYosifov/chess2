@@ -7,3 +7,5 @@ public enum TimeControl
     Rapid,
     Classical,
 }
+
+public record TimeControlInfo(int BaseMinutes, int Increment);

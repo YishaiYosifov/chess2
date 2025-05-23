@@ -14,7 +14,6 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Actors;
-using Chess2.Api.Matchmaking.Repositories;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Sharding;
 using Chess2.Api.Matchmaking.SignalR;
@@ -109,7 +108,6 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
-builder.Services.AddScoped<IMatchmakingRepository, MatchmakingRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 #endregion
 
@@ -277,6 +275,7 @@ builder.Services.AddAkka(
     {
         akkaBuilder.ConfigureLoggers(logConfig =>
         {
+            logConfig.ClearLoggers();
             logConfig.AddLoggerFactory();
         });
         akkaBuilder

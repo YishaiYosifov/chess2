@@ -1,6 +1,4 @@
-﻿using Chess2.Api.Matchmaking.Errors;
-using Chess2.Api.Matchmaking.Repositories;
-using Chess2.Api.Matchmaking.SignalR;
+﻿using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.Users.Entities;
@@ -20,14 +18,12 @@ public interface IMatchmakingService
 public class MatchmakingService(
     IOptions<AppSettings> settings,
     IRatingRepository ratingRepository,
-    IMatchmakingRepository matchmakingRepository,
     IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubCtx,
     ITimeControlTranslator secondsToTimeControl
 ) : IMatchmakingService
 {
     private readonly GameSettings _gameSettings = settings.Value.Game;
     private readonly IRatingRepository _ratingRepository = ratingRepository;
-    private readonly IMatchmakingRepository _matchmakingRepository = matchmakingRepository;
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubCtx =
         matchmakingHubCtx;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
@@ -46,13 +42,13 @@ public class MatchmakingService(
         }
 
         var seekStartedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        await _matchmakingRepository.CreateSeekAsync(
-            user.Id,
-            rating.Value,
-            timeControl,
-            increment,
-            seekStartedAt
-        );
+        //await _matchmakingRepository.CreateSeekAsync(
+        //    user.Id,
+        //    rating.Value,
+        //    timeControl,
+        //    increment,
+        //    seekStartedAt
+        //);
     }
 
     public Task SeekGuestAsync(string id, int timeControl, int increment)
@@ -60,14 +56,14 @@ public class MatchmakingService(
         throw new NotImplementedException();
     }
 
-    public async Task<ErrorOr<Success>> CancelSeekAsync(string userId)
+    public Task<ErrorOr<Success>> CancelSeekAsync(string userId)
     {
-        var userSeek = await _matchmakingRepository.GetUserSeekingInfo(userId);
-        if (userSeek is null)
-            return MatchmakingErrors.MatchNotFound;
+        //var userSeek = await _matchmakingRepository.GetUserSeekingInfo(userId);
+        //if (userSeek is null)
+        //    return MatchmakingErrors.MatchNotFound;
 
-        await _matchmakingRepository.CancelSeekAsync(userSeek);
-        return Result.Success;
+        //await _matchmakingRepository.CancelSeekAsync(userSeek);
+        return Task.FromResult<ErrorOr<Success>>(Result.Success);
     }
 
     private async Task StartGame(string userId1, string userId2)
@@ -82,15 +78,15 @@ public class MatchmakingService(
         await user2.MatchFoundAsync(token);
     }
 
-    private async Task<string?> SearchForMatch(int timeControl, int increment, int rating)
+    private Task<string?> SearchForMatch(int timeControl, int increment, int rating)
     {
         var range = _gameSettings.MaxMatchRatingDifference;
-        var match = await _matchmakingRepository.SearchExistingSeekAsync(
-            rating,
-            range,
-            timeControl,
-            increment
-        );
-        return match;
+        //var match = await _matchmakingRepository.SearchExistingSeekAsync(
+        //    rating,
+        //    range,
+        //    timeControl,
+        //    increment
+        //);
+        return Task.FromResult<string?>(null);
     }
 }
