@@ -3,13 +3,11 @@ using Chess2.Api.Shared.Models;
 
 namespace Chess2.Api.Matchmaking.Sharding;
 
-public class MatchmakingShardExtractor : HashCodeMessageExtractor
+public class MatchmakingShardExtractor(AppSettings settings)
+    : HashCodeMessageExtractor(settings.Akka.MatchmakingShardCount)
 {
-    public MatchmakingShardExtractor(AppSettings settings)
-        : base(settings.Akka.MatchmakingShardCount) { }
-
     public override string? EntityId(object message)
     {
-        throw new NotImplementedException();
+        return message.ToString();
     }
 }
