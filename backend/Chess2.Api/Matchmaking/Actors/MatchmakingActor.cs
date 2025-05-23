@@ -1,17 +1,26 @@
 using Akka.Actor;
-using Akka.Persistence;
+using Akka.Cluster.Sharding;
 
 namespace Chess2.Api.Matchmaking.Actors;
 
-public class MatchmakingActor : ReceivePersistentActor
+public class MatchmakingActor : ReceiveActor
 {
-    public MatchmakingActor(string persistenceId)
+    public MatchmakingActor()
     {
-        PersistenceId = persistenceId;
+        Receive<string>(test =>
+        {
+            Console.WriteLine(test);
+        });
+        Receive<ReceiveTimeout>(_ =>
+        {
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        });
     }
 
-    public override string PersistenceId { get; }
+    public static Props PropsFor() => Props.Create(() => new MatchmakingActor());
 
-    public static Props PropsFor(string matchmakingId) =>
-        Props.Create(() => new MatchmakingActor(matchmakingId));
+    protected override void PreStart()
+    {
+        Context.SetReceiveTimeout(TimeSpan.FromSeconds(1));
+    }
 }

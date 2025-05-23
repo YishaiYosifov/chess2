@@ -271,7 +271,6 @@ builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>
 #endregion
 
 #region Akka
-
 builder.Services.AddAkka(
     appSettings.Akka.ActorSystemName,
     (akkaBuilder, serviceProvider) =>
@@ -282,10 +281,16 @@ builder.Services.AddAkka(
         });
         akkaBuilder
             .WithRemoting(appSettings.Akka.Hostname, appSettings.Akka.Port)
-            .WithClustering(new() { SeedNodes = appSettings.Akka.SeedNodes })
+            .WithClustering(
+                new()
+                {
+                    SeedNodes = appSettings.Akka.SeedNodes,
+                    Roles = [ActorSystemConstants.BackendRole],
+                }
+            )
             .WithShardRegion<MatchmakingActor>(
                 "matchmaking",
-                s => MatchmakingActor.PropsFor(s),
+                _ => MatchmakingActor.PropsFor(),
                 new MatchmakingShardExtractor(appSettings),
                 new ShardOptions()
                 {
