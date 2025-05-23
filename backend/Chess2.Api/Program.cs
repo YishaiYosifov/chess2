@@ -1,3 +1,11 @@
+using System.ComponentModel;
+using System.Reflection;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
+using Akka.Cluster.Hosting;
+using Akka.Hosting;
+using Akka.Remote.Hosting;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
@@ -5,8 +13,10 @@ using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Repositories;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Sharding;
 using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
@@ -25,11 +35,6 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.ComponentModel;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -263,6 +268,33 @@ builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
 #region Validation
 ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
 builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>();
+#endregion
+
+#region Akka
+
+builder.Services.AddAkka(
+    appSettings.Akka.ActorSystemName,
+    (akkaBuilder, serviceProvider) =>
+    {
+        akkaBuilder.ConfigureLoggers(logConfig =>
+        {
+            logConfig.AddLoggerFactory();
+        });
+        akkaBuilder
+            .WithRemoting(appSettings.Akka.Hostname, appSettings.Akka.Port)
+            .WithClustering(new() { SeedNodes = appSettings.Akka.SeedNodes })
+            .WithShardRegion<MatchmakingActor>(
+                "matchmaking",
+                s => MatchmakingActor.PropsFor(s),
+                new MatchmakingShardExtractor(appSettings),
+                new ShardOptions()
+                {
+                    RememberEntities = true,
+                    Role = ActorSystemConstants.BackendRole,
+                }
+            );
+    }
+);
 #endregion
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

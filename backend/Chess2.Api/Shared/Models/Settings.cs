@@ -4,6 +4,8 @@ public class AppSettings
 {
     public string[] CorsOrigins { get; set; } = [];
 
+    public required AkkaSettings Akka { get; set; }
+
     public required GameSettings Game { get; set; }
     public required JwtSettings Jwt { get; set; }
 
@@ -30,4 +32,14 @@ public class JwtSettings
     public required string AccessTokenCookieName { get; set; }
     public required string RefreshTokenCookieName { get; set; }
     public required string IsAuthedTokenCookieName { get; set; }
+}
+
+public class AkkaSettings
+{
+    public required string ActorSystemName { get; set; }
+    public required string Hostname { get; set; }
+    public int Port { get; set; }
+    public required string[] SeedNodes { get; set; }
+
+    public int MatchmakingShardCount { get; set; }
 }
