@@ -49,6 +49,6 @@ public class MatchmakingActor : ReceiveActor
 
     protected override void PreStart()
     {
-        Context.SetReceiveTimeout(TimeSpan.FromSeconds(1));
+        Context.SetReceiveTimeout(TimeSpan.FromSeconds(30));
     }
 }
