@@ -16,7 +16,7 @@ namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 public class MatchmakingActorTests : TestKit
 {
     private readonly ITimerScheduler _timerMock = Substitute.For<ITimerScheduler>();
-    private readonly IMatchmakerPool _poolMock = Substitute.For<IMatchmakerPool>();
+    private readonly IMatchmakingPool _poolMock = Substitute.For<IMatchmakingPool>();
 
     private readonly IActorRef _matchmakingActor;
     private readonly TestProbe _probe;

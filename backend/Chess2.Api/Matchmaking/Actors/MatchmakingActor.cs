@@ -11,7 +11,7 @@ namespace Chess2.Api.Matchmaking.Actors;
 public class MatchmakingActor : ReceiveActor, IWithTimers
 {
     private readonly ILoggingAdapter _logger = Context.GetLogger();
-    private readonly IMatchmakerPool _pool;
+    private readonly IMatchmakingPool _pool;
     private readonly AppSettings _settings;
     private readonly Dictionary<string, IActorRef> _subscribers = [];
 
@@ -19,7 +19,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
 
     public MatchmakingActor(
         IOptions<AppSettings> settings,
-        IMatchmakerPool pool,
+        IMatchmakingPool pool,
         ITimerScheduler? timerScheduler = null
     )
     {
