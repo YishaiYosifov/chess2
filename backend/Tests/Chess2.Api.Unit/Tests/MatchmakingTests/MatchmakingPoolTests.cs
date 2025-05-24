@@ -44,7 +44,7 @@ public class MatchmakingPoolTests : BaseUnitTest
     public void CalculateMatches_matches_within_range()
     {
         _pool.AddSeek("user1", 1200);
-        _pool.AddSeek("user2", 1200 + _settings.StartingMatchRatingDifference - 1);
+        _pool.AddSeek("user2", 1200 + _settings.StartingMatchRatingDifference);
 
         var matches = _pool.CalculateMatches();
 
@@ -73,7 +73,6 @@ public class MatchmakingPoolTests : BaseUnitTest
             1200
                 + _settings.StartingMatchRatingDifference
                 + _settings.MatchRatingDifferenceGrowthPerWave
-                - 1
         );
         // First wave: no match
         var matches1 = _pool.CalculateMatches();
@@ -89,12 +88,59 @@ public class MatchmakingPoolTests : BaseUnitTest
     {
         _pool.AddSeek("user1", 1200);
         _pool.AddSeek("user2", 1210);
-        _pool.AddSeek("user3", 1205);
+        _pool.AddSeek("user3", 1215);
 
-        // user1 should match with user2 (oldest), user3 left unmatched
+        // match user 1 and user 2
+        _pool.CalculateMatches();
+        // now user 3 has missed a wave, so it should be prioritized
         var matches = _pool.CalculateMatches();
 
+        matches.Should().ContainSingle().Which.Should().BeEquivalentTo(("user3", "user2"));
+        _pool.Seekers.First(s => s.UserId == "user1")?.WavesMissed.Should().Be(1);
+    }
+
+    [Fact]
+    public void CalculateMatches_no_seekers_returns_empty()
+    {
+        var matches = _pool.CalculateMatches();
+        matches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void CalculateMatches_single_seeker_no_match()
+    {
+        _pool.AddSeek("user1", 1500);
+        var matches = _pool.CalculateMatches();
+        matches.Should().BeEmpty();
+        _pool.Seekers.First(s => s.UserId == "user1").WavesMissed.Should().Be(1);
+    }
+
+    [Fact]
+    public void CalculateMatches_match_prefers_closer_rating_when_waves_missed_equal()
+    {
+        _pool.AddSeek("user1", 1200);
+        _pool.AddSeek("user2", 1210);
+        _pool.AddSeek("user3", 1215);
+
+        // Both user2 and user3 can match with user1, but user2 has closer rating difference
+        var matches = _pool.CalculateMatches();
         matches.Should().ContainSingle().Which.Should().BeEquivalentTo(("user1", "user2"));
-        _pool.Seekers.First(s => s.UserId == "user3")?.WavesMissed.Should().Be(1);
+    }
+
+    [Fact]
+    public void CalculateMatches_handles_multiple_pairs()
+    {
+        _pool.AddSeek("user1", 1200);
+        _pool.AddSeek("user2", 1205);
+        _pool.AddSeek("user3", 1210);
+        _pool.AddSeek("user4", 1195);
+
+        var matches = _pool.CalculateMatches();
+
+        // Should create two matches
+        matches.Count.Should().Be(2);
+
+        var allMatchedUsers = matches.SelectMany(m => new[] { m.userId1, m.userId2 }).ToList();
+        allMatchedUsers.Should().Contain(["user1", "user2", "user3", "user4"]);
     }
 }
