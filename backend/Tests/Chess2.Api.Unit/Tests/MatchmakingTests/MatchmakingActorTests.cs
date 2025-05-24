@@ -4,7 +4,7 @@ using Akka.TestKit.Xunit2;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.Extensions.Options;
