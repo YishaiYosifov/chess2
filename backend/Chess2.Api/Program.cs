@@ -289,14 +289,15 @@ builder.Services.AddAkka(
             )
             .WithShardRegion<MatchmakingActor>(
                 "matchmaking",
-                _ => MatchmakingActor.PropsFor(),
+                _ => MatchmakingActor.PropsFor(appSettings),
                 new MatchmakingShardExtractor(appSettings),
                 new ShardOptions()
                 {
                     RememberEntities = true,
                     Role = ActorSystemConstants.BackendRole,
                 }
-            );
+            )
+            .WithDistributedPubSub(ActorSystemConstants.BackendRole);
     }
 );
 #endregion
