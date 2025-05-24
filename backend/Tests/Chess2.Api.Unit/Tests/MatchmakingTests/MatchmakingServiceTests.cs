@@ -57,7 +57,7 @@ public class MatchmakingServiceTests : BaseUnitTest
         _matchmakingRepositoryMock
             .SearchExistingSeekAsync(
                 _testRating.Value,
-                _settings.Value.Game.MaxMatchRatingDifference,
+                _settings.Value.Game.StartingMatchRatingDifference,
                 timeControl,
                 increment
             )
@@ -81,7 +81,7 @@ public class MatchmakingServiceTests : BaseUnitTest
         _matchmakingRepositoryMock
             .SearchExistingSeekAsync(
                 _testRating.Value,
-                _settings.Value.Game.MaxMatchRatingDifference,
+                _settings.Value.Game.StartingMatchRatingDifference,
                 timeControl,
                 increment
             )

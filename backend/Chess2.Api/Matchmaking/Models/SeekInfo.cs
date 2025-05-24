@@ -1,3 +1,11 @@
-﻿namespace Chess2.Api.Matchmaking.Models;
+﻿using Akka.Actor;
 
-public record SeekInfo(int Rating, int WavesMissed = 0);
+namespace Chess2.Api.Matchmaking.Models;
+
+public record SeekInfo(string UserId, int Rating, IActorRef Subscriber, int WavesMissed = 0)
+{
+    public string UserId { get; } = UserId;
+    public int Rating { get; init; } = Rating;
+    public IActorRef Subscriber { get; } = Subscriber;
+    public int WavesMissed { get; set; } = WavesMissed;
+}

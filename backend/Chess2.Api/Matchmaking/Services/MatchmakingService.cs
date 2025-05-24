@@ -80,7 +80,7 @@ public class MatchmakingService(
 
     private Task<string?> SearchForMatch(int timeControl, int increment, int rating)
     {
-        var range = _gameSettings.MaxMatchRatingDifference;
+        var range = _gameSettings.StartingMatchRatingDifference;
         //var match = await _matchmakingRepository.SearchExistingSeekAsync(
         //    rating,
         //    range,
