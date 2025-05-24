@@ -14,7 +14,7 @@ public interface IMatchmakingService
 {
     Task SeekAsync(AuthedUser user, int timeControl, int increment);
     Task SeekGuestAsync(string id, int timeControl, int increment);
-    void CancelSeek(string userId);
+    void CancelSeek(string userId, int baseMinutes, int increment);
 }
 
 public class MatchmakingService(
