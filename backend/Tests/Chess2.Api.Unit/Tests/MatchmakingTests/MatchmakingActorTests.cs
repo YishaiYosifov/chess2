@@ -16,7 +16,7 @@ namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 public class MatchmakingActorTests : TestKit
 {
     private readonly ITimerScheduler _timerMock = Substitute.For<ITimerScheduler>();
-    private readonly IMatchmaker _matchmakerMock = Substitute.For<IMatchmaker>();
+    private readonly IMatchmakerPool _poolMock = Substitute.For<IMatchmakerPool>();
 
     private readonly IActorRef _matchmakingActor;
     private readonly TestProbe _probe;
@@ -30,7 +30,7 @@ public class MatchmakingActorTests : TestKit
         _settings = AppSettingsLoader.LoadAppSettings();
 
         var props = Props.Create(
-            () => new MatchmakingActor(Options.Create(_settings), _matchmakerMock, _timerMock)
+            () => new MatchmakingActor(Options.Create(_settings), _poolMock, _timerMock)
         );
         _matchmakingActor = Sys.ActorOf(props);
         _probe = CreateTestProbe();
@@ -59,7 +59,7 @@ public class MatchmakingActorTests : TestKit
             _probe.Ref
         );
 
-        Within(TimeSpan.FromSeconds(3), () => _matchmakerMock.Received(1).AddSeek(userId, rating));
+        Within(TimeSpan.FromSeconds(3), () => _poolMock.Received(1).AddSeek(userId, rating));
     }
 
     [Fact]
@@ -81,10 +81,7 @@ public class MatchmakingActorTests : TestKit
             _probe.Ref
         );
 
-        Within(
-            TimeSpan.FromSeconds(3),
-            () => _matchmakerMock.Received(1).RemoveSeek(userIdToRemove)
-        );
+        Within(TimeSpan.FromSeconds(3), () => _poolMock.Received(1).RemoveSeek(userIdToRemove));
     }
 
     [Fact]
@@ -110,13 +107,13 @@ public class MatchmakingActorTests : TestKit
             _matchmakingActor,
             new MatchmakingCommands.CreateSeek(unmatchedUserId, 1600, _timeControl)
         );
-        _matchmakerMock.CalculateMatches().Returns([(userId1, userId2)]);
+        _poolMock.CalculateMatches().Returns([(userId1, userId2)]);
 
         _matchmakingActor.Tell(new MatchmakingCommands.MatchWave());
 
-        _matchmakerMock.Received().RemoveSeek(userId1);
-        _matchmakerMock.Received().RemoveSeek(userId2);
-        _matchmakerMock.DidNotReceive().RemoveSeek(unmatchedUserId);
+        _poolMock.Received().RemoveSeek(userId1);
+        _poolMock.Received().RemoveSeek(userId2);
+        _poolMock.DidNotReceive().RemoveSeek(unmatchedUserId);
 
         // Each subscriber should receive a MatchFound message with the opponent's userId
         await probe1.ExpectMsgAsync<MatchmakingEvents.MatchFound>(msg => msg.OpponentId == userId2);
@@ -140,7 +137,7 @@ public class MatchmakingActorTests : TestKit
             new MatchmakingCommands.CreateSeek(userId2, 1600, _timeControl)
         );
 
-        _matchmakerMock.CalculateMatches().Returns([(userId1, userId2)]);
+        _poolMock.CalculateMatches().Returns([(userId1, userId2)]);
 
         _matchmakingActor.Tell(new MatchmakingCommands.MatchWave());
         await probe1.ExpectMsgAsync<MatchmakingEvents.MatchFound>();
