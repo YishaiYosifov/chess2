@@ -1,7 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
-using Chess2.Api.Shared.Models;
-using Microsoft.Extensions.Configuration;
+using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Unit;
@@ -18,14 +17,7 @@ public class BaseUnitTest
 
     private static void AddAppSettings(Fixture fixture)
     {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
-        var appSettings =
-            configuration.GetSection("AppSettings").Get<AppSettings>()
-            ?? throw new NullReferenceException("Could not get appsettings for the tests");
+        var appSettings = AppSettingsLoader.LoadAppSettings();
         fixture.Register(() => Options.Create(appSettings));
     }
 }
