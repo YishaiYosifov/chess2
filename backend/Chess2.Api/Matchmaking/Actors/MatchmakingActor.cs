@@ -11,7 +11,7 @@ namespace Chess2.Api.Matchmaking.Actors;
 public class MatchmakingActor : ReceiveActor, IWithTimers
 {
     private readonly ILoggingAdapter _logger = Context.GetLogger();
-    private readonly IMatchmaker _matchmaker;
+    private readonly IMatchmakerPool _pool;
     private readonly AppSettings _settings;
     private readonly Dictionary<string, IActorRef> _subscribers = [];
 
@@ -19,7 +19,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
 
     public MatchmakingActor(
         IOptions<AppSettings> settings,
-        IMatchmaker matchmaker,
+        IMatchmakerPool pool,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -27,7 +27,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
         if (timerScheduler is not null)
             Timers = timerScheduler;
         _settings = settings.Value;
-        _matchmaker = matchmaker;
+        _pool = pool;
 
         Receive<MatchmakingCommands.CreateSeek>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
@@ -45,7 +45,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
         );
 
         _subscribers[createSeek.UserId] = Sender;
-        _matchmaker.AddSeek(createSeek.UserId, createSeek.Rating);
+        _pool.AddSeek(createSeek.UserId, createSeek.Rating);
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
@@ -53,13 +53,13 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
         _logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
         _subscribers.Remove(cancelSeek.UserId);
 
-        if (!_matchmaker.RemoveSeek(cancelSeek.UserId))
+        if (!_pool.RemoveSeek(cancelSeek.UserId))
             _logger.Warning("No seek found for user {0}", cancelSeek.UserId);
     }
 
     private void HandleMatchWave()
     {
-        var matches = _matchmaker.CalculateMatches();
+        var matches = _pool.CalculateMatches();
         foreach (var (seeker1, seeker2) in matches)
         {
             _logger.Info("Found match for {0} with {1}", seeker1, seeker2);
@@ -77,8 +77,8 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
                 continue;
             }
 
-            _matchmaker.RemoveSeek(seeker1);
-            _matchmaker.RemoveSeek(seeker2);
+            _pool.RemoveSeek(seeker1);
+            _pool.RemoveSeek(seeker2);
             seeker1Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker2));
             seeker2Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker1));
         }
@@ -86,7 +86,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
 
     private void HandleTimeout()
     {
-        if (_matchmaker.SeekerCount != 0)
+        if (_pool.SeekerCount != 0)
             return;
 
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));

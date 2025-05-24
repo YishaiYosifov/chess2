@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;
 
-public interface IMatchmaker
+public interface IMatchmakerPool
 {
     int SeekerCount { get; }
     IReadOnlyList<SeekInfo> Seekers { get; }
@@ -14,7 +14,7 @@ public interface IMatchmaker
     List<(string userId1, string userId2)> CalculateMatches();
 }
 
-public class Matchmaker(IOptions<AppSettings> settings) : IMatchmaker
+public class MatchmakerPool(IOptions<AppSettings> settings) : IMatchmakerPool
 {
     // ordered dictionary so old seeks are prioritized
     private readonly OrderedDictionary<string, SeekInfo> _seekers = [];
