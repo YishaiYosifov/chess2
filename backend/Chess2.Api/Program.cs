@@ -289,15 +289,14 @@ builder.Services.AddAkka(
             )
             .WithShardRegion<MatchmakingActor>(
                 "matchmaking",
-                _ => MatchmakingActor.PropsFor(appSettings),
+                (_, _, resolver) => s => resolver.Props<MatchmakingActor>(),
                 new MatchmakingShardExtractor(appSettings),
                 new ShardOptions()
                 {
                     RememberEntities = true,
                     Role = ActorSystemConstants.BackendRole,
                 }
-            )
-            .WithDistributedPubSub(ActorSystemConstants.BackendRole);
+            );
     }
 );
 #endregion
@@ -307,6 +306,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
+builder.Services.AddSingleton<IMatchmaker, Matchmaker>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 

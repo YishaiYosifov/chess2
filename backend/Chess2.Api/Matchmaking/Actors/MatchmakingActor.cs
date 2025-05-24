@@ -2,23 +2,32 @@ using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Shared.Models;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Actors;
 
 public class MatchmakingActor : ReceiveActor, IWithTimers
 {
-    private readonly SortedDictionary<string, SeekInfo> _seekers = [];
-
     private readonly ILoggingAdapter _logger = Context.GetLogger();
+    private readonly IMatchmaker _matchmaker;
     private readonly AppSettings _settings;
+    private readonly Dictionary<string, IActorRef> _subscribers = [];
 
-    // akka sets this internally
     public ITimerScheduler Timers { get; set; } = null!;
 
-    public MatchmakingActor(AppSettings settings)
+    public MatchmakingActor(
+        IOptions<AppSettings> settings,
+        IMatchmaker matchmaker,
+        ITimerScheduler? timerScheduler = null
+    )
     {
-        _settings = settings;
+        // for unit testing
+        if (timerScheduler is not null)
+            Timers = timerScheduler;
+        _settings = settings.Value;
+        _matchmaker = matchmaker;
 
         Receive<MatchmakingCommands.CreateSeek>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
@@ -26,9 +35,6 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
 
         Receive<ReceiveTimeout>(_ => HandleTimeout());
     }
-
-    public static Props PropsFor(AppSettings settings) =>
-        Props.Create(() => new MatchmakingActor(settings));
 
     private void HandleCreateSeek(MatchmakingCommands.CreateSeek createSeek)
     {
@@ -38,87 +44,53 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
             createSeek.Rating
         );
 
-        var seek = new SeekInfo(createSeek.UserId, createSeek.Rating, Sender);
-        _seekers.Add(seek.UserId, seek);
+        _subscribers[createSeek.UserId] = Sender;
+        _matchmaker.AddSeek(createSeek.UserId, createSeek.Rating);
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
     {
         _logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
-        if (!_seekers.TryGetValue(cancelSeek.UserId, out var seek))
-        {
-            _logger.Warning("No seek found for user {0}", cancelSeek.UserId);
-            return;
-        }
+        _subscribers.Remove(cancelSeek.UserId);
 
-        _seekers.Remove(seek.UserId);
+        if (!_matchmaker.RemoveSeek(cancelSeek.UserId))
+            _logger.Warning("No seek found for user {0}", cancelSeek.UserId);
     }
 
     private void HandleMatchWave()
     {
-        var matches = CalculateMatches();
+        var matches = _matchmaker.CalculateMatches();
         foreach (var (seeker1, seeker2) in matches)
         {
-            _logger.Info("Sending match to {0} and {1}", seeker1.UserId, seeker2.UserId);
-            seeker1.Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker2.UserId));
-            seeker2.Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker1.UserId));
-        }
-    }
+            _logger.Info("Found match for {0} with {1}", seeker1, seeker2);
+            if (
+                !_subscribers.Remove(seeker1, out var seeker1Subscriber)
+                || !_subscribers.Remove(seeker2, out var seeker2Subscriber)
+            )
+            {
+                _logger.Warning(
+                    "One or both subscribers not found for match: {0} and {1}",
+                    seeker1,
+                    seeker2
+                );
 
-    private List<(SeekInfo, SeekInfo)> CalculateMatches()
-    {
-        var matches = new List<(SeekInfo, SeekInfo)>();
-        var alreadyMatched = new HashSet<string>();
-        foreach (var seeker in _seekers.Values)
-        {
-            if (alreadyMatched.Contains(seeker.UserId))
                 continue;
-
-            SeekInfo? match = null;
-            foreach (var potentialMatch in _seekers.Values)
-            {
-                if (seeker == potentialMatch || alreadyMatched.Contains(potentialMatch.UserId))
-                    continue;
-
-                var ratingDifference = Math.Abs(seeker.Rating - potentialMatch.Rating);
-                var seeker1Range = CalculateRatingRange(seeker);
-                var seeker2Range = CalculateRatingRange(potentialMatch);
-                if (ratingDifference > seeker1Range || ratingDifference > seeker2Range)
-                    continue;
-
-                _logger.Info("Found match for {0} with {1}", seeker.UserId, potentialMatch.UserId);
-                match = potentialMatch;
-                break;
             }
 
-            if (match is not null)
-            {
-                matches.Add((seeker, match));
-                alreadyMatched.Add(seeker.UserId);
-                alreadyMatched.Add(match.UserId);
-            }
-            else
-            {
-                seeker.WavesMissed++;
-            }
+            _matchmaker.RemoveSeek(seeker1);
+            _matchmaker.RemoveSeek(seeker2);
+            seeker1Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker2));
+            seeker2Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker1));
         }
-
-        foreach (var matchedSeeks in alreadyMatched)
-            _seekers.Remove(matchedSeeks);
-
-        return matches;
     }
-
-    private int CalculateRatingRange(SeekInfo seeker) =>
-        _settings.Game.StartingMatchRatingDifference
-        + seeker.WavesMissed * _settings.Game.MatchRatingDifferenceGrowthPerWave;
 
     private void HandleTimeout()
     {
-        if (_seekers.Count != 0)
+        if (_matchmaker.SeekerCount != 0)
             return;
 
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        _logger.Info("No seekers left, passivating actor");
     }
 
     protected override void PreStart()
