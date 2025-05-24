@@ -1,54 +1,45 @@
-﻿using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Shared.Models;
+﻿using Akka.Actor;
+using Akka.Hosting;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.Users.Entities;
-using ErrorOr;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;
 
 public interface IMatchmakingService
 {
-    Task<ErrorOr<Success>> CancelSeekAsync(string userId);
     Task SeekAsync(AuthedUser user, int timeControl, int increment);
     Task SeekGuestAsync(string id, int timeControl, int increment);
+    void CancelSeek(string userId);
 }
 
 public class MatchmakingService(
-    IOptions<AppSettings> settings,
     IRatingRepository ratingRepository,
     IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubCtx,
-    ITimeControlTranslator secondsToTimeControl
+    ITimeControlTranslator secondsToTimeControl,
+    IRequiredActor<MatchmakingActor> matchmakingActor
 ) : IMatchmakingService
 {
-    private readonly GameSettings _gameSettings = settings.Value.Game;
     private readonly IRatingRepository _ratingRepository = ratingRepository;
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubCtx =
         matchmakingHubCtx;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
+    private readonly IRequiredActor<MatchmakingActor> _matchmakingActor = matchmakingActor;
 
-    public async Task SeekAsync(AuthedUser user, int timeControl, int increment)
+    public async Task SeekAsync(AuthedUser user, int baseMinutes, int increment)
     {
         var rating = await _ratingRepository.GetTimeControlRatingAsync(
             user,
-            _secondsToTimeControl.FromSeconds(timeControl)
+            _secondsToTimeControl.FromSeconds(baseMinutes)
         );
-        var matchedUserId = await SearchForMatch(timeControl, increment, rating.Value);
-        if (matchedUserId is not null)
-        {
-            await StartGame(user.Id, matchedUserId);
-            return;
-        }
 
-        var seekStartedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        //await _matchmakingRepository.CreateSeekAsync(
-        //    user.Id,
-        //    rating.Value,
-        //    timeControl,
-        //    increment,
-        //    seekStartedAt
-        //);
+        var timeControl = new TimeControlInfo(baseMinutes, increment);
+        var command = new MatchmakingCommands.CreateSeek(user.Id, rating.Value, timeControl);
+        _matchmakingActor.ActorRef.Tell(command);
     }
 
     public Task SeekGuestAsync(string id, int timeControl, int increment)
@@ -56,14 +47,11 @@ public class MatchmakingService(
         throw new NotImplementedException();
     }
 
-    public Task<ErrorOr<Success>> CancelSeekAsync(string userId)
+    public void CancelSeek(string userId, int baseMinutes, int increment)
     {
-        //var userSeek = await _matchmakingRepository.GetUserSeekingInfo(userId);
-        //if (userSeek is null)
-        //    return MatchmakingErrors.MatchNotFound;
-
-        //await _matchmakingRepository.CancelSeekAsync(userSeek);
-        return Task.FromResult<ErrorOr<Success>>(Result.Success);
+        var timeControl = new TimeControlInfo(baseMinutes, increment);
+        var command = new MatchmakingCommands.CancelSeek(userId, timeControl);
+        _matchmakingActor.ActorRef.Tell(command);
     }
 
     private async Task StartGame(string userId1, string userId2)
@@ -76,17 +64,5 @@ public class MatchmakingService(
 
         await user1.MatchFoundAsync(token);
         await user2.MatchFoundAsync(token);
-    }
-
-    private Task<string?> SearchForMatch(int timeControl, int increment, int rating)
-    {
-        var range = _gameSettings.StartingMatchRatingDifference;
-        //var match = await _matchmakingRepository.SearchExistingSeekAsync(
-        //    rating,
-        //    range,
-        //    timeControl,
-        //    increment
-        //);
-        return Task.FromResult<string?>(null);
     }
 }
