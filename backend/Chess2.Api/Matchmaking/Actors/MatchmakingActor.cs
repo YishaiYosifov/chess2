@@ -2,7 +2,7 @@ using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 
@@ -13,6 +13,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
     private readonly ILoggingAdapter _logger = Context.GetLogger();
     private readonly IMatchmakingPool _pool;
     private readonly AppSettings _settings;
+
     private readonly Dictionary<string, IActorRef> _subscribers = [];
 
     public ITimerScheduler Timers { get; set; } = null!;

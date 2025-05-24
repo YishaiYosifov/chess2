@@ -1,43 +1,23 @@
 ﻿using AutoFixture;
-using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 
-namespace Chess2.Api.Unit.Tests.MatchmakingTests;
+namespace Chess2.Api.Unit.Tests.MatchmakingTests.PoolTests;
 
-public class MatchmakingPoolTests : BaseUnitTest
+public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
 {
     private readonly GameSettings _settings;
-    private readonly MatchmakingPool _pool;
+    private readonly RatedMatchmakingPool _pool;
 
-    public MatchmakingPoolTests()
+    protected override RatedMatchmakingPool Pool => _pool;
+
+    public RatedPoolTests()
     {
         var settings = Fixture.Create<IOptions<AppSettings>>();
         _settings = settings.Value.Game;
-        _pool = new MatchmakingPool(settings);
-    }
-
-    [Fact]
-    public void AddSeek_adds_the_seeker()
-    {
-        _pool.AddSeek("user1", 1200);
-
-        var expectedSeek = new SeekInfo("user1", 1200);
-        _pool.Seekers.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedSeek);
-    }
-
-    [Fact]
-    public void RemoveSeek_only_removes_the_correct_seeker()
-    {
-        _pool.AddSeek("user1", 1200);
-        _pool.AddSeek("user2", 1200);
-
-        var result = _pool.RemoveSeek("user1");
-
-        result.Should().BeTrue();
-        _pool.Seekers.Should().ContainSingle().Which.UserId.Should().Be("user2");
+        _pool = new RatedMatchmakingPool(settings);
     }
 
     [Fact]

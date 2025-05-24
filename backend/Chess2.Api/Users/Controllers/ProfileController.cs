@@ -1,5 +1,9 @@
-﻿using Chess2.Api.Infrastructure.Errors;
+﻿using Akka.Actor;
+using Akka.Hosting;
+using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Services;
@@ -13,8 +17,11 @@ namespace Chess2.Api.Users.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProfileController(IUserService userService, UserManager<AuthedUser> userManager)
-    : ControllerBase
+public class ProfileController(
+    IUserService userService,
+    UserManager<AuthedUser> userManager,
+    IRequiredActor<MatchmakingActor> test
+) : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
@@ -23,6 +30,11 @@ public class ProfileController(IUserService userService, UserManager<AuthedUser>
     [Authorize]
     public async Task<ActionResult<PrivateUserOut>> GetAuthedUser()
     {
+        test.ActorRef.Tell(
+            new MatchmakingCommands.CreateSeek("123", 123, new(10, 4)),
+            ActorRefs.NoSender
+        );
+
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
