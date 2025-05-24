@@ -16,7 +16,6 @@ public interface IMatchmakingPool
 
 public class MatchmakingPool(IOptions<AppSettings> settings) : IMatchmakingPool
 {
-    // ordered dictionary so old seeks are prioritized
     private readonly Dictionary<string, SeekInfo> _seekers = [];
     private readonly GameSettings _settings = settings.Value.Game;
 
