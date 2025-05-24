@@ -15,6 +15,7 @@ using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Sharding;
 using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
@@ -306,7 +307,8 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
-builder.Services.AddSingleton<IMatchmakingPool, MatchmakingPool>();
+builder.Services.AddSingleton<IMatchmakingPool, RatedMatchmakingPool>();
+builder.Services.AddSingleton<IMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
