@@ -306,7 +306,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
-builder.Services.AddSingleton<IMatchmaker, Matchmaker>();
+builder.Services.AddSingleton<IMatchmakerPool, MatchmakerPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
