@@ -36,7 +36,7 @@ public class MatchmakingHub(
         var isGuest = _guestService.IsGuest(Context.User);
         if (isGuest)
         {
-            await _matchmakingService.SeekGuestAsync(userId, timeControl, increment);
+            await _matchmakingService.SeekUnratedAsync(userId, timeControl, increment);
             return;
         }
 
@@ -46,7 +46,7 @@ public class MatchmakingHub(
             await HandleErrors(userResult.Errors);
             return;
         }
-        await _matchmakingService.SeekAsync(userResult.Value, timeControl, increment);
+        await _matchmakingService.SeekRatedAsync(userResult.Value, timeControl, increment);
     }
 
     public override Task OnDisconnectedAsync(Exception? exception)
