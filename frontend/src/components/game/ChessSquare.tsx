@@ -6,7 +6,8 @@ import {
 } from "react";
 
 import { useBoardSize, useChessStore } from "@/hooks/useChess";
-import { Color, Point } from "@/lib/apiClient/models";
+import { Color, Point } from "@/types/tempModels";
+import clsx from "clsx";
 
 type ChessSquareProps = {
     position: Point;
@@ -19,7 +20,7 @@ type ChessSquareProps = {
 const ChessSquare: ForwardRefRenderFunction<
     HTMLDivElement,
     ChessSquareProps
-> = ({ position, children, ...divProps }, ref) => {
+> = ({ position, children, className, style, ...divProps }, ref) => {
     const [boardWidth, boardHeight] = useBoardSize();
     const viewingFrom = useChessStore((state) => state.viewingFrom);
 
@@ -35,17 +36,17 @@ const ChessSquare: ForwardRefRenderFunction<
     const physicalX = x * boardWidth * boardHeight;
     const physicalY = y * boardSize;
 
-    // allow custom className
-    if (divProps.className) divProps.className += " " + styles["chess-square"];
-    else divProps.className = styles["chess-square"];
-
-    divProps.style = {
-        ...divProps.style,
-        transform: `translate(${physicalX}%, ${physicalY}%)`,
-    };
+    // tailwind doesn't work well with dynamic values
+    style ??= {};
+    style.transform = `translate(${physicalX}%, ${physicalY}%)`;
 
     return (
-        <div {...divProps} ref={ref}>
+        <div
+            className={clsx(className, "absolute h-[10%] w-[10%] transform")}
+            style={style}
+            {...divProps}
+            ref={ref}
+        >
             {children}
         </div>
     );

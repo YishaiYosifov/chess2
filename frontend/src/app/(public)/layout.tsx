@@ -23,14 +23,12 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <AuthContextProvider>
-                    <WSPushAction />
+                <WSPushAction />
 
-                    <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
-                        <Navbar />
-                        <main className="flex flex-1">{children}</main>
-                    </div>
-                </AuthContextProvider>
+                <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
+                    <Navbar />
+                    <main className="flex flex-1">{children}</main>
+                </div>
             </body>
         </html>
     );
