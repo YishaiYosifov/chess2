@@ -36,7 +36,7 @@ public class MatchmakingHub(
         var isGuest = _guestService.IsGuest(Context.User);
         if (isGuest)
         {
-            _matchmakingService.SeekUnrated(userId, timeControl, increment);
+            _matchmakingService.SeekCasual(userId, timeControl, increment);
             return;
         }
 
