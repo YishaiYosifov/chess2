@@ -1,13 +1,14 @@
 ﻿using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Sharding;
 
 namespace Chess2.Api.Infrastructure.Extensions;
 
 public static class AkkaDIExtensions
 {
-    public static AkkaConfigurationBuilder WithMatchmakingShard<TActor>(this AkkaConfigurationBuilder builder, string name, int shardCount) where TActor : MatchmakingActor
+    public static AkkaConfigurationBuilder WithMatchmakingShard<TActor>(this AkkaConfigurationBuilder builder, string name, int shardCount) where TActor : MatchmakingActor<IMatchmakingPool>
     {
         return builder.WithShardRegion<TActor>(
             name,
