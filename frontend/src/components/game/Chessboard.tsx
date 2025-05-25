@@ -2,13 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { BOARD_HEIGHT, BOARD_WIDTH, defaultChessBoard } from "@/lib/constants";
-import {
-    type Player,
-    type PieceMap,
-    type LegalMoves,
-    Color,
-} from "@/lib/apiClient/models";
+import constants from "@/lib/constants";
+import { type PieceMap, type LegalMoves, Color } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
@@ -34,9 +29,9 @@ interface Breakpoint {
  */
 const Chessboard = ({
     offsetBreakpoints = [],
-    startingPieces = defaultChessBoard,
-    boardHeight = BOARD_HEIGHT,
-    boardWidth = BOARD_WIDTH,
+    startingPieces = constants.DEFAULT_CHESS_BOARD,
+    boardHeight = constants.BOARD_HEIGHT,
+    boardWidth = constants.BOARD_WIDTH,
     legalMoves = {},
 
     viewingFrom,
@@ -100,7 +95,9 @@ const Chessboard = ({
     return (
         <div
             data-testid="chessboard"
-            className={styles.chessboard}
+            className="grid-template-rows-10 bg-no-repea relative grid min-h-[300px] min-w-[300px]
+                cursor-pointer grid-cols-10 rounded-md border-2 border-blue-400
+                bg-[url(/assets/board.svg)] bg-[length:100%]"
             style={{
                 width: `${boardSize}px`,
                 height: `${boardSize}px`,

@@ -1,26 +1,25 @@
 import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/game/Chessboard";
+import Card from "@/components/helpers/Card";
 
 export const metadata = { title: "Play - Chess 2" };
 
 const PlayPage = () => {
-    const breakpoint = parseInt(scssVariables.xl);
     return (
-        <div className={styles.container}>
+        <div>
             <Chessboard
                 offsetBreakpoints={[
                     {
-                        widthBreakpoint: breakpoint,
+                        widthBreakpoint: 10,
                         offset: { width: 10, height: 200 },
                     },
                     {
-                        widthBreakpoint: breakpoint,
+                        widthBreakpoint: 1000,
                         offset: { width: 626, height: 100 },
                     },
                 ]}
             />
-
-            <PlayOptions />
+            {/* <PlayOptions /> */}
         </div>
     );
 };

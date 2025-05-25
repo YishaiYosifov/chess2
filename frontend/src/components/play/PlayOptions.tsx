@@ -1,14 +1,10 @@
 "use client";
 
-import { BsAlarmFill, BsPlayFill } from "react-icons/bs";
-import { Card, Spinner } from "react-bootstrap";
-
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import constants, { TIME_CONTROLS } from "@/lib/constants";
-import { gameRequestApi } from "@/lib/apis";
-import { Variant } from "@/lib/apiClient/models";
+import { Variant } from "@/types/tempModels";
+import Card from "../helpers/Card";
 
 interface TimeControl {
     timeControl: number;
@@ -30,67 +26,8 @@ const PlayOptions = () => {
 
     const router = useRouter();
 
-    /**
-     * Cancels the outgoing game request
-     */
-    async function cancelRequest(): Promise<void> {
-        setSelectedTimeControl(undefined);
-        await gameRequestApi.cancel();
-    }
-
-    /**
-     * Send a request to enter the game pool.
-     * If the game options are the same as the last request, it will send a request to cancel it.
-     */
-    async function enterPool(
-        timeControl: number,
-        increment: number,
-        variant: Variant,
-    ): Promise<void> {
-        try {
-            const response = await gameRequestApi.startPoolGameRaw({
-                variant: variant,
-                timeControl: timeControl,
-                increment,
-            });
-
-            // if the status is 200, it means a game was found and started
-            // redirect the user to the game page
-            if (response.response.status == 200)
-                router.push(`/game/${await response.value()}`);
-        } catch (err) {
-            cancelRequest();
-            setStatus(constants.GENERIC_ERROR);
-            throw err;
-        }
-    }
-
-    /**
-     * This function runs whenever the user selects a new time control.
-     * If the previous time control is equal to the new time control,
-     * don't send a new game request, instead cancel the current one.
-     */
-    async function onTimeControlChange(
-        newTimeControl: number,
-        newIncrement: number,
-    ): Promise<void> {
-        if (
-            selectedTimeControl?.timeControl == newTimeControl &&
-            selectedTimeControl.increment == newIncrement
-        ) {
-            cancelRequest();
-            return;
-        }
-
-        setSelectedTimeControl({
-            timeControl: newTimeControl,
-            increment: newIncrement,
-        });
-        await enterPool(newTimeControl, newIncrement, selectedVariant);
-    }
-
     return (
-        <Card className={styles["options-card"]} data-testid="playOptions">
+        <Card data-testid="playOptions">
             <section className={styles["variant-options"]}>
                 <p className={styles["option-title"]}>
                     <BsPlayFill /> Variant
