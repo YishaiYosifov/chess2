@@ -15,7 +15,7 @@ namespace Chess2.Api.Matchmaking.Services;
 public interface IMatchmakingService
 {
     Task SeekRatedAsync(AuthedUser user, int baseMinutes, int increment);
-    void SeekUnrated(IUser user, int baseMinutes, int increment);
+    void SeekUnrated(string userId, int baseMinutes, int increment);
     void CancelSeek(string userId, int baseMinutes, int increment);
 }
 
@@ -46,10 +46,10 @@ public class MatchmakingService(
         _ratedMatchmakingActor.ActorRef.Tell(command);
     }
 
-    public void SeekUnrated(IUser user, int baseMinutes, int increment)
+    public void SeekUnrated(string userId, int baseMinutes, int increment)
     {
         var poolInfo = new PoolInfo(baseMinutes, increment);
-        var command = new MatchmakingCommands.CreateCasualSeek(user.Id, poolInfo);
+        var command = new MatchmakingCommands.CreateCasualSeek(userId, poolInfo);
         _casualMatchmakingActor.ActorRef.Tell(command);
     }
 

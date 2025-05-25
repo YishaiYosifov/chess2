@@ -19,9 +19,7 @@ namespace Chess2.Api.Users.Controllers;
 [Route("api/[controller]")]
 public class ProfileController(
     IUserService userService,
-    UserManager<AuthedUser> userManager,
-    IRequiredActor<MatchmakingActor> test
-) : ControllerBase
+    UserManager<AuthedUser> userManager) : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
@@ -30,11 +28,6 @@ public class ProfileController(
     [Authorize]
     public async Task<ActionResult<PrivateUserOut>> GetAuthedUser()
     {
-        test.ActorRef.Tell(
-            new MatchmakingCommands.CreateSeek("123", 123, new(10, 4)),
-            ActorRefs.NoSender
-        );
-
         var user = await userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
