@@ -8,7 +8,7 @@ namespace Chess2.Api.Infrastructure.Extensions;
 
 public static class AkkaDIExtensions
 {
-    public static AkkaConfigurationBuilder WithMatchmakingShard<TActor>(this AkkaConfigurationBuilder builder, string name, int shardCount) where TActor : MatchmakingActor<IMatchmakingPool>
+    public static AkkaConfigurationBuilder WithMatchmakingShard<TActor>(this AkkaConfigurationBuilder builder, string name, int shardCount) where TActor : MatchmakingActor
     {
         return builder.WithShardRegion<TActor>(
             name,
