@@ -6,7 +6,7 @@ import { type StoreApi } from "zustand";
 import { type ChessStore, createChessStore } from "@/stores/chessStore";
 
 export const ChessStoreContext = createContext<StoreApi<ChessStore> | null>(
-    null
+    null,
 );
 
 export const ChessProvider = ({
@@ -15,7 +15,7 @@ export const ChessProvider = ({
 }: {
     children: ReactNode;
 } & Partial<ChessStore>) => {
-    const storeRef = useRef<StoreApi<ChessStore>>();
+    const storeRef = useRef<StoreApi<ChessStore>>(null);
     if (!storeRef.current) storeRef.current = createChessStore(state);
 
     return (

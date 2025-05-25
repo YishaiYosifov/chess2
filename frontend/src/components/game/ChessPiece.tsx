@@ -1,9 +1,10 @@
 import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
 import { useChessStore, usePiece } from "@/hooks/useChess";
-import { PieceID, type Point } from "@/lib/apiClient/models";
+import { PieceID, type Point } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
+import clsx from "clsx";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<HTMLDivElement>(null);
@@ -61,7 +62,11 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         <ChessSquare
             data-testid="piece"
             position={position}
-            className={`${styles.piece} ${isDragging && styles["dragging-piece"]}`}
+            className={clsx(
+                `z-10 touch-none bg-size-[length:100%] bg-no-repeat transition-transform
+                duration-100 ease-out select-none`,
+                isDragging && "pointer-events-none z-20",
+            )}
             ref={pieceRef}
             onPointerDown={(event) => {
                 const canDrag =
