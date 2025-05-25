@@ -7,7 +7,6 @@ namespace Chess2.Api.Users.Entities;
 
 public class AuthedUser : IdentityUser, IUser
 {
-    public bool IsAuthenticated { get; set; } = true;
 
     [MaxLength(300)]
     public string? About { get; set; }

@@ -1,14 +1,37 @@
-﻿using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Shared.Models;
+﻿using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
-public class RatedMatchmakingPool(IOptions<AppSettings> settings) : MatchmakingPool
+public interface IRatedMatchmakingPool : IMatchmakingPool
+{
+    void AddSeek(string userId, int rating);
+}
+
+public class SeekInfo(string userId, int rating, int wavesMissed = 0)
+{
+    public string UserId { get; } = userId;
+    public int Rating { get; } = rating;
+    public int WavesMissed { get; set; } = wavesMissed;
+}
+
+public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchmakingPool
 {
     private readonly GameSettings _settings = settings.Value.Game;
+    private readonly Dictionary<string, SeekInfo> _seekers = [];
 
-    public override List<(string userId1, string userId2)> CalculateMatches()
+    public IReadOnlyList<string> Seekers => _seekers.Keys.ToList().AsReadOnly();
+    public int SeekerCount => _seekers.Count;
+
+    public virtual void AddSeek(string userId, int rating)
+    {
+        var seekInfo = new SeekInfo(userId, rating);
+        _seekers[userId] = seekInfo;
+    }
+
+    public virtual bool RemoveSeek(string userId) => _seekers.Remove(userId);
+
+    public List<(string userId1, string userId2)> CalculateMatches()
     {
         var matches = new List<(string, string)>();
         var alreadyMatched = new HashSet<string>();
@@ -62,8 +85,14 @@ public class RatedMatchmakingPool(IOptions<AppSettings> settings) : MatchmakingP
             alreadyMatched.Add(seeker.UserId);
             alreadyMatched.Add(bestMatch.UserId);
         }
+        RemoveSeekBatch(alreadyMatched);
 
         return matches;
+    }
+
+    private void RemoveSeekBatch(IEnumerable<string> seeks)
+    {
+        foreach (var seek in seeks) RemoveSeek(seek);
     }
 
     private (int startIdx, int endIdx) GetSeekerSearchRatingBounds(

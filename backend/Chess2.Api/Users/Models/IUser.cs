@@ -3,5 +3,4 @@
 public interface IUser
 {
     public string Id { get; set; }
-    public bool IsAuthenticated { get; set; }
 }

@@ -8,19 +8,17 @@ using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Actors;
 
-public class MatchmakingActor : ReceiveActor, IWithTimers
+public abstract class MatchmakingActor<TPool> : ReceiveActor, IWithTimers where TPool : IMatchmakingPool
 {
-    private readonly ILoggingAdapter _logger = Context.GetLogger();
-    private readonly IMatchmakingPool _pool;
+    protected readonly ILoggingAdapter _logger = Context.GetLogger();
+    protected readonly TPool _pool;
     private readonly AppSettings _settings;
-
-    private readonly Dictionary<string, IActorRef> _subscribers = [];
 
     public ITimerScheduler Timers { get; set; } = null!;
 
     public MatchmakingActor(
         IOptions<AppSettings> settings,
-        IMatchmakingPool pool,
+        TPool pool,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -30,29 +28,15 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
         _settings = settings.Value;
         _pool = pool;
 
-        Receive<MatchmakingCommands.CreateSeek>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingCommands.MatchWave>(_ => HandleMatchWave());
 
         Receive<ReceiveTimeout>(_ => HandleTimeout());
     }
 
-    private void HandleCreateSeek(MatchmakingCommands.CreateSeek createSeek)
-    {
-        _logger.Info(
-            "Received seek from {0} with rating {1}",
-            createSeek.UserId,
-            createSeek.Rating
-        );
-
-        _subscribers[createSeek.UserId] = Sender;
-        _pool.AddSeek(createSeek.UserId, createSeek.Rating);
-    }
-
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
     {
         _logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
-        _subscribers.Remove(cancelSeek.UserId);
 
         if (!_pool.RemoveSeek(cancelSeek.UserId))
             _logger.Warning("No seek found for user {0}", cancelSeek.UserId);
@@ -64,24 +48,7 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
         foreach (var (seeker1, seeker2) in matches)
         {
             _logger.Info("Found match for {0} with {1}", seeker1, seeker2);
-            if (
-                !_subscribers.Remove(seeker1, out var seeker1Subscriber)
-                || !_subscribers.Remove(seeker2, out var seeker2Subscriber)
-            )
-            {
-                _logger.Warning(
-                    "One or both subscribers not found for match: {0} and {1}",
-                    seeker1,
-                    seeker2
-                );
-
-                continue;
-            }
-
-            _pool.RemoveSeek(seeker1);
-            _pool.RemoveSeek(seeker2);
-            seeker1Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker2));
-            seeker2Subscriber.Tell(new MatchmakingEvents.MatchFound(seeker1));
+            // TODO: start game
         }
     }
 
@@ -102,5 +69,42 @@ public class MatchmakingActor : ReceiveActor, IWithTimers
             _settings.Game.MatchWaveEvery
         );
         Context.SetReceiveTimeout(TimeSpan.FromSeconds(30));
+    }
+}
+
+public class RatedMatchmakingActor : MatchmakingActor<IRatedMatchmakingPool>
+{
+    public RatedMatchmakingActor(IOptions<AppSettings> settings, IRatedMatchmakingPool pool, ITimerScheduler? timerScheduler = null) : base(settings, pool, timerScheduler)
+    {
+        Receive<MatchmakingCommands.CreateRatedSeek>(HandleCreateSeek);
+    }
+
+    private void HandleCreateSeek(MatchmakingCommands.CreateRatedSeek createSeek)
+    {
+        _logger.Info(
+            "Received seek from {0} with rating {1}",
+            createSeek.UserId,
+            createSeek.Rating
+        );
+
+        _pool.AddSeek(createSeek.UserId, createSeek.Rating);
+    }
+}
+
+public class CasualMatchmakingActor : MatchmakingActor<ICasualMatchmakingPool>
+{
+    public CasualMatchmakingActor(IOptions<AppSettings> settings, ICasualMatchmakingPool pool, ITimerScheduler? timerScheduler = null) : base(settings, pool, timerScheduler)
+    {
+        Receive<MatchmakingCommands.CreateCasualSeek>(HandleCreateSeek);
+    }
+
+    private void HandleCreateSeek(MatchmakingCommands.CreateCasualSeek createSeek)
+    {
+        _logger.Info(
+            "Received casual seek from {0}",
+            createSeek.UserId
+        );
+
+        _pool.AddSeek(createSeek.UserId);
     }
 }

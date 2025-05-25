@@ -1,19 +1,21 @@
 ﻿using Akka.Actor;
-using Chess2.Api.Game.Models;
 
 namespace Chess2.Api.Matchmaking.Models;
 
 public interface IMatchmakingMessage
 {
-    public TimeControlInfo TimeControl { get; init; }
+    public PoolInfo PoolInfo { get; init; }
 }
 
 public static class MatchmakingCommands
 {
-    public record CreateSeek(string UserId, int Rating, TimeControlInfo TimeControl)
+    public record CreateRatedSeek(string UserId, int Rating, PoolInfo PoolInfo)
         : IMatchmakingMessage;
 
-    public record CancelSeek(string UserId, TimeControlInfo TimeControl) : IMatchmakingMessage;
+    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo)
+        : IMatchmakingMessage;
+
+    public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingMessage;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
 }

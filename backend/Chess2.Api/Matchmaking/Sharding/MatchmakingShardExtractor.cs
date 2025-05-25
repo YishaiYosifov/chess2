@@ -1,11 +1,10 @@
 ﻿using Akka.Cluster.Sharding;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Shared.Models;
 
 namespace Chess2.Api.Matchmaking.Sharding;
 
-public class MatchmakingShardExtractor(AppSettings settings)
-    : HashCodeMessageExtractor(settings.Akka.MatchmakingShardCount)
+public class MatchmakingShardExtractor(int shardCount)
+    : HashCodeMessageExtractor(shardCount)
 {
     public override string? EntityId(object message)
     {
@@ -13,7 +12,7 @@ public class MatchmakingShardExtractor(AppSettings settings)
             return null;
 
         var entityId =
-            $"matchmaking:{matchmakingMessage.TimeControl.BaseMinutes}+{matchmakingMessage.TimeControl.Increment}";
+            $"matchmaking:{matchmakingMessage.PoolInfo.BaseMinutes}+{matchmakingMessage.PoolInfo.Increment}";
         return entityId;
     }
 }
