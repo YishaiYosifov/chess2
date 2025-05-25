@@ -8,4 +8,3 @@ public enum TimeControl
     Classical,
 }
 
-public record TimeControlInfo(int BaseMinutes, int Increment);

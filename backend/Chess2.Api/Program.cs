@@ -205,20 +205,20 @@ builder
 
         options
             .UseWebProviders()
-            .AddGoogle(options =>
-            {
-                var clientId =
-                    builder.Configuration["Authentication:Google:ClientId"]
-                    ?? throw new KeyNotFoundException("Google OAuth Client Id");
-                var clientSecret =
-                    builder.Configuration["Authentication:Google:ClientSecret"]
-                    ?? throw new KeyNotFoundException("Google OAuth Client Secret");
+            //.AddGoogle(options =>
+            //{
+            //    var clientId =
+            //        builder.Configuration["Authentication:Google:ClientId"]
+            //        ?? throw new KeyNotFoundException("Google OAuth Client Id");
+            //    var clientSecret =
+            //        builder.Configuration["Authentication:Google:ClientSecret"]
+            //        ?? throw new KeyNotFoundException("Google OAuth Client Secret");
 
-                options.SetClientId(clientId);
-                options.SetClientSecret(clientSecret);
-                options.AddScopes("email");
-                options.SetRedirectUri("api/oauth/google/callback");
-            })
+            //    options.SetClientId(clientId);
+            //    options.SetClientSecret(clientSecret);
+            //    options.AddScopes("email");
+            //    options.SetRedirectUri("api/oauth/google/callback");
+            //})
             .AddDiscord(options =>
             {
                 var clientId =
@@ -288,15 +288,13 @@ builder.Services.AddAkka(
                     Roles = [ActorSystemConstants.BackendRole],
                 }
             )
-            .WithShardRegion<MatchmakingActor>(
-                "matchmaking",
-                (_, _, resolver) => s => resolver.Props<MatchmakingActor>(),
-                new MatchmakingShardExtractor(appSettings),
-                new ShardOptions()
-                {
-                    RememberEntities = true,
-                    Role = ActorSystemConstants.BackendRole,
-                }
+            .WithMatchmakingShard<RatedMatchmakingActor>(
+                "rated-matchmaking",
+                appSettings.Akka.MatchmakingShardCount
+            )
+            .WithMatchmakingShard<CasualMatchmakingActor>(
+                "casual-matchmaking",
+                appSettings.Akka.MatchmakingShardCount
             );
     }
 );
@@ -307,8 +305,8 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
-builder.Services.AddSingleton<IMatchmakingPool, RatedMatchmakingPool>();
-builder.Services.AddSingleton<IMatchmakingPool, CasualMatchmakingPool>();
+builder.Services.AddSingleton<IRatedMatchmakingPool, RatedMatchmakingPool>();
+builder.Services.AddSingleton<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 

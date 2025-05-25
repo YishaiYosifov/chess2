@@ -3,5 +3,4 @@
 public class GuestUser : IUser
 {
     public required string Id { get; set; }
-    public bool IsAuthenticated { get; set; } = false;
 }
