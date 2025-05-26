@@ -8,35 +8,25 @@ namespace Chess2.Api.UserRating.Repositories;
 
 public interface IRatingRepository
 {
-    Task<List<Rating>> GetAllRatingsAsync(AuthedUser user);
-    Task<Rating> GetTimeControlRatingAsync(AuthedUser user, TimeControl timeControl);
+    Task<Rating?> GetTimeControlRatingAsync(AuthedUser user, TimeControl timeControl);
+    Task AddRating(Rating rating, AuthedUser user);
 }
 
 public class RatingRepository(ApplicationDbContext dbContext) : IRatingRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<List<Rating>> GetAllRatingsAsync(AuthedUser user) =>
-        _dbContext.Ratings.Where(rating => rating.User == user).ToListAsync();
-
-    public async Task<Rating> GetTimeControlRatingAsync(AuthedUser user, TimeControl timeControl) =>
+    public async Task<Rating?> GetTimeControlRatingAsync(
+        AuthedUser user,
+        TimeControl timeControl
+    ) =>
         await _dbContext
             .Ratings.Where(rating => rating.User == user && rating.TimeControl == timeControl)
-            .SingleOrDefaultAsync() ?? await CreateRating(user, timeControl);
+            .SingleOrDefaultAsync();
 
-    private async Task<Rating> CreateRating(AuthedUser user, TimeControl timeControl)
+    public async Task AddRating(Rating rating, AuthedUser user)
     {
-        var rating = new Rating()
-        {
-            UserId = user.Id,
-            User = user,
-            TimeControl = timeControl,
-        };
         user.Ratings.Add(rating);
-
         await _dbContext.AddAsync(rating);
-        await _dbContext.SaveChangesAsync();
-
-        return rating;
     }
 }

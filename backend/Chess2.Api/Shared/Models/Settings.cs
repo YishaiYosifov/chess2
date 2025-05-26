@@ -21,6 +21,8 @@ public class GameSettings
     public int StartingMatchRatingDifference { get; set; }
     public int MatchRatingDifferenceGrowthPerWave { get; set; }
     public TimeSpan MatchWaveEvery { get; set; }
+
+    public int DefaultRating { get; set; }
 }
 
 public class JwtSettings
