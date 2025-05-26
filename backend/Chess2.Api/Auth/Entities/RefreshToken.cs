@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Users.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Chess2.Api.Users.Entities;
 
 namespace Chess2.Api.Auth.Entities;
 

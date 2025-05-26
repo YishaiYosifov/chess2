@@ -1,13 +1,12 @@
-﻿using Chess2.Api.UserRating.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.Identity;
-using System.ComponentModel.DataAnnotations;
 
 namespace Chess2.Api.Users.Entities;
 
 public class AuthedUser : IdentityUser, IUser
 {
-
     [MaxLength(300)]
     public string? About { get; set; }
 

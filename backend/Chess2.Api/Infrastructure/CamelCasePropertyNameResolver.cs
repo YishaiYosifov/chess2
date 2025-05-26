@@ -1,7 +1,7 @@
-﻿using FluentValidation.Internal;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
+using FluentValidation.Internal;
 
 namespace Chess2.Api.Infrastructure;
 
