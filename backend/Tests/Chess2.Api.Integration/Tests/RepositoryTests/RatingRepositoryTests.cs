@@ -36,7 +36,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, ratingToFind.TimeControl)
+            new RatingFaker(otherUser).RuleFor(x => x.TimeControl, ratingToFind.TimeControl)
         );
 
         var result = await _ratingRepository.GetTimeControlRatingAsync(
