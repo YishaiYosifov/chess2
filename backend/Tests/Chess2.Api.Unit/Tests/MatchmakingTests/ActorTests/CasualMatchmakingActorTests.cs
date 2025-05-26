@@ -8,33 +8,32 @@ using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
 
-public class RatedMatchmakingActorTests(ITestOutputHelper output)
-    : BaseMatchmakingActorTests<IRatedMatchmakingPool>(output: output)
+public class CasualMatchmakingActorTests(ITestOutputHelper output)
+    : BaseMatchmakingActorTests<ICasualMatchmakingPool>(output: output)
 {
     [Fact]
     public void CreateSeek_adds_the_user_to_seekers()
     {
         const string userId = "user1";
-        const int rating = 1200;
 
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
+            new MatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
             Probe.Ref
         );
 
-        Within(TimeSpan.FromSeconds(3), () => PoolMock.Received(1).AddSeek(userId, rating));
+        Within(TimeSpan.FromSeconds(3), () => PoolMock.Received(1).AddSeek(userId));
     }
 
     protected override void AddSeekToPool(string userId) =>
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateRatedSeek(userId, 1200, PoolInfo),
+            new MatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
             Probe.Ref
         );
 
     protected override IActorRef CreateActor()
     {
         var props = Props.Create(
-            () => new RatedMatchmakingActor(Options.Create(Settings), PoolMock, TimerMock)
+            () => new CasualMatchmakingActor(Options.Create(Settings), PoolMock, TimerMock)
         );
         return Sys.ActorOf(props);
     }
