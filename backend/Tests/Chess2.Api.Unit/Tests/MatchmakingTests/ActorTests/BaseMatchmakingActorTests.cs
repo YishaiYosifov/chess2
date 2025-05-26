@@ -58,6 +58,6 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
             Probe.Ref
         );
 
-        Within(TimeSpan.FromSeconds(3), () => PoolMock.Received().RemoveSeek(userIdToRemove));
+        AwaitAssert(() => PoolMock.Received().RemoveSeek(userIdToRemove));
     }
 }
