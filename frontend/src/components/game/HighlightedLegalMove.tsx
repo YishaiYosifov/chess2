@@ -1,6 +1,6 @@
 import { useEventWebSocket } from "@/hooks/useEventWS";
 import { useChessStore } from "@/hooks/useChess";
-import { Point } from "@/lib/apiClient/models";
+import { Point } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
 
@@ -11,7 +11,8 @@ const HighlightedLegalMove = ({ position }: { position: Point }) => {
     return (
         <ChessSquare
             onPointerUp={() => sendMove(sendEventMessage, position)}
-            className={styles.highlightedLegalMove}
+            className="z-20 bg-radial-[at_20%_23%] from-black/75 to-transparent hover:border
+                hover:border-white/50"
             position={position}
         />
     );
