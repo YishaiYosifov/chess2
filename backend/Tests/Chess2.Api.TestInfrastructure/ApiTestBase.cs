@@ -10,15 +10,15 @@ namespace Chess2.Api.TestInfrastructure;
 
 public class ApiTestBase : IAsyncLifetime
 {
-    protected readonly Chess2WebApplicationFactory Factory;
-    protected readonly IServiceScope Scope;
-    protected readonly ApiClient ApiClient;
+    protected Chess2WebApplicationFactory Factory { get; }
+    protected IServiceScope Scope { get; }
+    protected ApiClient ApiClient { get; }
 
-    protected readonly ApplicationDbContext DbContext;
-    protected readonly ITokenProvider TokenProvider;
-    protected readonly AppSettings AppSettings;
+    protected ApplicationDbContext DbContext { get; }
+    protected ITokenProvider TokenProvider { get; }
+    protected AppSettings AppSettings { get; }
 
-    protected readonly AuthTestUtils AuthUtils;
+    protected AuthTestUtils AuthUtils { get; }
 
     protected ApiTestBase(Chess2WebApplicationFactory factory)
     {
