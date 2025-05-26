@@ -16,7 +16,6 @@ using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.Matchmaking.Sharding;
 using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
@@ -205,20 +204,20 @@ builder
 
         options
             .UseWebProviders()
-            //.AddGoogle(options =>
-            //{
-            //    var clientId =
-            //        builder.Configuration["Authentication:Google:ClientId"]
-            //        ?? throw new KeyNotFoundException("Google OAuth Client Id");
-            //    var clientSecret =
-            //        builder.Configuration["Authentication:Google:ClientSecret"]
-            //        ?? throw new KeyNotFoundException("Google OAuth Client Secret");
+            .AddGoogle(options =>
+            {
+                var clientId =
+                    builder.Configuration["Authentication:Google:ClientId"]
+                    ?? throw new KeyNotFoundException("Google OAuth Client Id");
+                var clientSecret =
+                    builder.Configuration["Authentication:Google:ClientSecret"]
+                    ?? throw new KeyNotFoundException("Google OAuth Client Secret");
 
-            //    options.SetClientId(clientId);
-            //    options.SetClientSecret(clientSecret);
-            //    options.AddScopes("email");
-            //    options.SetRedirectUri("api/oauth/google/callback");
-            //})
+                options.SetClientId(clientId);
+                options.SetClientSecret(clientSecret);
+                options.AddScopes("email");
+                options.SetRedirectUri("api/oauth/google/callback");
+            })
             .AddDiscord(options =>
             {
                 var clientId =
