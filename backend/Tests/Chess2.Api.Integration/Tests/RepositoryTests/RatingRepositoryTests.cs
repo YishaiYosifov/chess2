@@ -2,9 +2,9 @@
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Repositories;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.RepositoryTests;
@@ -20,96 +20,65 @@ public class RatingRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetAllRatingsAsync_returns_all_rating_for_a_specific_user()
+    public async Task GetTimeControlRatingAsync_finds_the_correct_rating_for_a_user_and_time_control()
     {
-        var otherUser1 = new AuthedUserFaker().Generate();
-        var otherUser2 = new AuthedUserFaker().Generate();
-        otherUser2.Ratings =
-        [
-            new RatingFaker(otherUser2).Generate(),
-            new RatingFaker(otherUser2).Generate(),
-        ];
-
-        var targetUser = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>()
-        {
-            new RatingFaker(targetUser).Generate(),
-            new RatingFaker(targetUser).Generate(),
-            new RatingFaker(targetUser).Generate(),
-        };
-        targetUser.Ratings = ratings;
-
-        await DbContext.AddRangeAsync(otherUser1, otherUser2, targetUser);
-        await DbContext.SaveChangesAsync();
-
-        var results = await _ratingRepository.GetAllRatingsAsync(targetUser);
-
-        results.Should().BeEquivalentTo(ratings);
-    }
-
-    [Fact]
-    public async Task GetTimeControlRatingAsync_finds_the_correct_rating_for_a_time_control()
-    {
-        var otherUser = new AuthedUserFaker().Generate();
-        otherUser.Ratings =
-        [
-            new RatingFaker(otherUser).Generate(),
-            new RatingFaker(otherUser).Generate(),
-        ];
-
-        var targetUser = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>()
-        {
-            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Bullet).Generate(),
-            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
-            new RatingFaker(targetUser).RuleFor(x => x.TimeControl, TimeControl.Rapid).Generate(),
-        };
-        var targetRating = ratings[1];
-        targetUser.Ratings = ratings;
-
-        await DbContext.AddRangeAsync(otherUser, targetUser);
-        await DbContext.SaveChangesAsync();
-
-        var results = await _ratingRepository.GetTimeControlRatingAsync(
-            targetUser,
-            targetRating.TimeControl
+        var userToFind = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var ratingToFind = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, TimeControl.Blitz)
+        );
+        await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, TimeControl.Classical)
         );
 
-        results.Should().BeEquivalentTo(targetRating);
+        // store a rating for another user to ensure it doesn't interfere
+        var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, ratingToFind.TimeControl)
+        );
+
+        var result = await _ratingRepository.GetTimeControlRatingAsync(
+            userToFind,
+            ratingToFind.TimeControl
+        );
+
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(ratingToFind);
     }
 
     [Fact]
-    public async Task GetTimeControlRatingAsync_throws_an_exception_when_there_are_duplicate_time_controls()
+    public async Task GetTimeControlRatingAsync_returns_null_when_the_rating_doesnt_exist()
     {
-        var user = new AuthedUserFaker().Generate();
-        var ratings = new List<Rating>()
-        {
-            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
-            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Blitz).Generate(),
-        };
-        user.Ratings = ratings;
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var rating = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Rapid)
+        );
 
-        await DbContext.AddAsync(user);
-        await DbContext.SaveChangesAsync();
+        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz);
 
-        var act = () => _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz);
-
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        result.Should().BeNull();
     }
 
     [Fact]
-    public async Task GetTimeControlRatingAsync_creates_a_rating_when_it_doesnt_exist()
+    public async Task AddRatingAsync_adds_the_rating_to_the_user_and_db_context()
     {
-        var timeControl = TimeControl.Blitz;
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var results = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl);
+        var rating = new RatingFaker(user)
+            .RuleFor(x => x.TimeControl, TimeControl.Classical)
+            .Generate();
 
-        results.TimeControl.Should().Be(timeControl);
-        results.Value.Should().Be(800);
-        results.User.Should().Be(user);
+        await _ratingRepository.AddRatingAsync(rating, user);
+        await DbContext.SaveChangesAsync();
 
-        user.Ratings.Should().HaveCount(1);
-        user.Ratings.ElementAt(0).Should().BeEquivalentTo(results);
+        var dbRating = await DbContext.Ratings.SingleOrDefaultAsync(r =>
+            r.UserId == user.Id && r.TimeControl == TimeControl.Classical
+        );
+        dbRating.Should().NotBeNull();
+        dbRating.Should().BeEquivalentTo(rating);
+        user.Ratings.Should().Contain(dbRating);
     }
 }

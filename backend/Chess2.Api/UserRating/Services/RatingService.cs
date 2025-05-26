@@ -44,7 +44,7 @@ public class RatingService(
             Value = _settings.DefaultRating,
         };
 
-        await _ratingRepository.AddRating(rating, user);
+        await _ratingRepository.AddRatingAsync(rating, user);
         await _unitOfWork.CompleteAsync();
 
         return rating;
