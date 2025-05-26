@@ -1,5 +1,4 @@
-﻿
-namespace Chess2.Api.Matchmaking.Services.Pools;
+﻿namespace Chess2.Api.Matchmaking.Services.Pools;
 
 public interface ICasualMatchmakingPool : IMatchmakingPool
 {
@@ -12,7 +11,6 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
 
     public int SeekerCount => _seekers.Count;
     public IReadOnlyList<string> Seekers => _seekers.ToList().AsReadOnly();
-
 
     public void AddSeek(string userId) => _seekers.Add(userId);
 

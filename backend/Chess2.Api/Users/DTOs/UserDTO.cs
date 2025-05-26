@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Users.Entities;
+﻿using System.ComponentModel;
+using Chess2.Api.Users.Entities;
 using Newtonsoft.Json;
-using System.ComponentModel;
 
 namespace Chess2.Api.Users.DTOs;
 

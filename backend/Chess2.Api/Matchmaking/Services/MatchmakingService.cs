@@ -31,8 +31,10 @@ public class MatchmakingService(
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubCtx =
         matchmakingHubCtx;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
-    private readonly IRequiredActor<RatedMatchmakingActor> _ratedMatchmakingActor = matchmakingActor;
-    private readonly IRequiredActor<CasualMatchmakingActor> _casualMatchmakingActor = casualMatchmakingActor;
+    private readonly IRequiredActor<RatedMatchmakingActor> _ratedMatchmakingActor =
+        matchmakingActor;
+    private readonly IRequiredActor<CasualMatchmakingActor> _casualMatchmakingActor =
+        casualMatchmakingActor;
 
     public async Task SeekRatedAsync(AuthedUser user, int baseMinutes, int increment)
     {
@@ -60,4 +62,3 @@ public class MatchmakingService(
         _ratedMatchmakingActor.ActorRef.Tell(command);
     }
 }
-
