@@ -21,7 +21,7 @@ public class CasualMatchmakingActorTests(ITestOutputHelper output)
             Probe.Ref
         );
 
-        Within(TimeSpan.FromSeconds(3), () => PoolMock.Received(1).AddSeek(userId));
+        AwaitAssert(() => PoolMock.Received(1).AddSeek(userId));
     }
 
     protected override void AddSeekToPool(string userId) =>

@@ -22,7 +22,7 @@ public class RatedMatchmakingActorTests(ITestOutputHelper output)
             Probe.Ref
         );
 
-        Within(TimeSpan.FromSeconds(3), () => PoolMock.Received(1).AddSeek(userId, rating));
+        AwaitAssert(() => PoolMock.Received(1).AddSeek(userId, rating));
     }
 
     protected override void AddSeekToPool(string userId) =>
