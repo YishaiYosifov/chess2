@@ -1,14 +1,9 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.UserRating.Entities;
-using Chess2.Api.UserRating.Repositories;
+using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Models;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Matchmaking.Services;
 
@@ -20,16 +15,13 @@ public interface IMatchmakingService
 }
 
 public class MatchmakingService(
-    IRatingRepository ratingRepository,
-    IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubCtx,
+    IRatingService ratingService,
     ITimeControlTranslator secondsToTimeControl,
     IRequiredActor<RatedMatchmakingActor> matchmakingActor,
     IRequiredActor<CasualMatchmakingActor> casualMatchmakingActor
 ) : IMatchmakingService
 {
-    private readonly IRatingRepository _ratingRepository = ratingRepository;
-    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubCtx =
-        matchmakingHubCtx;
+    private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
     private readonly IRequiredActor<RatedMatchmakingActor> _ratedMatchmakingActor =
         matchmakingActor;
@@ -38,7 +30,7 @@ public class MatchmakingService(
 
     public async Task SeekRatedAsync(AuthedUser user, int baseMinutes, int increment)
     {
-        var rating = await _ratingRepository.GetTimeControlRatingAsync(
+        var rating = await _ratingService.GetOrCreateRatingAsync(
             user,
             _secondsToTimeControl.FromSeconds(baseMinutes)
         );
