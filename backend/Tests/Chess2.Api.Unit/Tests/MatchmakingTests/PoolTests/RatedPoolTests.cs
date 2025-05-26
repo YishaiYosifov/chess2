@@ -20,6 +20,8 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         _pool = new RatedMatchmakingPool(settings);
     }
 
+    protected override void AddSeek(string userId) => _pool.AddSeek(userId, 1200);
+
     [Fact]
     public void CalculateMatches_matches_within_range()
     {
@@ -40,12 +42,10 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         var matches = _pool.CalculateMatches();
 
         matches.Should().BeEmpty();
-        _pool.Seekers[0].WavesMissed.Should().Be(1);
-        _pool.Seekers[1].WavesMissed.Should().Be(1);
     }
 
     [Fact]
-    public void CalculateMatches_matches_after_waves_missed()
+    public void CalculateMatches_increases_rating_range_after_waves_missed()
     {
         _pool.AddSeek("user1", 1200);
         _pool.AddSeek(
@@ -71,12 +71,16 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         _pool.AddSeek("user3", 1215);
 
         // match user 1 and user 2
-        _pool.CalculateMatches();
+        var matches1 = _pool.CalculateMatches();
+        matches1.Should().ContainSingle().Which.Should().BeEquivalentTo(("user1", "user2"));
+
+        // re-add the users
+        _pool.AddSeek("user1", 1200);
+        _pool.AddSeek("user2", 1210);
         // now user 3 has missed a wave, so it should be prioritized
         var matches = _pool.CalculateMatches();
 
         matches.Should().ContainSingle().Which.Should().BeEquivalentTo(("user3", "user2"));
-        _pool.Seekers.First(s => s.UserId == "user1")?.WavesMissed.Should().Be(1);
     }
 
     [Fact]
@@ -87,12 +91,11 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     }
 
     [Fact]
-    public void CalculateMatches_single_seeker_no_match()
+    public void CalculateMatches_single_seeker_returns_no_matches()
     {
         _pool.AddSeek("user1", 1500);
         var matches = _pool.CalculateMatches();
         matches.Should().BeEmpty();
-        _pool.Seekers.First(s => s.UserId == "user1").WavesMissed.Should().Be(1);
     }
 
     [Fact]
@@ -122,5 +125,23 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
 
         var allMatchedUsers = matches.SelectMany(m => new[] { m.userId1, m.userId2 }).ToList();
         allMatchedUsers.Should().Contain(["user1", "user2", "user3", "user4"]);
+    }
+
+    [Fact]
+    public void CalculateMatches_removes_matched_users()
+    {
+        _pool.AddSeek("user1", 1200);
+        _pool.AddSeek("user2", 1205);
+        _pool.AddSeek("user3", 1205);
+
+        _pool.SeekerCount.Should().Be(3);
+
+        var matches1 =_pool.CalculateMatches();
+        matches1.Should().ContainSingle();
+
+        _pool.Seekers.Should().ContainSingle().Which.Should().Be("user3");
+
+        var matches2 = _pool.CalculateMatches();
+        matches2.Should().BeEmpty();
     }
 }
