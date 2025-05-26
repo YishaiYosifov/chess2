@@ -7,4 +7,3 @@ public enum TimeControl
     Rapid,
     Classical,
 }
-

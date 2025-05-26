@@ -92,7 +92,8 @@ public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchm
 
     private void RemoveSeekBatch(IEnumerable<string> seeks)
     {
-        foreach (var seek in seeks) RemoveSeek(seek);
+        foreach (var seek in seeks)
+            RemoveSeek(seek);
     }
 
     private (int startIdx, int endIdx) GetSeekerSearchRatingBounds(

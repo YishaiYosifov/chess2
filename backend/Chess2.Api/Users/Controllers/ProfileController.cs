@@ -17,9 +17,8 @@ namespace Chess2.Api.Users.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProfileController(
-    IUserService userService,
-    UserManager<AuthedUser> userManager) : ControllerBase
+public class ProfileController(IUserService userService, UserManager<AuthedUser> userManager)
+    : ControllerBase
 {
     private readonly IUserService _userService = userService;
 
