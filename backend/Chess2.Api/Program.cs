@@ -20,6 +20,7 @@ using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
+using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Services;
@@ -302,13 +303,15 @@ builder.Services.AddAkka(
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddSingleton<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddSingleton<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddScoped<IRatingService, RatingService>();
+
+builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
 builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 
