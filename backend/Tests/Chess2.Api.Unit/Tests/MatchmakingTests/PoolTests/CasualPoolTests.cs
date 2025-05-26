@@ -7,4 +7,6 @@ internal class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     private readonly CasualMatchmakingPool _pool = new();
 
     protected override CasualMatchmakingPool Pool => _pool;
+
+    protected override void AddSeek(string userId) => _pool.AddSeek(userId);
 }

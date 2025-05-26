@@ -9,24 +9,25 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
 {
     protected abstract TPool Pool { get; }
 
+    protected abstract void AddSeek(string userId);
+
     [Fact]
     public void AddSeek_adds_the_seeker()
     {
-        Pool.AddSeek("user1", 1200);
+        AddSeek("user1");
 
-        var expectedSeek = new SeekInfo("user1", 1200);
-        Pool.Seekers.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedSeek);
+        Pool.Seekers.Should().ContainSingle().Which.Should().BeEquivalentTo("user1");
     }
 
     [Fact]
     public void RemoveSeek_only_removes_the_correct_seeker()
     {
-        Pool.AddSeek("user1", 1200);
-        Pool.AddSeek("user2", 1200);
+        AddSeek("user1");
+        AddSeek("user2");
 
         var result = Pool.RemoveSeek("user1");
 
         result.Should().BeTrue();
-        Pool.Seekers.Should().ContainSingle().Which.UserId.Should().Be("user2");
+        Pool.Seekers.Should().ContainSingle().Which.Should().Be("user2");
     }
 }
