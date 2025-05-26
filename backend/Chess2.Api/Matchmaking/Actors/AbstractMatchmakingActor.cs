@@ -10,10 +10,12 @@ namespace Chess2.Api.Matchmaking.Actors;
 
 public abstract class MatchmakingActor : ReceiveActor;
 
-public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithTimers where TPool : IMatchmakingPool
+public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithTimers
+    where TPool : IMatchmakingPool
 {
-    protected readonly ILoggingAdapter _logger = Context.GetLogger();
-    protected readonly TPool _pool;
+    protected ILoggingAdapter Logger { get; } = Context.GetLogger();
+    protected TPool Pool { get; }
+
     private readonly AppSettings _settings;
 
     public ITimerScheduler Timers { get; set; } = null!;
@@ -28,7 +30,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         if (timerScheduler is not null)
             Timers = timerScheduler;
         _settings = settings.Value;
-        _pool = pool;
+        Pool = pool;
 
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingCommands.MatchWave>(_ => HandleMatchWave());
@@ -38,29 +40,29 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
     {
-        _logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
+        Logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
 
-        if (!_pool.RemoveSeek(cancelSeek.UserId))
-            _logger.Warning("No seek found for user {0}", cancelSeek.UserId);
+        if (!Pool.RemoveSeek(cancelSeek.UserId))
+            Logger.Warning("No seek found for user {0}", cancelSeek.UserId);
     }
 
     private void HandleMatchWave()
     {
-        var matches = _pool.CalculateMatches();
+        var matches = Pool.CalculateMatches();
         foreach (var (seeker1, seeker2) in matches)
         {
-            _logger.Info("Found match for {0} with {1}", seeker1, seeker2);
+            Logger.Info("Found match for {0} with {1}", seeker1, seeker2);
             // TODO: start game
         }
     }
 
     private void HandleTimeout()
     {
-        if (_pool.SeekerCount != 0)
+        if (Pool.SeekerCount != 0)
             return;
 
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
-        _logger.Info("No seekers left, passivating actor");
+        Logger.Info("No seekers left, passivating actor");
     }
 
     protected override void PreStart()
