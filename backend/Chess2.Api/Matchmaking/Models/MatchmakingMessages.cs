@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.Matchmaking.Models;
 
-public interface IMatchmakingMessage
+public interface IMatchmakingCommand
 {
     public PoolInfo PoolInfo { get; init; }
 }
@@ -10,11 +10,11 @@ public interface IMatchmakingMessage
 public static class MatchmakingCommands
 {
     public record CreateRatedSeek(string UserId, int Rating, PoolInfo PoolInfo)
-        : IMatchmakingMessage;
+        : IMatchmakingCommand;
 
-    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingMessage;
+    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
 
-    public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingMessage;
+    public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
 }

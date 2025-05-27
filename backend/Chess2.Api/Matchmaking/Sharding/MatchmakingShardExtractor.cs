@@ -7,7 +7,7 @@ public class MatchmakingShardExtractor(int shardCount) : HashCodeMessageExtracto
 {
     public override string? EntityId(object message)
     {
-        if (message is not IMatchmakingMessage matchmakingMessage)
+        if (message is not IMatchmakingCommand matchmakingMessage)
             return null;
 
         var entityId =
