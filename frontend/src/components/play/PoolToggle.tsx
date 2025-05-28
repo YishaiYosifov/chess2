@@ -8,13 +8,13 @@ const PoolToggle = () => {
         <div className="grid w-full grid-rows-2 justify-between">
             <button
                 onClick={() => setEnabled((prev) => !prev)}
-                className="from-primary via-primary/60 to-primary relative col-span-2 h-8 w-full rounded-sm
-                    bg-gradient-to-r p-1"
+                className="from-primary via-primary/40 to-primary relative col-span-2 h-8 w-full
+                    cursor-pointer rounded-sm bg-gradient-to-r p-1"
             >
                 <div
                     className={clsx(
-                        "bg-secondary absolute top-1 h-6 w-6 rounded-sm shadow-2xl transition-all",
-                        enabled ? "left-[calc(100%-1.75rem)]" : "left-1",
+                        "bg-secondary absolute top-1 h-6 w-10 rounded-sm shadow-2xl transition-all",
+                        enabled ? "left-[calc(100%-2.75rem)]" : "left-1",
                     )}
                 ></div>
             </button>
