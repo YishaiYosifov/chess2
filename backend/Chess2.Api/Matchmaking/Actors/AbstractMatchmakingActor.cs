@@ -47,15 +47,20 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             return;
 
         Context.WatchWith(Sender, new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.PoolInfo));
+        Context.System.EventStream.Publish(new MatchmakingBroadcasts.SeekCreated(createSeek.UserId));
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
     {
         Logger.Info("Received cancel seek from {0}", cancelSeek.UserId);
+        if (!Pool.RemoveSeek(cancelSeek.UserId))
+        {
+            Logger.Warning("No seek found for user {0}", cancelSeek.UserId);
+            return;
+        }
 
         Context.Unwatch(Sender);
-        if (!Pool.RemoveSeek(cancelSeek.UserId))
-            Logger.Warning("No seek found for user {0}", cancelSeek.UserId);
+        Context.System.EventStream.Publish(new MatchmakingBroadcasts.SeekCanceled(cancelSeek.UserId));
     }
 
     private void HandleMatchWave()
