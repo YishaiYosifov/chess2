@@ -73,14 +73,14 @@ export const UpperNavItems = ({
                 Home
             </NavItem>
             {hasAccessCookie ? authedLinks : unauthedLinks}
-            <NavItem
+            {/* <NavItem
                 as={Link}
                 href="/donate"
                 icon={<HeartIcon color="red" />}
                 isCollapsed={isCollapsed}
             >
                 Donate
-            </NavItem>
+            </NavItem> */}
         </>
     );
 };

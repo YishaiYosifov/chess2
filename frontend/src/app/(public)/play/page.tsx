@@ -1,25 +1,21 @@
 import PlayOptions from "@/components/play/PlayOptions";
 import Chessboard from "@/components/game/Chessboard";
-import Card from "@/components/helpers/Card";
 
 export const metadata = { title: "Play - Chess 2" };
 
 const PlayPage = () => {
     return (
-        <div>
+        <div className="w-full items-center justify-center gap-5 p-5 lg:grid lg:grid-cols-[auto_1fr]">
             <Chessboard
+                className="hidden lg:block"
                 offsetBreakpoints={[
                     {
-                        widthBreakpoint: 10,
-                        offset: { width: 10, height: 200 },
-                    },
-                    {
-                        widthBreakpoint: 1000,
-                        offset: { width: 626, height: 100 },
+                        maxScreenSize: 992,
+                        paddingOffset: { width: 626, height: 100 },
                     },
                 ]}
             />
-            {/* <PlayOptions /> */}
+            <PlayOptions />
         </div>
     );
 };
