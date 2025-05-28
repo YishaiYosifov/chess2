@@ -1,12 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import {
-    Color,
-    PieceMap,
-    PieceType,
-    Piece,
-    Point,
-} from "@/lib/apiClient/models";
+import { Color, PieceMap, PieceType, Piece, Point } from "@/types/tempModels";
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";
