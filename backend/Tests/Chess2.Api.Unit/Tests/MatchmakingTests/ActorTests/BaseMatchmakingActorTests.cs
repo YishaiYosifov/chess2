@@ -1,11 +1,14 @@
 ﻿using Akka.Actor;
 using Akka.TestKit;
+using Akka.TestKit.TestActors;
 using Akka.TestKit.Xunit2;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
+using FluentAssertions;
 using NSubstitute;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
@@ -29,35 +32,61 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
     {
         MatchmakingActor = CreateActor();
         Probe = CreateTestProbe();
+
+        Sys.EventStream.Subscribe(Probe, typeof(MatchmakingBroadcasts.SeekCreated));
+        Sys.EventStream.Subscribe(Probe, typeof(MatchmakingBroadcasts.SeekCanceled));
     }
 
-    protected abstract void AddSeekToPool(string userId);
+    protected abstract ICreateSeekCommand CreateSeekCommand(string userId);
 
     [Fact]
     public void StartPeriodicTimer_is_set_for_match_waves()
     {
-        TimerMock
-            .Received(1)
-            .StartPeriodicTimer(
-                "wave",
-                new MatchmakingCommands.MatchWave(),
-                Settings.Game.MatchWaveEvery
-            );
+        AwaitAssert(() =>
+            TimerMock
+                .Received(1)
+                .StartPeriodicTimer(
+                    "wave",
+                    new MatchmakingCommands.MatchWave(),
+                    Settings.Game.MatchWaveEvery
+                ));
     }
 
     [Fact]
-    public void CancelSeek_removes_the_correct_user()
+    public async Task CancelSeek_removes_the_correct_user()
     {
         const string userIdToRemove = "userToRemove";
         const string userIdToKeep = "userToKeep";
 
-        AddSeekToPool(userIdToKeep);
-        AddSeekToPool(userIdToRemove);
+        PoolMock.RemoveSeek(userIdToRemove).Returns(true);
+        PoolMock.RemoveSeek(userIdToKeep).Returns(true);
+
+        MatchmakingActor.Tell(CreateSeekCommand(userIdToKeep), Probe);
+        MatchmakingActor.Tell(CreateSeekCommand(userIdToRemove), Probe);
         MatchmakingActor.Tell(
             new MatchmakingCommands.CancelSeek(userIdToRemove, PoolInfo),
-            Probe.Ref
+            Probe
         );
 
-        AwaitAssert(() => PoolMock.Received().RemoveSeek(userIdToRemove));
+        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(x => x.UserId == userIdToRemove);
+        PoolMock.Received().RemoveSeek(userIdToRemove);
+    }
+
+    [Fact]
+    public async Task CreateSeek_watches_the_sender_and_triggers_cancel_on_termination()
+    {
+        const string userId = "user1";
+
+        PoolMock.RemoveSeek(userId).Returns(true);
+
+        var listenerProbe = CreateTestProbe("listener");
+        Sys.EventStream.Subscribe(listenerProbe, typeof(MatchmakingBroadcasts.SeekCanceled));
+
+        MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
+        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>();
+        Sys.Stop(Probe);
+
+        await listenerProbe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCanceled>(x => x.UserId == userId);
+        PoolMock.Received().RemoveSeek(userId);
     }
 }
