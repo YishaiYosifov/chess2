@@ -13,7 +13,7 @@ const PoolToggle = () => {
             >
                 <div
                     className={clsx(
-                        "bg-secondary absolute top-1 h-6 w-10 rounded-sm transition-all",
+                        "bg-secondary absolute top-1 h-6 w-10 rounded-sm shadow-2xl transition-all",
                         enabled ? "left-[calc(100%-2.75rem)]" : "left-1",
                     )}
                 ></div>
