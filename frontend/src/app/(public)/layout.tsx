@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
-import AuthContextProvider from "@/contexts/authContext";
 import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
 

@@ -98,7 +98,7 @@ describe("Chessboard", () => {
                 <Chessboard
                     boardWidth={10}
                     boardHeight={10}
-                    offsetBreakpoints={breakpoints}
+                    breakpoints={breakpoints}
                 />,
             );
             const chessboard = screen.getByTestId("chessboard");
