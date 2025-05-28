@@ -3,6 +3,7 @@
 import constants from "@/lib/constants";
 import Card from "../helpers/Card";
 import Button from "../helpers/Button";
+import PoolToggle from "./PoolToggle";
 
 /**
  * Card containing the variant and time control options.
@@ -12,10 +13,14 @@ const PlayOptions = () => {
     return (
         <Card
             data-testid="playOptions"
-            className="flex h-full w-full min-w-xs flex-col items-center gap-10 pt-10 lg:max-w-md"
+            className="flex h-full w-full min-w-xs flex-col items-center pt-10 lg:max-w-md"
         >
             <h1 className="text-5xl">Play Chess 2</h1>
 
+            {/* spacer */}
+            <div className="h-10" />
+
+            <PoolToggle />
             <div className="grid w-full grid-cols-3 gap-x-3 gap-y-5">
                 {constants.TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
