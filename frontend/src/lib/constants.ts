@@ -27,6 +27,10 @@ const PATHS = {
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
+const WEBSOCKET_PATHS = {
+    MATCHMAKING: `${process.env.NEXT_PUBLIC_WS_URL}/api/ws/matchmaking`,
+};
+
 const HEADERS = {
     REFRESH_REDIRECT: "x-refresh-redirect",
 };
@@ -39,15 +43,15 @@ const SETTING_PAGES = [
 ];
 
 const TIME_CONTROLS = [
-    { type: "bullet", baseMinutes: 1, increment: 0 },
-    { type: "bullet", baseMinutes: 2, increment: 1 },
-    { type: "blitz", baseMinutes: 3, increment: 0 },
-    { type: "blitz", baseMinutes: 3, increment: 2 },
-    { type: "blits", baseMinutes: 5, increment: 0, isMostPopular: true },
-    { type: "rapid", baseMinutes: 5, increment: 3 },
-    { type: "rapid", baseMinutes: 10, increment: 0 },
-    { type: "rapid", baseMinutes: 15, increment: 10 },
-    { type: "rapid", baseMinutes: 30, increment: 0 },
+    { type: "Bullet", baseMinutes: 1, increment: 0 },
+    { type: "Bullet", baseMinutes: 2, increment: 1 },
+    { type: "Blitz", baseMinutes: 3, increment: 0 },
+    { type: "Blitz", baseMinutes: 3, increment: 2 },
+    { type: "Blitz", baseMinutes: 5, increment: 0, isMostPopular: true },
+    { type: "Rapid", baseMinutes: 5, increment: 3 },
+    { type: "Rapid", baseMinutes: 10, increment: 0 },
+    { type: "Rapid", baseMinutes: 15, increment: 10 },
+    { type: "Classical", baseMinutes: 30, increment: 0 },
 ];
 
 // prettier-ignore
@@ -111,5 +115,6 @@ const constants = {
     PATHS,
     HEADERS,
     DEFAULT_CHESS_BOARD,
+    WEBSOCKET_PATHS,
 };
 export default constants;
