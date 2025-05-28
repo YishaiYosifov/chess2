@@ -18,7 +18,7 @@ public class RatedMatchmakingActorTests(ITestOutputHelper output)
         const int rating = 1200;
 
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
+            new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
             Probe.Ref
         );
 
@@ -27,7 +27,7 @@ public class RatedMatchmakingActorTests(ITestOutputHelper output)
 
     protected override void AddSeekToPool(string userId) =>
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateRatedSeek(userId, 1200, PoolInfo),
+            new RatedMatchmakingCommands.CreateRatedSeek(userId, 1200, PoolInfo),
             Probe.Ref
         );
 

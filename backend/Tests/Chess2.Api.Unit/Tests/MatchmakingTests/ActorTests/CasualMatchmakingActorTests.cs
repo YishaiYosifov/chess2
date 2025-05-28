@@ -17,7 +17,7 @@ public class CasualMatchmakingActorTests(ITestOutputHelper output)
         const string userId = "user1";
 
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
+            new CasualMatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
             Probe.Ref
         );
 
@@ -26,7 +26,7 @@ public class CasualMatchmakingActorTests(ITestOutputHelper output)
 
     protected override void AddSeekToPool(string userId) =>
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
+            new CasualMatchmakingCommands.CreateCasualSeek(userId, PoolInfo),
             Probe.Ref
         );
 

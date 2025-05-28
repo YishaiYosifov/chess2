@@ -9,14 +9,26 @@ public interface IMatchmakingCommand
 
 public static class MatchmakingCommands
 {
-    public record CreateRatedSeek(string UserId, int Rating, PoolInfo PoolInfo)
-        : IMatchmakingCommand;
-
-    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
 
     public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
+}
+
+public interface ICreateSeekCommand : IMatchmakingCommand
+{
+    public string UserId { get; }
+}
+
+public static class RatedMatchmakingCommands
+{
+    public record CreateRatedSeek(string UserId, int Rating, PoolInfo PoolInfo)
+        : ICreateSeekCommand;
+}
+
+public static class CasualMatchmakingCommands
+{
+    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : ICreateSeekCommand;
 }
 
 public static class MatchmakingEvents

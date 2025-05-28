@@ -36,14 +36,14 @@ public class MatchmakingService(
         );
 
         var poolInfo = new PoolInfo(baseMinutes, increment);
-        var command = new MatchmakingCommands.CreateRatedSeek(user.Id, rating.Value, poolInfo);
+        var command = new RatedMatchmakingCommands.CreateRatedSeek(user.Id, rating.Value, poolInfo);
         _ratedMatchmakingActor.ActorRef.Tell(command);
     }
 
     public void SeekCasual(string userId, int baseMinutes, int increment)
     {
         var poolInfo = new PoolInfo(baseMinutes, increment);
-        var command = new MatchmakingCommands.CreateCasualSeek(userId, poolInfo);
+        var command = new CasualMatchmakingCommands.CreateCasualSeek(userId, poolInfo);
         _casualMatchmakingActor.ActorRef.Tell(command);
     }
 
