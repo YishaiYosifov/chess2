@@ -17,7 +17,7 @@ const PlayPage = () => {
                     },
                     {
                         maxScreenSize: 1024,
-                        paddingOffset: { width: 10, height: 100 },
+                        paddingOffset: { width: 200, height: 100 },
                     },
                 ]}
                 defaultOffset={{ width: 626, height: 100 }}
