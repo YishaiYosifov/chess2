@@ -4,6 +4,7 @@ import constants from "@/lib/constants";
 import Card from "../helpers/Card";
 import Button from "../helpers/Button";
 import PoolToggle from "./PoolToggle";
+import clsx from "clsx";
 
 /**
  * Card containing the variant and time control options.
@@ -21,13 +22,14 @@ const PlayOptions = () => {
             <div className="h-10" />
 
             <PoolToggle />
-            <div className="grid w-full grid-cols-3 gap-x-3 gap-y-5">
+            <div className="grid w-full grid-cols-3 gap-x-3 gap-y-7">
                 {constants.TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
                     return (
                         <PlayButton
                             key={formattedTimeControl}
                             timeControl={formattedTimeControl}
+                            isMostPopular={timeControl.isMostPopular}
                             type={timeControl.type}
                         />
                     );
@@ -41,14 +43,28 @@ export default PlayOptions;
 const PlayButton = ({
     timeControl,
     type,
+    isMostPopular,
 }: {
     timeControl: string;
     type: string;
+    isMostPopular?: boolean;
 }) => {
     return (
-        <Button className="flex flex-col items-center justify-center rounded-sm">
-            <span className="text-[1.6rem] text-nowrap">{timeControl}</span>
-            <span className="text-[1rem] text-nowrap">{type}</span>
-        </Button>
+        <div className="relative">
+            {isMostPopular && (
+                <span className="absolute -top-5 left-1/2 -translate-x-1/2 transform text-sm text-nowrap">
+                    Most Popular
+                </span>
+            )}
+            <Button
+                className={clsx(
+                    "flex h-full w-full flex-col items-center justify-center rounded-sm",
+                    isMostPopular && "border border-amber-300",
+                )}
+            >
+                <span className="text-[1.6rem] text-nowrap">{timeControl}</span>
+                <span className="text-[1rem] text-nowrap">{type}</span>
+            </Button>
+        </div>
     );
 };
