@@ -47,6 +47,7 @@ const Chessboard = ({
 }: {
     breakpoints?: Breakpoint[];
     defaultOffset?: PaddingOffset;
+
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
@@ -90,7 +91,6 @@ const Chessboard = ({
         function resizeBoard(): void {
             const { width: offsetWidth, height: offsetHeight } =
                 calculateOffset();
-            console.log(offsetWidth, offsetHeight, window.innerWidth);
 
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;

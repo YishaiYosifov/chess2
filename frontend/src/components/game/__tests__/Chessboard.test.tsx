@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap, Color, PieceType } from "@/lib/apiClient/models";
+import { PieceMap, Color, PieceType } from "@/types/tempModels";
 import Chessboard from "../Chessboard";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
@@ -45,12 +45,7 @@ describe("Chessboard", () => {
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {
             render(
-                <Chessboard
-                    startingPieces={mockBoard}
-                    viewingFrom={side}
-                    boardWidth={10}
-                    boardHeight={10}
-                />,
+                <Chessboard startingPieces={mockBoard} viewingFrom={side} />,
             );
 
             const piece = screen.getAllByTestId("piece")[0];
@@ -62,50 +57,52 @@ describe("Chessboard", () => {
 
     it.each([
         // Resize with one breakpoint
-        [
-            800,
-            [{ widthBreakpoint: 768, offset: { width: 20, height: 20 } }],
-            780,
-        ],
+        [800, [], { width: 20, height: 20 }, 780],
 
         // Resize with multiple breakpoints
         [
             1200,
             [
                 { widthBreakpoint: 768, offset: { width: 20, height: 20 } },
-                { widthBreakpoint: 1200, offset: { width: 40, height: 40 } },
                 { widthBreakpoint: 992, offset: { width: 30, height: 30 } },
             ],
+            { width: 40, height: 40 },
             1160,
         ],
 
         // Resize with no breakpoints
-        [1500, [], 1500],
+        [1500, [], undefined, 1500],
 
         // Resize with larger screen size than any breakpoint
         [
             2000,
             [
-                { widthBreakpoint: 768, offset: { width: 20, height: 20 } },
-                { widthBreakpoint: 1200, offset: { width: 40, height: 40 } },
+                {
+                    maxScreenSize: 768,
+                    paddingOffset: { width: 20, height: 20 },
+                },
             ],
+            {
+                width: 40,
+                height: 40,
+            },
             1960,
         ],
     ])(
         "should resize board on window resize with different breakpoints",
-        async (width, breakpoints, expectedSize) => {
+        async (width, breakpoints, defaultOffset, expectedSize) => {
             render(
                 <Chessboard
-                    boardWidth={10}
-                    boardHeight={10}
                     breakpoints={breakpoints}
+                    defaultOffset={defaultOffset}
                 />,
             );
             const chessboard = screen.getByTestId("chessboard");
 
             window.innerWidth = width;
+            window.innerHeight = width;
             fireEvent(window, new Event("resize"));
-            waitFor(() =>
+            await waitFor(() =>
                 expect(chessboard.style.width).toBe(`${expectedSize}px`),
             );
         },
