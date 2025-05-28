@@ -61,13 +61,19 @@ describe("Chessboard", () => {
 
         // Resize with multiple breakpoints
         [
-            1200,
+            990,
             [
-                { widthBreakpoint: 768, offset: { width: 20, height: 20 } },
-                { widthBreakpoint: 992, offset: { width: 30, height: 30 } },
+                {
+                    maxScreenSize: 768,
+                    paddingOffset: { width: 20, height: 20 },
+                },
+                {
+                    maxScreenSize: 992,
+                    paddingOffset: { width: 30, height: 30 },
+                },
             ],
             { width: 40, height: 40 },
-            1160,
+            960,
         ],
 
         // Resize with no breakpoints
