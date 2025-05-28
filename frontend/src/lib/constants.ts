@@ -39,15 +39,15 @@ const SETTING_PAGES = [
 ];
 
 const TIME_CONTROLS = [
-    { type: "bullet", timeControl: 60, increment: 0 },
-    { type: "bullet", timeControl: 60, increment: 1 },
-    { type: "bullet", timeControl: 120, increment: 1 },
-    { type: "blitz", timeControl: 180, increment: 0 },
-    { type: "blitz", timeControl: 180, increment: 2 },
-    { type: "blits", timeControl: 300, increment: 0 },
-    { type: "rapid", timeControl: 600, increment: 0 },
-    { type: "rapid", timeControl: 900, increment: 10 },
-    { type: "rapid", timeControl: 1800, increment: 0 },
+    { type: "bullet", baseMinutes: 1, increment: 0 },
+    { type: "bullet", baseMinutes: 1, increment: 1 },
+    { type: "bullet", baseMinutes: 2, increment: 1 },
+    { type: "blitz", baseMinutes: 3, increment: 0 },
+    { type: "blitz", baseMinutes: 3, increment: 2 },
+    { type: "blits", baseMinutes: 5, increment: 0 },
+    { type: "rapid", baseMinutes: 10, increment: 0 },
+    { type: "rapid", baseMinutes: 15, increment: 10 },
+    { type: "rapid", baseMinutes: 30, increment: 0 },
 ];
 
 // prettier-ignore

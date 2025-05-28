@@ -7,10 +7,11 @@ import { type PieceMap, type LegalMoves, Color } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
+import clsx from "clsx";
 
 interface Breakpoint {
-    widthBreakpoint: number;
-    offset: {
+    maxScreenSize: number;
+    paddingOffset: {
         width: number;
         height: number;
     };
@@ -37,6 +38,8 @@ const Chessboard = ({
     viewingFrom,
     playingSide,
     playingAs,
+
+    className,
 }: {
     offsetBreakpoints?: Breakpoint[];
     startingPieces?: PieceMap;
@@ -47,15 +50,15 @@ const Chessboard = ({
     viewingFrom?: Color;
     playingSide?: Color;
     playingAs?: Color;
+
+    className?: string;
 }) => {
     const [boardSize, setBoardSize] = useState<number>(0);
 
     // Sort the offset breakpoints in ascending order
     const sortedBreakpoints = useMemo(
         () =>
-            offsetBreakpoints.sort(
-                (a, b) => a.widthBreakpoint - b.widthBreakpoint,
-            ),
+            offsetBreakpoints.sort((a, b) => a.maxScreenSize - b.maxScreenSize),
         [offsetBreakpoints],
     );
 
@@ -65,11 +68,16 @@ const Chessboard = ({
          */
         function calculateOffset(): { width: number; height: number } {
             const width = window.innerWidth;
-            for (const { widthBreakpoint, offset } of sortedBreakpoints) {
-                if (widthBreakpoint > width) return offset;
+            for (const { maxScreenSize, paddingOffset } of sortedBreakpoints) {
+                if (maxScreenSize > width) return paddingOffset;
             }
 
-            return sortedBreakpoints.at(-1)?.offset || { width: 0, height: 0 };
+            return (
+                sortedBreakpoints.at(-1)?.paddingOffset || {
+                    width: 0,
+                    height: 0,
+                }
+            );
         }
 
         /**
@@ -95,9 +103,12 @@ const Chessboard = ({
     return (
         <div
             data-testid="chessboard"
-            className="grid-template-rows-10 bg-no-repea relative grid min-h-[300px] min-w-[300px]
+            className={clsx(
+                `grid-template-rows-10 bg-no-repea relative grid min-h-[300px] min-w-[300px]
                 cursor-pointer grid-cols-10 rounded-md border-2 border-blue-400
-                bg-[url(/assets/board.svg)] bg-[length:100%]"
+                bg-[url(/assets/board.svg)] bg-[length:100%]`,
+                className,
+            )}
             style={{
                 width: `${boardSize}px`,
                 height: `${boardSize}px`,
