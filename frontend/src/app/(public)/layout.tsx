@@ -26,7 +26,9 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
 
                 <div className="flex min-h-screen min-w-screen flex-col md:flex-row">
                     <Navbar />
-                    <main className="flex flex-1">{children}</main>
+                    <main className="flex flex-1 overflow-y-auto">
+                        {children}
+                    </main>
                 </div>
             </body>
         </html>
