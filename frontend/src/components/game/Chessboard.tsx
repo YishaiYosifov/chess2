@@ -90,7 +90,8 @@ const Chessboard = ({
         function resizeBoard(): void {
             const { width: offsetWidth, height: offsetHeight } =
                 calculateOffset();
-            console.log(offsetHeight, offsetWidth);
+            console.log(offsetWidth, offsetHeight, window.innerWidth);
+
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
@@ -109,9 +110,9 @@ const Chessboard = ({
         <div
             data-testid="chessboard"
             className={clsx(
-                `grid-template-rows-10 bg-no-repea relative grid min-h-[300px] min-w-[300px]
-                cursor-pointer grid-cols-10 rounded-md border-2 border-blue-400
-                bg-[url(/assets/board.svg)] bg-[length:100%]`,
+                `grid-template-rows-10 relative grid min-h-[300px] min-w-[300px] cursor-pointer
+                grid-cols-10 rounded-md border-2 border-blue-400 bg-[url(/assets/board.svg)]
+                bg-[length:100%] bg-no-repeat`,
                 className,
             )}
             style={{

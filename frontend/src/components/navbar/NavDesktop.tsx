@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
@@ -39,6 +39,26 @@ const NavDesktop = ({
             return newIsCollapsed;
         });
     }
+
+    useEffect(() => {
+        const handleResize = () => {
+            const isSmallScreen = window.innerWidth < 1024;
+            if (isSmallScreen) {
+                setIsCollapsed(true);
+                return;
+            } else {
+                const cookieValue = Cookies.get(
+                    constants.COOKIES.SIDEBAR_COLLAPSED,
+                );
+                setIsCollapsed(cookieValue !== undefined);
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const width = isCollapsed ? "w-25" : "w-64";
     return (
@@ -85,7 +105,7 @@ const NavDesktop = ({
                     {/* Collapse button */}
                     <NavItem
                         as="button"
-                        className="cursor-pointer"
+                        className="hidden cursor-pointer lg:flex"
                         data-testid="collapseButton"
                         icon={
                             isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
