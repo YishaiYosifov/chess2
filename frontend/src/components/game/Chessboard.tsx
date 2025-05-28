@@ -9,12 +9,14 @@ import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
 import clsx from "clsx";
 
+interface PaddingOffset {
+    width: number;
+    height: number;
+}
+
 interface Breakpoint {
     maxScreenSize: number;
-    paddingOffset: {
-        width: number;
-        height: number;
-    };
+    paddingOffset: PaddingOffset;
 }
 
 /**
@@ -29,7 +31,9 @@ interface Breakpoint {
  *  leave undefined if no player should be controlling this chessboard, thus making it a fixed position
  */
 const Chessboard = ({
-    offsetBreakpoints = [],
+    breakpoints = [],
+    defaultOffset,
+
     startingPieces = constants.DEFAULT_CHESS_BOARD,
     boardHeight = constants.BOARD_HEIGHT,
     boardWidth = constants.BOARD_WIDTH,
@@ -41,7 +45,8 @@ const Chessboard = ({
 
     className,
 }: {
-    offsetBreakpoints?: Breakpoint[];
+    breakpoints?: Breakpoint[];
+    defaultOffset?: PaddingOffset;
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
@@ -57,9 +62,8 @@ const Chessboard = ({
 
     // Sort the offset breakpoints in ascending order
     const sortedBreakpoints = useMemo(
-        () =>
-            offsetBreakpoints.sort((a, b) => a.maxScreenSize - b.maxScreenSize),
-        [offsetBreakpoints],
+        () => breakpoints.sort((a, b) => a.maxScreenSize - b.maxScreenSize),
+        [breakpoints],
     );
 
     useEffect(() => {
@@ -73,7 +77,7 @@ const Chessboard = ({
             }
 
             return (
-                sortedBreakpoints.at(-1)?.paddingOffset || {
+                defaultOffset ?? {
                     width: 0,
                     height: 0,
                 }
@@ -86,6 +90,7 @@ const Chessboard = ({
         function resizeBoard(): void {
             const { width: offsetWidth, height: offsetHeight } =
                 calculateOffset();
+            console.log(offsetHeight, offsetWidth);
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
@@ -97,7 +102,7 @@ const Chessboard = ({
         resizeBoard();
 
         return () => window.removeEventListener("resize", resizeBoard);
-    }, [sortedBreakpoints]);
+    }, [defaultOffset, sortedBreakpoints]);
 
     viewingFrom ??= playingAs;
     return (
