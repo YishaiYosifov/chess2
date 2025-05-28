@@ -22,7 +22,7 @@ interface Breakpoint {
 /**
  * Display a chessboard
  *
- * @param offsetBreakpoints - the offset for each dimention of the screen.
+ * @param breakpoints - the offset for each dimention of the screen.
  *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
  *  it will parse the width as 1420 before choosing the board size.
  *  The largest width breakpoint will be used for any screen size larger than it.
