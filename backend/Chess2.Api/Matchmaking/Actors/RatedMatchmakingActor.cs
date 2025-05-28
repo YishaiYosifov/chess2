@@ -7,22 +7,22 @@ using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Actors;
 
-public class RatedMatchmakingActor : AbstractMatchmakingActor<IRatedMatchmakingPool>
+public class RatedMatchmakingActor(
+    IOptions<AppSettings> settings,
+    IRatedMatchmakingPool pool,
+    ITimerScheduler? timerScheduler = null
+    ) : AbstractMatchmakingActor<IRatedMatchmakingPool>(settings, pool, timerScheduler)
 {
-    public RatedMatchmakingActor(
-        IOptions<AppSettings> settings,
-        IRatedMatchmakingPool pool,
-        ITimerScheduler? timerScheduler = null
-    )
-        : base(settings, pool, timerScheduler)
+    protected override bool EnterPool(ICreateSeekCommand createSeek)
     {
-        Receive<MatchmakingCommands.CreateRatedSeek>(HandleCreateSeek);
-    }
+        if (createSeek is not RatedMatchmakingCommands.CreateRatedSeek createCasualSeek)
+        {
+            Unhandled(createSeek);
+            return false;
+        }
 
-    private void HandleCreateSeek(MatchmakingCommands.CreateRatedSeek createSeek)
-    {
-        Logger.Info("Received seek from {0} with rating {1}", createSeek.UserId, createSeek.Rating);
-
-        Pool.AddSeek(createSeek.UserId, createSeek.Rating);
+        Logger.Info("Received seek from {0} with rating {1}", createCasualSeek.UserId, createCasualSeek.Rating);
+        Pool.AddSeek(createSeek.UserId, createCasualSeek.Rating);
+        return true;
     }
 }
