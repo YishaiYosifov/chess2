@@ -31,6 +31,13 @@ public static class CasualMatchmakingCommands
     public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : ICreateSeekCommand;
 }
 
+public static class MatchmakingBroadcasts
+{
+    public record SeekCreated(string UserId);
+
+    public record SeekCanceled(string UserId);
+}
+
 public static class MatchmakingEvents
 {
     public record MatchFound(string OpponentId);
