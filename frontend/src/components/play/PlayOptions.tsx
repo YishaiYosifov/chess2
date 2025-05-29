@@ -6,13 +6,9 @@ import Button from "../helpers/Button";
 import PoolToggle from "./PoolToggle";
 import clsx from "clsx";
 import {
+    useMatchmakingEmitter,
     useMatchmakingEvent,
-    useSignalRHubEvent,
-    useSignalRConnection,
-} from "@/hooks/useSignalREvent";
-import useSignalRStore from "@/stores/signalRStore";
-import { useEffect, useRef } from "react";
-import { HubConnection } from "@microsoft/signalr";
+} from "@/hooks/signalR/useSignalRHubs";
 
 /**
  * Card containing the variant and time control options.
@@ -63,9 +59,7 @@ const PlayButton = ({
     isMostPopular?: boolean;
 }) => {
     useMatchmakingEvent("TestClient", console.log);
-    const sendMatchmakingEvent = useSignalRHubEvent<MatchmakingHubEvents>(
-        constants.WEBSOCKET_PATHS.MATCHMAKING,
-    );
+    const sendMatchmakingEvent = useMatchmakingEmitter();
 
     return (
         <div className="relative">
