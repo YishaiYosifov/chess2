@@ -46,7 +46,6 @@ describe("middleware", () => {
         {
             [constants.COOKIES.ACCESS_TOKEN]: "access",
         },
-        {},
     ])(
         "should not attempt to refresh when not needed",
         async (setCookies: Record<string, string>) => {
@@ -59,24 +58,33 @@ describe("middleware", () => {
         },
     );
 
-    it("should rewrite to refresh path if no access token and user is authenticated", async () => {
-        const pathname = "/some-path";
-        const request = createRequest({
-            setCookies: {
+    it.each([
+        [
+            {
                 [constants.COOKIES.IS_AUTHED]: "true",
             },
-            pathname,
-        });
+            constants.PATHS.REFRESH,
+        ],
+        [{}, constants.PATHS.GUEST],
+    ])(
+        "should rewrite to refresh path if needed",
+        async (setCookies: Record<string, string>, rewriteTo: string) => {
+            const pathname = "/some-path";
+            const request = createRequest({
+                setCookies,
+                pathname,
+            });
 
-        const response = await middleware(request);
+            const response = await middleware(request);
 
-        expect(NextResponse.rewrite).toHaveBeenCalled();
-        expect(response.type).toBe("rewrite");
+            expect(NextResponse.rewrite).toHaveBeenCalled();
+            expect(response.type).toBe("rewrite");
 
-        const url = new URL(response.url);
-        expect(url.pathname).toBe(constants.PATHS.REFRESH);
-        expect(response.headers.get(constants.HEADERS.REFRESH_REDIRECT)).toBe(
-            pathname,
-        );
-    });
+            const url = new URL(response.url);
+            expect(url.pathname).toBe(rewriteTo);
+            expect(
+                response.headers.get(constants.HEADERS.REDIRECT_AFTER_AUTH),
+            ).toBe(pathname);
+        },
+    );
 });

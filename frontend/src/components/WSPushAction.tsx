@@ -13,7 +13,6 @@ const WSPushAction = () => {
     const [messages, setMessages] = useState<string[]>([]);
 
     useEffect(() => {
-        console.log("test test 123");
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("https://localhost:7266/api/ws/matchmaking")
             .withAutomaticReconnect()
