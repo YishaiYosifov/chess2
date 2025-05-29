@@ -14,7 +14,8 @@ const PlayOptions = () => {
     return (
         <Card
             data-testid="playOptions"
-            className="flex w-full min-w-xs flex-col items-center pt-10 lg:h-full lg:max-w-md"
+            className="flex h-full w-full min-w-xs flex-col items-center overflow-auto pt-10
+                lg:max-w-md"
         >
             <h1 className="text-5xl">Play Chess 2</h1>
 
