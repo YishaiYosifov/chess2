@@ -5,6 +5,14 @@ import Card from "../helpers/Card";
 import Button from "../helpers/Button";
 import PoolToggle from "./PoolToggle";
 import clsx from "clsx";
+import {
+    useMatchmakingEvent,
+    useSignalRHubEvent,
+    useSignalRConnection,
+} from "@/hooks/useSignalREvent";
+import useSignalRStore from "@/stores/signalRStore";
+import { useEffect, useRef } from "react";
+import { HubConnection } from "@microsoft/signalr";
 
 /**
  * Card containing the variant and time control options.
@@ -41,6 +49,10 @@ const PlayOptions = () => {
 };
 export default PlayOptions;
 
+type MatchmakingHubEvents = {
+    TestHub: [a: string];
+};
+
 const PlayButton = ({
     timeControl,
     type,
@@ -50,6 +62,11 @@ const PlayButton = ({
     type: string;
     isMostPopular?: boolean;
 }) => {
+    useMatchmakingEvent("TestClient", console.log);
+    const sendMatchmakingEvent = useSignalRHubEvent<MatchmakingHubEvents>(
+        constants.WEBSOCKET_PATHS.MATCHMAKING,
+    );
+
     return (
         <div className="relative">
             {isMostPopular && (
@@ -58,6 +75,7 @@ const PlayButton = ({
                 </span>
             )}
             <Button
+                onClick={() => sendMatchmakingEvent("TestHub", "hello")}
                 className={clsx(
                     "flex h-full w-full flex-col items-center justify-center rounded-sm",
                     isMostPopular && "border border-amber-300",
