@@ -28,7 +28,7 @@ const PATHS = {
 };
 
 const WEBSOCKET_PATHS = {
-    MATCHMAKING: `${process.env.NEXT_PUBLIC_WS_URL}/api/ws/matchmaking`,
+    MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/ws/matchmaking`,
 };
 
 const HEADERS = {

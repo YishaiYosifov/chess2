@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
-import WSPushAction from "@/components/WSPushAction";
 import Navbar from "@/components/navbar/Navbar";
 
 const secularOne = Secular_One({
@@ -22,8 +21,6 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <WSPushAction />
-
                 <div className="flex min-h-screen max-w-screen flex-col md:flex-row">
                     <Navbar />
                     <main className="flex flex-1 overflow-auto">
