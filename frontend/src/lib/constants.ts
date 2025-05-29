@@ -24,6 +24,7 @@ const PATHS = {
     LOGIN: "/login",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
+    GUEST: "/guest",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
@@ -32,7 +33,7 @@ const WEBSOCKET_PATHS = {
 };
 
 const HEADERS = {
-    REFRESH_REDIRECT: "x-refresh-redirect",
+    REDIRECT_AFTER_AUTH: "x-redirect-after-auth",
 };
 
 const SETTING_PAGES = [

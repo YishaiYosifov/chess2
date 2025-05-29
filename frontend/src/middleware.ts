@@ -6,16 +6,33 @@ export async function middleware(request: NextRequest) {
     const hasAuthCookie = request.cookies.has(constants.COOKIES.ACCESS_TOKEN);
     const shouldBeAuthed = request.cookies.has(constants.COOKIES.IS_AUTHED);
 
-    // if we have an access token, no need to refresh
-    // if the user is not authed, we can't refresh
-    if (hasAuthCookie || !shouldBeAuthed) return NextResponse.next();
+    // if the user doesn't have an auth cookie
+    // and is not expected to be authenticated, we should create a guest account
+    if (!hasAuthCookie && !shouldBeAuthed) {
+        const response = rewriteTo(request, constants.PATHS.GUEST);
+        return response;
+    }
 
+    // if the user doesn't have an auth cookie
+    // but is expected to be authenticated, we should refresh the token
+    if (!hasAuthCookie && shouldBeAuthed) {
+        const response = rewriteTo(request, constants.PATHS.REFRESH);
+        return response;
+    }
+
+    return NextResponse.next();
+}
+
+function rewriteTo(request: NextRequest, newPathname: string): NextResponse {
     const originalPathname = request.nextUrl.pathname;
     const url = request.nextUrl.clone();
-    url.pathname = constants.PATHS.REFRESH;
+    url.pathname = newPathname;
 
     const response = NextResponse.rewrite(url);
-    response.headers.set(constants.HEADERS.REFRESH_REDIRECT, originalPathname);
+    response.headers.set(
+        constants.HEADERS.REDIRECT_AFTER_AUTH,
+        originalPathname,
+    );
     return response;
 }
 
