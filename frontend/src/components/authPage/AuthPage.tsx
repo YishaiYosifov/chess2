@@ -13,8 +13,8 @@ import OAuthButton from "./OAuthButton";
 
 const AuthPage = () => {
     return (
-        <div className="grid w-full justify-items-center md:grid-cols-[1.2fr_1.5fr]">
-            <section className="flex max-w-2xl flex-col items-center justify-center gap-10 p-10">
+        <div className="grid max-h-screen w-full justify-items-center md:grid-cols-[1.2fr_1.5fr]">
+            <section className="m-auto flex max-h-full max-w-2xl flex-col items-center gap-10 overflow-auto p-10">
                 <Image src={LogoText} alt="logo" className="h-auto w-auto" />
 
                 <div className="flex w-full flex-col gap-3">
