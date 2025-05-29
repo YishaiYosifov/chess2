@@ -6,8 +6,8 @@ export const metadata = { title: "Play - Chess 2" };
 const PlayPage = () => {
     return (
         <div
-            className="grid w-full max-w-full auto-cols-fr auto-rows-min justify-center gap-5 p-5
-                lg:auto-rows-fr lg:grid-cols-[auto_auto]"
+            className="jutsify-center flex w-full flex-col items-center justify-center gap-5 p-5
+                lg:h-screen lg:flex-row"
         >
             <div className="flex md:max-h-screen">
                 <Chessboard
@@ -25,6 +25,7 @@ const PlayPage = () => {
                     className="m-auto"
                 />
             </div>
+
             <PlayOptions />
         </div>
     );
