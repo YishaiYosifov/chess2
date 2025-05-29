@@ -28,7 +28,7 @@ const PATHS = {
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
-const WEBSOCKET_PATHS = {
+const SIGNALR_PATHS = {
     MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/ws/matchmaking`,
 };
 
@@ -116,6 +116,6 @@ const constants = {
     PATHS,
     HEADERS,
     DEFAULT_CHESS_BOARD,
-    WEBSOCKET_PATHS,
+    SIGNALR_PATHS,
 };
 export default constants;

@@ -12,10 +12,10 @@ type MatchmakingHubEvents = {
 
 export const useMatchmakingEvent =
     signalREventHookFactory<MatchmakingClientEvents>(
-        constants.WEBSOCKET_PATHS.MATCHMAKING,
+        constants.SIGNALR_PATHS.MATCHMAKING,
     );
 
 export const useMatchmakingEmitter =
     signalREmitterHookFactory<MatchmakingHubEvents>(
-        constants.WEBSOCKET_PATHS.MATCHMAKING,
+        constants.SIGNALR_PATHS.MATCHMAKING,
     );
