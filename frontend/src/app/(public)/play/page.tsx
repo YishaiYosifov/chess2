@@ -14,7 +14,7 @@ const PlayPage = () => {
                     breakpoints={[
                         {
                             maxScreenSize: 768,
-                            paddingOffset: { width: 10, height: 110 },
+                            paddingOffset: { width: 40, height: 110 },
                         },
                         {
                             maxScreenSize: 1024,
