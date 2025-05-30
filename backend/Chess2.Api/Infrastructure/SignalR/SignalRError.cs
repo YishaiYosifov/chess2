@@ -2,11 +2,16 @@
 
 namespace Chess2.Api.Infrastructure.SignalR;
 
-public record SignalRError(
-    string Code = "General.Failure",
-    string Description = "Internal Server Error"
-)
+public class SignalRError
 {
+    public string Code { get; set; } = "General.Failure";
+    public string Description { get; set; } = "Internal Server Error";
+
+    public SignalRError() { }
+
     public SignalRError(Error error)
-        : this(error.Code, error.Description) { }
+    {
+        Code = error.Code;
+        Description = error.Description;
+    }
 }
