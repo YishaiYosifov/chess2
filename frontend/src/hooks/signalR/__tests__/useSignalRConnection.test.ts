@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { mock, MockProxy } from "vitest-mock-extended";
+import { MockProxy } from "vitest-mock-extended";
 import * as signalR from "@microsoft/signalr";
 
 import useSignalRConnection from "../useSignalRConnection";
