@@ -46,4 +46,5 @@ public class AkkaSettings
     public required string[] SeedNodes { get; set; }
 
     public int MatchmakingShardCount { get; set; }
+    public int PlayerShardCount { get; set; }
 }

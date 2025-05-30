@@ -47,8 +47,8 @@ public class GuestService(
             {
                 HttpOnly = true,
                 IsEssential = true,
-                Secure = !_hostEnvironment.IsDevelopment(),
-                SameSite = SameSiteMode.Strict,
+                Secure = true,
+                SameSite = SameSiteMode.None,
             }
         );
     }
