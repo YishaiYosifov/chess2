@@ -1,6 +1,7 @@
 using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
@@ -17,21 +18,26 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
     protected TPool Pool { get; }
 
     private readonly AppSettings _settings;
+    private readonly IGameService _gameService;
+
+    private readonly Dictionary<string, IActorRef> _subscribers = [];
 
     public ITimerScheduler Timers { get; set; } = null!;
 
     public AbstractMatchmakingActor(
         IOptions<AppSettings> settings,
         TPool pool,
+        IGameService gameService,
         ITimerScheduler? timerScheduler = null
     )
     {
         // for unit testing
         if (timerScheduler is not null)
             Timers = timerScheduler;
-        _settings = settings.Value;
         Pool = pool;
 
+        _settings = settings.Value;
+        _gameService = gameService;
         Receive<ICreateSeekCommand>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingCommands.MatchWave>(_ => HandleMatchWave());
@@ -40,14 +46,20 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
     }
 
     protected abstract bool EnterPool(ICreateSeekCommand createSeek);
-    
+
     private void HandleCreateSeek(ICreateSeekCommand createSeek)
     {
         if (!EnterPool(createSeek))
             return;
 
-        Context.WatchWith(Sender, new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.PoolInfo));
-        Context.System.EventStream.Publish(new MatchmakingBroadcasts.SeekCreated(createSeek.UserId));
+        _subscribers.Add(createSeek.UserId, Sender);
+        Context.WatchWith(
+            Sender,
+            new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.PoolInfo)
+        );
+        Context.System.EventStream.Publish(
+            new MatchmakingBroadcasts.SeekCreated(createSeek.UserId)
+        );
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
@@ -59,8 +71,11 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             return;
         }
 
+        _subscribers.Remove(cancelSeek.UserId);
         Context.Unwatch(Sender);
-        Context.System.EventStream.Publish(new MatchmakingBroadcasts.SeekCanceled(cancelSeek.UserId));
+        Context.System.EventStream.Publish(
+            new MatchmakingBroadcasts.SeekCanceled(cancelSeek.UserId)
+        );
     }
 
     private void HandleMatchWave()
@@ -69,7 +84,28 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         foreach (var (seeker1, seeker2) in matches)
         {
             Logger.Info("Found match for {0} with {1}", seeker1, seeker2);
-            // TODO: start game
+            if (
+                !_subscribers.TryGetValue(seeker1, out var seeker1Ref)
+                || !_subscribers.TryGetValue(seeker2, out var seeker2Ref)
+            )
+            {
+                Logger.Warning(
+                    "One or both seekers not found in subscribers: {0}, {1}",
+                    seeker1,
+                    seeker2
+                );
+                continue;
+            }
+
+            var startGameTask = _gameService.StartGameAsync(seeker1, seeker2);
+            startGameTask.PipeTo(
+                seeker1Ref,
+                success: token => new MatchmakingEvents.MatchFound(token)
+            );
+            startGameTask.PipeTo(
+                seeker2Ref,
+                success: token => new MatchmakingEvents.MatchFound(token)
+            );
         }
     }
 
