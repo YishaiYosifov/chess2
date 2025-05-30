@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Akka.TestKit;
-using Akka.TestKit.Xunit2;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.SignalR;
@@ -10,11 +9,10 @@ using Chess2.Api.Player.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
-using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
 
-public class PlayerActorTests : TestKit
+public class PlayerActorTests : BaseUnitTest
 {
     private readonly TestProbe _ratedPoolProbe;
     private readonly TestProbe _casualPoolProbe;
@@ -23,8 +21,7 @@ public class PlayerActorTests : TestKit
     private readonly IActorRef _playerActor;
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContextMock;
 
-    public PlayerActorTests(ITestOutputHelper output)
-        : base(output: output)
+    public PlayerActorTests()
     {
         _ratedPoolProbe = CreateTestProbe();
         _casualPoolProbe = CreateTestProbe();
