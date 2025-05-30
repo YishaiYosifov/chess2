@@ -1,13 +1,86 @@
 ﻿using Akka.Actor;
+using Akka.Hosting;
+using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Player.Models;
 
 namespace Chess2.Api.Player.Actors;
 
+public record ActiveSeekInfo(IActorRef PoolActor, PoolInfo PoolInfo);
+
 public class PlayerActor : ReceiveActor
 {
-    private readonly string _userId;
+    private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
+    private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
 
-    public PlayerActor(string userId)
+    private readonly string _userId;
+    private ActiveSeekInfo? _currentPool;
+    private string? _gameId;
+
+    public PlayerActor(
+        string userId,
+        IRequiredActor<RatedMatchmakingActor> ratedPoolActor,
+        IRequiredActor<CasualMatchmakingActor> casualPoolActor
+    )
     {
         _userId = userId;
+        _ratedPoolActor = ratedPoolActor;
+        _casualPoolActor = casualPoolActor;
+
+        Become(Seeking);
+    }
+
+    private void Seeking()
+    {
+        Receive<PlayerCommands.CreateSeek>(createSeek =>
+        {
+            // Already seeking, cancel the previous seek
+            _currentPool?.PoolActor.Tell(
+                new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+            );
+
+            var actor = ResolvePoolActorForSeek(createSeek.CreateSeekCommand);
+            actor.Tell(createSeek.CreateSeekCommand);
+
+            _currentPool = new ActiveSeekInfo(actor, createSeek.CreateSeekCommand.PoolInfo);
+        });
+
+        Receive<PlayerCommands.CancelSeek>(cancelSeek =>
+        {
+            if (_currentPool is null)
+                return;
+
+            _currentPool.PoolActor.Tell(
+                new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+            );
+            _currentPool = null;
+        });
+
+        Receive<MatchmakingEvents.MatchFound>(matchFound =>
+        {
+            _gameId = matchFound.GameId;
+            _currentPool = null;
+            Become(InGame);
+        });
+    }
+
+    private IActorRef ResolvePoolActorForSeek(ICreateSeekCommand createSeekCommand)
+    {
+        return createSeekCommand switch
+        {
+            RatedMatchmakingCommands.CreateRatedSeek _ => _ratedPoolActor.ActorRef,
+            CasualMatchmakingCommands.CreateCasualSeek _ => _casualPoolActor.ActorRef,
+            _ => throw new InvalidOperationException(
+                $"Unsupported seek command type: {createSeekCommand.GetType()}"
+            ),
+        };
+    }
+
+    private void InGame()
+    {
+        if (_gameId is null)
+            throw new InvalidOperationException(
+                $"Cannot transition to {nameof(InGame)} state when {nameof(_gameId)} is not set"
+            );
     }
 }

@@ -9,7 +9,6 @@ public interface IMatchmakingCommand
 
 public static class MatchmakingCommands
 {
-
     public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
@@ -40,5 +39,5 @@ public static class MatchmakingBroadcasts
 
 public static class MatchmakingEvents
 {
-    public record MatchFound(string OpponentId);
+    public record MatchFound(string GameId);
 }
