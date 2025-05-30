@@ -18,6 +18,7 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
         const existingHub = get().hubs[url];
         if (existingHub) return existingHub;
 
+        const test = HubConnectionBuilder;
         const hubConnection = new HubConnectionBuilder()
             .withUrl(url)
             .withAutomaticReconnect()
