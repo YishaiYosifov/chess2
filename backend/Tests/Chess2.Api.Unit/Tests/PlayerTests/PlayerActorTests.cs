@@ -50,14 +50,14 @@ public class PlayerActorTests : BaseUnitTest
     }
 
     [Fact]
-    public void CreateSeek_sends_command_to_RatedPool()
+    public async Task CreateSeek_sends_command_to_RatedPool()
     {
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new RatedMatchmakingCommands.CreateRatedSeek(UserId, 1700, poolInfo);
 
         _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
 
-        _ratedPoolProbe.ExpectMsg<RatedMatchmakingCommands.CreateRatedSeek>(msg =>
+        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(poolInfo);
@@ -65,14 +65,14 @@ public class PlayerActorTests : BaseUnitTest
     }
 
     [Fact]
-    public void CreateSeek_sends_command_to_CasualPool()
+    public async Task CreateSeek_sends_command_to_CasualPool()
     {
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, poolInfo);
 
         _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
 
-        _casualPoolProbe.ExpectMsg<CasualMatchmakingCommands.CreateCasualSeek>(msg =>
+        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(poolInfo);
@@ -80,17 +80,17 @@ public class PlayerActorTests : BaseUnitTest
     }
 
     [Fact]
-    public void CancelSeek_send_cancel_to_CurrentPool()
+    public async Task CancelSeek_send_cancel_to_CurrentPool()
     {
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, poolInfo);
 
         _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
-        _casualPoolProbe.ExpectMsg<CasualMatchmakingCommands.CreateCasualSeek>();
+        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>();
 
         _playerActor.Tell(new PlayerCommands.CancelSeek(UserId));
 
-        _casualPoolProbe.ExpectMsg<MatchmakingCommands.CancelSeek>(msg =>
+        await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(poolInfo);

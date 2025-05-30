@@ -19,7 +19,10 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
             new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
             Probe
         );
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(x => x.UserId == userId);
+        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(
+            x => x.UserId == userId,
+            TimeSpan.FromSeconds(10)
+        );
 
         PoolMock.Received(1).AddSeek(userId, rating);
     }

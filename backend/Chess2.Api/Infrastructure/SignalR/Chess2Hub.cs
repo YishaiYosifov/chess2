@@ -17,6 +17,5 @@ public class Chess2Hub<T> : Hub<T>
     protected async Task HandleErrors(IEnumerable<Error> errors)
     {
         await Clients.Caller.ReceiveErrorAsync(errors.ToSignalR());
-        Context.Abort();
     }
 }

@@ -52,7 +52,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         if (!EnterPool(createSeek))
             return;
 
-        _subscribers.Add(createSeek.UserId, Sender);
+        _subscribers.TryAdd(createSeek.UserId, Sender);
         Context.WatchWith(
             Sender,
             new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.PoolInfo)

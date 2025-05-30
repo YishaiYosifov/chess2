@@ -63,6 +63,12 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                         { "Authentication:Discord:ClientSecret", "test-discord-client-secret" },
                     };
                     config.AddInMemoryCollection(secrets);
+
+                    var appSettings = new Dictionary<string, string?>
+                    {
+                        { "AppSettings:Game:MatchWaveEvery", "00:00:01" },
+                    };
+                    config.AddInMemoryCollection(appSettings);
                 }
             );
     }

@@ -15,28 +15,19 @@ public interface IMatchmakingClient : IChess2HubClient
 public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,
-    IGuestService guestService,
     IAuthService authService
 ) : Chess2Hub<IMatchmakingClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
-    private readonly IGuestService _guestService = guestService;
     private readonly ILogger<MatchmakingHub> _logger = logger;
     private readonly IAuthService _authService = authService;
 
-    public async Task SeekMatchAsync(int baseMinutes, int increment)
+    public async Task SeekRatedAsync(int baseMinutes, int increment)
     {
         var userId = Context.UserIdentifier;
         if (userId is null)
         {
             await HandleErrors(Error.Unauthorized());
-            return;
-        }
-
-        var isGuest = _guestService.IsGuest(Context.User);
-        if (isGuest)
-        {
-            _matchmakingService.SeekCasual(userId, baseMinutes, increment);
             return;
         }
 
@@ -47,6 +38,18 @@ public class MatchmakingHub(
             return;
         }
         await _matchmakingService.SeekRatedAsync(userResult.Value, baseMinutes, increment);
+    }
+
+    public async Task SeekCasualAsync(int baseMinutes, int increment)
+    {
+        var userId = Context.UserIdentifier;
+        if (userId is null)
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        _matchmakingService.SeekCasual(userId, baseMinutes, increment);
     }
 
     public override Task OnDisconnectedAsync(Exception? exception)
