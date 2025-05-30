@@ -72,7 +72,7 @@ public class PlayerActorTests : BaseUnitTest
 
         _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
 
-        _ratedPoolProbe.ExpectMsg<CasualMatchmakingCommands.CreateCasualSeek>(msg =>
+        _casualPoolProbe.ExpectMsg<CasualMatchmakingCommands.CreateCasualSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(poolInfo);
