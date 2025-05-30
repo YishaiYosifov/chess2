@@ -10,6 +10,7 @@ using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
@@ -262,6 +263,9 @@ builder.Services.AddSingleton<IAuthCookieSetter, AuthCookieSetter>();
 
 builder.Services.AddScoped<IOAuthAuthenticator, GoogleOAuthAuthenticator>();
 builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
+
+builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
+builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 #endregion
 
 #region Validation
@@ -296,25 +300,29 @@ builder.Services.AddAkka(
                 "casual-matchmaking",
                 appSettings.Akka.MatchmakingShardCount
             )
-            .WithPlayerShard(appSettings.Akka.PlayerShardCount);
+            .WithPlayerShard(appSettings.Akka.PlayerShardCount)
+            .WithGameShard(appSettings.Akka.GameShardCount);
     }
 );
 #endregion
 
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
-builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
+#region Game Services
 builder.Services.AddSingleton<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddSingleton<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
-builder.Services.AddScoped<IUserService, UserService>();
 
+builder.Services.AddSingleton<IGameService, GameService>();
+builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
+
+builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+#endregion
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
-builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
-builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
