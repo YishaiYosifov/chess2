@@ -1,15 +1,25 @@
 import { renderHook } from "@testing-library/react";
+import * as signalR from "@microsoft/signalr";
+import { mock } from "vitest-mock-extended";
+import { Mock } from "vitest";
+import { act } from "react";
 
 import useSignalRStore from "../signalRStore";
-import { mockSignalRConnectionBuilder } from "@/lib/testUtils/mocks";
-import { HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
-import { act } from "react";
 
 vi.mock("@microsoft/signalr");
 
 describe("signalRStore", () => {
+    const hubBuilderMock = signalR.HubConnectionBuilder as Mock;
+    const hubBuilderMethodMocks = mock<signalR.HubConnectionBuilder>();
+
     beforeEach(() => {
         useSignalRStore.getState().hubs = {};
+
+        hubBuilderMock.mockReturnValue(hubBuilderMethodMocks);
+
+        hubBuilderMethodMocks.withUrl.mockReturnThis();
+        hubBuilderMethodMocks.withAutomaticReconnect.mockReturnThis();
+        hubBuilderMethodMocks.configureLogging.mockReturnThis();
     });
 
     function renderSignalRStore() {
@@ -18,10 +28,9 @@ describe("signalRStore", () => {
 
     describe("leaveHub", () => {
         it("should stop and remove the hub connection", async () => {
-            const builderMock = mockSignalRConnectionBuilder();
             const url = "test-url";
-            const mockHub = { id: "mock-hub", stop: vi.fn() };
-            builderMock.build.mockReturnValue(mockHub);
+            const mockHub = mock<signalR.HubConnection>();
+            hubBuilderMethodMocks.build.mockReturnValue(mockHub);
 
             const { getOrJoinHub, leaveHub } = renderSignalRStore();
 
@@ -40,54 +49,56 @@ describe("signalRStore", () => {
 
     describe("getOrJoinHub", () => {
         it("should create a hub if it doesn't exist", async () => {
-            const builderMock = mockSignalRConnectionBuilder();
             const url = "test-url";
-            const mockHub = { id: "mock-hub" };
-            builderMock.build.mockReturnValue(mockHub);
+            const mockHub = mock<signalR.HubConnection>();
+            hubBuilderMethodMocks.build.mockReturnValue(mockHub);
 
             const { getOrJoinHub } = renderSignalRStore();
 
             const result = await act(() => getOrJoinHub(url));
             expect(result).toBe(mockHub);
 
-            expect(builderMock.withUrl).toHaveBeenCalledExactlyOnceWith(url);
-            expect(builderMock.withAutomaticReconnect).toHaveBeenCalledOnce();
             expect(
-                builderMock.configureLogging,
-            ).toHaveBeenCalledExactlyOnceWith(LogLevel.Information);
+                hubBuilderMethodMocks.withUrl,
+            ).toHaveBeenCalledExactlyOnceWith(url);
+            expect(
+                hubBuilderMethodMocks.withAutomaticReconnect,
+            ).toHaveBeenCalledOnce();
+            expect(
+                hubBuilderMethodMocks.configureLogging,
+            ).toHaveBeenCalledExactlyOnceWith(signalR.LogLevel.Information);
 
-            expect(builderMock.build).toHaveBeenCalledOnce();
-            expect(builderMock.build).toHaveBeenCalledAfter(
-                builderMock.withUrl,
+            expect(hubBuilderMethodMocks.build).toHaveBeenCalledOnce();
+            expect(hubBuilderMethodMocks.build).toHaveBeenCalledAfter(
+                hubBuilderMethodMocks.withUrl,
             );
-            expect(builderMock.build).toHaveBeenCalledAfter(
-                builderMock.withAutomaticReconnect,
+            expect(hubBuilderMethodMocks.build).toHaveBeenCalledAfter(
+                hubBuilderMethodMocks.withAutomaticReconnect,
             );
-            expect(builderMock.build).toHaveBeenCalledAfter(
-                builderMock.configureLogging,
+            expect(hubBuilderMethodMocks.build).toHaveBeenCalledAfter(
+                hubBuilderMethodMocks.configureLogging,
             );
 
-            expect(HubConnectionBuilder).toHaveBeenCalledOnce();
+            expect(hubBuilderMock).toHaveBeenCalledOnce();
         });
 
         it("should return the existing hub if it exists", async () => {
-            const expectedHub = { id: "existing-hub" };
-            const otherHub = { id: "other-hub" };
+            const expectedHub = mock<signalR.HubConnection>();
+            const otherHub = mock<signalR.HubConnection>();
 
-            const builderMock = mockSignalRConnectionBuilder();
-            builderMock.build.mockReturnValue(expectedHub);
+            hubBuilderMethodMocks.build.mockReturnValue(expectedHub);
 
             const { getOrJoinHub } = renderSignalRStore();
 
             // First call to create the hub
             await act(() => getOrJoinHub("test-url"));
 
-            builderMock.build.mockReturnValue(otherHub);
+            hubBuilderMethodMocks.build.mockReturnValue(otherHub);
 
             // Second call should return the existing hub
             const result = await act(() => getOrJoinHub("test-url"));
-            console.log(result);
             expect(result).toBe(expectedHub);
+            expect(result).not.toBe(otherHub);
         });
     });
 });
