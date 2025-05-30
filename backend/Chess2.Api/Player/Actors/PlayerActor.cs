@@ -2,7 +2,9 @@
 using Akka.Hosting;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Player.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Player.Actors;
 
@@ -10,23 +12,25 @@ public record ActiveSeekInfo(IActorRef PoolActor, PoolInfo PoolInfo);
 
 public class PlayerActor : ReceiveActor
 {
-    private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
-    private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
-
     private readonly string _userId;
     private ActiveSeekInfo? _currentPool;
     private string? _gameId;
 
+    private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
+    private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
+    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContext;
+
     public PlayerActor(
         string userId,
         IRequiredActor<RatedMatchmakingActor> ratedPoolActor,
-        IRequiredActor<CasualMatchmakingActor> casualPoolActor
+        IRequiredActor<CasualMatchmakingActor> casualPoolActor,
+        IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubContext
     )
     {
         _userId = userId;
         _ratedPoolActor = ratedPoolActor;
         _casualPoolActor = casualPoolActor;
-
+        _matchmakingHubContext = matchmakingHubContext;
         Become(Seeking);
     }
 
@@ -60,6 +64,12 @@ public class PlayerActor : ReceiveActor
         {
             _gameId = matchFound.GameId;
             _currentPool = null;
+
+            RunTask(
+                () =>
+                    _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameId)
+            );
+
             Become(InGame);
         });
     }

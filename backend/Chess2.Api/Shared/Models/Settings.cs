@@ -47,4 +47,5 @@ public class AkkaSettings
 
     public int MatchmakingShardCount { get; set; }
     public int PlayerShardCount { get; set; }
+    public int GameShardCount { get; set; }
 }

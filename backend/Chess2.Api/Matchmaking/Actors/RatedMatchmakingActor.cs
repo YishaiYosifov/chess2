@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
@@ -10,8 +11,9 @@ namespace Chess2.Api.Matchmaking.Actors;
 public class RatedMatchmakingActor(
     IOptions<AppSettings> settings,
     IRatedMatchmakingPool pool,
+    IGameService gameService,
     ITimerScheduler? timerScheduler = null
-    ) : AbstractMatchmakingActor<IRatedMatchmakingPool>(settings, pool, timerScheduler)
+) : AbstractMatchmakingActor<IRatedMatchmakingPool>(settings, pool, gameService, timerScheduler)
 {
     protected override bool EnterPool(ICreateSeekCommand createSeek)
     {
@@ -21,7 +23,11 @@ public class RatedMatchmakingActor(
             return false;
         }
 
-        Logger.Info("Received seek from {0} with rating {1}", createCasualSeek.UserId, createCasualSeek.Rating);
+        Logger.Info(
+            "Received seek from {0} with rating {1}",
+            createCasualSeek.UserId,
+            createCasualSeek.Rating
+        );
         Pool.AddSeek(createSeek.UserId, createCasualSeek.Rating);
         return true;
     }
