@@ -4,9 +4,11 @@ using Akka.TestKit;
 using Akka.TestKit.Xunit2;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Player.Actors;
 using Chess2.Api.Player.Models;
 using FluentAssertions;
+using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 using Xunit.Abstractions;
 
@@ -19,6 +21,7 @@ public class PlayerActorTests : TestKit
     private const string UserId = "test-user-id";
 
     private readonly IActorRef _playerActor;
+    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContextMock;
 
     public PlayerActorTests(ITestOutputHelper output)
         : base(output: output)
@@ -32,8 +35,20 @@ public class PlayerActorTests : TestKit
         var casualRequired = Substitute.For<IRequiredActor<CasualMatchmakingActor>>();
         casualRequired.ActorRef.Returns(_casualPoolProbe.Ref);
 
+        _matchmakingHubContextMock = Substitute.For<
+            IHubContext<MatchmakingHub, IMatchmakingClient>
+        >();
+
         _playerActor = Sys.ActorOf(
-            Props.Create(() => new PlayerActor(UserId, ratedRequired, casualRequired))
+            Props.Create(
+                () =>
+                    new PlayerActor(
+                        UserId,
+                        ratedRequired,
+                        casualRequired,
+                        _matchmakingHubContextMock
+                    )
+            )
         );
     }
 

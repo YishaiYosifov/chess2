@@ -1,14 +1,12 @@
 ﻿using Akka.Actor;
 using Akka.TestKit;
-using Akka.TestKit.TestActors;
 using Akka.TestKit.Xunit2;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
-using FluentAssertions;
 using NSubstitute;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
@@ -18,6 +16,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
 {
     protected ITimerScheduler TimerMock { get; } = Substitute.For<ITimerScheduler>();
     protected TPool PoolMock { get; } = Substitute.For<TPool>();
+    protected IGameService GameServiceMock { get; } = Substitute.For<IGameService>();
 
     protected IActorRef MatchmakingActor { get; }
     protected TestProbe Probe { get; }
@@ -42,14 +41,16 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
     [Fact]
     public void StartPeriodicTimer_is_set_for_match_waves()
     {
-        AwaitAssert(() =>
-            TimerMock
-                .Received(1)
-                .StartPeriodicTimer(
-                    "wave",
-                    new MatchmakingCommands.MatchWave(),
-                    Settings.Game.MatchWaveEvery
-                ));
+        AwaitAssert(
+            () =>
+                TimerMock
+                    .Received(1)
+                    .StartPeriodicTimer(
+                        "wave",
+                        new MatchmakingCommands.MatchWave(),
+                        Settings.Game.MatchWaveEvery
+                    )
+        );
     }
 
     [Fact]
@@ -63,12 +64,11 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
 
         MatchmakingActor.Tell(CreateSeekCommand(userIdToKeep), Probe);
         MatchmakingActor.Tell(CreateSeekCommand(userIdToRemove), Probe);
-        MatchmakingActor.Tell(
-            new MatchmakingCommands.CancelSeek(userIdToRemove, PoolInfo),
-            Probe
-        );
+        MatchmakingActor.Tell(new MatchmakingCommands.CancelSeek(userIdToRemove, PoolInfo), Probe);
 
-        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(x => x.UserId == userIdToRemove);
+        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(x =>
+            x.UserId == userIdToRemove
+        );
         PoolMock.Received().RemoveSeek(userIdToRemove);
     }
 
@@ -86,7 +86,9 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
         await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>();
         Sys.Stop(Probe);
 
-        await listenerProbe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCanceled>(x => x.UserId == userId);
+        await listenerProbe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCanceled>(x =>
+            x.UserId == userId
+        );
         PoolMock.Received().RemoveSeek(userId);
     }
 }
