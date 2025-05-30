@@ -4,7 +4,6 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
@@ -24,12 +23,18 @@ public class CasualMatchmakingActorTests(ITestOutputHelper output)
     }
 
     protected override ICreateSeekCommand CreateSeekCommand(string userId) =>
-            new CasualMatchmakingCommands.CreateCasualSeek(userId, PoolInfo);
+        new CasualMatchmakingCommands.CreateCasualSeek(userId, PoolInfo);
 
     protected override IActorRef CreateActor()
     {
         var props = Props.Create(
-            () => new CasualMatchmakingActor(Options.Create(Settings), PoolMock, TimerMock)
+            () =>
+                new CasualMatchmakingActor(
+                    Options.Create(Settings),
+                    PoolMock,
+                    GameServiceMock,
+                    TimerMock
+                )
         );
         return Sys.ActorOf(props);
     }

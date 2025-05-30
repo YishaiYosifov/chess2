@@ -1,11 +1,12 @@
-﻿using AutoFixture;
+﻿using Akka.TestKit.Xunit2;
+using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Unit;
 
-public class BaseUnitTest
+public class BaseUnitTest : TestKit
 {
     protected readonly Fixture Fixture = new();
 
