@@ -307,8 +307,8 @@ builder.Services.AddAkka(
 #endregion
 
 #region Game Services
-builder.Services.AddSingleton<IRatedMatchmakingPool, RatedMatchmakingPool>();
-builder.Services.AddSingleton<ICasualMatchmakingPool, CasualMatchmakingPool>();
+builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
+builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 
 builder.Services.AddSingleton<IGameService, GameService>();
@@ -345,7 +345,7 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-app.MapHub<MatchmakingHub>("/api/ws/matchmaking");
+app.MapHub<MatchmakingHub>("/api/hub/matchmaking");
 
 app.Run();
 

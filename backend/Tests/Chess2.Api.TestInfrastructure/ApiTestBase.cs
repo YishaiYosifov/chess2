@@ -1,8 +1,16 @@
-﻿using Chess2.Api.Auth.Services;
+﻿using Akka.Actor;
+using Akka.Cluster.Sharding;
+using Akka.Hosting;
+using Chess2.Api.Auth.Services;
+using Chess2.Api.Game.Actors;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Player.Actors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +31,7 @@ public class ApiTestBase : IAsyncLifetime
     protected ApiTestBase(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
+        Factory.Server.PreserveExecutionContext = true;
         Scope = Factory.Services.CreateScope();
         ApiClient = Factory.CreateApiClient();
 
@@ -44,10 +53,60 @@ public class ApiTestBase : IAsyncLifetime
         );
     }
 
-    public Task InitializeAsync() => Task.CompletedTask;
-
-    public async Task DisposeAsync()
+    protected async Task<HubConnection> CreateSignalRConnectionAsync(
+        string path,
+        string? accessToken = null
+    )
     {
+        var baseAddress =
+            ApiClient.Client.BaseAddress
+            ?? throw new InvalidOperationException("Base address is not set for ApiClient");
+        var server = Factory.Server;
+
+        var connection = new HubConnectionBuilder()
+            .WithUrl(
+                "http://localhost" + path,
+                options =>
+                {
+                    options.HttpMessageHandlerFactory = _ => server.CreateHandler();
+                    if (!string.IsNullOrEmpty(accessToken))
+                        options.Headers.Add(
+                            "Cookie",
+                            $"{AppSettings.Jwt.AccessTokenCookieName}={accessToken}"
+                        );
+                    options.Transports = HttpTransportType.LongPolling;
+                }
+            )
+            .Build();
+        await connection.StartAsync();
+
+        return connection;
+    }
+
+    protected async Task ResetShardActors<TActor>()
+        where TActor : ActorBase
+    {
+        var shardActor = Scope.ServiceProvider.GetRequiredService<IRequiredActor<TActor>>();
+        var shardState = await shardActor.ActorRef.Ask<CurrentShardRegionState>(
+            GetShardRegionState.Instance
+        );
+        var existingActors = shardState.Shards.SelectMany(shard => shard.EntityIds);
+
+        foreach (var actorId in existingActors)
+        {
+            shardActor.ActorRef.Tell(new ShardingEnvelope(actorId, PoisonPill.Instance));
+        }
+    }
+
+    public virtual Task InitializeAsync() => Task.CompletedTask;
+
+    public virtual async Task DisposeAsync()
+    {
+        await ResetShardActors<PlayerActor>();
+        await ResetShardActors<RatedMatchmakingActor>();
+        await ResetShardActors<CasualMatchmakingActor>();
+        await ResetShardActors<GameActor>();
+
         await Factory.ResetDatabaseAsync();
         Scope?.Dispose();
         DbContext?.Dispose();
