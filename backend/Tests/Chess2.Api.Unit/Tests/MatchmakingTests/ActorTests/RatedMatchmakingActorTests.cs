@@ -4,7 +4,6 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
@@ -18,7 +17,10 @@ public class RatedMatchmakingActorTests(ITestOutputHelper output)
         const string userId = "user1";
         const int rating = 1200;
 
-        MatchmakingActor.Tell(new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo), Probe);
+        MatchmakingActor.Tell(
+            new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
+            Probe
+        );
         await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(x => x.UserId == userId);
 
         PoolMock.Received(1).AddSeek(userId, rating);
@@ -30,7 +32,13 @@ public class RatedMatchmakingActorTests(ITestOutputHelper output)
     protected override IActorRef CreateActor()
     {
         var props = Props.Create(
-            () => new RatedMatchmakingActor(Options.Create(Settings), PoolMock, TimerMock)
+            () =>
+                new RatedMatchmakingActor(
+                    Options.Create(Settings),
+                    PoolMock,
+                    GameServiceMock,
+                    TimerMock
+                )
         );
         return Sys.ActorOf(props);
     }
