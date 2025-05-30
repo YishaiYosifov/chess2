@@ -1,17 +1,15 @@
 ﻿using Akka.Actor;
 using Akka.TestKit;
-using Akka.TestKit.Xunit2;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using NSubstitute;
-using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
 
-public abstract class BaseMatchmakingActorTests<TPool> : TestKit
+public abstract class BaseMatchmakingActorTests<TPool> : BaseUnitTest
     where TPool : class, IMatchmakingPool
 {
     protected ITimerScheduler TimerMock { get; } = Substitute.For<ITimerScheduler>();
@@ -26,8 +24,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : TestKit
 
     protected abstract IActorRef CreateActor();
 
-    public BaseMatchmakingActorTests(ITestOutputHelper output)
-        : base(output: output)
+    public BaseMatchmakingActorTests()
     {
         MatchmakingActor = CreateActor();
         Probe = CreateTestProbe();
