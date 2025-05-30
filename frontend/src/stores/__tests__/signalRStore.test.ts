@@ -1,25 +1,21 @@
 import { renderHook } from "@testing-library/react";
 import * as signalR from "@microsoft/signalr";
-import { mock } from "vitest-mock-extended";
+import { mock, MockProxy } from "vitest-mock-extended";
 import { Mock } from "vitest";
 import { act } from "react";
 
-import useSignalRStore from "../signalRStore";
+import useSignalRStore, { initialSignalRStoreState } from "../signalRStore";
+import { mockHubBuilder } from "@/lib/testUtils/mocks/mockSignalR";
 
 vi.mock("@microsoft/signalr");
 
 describe("signalRStore", () => {
     const hubBuilderMock = signalR.HubConnectionBuilder as Mock;
-    const hubBuilderMethodMocks = mock<signalR.HubConnectionBuilder>();
+    let hubBuilderMethodMocks: MockProxy<signalR.HubConnectionBuilder>;
 
     beforeEach(() => {
-        useSignalRStore.getState().hubs = {};
-
-        hubBuilderMock.mockReturnValue(hubBuilderMethodMocks);
-
-        hubBuilderMethodMocks.withUrl.mockReturnThis();
-        hubBuilderMethodMocks.withAutomaticReconnect.mockReturnThis();
-        hubBuilderMethodMocks.configureLogging.mockReturnThis();
+        useSignalRStore.setState(initialSignalRStoreState);
+        hubBuilderMethodMocks = mockHubBuilder();
     });
 
     function renderSignalRStore() {
