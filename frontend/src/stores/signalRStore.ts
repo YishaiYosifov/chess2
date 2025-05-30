@@ -11,8 +11,12 @@ interface SignalRStore {
     leaveHub: (url: string) => Promise<void>;
 }
 
-const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
+export const initialSignalRStoreState = {
     hubs: {},
+};
+
+const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
+    ...initialSignalRStoreState,
 
     getOrJoinHub: (url: string) => {
         const existingHub = get().hubs[url];
