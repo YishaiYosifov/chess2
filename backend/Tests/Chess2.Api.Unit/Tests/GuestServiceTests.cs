@@ -77,8 +77,8 @@ public class GuestServiceTests : BaseUnitTest
         {
             HttpOnly = true,
             IsEssential = true,
-            Secure = environment == "Production",
-            SameSite = SameSiteMode.Strict,
+            Secure = true,
+            SameSite = SameSiteMode.None,
         };
 
         httpContext
