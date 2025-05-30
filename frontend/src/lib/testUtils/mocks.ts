@@ -1,3 +1,4 @@
+import { HubConnectionBuilder } from "@microsoft/signalr";
 import { cookies } from "next/headers";
 import { useRouter } from "next/navigation";
 import { Mock } from "vitest";
@@ -15,6 +16,19 @@ export function mockRouter() {
     routerMock.mockImplementation(() => router);
 
     return router;
+}
+
+export function mockSignalRConnectionBuilder() {
+    const hubConnectionBuilder = {
+        withUrl: vi.fn().mockReturnThis(),
+        withAutomaticReconnect: vi.fn().mockReturnThis(),
+        configureLogging: vi.fn().mockReturnThis(),
+        build: vi.fn().mockReturnThis(),
+    };
+    const hubConnectionBuilderMock = HubConnectionBuilder as Mock;
+    hubConnectionBuilderMock.mockReturnValue(hubConnectionBuilder);
+
+    return hubConnectionBuilder;
 }
 
 export function mockCookies(...cookieNames: string[]): Mock {
