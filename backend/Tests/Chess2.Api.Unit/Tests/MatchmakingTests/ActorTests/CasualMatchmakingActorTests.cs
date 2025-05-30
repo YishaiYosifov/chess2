@@ -4,12 +4,10 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Xunit.Abstractions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
 
-public class CasualMatchmakingActorTests(ITestOutputHelper output)
-    : BaseMatchmakingActorTests<ICasualMatchmakingPool>(output: output)
+public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatchmakingPool>
 {
     [Fact]
     public async Task CreateSeek_adds_the_user_to_seekers()
