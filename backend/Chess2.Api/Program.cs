@@ -295,7 +295,8 @@ builder.Services.AddAkka(
             .WithMatchmakingShard<CasualMatchmakingActor>(
                 "casual-matchmaking",
                 appSettings.Akka.MatchmakingShardCount
-            );
+            )
+            .WithPlayerShard(appSettings.Akka.PlayerShardCount);
     }
 );
 #endregion

@@ -24,7 +24,7 @@ public class MatchmakingHub(
     private readonly ILogger<MatchmakingHub> _logger = logger;
     private readonly IAuthService _authService = authService;
 
-    public async Task SeekMatchAsync(int timeControl, int increment)
+    public async Task SeekMatchAsync(int baseMinutes, int increment)
     {
         var userId = Context.UserIdentifier;
         if (userId is null)
@@ -36,7 +36,7 @@ public class MatchmakingHub(
         var isGuest = _guestService.IsGuest(Context.User);
         if (isGuest)
         {
-            _matchmakingService.SeekCasual(userId, timeControl, increment);
+            _matchmakingService.SeekCasual(userId, baseMinutes, increment);
             return;
         }
 
@@ -46,11 +46,14 @@ public class MatchmakingHub(
             await HandleErrors(userResult.Errors);
             return;
         }
-        await _matchmakingService.SeekRatedAsync(userResult.Value, timeControl, increment);
+        await _matchmakingService.SeekRatedAsync(userResult.Value, baseMinutes, increment);
     }
 
     public override Task OnDisconnectedAsync(Exception? exception)
     {
-        throw new NotImplementedException();
+        var userId = Context.UserIdentifier;
+        if (userId is not null)
+            _matchmakingService.CancelSeek(userId);
+        return Task.CompletedTask;
     }
 }
