@@ -44,4 +44,18 @@ describe("useSignalRConnection", () => {
         expect(result.current).toBe(mockConnection);
         expect(mockConnection.start).not.toHaveBeenCalled();
     });
+
+    it("should handle connection errors", async () => {
+        const mockConnection = mockHubConnection(
+            signalR.HubConnectionState.Disconnected,
+        );
+        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+
+        renderHook(() => useSignalRConnection(hubUrl));
+
+        expect(mockConnection.on).toHaveBeenCalledExactlyOnceWith(
+            "ReceiveErrorAsync",
+            console.error,
+        );
+    });
 });
