@@ -1,20 +1,57 @@
 "use client";
 
-import constants from "@/lib/constants";
-import Card from "../helpers/Card";
-import Button from "../helpers/Button";
-import PoolToggle from "./PoolToggle";
-import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+
 import {
     useMatchmakingEmitter,
     useMatchmakingEvent,
 } from "@/hooks/signalR/useSignalRHubs";
+
+import PoolToggle, { PoolToggleRef } from "./PoolToggle";
+import constants from "@/lib/constants";
+import Button from "../helpers/Button";
+import Card from "../helpers/Card";
+import clsx from "clsx";
 
 /**
  * Card containing the variant and time control options.
  * When the one of the time control buttons is clicked, a request to enter the pool will be sent.
  */
 const PlayOptions = () => {
+    const [showPoolToggle, setShowPoolToggle] = useState(false);
+    const poolToggleRef = useRef<PoolToggleRef>(null);
+    const router = useRouter();
+
+    const sendMatchmakingEvent = useMatchmakingEmitter();
+    useMatchmakingEvent("MatchFoundAsync", (token) =>
+        router.push(`/game/${token}`),
+    );
+
+    useEffect(() => {
+        const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
+        setShowPoolToggle(isAuthed !== undefined);
+    }, []);
+
+    async function handleSeekMatch(baseMinutes: number, increment: number) {
+        const isRated = poolToggleRef.current?.isRated ?? false;
+        console.log(isRated);
+        if (isRated) {
+            await sendMatchmakingEvent(
+                "SeekRatedAsync",
+                baseMinutes,
+                increment,
+            );
+        } else {
+            await sendMatchmakingEvent(
+                "SeekCasualAsync",
+                baseMinutes,
+                increment,
+            );
+        }
+    }
+
     return (
         <Card
             data-testid="playOptions"
@@ -26,16 +63,19 @@ const PlayOptions = () => {
             {/* spacer */}
             <div className="h-10" />
 
-            <PoolToggle />
+            {showPoolToggle && <PoolToggle ref={poolToggleRef} />}
             <div className="grid w-full grid-cols-3 gap-x-3 gap-y-7">
                 {constants.TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
                     return (
                         <PlayButton
                             key={formattedTimeControl}
-                            timeControl={formattedTimeControl}
+                            baseMinutes={timeControl.baseMinutes}
+                            increment={timeControl.increment}
+                            formattedTimeControl={formattedTimeControl}
                             isMostPopular={timeControl.isMostPopular}
                             type={timeControl.type}
+                            onClick={handleSeekMatch}
                         />
                     );
                 })}
@@ -45,22 +85,21 @@ const PlayOptions = () => {
 };
 export default PlayOptions;
 
-type MatchmakingHubEvents = {
-    TestHub: [a: string];
-};
-
 const PlayButton = ({
-    timeControl,
+    baseMinutes,
+    increment,
+    formattedTimeControl,
     type,
     isMostPopular,
+    onClick,
 }: {
-    timeControl: string;
+    baseMinutes: number;
+    increment: number;
+    formattedTimeControl: string;
     type: string;
     isMostPopular?: boolean;
+    onClick?: (baseMinutes: number, increment: number) => void;
 }) => {
-    useMatchmakingEvent("TestClient", console.log);
-    const sendMatchmakingEvent = useMatchmakingEmitter();
-
     return (
         <div className="relative">
             {isMostPopular && (
@@ -69,13 +108,15 @@ const PlayButton = ({
                 </span>
             )}
             <Button
-                onClick={() => sendMatchmakingEvent("TestHub", "hello")}
+                onClick={() => onClick?.(baseMinutes, increment)}
                 className={clsx(
                     "flex h-full w-full flex-col items-center justify-center rounded-sm",
                     isMostPopular && "border border-amber-300",
                 )}
             >
-                <span className="text-[1.6rem] text-nowrap">{timeControl}</span>
+                <span className="text-[1.6rem] text-nowrap">
+                    {formattedTimeControl}
+                </span>
                 <span className="text-[1rem] text-nowrap">{type}</span>
             </Button>
         </div>
