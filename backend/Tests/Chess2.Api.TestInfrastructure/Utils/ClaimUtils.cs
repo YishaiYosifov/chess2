@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using OpenIddict.Client.AspNetCore;
-using System.Security.Claims;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
