@@ -1,8 +1,16 @@
 import clsx from "clsx";
-import { useState } from "react";
+import { forwardRef, Ref, useImperativeHandle, useState } from "react";
 
-const PoolToggle = () => {
-    const [enabled, setIsRated] = useState(false);
+export interface PoolToggleRef {
+    isRated: boolean;
+}
+
+const PoolToggle = (_: object, ref: Ref<PoolToggleRef>) => {
+    const [isRated, setIsRated] = useState(false);
+
+    useImperativeHandle(ref, () => ({
+        isRated,
+    }));
 
     return (
         <div className="grid w-full grid-rows-2 justify-between">
@@ -14,7 +22,7 @@ const PoolToggle = () => {
                 <div
                     className={clsx(
                         "bg-secondary absolute top-1 h-6 w-10 rounded-sm shadow-2xl transition-all",
-                        enabled ? "left-[calc(100%-2.75rem)]" : "left-1",
+                        isRated ? "left-[calc(100%-2.75rem)]" : "left-1",
                     )}
                 ></div>
             </button>
@@ -23,4 +31,4 @@ const PoolToggle = () => {
         </div>
     );
 };
-export default PoolToggle;
+export default forwardRef<PoolToggleRef>(PoolToggle);
