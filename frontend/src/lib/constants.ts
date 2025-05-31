@@ -29,7 +29,7 @@ const PATHS = {
 };
 
 const SIGNALR_PATHS = {
-    MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/ws/matchmaking`,
+    MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/matchmaking`,
 };
 
 const HEADERS = {
