@@ -111,6 +111,20 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         result.Should().ContainSingle().Which.Code.Should().Be("General.Unauthorized");
     }
 
+    [Fact]
+    public async Task Seek_and_disconnect_cancels_the_seek()
+    {
+        await using var conn1 = await ConnectGuestAsync("guest1");
+        await conn1.InvokeAsync(SeekCasualMethod, 5, 10);
+        await conn1.StopAsync();
+
+        await using var conn2 = await ConnectGuestAsync("guest2");
+        await using var conn3 = await ConnectGuestAsync("guest3");
+
+        // users are matched in the order they connected, so if conn1 disconnects, conn2 and conn3 should match
+        await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, 5, 10);
+    }
+
     private static async Task AssertPlayersMatchAsync(
         HubConnection conn1,
         HubConnection conn2,

@@ -55,7 +55,7 @@ public class PlayerActorTests : BaseUnitTest
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new RatedMatchmakingCommands.CreateRatedSeek(UserId, 1700, poolInfo);
 
-        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
 
         await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(msg =>
         {
@@ -70,7 +70,7 @@ public class PlayerActorTests : BaseUnitTest
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, poolInfo);
 
-        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
 
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(msg =>
         {
@@ -85,10 +85,10 @@ public class PlayerActorTests : BaseUnitTest
         var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, poolInfo);
 
-        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, seek));
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>();
 
-        _playerActor.Tell(new PlayerCommands.CancelSeek(UserId));
+        _playerActor.Tell(new PlayerCommands.CancelSeek(UserId, "connid"));
 
         await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(msg =>
         {
@@ -98,7 +98,7 @@ public class PlayerActorTests : BaseUnitTest
     }
 
     [Fact]
-    public void CreateSeek_with_an_existing_seek_cancels_the_previous_one_first()
+    public async Task CreateSeek_with_an_existing_seek_cancels_the_previous_one_first()
     {
         var casualPool = new PoolInfo(BaseMinutes: 5, Increment: 5);
         var ratedPool = new PoolInfo(BaseMinutes: 10, Increment: 0);
@@ -106,20 +106,34 @@ public class PlayerActorTests : BaseUnitTest
         var firstSeek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, casualPool);
         var secondSeek = new RatedMatchmakingCommands.CreateRatedSeek(UserId, 1200, ratedPool);
 
-        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, firstSeek));
-        _casualPoolProbe.ExpectMsg<CasualMatchmakingCommands.CreateCasualSeek>();
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid1", firstSeek));
+        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>();
 
-        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, secondSeek));
-        _casualPoolProbe.ExpectMsg<MatchmakingCommands.CancelSeek>(msg =>
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid2", secondSeek));
+        await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(casualPool);
         });
 
-        _ratedPoolProbe.ExpectMsg<RatedMatchmakingCommands.CreateRatedSeek>(msg =>
+        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(msg =>
         {
             msg.UserId.Should().Be(UserId);
             msg.PoolInfo.Should().Be(ratedPool);
         });
+    }
+
+    [Fact]
+    public async Task CancelSeek_without_a_connection_id_cancels_the_seek_anyways()
+    {
+        var poolInfo = new PoolInfo(BaseMinutes: 5, Increment: 5);
+        var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, poolInfo);
+
+        _playerActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
+        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>();
+
+        _playerActor.Tell(new PlayerCommands.CancelSeek(UserId));
+
+        await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>();
     }
 }
