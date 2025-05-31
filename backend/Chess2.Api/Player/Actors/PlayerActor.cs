@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Event;
 using Akka.Hosting;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Player.Actors;
 
-public record ActiveSeekInfo(IActorRef PoolActor, PoolInfo PoolInfo);
+public record ActiveSeekInfo(IActorRef PoolActor, PoolInfo PoolInfo, string ConnectionId);
 
 public class PlayerActor : ReceiveActor
 {
@@ -19,6 +20,7 @@ public class PlayerActor : ReceiveActor
     private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
     private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContext;
+    private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     public PlayerActor(
         string userId,
@@ -46,13 +48,31 @@ public class PlayerActor : ReceiveActor
             var actor = ResolvePoolActorForSeek(createSeek.CreateSeekCommand);
             actor.Tell(createSeek.CreateSeekCommand);
 
-            _currentPool = new ActiveSeekInfo(actor, createSeek.CreateSeekCommand.PoolInfo);
+            _currentPool = new ActiveSeekInfo(
+                actor,
+                createSeek.CreateSeekCommand.PoolInfo,
+                createSeek.ConnectionId
+            );
         });
 
         Receive<PlayerCommands.CancelSeek>(cancelSeek =>
         {
             if (_currentPool is null)
                 return;
+
+            if (
+                cancelSeek.ConnectionId is not null
+                && cancelSeek.ConnectionId != _currentPool.ConnectionId
+            )
+            {
+                _logger.Info(
+                    "User {0} attempted to cancel the seek of connection id {0}, but the seeking connection id is {1}",
+                    _userId,
+                    cancelSeek.ConnectionId,
+                    _currentPool.ConnectionId
+                );
+                return;
+            }
 
             _currentPool.PoolActor.Tell(
                 new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
