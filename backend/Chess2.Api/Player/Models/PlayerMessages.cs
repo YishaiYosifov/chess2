@@ -9,7 +9,11 @@ public interface IPlayerCommand
 
 public class PlayerCommands
 {
-    public record CreateSeek(string UserId, ICreateSeekCommand CreateSeekCommand) : IPlayerCommand;
+    public record CreateSeek(
+        string UserId,
+        string ConnectionId,
+        ICreateSeekCommand CreateSeekCommand
+    ) : IPlayerCommand;
 
-    public record CancelSeek(string UserId) : IPlayerCommand;
+    public record CancelSeek(string UserId, string? ConnectionId) : IPlayerCommand;
 }

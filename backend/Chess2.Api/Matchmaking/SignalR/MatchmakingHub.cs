@@ -24,8 +24,7 @@ public class MatchmakingHub(
 
     public async Task SeekRatedAsync(int baseMinutes, int increment)
     {
-        var userId = Context.UserIdentifier;
-        if (userId is null)
+        if (!TryGetUserId(out var userId))
         {
             await HandleErrors(Error.Unauthorized());
             return;
@@ -37,26 +36,61 @@ public class MatchmakingHub(
             await HandleErrors(userResult.Errors);
             return;
         }
-        await _matchmakingService.SeekRatedAsync(userResult.Value, baseMinutes, increment);
+        _logger.LogInformation("User {UserId} seeking rated match", userId);
+        await _matchmakingService.SeekRatedAsync(
+            userResult.Value,
+            Context.ConnectionId,
+            baseMinutes,
+            increment
+        );
     }
 
     public async Task SeekCasualAsync(int baseMinutes, int increment)
     {
-        var userId = Context.UserIdentifier;
-        if (userId is null)
+        if (!TryGetUserId(out var userId))
         {
             await HandleErrors(Error.Unauthorized());
             return;
         }
 
-        _matchmakingService.SeekCasual(userId, baseMinutes, increment);
+        _logger.LogInformation("User {UserId} seeking casual match", userId);
+        _matchmakingService.SeekCasual(userId, Context.ConnectionId, baseMinutes, increment);
     }
 
-    public override Task OnDisconnectedAsync(Exception? exception)
+    public async Task CancelSeekAsync()
     {
-        var userId = Context.UserIdentifier;
-        if (userId is not null)
-            _matchmakingService.CancelSeek(userId);
-        return Task.CompletedTask;
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        _logger.LogInformation("User {UserId} cancelled their seek", userId);
+        _matchmakingService.CancelSeek(userId);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        try
+        {
+            if (!TryGetUserId(out var userId))
+            {
+                _logger.LogWarning(
+                    "User disconnected from matchmaking hub without a user ID, cannot cancel seek"
+                );
+                return;
+            }
+
+            _logger.LogInformation(
+                "User {UserId} disconnected from matchmaking hub, cancelling seek of connection of {ConnectionId} if it exists",
+                userId,
+                Context.ConnectionId
+            );
+            _matchmakingService.CancelSeek(userId, Context.ConnectionId);
+        }
+        finally
+        {
+            await base.OnDisconnectedAsync(exception);
+        }
     }
 }

@@ -10,9 +10,9 @@ namespace Chess2.Api.Matchmaking.Services;
 
 public interface IMatchmakingService
 {
-    Task SeekRatedAsync(AuthedUser user, int baseMinutes, int increment);
-    void SeekCasual(string userId, int baseMinutes, int increment);
-    void CancelSeek(string userId);
+    Task SeekRatedAsync(AuthedUser user, string connectionId, int baseMinutes, int increment);
+    void SeekCasual(string userId, string connectionId, int baseMinutes, int increment);
+    void CancelSeek(string userId, string? connectionId = null);
 }
 
 public class MatchmakingService(
@@ -25,7 +25,12 @@ public class MatchmakingService(
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
     private readonly IRequiredActor<PlayerActor> _playerActor = playerActor;
 
-    public async Task SeekRatedAsync(AuthedUser user, int baseMinutes, int increment)
+    public async Task SeekRatedAsync(
+        AuthedUser user,
+        string connectionId,
+        int baseMinutes,
+        int increment
+    )
     {
         var rating = await _ratingService.GetOrCreateRatingAsync(
             user,
@@ -38,21 +43,21 @@ public class MatchmakingService(
             rating.Value,
             poolInfo
         );
-        var playerCommand = new PlayerCommands.CreateSeek(user.Id, poolCommand);
+        var playerCommand = new PlayerCommands.CreateSeek(user.Id, connectionId, poolCommand);
         _playerActor.ActorRef.Tell(playerCommand);
     }
 
-    public void SeekCasual(string userId, int baseMinutes, int increment)
+    public void SeekCasual(string userId, string connectionId, int baseMinutes, int increment)
     {
         var poolInfo = new PoolInfo(baseMinutes, increment);
         var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, poolInfo);
-        var playerCommand = new PlayerCommands.CreateSeek(userId, poolCommand);
+        var playerCommand = new PlayerCommands.CreateSeek(userId, connectionId, poolCommand);
         _playerActor.ActorRef.Tell(playerCommand);
     }
 
-    public void CancelSeek(string userId)
+    public void CancelSeek(string userId, string? connectionId = null)
     {
-        var command = new PlayerCommands.CancelSeek(userId);
+        var command = new PlayerCommands.CancelSeek(userId, connectionId);
         _playerActor.ActorRef.Tell(command);
     }
 }

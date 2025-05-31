@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Infrastructure.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Infrastructure.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.SignalR;
 
@@ -12,6 +13,12 @@ public interface IChess2HubClient
 public class Chess2Hub<T> : Hub<T>
     where T : class, IChess2HubClient
 {
+    protected bool TryGetUserId([NotNullWhen(true)] out string? userId)
+    {
+        userId = Context.UserIdentifier;
+        return userId is not null;
+    }
+
     protected Task HandleErrors(Error error) => HandleErrors([error]);
 
     protected async Task HandleErrors(IEnumerable<Error> errors)
