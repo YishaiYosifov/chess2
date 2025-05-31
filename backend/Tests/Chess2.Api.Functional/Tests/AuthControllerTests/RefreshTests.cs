@@ -1,8 +1,8 @@
-﻿using Chess2.Api.TestInfrastructure;
+﻿using System.Net;
+using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.AuthControllerTests;
 

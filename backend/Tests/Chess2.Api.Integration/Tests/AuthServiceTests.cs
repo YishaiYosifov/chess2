@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Auth.Errors;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -7,8 +9,6 @@ using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Integration.Tests;
 
