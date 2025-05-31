@@ -9,6 +9,7 @@ const useSignalRConnection = (hubUrl: string): HubConnection | null => {
 
     useEffect(() => {
         const newConnection = signalRStore.getOrJoinHub(hubUrl);
+        newConnection.on("ReceiveErrorAsync", console.error);
         setConnection(newConnection);
     }, [hubUrl, signalRStore]);
 
