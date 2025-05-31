@@ -3,11 +3,13 @@ import { signalREventHookFactory } from "./useSignalREvent";
 import { signalREmitterHookFactory } from "./useSignalREmitter";
 
 type MatchmakingClientEvents = {
-    TestClient: [a: string];
+    MatchFoundAsync: [token: string];
 };
 
 type MatchmakingHubEvents = {
-    TestHub: [a: string];
+    SeekRatedAsync: [baseMinutes: number, increment: number];
+    SeekCasualAsync: [baseMinutes: number, increment: number];
+    CancelSeekAsync: [];
 };
 
 export const useMatchmakingEvent =
