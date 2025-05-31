@@ -10,10 +10,10 @@ import {
 } from "@/hooks/signalR/useSignalRHubs";
 
 import PoolToggle, { PoolToggleRef } from "./PoolToggle";
+import TimeControlButton from "./TimeControlButton";
 import constants from "@/lib/constants";
-import Button from "../helpers/Button";
 import Card from "../helpers/Card";
-import clsx from "clsx";
+import SeekingOverlay from "./SeekingOverlay";
 
 /**
  * Card containing the variant and time control options.
@@ -21,6 +21,7 @@ import clsx from "clsx";
  */
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
+    const [isSeeking, setIsSeeking] = useState(false);
     const poolToggleRef = useRef<PoolToggleRef>(null);
     const router = useRouter();
 
@@ -35,8 +36,9 @@ const PlayOptions = () => {
     }, []);
 
     async function handleSeekMatch(baseMinutes: number, increment: number) {
+        setIsSeeking(true);
+
         const isRated = poolToggleRef.current?.isRated ?? false;
-        console.log(isRated);
         if (isRated) {
             await sendMatchmakingEvent(
                 "SeekRatedAsync",
@@ -52,6 +54,11 @@ const PlayOptions = () => {
         }
     }
 
+    async function cancelSeek() {
+        setIsSeeking(false);
+        await sendMatchmakingEvent("CancelSeekAsync");
+    }
+
     return (
         <Card
             data-testid="playOptions"
@@ -64,11 +71,12 @@ const PlayOptions = () => {
             <div className="h-10" />
 
             {showPoolToggle && <PoolToggle ref={poolToggleRef} />}
-            <div className="grid w-full grid-cols-3 gap-x-3 gap-y-7">
+            <section className="relative grid w-full grid-cols-3 gap-x-3 gap-y-7">
+                {isSeeking && <SeekingOverlay onClick={cancelSeek} />}
                 {constants.TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
                     return (
-                        <PlayButton
+                        <TimeControlButton
                             key={formattedTimeControl}
                             baseMinutes={timeControl.baseMinutes}
                             increment={timeControl.increment}
@@ -76,49 +84,12 @@ const PlayOptions = () => {
                             isMostPopular={timeControl.isMostPopular}
                             type={timeControl.type}
                             onClick={handleSeekMatch}
+                            isSeeking={isSeeking}
                         />
                     );
                 })}
-            </div>
+            </section>
         </Card>
     );
 };
 export default PlayOptions;
-
-const PlayButton = ({
-    baseMinutes,
-    increment,
-    formattedTimeControl,
-    type,
-    isMostPopular,
-    onClick,
-}: {
-    baseMinutes: number;
-    increment: number;
-    formattedTimeControl: string;
-    type: string;
-    isMostPopular?: boolean;
-    onClick?: (baseMinutes: number, increment: number) => void;
-}) => {
-    return (
-        <div className="relative">
-            {isMostPopular && (
-                <span className="absolute -top-5 left-1/2 -translate-x-1/2 transform text-sm text-nowrap">
-                    Most Popular
-                </span>
-            )}
-            <Button
-                onClick={() => onClick?.(baseMinutes, increment)}
-                className={clsx(
-                    "flex h-full w-full flex-col items-center justify-center rounded-sm",
-                    isMostPopular && "border border-amber-300",
-                )}
-            >
-                <span className="text-[1.6rem] text-nowrap">
-                    {formattedTimeControl}
-                </span>
-                <span className="text-[1rem] text-nowrap">{type}</span>
-            </Button>
-        </div>
-    );
-};
