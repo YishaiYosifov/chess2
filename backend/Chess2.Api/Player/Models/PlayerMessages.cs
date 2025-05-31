@@ -15,5 +15,5 @@ public class PlayerCommands
         ICreateSeekCommand CreateSeekCommand
     ) : IPlayerCommand;
 
-    public record CancelSeek(string UserId, string? ConnectionId) : IPlayerCommand;
+    public record CancelSeek(string UserId, string? ConnectionId = null) : IPlayerCommand;
 }
