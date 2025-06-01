@@ -125,6 +125,20 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, 5, 10);
     }
 
+    [Fact]
+    public async Task Seek_and_disconnect_on_another_connection_doesnt_cancel_the_seek()
+    {
+        await using var guest1ActiveConn = await ConnectGuestAsync("guest1");
+        await using var guest1DisconnectedConn = await ConnectGuestAsync("guest1");
+        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, 5, 10);
+        await guest1DisconnectedConn.StopAsync();
+
+        await using var guest2Conn = await ConnectGuestAsync("guest2");
+        await guest2Conn.InvokeAsync(SeekCasualMethod, 5, 10);
+
+        await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
+    }
+
     private static async Task AssertPlayersMatchAsync(
         HubConnection conn1,
         HubConnection conn2,
@@ -133,11 +147,16 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         int increment
     )
     {
-        var tcs1 = ListenForMatch(conn1);
-        var tcs2 = ListenForMatch(conn2);
-
         await conn1.InvokeAsync(methodName, baseMinutes, increment);
         await conn2.InvokeAsync(methodName, baseMinutes, increment);
+
+        await AssertMatchEstablishedAsync(conn1, conn2);
+    }
+
+    private static async Task AssertMatchEstablishedAsync(HubConnection conn1, HubConnection conn2)
+    {
+        var tcs1 = ListenForMatch(conn1);
+        var tcs2 = ListenForMatch(conn2);
 
         var timeout = TimeSpan.FromSeconds(10);
         var gameId1 = await tcs1.Task.WaitAsync(timeout);
