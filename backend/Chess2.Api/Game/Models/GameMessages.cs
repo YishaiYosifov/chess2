@@ -8,4 +8,10 @@ public interface IGameMessage
 public class GameCommands
 {
     public record StartGame(string GameToken, string UserId1, string UserId2) : IGameMessage;
+
+    public record MovePiece(string GameToken, string UserId) : IGameMessage;
+
+    public record Resign(string GameToken, string UserId) : IGameMessage;
+
+    public record RequestDraw(string GameToken, string UserId) : IGameMessage;
 }

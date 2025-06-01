@@ -26,4 +26,6 @@ public static class ErrorCodes
     public const string AuthTokenInvalid = "Auth.TokenInvalid";
     public const string AuthOAuthInvalid = "Auth.OAuth.Invalid";
     public const string AuthOAuthProviderNotFound = "Auth.OAuth.ProviderNotFound";
+
+    public const string GamePieceNotFound = "Game.PieceNotFound";
 }
