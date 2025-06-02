@@ -9,7 +9,10 @@ public class ChessBoard
 {
     private readonly Piece?[,] _board = new Piece?[10, 10];
 
-    public Move? LastMove { get; private set; }
+    private readonly List<Move> _moves = [];
+
+    public IReadOnlyCollection<Move> Moves => _moves;
+    public Move? LastMove => _moves.Count > 0 ? _moves[0] : null;
 
     public ChessBoard(Dictionary<Point, Piece> pieces)
     {
