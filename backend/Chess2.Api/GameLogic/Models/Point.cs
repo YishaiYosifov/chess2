@@ -1,3 +1,10 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
-public record Point(int X, int Y);
+public readonly record struct Point(int X, int Y)
+{
+    public static Point operator +(Point point1, Point point2) =>
+        new(point1.X + point2.X, point1.Y + point2.Y);
+
+    public static Point operator -(Point point1, Point point2) =>
+        new(point1.X - point2.X, point1.Y - point2.Y);
+}
