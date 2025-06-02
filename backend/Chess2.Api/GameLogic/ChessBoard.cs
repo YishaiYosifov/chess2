@@ -55,4 +55,15 @@ public class ChessBoard
         && point.Y < _board.GetLength(0)
         && point.X >= 0
         && point.X < _board.GetLength(1);
+
+    public IEnumerable<(Point Position, Piece? Piece)> GetSquares()
+    {
+        for (int y = 0; y < _board.GetLength(0); y++)
+        {
+            for (int x = 0; x < _board.GetLength(1); x++)
+            {
+                yield return (new Point(x, y), _board[y, x]);
+            }
+        }
+    }
 }

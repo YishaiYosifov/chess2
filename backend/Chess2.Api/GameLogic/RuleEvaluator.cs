@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameLogic.PieceDefinitions;
 
 namespace Chess2.Api.GameLogic;
 
@@ -9,64 +10,56 @@ public record PieceRule(
     bool Slide = false
 );
 
-public abstract class MoveEvaluator
+public interface ILegalMoveCalculator
 {
-    protected abstract IEnumerable<PieceRule> GetPieceRules(ChessBoard board, Point position);
+    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board);
+}
 
-    public virtual IEnumerable<Move> CalculateLegalMoves(ChessBoard board, Point position)
-    {
-        if (!board.TryGetPieceAt(position, out var ourPiece))
-            yield break;
+public class LegalMoveCalculator : ILegalMoveCalculator
+{
+    private readonly Dictionary<PieceType, IPieceDefinition> _pieceDefinitions = [];
+    private readonly ILogger<LegalMoveCalculator> _logger;
 
-        var rules = GetPieceRules(board, position);
-        foreach (var rule in rules)
-        {
-            foreach (var move in EvaluateRule(board, ourPiece, rule, position))
-                yield return move;
-        }
-    }
-
-    private IEnumerable<Move> EvaluateRule(
-        ChessBoard board,
-        Piece ourPiece,
-        PieceRule rule,
-        Point position
+    public LegalMoveCalculator(
+        ILogger<LegalMoveCalculator> logger,
+        IEnumerable<IPieceDefinition> pieceDefinitions
     )
     {
-        var originalPosition = position;
-        while (true)
+        _logger = logger;
+
+        foreach (var piece in pieceDefinitions)
         {
-            position += rule.Offset;
-            if (!board.IsWithinBoundaries(position))
-                yield break;
+            if (_pieceDefinitions.ContainsKey(piece.Type))
+                throw new InvalidOperationException(
+                    $"Duplicate piece definitions for {piece.Type}"
+                );
 
-            var isCapture = !board.IsEmpty(position);
-            if (isCapture && rule.CanCapture && !CanCapture(board, ourPiece, position))
-                yield break;
-
-            if (isCapture && !rule.CanCapture)
-                yield break;
-
-            if (isCapture && !isCapture && rule.CaptureOnly)
-                yield break;
-
-            yield return new Move(
-                From: originalPosition,
-                To: position,
-                Piece: ourPiece,
-                IsCapture: isCapture
-            );
-
-            if (!rule.Slide)
-                yield break;
+            _pieceDefinitions.Add(piece.Type, piece);
         }
+
+        if (_pieceDefinitions.Count != Enum.GetNames<PieceType>().Length)
+            throw new InvalidOperationException("Could not find definitions for all pieces");
     }
 
-    protected virtual bool CanCapture(ChessBoard board, Piece ourPiece, Point position)
+    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board)
     {
-        if (!board.TryGetPieceAt(position, out var attemptToCapture))
-            return false;
+        foreach (var (position, piece) in board.GetSquares())
+        {
+            if (piece is null)
+                continue;
 
-        return attemptToCapture.Color != ourPiece.Color;
+            if (!_pieceDefinitions.TryGetValue(piece.Type, out var pieceDefinition))
+            {
+                _logger.LogWarning("Could not find definition for piece {PieceType}", piece.Type);
+                continue;
+            }
+
+            var pieceBehaviours = pieceDefinition.GetBehaviours(board, position, piece);
+            foreach (var behaviour in pieceBehaviours)
+            {
+                foreach (var move in behaviour.Evaluate(board, position, piece))
+                    yield return move;
+            }
+        }
     }
 }
