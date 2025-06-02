@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Errors;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.GameLogic.Errors;
 using Chess2.Api.GameLogic.Models;
 using ErrorOr;
 
@@ -7,6 +8,8 @@ namespace Chess2.Api.GameLogic;
 public class ChessBoard
 {
     private readonly Piece?[,] _board = new Piece?[10, 10];
+
+    public Move? LastMove { get; private set; }
 
     public ChessBoard(Dictionary<Point, Piece> pieces)
     {
@@ -19,21 +22,34 @@ public class ChessBoard
         {
             for (int y = 0; y < 10; y++)
             {
-                _board[x, y] = pieces.GetValueOrDefault(new Point(x, y));
+                _board[y, x] = pieces.GetValueOrDefault(new Point(x, y));
             }
         }
     }
 
-    public Piece? GetAt(Point point) => _board[point.X, point.Y];
+    public bool TryGetPieceAt(Point point, [NotNullWhen(true)] out Piece? piece)
+    {
+        piece = _board[point.Y, point.X];
+        return piece is not null;
+    }
+
+    public Piece? PeekGetPieceAt(Point point) => _board[point.Y, point.X];
+
+    public bool IsEmpty(Point point) => _board[point.Y, point.X] is null;
 
     public ErrorOr<Success> MovePiece(Point from, Point to)
     {
-        var piece = GetAt(from);
-        if (piece is null)
+        if (!TryGetPieceAt(from, out var piece))
             return GameErrors.PieceNotFound;
 
         _board[from.X, from.Y] = null;
-        _board[to.X, to.Y] = piece;
+        _board[to.X, to.Y] = piece with { TimesMoved = piece.TimesMoved + 1 };
         return Result.Success;
     }
+
+    public bool IsWithinBoundaries(Point point) =>
+        point.Y >= 0
+        && point.Y < _board.GetLength(0)
+        && point.X >= 0
+        && point.X < _board.GetLength(1);
 }
