@@ -36,7 +36,7 @@ public class ChessBoard
         return piece is not null;
     }
 
-    public Piece? PeekGetPieceAt(Point point) => _board[point.Y, point.X];
+    public Piece? PeekPieceAt(Point point) => _board[point.Y, point.X];
 
     public bool IsEmpty(Point point) => _board[point.Y, point.X] is null;
 
