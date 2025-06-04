@@ -19,8 +19,8 @@ public class Pawn : IPieceDefinition
         IEnumerable<IPieceBehaviour> behaviours =
         [
             new NoCaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: 1 * direction))),
-            new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: 1 * direction))),
-            new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: 1 * direction))),
+            new CaptureOnlyBehaviour(new StepBehaviour(new Point(X: 1, Y: 1 * direction))),
+            new CaptureOnlyBehaviour(new StepBehaviour(new Point(X: -1, Y: 1 * direction))),
             new EnPassantBehaviour(new Point(X: 1, Y: 1 * direction)),
             new EnPassantBehaviour(new Point(X: -1, Y: 1 * direction)),
         ];

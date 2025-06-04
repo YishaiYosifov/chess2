@@ -11,6 +11,8 @@ using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
@@ -316,6 +318,11 @@ builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+
+builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
+
+builder.Services.AddSingleton<IPieceDefinition, Pawn>();
+builder.Services.AddSingleton<IPieceDefinition, King>();
 #endregion
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
