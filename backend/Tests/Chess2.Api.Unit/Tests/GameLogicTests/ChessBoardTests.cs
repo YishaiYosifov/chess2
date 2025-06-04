@@ -4,7 +4,7 @@ using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.GameLogic;
+namespace Chess2.Api.Unit.Tests.GameLogicTests;
 
 public class ChessBoardTests : BaseUnitTest
 {

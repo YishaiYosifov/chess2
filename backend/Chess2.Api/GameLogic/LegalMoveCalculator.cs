@@ -30,9 +30,7 @@ public class LegalMoveCalculator : ILegalMoveCalculator
         foreach (var piece in pieceDefinitions)
         {
             if (_pieceDefinitions.ContainsKey(piece.Type))
-                throw new InvalidOperationException(
-                    $"Duplicate piece definitions for {piece.Type}"
-                );
+                throw new InvalidOperationException($"Duplicate piece definition for {piece.Type}");
 
             _pieceDefinitions.Add(piece.Type, piece);
         }
