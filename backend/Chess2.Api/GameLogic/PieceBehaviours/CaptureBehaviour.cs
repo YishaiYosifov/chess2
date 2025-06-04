@@ -11,7 +11,7 @@ public class CaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBeha
     {
         foreach (var destination in _movementBehaviour.Evaluate(board, position, movingPiece))
         {
-            var occupantPiece = board.PeekGetPieceAt(destination);
+            var occupantPiece = board.PeekPieceAt(destination);
             var isCapture = occupantPiece is not null && occupantPiece.Color != movingPiece.Color;
             yield return new Move(
                 position,
