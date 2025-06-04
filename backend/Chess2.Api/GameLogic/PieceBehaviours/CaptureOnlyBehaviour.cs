@@ -3,7 +3,7 @@ using Chess2.Api.GameLogic.MovementBehaviours;
 
 namespace Chess2.Api.GameLogic.PieceBehaviours;
 
-public class NoCaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBehaviour
+public class CaptureOnlyBehaviour(IMovementBehaviour movementBehaviour) : IPieceBehaviour
 {
     private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
 
@@ -11,11 +11,16 @@ public class NoCaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBe
     {
         foreach (var destination in _movementBehaviour.Evaluate(board, position, movingPiece))
         {
-            var isSquareEmpty = board.IsEmpty(destination);
-            if (!isSquareEmpty)
+            var occupantPiece = board.PeekPieceAt(destination);
+            if (occupantPiece is null)
                 yield break;
 
-            yield return new Move(position, destination, movingPiece);
+            yield return new Move(
+                position,
+                destination,
+                movingPiece,
+                CapturedSquares: [destination]
+            );
         }
     }
 }
