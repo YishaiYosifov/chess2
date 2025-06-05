@@ -27,7 +27,7 @@ const PlayOptions = () => {
 
     const sendMatchmakingEvent = useMatchmakingEmitter();
     useMatchmakingEvent("MatchFoundAsync", (token) =>
-        router.push(`/game/${token}`),
+        router.push(`${constants.PATHS.GAME}/${token}`),
     );
 
     useEffect(() => {
@@ -73,6 +73,7 @@ const PlayOptions = () => {
             {showPoolToggle && <PoolToggle ref={poolToggleRef} />}
             <section className="relative grid w-full grid-cols-3 gap-x-3 gap-y-7">
                 {isSeeking && <SeekingOverlay onClick={cancelSeek} />}
+
                 {constants.TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
                     return (
