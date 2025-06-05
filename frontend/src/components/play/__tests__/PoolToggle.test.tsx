@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import PoolToggle, { PoolToggleRef } from "../PoolToggle";
 import userEvent from "@testing-library/user-event";
-import React, { useImperativeHandle, useRef } from "react";
+import React from "react";
 
 describe("PoolToggle", () => {
     it("should render toggle button and rating labels", () => {
