@@ -4,19 +4,16 @@ using Chess2.Api.GameLogic.PieceBehaviours;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
-public class King : IPieceDefinition
+public class RookDefinition : IPieceDefinition
 {
-    public PieceType Type => PieceType.King;
+    public PieceType Type => PieceType.Rook;
 
     private readonly List<IPieceBehaviour> _behaviours =
     [
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: 1))),
+        new CaptureBehaviour(new SlideBehaviour(new Point(X: 0, Y: 1))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: -1))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: 0))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: -1))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: -1))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(

@@ -321,8 +321,12 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
 
-builder.Services.AddSingleton<IPieceDefinition, Pawn>();
-builder.Services.AddSingleton<IPieceDefinition, King>();
+builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, PawnDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 #endregion
 
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
