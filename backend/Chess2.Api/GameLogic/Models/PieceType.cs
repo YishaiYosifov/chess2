@@ -3,11 +3,11 @@
 public enum PieceType
 {
     King,
+    Queen,
     Pawn,
-    //Rook,
-    //Horsie,
-    //Bishop,
-    //Queen,
+    Rook,
+    Bishop,
+    Horsey,
     //Knook,
     //Xook,
     //AntiQueen,

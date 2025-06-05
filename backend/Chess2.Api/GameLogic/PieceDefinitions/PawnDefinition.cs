@@ -4,7 +4,7 @@ using Chess2.Api.GameLogic.PieceBehaviours;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
-public class Pawn : IPieceDefinition
+public class PawnDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Pawn;
 
