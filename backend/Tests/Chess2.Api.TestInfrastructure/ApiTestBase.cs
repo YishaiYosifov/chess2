@@ -28,6 +28,8 @@ public class ApiTestBase : IAsyncLifetime
 
     protected AuthTestUtils AuthUtils { get; }
 
+    protected static CancellationToken CT => TestContext.Current.CancellationToken;
+
     protected ApiTestBase(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
@@ -98,9 +100,9 @@ public class ApiTestBase : IAsyncLifetime
         }
     }
 
-    public virtual Task InitializeAsync() => Task.CompletedTask;
+    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         await ResetShardActors<PlayerActor>();
         await ResetShardActors<RatedMatchmakingActor>();
@@ -110,5 +112,7 @@ public class ApiTestBase : IAsyncLifetime
         await Factory.ResetDatabaseAsync();
         Scope?.Dispose();
         DbContext?.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 }

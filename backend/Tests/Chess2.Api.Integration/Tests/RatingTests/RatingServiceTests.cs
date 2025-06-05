@@ -34,7 +34,8 @@ public class RatingServiceTests : BaseIntegrationTest
         Assert.Equal(AppSettings.Game.DefaultRating, result.Value);
 
         var dbRating = await DbContext.Ratings.FirstOrDefaultAsync(r =>
-            r.UserId == user.Id && r.TimeControl == TimeControl.Blitz
+            r.UserId == user.Id && r.TimeControl == TimeControl.Blitz,
+            CT
         );
         dbRating.Should().NotBeNull();
         dbRating.Should().BeEquivalentTo(result);

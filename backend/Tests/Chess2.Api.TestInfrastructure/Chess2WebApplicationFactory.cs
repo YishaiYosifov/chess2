@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using System.Net;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
@@ -53,7 +54,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 );
             })
             .ConfigureAppConfiguration(
-                (context, config) =>
+                (context, configBuilder) =>
                 {
                     var secrets = new Dictionary<string, string?>
                     {
@@ -62,13 +63,20 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                         { "Authentication:Discord:ClientId", "test-discord-client-id" },
                         { "Authentication:Discord:ClientSecret", "test-discord-client-secret" },
                     };
-                    config.AddInMemoryCollection(secrets);
+                    configBuilder.AddInMemoryCollection(secrets);
+
+                    var config = configBuilder.Build();
+                    var akkaPort = PortGenerator.GetAvailablePort();
+                    var actorSystemName = config["AppSettings:Akka:ActorSystemName"];
+                    var seedAddress = $"akka.tcp://{actorSystemName}@localhost:{akkaPort}";
 
                     var appSettings = new Dictionary<string, string?>
                     {
                         { "AppSettings:Game:MatchWaveEvery", "00:00:01" },
+                        { "AppSettings:Akka:Port", akkaPort.ToString() },
+                        { "AppSettings:Akka:SeedNodes:0", seedAddress },
                     };
-                    config.AddInMemoryCollection(appSettings);
+                    configBuilder.AddInMemoryCollection(appSettings);
                 }
             );
     }
@@ -93,7 +101,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await _redisDb.ExecuteAsync("FLUSHDB");
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _dbContainer.StartAsync();
         await _redisContainer.StartAsync();
@@ -103,10 +111,11 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         InitializeRedisContainer();
     }
 
-    public new async Task DisposeAsync()
+    public new async ValueTask DisposeAsync()
     {
         await _dbContainer.StopAsync();
         await _redisContainer.StopAsync();
+        GC.SuppressFinalize(this);
     }
 
     private void InitializeRedisContainer()

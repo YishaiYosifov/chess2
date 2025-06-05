@@ -21,7 +21,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
         );
         await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(
             x => x.UserId == userId,
-            TimeSpan.FromSeconds(10)
+            cancellationToken: CT
         );
 
         PoolMock.Received(1).AddSeek(userId, rating);
