@@ -25,6 +25,7 @@ const PATHS = {
     LOGOUT: "/logout",
     REFRESH: "/refresh",
     GUEST: "/guest",
+    GAME: "/game",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
