@@ -15,7 +15,7 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
         const string userId = "user1";
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(x => x.UserId == userId);
+        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(x => x.UserId == userId, cancellationToken: CT);
 
         PoolMock.Received(1).AddSeek(userId);
     }

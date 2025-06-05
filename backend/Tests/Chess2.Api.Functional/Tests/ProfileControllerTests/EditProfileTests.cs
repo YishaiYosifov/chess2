@@ -21,7 +21,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
         var response = await ApiClient.Api.EditProfileAsync(profileEdit);
 
         response.IsSuccessful.Should().BeTrue();
-        var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync();
+        var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
         updatedUser.CountryCode.Should().NotBe(user.CountryCode);
         updatedUser.CountryCode.Should().Be("US");
     }
@@ -36,7 +36,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
         var response = await ApiClient.Api.EditProfileAsync(invalidProfileEdit);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync();
+        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
         dbUser.Should().BeEquivalentTo(user);
     }
 
@@ -56,7 +56,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
         var response = await ApiClient.Api.EditUsernameAsync($"\"{newUsername}\"");
 
         response.IsSuccessful.Should().BeTrue();
-        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync();
+        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
         dbUser.UserName.Should().Be(newUsername);
     }
 }

@@ -105,9 +105,9 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         var tsc = new TaskCompletionSource<IEnumerable<SignalRError>>();
         conn.On<IEnumerable<SignalRError>>("ReceiveErrorAsync", errors => tsc.TrySetResult(errors));
 
-        await conn.InvokeAsync(SeekRatedMethod, 5, 10);
+        await conn.InvokeAsync(SeekRatedMethod, 5, 10, CT);
 
-        var result = await tsc.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        var result = await tsc.Task.WaitAsync(TimeSpan.FromSeconds(10), CT);
         result.Should().ContainSingle().Which.Code.Should().Be("General.Unauthorized");
     }
 
@@ -115,8 +115,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     public async Task Seek_and_disconnect_cancels_the_seek()
     {
         await using var conn1 = await ConnectGuestAsync("guest1");
-        await conn1.InvokeAsync(SeekCasualMethod, 5, 10);
-        await conn1.StopAsync();
+        await conn1.InvokeAsync(SeekCasualMethod, 5, 10, CT);
+        await conn1.StopAsync(CT);
 
         await using var conn2 = await ConnectGuestAsync("guest2");
         await using var conn3 = await ConnectGuestAsync("guest3");
@@ -130,11 +130,11 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     {
         await using var guest1ActiveConn = await ConnectGuestAsync("guest1");
         await using var guest1DisconnectedConn = await ConnectGuestAsync("guest1");
-        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, 5, 10);
-        await guest1DisconnectedConn.StopAsync();
+        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, 5, 10, CT);
+        await guest1DisconnectedConn.StopAsync(CT);
 
         await using var guest2Conn = await ConnectGuestAsync("guest2");
-        await guest2Conn.InvokeAsync(SeekCasualMethod, 5, 10);
+        await guest2Conn.InvokeAsync(SeekCasualMethod, 5, 10, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
     }
@@ -159,8 +159,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         var tcs2 = ListenForMatch(conn2);
 
         var timeout = TimeSpan.FromSeconds(10);
-        var gameId1 = await tcs1.Task.WaitAsync(timeout);
-        var gameId2 = await tcs2.Task.WaitAsync(timeout);
+        var gameId1 = await tcs1.Task.WaitAsync(timeout, CT);
+        var gameId2 = await tcs2.Task.WaitAsync(timeout, CT);
 
         gameId1.Should().NotBeNullOrEmpty().And.HaveLength(16).And.Be(gameId2);
     }

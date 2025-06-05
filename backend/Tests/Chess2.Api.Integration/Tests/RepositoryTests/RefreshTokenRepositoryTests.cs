@@ -27,7 +27,7 @@ public class RefreshTokenRepositoryTests : BaseIntegrationTest
         );
         await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
 
-        var result = await _repository.GetTokenByJtiAsync(refreshTokenToFind.Jti);
+        var result = await _repository.GetTokenByJtiAsync(refreshTokenToFind.Jti, CT);
 
         result.Should().BeEquivalentTo(refreshTokenToFind);
     }
@@ -38,7 +38,7 @@ public class RefreshTokenRepositoryTests : BaseIntegrationTest
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
 
-        var result = await _repository.GetTokenByJtiAsync("some jti");
+        var result = await _repository.GetTokenByJtiAsync("some jti", CT);
 
         result.Should().BeNull();
     }
@@ -49,10 +49,10 @@ public class RefreshTokenRepositoryTests : BaseIntegrationTest
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var refreshToken = new RefreshTokenFaker(user).Generate();
 
-        await _repository.AddRefreshTokenAsync(refreshToken);
-        await DbContext.SaveChangesAsync();
+        await _repository.AddRefreshTokenAsync(refreshToken, CT);
+        await DbContext.SaveChangesAsync(CT);
 
-        var fromDb = await DbContext.RefreshTokens.FindAsync(refreshToken.Id);
+        var fromDb = await DbContext.RefreshTokens.FindAsync([refreshToken.Id], CT);
         fromDb.Should().BeEquivalentTo(refreshToken);
     }
 }

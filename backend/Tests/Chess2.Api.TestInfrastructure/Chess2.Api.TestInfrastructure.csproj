@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka.TestKit.Xunit2" Version="1.5.42" />
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.5.42" />
     <PackageReference Include="AwesomeAssertions" Version="8.1.0" />
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
     <PackageReference Include="Bogus" Version="35.6.3" />
@@ -24,7 +24,7 @@
     <PackageReference Include="System.Formats.Asn1" Version="9.0.4" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.4.0" />
     <PackageReference Include="Testcontainers.Redis" Version="4.4.0" />
-    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
