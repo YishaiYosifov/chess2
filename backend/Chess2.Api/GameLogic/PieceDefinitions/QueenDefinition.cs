@@ -6,7 +6,7 @@ namespace Chess2.Api.GameLogic.PieceDefinitions;
 
 public class QueenDefinition : IPieceDefinition
 {
-    public PieceType Type => PieceType.King;
+    public PieceType Type => PieceType.Queen;
 
     private readonly List<IPieceBehaviour> _behaviours =
     [
