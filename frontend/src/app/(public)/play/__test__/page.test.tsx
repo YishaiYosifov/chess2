@@ -2,10 +2,14 @@ import { render, screen } from "@testing-library/react";
 import PlayPage from "../page";
 
 describe("PlayPage", () => {
-    it("should render play options and chessboard", () => {
+    it("should render the PlayPage with Chessboard and PlayOptions", () => {
         render(<PlayPage />);
 
-        expect(screen.queryByTestId("chessboard")).toBeInTheDocument();
-        expect(screen.queryByTestId("playOptions")).toBeInTheDocument();
+        // Look for elements from the real components
+        const chessboardElement = screen.getByTestId("chessboard");
+        const playOptionsElement = screen.getByTestId("playOptions");
+
+        expect(chessboardElement).toBeInTheDocument();
+        expect(playOptionsElement).toBeInTheDocument();
     });
 });
