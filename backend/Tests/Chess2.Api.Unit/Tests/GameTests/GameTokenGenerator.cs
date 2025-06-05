@@ -36,7 +36,7 @@ public class GameTokenGeneratorTests : BaseUnitTest
 
         var act = Task.Run(_tokenGenerator.GenerateUniqueGameToken);
 
-        await _gameActorProbe.ExpectMsgAsync<GetShardRegionState>();
+        await _gameActorProbe.ExpectMsgAsync<GetShardRegionState>(cancellationToken: CT);
         _gameActorProbe.Reply(currentShardRegionState);
 
         var token = await act;

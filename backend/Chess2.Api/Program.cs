@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -52,9 +53,9 @@ builder.Services.AddSerilog();
 
 var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
 builder.Services.Configure<AppSettings>(appSettingsSection);
-var appSettings =
-    appSettingsSection.Get<AppSettings>()
-    ?? throw new InvalidOperationException("App settings not provided in appsettings");
+var appSettings = builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()
+    ?? throw new InvalidOperationException("AppSettings missing");
+
 
 builder
     .Services.AddControllers()
@@ -98,16 +99,20 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddSignalR().AddStackExchangeRedis(appSettings.RedisConnString);
+builder.Services.AddSignalR().AddStackExchangeRedis();
 
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(
-    (serviceProvider, options) =>
-        options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention()
+    (serviceProvider, options) => {
+        var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+        options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
+    }
 );
-builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
-    ConnectionMultiplexer.Connect(appSettings.RedisConnString)
-);
+builder.Services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
+{
+    var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+    return ConnectionMultiplexer.Connect(appSettings.RedisConnString);
+});
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -280,6 +285,8 @@ builder.Services.AddAkka(
     appSettings.Akka.ActorSystemName,
     (akkaBuilder, serviceProvider) =>
     {
+        var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+
         akkaBuilder.ConfigureLoggers(logConfig =>
         {
             logConfig.ClearLoggers();

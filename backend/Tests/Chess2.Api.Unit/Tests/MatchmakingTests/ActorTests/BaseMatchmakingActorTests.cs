@@ -46,7 +46,8 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseUnitTest
                         "wave",
                         new MatchmakingCommands.MatchWave(),
                         Settings.Game.MatchWaveEvery
-                    )
+                    ),
+            cancellationToken: CT
         );
     }
 
@@ -64,7 +65,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseUnitTest
         MatchmakingActor.Tell(new MatchmakingCommands.CancelSeek(userIdToRemove, PoolInfo), Probe);
 
         var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(x =>
-            x.UserId == userIdToRemove
+            x.UserId == userIdToRemove, cancellationToken: CT
         );
         PoolMock.Received().RemoveSeek(userIdToRemove);
     }
@@ -80,11 +81,12 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseUnitTest
         Sys.EventStream.Subscribe(listenerProbe, typeof(MatchmakingBroadcasts.SeekCanceled));
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>();
+        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(cancellationToken: CT);
         Sys.Stop(Probe);
 
         await listenerProbe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCanceled>(x =>
-            x.UserId == userId
+            x.UserId == userId,
+            cancellationToken: CT
         );
         PoolMock.Received().RemoveSeek(userId);
     }

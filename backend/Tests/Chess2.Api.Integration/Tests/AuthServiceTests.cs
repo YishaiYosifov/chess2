@@ -37,7 +37,7 @@ public class AuthServiceTests : BaseIntegrationTest
         resultUser.Email.Should().Be(email);
         resultUser.CountryCode.Should().Be(countryCode);
 
-        var fromDb = await DbContext.Users.FirstOrDefaultAsync(x => x.UserName == username);
+        var fromDb = await DbContext.Users.FirstOrDefaultAsync(x => x.UserName == username, CT);
         fromDb.Should().NotBeNull();
         fromDb.Should().BeEquivalentTo(resultUser);
     }
@@ -80,8 +80,8 @@ public class AuthServiceTests : BaseIntegrationTest
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var result = await _authService.GenerateAuthTokensAsync(user);
-        await DbContext.SaveChangesAsync();
+        var result = await _authService.GenerateAuthTokensAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         result.Should().NotBeNull();
         AuthUtils.AuthenticateWithTokens(ApiClient, result.AccessToken, result.RefreshToken);
@@ -101,9 +101,9 @@ public class AuthServiceTests : BaseIntegrationTest
             new Claim(JwtRegisteredClaimNames.Jti, refreshToken.Jti)
         );
 
-        var result = await _authService.RefreshTokenAsync(principal);
+        var result = await _authService.RefreshTokenAsync(principal, CT);
 
-        var updatedToken = await DbContext.RefreshTokens.FindAsync(refreshToken.Id);
+        var updatedToken = await DbContext.RefreshTokens.FindAsync([refreshToken.Id], CT);
         updatedToken.Should().NotBeNull();
         updatedToken.IsRevoked.Should().BeTrue();
 
@@ -127,7 +127,7 @@ public class AuthServiceTests : BaseIntegrationTest
             new Claim(JwtRegisteredClaimNames.Jti, "some-random-jti")
         );
 
-        var result = await _authService.RefreshTokenAsync(principal);
+        var result = await _authService.RefreshTokenAsync(principal, CT);
 
         result.IsError.Should().BeTrue();
         result.Errors.Single().Should().Be(AuthErrors.TokenInvalid);
@@ -136,7 +136,7 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task RefreshTokenAsync_returns_an_error_when_claims_principal_is_null()
     {
-        var result = await _authService.RefreshTokenAsync(null);
+        var result = await _authService.RefreshTokenAsync(null, CT);
 
         result.IsError.Should().BeTrue();
         result.Errors.Single().Should().Be(Error.Unauthorized());

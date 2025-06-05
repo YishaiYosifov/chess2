@@ -111,14 +111,14 @@ public class OAuthServiceTests : BaseIntegrationTest
             new(Providers.Google, user.Email!, Providers.Google)
         );
 
-        var result = await _oauthService.AuthenticateAsync(Providers.Google, _httpContext);
+        var result = await _oauthService.AuthenticateAsync(Providers.Google, _httpContext, CT);
         result.IsError.Should().BeFalse();
         var tokens = result.Value;
 
         AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
         await AuthTestUtils.AssertAuthenticated(ApiClient);
 
-        var users = await _userManager.Users.ToListAsync();
+        var users = await _userManager.Users.ToListAsync(CT);
         users.Should().HaveCount(1);
     }
 }
