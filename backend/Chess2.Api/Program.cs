@@ -105,7 +105,7 @@ builder.Services.AddDbContextPool<ApplicationDbContext>(
     (serviceProvider, options) =>
         options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention()
 );
-builder.Services.AddSingleton<IConnectionMultiplexer>(
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ =>
     ConnectionMultiplexer.Connect(appSettings.RedisConnString)
 );
 
