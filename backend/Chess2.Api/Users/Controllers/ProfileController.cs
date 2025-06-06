@@ -1,9 +1,5 @@
-﻿using Akka.Actor;
-using Akka.Hosting;
-using Chess2.Api.Infrastructure.Errors;
+﻿using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Matchmaking.Actors;
-using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Services;

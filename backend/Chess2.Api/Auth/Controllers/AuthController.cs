@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +22,7 @@ public class AuthController(
     [HttpPost("refresh", Name = nameof(Refresh))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
-    [Authorize("RefreshToken")]
+    [Authorize(AuthPolicies.RefreshAccess)]
     public async Task<ActionResult> Refresh(CancellationToken token = default)
     {
         var result = await _authService.RefreshTokenAsync(HttpContext.User, token);
@@ -64,7 +65,7 @@ public class AuthController(
 
     [HttpPost("test-guest-auth", Name = nameof(TestGuest))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [Authorize("GuestAccess")]
+    [Authorize(AuthPolicies.GuestAccess)]
     public ActionResult TestGuest() => NoContent();
 #endif
 }

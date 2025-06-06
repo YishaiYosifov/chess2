@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Matchmaking.Services;
 using ErrorOr;
@@ -11,7 +12,7 @@ public interface IMatchmakingClient : IChess2HubClient
     public Task MatchFoundAsync(string token);
 }
 
-[Authorize("GuestAccess")]
+[Authorize(AuthPolicies.GuestAccess)]
 public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,
