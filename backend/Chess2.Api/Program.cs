@@ -53,7 +53,7 @@ builder.Services.AddSerilog();
 
 var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
 builder.Services.Configure<AppSettings>(appSettingsSection);
-var appSettings =
+var resolvedAppSettings =
     builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()
     ?? throw new InvalidOperationException("AppSettings missing");
 
@@ -92,7 +92,7 @@ builder.Services.AddCors(options =>
         AllowCorsOriginName,
         policy =>
             policy
-                .WithOrigins(appSettings.CorsOrigins)
+                .WithOrigins(resolvedAppSettings.CorsOrigins)
                 .AllowCredentials()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
@@ -105,14 +105,14 @@ builder.Services.AddSignalR().AddStackExchangeRedis();
 builder.Services.AddDbContextPool<ApplicationDbContext>(
     (serviceProvider, options) =>
     {
-        var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
-        options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
+        var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+        options.UseNpgsql(runtimeAppSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
     }
 );
 builder.Services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
 {
-    var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
-    return ConnectionMultiplexer.Connect(appSettings.RedisConnString);
+    var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+    return ConnectionMultiplexer.Connect(runtimeAppSettings.RedisConnString);
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -162,11 +162,11 @@ builder
     })
     .AddJwtBearer(
         "AccessBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName)
+        options => ConfigureJwtBearerCookie(options, resolvedAppSettings.Jwt.AccessTokenCookieName)
     )
     .AddJwtBearer(
         "RefreshBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
+        options => ConfigureJwtBearerCookie(options, resolvedAppSettings.Jwt.RefreshTokenCookieName)
     );
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
@@ -175,10 +175,10 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     options.TokenValidationParameters = new()
     {
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
+            Encoding.UTF8.GetBytes(resolvedAppSettings.Jwt.SecretKey)
         ),
-        ValidIssuer = appSettings.Jwt.Issuer,
-        ValidAudience = appSettings.Jwt.Audience,
+        ValidIssuer = resolvedAppSettings.Jwt.Issuer,
+        ValidAudience = resolvedAppSettings.Jwt.Audience,
         ClockSkew = TimeSpan.Zero,
     };
 
@@ -283,10 +283,10 @@ builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>
 
 #region Akka
 builder.Services.AddAkka(
-    appSettings.Akka.ActorSystemName,
+    resolvedAppSettings.Akka.ActorSystemName,
     (akkaBuilder, serviceProvider) =>
     {
-        var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+        var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
 
         akkaBuilder.ConfigureLoggers(logConfig =>
         {
@@ -294,24 +294,24 @@ builder.Services.AddAkka(
             logConfig.AddLoggerFactory();
         });
         akkaBuilder
-            .WithRemoting(appSettings.Akka.Hostname, appSettings.Akka.Port)
+            .WithRemoting(runtimeAppSettings.Akka.Hostname, runtimeAppSettings.Akka.Port)
             .WithClustering(
                 new()
                 {
-                    SeedNodes = appSettings.Akka.SeedNodes,
+                    SeedNodes = runtimeAppSettings.Akka.SeedNodes,
                     Roles = [ActorSystemConstants.BackendRole],
                 }
             )
             .WithMatchmakingShard<RatedMatchmakingActor>(
                 "rated-matchmaking",
-                appSettings.Akka.MatchmakingShardCount
+                runtimeAppSettings.Akka.MatchmakingShardCount
             )
             .WithMatchmakingShard<CasualMatchmakingActor>(
                 "casual-matchmaking",
-                appSettings.Akka.MatchmakingShardCount
+                runtimeAppSettings.Akka.MatchmakingShardCount
             )
-            .WithPlayerShard(appSettings.Akka.PlayerShardCount)
-            .WithGameShard(appSettings.Akka.GameShardCount);
+            .WithPlayerShard(runtimeAppSettings.Akka.PlayerShardCount)
+            .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
     }
 );
 #endregion
