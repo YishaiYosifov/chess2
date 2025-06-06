@@ -1,4 +1,5 @@
 import { defineConfig, defaultPlugins } from "@hey-api/openapi-ts";
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 
 export default defineConfig({
     input: "https://localhost:7266/openapi/v1.json",
