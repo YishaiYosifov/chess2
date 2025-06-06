@@ -11,9 +11,9 @@ public class RookDefinition : IPieceDefinition
     private readonly List<IPieceBehaviour> _behaviours =
     [
         new CaptureBehaviour(new SlideBehaviour(new Point(X: 0, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: 0))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: 1))),
+        new CaptureBehaviour(new SlideBehaviour(new Point(X: 0, Y: -1))),
+        new CaptureBehaviour(new SlideBehaviour(new Point(X: 1, Y: 0))),
+        new CaptureBehaviour(new SlideBehaviour(new Point(X: -1, Y: 1))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
