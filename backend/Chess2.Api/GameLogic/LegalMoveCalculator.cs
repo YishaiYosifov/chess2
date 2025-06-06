@@ -41,7 +41,7 @@ public class LegalMoveCalculator : ILegalMoveCalculator
 
     public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board)
     {
-        foreach (var (position, piece) in board.GetSquares())
+        foreach (var (position, piece) in board.EnumerateSquares())
         {
             if (piece is null)
                 continue;

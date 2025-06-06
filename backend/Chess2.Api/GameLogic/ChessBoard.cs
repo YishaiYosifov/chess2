@@ -62,7 +62,7 @@ public class ChessBoard
         && point.X >= 0
         && point.X < _board.GetLength(1);
 
-    public IEnumerable<(Point Position, Piece? Piece)> GetSquares()
+    public IEnumerable<(Point Position, Piece? Piece)> EnumerateSquares()
     {
         for (int y = 0; y < _board.GetLength(0); y++)
         {
