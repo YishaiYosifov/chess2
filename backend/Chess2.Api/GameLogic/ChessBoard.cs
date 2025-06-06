@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Game;
 using Chess2.Api.GameLogic.Errors;
 using Chess2.Api.GameLogic.Models;
 using ErrorOr;
@@ -14,7 +15,11 @@ public class ChessBoard
     public IReadOnlyCollection<Move> Moves => _moves;
     public Move? LastMove => _moves.Count > 0 ? _moves[0] : null;
 
-    public ChessBoard(Dictionary<Point, Piece> pieces, int height, int width)
+    public ChessBoard(
+        Dictionary<Point, Piece> pieces,
+        int height = GameConstants.BoardHeight,
+        int width = GameConstants.BoardWidth
+    )
     {
         _board = new Piece[height, width];
         InitializeBoard(pieces);
