@@ -1,4 +1,6 @@
-﻿namespace Chess2.Api.Game.Models;
+﻿using Chess2.Api.GameLogic;
+
+namespace Chess2.Api.Game.Models;
 
 public interface IGameMessage
 {
@@ -14,4 +16,14 @@ public class GameCommands
     public record Resign(string GameToken, string UserId) : IGameMessage;
 
     public record RequestDraw(string GameToken, string UserId) : IGameMessage;
+}
+
+public class GameQueries
+{
+    public record GetGameState(string GameToken) : IGameMessage;
+}
+
+public class GameEvents
+{
+    public record GameStateEvent(ChessBoard Board);
 }

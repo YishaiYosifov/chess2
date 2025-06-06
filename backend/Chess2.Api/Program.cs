@@ -316,13 +316,14 @@ builder.Services.AddAkka(
 );
 #endregion
 
-#region Game Services
+#region Game
 builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 
 builder.Services.AddSingleton<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
+builder.Services.AddTransient<IGame, Game>();
 
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
