@@ -7,23 +7,24 @@ namespace Chess2.Api.GameLogic;
 
 public class ChessBoard
 {
-    private readonly Piece?[,] _board = new Piece?[10, 10];
+    private readonly Piece?[,] _board;
 
     private readonly List<Move> _moves = [];
 
     public IReadOnlyCollection<Move> Moves => _moves;
     public Move? LastMove => _moves.Count > 0 ? _moves[0] : null;
 
-    public ChessBoard(Dictionary<Point, Piece> pieces)
+    public ChessBoard(Dictionary<Point, Piece> pieces, int height, int width)
     {
+        _board = new Piece[height, width];
         InitializeBoard(pieces);
     }
 
     private void InitializeBoard(Dictionary<Point, Piece> pieces)
     {
-        for (int x = 0; x < 10; x++)
+        for (int y = 0; y < _board.GetLength(0); y++)
         {
-            for (int y = 0; y < 10; y++)
+            for (int x = 0; x < _board.GetLength(1); x++)
             {
                 _board[y, x] = pieces.GetValueOrDefault(new Point(x, y));
             }
@@ -45,8 +46,8 @@ public class ChessBoard
         if (!TryGetPieceAt(from, out var piece))
             return GameErrors.PieceNotFound;
 
-        _board[from.X, from.Y] = null;
-        _board[to.X, to.Y] = piece with { TimesMoved = piece.TimesMoved + 1 };
+        _board[from.Y, from.X] = null;
+        _board[to.Y, to.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
         return Result.Success;
     }
 
