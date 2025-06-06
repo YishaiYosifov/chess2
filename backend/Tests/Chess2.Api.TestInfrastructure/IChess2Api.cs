@@ -29,6 +29,9 @@ public interface IChess2Api
     [Get("/api/profile/me")]
     Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
 
+    [Get("/api/profile/my-id")]
+    Task<IApiResponse<string>> GetMyIdAsync();
+
     [Get("/api/profile/by-username/{username}")]
     Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
 
