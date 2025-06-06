@@ -39,7 +39,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void TryGetPieceAt_returns_false_when_the_piece_is_not_found()
     {
-        var board = new ChessBoard(new() { [new Point(1, 1)] = new PieceFaker().Generate() });
+        var board = new ChessBoard(new() { [new Point(3, 5)] = new PieceFaker().Generate() });
 
         var result = board.TryGetPieceAt(new Point(0, 0), out var resultPiece);
 
@@ -50,7 +50,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void TryGetPieceAt_returns_true_and_the_piece_when_it_is_found()
     {
-        var pt = new Point(1, 1);
+        var pt = new Point(1, 5);
         var piece = new PieceFaker().Generate();
         var board = new ChessBoard(new() { [pt] = piece });
 
@@ -64,7 +64,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PeekPieceAt_returns_the_piece_if_it_exists()
     {
-        var pt = new Point(1, 1);
+        var pt = new Point(4, 1);
         var piece = new PieceFaker().Generate();
         var board = new ChessBoard(new() { [pt] = piece });
 
@@ -78,7 +78,7 @@ public class ChessBoardTests : BaseUnitTest
     {
         var board = new ChessBoard([]);
 
-        var result = board.PeekPieceAt(new Point(1, 1));
+        var result = board.PeekPieceAt(new Point(1, 2));
 
         result.Should().BeNull();
     }
@@ -86,14 +86,14 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void IsEmpty_returns_true_when_the_square_is_empty()
     {
-        var board = new ChessBoard(new() { [new Point(5, 5)] = new PieceFaker().Generate() });
-        board.IsEmpty(new Point(4, 4)).Should().BeTrue();
+        var board = new ChessBoard(new() { [new Point(5, 7)] = new PieceFaker().Generate() });
+        board.IsEmpty(new Point(4, 3)).Should().BeTrue();
     }
 
     [Fact]
     public void IsEmpty_returns_false_when_the_square_is_not_empty()
     {
-        var pt = new Point(4, 4);
+        var pt = new Point(4, 2);
         var board = new ChessBoard(new() { [pt] = new PieceFaker().Generate() });
 
         board.IsEmpty(pt).Should().BeFalse();
@@ -102,8 +102,8 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void MovePiece_updates_the_board_and_increments_moved_count()
     {
-        var from = new Point(1, 1);
-        var to = new Point(2, 2);
+        var from = new Point(4, 2);
+        var to = new Point(6, 3);
         var piece = new PieceFaker().Generate();
         var board = new ChessBoard(new Dictionary<Point, Piece> { [from] = piece });
 
@@ -122,7 +122,7 @@ public class ChessBoardTests : BaseUnitTest
     {
         var board = new ChessBoard([]);
 
-        var result = board.MovePiece(new Point(1, 1), new Point(2, 2));
+        var result = board.MovePiece(new Point(3, 4), new Point(2, 1));
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.PieceNotFound);
