@@ -22,9 +22,9 @@ public class ChessBoardTests : BaseUnitTest
 
         var board = new ChessBoard(pieces);
 
-        var squares = board.GetSquares().ToList();
+        var squares = board.EnumerateSquares().ToList();
         squares.Should().HaveCount(100); // 10 * 10
-        foreach (var (point, piece) in board.GetSquares())
+        foreach (var (point, piece) in board.EnumerateSquares())
         {
             if (point != expectedPt)
             {
@@ -142,11 +142,11 @@ public class ChessBoardTests : BaseUnitTest
     }
 
     [Fact]
-    public void GetSquares_returns_all_squares()
+    public void EnumerateSquares_returns_all_squares()
     {
         var board = new ChessBoard([]);
 
-        var squares = board.GetSquares();
+        var squares = board.EnumerateSquares();
 
         squares.Should().HaveCount(100);
     }
