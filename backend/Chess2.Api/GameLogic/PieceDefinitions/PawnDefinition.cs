@@ -23,15 +23,13 @@ public class PawnDefinition : IPieceDefinition
             new CaptureOnlyBehaviour(new StepBehaviour(new Point(X: -1, Y: 1 * direction))),
             new EnPassantBehaviour(new Point(X: 1, Y: 1 * direction)),
             new EnPassantBehaviour(new Point(X: -1, Y: 1 * direction)),
+            new NoCaptureBehaviour(
+                new TimesMovedRestrictedBehaviour(
+                    new StepBehaviour(new Point(X: 0, Y: 2 * direction)),
+                    maxTimesMoved: 0
+                )
+            ),
         ];
-
-        if (movingPiece.TimesMoved == 0)
-        {
-            // if this is the first time the pawn moved, it can move twice
-            behaviours = behaviours.Append(
-                new NoCaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: 2 * direction)))
-            );
-        }
 
         return behaviours;
     }
