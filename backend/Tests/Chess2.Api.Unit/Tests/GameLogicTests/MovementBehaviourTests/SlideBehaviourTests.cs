@@ -2,10 +2,6 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Serializers;
-using Xunit.Sdk;
-
-[assembly: RegisterXunitSerializer(typeof(PointSerializer), typeof(Point))]
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 
