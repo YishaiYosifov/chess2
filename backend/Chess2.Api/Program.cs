@@ -147,7 +147,7 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
     );
 
-    options.DefaultPolicy = options.GetPolicy("AuthedAccess")!;
+    options.DefaultPolicy = options.GetPolicy(AuthPolicies.AuthedUser)!;
 });
 builder
     .Services.AddAuthentication(options =>
