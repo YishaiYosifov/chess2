@@ -14,6 +14,13 @@ public class Game : IGame
         GameConstants.BoardHeight,
         GameConstants.BoardWidth
     );
+    private readonly IFenCalculator _fenCalculator;
 
-    public string Fen { get; } = "";
+    public string Fen { get; }
+
+    public Game(IFenCalculator fenCalculator)
+    {
+        _fenCalculator = fenCalculator;
+        Fen = _fenCalculator.CalculateFen(_board);
+    }
 }
