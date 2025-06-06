@@ -6,7 +6,7 @@ import { getAuthedUser, type PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import AuthContextProvider from "@/contexts/authContext";
 
-interface WithAuthProps {
+interface WithAuthedUserProps {
     user: PrivateUser;
 }
 
@@ -16,7 +16,7 @@ interface WithAuthProps {
  * This HOC will send a request to check if we are authorized, and if not
  * the user will be redirected to the home page
  */
-const withAuth = <P extends WithAuthProps>(
+const withAuthedUser = <P extends WithAuthedUserProps>(
     WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
@@ -40,4 +40,4 @@ const withAuth = <P extends WithAuthProps>(
     };
     return NewComponent;
 };
-export default withAuth;
+export default withAuthedUser;
