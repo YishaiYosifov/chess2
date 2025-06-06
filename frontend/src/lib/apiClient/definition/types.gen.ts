@@ -10,29 +10,43 @@ export type ApiProblemDetails = {
 };
 
 export enum ErrorCode {
-    USER_CONFLICT_USERNAME = "User.Conflict.Username",
-    USER_CONFLICT_EMAIL = "User.Conflict.Email",
     USER_NOT_FOUND = "User.NotFound",
-    USER_BAD_CREDENTIALS = "User.BadCredentials",
     USER_COOLDOWN_SETTING = "User.Cooldown.Setting",
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
+    GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
+    GAME_NOT_FOUND = "Game.NotFound",
 }
 
 export type ApiProblemError = {
     errorCode:
-        | "User.Conflict.Username"
-        | "User.Conflict.Email"
         | "User.NotFound"
-        | "User.BadCredentials"
         | "User.Cooldown.Setting"
         | "Auth.TokenMissing"
         | "Auth.TokenInvalid"
         | "Auth.OAuth.Invalid"
-        | "Auth.OAuth.ProviderNotFound";
+        | "Auth.OAuth.ProviderNotFound"
+        | "GameLogic.PieceNotFound"
+        | "Game.NotFound";
     description: string;
+};
+
+export type GameStateDto = {
+    playerWhite: string;
+    playerBlack: string;
+    playerToMove: string;
+    fen: string;
+    moves: Array<Move>;
+    legalMoves: Array<unknown>;
+};
+
+export type Move = {
+    from: Point;
+    to: Point;
+    piece: Piece;
+    capturedSquares?: Array<Point> | null;
 };
 
 export type Operation = {
@@ -53,16 +67,41 @@ export enum OperationType {
     INVALID = "Invalid",
 }
 
+export type Piece = {
+    type: PieceType;
+    color: PieceColor;
+    timesMoved?: number;
+};
+
+export enum PieceColor {
+    WHITE = "White",
+    BLACK = "Black",
+}
+
+export enum PieceType {
+    KING = "King",
+    QUEEN = "Queen",
+    PAWN = "Pawn",
+    ROOK = "Rook",
+    BISHOP = "Bishop",
+    HORSEY = "Horsey",
+}
+
+export type Point = {
+    x?: number;
+    y?: number;
+};
+
 export type PrivateUser = {
     email?: string | null;
-    userId?: number;
+    userId?: string;
     userName?: string | null;
     about?: string | null;
     countryCode?: string | null;
 };
 
 export type User = {
-    userId?: number;
+    userId?: string;
     userName?: string | null;
     about?: string | null;
     countryCode?: string | null;
@@ -78,6 +117,160 @@ export type ValidationProblemDetails = {
         [key: string]: Array<string>;
     };
 };
+
+export type GetAuthedUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Profile/me";
+};
+
+export type GetAuthedUserErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetails;
+};
+
+export type GetAuthedUserError = GetAuthedUserErrors[keyof GetAuthedUserErrors];
+
+export type GetAuthedUserResponses = {
+    /**
+     * OK
+     */
+    200: PrivateUser;
+};
+
+export type GetAuthedUserResponse =
+    GetAuthedUserResponses[keyof GetAuthedUserResponses];
+
+export type GetMyIdData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Profile/my-id";
+};
+
+export type GetMyIdErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetails;
+};
+
+export type GetMyIdError = GetMyIdErrors[keyof GetMyIdErrors];
+
+export type GetUserData = {
+    body?: never;
+    path: {
+        username: string;
+    };
+    query?: never;
+    url: "/api/Profile/by-username/{username}";
+};
+
+export type GetUserErrors = {
+    /**
+     * Not Found
+     */
+    404: ApiProblemDetails;
+};
+
+export type GetUserError = GetUserErrors[keyof GetUserErrors];
+
+export type GetUserResponses = {
+    /**
+     * OK
+     */
+    200: User;
+};
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
+
+export type EditProfileSettingsData = {
+    body: Array<Operation>;
+    path?: never;
+    query?: never;
+    url: "/api/Profile/edit-profile";
+};
+
+export type EditProfileSettingsErrors = {
+    /**
+     * Bad Request
+     */
+    400: ValidationProblemDetails;
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetails;
+};
+
+export type EditProfileSettingsError =
+    EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
+
+export type EditProfileSettingsResponses = {
+    /**
+     * OK
+     */
+    200: PrivateUser;
+};
+
+export type EditProfileSettingsResponse =
+    EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
+
+export type EditUsernameData = {
+    body: string;
+    path?: never;
+    query?: never;
+    url: "/api/Profile/edit-username";
+};
+
+export type EditUsernameErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ApiProblemDetails;
+};
+
+export type EditUsernameError = EditUsernameErrors[keyof EditUsernameErrors];
+
+export type EditUsernameResponses = {
+    /**
+     * No Content
+     */
+    204: PrivateUser;
+};
+
+export type EditUsernameResponse =
+    EditUsernameResponses[keyof EditUsernameResponses];
+
+export type GetLiveGameData = {
+    body?: never;
+    path: {
+        gameToken: string;
+    };
+    query?: never;
+    url: "/live/{gameToken}";
+};
+
+export type GetLiveGameErrors = {
+    /**
+     * Not Found
+     */
+    404: ApiProblemDetails;
+};
+
+export type GetLiveGameError = GetLiveGameErrors[keyof GetLiveGameErrors];
+
+export type GetLiveGameResponses = {
+    /**
+     * OK
+     */
+    200: GameStateDto;
+};
+
+export type GetLiveGameResponse =
+    GetLiveGameResponses[keyof GetLiveGameResponses];
 
 export type RefreshData = {
     body?: never;
@@ -216,116 +409,6 @@ export type SigninOAuthData = {
     url: "/api/OAuth/signin/{provider}";
 };
 
-export type GetAuthedUserData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: "/api/Profile/me";
-};
-
-export type GetAuthedUserErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ApiProblemDetails;
-};
-
-export type GetAuthedUserError = GetAuthedUserErrors[keyof GetAuthedUserErrors];
-
-export type GetAuthedUserResponses = {
-    /**
-     * OK
-     */
-    200: PrivateUser;
-};
-
-export type GetAuthedUserResponse =
-    GetAuthedUserResponses[keyof GetAuthedUserResponses];
-
-export type GetUserData = {
-    body?: never;
-    path: {
-        username: string;
-    };
-    query?: never;
-    url: "/api/Profile/by-username/{username}";
-};
-
-export type GetUserErrors = {
-    /**
-     * Not Found
-     */
-    404: ApiProblemDetails;
-};
-
-export type GetUserError = GetUserErrors[keyof GetUserErrors];
-
-export type GetUserResponses = {
-    /**
-     * OK
-     */
-    200: User;
-};
-
-export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
-
-export type EditProfileSettingsData = {
-    body: Array<Operation>;
-    path?: never;
-    query?: never;
-    url: "/api/Profile/edit-profile";
-};
-
-export type EditProfileSettingsErrors = {
-    /**
-     * Bad Request
-     */
-    400: ValidationProblemDetails;
-    /**
-     * Unauthorized
-     */
-    401: ApiProblemDetails;
-};
-
-export type EditProfileSettingsError =
-    EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
-
-export type EditProfileSettingsResponses = {
-    /**
-     * OK
-     */
-    200: PrivateUser;
-};
-
-export type EditProfileSettingsResponse =
-    EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
-
-export type EditUsernameData = {
-    body: string;
-    path?: never;
-    query?: never;
-    url: "/api/Profile/edit-username";
-};
-
-export type EditUsernameErrors = {
-    /**
-     * Unauthorized
-     */
-    401: ApiProblemDetails;
-};
-
-export type EditUsernameError = EditUsernameErrors[keyof EditUsernameErrors];
-
-export type EditUsernameResponses = {
-    /**
-     * No Content
-     */
-    204: PrivateUser;
-};
-
-export type EditUsernameResponse =
-    EditUsernameResponses[keyof EditUsernameResponses];
-
 export type ClientOptions = {
-    baseUrl: "http://127.0.0.1:5116/" | (string & {});
+    baseUrl: "https://localhost:7266/" | (string & {});
 };

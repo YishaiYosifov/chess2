@@ -6,6 +6,23 @@ import type {
     Client,
 } from "@hey-api/client-next";
 import type {
+    GetAuthedUserData,
+    GetAuthedUserResponse,
+    GetAuthedUserError,
+    GetMyIdData,
+    GetMyIdError,
+    GetUserData,
+    GetUserResponse,
+    GetUserError,
+    EditProfileSettingsData,
+    EditProfileSettingsResponse,
+    EditProfileSettingsError,
+    EditUsernameData,
+    EditUsernameResponse,
+    EditUsernameError,
+    GetLiveGameData,
+    GetLiveGameResponse,
+    GetLiveGameError,
     RefreshData,
     RefreshResponse,
     RefreshError,
@@ -21,18 +38,6 @@ import type {
     TestGuestError,
     OAuthCallbackData,
     SigninOAuthData,
-    GetAuthedUserData,
-    GetAuthedUserResponse,
-    GetAuthedUserError,
-    GetUserData,
-    GetUserResponse,
-    GetUserError,
-    EditProfileSettingsData,
-    EditProfileSettingsResponse,
-    EditProfileSettingsError,
-    EditUsernameData,
-    EditUsernameResponse,
-    EditUsernameError,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -51,6 +56,92 @@ export type Options<
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
+};
+
+export const getAuthedUser = <ThrowOnError extends boolean = false>(
+    options?: Options<GetAuthedUserData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetAuthedUserResponse,
+        GetAuthedUserError,
+        ThrowOnError
+    >({
+        url: "/api/Profile/me",
+        ...options,
+    });
+};
+
+export const getMyId = <ThrowOnError extends boolean = false>(
+    options?: Options<GetMyIdData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        unknown,
+        GetMyIdError,
+        ThrowOnError
+    >({
+        url: "/api/Profile/my-id",
+        ...options,
+    });
+};
+
+export const getUser = <ThrowOnError extends boolean = false>(
+    options: Options<GetUserData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetUserResponse,
+        GetUserError,
+        ThrowOnError
+    >({
+        url: "/api/Profile/by-username/{username}",
+        ...options,
+    });
+};
+
+export const editProfileSettings = <ThrowOnError extends boolean = false>(
+    options: Options<EditProfileSettingsData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).patch<
+        EditProfileSettingsResponse,
+        EditProfileSettingsError,
+        ThrowOnError
+    >({
+        url: "/api/Profile/edit-profile",
+        ...options,
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            ...options?.headers,
+        },
+    });
+};
+
+export const editUsername = <ThrowOnError extends boolean = false>(
+    options: Options<EditUsernameData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).put<
+        EditUsernameResponse,
+        EditUsernameError,
+        ThrowOnError
+    >({
+        url: "/api/Profile/edit-username",
+        ...options,
+        headers: {
+            "Content-Type": "application/json-patch+json",
+            ...options?.headers,
+        },
+    });
+};
+
+export const getLiveGame = <ThrowOnError extends boolean = false>(
+    options: Options<GetLiveGameData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetLiveGameResponse,
+        GetLiveGameError,
+        ThrowOnError
+    >({
+        url: "/live/{gameToken}",
+        ...options,
+    });
 };
 
 export const refresh = <ThrowOnError extends boolean = false>(
@@ -141,65 +232,5 @@ export const signinOAuth = <ThrowOnError extends boolean = false>(
     >({
         url: "/api/OAuth/signin/{provider}",
         ...options,
-    });
-};
-
-export const getAuthedUser = <ThrowOnError extends boolean = false>(
-    options?: Options<GetAuthedUserData, ThrowOnError>,
-) => {
-    return (options?.client ?? _heyApiClient).get<
-        GetAuthedUserResponse,
-        GetAuthedUserError,
-        ThrowOnError
-    >({
-        url: "/api/Profile/me",
-        ...options,
-    });
-};
-
-export const getUser = <ThrowOnError extends boolean = false>(
-    options: Options<GetUserData, ThrowOnError>,
-) => {
-    return (options.client ?? _heyApiClient).get<
-        GetUserResponse,
-        GetUserError,
-        ThrowOnError
-    >({
-        url: "/api/Profile/by-username/{username}",
-        ...options,
-    });
-};
-
-export const editProfileSettings = <ThrowOnError extends boolean = false>(
-    options: Options<EditProfileSettingsData, ThrowOnError>,
-) => {
-    return (options.client ?? _heyApiClient).patch<
-        EditProfileSettingsResponse,
-        EditProfileSettingsError,
-        ThrowOnError
-    >({
-        url: "/api/Profile/edit-profile",
-        ...options,
-        headers: {
-            "Content-Type": "application/json-patch+json",
-            ...options?.headers,
-        },
-    });
-};
-
-export const editUsername = <ThrowOnError extends boolean = false>(
-    options: Options<EditUsernameData, ThrowOnError>,
-) => {
-    return (options.client ?? _heyApiClient).put<
-        EditUsernameResponse,
-        EditUsernameError,
-        ThrowOnError
-    >({
-        url: "/api/Profile/edit-username",
-        ...options,
-        headers: {
-            "Content-Type": "application/json-patch+json",
-            ...options?.headers,
-        },
     });
 };
