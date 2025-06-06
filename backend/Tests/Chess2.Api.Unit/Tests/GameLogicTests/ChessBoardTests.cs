@@ -125,7 +125,7 @@ public class ChessBoardTests : BaseUnitTest
         var result = board.MovePiece(new Point(3, 4), new Point(2, 1));
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameErrors.PieceNotFound);
+        result.FirstError.Should().Be(GameLogicErrors.PieceNotFound);
     }
 
     [Theory]
