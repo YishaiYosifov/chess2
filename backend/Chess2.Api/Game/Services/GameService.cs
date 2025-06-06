@@ -21,7 +21,9 @@ public class GameService(
     public async Task<string> StartGameAsync(string userId1, string userId2)
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
-        _gameActor.ActorRef.Tell(new GameCommands.StartGame(token, userId1, userId2));
+        await _gameActor.ActorRef.Ask<GameEvents.GameStartedEvent>(
+            new GameCommands.StartGame(token, userId1, userId2)
+        );
 
         return token;
     }
