@@ -2,7 +2,10 @@
 
 namespace Chess2.Api.Game.Services;
 
-public interface IGame { }
+public interface IGame
+{
+    public string Fen { get; }
+}
 
 public class Game : IGame
 {
@@ -11,4 +14,6 @@ public class Game : IGame
         GameConstants.BoardHeight,
         GameConstants.BoardWidth
     );
+
+    public string Fen { get; } = "";
 }
