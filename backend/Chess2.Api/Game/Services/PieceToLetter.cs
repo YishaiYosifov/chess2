@@ -4,7 +4,7 @@ namespace Chess2.Api.Game.Services;
 
 public interface IPieceToLetter
 {
-    string ToLetter(PieceType piece);
+    string GetLetter(PieceType piece);
 }
 
 public class PieceToLetter : IPieceToLetter
@@ -19,5 +19,5 @@ public class PieceToLetter : IPieceToLetter
         [PieceType.Horsey] = "h",
     };
 
-    public string ToLetter(PieceType piece) => _pieceToLetterMap.GetValueOrDefault(piece, "?");
+    public string GetLetter(PieceType piece) => _pieceToLetterMap.GetValueOrDefault(piece, "?");
 }

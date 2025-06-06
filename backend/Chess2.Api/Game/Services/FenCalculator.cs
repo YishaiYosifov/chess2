@@ -32,7 +32,7 @@ public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
 
                 if (distanceWithNoPiece > 0)
                     sb.Append(y);
-                sb.Append(_pieceToLetter.ToLetter(piece.Type));
+                sb.Append(_pieceToLetter.GetLetter(piece.Type));
             }
 
             if (distanceWithNoPiece > 0)

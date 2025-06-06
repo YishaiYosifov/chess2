@@ -21,12 +21,12 @@ public class PieceToLetterTests
 
     [Theory]
     [MemberData(nameof(PieceTypeTestData))]
-    public void ToLetter_returns_the_correct_letter_for_PieceType(
+    public void GetLetter_returns_the_correct_letter_for_PieceType(
         PieceType piece,
         string expectedLetter
     )
     {
-        var result = _pieceToLetter.ToLetter(piece);
+        var result = _pieceToLetter.GetLetter(piece);
 
         result.Should().Be(expectedLetter);
     }
@@ -46,12 +46,12 @@ public class PieceToLetterTests
     }
 
     [Fact]
-    public void ToLetter_returns_a_question_mark_for_unknown_pieces()
+    public void GetLetter_returns_a_question_mark_for_unknown_pieces()
     {
         // some invalid PieceType
         var unknownPiece = (PieceType)999;
 
-        var result = _pieceToLetter.ToLetter(unknownPiece);
+        var result = _pieceToLetter.GetLetter(unknownPiece);
 
         result.Should().Be("?");
     }
