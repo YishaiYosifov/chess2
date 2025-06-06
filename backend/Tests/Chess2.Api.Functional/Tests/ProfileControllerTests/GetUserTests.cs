@@ -1,4 +1,5 @@
-﻿using Chess2.Api.TestInfrastructure;
+﻿using System.Net;
+using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
@@ -16,6 +17,40 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
+    }
+
+    [Fact]
+    public async Task Get_my_id_with_authed_user()
+    {
+        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
+
+        var response = await ApiClient.Api.GetMyIdAsync();
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public async Task Get_my_id_with_a_guest_user()
+    {
+        const string guestId = "guestid";
+        AuthUtils.AuthenticateWithTokens(
+            ApiClient,
+            accessToken: TokenProvider.GenerateGuestToken(guestId)
+        );
+
+        var response = await ApiClient.Api.GetMyIdAsync();
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().Be(guestId);
+    }
+
+    [Fact]
+    public async Task Get_my_id_when_not_authenticated()
+    {
+        var response = await ApiClient.Api.GetMyIdAsync();
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]

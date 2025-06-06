@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Infrastructure.Errors;
+﻿using System.Security.Claims;
+using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Abstractions;
 
 namespace Chess2.Api.Users.Controllers;
 
@@ -29,6 +32,17 @@ public class ProfileController(IUserService userService, UserManager<AuthedUser>
 
         var dto = new PrivateUserOut(user);
         return Ok(dto);
+    }
+
+    [HttpGet("my-id", Name = nameof(GetMyId))]
+    [Authorize(AuthPolicies.GuestAccess)]
+    public ActionResult<string> GetMyId()
+    {
+        var id = HttpContext.User.GetClaim(ClaimTypes.NameIdentifier);
+        if (id is null)
+            return Error.Unauthorized().ToActionResult();
+
+        return Ok(id);
     }
 
     [HttpGet("by-username/{username}", Name = nameof(GetUser))]
