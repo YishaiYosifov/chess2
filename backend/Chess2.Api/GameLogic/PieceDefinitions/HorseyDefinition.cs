@@ -14,12 +14,10 @@ public class HorseyDefinition : IPieceDefinition
         new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: 2))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: -2))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: -2))),
-
         new CaptureBehaviour(new StepBehaviour(new Point(X: 2, Y: 1))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: -2, Y: 1))),
         new CaptureBehaviour(new StepBehaviour(new Point(X: 2, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -2, Y: -1)))
-
+        new CaptureBehaviour(new StepBehaviour(new Point(X: -2, Y: -1))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(

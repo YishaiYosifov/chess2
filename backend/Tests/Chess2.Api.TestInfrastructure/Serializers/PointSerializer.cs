@@ -1,12 +1,11 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.TestInfrastructure.Serializers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.TestInfrastructure.Serializers;
 using Xunit.Sdk;
-
 
 namespace Chess2.Api.TestInfrastructure.Serializers;
 

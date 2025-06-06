@@ -87,9 +87,15 @@ public class RefreshTokenServiceTests : BaseUnitTest
     public async Task ConsumeRefreshTokenAsync_returns_an_error_when_the_refresh_token_is_revoked()
     {
         var refreshToken = new RefreshTokenFaker(_user).RuleFor(x => x.IsRevoked, true).Generate();
-        _refreshTokenRepositoryMock.GetTokenByJtiAsync(refreshToken.Jti, Arg.Any<CancellationToken>()).Returns(refreshToken);
+        _refreshTokenRepositoryMock
+            .GetTokenByJtiAsync(refreshToken.Jti, Arg.Any<CancellationToken>())
+            .Returns(refreshToken);
 
-        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(_user, refreshToken.Jti, CT);
+        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(
+            _user,
+            refreshToken.Jti,
+            CT
+        );
 
         result.IsError.Should().BeTrue();
         result.Errors.Single().Should().Be(AuthErrors.TokenInvalid);
@@ -99,9 +105,15 @@ public class RefreshTokenServiceTests : BaseUnitTest
     public async Task ConsumeRefreshTokenAsync_revokes_the_refresh_token()
     {
         var refreshToken = new RefreshTokenFaker(_user).Generate();
-        _refreshTokenRepositoryMock.GetTokenByJtiAsync(refreshToken.Jti, Arg.Any<CancellationToken>()).Returns(refreshToken);
+        _refreshTokenRepositoryMock
+            .GetTokenByJtiAsync(refreshToken.Jti, Arg.Any<CancellationToken>())
+            .Returns(refreshToken);
 
-        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(_user, refreshToken.Jti, CT);
+        var result = await _refreshTokenService.ConsumeRefreshTokenAsync(
+            _user,
+            refreshToken.Jti,
+            CT
+        );
 
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Success);
