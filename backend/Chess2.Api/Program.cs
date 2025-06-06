@@ -125,12 +125,12 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(
-        "RefreshToken",
+        AuthPolicies.RefreshAccess,
         policy => policy.RequireClaim("type", "refresh").AddAuthenticationSchemes("RefreshBearer")
     );
 
     options.AddPolicy(
-        "AuthedAccess",
+        AuthPolicies.AuthedAccess,
         policy =>
             policy
                 .RequireAssertion(context =>
@@ -143,7 +143,7 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        "GuestAccess",
+        AuthPolicies.GuestAccess,
         policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
     );
 
