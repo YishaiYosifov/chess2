@@ -4,7 +4,7 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameTests;
 
-public class PieceToLetterTests
+public class PieceToLetterTests : BaseUnitTest
 {
     private readonly PieceToLetter _pieceToLetter = new();
 
