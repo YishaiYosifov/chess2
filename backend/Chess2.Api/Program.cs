@@ -325,6 +325,7 @@ builder.Services.AddSingleton<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGame, Game>();
 
+builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
