@@ -53,9 +53,9 @@ builder.Services.AddSerilog();
 
 var appSettingsSection = builder.Configuration.GetSection(nameof(AppSettings));
 builder.Services.Configure<AppSettings>(appSettingsSection);
-var appSettings = builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()
+var appSettings =
+    builder.Configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()
     ?? throw new InvalidOperationException("AppSettings missing");
-
 
 builder
     .Services.AddControllers()
@@ -103,7 +103,8 @@ builder.Services.AddSignalR().AddStackExchangeRedis();
 
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(
-    (serviceProvider, options) => {
+    (serviceProvider, options) =>
+    {
         var appSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
         options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
     }

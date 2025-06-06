@@ -74,8 +74,8 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await _ratingRepository.AddRatingAsync(rating, user);
         await DbContext.SaveChangesAsync(CT);
 
-        var dbRating = await DbContext.Ratings.SingleOrDefaultAsync(r =>
-            r.UserId == user.Id && r.TimeControl == TimeControl.Classical,
+        var dbRating = await DbContext.Ratings.SingleOrDefaultAsync(
+            r => r.UserId == user.Id && r.TimeControl == TimeControl.Classical,
             CT
         );
         dbRating.Should().NotBeNull();
