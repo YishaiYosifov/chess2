@@ -35,7 +35,7 @@ public class ProfileController(IUserService userService, UserManager<AuthedUser>
     }
 
     [HttpGet("my-id", Name = nameof(GetMyId))]
-    [Authorize(AuthPolicies.GuestAccess)]
+    [Authorize(AuthPolicies.AuthedSesssion)]
     public ActionResult<string> GetMyId()
     {
         var id = HttpContext.User.GetClaim(ClaimTypes.NameIdentifier);

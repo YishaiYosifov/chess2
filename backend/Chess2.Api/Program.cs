@@ -130,7 +130,7 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        AuthPolicies.AuthedAccess,
+        AuthPolicies.AuthedUser,
         policy =>
             policy
                 .RequireAssertion(context =>
@@ -143,7 +143,7 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        AuthPolicies.GuestAccess,
+        AuthPolicies.AuthedSesssion,
         policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
     );
 

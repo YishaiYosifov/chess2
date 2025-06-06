@@ -12,7 +12,7 @@ public interface IMatchmakingClient : IChess2HubClient
     public Task MatchFoundAsync(string token);
 }
 
-[Authorize(AuthPolicies.GuestAccess)]
+[Authorize(AuthPolicies.AuthedSesssion)]
 public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,

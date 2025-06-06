@@ -7,7 +7,7 @@ public static class ActorSystemConstants
 
 public static class AuthPolicies
 {
-    public const string AuthedAccess = "AuthedAccess";
-    public const string GuestAccess = "GuestAccess";
+    public const string AuthedUser = "AuthedUser";
+    public const string AuthedSesssion = "AuthedSession";
     public const string RefreshAccess = "RefreshAccess";
 }
