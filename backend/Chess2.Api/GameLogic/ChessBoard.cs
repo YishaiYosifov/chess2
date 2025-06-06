@@ -54,7 +54,7 @@ public class ChessBoard
     public ErrorOr<Success> MovePiece(Point from, Point to)
     {
         if (!TryGetPieceAt(from, out var piece))
-            return GameErrors.PieceNotFound;
+            return GameLogicErrors.PieceNotFound;
 
         _board[from.Y, from.X] = null;
         _board[to.Y, to.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
