@@ -65,7 +65,7 @@ public class AuthController(
 
     [HttpPost("test-guest-auth", Name = nameof(TestGuest))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [Authorize(AuthPolicies.GuestAccess)]
+    [Authorize(AuthPolicies.AuthedSesssion)]
     public ActionResult TestGuest() => NoContent();
 #endif
 }
