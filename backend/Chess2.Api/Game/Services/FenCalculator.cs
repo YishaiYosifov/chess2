@@ -17,27 +17,35 @@ public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
     {
         var sb = new StringBuilder();
 
-        int distanceWithNoPiece = 0;
         // enumerate from black perspective because we FENs start with the black pieces
-        for (int y = board.Height; y >= 0; y--)
+        for (int y = board.Height - 1; y >= 0; y--)
         {
+            int emptyCount = 0;
             for (int x = 0; x < board.Width; x++)
             {
                 var point = new Point(x, y);
                 if (!board.TryGetPieceAt(point, out var piece))
                 {
-                    distanceWithNoPiece++;
+                    emptyCount++;
                     continue;
                 }
 
-                if (distanceWithNoPiece > 0)
-                    sb.Append(y);
-                sb.Append(_pieceToLetter.GetLetter(piece.Type));
+                if (emptyCount > 0)
+                {
+                    sb.Append(emptyCount);
+                    emptyCount = 0;
+                }
+
+                var pieceLetter = _pieceToLetter.GetLetter(piece.Type);
+                if (piece.Color == PieceColor.Black)
+                    pieceLetter = pieceLetter.ToUpper();
+                sb.Append(pieceLetter);
             }
 
-            if (distanceWithNoPiece > 0)
-                sb.Append(y);
-            sb.Append('/');
+            if (emptyCount > 0)
+                sb.Append(emptyCount);
+            if (y > 0)
+                sb.Append('/');
         }
 
         var fen = sb.ToString();
