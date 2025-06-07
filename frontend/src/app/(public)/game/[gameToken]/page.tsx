@@ -43,7 +43,7 @@ const GamePage = withAuthedSession(
                 startingPieces={parseFen(game.fen)}
                 legalMoves={game.legalMoves}
                 playingAs={playingAs.color}
-                playingSide={game.playerToMove}
+                sideToMove={game.playerToMove}
             />
         );
     },
