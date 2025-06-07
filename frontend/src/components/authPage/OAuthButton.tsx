@@ -21,7 +21,7 @@ const OAuthButton = ({
     const router = useRouter();
 
     function oAuthLogin() {
-        const url = new URL(constants.PATHS.OAUTH);
+        const url = new URL(constants.PATHS.OAUTH, location.origin);
         url.pathname += oauthProvider;
 
         router.push(url.toString());

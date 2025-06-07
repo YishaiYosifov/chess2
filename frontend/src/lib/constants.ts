@@ -26,11 +26,11 @@ const PATHS = {
     REFRESH: "/refresh",
     GUEST: "/guest",
     GAME: "/game",
-    OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
+    OAUTH: `/api/oauth/signin/`,
 };
 
 const SIGNALR_PATHS = {
-    MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/matchmaking`,
+    MATCHMAKING: `/api/hub/matchmaking`,
 };
 
 const HEADERS = {
