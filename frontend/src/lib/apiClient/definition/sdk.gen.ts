@@ -109,7 +109,7 @@ export const editProfileSettings = <ThrowOnError extends boolean = false>(
         url: "/api/Profile/edit-profile",
         ...options,
         headers: {
-            "Content-Type": "application/json-patch+json",
+            "Content-Type": "application/json",
             ...options.headers,
         },
     });
@@ -126,7 +126,7 @@ export const editUsername = <ThrowOnError extends boolean = false>(
         url: "/api/Profile/edit-username",
         ...options,
         headers: {
-            "Content-Type": "application/json-patch+json",
+            "Content-Type": "application/json",
             ...options.headers,
         },
     });
