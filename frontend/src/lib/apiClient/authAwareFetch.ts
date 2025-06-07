@@ -22,7 +22,7 @@ export default async function authAwareFetch(
     // if the server is making this request we don't want to auto refresh
     const isServerRequest = typeof window === "undefined";
 
-    const url = new URL(input.toString());
+    const url = new URL(response.url);
     const shouldIgnoreController = IGNORE_CONTROLLERS.some((path) =>
         url.pathname.toLocaleLowerCase().startsWith(path.toLowerCase()),
     );
