@@ -33,7 +33,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NJsonSchema.Generation;
 using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
@@ -66,9 +65,12 @@ builder
     });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApiDocument();
-builder.Services.AddSingleton<IDocumentProcessor, OpenAPIErrorCodesDocumentProcessor>();
-builder.Services.AddSingleton<ISchemaNameGenerator, OpenAPIDisplayNameSchemaNameGenerator>();
+builder.Services.AddOpenApiDocument(options =>
+{
+    options.SchemaSettings.SchemaNameGenerator = new OpenAPIDisplayNameSchemaNameGenerator();
+    options.SchemaSettings.SchemaProcessors.Add(new MarkAsRequiredIfNonNullableSchemaProcessor());
+});
+builder.Services.AddSingleton<IDocumentProcessor, ErrorCodesDocumentProcessor>();
 builder.Services.AddSingleton<IOperationProcessor, MethodNameOperationIdProcessor>();
 
 const string AllowCorsOriginName = "AllowCorsOrigin";

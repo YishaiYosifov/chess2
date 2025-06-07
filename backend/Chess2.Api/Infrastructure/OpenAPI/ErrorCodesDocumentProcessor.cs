@@ -19,13 +19,13 @@ namespace Chess2.Api.Infrastructure.OpenAPI;
 /// it's not the end of the world because they will be reminded once it is used in the front.
 /// But please always use <see cref="ErrorCodes" />.
 /// </summary>
-public class OpenAPIErrorCodesDocumentProcessor(
-    ILogger<OpenAPIErrorCodesDocumentProcessor> logger,
+public class ErrorCodesDocumentProcessor(
+    ILogger<ErrorCodesDocumentProcessor> logger,
     IOptions<JsonOptions> jsonOptions
 ) : IDocumentProcessor
 {
     private readonly JsonSerializerOptions _jsonOptions = jsonOptions.Value.JsonSerializerOptions;
-    private readonly ILogger<OpenAPIErrorCodesDocumentProcessor> _logger = logger;
+    private readonly ILogger<ErrorCodesDocumentProcessor> _logger = logger;
 
     public void Process(DocumentProcessorContext context)
     {
