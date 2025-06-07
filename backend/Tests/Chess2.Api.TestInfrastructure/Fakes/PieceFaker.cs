@@ -8,7 +8,7 @@ public class PieceFaker : RecordFaker<Piece>
     {
         StrictMode(true)
             .RuleFor(x => x.Type, f => f.Random.Enum<PieceType>())
-            .RuleFor(x => x.Color, f => f.Random.Enum<PieceColor>())
+            .RuleFor(x => x.Color, f => f.Random.Enum<Color>())
             .RuleFor(x => x.TimesMoved, 0);
     }
 }
