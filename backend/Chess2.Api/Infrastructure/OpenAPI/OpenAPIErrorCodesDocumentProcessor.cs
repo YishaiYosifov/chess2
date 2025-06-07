@@ -3,12 +3,12 @@ using System.Text.Json;
 using Chess2.Api.Infrastructure.Errors;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using NJsonSchema;
+using NSwag.Generation.Processors;
+using NSwag.Generation.Processors.Contexts;
 
-namespace Chess2.Api.Infrastructure.OpenAPITransformers;
+namespace Chess2.Api.Infrastructure.OpenAPI;
 
 /// <summary>
 /// Unfortunately <see cref="Error.Code" /> is a string so openapi doesn't know what it can be.
@@ -19,34 +19,42 @@ namespace Chess2.Api.Infrastructure.OpenAPITransformers;
 /// it's not the end of the world because they will be reminded once it is used in the front.
 /// But please always use <see cref="ErrorCodes" />.
 /// </summary>
-public class OpenAPIErrorCodesSchemaTransformer(
-    ILogger<OpenAPIErrorCodesSchemaTransformer> logger,
+public class OpenAPIErrorCodesDocumentProcessor(
+    ILogger<OpenAPIErrorCodesDocumentProcessor> logger,
     IOptions<JsonOptions> jsonOptions
-) : IOpenApiSchemaTransformer
+) : IDocumentProcessor
 {
     private readonly JsonSerializerOptions _jsonOptions = jsonOptions.Value.JsonSerializerOptions;
-    private readonly ILogger<OpenAPIErrorCodesSchemaTransformer> _logger = logger;
+    private readonly ILogger<OpenAPIErrorCodesDocumentProcessor> _logger = logger;
 
-    public Task TransformAsync(
-        OpenApiSchema schema,
-        OpenApiSchemaTransformerContext context,
-        CancellationToken cancellationToken
-    )
+    public void Process(DocumentProcessorContext context)
     {
-        if (context.JsonTypeInfo.Type != typeof(ApiProblemError))
-            return Task.CompletedTask;
+        var schema = context
+            .Document.Definitions.FirstOrDefault(kvp =>
+                kvp.Value.Type == JsonObjectType.Object && kvp.Key.Contains(nameof(ApiProblemError))
+            )
+            .Value;
+
+        if (schema == null)
+        {
+            _logger.LogWarning(
+                "Could not find schema for type {ApiProblemError}",
+                nameof(ApiProblemError)
+            );
+            return;
+        }
 
         var codePropertyName = nameof(ApiProblemError.ErrorCode);
         var jsonCodeProperty =
             _jsonOptions.PropertyNamingPolicy?.ConvertName(codePropertyName) ?? codePropertyName;
-        if (!schema.Properties.TryGetValue(jsonCodeProperty, out var codeProp))
+
+        if (!schema.Properties.TryGetValue(jsonCodeProperty, out var codeProperty))
         {
             _logger.LogWarning(
-                "Could not find {CodeProperty} on schema properties of type {ApiProblemError}",
-                codePropertyName,
-                typeof(ApiProblemError).Name
+                "Could not find {CodeProperty} on ApiProblemError schema",
+                codePropertyName
             );
-            return Task.CompletedTask;
+            return;
         }
 
         var codes = typeof(ErrorCodes)
@@ -55,8 +63,13 @@ public class OpenAPIErrorCodesSchemaTransformer(
             .Select(f => f.GetRawConstantValue() as string)
             .Where(s => s is not null)
             .Distinct();
-        codeProp.Enum = [.. codes.Select(c => new OpenApiString(c) as IOpenApiAny)];
-        codeProp.Type = "enum";
-        return Task.CompletedTask;
+
+        codeProperty.Enumeration.Clear();
+        foreach (var code in codes)
+        {
+            codeProperty.Enumeration.Add(code);
+        }
+
+        codeProperty.Type = JsonObjectType.String;
     }
 }

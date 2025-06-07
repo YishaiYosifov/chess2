@@ -46,6 +46,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="NRediSearch" Version="2.2.79" />
+    <PackageReference Include="NSwag.AspNetCore" Version="14.4.0" />
     <PackageReference Include="OpenIddict.Client.AspNetCore" Version="6.2.1" />
     <PackageReference Include="OpenIddict.Client.WebIntegration" Version="6.2.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.2.5" />
