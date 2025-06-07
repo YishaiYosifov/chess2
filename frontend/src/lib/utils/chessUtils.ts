@@ -18,17 +18,17 @@ export function parseFen(fen: string): PieceMap {
     const ranks = fen.split("/");
 
     let pieceIdx = 0;
-    for (const [yCoord, rank] of ranks.entries()) {
+    for (const [y, rank] of ranks.entries()) {
         // split the rank into numbers and pieces.
         // this regex makes sure multiple digits are grouped together
         const squares = rank.match(/[a-zA-Z]|\d+/g)!;
 
-        let xCoord = 0;
+        let x = 0;
         for (const square of squares) {
             // if the square is a digit, skip that amount of squares
             const numSquare = Number(square);
             if (numSquare) {
-                xCoord += numSquare;
+                x += numSquare;
                 continue;
             }
 
@@ -40,12 +40,12 @@ export function parseFen(fen: string): PieceMap {
             const pieceType = square.toLowerCase() as PieceType;
 
             board.set(pieceId, {
-                position: [xCoord, yCoord],
+                position: [x, y],
                 pieceType,
                 color,
             });
-            xCoord += 1;
-            pieceIdx += 1;
+            x++;
+            pieceIdx++;
         }
     }
     return board;
