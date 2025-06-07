@@ -32,7 +32,7 @@ describe("ProfilePicture", () => {
             expect.objectContaining({
                 className: className,
                 src:
-                    `${process.env.NEXT_PUBLIC_API_URL}/profile/${username}` +
+                    `${process.env.API_URL}/profile/${username}` +
                     `/profile-picture?${lastChanged.valueOf() / 1000}`,
                 alt: "profile picture",
                 width: size,
