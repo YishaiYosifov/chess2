@@ -15,6 +15,7 @@ const GamePage = withAuthedSession(
         userId: string;
     }) => {
         const { gameToken } = await params;
+
         const { error, data: game } = await getLiveGame({
             path: { gameToken },
         });
@@ -33,7 +34,10 @@ const GamePage = withAuthedSession(
             redirect("/");
 
         const playingAs =
-            game.playerWhite == userId ? game.playerWhite : game.playerBlack;
+            userId == game.playerWhite.userId
+                ? game.playerWhite
+                : game.playerBlack;
+        console.log(playingAs);
         return (
             <Chessboard
                 startingPieces={parseFen(game.fen)}

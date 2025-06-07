@@ -7,36 +7,37 @@ import type {
 } from "@hey-api/client-next";
 import type {
     GetAuthedUserData,
-    GetAuthedUserResponse,
-    GetAuthedUserError,
+    GetAuthedUserResponses,
+    GetAuthedUserErrors,
     GetMyIdData,
-    GetMyIdError,
+    GetMyIdErrors,
     GetUserData,
-    GetUserResponse,
-    GetUserError,
+    GetUserResponses,
+    GetUserErrors,
     EditProfileSettingsData,
-    EditProfileSettingsResponse,
-    EditProfileSettingsError,
+    EditProfileSettingsResponses,
+    EditProfileSettingsErrors,
     EditUsernameData,
-    EditUsernameResponse,
-    EditUsernameError,
+    EditUsernameResponses,
+    EditUsernameErrors,
     GetLiveGameData,
-    GetLiveGameResponse,
-    GetLiveGameError,
+    GetLiveGameResponses,
+    GetLiveGameErrors,
     RefreshData,
-    RefreshResponse,
-    RefreshError,
+    RefreshResponses,
+    RefreshErrors,
     LogoutData,
-    LogoutResponse,
+    LogoutResponses,
     CreateGuestUserData,
-    CreateGuestUserResponse,
+    CreateGuestUserResponses,
     TestAuthedData,
-    TestAuthedResponse,
-    TestAuthedError,
+    TestAuthedResponses,
+    TestAuthedErrors,
     TestGuestData,
-    TestGuestResponse,
-    TestGuestError,
+    TestGuestResponses,
+    TestGuestErrors,
     OAuthCallbackData,
+    OAuthCallbackResponses,
     SigninOAuthData,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
@@ -62,8 +63,8 @@ export const getAuthedUser = <ThrowOnError extends boolean = false>(
     options?: Options<GetAuthedUserData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).get<
-        GetAuthedUserResponse,
-        GetAuthedUserError,
+        GetAuthedUserResponses,
+        GetAuthedUserErrors,
         ThrowOnError
     >({
         url: "/api/Profile/me",
@@ -76,7 +77,7 @@ export const getMyId = <ThrowOnError extends boolean = false>(
 ) => {
     return (options?.client ?? _heyApiClient).get<
         unknown,
-        GetMyIdError,
+        GetMyIdErrors,
         ThrowOnError
     >({
         url: "/api/Profile/my-id",
@@ -88,8 +89,8 @@ export const getUser = <ThrowOnError extends boolean = false>(
     options: Options<GetUserData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetUserResponse,
-        GetUserError,
+        GetUserResponses,
+        GetUserErrors,
         ThrowOnError
     >({
         url: "/api/Profile/by-username/{username}",
@@ -101,15 +102,15 @@ export const editProfileSettings = <ThrowOnError extends boolean = false>(
     options: Options<EditProfileSettingsData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).patch<
-        EditProfileSettingsResponse,
-        EditProfileSettingsError,
+        EditProfileSettingsResponses,
+        EditProfileSettingsErrors,
         ThrowOnError
     >({
         url: "/api/Profile/edit-profile",
         ...options,
         headers: {
             "Content-Type": "application/json-patch+json",
-            ...options?.headers,
+            ...options.headers,
         },
     });
 };
@@ -118,15 +119,15 @@ export const editUsername = <ThrowOnError extends boolean = false>(
     options: Options<EditUsernameData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).put<
-        EditUsernameResponse,
-        EditUsernameError,
+        EditUsernameResponses,
+        EditUsernameErrors,
         ThrowOnError
     >({
         url: "/api/Profile/edit-username",
         ...options,
         headers: {
             "Content-Type": "application/json-patch+json",
-            ...options?.headers,
+            ...options.headers,
         },
     });
 };
@@ -135,8 +136,8 @@ export const getLiveGame = <ThrowOnError extends boolean = false>(
     options: Options<GetLiveGameData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetLiveGameResponse,
-        GetLiveGameError,
+        GetLiveGameResponses,
+        GetLiveGameErrors,
         ThrowOnError
     >({
         url: "/api/Game/live/{gameToken}",
@@ -148,8 +149,8 @@ export const refresh = <ThrowOnError extends boolean = false>(
     options?: Options<RefreshData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        RefreshResponse,
-        RefreshError,
+        RefreshResponses,
+        RefreshErrors,
         ThrowOnError
     >({
         url: "/api/Auth/refresh",
@@ -161,7 +162,7 @@ export const logout = <ThrowOnError extends boolean = false>(
     options?: Options<LogoutData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        LogoutResponse,
+        LogoutResponses,
         unknown,
         ThrowOnError
     >({
@@ -174,7 +175,7 @@ export const createGuestUser = <ThrowOnError extends boolean = false>(
     options?: Options<CreateGuestUserData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        CreateGuestUserResponse,
+        CreateGuestUserResponses,
         unknown,
         ThrowOnError
     >({
@@ -187,8 +188,8 @@ export const testAuthed = <ThrowOnError extends boolean = false>(
     options?: Options<TestAuthedData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        TestAuthedResponse,
-        TestAuthedError,
+        TestAuthedResponses,
+        TestAuthedErrors,
         ThrowOnError
     >({
         url: "/api/Auth/test-auth",
@@ -200,8 +201,8 @@ export const testGuest = <ThrowOnError extends boolean = false>(
     options?: Options<TestGuestData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<
-        TestGuestResponse,
-        TestGuestError,
+        TestGuestResponses,
+        TestGuestErrors,
         ThrowOnError
     >({
         url: "/api/Auth/test-guest-auth",
@@ -213,7 +214,7 @@ export const oAuthCallback = <ThrowOnError extends boolean = false>(
     options: Options<OAuthCallbackData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        unknown,
+        OAuthCallbackResponses,
         unknown,
         ThrowOnError
     >({
