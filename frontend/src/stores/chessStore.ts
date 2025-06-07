@@ -8,23 +8,23 @@ import {
     type PieceMap,
     type LegalMoves,
     type PieceID,
-    Color,
     WSEventOut,
 } from "@/types/tempModels";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 import constants from "@/lib/constants";
 import { SendEventMessageFunction } from "@/hooks/useEventWS";
+import { GameColor, Move } from "@/lib/apiClient";
 
 export interface ChessStore {
-    viewingFrom: Color;
-    playingSide: Color;
-    playingAs?: Color;
+    viewingFrom: GameColor;
+    playingSide: GameColor;
+    playingAs?: GameColor;
 
     boardWidth: number;
     boardHeight: number;
 
     pieces: PieceMap;
-    legalMoves: LegalMoves;
+    legalMoves: Move[];
 
     highlighted: Point[];
     highlightedLegalMoves: Point[];
@@ -39,8 +39,8 @@ export interface ChessStore {
 }
 
 const defaultState = {
-    viewingFrom: Color.White,
-    playingSide: Color.White,
+    viewingFrom: GameColor.WHITE,
+    playingSide: GameColor.WHITE,
     boardWidth: constants.BOARD_WIDTH,
     boardHeight: constants.BOARD_HEIGHT,
 
