@@ -97,7 +97,12 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
                 continue;
             }
 
-            var startGameTask = _gameService.StartGameAsync(seeker1, seeker2);
+            var startGameTask = _gameService.StartGameAsync(
+                seeker1,
+                seeker1Ref,
+                seeker2,
+                seeker2Ref
+            );
             startGameTask.PipeTo(
                 seeker1Ref,
                 success: token => new MatchmakingEvents.MatchFound(token)
