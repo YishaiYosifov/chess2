@@ -60,7 +60,7 @@ public class GameActor : ReceiveActor
         };
 
         Sender.Tell(new GameEvents.GameStartedEvent());
-        Become(_ => Playing(players));
+        Become(() => Playing(players));
     }
 
     private void Playing(PlayerRoster players)
@@ -83,6 +83,6 @@ public class GameActor : ReceiveActor
             LegalMoves: _game.LegalMoves
         );
 
-        Sender.Tell(gameStateDto, Self);
+        Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);
     }
 }

@@ -126,4 +126,9 @@ public class PlayerActor : ReceiveActor
                 $"Cannot transition to {nameof(InGame)} state when {nameof(_gameId)} is not set"
             );
     }
+
+    protected override void PreStart()
+    {
+        Context.SetReceiveTimeout(TimeSpan.FromSeconds(30));
+    }
 }
