@@ -1,12 +1,14 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using System.ComponentModel;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.DTOs;
 
+[DisplayName("GameState")]
 public record GameStateDto(
-    string PlayerWhite,
-    string PlayerBlack,
-    string PlayerToMove,
+    GamePlayerDto PlayerWhite,
+    GamePlayerDto PlayerBlack,
+    GameColor PlayerToMove,
     string Fen,
-    IEnumerable<Move> Moves,
-    IEnumerable<Move> LegalMoves
+    IReadOnlyCollection<Move> Moves,
+    IReadOnlyCollection<Move> LegalMoves
 );

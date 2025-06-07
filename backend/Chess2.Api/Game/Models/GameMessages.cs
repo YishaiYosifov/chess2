@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Game.DTOs;
+﻿using Akka.Actor;
+using Chess2.Api.Game.DTOs;
 
 namespace Chess2.Api.Game.Models;
 
@@ -15,7 +16,13 @@ public enum GameStatus
 
 public class GameCommands
 {
-    public record StartGame(string GameToken, string UserId1, string UserId2) : IGameMessage;
+    public record StartGame(
+        string GameToken,
+        string WhiteId,
+        IActorRef WhiteActor,
+        string BlackId,
+        IActorRef BlackActor
+    ) : IGameMessage;
 
     public record MovePiece(string GameToken, string UserId) : IGameMessage;
 

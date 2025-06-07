@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Cluster.Sharding;
 using Akka.Event;
 using Akka.Hosting;
 using Chess2.Api.Matchmaking.Actors;
@@ -38,60 +39,72 @@ public class PlayerActor : ReceiveActor
 
     private void Seeking()
     {
-        Receive<PlayerCommands.CreateSeek>(createSeek =>
+        Receive<PlayerCommands.CreateSeek>(HandleCreateSeek);
+        Receive<PlayerCommands.CancelSeek>(HandleCancelSeek);
+        Receive<MatchmakingEvents.MatchFound>(HandleMatchFound);
+
+        Receive<ReceiveTimeout>(_ =>
         {
-            // Already seeking, cancel the previous seek
-            _currentPool?.PoolActor.Tell(
-                new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
-            );
-
-            var actor = ResolvePoolActorForSeek(createSeek.CreateSeekCommand);
-            actor.Tell(createSeek.CreateSeekCommand);
-
-            _currentPool = new ActiveSeekInfo(
-                actor,
-                createSeek.CreateSeekCommand.PoolInfo,
-                createSeek.ConnectionId
-            );
-        });
-
-        Receive<PlayerCommands.CancelSeek>(cancelSeek =>
-        {
-            if (_currentPool is null)
+            if (_currentPool is not null)
                 return;
 
-            if (
-                cancelSeek.ConnectionId is not null
-                && cancelSeek.ConnectionId != _currentPool.ConnectionId
-            )
-            {
-                _logger.Info(
-                    "User {0} attempted to cancel the seek of connection id {0}, but the seeking connection id is {1}",
-                    _userId,
-                    cancelSeek.ConnectionId,
-                    _currentPool.ConnectionId
-                );
-                return;
-            }
-
-            _currentPool.PoolActor.Tell(
-                new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
-            );
-            _currentPool = null;
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+            _logger.Info("Player is not seeking, passivating actor");
         });
+    }
 
-        Receive<MatchmakingEvents.MatchFound>(matchFound =>
+    private void HandleCreateSeek(PlayerCommands.CreateSeek createSeek)
+    {
+        // Already seeking, cancel the previous seek
+        _currentPool?.PoolActor.Tell(
+            new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+        );
+
+        var actor = ResolvePoolActorForSeek(createSeek.CreateSeekCommand);
+        actor.Tell(createSeek.CreateSeekCommand);
+
+        _currentPool = new ActiveSeekInfo(
+            actor,
+            createSeek.CreateSeekCommand.PoolInfo,
+            createSeek.ConnectionId
+        );
+    }
+
+    private void HandleCancelSeek(PlayerCommands.CancelSeek cancelSeek)
+    {
+        if (_currentPool is null)
+            return;
+
+        if (
+            cancelSeek.ConnectionId is not null
+            && cancelSeek.ConnectionId != _currentPool.ConnectionId
+        )
         {
-            _gameId = matchFound.GameId;
-            _currentPool = null;
-
-            RunTask(
-                () =>
-                    _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameId)
+            _logger.Info(
+                "User {0} attempted to cancel the seek of connection id {0}, but the seeking connection id is {1}",
+                _userId,
+                cancelSeek.ConnectionId,
+                _currentPool.ConnectionId
             );
+            return;
+        }
 
-            Become(InGame);
-        });
+        _currentPool.PoolActor.Tell(
+            new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+        );
+        _currentPool = null;
+    }
+
+    private void HandleMatchFound(MatchmakingEvents.MatchFound matchFound)
+    {
+        _gameId = matchFound.GameId;
+        _currentPool = null;
+
+        RunTask(
+            () => _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameId)
+        );
+
+        Become(InGame);
     }
 
     private IActorRef ResolvePoolActorForSeek(ICreateSeekCommand createSeekCommand)

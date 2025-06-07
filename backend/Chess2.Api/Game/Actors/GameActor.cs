@@ -3,16 +3,21 @@ using Akka.Cluster.Sharding;
 using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Actors;
 
-public record GameState(string PlayerWhite, string PlayerBlack, string PlayerToMove);
+public class PlayerRoster
+{
+    public required GamePlayer PlayerWhite { get; init; }
+    public required GamePlayer PlayerBlack { get; init; }
+    public required GameColor PlayerToMove { get; set; }
+}
 
 public class GameActor : ReceiveActor
 {
     private readonly string _token;
     private readonly IGame _game;
-    private GameState? _gameState;
 
     public GameActor(string token, IGame game)
     {
@@ -24,16 +29,7 @@ public class GameActor : ReceiveActor
 
     private void WaitingForStart()
     {
-        Receive<GameCommands.StartGame>(startGame =>
-        {
-            _gameState = new(
-                PlayerWhite: startGame.UserId1,
-                PlayerBlack: startGame.UserId2,
-                PlayerToMove: startGame.UserId1
-            );
-            Sender.Tell(new GameEvents.GameStartedEvent());
-            Become(Playing);
-        });
+        Receive<GameCommands.StartGame>(HandleStartGame);
 
         Receive<GameQueries.GetGameStatus>(_ =>
         {
@@ -42,29 +38,51 @@ public class GameActor : ReceiveActor
         });
     }
 
-    private void Playing()
+    private void HandleStartGame(GameCommands.StartGame startGame)
     {
-        if (_gameState is null)
-            throw new InvalidOperationException(
-                $"Cannot become {nameof(Playing)} before setting {nameof(_gameState)}"
-            );
+        var playerWhite = new GamePlayer()
+        {
+            UserId = startGame.WhiteId,
+            Color = GameColor.White,
+            PlayerActor = startGame.WhiteActor,
+        };
+        var playerBlack = new GamePlayer()
+        {
+            UserId = startGame.BlackId,
+            Color = GameColor.Black,
+            PlayerActor = startGame.BlackActor,
+        };
+        var players = new PlayerRoster()
+        {
+            PlayerWhite = playerWhite,
+            PlayerBlack = playerBlack,
+            PlayerToMove = GameColor.White,
+        };
 
+        Sender.Tell(new GameEvents.GameStartedEvent());
+        Become(_ => Playing(players));
+    }
+
+    private void Playing(PlayerRoster players)
+    {
         Receive<GameQueries.GetGameStatus>(_ =>
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
 
-        Receive<GameQueries.GetGameState>(getGameState =>
-        {
-            var gameStateDto = new GameStateDto(
-                PlayerWhite: _gameState.PlayerWhite,
-                PlayerBlack: _gameState.PlayerBlack,
-                PlayerToMove: _gameState.PlayerToMove,
-                Fen: _game.Fen,
-                Moves: _game.Moves,
-                LegalMoves: _game.LegalMoves
-            );
+        Receive<GameQueries.GetGameState>(_ => HandleGetGameState(players));
+    }
 
-            Sender.Tell(gameStateDto, Self);
-        });
+    private void HandleGetGameState(PlayerRoster players)
+    {
+        var gameStateDto = new GameStateDto(
+            PlayerWhite: new GamePlayerDto(players.PlayerWhite),
+            PlayerBlack: new GamePlayerDto(players.PlayerBlack),
+            PlayerToMove: players.PlayerToMove,
+            Fen: _game.Fen,
+            Moves: _game.Moves,
+            LegalMoves: _game.LegalMoves
+        );
+
+        Sender.Tell(gameStateDto, Self);
     }
 }
