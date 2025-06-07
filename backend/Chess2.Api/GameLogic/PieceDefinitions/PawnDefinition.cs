@@ -14,7 +14,7 @@ public class PawnDefinition : IPieceDefinition
         Piece movingPiece
     )
     {
-        var direction = movingPiece.Color == PieceColor.White ? 1 : -1;
+        var direction = movingPiece.Color == Color.White ? 1 : -1;
 
         IEnumerable<IPieceBehaviour> behaviours =
         [
