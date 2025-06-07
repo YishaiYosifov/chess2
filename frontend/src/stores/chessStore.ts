@@ -6,7 +6,6 @@ import { enableMapSet } from "immer";
 import {
     type Point,
     type PieceMap,
-    type LegalMoves,
     type PieceID,
     WSEventOut,
 } from "@/types/tempModels";
@@ -17,7 +16,7 @@ import { GameColor, Move } from "@/lib/apiClient";
 
 export interface ChessStore {
     viewingFrom: GameColor;
-    playingSide: GameColor;
+    sideToMove: GameColor;
     playingAs?: GameColor;
 
     boardWidth: number;
@@ -40,12 +39,12 @@ export interface ChessStore {
 
 const defaultState = {
     viewingFrom: GameColor.WHITE,
-    playingSide: GameColor.WHITE,
+    sideToMove: GameColor.WHITE,
     boardWidth: constants.BOARD_WIDTH,
     boardHeight: constants.BOARD_HEIGHT,
 
     pieces: new Map(),
-    legalMoves: {},
+    legalMoves: [],
 
     highlighted: [],
     highlightedLegalMoves: [],

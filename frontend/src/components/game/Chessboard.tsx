@@ -27,7 +27,7 @@ interface Breakpoint {
  *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
  *  it will parse the width as 1420 before choosing the board size.
  *  The largest width breakpoint will be used for any screen size larger than it.
- * @param playingSide - the color of the side whose turn it is to play
+ * @param sideToMove - the color of the side whose turn it is to play
  * @param playingAs - the color of the player that is controlling the chessboard.
  *  leave undefined if no player should be controlling this chessboard, thus making it a fixed position
  */
@@ -41,7 +41,7 @@ const Chessboard = ({
     legalMoves = [],
 
     viewingFrom,
-    playingSide,
+    sideToMove,
     playingAs,
 
     className,
@@ -55,7 +55,7 @@ const Chessboard = ({
     legalMoves?: Move[];
 
     viewingFrom?: GameColor;
-    playingSide?: GameColor;
+    sideToMove?: GameColor;
     playingAs?: GameColor;
 
     className?: string;
@@ -125,7 +125,7 @@ const Chessboard = ({
                 pieces={startingPieces}
                 legalMoves={legalMoves}
                 viewingFrom={viewingFrom}
-                playingSide={playingSide}
+                sideToMove={sideToMove}
                 playingAs={playingAs}
                 boardWidth={boardWidth}
                 boardHeight={boardHeight}

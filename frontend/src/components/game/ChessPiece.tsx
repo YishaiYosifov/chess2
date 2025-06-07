@@ -11,7 +11,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
 
     const piece = usePiece(id);
-    const playingSide = useChessStore((state) => state.playingSide);
+    const sideToMove = useChessStore((state) => state.sideToMove);
     const playingAs = useChessStore((state) => state.playingAs);
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
 
@@ -69,8 +69,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             )}
             ref={pieceRef}
             onPointerDown={(event) => {
-                const canDrag =
-                    playingAs == playingSide && color == playingSide;
+                const canDrag = playingAs == sideToMove && color == sideToMove;
                 if (!canDrag) return;
 
                 showLegalMoves(position);
