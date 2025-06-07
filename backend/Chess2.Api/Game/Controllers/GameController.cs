@@ -12,12 +12,15 @@ public class GameController(IGameService gameService) : Controller
 {
     private readonly IGameService _gameService = gameService;
 
-    [HttpGet("/live/{gameToken}", Name = nameof(GetLiveGame))]
+    [HttpGet("live/{gameToken}", Name = nameof(GetLiveGame))]
     [ProducesResponseType<GameStateDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task GetLiveGame(string gameToken, CancellationToken token)
+    public async Task<ActionResult<GameStateDto>> GetLiveGame(
+        string gameToken,
+        CancellationToken token
+    )
     {
         var gameStateResult = await _gameService.GetGameStateAsync(gameToken, token);
-        gameStateResult.Switch(value => Ok(value), errors => errors.ToActionResult());
+        return gameStateResult.Match(Ok, errors => errors.ToActionResult());
     }
 }
