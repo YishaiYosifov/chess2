@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap, Color, PieceType } from "@/types/tempModels";
+import { PieceMap, PieceType } from "@/types/tempModels";
 import Chessboard from "../Chessboard";
+import { GameColor } from "@/lib/apiClient";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
     ...(await importOriginal<typeof import("@/lib/constants")>()),
@@ -16,7 +17,7 @@ const mockBoard: PieceMap = new Map([
         {
             position: [0, 0],
             pieceType: PieceType.Rook,
-            color: Color.White,
+            color: GameColor.WHITE,
         },
     ],
     [
@@ -24,7 +25,7 @@ const mockBoard: PieceMap = new Map([
         {
             position: [1, 0],
             pieceType: PieceType.Horsie,
-            color: Color.White,
+            color: GameColor.WHITE,
         },
     ],
     [
@@ -32,15 +33,15 @@ const mockBoard: PieceMap = new Map([
         {
             position: [5, 0],
             pieceType: PieceType.Rook,
-            color: Color.Black,
+            color: GameColor.BLACK,
         },
     ],
 ]);
 
 describe("Chessboard", () => {
     it.each([
-        [Color.White, 0, 0],
-        [Color.Black, 900, 900],
+        [GameColor.WHITE, 0, 0],
+        [GameColor.BLACK, 900, 900],
     ])(
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {

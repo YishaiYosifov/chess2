@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 
 import constants from "@/lib/constants";
-import { type PieceMap, type LegalMoves, Color } from "@/types/tempModels";
+import { type PieceMap } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
 import clsx from "clsx";
+import { GameColor, Move } from "@/lib/apiClient";
 
 interface PaddingOffset {
     width: number;
@@ -37,7 +38,7 @@ const Chessboard = ({
     startingPieces = constants.DEFAULT_CHESS_BOARD,
     boardHeight = constants.BOARD_HEIGHT,
     boardWidth = constants.BOARD_WIDTH,
-    legalMoves = {},
+    legalMoves = [],
 
     viewingFrom,
     playingSide,
@@ -51,11 +52,11 @@ const Chessboard = ({
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
-    legalMoves?: LegalMoves;
+    legalMoves?: Move[];
 
-    viewingFrom?: Color;
-    playingSide?: Color;
-    playingAs?: Color;
+    viewingFrom?: GameColor;
+    playingSide?: GameColor;
+    playingAs?: GameColor;
 
     className?: string;
 }) => {

@@ -33,13 +33,23 @@ export type ApiProblemError = {
     description: string;
 };
 
-export type GameStateDto = {
-    playerWhite: string;
-    playerBlack: string;
-    playerToMove: string;
+export enum GameColor {
+    WHITE = "White",
+    BLACK = "Black",
+}
+
+export type GamePlayer = {
+    userId?: string;
+    color?: GameColor;
+};
+
+export type GameState = {
+    playerWhite: GamePlayer;
+    playerBlack: GamePlayer;
+    playerToMove: GameColor;
     fen: string;
     moves: Array<Move>;
-    legalMoves: Array<unknown>;
+    legalMoves: Array<Move>;
 };
 
 export type Move = {
@@ -47,6 +57,7 @@ export type Move = {
     to: Point;
     piece: Piece;
     capturedSquares?: Array<Point> | null;
+    sideEffects?: Array<Move> | null;
 };
 
 export type Operation = {
@@ -69,14 +80,9 @@ export enum OperationType {
 
 export type Piece = {
     type: PieceType;
-    color: PieceColor;
+    color: GameColor;
     timesMoved?: number;
 };
-
-export enum PieceColor {
-    WHITE = "White",
-    BLACK = "Black",
-}
 
 export enum PieceType {
     KING = "King",
@@ -250,7 +256,7 @@ export type GetLiveGameData = {
         gameToken: string;
     };
     query?: never;
-    url: "/live/{gameToken}";
+    url: "/api/Game/live/{gameToken}";
 };
 
 export type GetLiveGameErrors = {
@@ -266,7 +272,7 @@ export type GetLiveGameResponses = {
     /**
      * OK
      */
-    200: GameStateDto;
+    200: GameState;
 };
 
 export type GetLiveGameResponse =

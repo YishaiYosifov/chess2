@@ -139,7 +139,7 @@ export const getLiveGame = <ThrowOnError extends boolean = false>(
         GetLiveGameError,
         ThrowOnError
     >({
-        url: "/live/{gameToken}",
+        url: "/api/Game/live/{gameToken}",
         ...options,
     });
 };

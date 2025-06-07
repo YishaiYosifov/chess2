@@ -1,4 +1,4 @@
-import { User } from "../lib/apiClient";
+import { GameColor, User } from "../lib/apiClient";
 
 export enum GameResult {
     White = "white",
@@ -10,11 +10,6 @@ export enum Variant {
     FogOfWar = "fog of war",
     Anarchy = "anarchy",
     Chss = "chss",
-}
-
-export enum Color {
-    White = "white",
-    Black = "black",
 }
 
 export enum PieceType {
@@ -42,33 +37,7 @@ export type PieceMap = Map<PieceID, Piece>;
 export interface Piece {
     position: Point;
     pieceType: PieceType;
-    color: Color;
-}
-
-export interface LiveGame {
-    token: string;
-
-    playerWhite: Player;
-    playerBlack: Player;
-
-    turnPlayerId: number;
-    fen: string;
-
-    legalMoves: LegalMoves;
-}
-
-export interface Player {
-    playerId: number;
-    user: User;
-
-    color: Color;
-    timeRemaining: number;
-}
-
-export interface GameSettings {
-    variant: Variant;
-    timeControl: number;
-    increment: number;
+    color: GameColor;
 }
 
 export interface FinishedGame {

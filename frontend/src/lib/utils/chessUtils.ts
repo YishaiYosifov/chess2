@@ -1,11 +1,11 @@
 import {
-    Color,
     PieceID,
     PieceMap,
     PieceType,
     Point,
     StrPoint,
 } from "@/types/tempModels";
+import { GameColor } from "../apiClient";
 
 /**
  * Parse a fen into a PieceMap
@@ -34,7 +34,9 @@ export function parseFen(fen: string): PieceMap {
 
             const pieceId = pieceIdx.toString() as PieceID;
             const color =
-                square == square.toUpperCase() ? Color.White : Color.Black;
+                square == square.toUpperCase()
+                    ? GameColor.WHITE
+                    : GameColor.BLACK;
             const pieceType = square.toLowerCase() as PieceType;
 
             board.set(pieceId, {

@@ -4,10 +4,11 @@ import {
     forwardRef,
     ForwardRefRenderFunction,
 } from "react";
+import clsx from "clsx";
 
 import { useBoardSize, useChessStore } from "@/hooks/useChess";
-import { Color, Point } from "@/types/tempModels";
-import clsx from "clsx";
+import { Point } from "@/types/tempModels";
+import { GameColor } from "@/lib/apiClient";
 
 type ChessSquareProps = {
     position: Point;
@@ -28,7 +29,7 @@ const ChessSquare: ForwardRefRenderFunction<
     let [x, y] = position;
 
     // flip the board if we are viewing from the black prespective
-    if (viewingFrom == Color.Black) {
+    if (viewingFrom == GameColor.BLACK) {
         x = boardWidth - x - 1;
         y = boardHeight - y - 1;
     }

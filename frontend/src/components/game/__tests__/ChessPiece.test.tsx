@@ -1,6 +1,12 @@
 import { render, screen } from "@testing-library/react";
 
-import { Color, PieceMap, PieceType, Piece, Point } from "@/types/tempModels";
+import {
+    GameColor,
+    PieceMap,
+    PieceType,
+    Piece,
+    Point,
+} from "@/types/tempModels";
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";
@@ -10,12 +16,12 @@ describe("ChessPiece", () => {
         const pieceInfo: Piece = {
             position: position,
             pieceType: PieceType.Pawn,
-            color: Color.White,
+            color: GameColor.WHITE,
         };
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
 
         const renderResults = render(
-            <ChessProvider pieces={pieces} playingAs={Color.White}>
+            <ChessProvider pieces={pieces} playingAs={GameColor.WHITE}>
                 <ChessPiece id="0" />
             </ChessProvider>,
         );
