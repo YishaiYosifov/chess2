@@ -37,7 +37,7 @@ public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
                 }
 
                 var pieceLetter = _pieceToLetter.GetLetter(piece.Type);
-                if (piece.Color == Color.Black)
+                if (piece.Color == GameColor.Black)
                     pieceLetter = pieceLetter.ToUpper();
                 sb.Append(pieceLetter);
             }

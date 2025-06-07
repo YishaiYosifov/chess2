@@ -56,12 +56,12 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
             {
                 [new Point(0, 0)] = new PieceFaker()
                     .RuleFor(x => x.Type, PieceType.Pawn)
-                    .RuleFor(x => x.Color, Color.White)
+                    .RuleFor(x => x.Color, GameColor.White)
                     .Generate(),
 
                 [new Point(0, 2)] = new PieceFaker()
                     .RuleFor(x => x.Type, PieceType.King)
-                    .RuleFor(x => x.Color, Color.Black)
+                    .RuleFor(x => x.Color, GameColor.Black)
                     .Generate(),
             }
         );
