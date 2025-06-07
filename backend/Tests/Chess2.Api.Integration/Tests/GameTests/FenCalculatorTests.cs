@@ -44,10 +44,10 @@ public class FenCalculatorTests : BaseIntegrationTest
     {
         var pieces = new Dictionary<Point, Piece>()
         {
-            [new Point(0, 0)] = new Piece(PieceType.King, Color.White),
-            [new Point(3, 0)] = new Piece(PieceType.Rook, Color.Black),
-            [new Point(6, 0)] = new Piece(PieceType.Queen, Color.White),
-            [new Point(2, 1)] = new Piece(PieceType.Pawn, Color.White),
+            [new Point(0, 0)] = new Piece(PieceType.King, GameColor.White),
+            [new Point(3, 0)] = new Piece(PieceType.Rook, GameColor.Black),
+            [new Point(6, 0)] = new Piece(PieceType.Queen, GameColor.White),
+            [new Point(2, 1)] = new Piece(PieceType.Pawn, GameColor.White),
         };
         var board = new ChessBoard(pieces);
 
@@ -62,10 +62,10 @@ public class FenCalculatorTests : BaseIntegrationTest
     {
         var pieces = new Dictionary<Point, Piece>()
         {
-            [new Point(0, 0)] = new Piece(PieceType.King, Color.White),
-            [new Point(1, 1)] = new Piece(PieceType.Rook, Color.Black),
-            [new Point(2, 2)] = new Piece(PieceType.Queen, Color.White),
-            [new Point(3, 3)] = new Piece(PieceType.Pawn, Color.Black),
+            [new Point(0, 0)] = new Piece(PieceType.King, GameColor.White),
+            [new Point(1, 1)] = new Piece(PieceType.Rook, GameColor.Black),
+            [new Point(2, 2)] = new Piece(PieceType.Queen, GameColor.White),
+            [new Point(3, 3)] = new Piece(PieceType.Pawn, GameColor.Black),
         };
         var board = new ChessBoard(pieces, height: 4, width: 4);
 

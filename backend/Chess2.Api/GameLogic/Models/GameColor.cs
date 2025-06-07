@@ -1,6 +1,6 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
-public enum Color
+public enum GameColor
 {
     White,
     Black,
