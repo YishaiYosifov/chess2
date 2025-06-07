@@ -1,8 +1,5 @@
-using System.ComponentModel;
-using System.Reflection;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json.Serialization;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
@@ -16,7 +13,7 @@ using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Infrastructure.OpenAPITransformers;
+using Chess2.Api.Infrastructure.OpenAPI;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -33,10 +30,11 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NJsonSchema.Generation;
+using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
@@ -66,26 +64,12 @@ builder
         options.Conventions.Add(new UnauthorizedResponseConvention());
         options.Filters.Add<ReformatValidationProblemAttribute>();
     });
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-});
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApi(options =>
-{
-    options.AddSchemaTransformer<OpenAPIErrorCodesSchemaTransformer>();
-    options.AddSchemaTransformer<FixBrokenReferencesInArraysSchemaTransformer>();
-    options.CreateSchemaReferenceId = typeInfo =>
-    {
-        var type = typeInfo.Type;
-        var attribute = type.GetCustomAttribute<DisplayNameAttribute>();
-        if (attribute is null)
-            return OpenApiOptions.CreateDefaultSchemaReferenceId(typeInfo);
-
-        return attribute.DisplayName;
-    };
-});
+builder.Services.AddOpenApiDocument();
+builder.Services.AddSingleton<IDocumentProcessor, OpenAPIErrorCodesDocumentProcessor>();
+builder.Services.AddSingleton<ISchemaNameGenerator, OpenAPIDisplayNameSchemaNameGenerator>();
+builder.Services.AddSingleton<IOperationProcessor, MethodNameOperationIdProcessor>();
 
 const string AllowCorsOriginName = "AllowCorsOrigin";
 builder.Services.AddCors(options =>
@@ -354,7 +338,10 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseOpenApi(options =>
+    {
+        options.Path = "/openapi/v1.json";
+    });
     app.MapScalarApiReference();
     app.ApplyMigrations();
 }
