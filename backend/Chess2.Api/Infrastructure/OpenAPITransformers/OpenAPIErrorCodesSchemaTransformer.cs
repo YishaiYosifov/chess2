@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
-namespace Chess2.Api.Infrastructure;
+namespace Chess2.Api.Infrastructure.OpenAPITransformers;
 
 /// <summary>
 /// Unfortunately <see cref="Error.Code" /> is a string so openapi doesn't know what it can be.

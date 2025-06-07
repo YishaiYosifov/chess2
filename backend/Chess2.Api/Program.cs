@@ -16,6 +16,7 @@ using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Infrastructure.OpenAPITransformers;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -74,6 +75,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {
     options.AddSchemaTransformer<OpenAPIErrorCodesSchemaTransformer>();
+    options.AddSchemaTransformer<FixBrokenReferencesInArraysSchemaTransformer>();
     options.CreateSchemaReferenceId = typeInfo =>
     {
         var type = typeInfo.Type;
