@@ -15,53 +15,46 @@ public class LegalMoveEncoder : ILegalMoveEncoder
     /// where each move include:
     /// - The starting square (<see cref="Move.From"/>)
     /// - Any intermediate squares the piece moves through (<see cref="Move.Through"/>),
-    ///   separated by '>' characters to indicate path traversal
     /// - The destination square (<see cref="Move.To"/>)
     /// - Any side effect moves (<see cref="Move.SideEffects"/>), appended after a '-' separator,
     ///   recursively encoded with the same format
     /// - Any explicitly captured squares (<see cref="Move.CapturedSquares"/>), appended after "!"
     ///
     /// Example encoding for castling with rook side effect and a capture:
-    /// <code>e1>f1g1!d5-h1f1</code>
+    /// <code>e1>f1g1-h1f1!d4</code>
     /// </summary>
-    public string EncodeLegalMoves(IEnumerable<Move> legalMoves)
+    public string EncodeLegalMoves(IEnumerable<Move> legalMoves) =>
+        string.Join(" ", legalMoves.Select(EncodeMoveFlat));
+
+    private static string EncodeMoveFlat(Move move)
     {
-        StringBuilder sb = new();
-        foreach (var move in legalMoves)
+        var path = new StringBuilder();
+        var captures = new List<Point>();
+        BuildPath(move, path, captures);
+
+        foreach (var capture in captures)
         {
-            var encodedMove = EncodeSingleMove(move);
-            if (sb.Length > 0)
-                sb.Append(' ');
-            sb.Append(encodedMove);
+            path.Append('!');
+            path.Append(capture.AsUCI());
         }
 
-        return sb.ToString();
+        return path.ToString();
     }
 
-    private static string EncodeSingleMove(Move move)
+    private static void BuildPath(Move move, StringBuilder path, List<Point> captures)
     {
-        StringBuilder sb = new();
-        sb.Append(move.From.AsUCI());
+        path.Append(move.From.AsUCI());
         foreach (var throughPoint in move.Through ?? [])
-        {
-            sb.Append('>');
-            sb.Append(throughPoint.AsUCI());
-        }
-        sb.Append(move.To.AsUCI());
+            path.Append(throughPoint.AsUCI());
+        path.Append(move.To.AsUCI());
 
-        foreach (var capture in move.CapturedSquares ?? [])
-        {
-            sb.Append('!');
-            sb.Append(capture.AsUCI());
-        }
+        if (move.CapturedSquares != null)
+            captures.AddRange(move.CapturedSquares);
 
         foreach (var sideEffect in move.SideEffects ?? [])
         {
-            var encodedSideEffect = EncodeSingleMove(sideEffect);
-            sb.Append('-');
-            sb.Append(encodedSideEffect);
+            path.Append('-');
+            BuildPath(sideEffect, path, captures);
         }
-
-        return sb.ToString();
     }
 }

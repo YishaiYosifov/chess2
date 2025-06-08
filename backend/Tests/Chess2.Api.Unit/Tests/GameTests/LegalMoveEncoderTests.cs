@@ -55,7 +55,7 @@ public class LegalMoveEncoderTests : BaseUnitTest
 
         var result = _encoder.EncodeLegalMoves([move]);
 
-        result.Should().Be("e1>f1g1");
+        result.Should().Be("e1f1g1");
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class LegalMoveEncoderTests : BaseUnitTest
 
         var result = _encoder.EncodeLegalMoves([move]);
 
-        result.Should().Be("e1>f1>g1h1-h1f1");
+        result.Should().Be("e1f1g1h1-h1f1");
     }
 
     [Fact]
@@ -113,6 +113,6 @@ public class LegalMoveEncoderTests : BaseUnitTest
 
         var result = _encoder.EncodeLegalMoves([move]);
 
-        result.Should().Be("e4d5!d7-b2b3!f3!b3");
+        result.Should().Be("e4d5-b2b3!d7!f3!b3");
     }
 }
