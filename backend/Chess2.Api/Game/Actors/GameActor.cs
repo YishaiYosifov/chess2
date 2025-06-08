@@ -79,7 +79,7 @@ public class GameActor : ReceiveActor
             PlayerBlack: new GamePlayerDto(players.PlayerBlack),
             PlayerToMove: players.PlayerToMove,
             Fen: _game.Fen,
-            Moves: _game.Moves,
+            FenHistory: _game.FenHistory,
             LegalMoves: _game.LegalMoves
         );
 
