@@ -19,10 +19,10 @@ public class LegalMoveEncoder : ILegalMoveEncoder
     /// - The destination square (<see cref="Move.To"/>)
     /// - Any side effect moves (<see cref="Move.SideEffects"/>), appended after a '-' separator,
     ///   recursively encoded with the same format
-    /// - Any explicitly captured squares (<see cref="Move.CapturedSquares"/>), appended after "-!"
+    /// - Any explicitly captured squares (<see cref="Move.CapturedSquares"/>), appended after "!"
     ///
     /// Example encoding for castling with rook side effect and a capture:
-    /// <code>e1>f1g1-h1f1-!d5</code>
+    /// <code>e1>f1g1!d5-h1f1</code>
     /// </summary>
     public string EncodeLegalMoves(IEnumerable<Move> legalMoves)
     {
@@ -49,17 +49,17 @@ public class LegalMoveEncoder : ILegalMoveEncoder
         }
         sb.Append(move.To.AsUCI());
 
+        foreach (var capture in move.CapturedSquares ?? [])
+        {
+            sb.Append('!');
+            sb.Append(capture.AsUCI());
+        }
+
         foreach (var sideEffect in move.SideEffects ?? [])
         {
             var encodedSideEffect = EncodeSingleMove(sideEffect);
             sb.Append('-');
             sb.Append(encodedSideEffect);
-        }
-
-        foreach (var capture in move.CapturedSquares ?? [])
-        {
-            sb.Append("-!");
-            sb.Append(capture.AsUCI());
         }
 
         return sb.ToString();
