@@ -8,11 +8,13 @@ import {
     type PieceMap,
     type PieceID,
     WSEventOut,
+    Move,
+    StrPoint,
 } from "@/types/tempModels";
 import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
 import constants from "@/lib/constants";
 import { SendEventMessageFunction } from "@/hooks/useEventWS";
-import { GameColor, Move } from "@/lib/apiClient";
+import { GameColor } from "@/lib/apiClient";
 
 export interface ChessStore {
     viewingFrom: GameColor;
@@ -23,7 +25,7 @@ export interface ChessStore {
     boardHeight: number;
 
     pieces: PieceMap;
-    legalMoves: Move[];
+    legalMoves: Map<StrPoint, Move[]>;
 
     highlighted: Point[];
     highlightedLegalMoves: Point[];
@@ -44,7 +46,7 @@ const defaultState = {
     boardHeight: constants.BOARD_HEIGHT,
 
     pieces: new Map(),
-    legalMoves: [],
+    legalMoves: new Map(),
 
     highlighted: [],
     highlightedLegalMoves: [],
@@ -137,12 +139,15 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 const { legalMoves } = get();
 
                 const positionStr = pointToString(position);
-                let toHighlight = legalMoves[positionStr];
-                toHighlight ??= [];
+                const moves = legalMoves.get(positionStr);
 
-                const toHighlightPoints = toHighlight.map((x) =>
-                    stringToPoint(x),
-                );
+                const toHighlightPoints = moves
+                    ? [
+                          ...moves.map((m) => m.to),
+                          ...moves.map((m) => m.through).flat(),
+                      ]
+                    : [];
+
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
                     state.selectedPiecePosition = position;

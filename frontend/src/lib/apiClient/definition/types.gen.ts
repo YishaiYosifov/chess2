@@ -99,8 +99,8 @@ export type GameState = {
     playerBlack: GamePlayer;
     playerToMove: GameColor;
     fen: string;
-    moves: Array<Move>;
-    legalMoves: Array<Move>;
+    fenHistory: Array<string>;
+    legalMoves: string;
 };
 
 export type GamePlayer = {
@@ -117,52 +117,6 @@ export enum GameColor {
      * Black
      */
     BLACK = 1,
-}
-
-export type Move = {
-    from: Point;
-    to: Point;
-    piece: Piece;
-    capturedSquares?: Array<Point> | null;
-    sideEffects?: Array<Move> | null;
-};
-
-export type Point = {
-    x: number;
-    y: number;
-};
-
-export type Piece = {
-    type: PieceType;
-    color: GameColor;
-    timesMoved: number;
-};
-
-export enum PieceType {
-    /**
-     * King
-     */
-    KING = 0,
-    /**
-     * Queen
-     */
-    QUEEN = 1,
-    /**
-     * Pawn
-     */
-    PAWN = 2,
-    /**
-     * Rook
-     */
-    ROOK = 3,
-    /**
-     * Bishop
-     */
-    BISHOP = 4,
-    /**
-     * Horsey
-     */
-    HORSEY = 5,
 }
 
 export type GetAuthedUserData = {

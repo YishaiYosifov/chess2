@@ -1,15 +1,15 @@
-import { PieceMap, PieceType } from "@/lib/apiClient/models";
+import { PieceMap, PieceType } from "@/types/tempModels";
 import { parseFen } from "../chessUtils";
 import constants from "@/lib/constants";
-import { Color } from "@/lib/apiClient/models";
+import { GameColor } from "@/lib/apiClient";
 
 describe("parseFen", () => {
     it("should parse a standard starting position correctly", () => {
         const fen =
-            "rhnxqkbahr/ddpdppdpdd/c8c/10/10/10/10/C8C/DDPDPPDPDD/RHNXQKBAHR";
+            "rh2qkb1hr/pp1pppp1pp/10/10/10/10/10/10/PP1PPPP1PP/RH2QKB1HR";
 
         const board = parseFen(fen);
-        expect(board).toEqual(constants.defaultChessBoard);
+        expect(board).toEqual(constants.DEFAULT_CHESS_BOARD);
     });
 
     it("should parse a custom position", () => {
@@ -19,32 +19,32 @@ describe("parseFen", () => {
                 "0",
                 {
                     position: [4, 0],
-                    pieceType: PieceType.King,
-                    color: Color.Black,
+                    type: PieceType.KING,
+                    color: GameColor.BLACK,
                 },
             ],
             [
                 "1",
                 {
                     position: [3, 3],
-                    pieceType: PieceType.Bishop,
-                    color: Color.White,
+                    type: PieceType.BISHOP,
+                    color: GameColor.WHITE,
                 },
             ],
             [
                 "2",
                 {
                     position: [4, 4],
-                    pieceType: PieceType.Rook,
-                    color: Color.White,
+                    type: PieceType.ROOK,
+                    color: GameColor.WHITE,
                 },
             ],
             [
                 "3",
                 {
                     position: [4, 7],
-                    pieceType: PieceType.King,
-                    color: Color.White,
+                    type: PieceType.KING,
+                    color: GameColor.WHITE,
                 },
             ],
         ]);

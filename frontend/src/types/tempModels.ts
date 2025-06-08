@@ -13,17 +13,17 @@ export enum Variant {
 }
 
 export enum PieceType {
-    King = "k",
-    Queen = "q",
-    Rook = "r",
-    Knook = "n",
-    Xook = "x",
-    Antiqueen = "a",
-    Archbishop = "c",
-    Bishop = "b",
-    Horsie = "h",
-    Pawn = "p",
-    ChildPawn = "d",
+    KING = "k",
+    QUEEN = "q",
+    ROOK = "r",
+    KNOOK = "n",
+    XOOK = "x",
+    ANTIQUEEN = "a",
+    ARCHBISHOP = "c",
+    BISHOP = "b",
+    HORSEY = "h",
+    PAWN = "p",
+    CHILDPAWN = "d",
 }
 
 export type PieceID = `${number}`;
@@ -31,13 +31,21 @@ export type PieceID = `${number}`;
 export type Point = [x: number, y: number];
 export type StrPoint = `${number},${number}`;
 
-export type LegalMoves = Record<StrPoint, StrPoint[]>;
+export interface Piece {
+    type: PieceType;
+    color: GameColor;
+    position: Point;
+}
+
 export type PieceMap = Map<PieceID, Piece>;
 
-export interface Piece {
-    position: Point;
-    pieceType: PieceType;
-    color: GameColor;
+export interface Move {
+    from: Point;
+    through: Point[];
+    to: Point;
+
+    captures: Point[];
+    sideEffects: Move[];
 }
 
 export interface FinishedGame {
