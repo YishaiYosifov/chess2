@@ -84,7 +84,7 @@ public class GameActor : ReceiveActor
             PlayerToMove: players.PlayerToMove,
             Fen: _game.Fen,
             FenHistory: _game.FenHistory,
-            LegalMoves: _game.LegalMoves
+            LegalMoves: _game.EncodedLegalMoves
         );
 
         Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);

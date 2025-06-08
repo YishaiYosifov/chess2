@@ -7,12 +7,16 @@ public interface IGame
 {
     public string Fen { get; }
     IReadOnlyCollection<string> FenHistory { get; }
-    IReadOnlyCollection<Move> LegalMoves { get; }
+    public string EncodedLegalMoves { get; }
 
     void InitializeGame();
 }
 
-public class Game(IFenCalculator fenCalculator, ILegalMoveCalculator legalMoveCalculator) : IGame
+public class Game(
+    IFenCalculator fenCalculator,
+    ILegalMoveCalculator legalMoveCalculator,
+    ILegalMoveEncoder legalMoveEncoder
+) : IGame
 {
     private readonly ChessBoard _board = new(
         GameConstants.StartingPosition,
@@ -24,8 +28,10 @@ public class Game(IFenCalculator fenCalculator, ILegalMoveCalculator legalMoveCa
 
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
+    private readonly ILegalMoveEncoder _legalMoveEncoder = legalMoveEncoder;
 
     public string Fen { get; private set; } = "";
+    public string EncodedLegalMoves { get; private set; } = "";
     public IReadOnlyCollection<string> FenHistory => _fenHistory.AsReadOnly();
     public IReadOnlyCollection<Move> LegalMoves => _legalMoves.AsReadOnly();
 
@@ -34,5 +40,6 @@ public class Game(IFenCalculator fenCalculator, ILegalMoveCalculator legalMoveCa
         Fen = _fenCalculator.CalculateFen(_board);
         _fenHistory.Add(Fen);
         _legalMoves = [.. _legalMoveCalculator.CalculateAllLegalMoves(_board)];
+        EncodedLegalMoves = _legalMoveEncoder.EncodeLegalMoves(_legalMoves);
     }
 }
