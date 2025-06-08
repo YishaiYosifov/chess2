@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Cluster.Sharding;
+using Akka.Event;
 using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
@@ -17,7 +18,9 @@ public class PlayerRoster
 public class GameActor : ReceiveActor
 {
     private readonly string _token;
+
     private readonly IGame _game;
+    private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     public GameActor(string token, IGame game)
     {
@@ -85,5 +88,11 @@ public class GameActor : ReceiveActor
         );
 
         Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);
+    }
+
+    protected override void PostStop()
+    {
+        _logger.Info("GameActor with token {0} stopped.", _token);
+        base.PostStop();
     }
 }
