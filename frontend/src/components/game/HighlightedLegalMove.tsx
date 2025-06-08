@@ -11,8 +11,10 @@ const HighlightedLegalMove = ({ position }: { position: Point }) => {
     return (
         <ChessSquare
             onPointerUp={() => sendMove(sendEventMessage, position)}
-            className="z-20 bg-radial-[at_20%_23%] from-black/75 to-transparent hover:border
-                hover:border-white/50"
+            className="animate-[fadeIn_0.15s_ease-out]
+                bg-[radial-gradient(rgba(0,0,0,0.25)_20%,_rgba(0,0,0,0)_23%)]
+                bg-[length:100%_100%] bg-center bg-no-repeat transition-all duration-100
+                ease-out hover:border-5 hover:border-white/50 hover:bg-[rgba(105,105,105,0.2)]"
             position={position}
         />
     );
