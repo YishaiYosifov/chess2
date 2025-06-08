@@ -35,7 +35,7 @@ public class FenCalculatorTests : BaseIntegrationTest
 
         var result = _fenCalculator.CalculateFen(board);
 
-        var expectedFen = "RH2QKB1HR/PP1PPPP1PP/10/10/10/10/10/10/pp1pppp1pp/rh2qkb1hr";
+        var expectedFen = "pp1pppp1pp/rh2qkb1hr/10/10/10/10/10/10/RH2QKB1HR/PP1PPPP1PP";
         result.Should().Be(expectedFen);
     }
 
@@ -53,7 +53,7 @@ public class FenCalculatorTests : BaseIntegrationTest
 
         var result = _fenCalculator.CalculateFen(board);
 
-        var expectedFen = "10/10/10/10/10/10/10/10/2p7/k2R2q3";
+        var expectedFen = "10/10/10/10/10/10/10/10/2P7/K2r2Q3";
         result.Should().Be(expectedFen);
     }
 
@@ -71,7 +71,7 @@ public class FenCalculatorTests : BaseIntegrationTest
 
         var result = _fenCalculator.CalculateFen(board);
 
-        var expectedFen = "3P/2q1/1R2/k3";
+        var expectedFen = "3p/2Q1/1r2/K3";
         result.Should().Be(expectedFen);
     }
 }
