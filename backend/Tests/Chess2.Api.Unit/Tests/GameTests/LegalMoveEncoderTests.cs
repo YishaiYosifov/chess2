@@ -91,6 +91,28 @@ public class LegalMoveEncoderTests : BaseUnitTest
 
         var result = _encoder.EncodeLegalMoves([move]);
 
-        result.Should().Be("e4d5-!d5");
+        result.Should().Be("e4d5!d5");
+    }
+
+    [Fact]
+    public void EncodeLegalMoves_both_move_and_side_effect_with_captures()
+    {
+        var capture = new Move(
+            From: new Point(1, 1), // b2
+            To: new Point(1, 2), // b3
+            Piece: _dummyPiece,
+            CapturedSquares: [new Point(5, 2), new Point(1, 2)] // f3, b3
+        );
+        var move = new Move(
+            From: new Point(4, 3), // e4
+            To: new Point(3, 4), // d5
+            Piece: _dummyPiece,
+            SideEffects: [capture],
+            CapturedSquares: [new Point(3, 6)] // d7
+        );
+
+        var result = _encoder.EncodeLegalMoves([move]);
+
+        result.Should().Be("e4d5!d7-b2b3!f3!b3");
     }
 }
