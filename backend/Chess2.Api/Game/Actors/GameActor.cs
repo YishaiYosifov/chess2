@@ -58,6 +58,7 @@ public class GameActor : ReceiveActor
             PlayerBlack = playerBlack,
             PlayerToMove = GameColor.White,
         };
+        _game.InitializeGame();
 
         Sender.Tell(new GameEvents.GameStartedEvent());
         Become(() => Playing(players));
