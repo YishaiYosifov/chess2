@@ -20,8 +20,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
 
     if (!piece) return;
 
-    const { position, pieceType, color } = piece;
-
     function startDragging(event: ReactMouseEvent): void {
         setIsDragging(true);
 
@@ -62,7 +60,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     return (
         <ChessSquare
             data-testid="piece"
-            position={position}
+            position={piece.position}
             className={clsx(
                 `z-10 touch-none bg-size-[length:100%] bg-no-repeat transition-transform
                 duration-100 ease-out select-none`,
@@ -70,14 +68,15 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             )}
             ref={pieceRef}
             onPointerDown={(event) => {
-                const canDrag = playingAs == sideToMove && color == sideToMove;
+                const canDrag =
+                    playingAs == sideToMove && piece.color == sideToMove;
                 if (!canDrag) return;
 
-                showLegalMoves(position);
+                showLegalMoves(piece.position);
                 startDragging(event);
             }}
             style={{
-                backgroundImage: `url("/assets/pieces/${pieceType}-${color == GameColor.WHITE ? "white" : "black"}.png")`,
+                backgroundImage: `url("/assets/pieces/${piece.type}-${piece.color == GameColor.WHITE ? "white" : "black"}.png")`,
                 left: draggingOffset[0],
                 top: draggingOffset[1],
             }}
