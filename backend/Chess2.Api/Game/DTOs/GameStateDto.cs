@@ -9,6 +9,6 @@ public record GameStateDto(
     GamePlayerDto PlayerBlack,
     GameColor PlayerToMove,
     string Fen,
-    IReadOnlyCollection<Move> Moves,
+    IReadOnlyCollection<string> FenHistory,
     IReadOnlyCollection<Move> LegalMoves
 );

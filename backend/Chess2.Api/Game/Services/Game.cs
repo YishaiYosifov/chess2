@@ -6,7 +6,7 @@ namespace Chess2.Api.Game.Services;
 public interface IGame
 {
     public string Fen { get; }
-    IReadOnlyCollection<Move> Moves { get; }
+    IReadOnlyCollection<string> FenHistory { get; }
     IReadOnlyCollection<Move> LegalMoves { get; }
 }
 
@@ -17,16 +17,23 @@ public class Game : IGame
         GameConstants.BoardHeight,
         GameConstants.BoardWidth
     );
-    private readonly IFenCalculator _fenCalculator;
     private readonly List<Move> _legalMoves = [];
+    private readonly List<string> _fenHistory = [];
 
-    public string Fen { get; }
-    public IReadOnlyCollection<Move> Moves => _board.Moves;
-    public IReadOnlyCollection<Move> LegalMoves => _legalMoves;
+    private readonly IFenCalculator _fenCalculator;
+    private readonly ILegalMoveCalculator _legalMoveCalculator;
 
-    public Game(IFenCalculator fenCalculator)
+    public string Fen { get; private set; }
+    public IReadOnlyCollection<string> FenHistory => _fenHistory.AsReadOnly();
+    public IReadOnlyCollection<Move> LegalMoves => _legalMoves.AsReadOnly();
+
+    public Game(IFenCalculator fenCalculator, ILegalMoveCalculator legalMoveCalculator)
     {
         _fenCalculator = fenCalculator;
+        _legalMoveCalculator = legalMoveCalculator;
+
         Fen = _fenCalculator.CalculateFen(_board);
+        _fenHistory.Add(Fen);
+        _legalMoves = [.. _legalMoveCalculator.CalculateAllLegalMoves(_board)];
     }
 }
