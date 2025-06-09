@@ -29,32 +29,28 @@ public class MoveEncoder : IMoveEncoder
     private static string EncodeMoveFlat(Move move)
     {
         var path = new StringBuilder();
-        var captures = new List<Point>();
-        BuildPath(move, path, captures);
-
-        foreach (var capture in captures)
-        {
-            path.Append('!');
-            path.Append(capture.AsUCI());
-        }
+        BuildPath(move, path);
 
         return path.ToString();
     }
 
-    private static void BuildPath(Move move, StringBuilder path, List<Point> captures)
+    private static void BuildPath(Move move, StringBuilder path)
     {
         path.Append(move.From.AsUCI());
         foreach (var throughPoint in move.Through ?? [])
             path.Append(throughPoint.AsUCI());
         path.Append(move.To.AsUCI());
 
-        if (move.CapturedSquares != null)
-            captures.AddRange(move.CapturedSquares);
+        foreach (var capture in move.CapturedSquares ?? [])
+        {
+            path.Append('!');
+            path.Append(capture.AsUCI());
+        }
 
         foreach (var sideEffect in move.SideEffects ?? [])
         {
             path.Append('-');
-            BuildPath(sideEffect, path, captures);
+            BuildPath(sideEffect, path);
         }
     }
 }
