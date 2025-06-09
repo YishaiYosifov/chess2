@@ -36,7 +36,6 @@ const ChessSquare: ForwardRefRenderFunction<
     const [boardWidth, boardHeight] = useBoardSize();
     const viewingFrom = useChessStore((state) => state.viewingFrom);
 
-    const boardSize = boardWidth * boardHeight;
     let [x, y] = position;
 
     // flip the coordinates because white is starts at y 0,
@@ -46,16 +45,25 @@ const ChessSquare: ForwardRefRenderFunction<
         y = boardHeight - y - 1;
     }
 
-    const physicalX = x * boardWidth * boardHeight;
-    const physicalY = y * boardSize;
+    const tileWidthStepPercent = boardWidth * boardWidth;
+    const tileHeightStepPercent = boardHeight * boardHeight;
+
+    const tileWidth = 100 / boardWidth;
+    const tileHeight = 100 / boardHeight;
+
+    const maxX = (boardWidth - 1) * tileWidthStepPercent;
+    const maxY = (boardHeight - 1) * tileHeightStepPercent;
+
+    const physicalX = x * tileWidthStepPercent;
+    const physicalY = y * tileHeightStepPercent;
 
     // tailwind doesn't work well with dynamic values
     style ??= {};
     style.transform = `translate(
-        calc(${physicalX}% + ${draggingOffset[0]}px),
-        calc(${physicalY}% + ${draggingOffset[1]}px))`;
-    style.height = `${100 / boardHeight}%`;
-    style.width = `${100 / boardWidth}%`;
+        clamp(0%, calc(${physicalX}% + ${draggingOffset[0]}px), ${maxX}%),
+        clamp(0%, calc(${physicalY}% + ${draggingOffset[1]}px), ${maxY}%))`;
+    style.width = `${tileWidth}%`;
+    style.height = `${tileHeight}%`;
 
     return (
         <div
