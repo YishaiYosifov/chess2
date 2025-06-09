@@ -113,6 +113,6 @@ public class MoveEncoderTests : BaseUnitTest
 
         var result = _encoder.EncodeMoves([move]);
 
-        result.Should().BeEquivalentTo(["e4d5-b2b3!d7!f3!b3"]);
+        result.Should().BeEquivalentTo(["e4d5!d7-b2b3!f3!b3"]);
     }
 }
