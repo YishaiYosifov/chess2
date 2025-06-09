@@ -176,6 +176,9 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
         {
             if (ctx.Request.Cookies.TryGetValue(cookieName, out var token))
                 ctx.Token = token;
+            else if (ctx.Request.Headers.TryGetValue("Authorization", out var headerToken))
+                ctx.Token = headerToken;
+
             return Task.CompletedTask;
         },
 
