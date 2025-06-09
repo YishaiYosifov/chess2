@@ -15,7 +15,7 @@ public interface IGame
 public class Game(
     IFenCalculator fenCalculator,
     ILegalMoveCalculator legalMoveCalculator,
-    ILegalMoveEncoder legalMoveEncoder
+    IMoveEncoder legalMoveEncoder
 ) : IGame
 {
     private readonly ChessBoard _board = new(
@@ -30,7 +30,7 @@ public class Game(
 
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
-    private readonly ILegalMoveEncoder _legalMoveEncoder = legalMoveEncoder;
+    private readonly IMoveEncoder _legalMoveEncoder = legalMoveEncoder;
 
     public string Fen { get; private set; } = "";
 
@@ -44,13 +44,13 @@ public class Game(
 
         _encodedWhiteMoves =
         [
-            .. _legalMoveEncoder.EncodeLegalMoves(
+            .. _legalMoveEncoder.EncodeMoves(
                 _legalMoves.Where(m => m.Piece.Color == GameColor.White)
             ),
         ];
         _encodedBlackMoves =
         [
-            .. _legalMoveEncoder.EncodeLegalMoves(
+            .. _legalMoveEncoder.EncodeMoves(
                 _legalMoves.Where(m => m.Piece.Color == GameColor.Black)
             ),
         ];
