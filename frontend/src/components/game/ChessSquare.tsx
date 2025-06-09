@@ -46,7 +46,6 @@ const ChessSquare: ForwardRefRenderFunction<
         y = boardHeight - y - 1;
     }
 
-    console.log(draggingOffset);
     const physicalX = x * boardWidth * boardHeight;
     const physicalY = y * boardSize;
 

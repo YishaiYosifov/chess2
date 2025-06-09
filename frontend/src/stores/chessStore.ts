@@ -11,7 +11,7 @@ import {
     Move,
     StrPoint,
 } from "@/types/tempModels";
-import { pointToString, stringToPoint } from "@/lib/utils/chessUtils";
+import { pointToString, stringToPoint } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { SendEventMessageFunction } from "@/hooks/useEventWS";
 import { GameColor } from "@/lib/apiClient";
