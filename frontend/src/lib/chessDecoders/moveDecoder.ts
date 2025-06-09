@@ -44,7 +44,7 @@ function decodePath(path: string): {
 } {
     const uciMatch = path.match(/[a-zA-Z]+\d+/g);
     if (!uciMatch)
-        throw new Error(`Invalid move: could not parse points  (${path})`);
+        throw new Error(`Invalid move: could not parse points (${path})`);
 
     const points = uciMatch.map(uciToPoint);
     if (points.length < 2)
