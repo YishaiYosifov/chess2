@@ -5,7 +5,7 @@ namespace Chess2.Api.Game.Services;
 
 public interface ILegalMoveEncoder
 {
-    string EncodeLegalMoves(IEnumerable<Move> legalMoves);
+    IEnumerable<string> EncodeLegalMoves(IEnumerable<Move> legalMoves);
 }
 
 public class LegalMoveEncoder : ILegalMoveEncoder
@@ -23,8 +23,8 @@ public class LegalMoveEncoder : ILegalMoveEncoder
     /// Example encoding for castling with rook side effect and a capture:
     /// <code>e1>f1g1-h1f1!d4</code>
     /// </summary>
-    public string EncodeLegalMoves(IEnumerable<Move> legalMoves) =>
-        string.Join(" ", legalMoves.Select(EncodeMoveFlat));
+    public IEnumerable<string> EncodeLegalMoves(IEnumerable<Move> legalMoves) =>
+        legalMoves.Select(EncodeMoveFlat);
 
     private static string EncodeMoveFlat(Move move)
     {

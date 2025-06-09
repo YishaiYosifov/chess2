@@ -10,5 +10,5 @@ public record GameStateDto(
     GameColor PlayerToMove,
     string Fen,
     IReadOnlyCollection<string> FenHistory,
-    string LegalMoves
+    IReadOnlyCollection<string> LegalMoves
 );

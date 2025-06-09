@@ -6,8 +6,8 @@ namespace Chess2.Api.Game.Services;
 public interface IGame
 {
     public string Fen { get; }
-    IReadOnlyCollection<string> FenHistory { get; }
-    public string EncodedLegalMoves { get; }
+    public IReadOnlyCollection<string> FenHistory { get; }
+    public IReadOnlyCollection<string> EncodedLegalMoves { get; }
 
     void InitializeGame();
 }
@@ -31,7 +31,7 @@ public class Game(
     private readonly ILegalMoveEncoder _legalMoveEncoder = legalMoveEncoder;
 
     public string Fen { get; private set; } = "";
-    public string EncodedLegalMoves { get; private set; } = "";
+    public IReadOnlyCollection<string> EncodedLegalMoves { get; private set; } = [];
     public IReadOnlyCollection<string> FenHistory => _fenHistory.AsReadOnly();
     public IReadOnlyCollection<Move> LegalMoves => _legalMoves.AsReadOnly();
 
@@ -40,6 +40,6 @@ public class Game(
         Fen = _fenCalculator.CalculateFen(_board);
         _fenHistory.Add(Fen);
         _legalMoves = [.. _legalMoveCalculator.CalculateAllLegalMoves(_board)];
-        EncodedLegalMoves = _legalMoveEncoder.EncodeLegalMoves(_legalMoves);
+        EncodedLegalMoves = _legalMoveEncoder.EncodeLegalMoves(_legalMoves).ToList().AsReadOnly();
     }
 }
