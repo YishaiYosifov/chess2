@@ -6,4 +6,5 @@ export const createClientConfig: CreateClientConfig = (config) => ({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     credentials: "include",
     fetch: authAwareFetch,
+    security: [{ type: "apiKey" }],
 });
