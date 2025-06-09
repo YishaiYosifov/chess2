@@ -33,7 +33,7 @@ public class GameCommands
 
 public class GameQueries
 {
-    public record GetGameState(string GameToken) : IGameMessage;
+    public record GetGameState(string GameToken, string ForUserId) : IGameMessage;
 
     public record GetGameStatus(string GameToken) : IGameMessage;
 }

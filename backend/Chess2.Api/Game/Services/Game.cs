@@ -5,11 +5,11 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGame
 {
-    public string Fen { get; }
-    public IReadOnlyCollection<string> FenHistory { get; }
-    public IReadOnlyCollection<string> EncodedLegalMoves { get; }
+    string Fen { get; }
+    IReadOnlyCollection<string> FenHistory { get; }
 
     void InitializeGame();
+    IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor);
 }
 
 public class Game(
@@ -25,21 +25,42 @@ public class Game(
     );
     private readonly List<string> _fenHistory = [];
     private List<Move> _legalMoves = [];
+    private List<string> _encodedWhiteMoves = [];
+    private List<string> _encodedBlackMoves = [];
 
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
     private readonly ILegalMoveEncoder _legalMoveEncoder = legalMoveEncoder;
 
     public string Fen { get; private set; } = "";
-    public IReadOnlyCollection<string> EncodedLegalMoves { get; private set; } = [];
+
     public IReadOnlyCollection<string> FenHistory => _fenHistory.AsReadOnly();
-    public IReadOnlyCollection<Move> LegalMoves => _legalMoves.AsReadOnly();
 
     public void InitializeGame()
     {
         Fen = _fenCalculator.CalculateFen(_board);
         _fenHistory.Add(Fen);
         _legalMoves = [.. _legalMoveCalculator.CalculateAllLegalMoves(_board)];
-        EncodedLegalMoves = _legalMoveEncoder.EncodeLegalMoves(_legalMoves).ToList().AsReadOnly();
+
+        _encodedWhiteMoves =
+        [
+            .. _legalMoveEncoder.EncodeLegalMoves(
+                _legalMoves.Where(m => m.Piece.Color == GameColor.White)
+            ),
+        ];
+        _encodedBlackMoves =
+        [
+            .. _legalMoveEncoder.EncodeLegalMoves(
+                _legalMoves.Where(m => m.Piece.Color == GameColor.Black)
+            ),
+        ];
     }
+
+    public IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor) =>
+        forColor switch
+        {
+            GameColor.White => _encodedWhiteMoves.AsReadOnly(),
+            GameColor.Black => _encodedBlackMoves.AsReadOnly(),
+            _ => throw new InvalidOperationException($"Invalid Color {forColor}?"),
+        };
 }

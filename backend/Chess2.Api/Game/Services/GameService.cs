@@ -12,6 +12,7 @@ public interface IGameService
 {
     Task<ErrorOr<GameStateDto>> GetGameStateAsync(
         string gameToken,
+        string userId,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(
@@ -53,6 +54,7 @@ public class GameService(
 
     public async Task<ErrorOr<GameStateDto>> GetGameStateAsync(
         string gameToken,
+        string userId,
         CancellationToken token = default
     )
     {
@@ -61,7 +63,7 @@ public class GameService(
             return gameStartedResult.Errors;
 
         var state = await _gameActor.ActorRef.Ask<GameEvents.GameStateEvent>(
-            new GameQueries.GetGameState(gameToken),
+            new GameQueries.GetGameState(gameToken, userId),
             token
         );
         return state.State;
