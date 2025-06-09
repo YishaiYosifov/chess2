@@ -29,6 +29,12 @@ public class PawnDefinition : IPieceDefinition
                     maxTimesMoved: 0
                 )
             ),
+            new NoCaptureBehaviour(
+                new TimesMovedRestrictedBehaviour(
+                    new StepBehaviour(new Point(X: 0, Y: 3 * direction)),
+                    maxTimesMoved: 0
+                )
+            ),
         ];
 
         return behaviours;
