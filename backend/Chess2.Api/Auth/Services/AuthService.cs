@@ -24,6 +24,7 @@ public interface IAuthService
         ClaimsPrincipal? claimsPrincipal,
         CancellationToken token = default
     );
+    ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal);
 }
 
 public class AuthService(
@@ -39,6 +40,14 @@ public class AuthService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+    public ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal)
+    {
+        var userId = claimsPrincipal?.GetClaim(ClaimTypes.NameIdentifier);
+        if (userId is null)
+            return Error.Unauthorized();
+        return userId;
+    }
 
     /// <summary>
     /// Get the user that is logged in to the http context
