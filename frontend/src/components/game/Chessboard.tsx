@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import constants from "@/lib/constants";
-import { Move, Point, StrPoint, type PieceMap } from "@/types/tempModels";
+import { Move, StrPoint, type PieceMap } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
