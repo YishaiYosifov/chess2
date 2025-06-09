@@ -12,6 +12,9 @@ public class PlayerRoster
 {
     public required GamePlayer PlayerWhite { get; init; }
     public required GamePlayer PlayerBlack { get; init; }
+    public required Dictionary<string, GamePlayer> IdToPlayer { get; init; }
+    public required Dictionary<GameColor, GamePlayer> ColorToPlayer { get; init; }
+
     public required GameColor PlayerToMove { get; set; }
 }
 
@@ -59,6 +62,16 @@ public class GameActor : ReceiveActor
         {
             PlayerWhite = playerWhite,
             PlayerBlack = playerBlack,
+            IdToPlayer = new()
+            {
+                [playerWhite.UserId] = playerWhite,
+                [playerBlack.UserId] = playerBlack,
+            },
+            ColorToPlayer = new()
+            {
+                [GameColor.White] = playerWhite,
+                [GameColor.Black] = playerBlack,
+            },
             PlayerToMove = GameColor.White,
         };
         _game.InitializeGame();
@@ -73,18 +86,32 @@ public class GameActor : ReceiveActor
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
 
-        Receive<GameQueries.GetGameState>(_ => HandleGetGameState(players));
+        Receive<GameQueries.GetGameState>(getGameState =>
+            HandleGetGameState(getGameState, players)
+        );
     }
 
-    private void HandleGetGameState(PlayerRoster players)
+    private void HandleGetGameState(GameQueries.GetGameState getGameState, PlayerRoster players)
     {
+        var player = players.IdToPlayer.GetValueOrDefault(getGameState.ForUserId);
+        if (player is null)
+        {
+            _logger.Warning(
+                "Could not find player {0} when trying to get state for game {1}",
+                getGameState.ForUserId,
+                _token
+            );
+            return;
+        }
+        var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
+
         var gameStateDto = new GameStateDto(
             PlayerWhite: new GamePlayerDto(players.PlayerWhite),
             PlayerBlack: new GamePlayerDto(players.PlayerBlack),
             PlayerToMove: players.PlayerToMove,
             Fen: _game.Fen,
             FenHistory: _game.FenHistory,
-            LegalMoves: _game.EncodedLegalMoves
+            LegalMoves: legalMoves
         );
 
         Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);

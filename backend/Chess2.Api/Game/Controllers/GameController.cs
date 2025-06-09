@@ -1,26 +1,39 @@
-﻿using Chess2.Api.Game.DTOs;
+﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Services;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Game.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GameController(IGameService gameService) : Controller
+public class GameController(IGameService gameService, IAuthService authService) : Controller
 {
     private readonly IGameService _gameService = gameService;
+    private readonly IAuthService _authService = authService;
 
     [HttpGet("live/{gameToken}", Name = nameof(GetLiveGame))]
     [ProducesResponseType<GameStateDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [Authorize(AuthPolicies.AuthedSesssion)]
     public async Task<ActionResult<GameStateDto>> GetLiveGame(
         string gameToken,
         CancellationToken token
     )
     {
-        var gameStateResult = await _gameService.GetGameStateAsync(gameToken, token);
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var gameStateResult = await _gameService.GetGameStateAsync(
+            gameToken,
+            userIdResult.Value,
+            token
+        );
         return gameStateResult.Match(Ok, errors => errors.ToActionResult());
     }
 }
