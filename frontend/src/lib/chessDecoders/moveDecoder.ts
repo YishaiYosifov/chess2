@@ -22,7 +22,7 @@ function parseMove(path: string): Move {
     const rootPath = parts[0];
     const [mainPart, ...captureParts] = rootPath.split("!");
 
-    const captures = captureParts.map(uciToPoint);
+    const captures = captureParts.map(algebraicToPoint);
     const rootMove = decodePath(mainPart);
 
     for (let i = 1; i < parts.length; i++) {
@@ -42,11 +42,11 @@ function decodePath(path: string): {
     through: Point[];
     to: Point;
 } {
-    const uciMatch = path.match(/[a-zA-Z]+\d+/g);
-    if (!uciMatch)
+    const algebraicMatch = path.match(/[a-zA-Z]+\d+/g);
+    if (!algebraicMatch)
         throw new Error(`Invalid move: could not parse points (${path})`);
 
-    const points = uciMatch.map(uciToPoint);
+    const points = algebraicMatch.map(algebraicToPoint);
     if (points.length < 2)
         throw new Error(`Invalid move: not enough points (${path})`);
 
@@ -57,8 +57,8 @@ function decodePath(path: string): {
     };
 }
 
-function uciToPoint(uci: string): Point {
-    const file = uci.charCodeAt(0) - "a".charCodeAt(0);
-    const rank = parseInt(uci[1]) - 1;
+function algebraicToPoint(algebraic: string): Point {
+    const file = algebraic.charCodeAt(0) - "a".charCodeAt(0);
+    const rank = parseInt(algebraic[1]) - 1;
     return [file, rank];
 }
