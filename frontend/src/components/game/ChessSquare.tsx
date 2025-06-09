@@ -12,6 +12,7 @@ import { GameColor } from "@/lib/apiClient";
 
 type ChessSquareProps = {
     position: Point;
+    draggingOffset?: Point;
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
@@ -21,25 +22,39 @@ type ChessSquareProps = {
 const ChessSquare: ForwardRefRenderFunction<
     HTMLDivElement,
     ChessSquareProps
-> = ({ position, children, className, style, ...divProps }, ref) => {
+> = (
+    {
+        position,
+        draggingOffset = [0, 0],
+        children,
+        className,
+        style,
+        ...divProps
+    },
+    ref,
+) => {
     const [boardWidth, boardHeight] = useBoardSize();
     const viewingFrom = useChessStore((state) => state.viewingFrom);
 
     const boardSize = boardWidth * boardHeight;
     let [x, y] = position;
 
-    // flip the board if we are viewing from the black prespective
-    if (viewingFrom == GameColor.BLACK) {
+    // flip the coordinates because white is starts at y 0,
+    // but we want to the playing side on the bottom
+    if (viewingFrom == GameColor.WHITE) {
         x = boardWidth - x - 1;
         y = boardHeight - y - 1;
     }
 
+    console.log(draggingOffset);
     const physicalX = x * boardWidth * boardHeight;
     const physicalY = y * boardSize;
 
     // tailwind doesn't work well with dynamic values
     style ??= {};
-    style.transform = `translate(${physicalX}%, ${physicalY}%)`;
+    style.transform = `translate(
+        calc(${physicalX}% + ${draggingOffset[0]}px),
+        calc(${physicalY}% + ${draggingOffset[1]}px))`;
     style.height = `${100 / boardHeight}%`;
     style.width = `${100 / boardWidth}%`;
 
