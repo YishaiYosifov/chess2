@@ -13,4 +13,6 @@ public readonly record struct Point(int X, int Y)
         var rank = (char)('a' + X);
         return $"{rank}{Y + 1}";
     }
+
+    public int AsIdx(int boardWidth) => Y * boardWidth + X;
 }
