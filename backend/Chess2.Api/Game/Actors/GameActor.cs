@@ -116,10 +116,4 @@ public class GameActor : ReceiveActor
 
         Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);
     }
-
-    protected override void PostStop()
-    {
-        _logger.Info("GameActor with token {0} stopped.", _token);
-        base.PostStop();
-    }
 }
