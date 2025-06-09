@@ -23,6 +23,31 @@ public class AuthServiceTests : BaseIntegrationTest
     }
 
     [Fact]
+    public void GetUserId_returns_id_from_claim()
+    {
+        const string id = "test-id";
+        var claims = ClaimUtils.CreateClaimsPrincipal([new Claim(ClaimTypes.NameIdentifier, id)]);
+
+        var result = _authService.GetUserId(claims);
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().Be(id);
+    }
+
+    [Fact]
+    public void GetUserId_returns_an_error_when_claim_is_missing()
+    {
+        var claims = ClaimUtils.CreateClaimsPrincipal(
+            [new Claim(ClaimTypes.Name, "something random")]
+        );
+
+        var result = _authService.GetUserId(claims);
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().Be(Error.Unauthorized());
+    }
+
+    [Fact]
     public async Task SignupAsync_adds_a_user_to_the_database()
     {
         const string username = "testuser";

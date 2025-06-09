@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
@@ -10,16 +10,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using OpenIddict.Abstractions;
 
 namespace Chess2.Api.Users.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProfileController(IUserService userService, UserManager<AuthedUser> userManager)
-    : ControllerBase
+public class ProfileController(
+    IUserService userService,
+    IAuthService authService,
+    UserManager<AuthedUser> userManager
+) : ControllerBase
 {
     private readonly IUserService _userService = userService;
+    private readonly IAuthService _authService = authService;
 
     [HttpGet("me", Name = nameof(GetAuthedUser))]
     [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
@@ -38,11 +41,8 @@ public class ProfileController(IUserService userService, UserManager<AuthedUser>
     [Authorize(AuthPolicies.AuthedSesssion)]
     public ActionResult<string> GetMyId()
     {
-        var id = HttpContext.User.GetClaim(ClaimTypes.NameIdentifier);
-        if (id is null)
-            return Error.Unauthorized().ToActionResult();
-
-        return Ok(id);
+        var idResult = _authService.GetUserId(User);
+        return idResult.Match(Ok, errors => errors.ToActionResult());
     }
 
     [HttpGet("by-username/{username}", Name = nameof(GetUser))]
