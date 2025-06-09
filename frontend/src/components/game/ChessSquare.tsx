@@ -40,10 +40,12 @@ const ChessSquare: ForwardRefRenderFunction<
     // tailwind doesn't work well with dynamic values
     style ??= {};
     style.transform = `translate(${physicalX}%, ${physicalY}%)`;
+    style.height = `${100 / boardHeight}%`;
+    style.width = `${100 / boardWidth}%`;
 
     return (
         <div
-            className={clsx(className, "absolute h-[10%] w-[10%] transform")}
+            className={clsx(className, "absolute transform")}
             style={style}
             {...divProps}
             ref={ref}
