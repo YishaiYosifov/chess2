@@ -10,17 +10,21 @@ const GamePage = withAuthedSession(
     async ({
         params,
         userId,
+        accessToken,
     }: {
         params: Promise<{ gameToken: string }>;
         userId: string;
+        accessToken?: string;
     }) => {
         const { gameToken } = await params;
 
         const { error, data: game } = await getLiveGame({
             path: { gameToken },
+            auth: () => accessToken,
         });
+
         if (error || !game) {
-            console.error(error);
+            console.warn(error);
             notFound();
         }
         console.log(game);
