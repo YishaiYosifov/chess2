@@ -33,11 +33,11 @@ public class PointTests : BaseUnitTest
     [InlineData(0, 0, "a1")]
     [InlineData(1, 1, "b2")]
     [InlineData(25, 7, "z8")]
-    public void AsUCI_returns_correct_string(int x, int y, string expected)
+    public void AsAlgebraic_returns_correct_string(int x, int y, string expected)
     {
         var point = new Point(x, y);
 
-        var result = point.AsUCI();
+        var result = point.AsAlgebraic();
 
         result.Should().Be(expected);
     }

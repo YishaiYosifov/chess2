@@ -36,15 +36,15 @@ public class MoveEncoder : IMoveEncoder
 
     private static void BuildPath(Move move, StringBuilder path)
     {
-        path.Append(move.From.AsUCI());
+        path.Append(move.From.AsAlgebraic());
         foreach (var throughPoint in move.Through ?? [])
-            path.Append(throughPoint.AsUCI());
-        path.Append(move.To.AsUCI());
+            path.Append(throughPoint.AsAlgebraic());
+        path.Append(move.To.AsAlgebraic());
 
         foreach (var capture in move.CapturedSquares ?? [])
         {
             path.Append('!');
-            path.Append(capture.AsUCI());
+            path.Append(capture.AsAlgebraic());
         }
 
         foreach (var sideEffect in move.SideEffects ?? [])
