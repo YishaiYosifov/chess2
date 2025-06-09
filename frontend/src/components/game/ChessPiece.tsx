@@ -26,11 +26,9 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         // calculate the dragging offset
         // snap the center of the piece to the mouse when dragging start
         const rect = pieceRef.current!.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
 
-        const offsetX = event.clientX + (centerX - event.clientX);
-        const offsetY = event.clientY + (centerY - event.clientY);
+        const offsetX = rect.left + rect.width / 2;
+        const offsetY = rect.top + rect.height / 2;
 
         function updateDraggingOffset(mouseX: number, mouseY: number): void {
             const x = mouseX - offsetX;
@@ -61,10 +59,11 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         <ChessSquare
             data-testid="piece"
             position={piece.position}
+            draggingOffset={draggingOffset}
             className={clsx(
                 `z-10 touch-none bg-size-[length:100%] bg-no-repeat transition-transform
                 duration-100 ease-out select-none`,
-                isDragging && "pointer-events-none z-20",
+                isDragging && "pointer-events-none z-30",
             )}
             ref={pieceRef}
             onPointerDown={(event) => {
@@ -77,8 +76,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             }}
             style={{
                 backgroundImage: `url("/assets/pieces/${piece.type}-${piece.color == GameColor.WHITE ? "white" : "black"}.png")`,
-                left: draggingOffset[0],
-                top: draggingOffset[1],
             }}
         />
     );
