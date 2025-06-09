@@ -22,7 +22,11 @@ public static class AkkaDIExtensions
             name,
             (_, _, resolver) => s => resolver.Props<TActor>(),
             new MatchmakingShardExtractor(shardCount),
-            new ShardOptions() { Role = ActorSystemConstants.BackendRole }
+            new ShardOptions()
+            {
+                Role = ActorSystemConstants.BackendRole,
+                ShouldPassivateIdleEntities = false,
+            }
         );
     }
 
@@ -35,7 +39,11 @@ public static class AkkaDIExtensions
             "player",
             (_, _, resolver) => s => resolver.Props<PlayerActor>(s),
             new PlayerShardExtractor(shardCount),
-            new ShardOptions() { Role = ActorSystemConstants.BackendRole }
+            new ShardOptions()
+            {
+                Role = ActorSystemConstants.BackendRole,
+                ShouldPassivateIdleEntities = false,
+            }
         );
     }
 
@@ -48,7 +56,11 @@ public static class AkkaDIExtensions
             "game",
             (_, _, resolver) => s => resolver.Props<GameActor>(s),
             new GameShardExtractor(shardCount),
-            new ShardOptions() { Role = ActorSystemConstants.BackendRole }
+            new ShardOptions()
+            {
+                Role = ActorSystemConstants.BackendRole,
+                ShouldPassivateIdleEntities = false,
+            }
         );
     }
 }
