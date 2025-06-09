@@ -5,13 +5,13 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameTests;
 
-public class LegalMoveEncoderTests : BaseUnitTest
+public class MoveEncoderTests : BaseUnitTest
 {
-    private readonly LegalMoveEncoder _encoder = new();
+    private readonly MoveEncoder _encoder = new();
     private readonly Piece _dummyPiece = new PieceFaker().Generate();
 
     [Fact]
-    public void EncodeLegalMoves_single_basic_move()
+    public void EncodeMoves_single_basic_move()
     {
         var move = new Move(
             From: new Point(4, 1), // e2
@@ -19,13 +19,13 @@ public class LegalMoveEncoderTests : BaseUnitTest
             Piece: _dummyPiece
         );
 
-        var result = _encoder.EncodeLegalMoves([move]);
+        var result = _encoder.EncodeMoves([move]);
 
         result.Should().BeEquivalentTo(["e2e4"]);
     }
 
     [Fact]
-    public void EncodeLegalMoves_multiple_moves()
+    public void EncodeMoves_multiple_moves()
     {
         var move1 = new Move(
             From: new Point(4, 1), // e2
@@ -38,13 +38,13 @@ public class LegalMoveEncoderTests : BaseUnitTest
             Piece: _dummyPiece
         );
 
-        var result = _encoder.EncodeLegalMoves([move1, move2]);
+        var result = _encoder.EncodeMoves([move1, move2]);
 
         result.Should().BeEquivalentTo(["e2e4", "g1f3"]);
     }
 
     [Fact]
-    public void EncodeLegalMoves_single_move_with_through_points()
+    public void EncodeMoves_single_move_with_through_points()
     {
         var move = new Move(
             From: new Point(4, 0), // e1
@@ -53,13 +53,13 @@ public class LegalMoveEncoderTests : BaseUnitTest
             Piece: _dummyPiece
         );
 
-        var result = _encoder.EncodeLegalMoves([move]);
+        var result = _encoder.EncodeMoves([move]);
 
         result.Should().BeEquivalentTo(["e1f1g1"]);
     }
 
     [Fact]
-    public void EncodeLegalMoves_single_move_with_side_effects()
+    public void EncodeMoves_single_move_with_side_effects()
     {
         var sideEffect = new Move(
             From: new Point(7, 0), // h1
@@ -74,13 +74,13 @@ public class LegalMoveEncoderTests : BaseUnitTest
             SideEffects: [sideEffect]
         );
 
-        var result = _encoder.EncodeLegalMoves([move]);
+        var result = _encoder.EncodeMoves([move]);
 
         result.Should().BeEquivalentTo(["e1f1g1h1-h1f1"]);
     }
 
     [Fact]
-    public void EncodeLegalMoves_single_move_with_captured_squares()
+    public void EncodeMoves_single_move_with_captured_squares()
     {
         var move = new Move(
             From: new Point(4, 3), // e4
@@ -89,13 +89,13 @@ public class LegalMoveEncoderTests : BaseUnitTest
             CapturedSquares: [new Point(3, 4)] // capture on d5
         );
 
-        var result = _encoder.EncodeLegalMoves([move]);
+        var result = _encoder.EncodeMoves([move]);
 
         result.Should().BeEquivalentTo(["e4d5!d5"]);
     }
 
     [Fact]
-    public void EncodeLegalMoves_both_move_and_side_effect_with_captures()
+    public void EncodeMoves_both_move_and_side_effect_with_captures()
     {
         var capture = new Move(
             From: new Point(1, 1), // b2
@@ -111,7 +111,7 @@ public class LegalMoveEncoderTests : BaseUnitTest
             CapturedSquares: [new Point(3, 6)] // d7
         );
 
-        var result = _encoder.EncodeLegalMoves([move]);
+        var result = _encoder.EncodeMoves([move]);
 
         result.Should().BeEquivalentTo(["e4d5-b2b3!d7!f3!b3"]);
     }

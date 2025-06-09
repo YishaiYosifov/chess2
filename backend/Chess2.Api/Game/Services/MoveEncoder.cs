@@ -3,12 +3,12 @@ using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Services;
 
-public interface ILegalMoveEncoder
+public interface IMoveEncoder
 {
-    IEnumerable<string> EncodeLegalMoves(IEnumerable<Move> legalMoves);
+    IEnumerable<string> EncodeMoves(IEnumerable<Move> legalMoves);
 }
 
-public class LegalMoveEncoder : ILegalMoveEncoder
+public class MoveEncoder : IMoveEncoder
 {
     /// <summary>
     /// Encodes a list of legal moves into a compact legal moves string,
@@ -23,7 +23,7 @@ public class LegalMoveEncoder : ILegalMoveEncoder
     /// Example encoding for castling with rook side effect and a capture:
     /// <code>e1>f1g1-h1f1!d4</code>
     /// </summary>
-    public IEnumerable<string> EncodeLegalMoves(IEnumerable<Move> legalMoves) =>
+    public IEnumerable<string> EncodeMoves(IEnumerable<Move> legalMoves) =>
         legalMoves.Select(EncodeMoveFlat);
 
     private static string EncodeMoveFlat(Move move)

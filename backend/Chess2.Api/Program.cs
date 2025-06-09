@@ -322,7 +322,7 @@ builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
-builder.Services.AddSingleton<ILegalMoveEncoder, LegalMoveEncoder>();
+builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 
 builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();
