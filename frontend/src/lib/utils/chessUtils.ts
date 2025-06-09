@@ -16,7 +16,7 @@ import { GameColor } from "../apiClient";
  */
 export function parseFen(fen: string): PieceMap {
     const board: PieceMap = new Map();
-    const ranks = fen.split("/");
+    const ranks = fen.split("/").reverse();
 
     let pieceIdx = 0;
     for (const [y, rank] of ranks.entries()) {
