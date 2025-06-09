@@ -100,7 +100,7 @@ export type GameState = {
     playerToMove: GameColor;
     fen: string;
     fenHistory: Array<string>;
-    legalMoves: string;
+    legalMoves: Array<string>;
 };
 
 export type GamePlayer = {

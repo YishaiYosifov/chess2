@@ -52,10 +52,9 @@ export function parseFen(fen: string): PieceMap {
     return board;
 }
 
-export function decodeLegalMoves(encoded: string): Map<StrPoint, Move[]> {
-    const cleanedEncoded = encoded.trim().split(/\s+/).filter(Boolean);
+export function decodeLegalMoves(encoded: string[]): Map<StrPoint, Move[]> {
     const moves = new Map<StrPoint, Move[]>();
-    for (const encodedMove of cleanedEncoded) {
+    for (const encodedMove of encoded) {
         const decodedMove = parseMove(encodedMove);
 
         const stringPoint = pointToString(decodedMove.from);
