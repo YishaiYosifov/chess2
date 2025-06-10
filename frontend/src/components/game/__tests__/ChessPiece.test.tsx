@@ -61,7 +61,7 @@ describe("ChessPiece", () => {
             y: 0,
         });
         expect(piece).toHaveStyle(`
-            background-image: url("/assets/pieces/${pieceInfo.type}-${pieceInfo.color}.png");
+            background-image: url("/assets/pieces/${pieceInfo.type}${pieceInfo.color}.png");
         `);
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
