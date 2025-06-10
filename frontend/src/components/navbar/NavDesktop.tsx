@@ -1,18 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-import Cookies from "js-cookie";
 import Image from "next/image";
-
-import constants from "@/lib/constants";
 
 import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
 import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
+import useCollapseState from "./useCollapseState";
 
 const NavDesktop = ({
     hasAccessCookie,
@@ -21,44 +18,9 @@ const NavDesktop = ({
     hasAccessCookie: boolean;
     isCollapsedInitialState: boolean;
 }) => {
-    const [isCollapsed, setIsCollapsed] = useState(isCollapsedInitialState);
-
-    function toggleCollapse(): void {
-        setIsCollapsed((prev) => {
-            const newIsCollapsed = !prev;
-            if (!newIsCollapsed) {
-                Cookies.remove(constants.COOKIES.SIDEBAR_COLLAPSED);
-                return newIsCollapsed;
-            }
-
-            const date = new Date();
-            date.setTime(date.getTime() + 400 * 24 * 60 * 60 * 1000);
-            Cookies.set(constants.COOKIES.SIDEBAR_COLLAPSED, "1", {
-                expires: date,
-            });
-            return newIsCollapsed;
-        });
-    }
-
-    useEffect(() => {
-        const handleResize = () => {
-            const isSmallScreen = window.innerWidth < 1024;
-            if (isSmallScreen) {
-                setIsCollapsed(true);
-                return;
-            } else {
-                const cookieValue = Cookies.get(
-                    constants.COOKIES.SIDEBAR_COLLAPSED,
-                );
-                setIsCollapsed(cookieValue !== undefined);
-            }
-        };
-
-        handleResize();
-        window.addEventListener("resize", handleResize);
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    const { isCollapsed, toggleCollapse } = useCollapseState(
+        isCollapsedInitialState,
+    );
 
     const width = isCollapsed ? "w-25" : "w-64";
     return (

@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import Cookies from "js-cookie";
 
 import PlayOptions from "../PlayOptions";
 import constants from "@/lib/constants";
@@ -7,24 +6,23 @@ import {
     useMatchmakingEmitter,
     useMatchmakingEvent,
 } from "@/hooks/signalR/useSignalRHubs";
-import { mockRouter } from "@/lib/testUtils/mocks";
+import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import React from "react";
 import userEvent from "@testing-library/user-event";
+import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 
 vi.mock("js-cookie");
 vi.mock("@/hooks/signalR/useSignalRHubs");
 
 describe("PlayOptions", () => {
     const sendMatchmakingEventMock = vi.fn();
-    const cookiesMock = vi.mocked(Cookies);
     let matchFoundCallback: (token: string) => void;
 
     function mockIsAuthedCookie(isAuthed: boolean) {
         const cookieValue = isAuthed ? "true" : undefined;
-        cookiesMock.get.mockImplementation(((name?: string) =>
-            name === constants.COOKIES.IS_AUTHED
-                ? cookieValue
-                : undefined) as typeof Cookies.get);
+        mockJsCookie({
+            [constants.COOKIES.IS_AUTHED]: cookieValue,
+        });
     }
 
     beforeEach(() => {
