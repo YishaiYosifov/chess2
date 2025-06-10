@@ -40,8 +40,8 @@ const mockBoard: PieceMap = new Map([
 
 describe("Chessboard", () => {
     it.each([
-        [GameColor.WHITE, 0, 0],
-        [GameColor.BLACK, 900, 900],
+        [GameColor.WHITE, 900, 900],
+        [GameColor.BLACK, 0, 0],
     ])(
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {
@@ -50,9 +50,12 @@ describe("Chessboard", () => {
             );
 
             const piece = screen.getAllByTestId("piece")[0];
-            expect(piece).toHaveStyle(
-                `transform: translate(${firstRow}%, ${firstColumn}%)`,
-            );
+
+            const expected = `translate(
+                clamp(0%, calc(${firstRow}% + 0px), 900%),
+                clamp(0%, calc(${firstColumn}% + 0px), 900%))`;
+            const normalize = (str: string) => str.replace(/\s+/g, "");
+            expect(normalize(piece.style.transform)).toBe(normalize(expected));
         },
     );
 
