@@ -15,24 +15,24 @@ const mockBoard: PieceMap = new Map([
     [
         "1",
         {
-            position: [0, 0],
-            pieceType: PieceType.Rook,
+            position: { x: 0, y: 0 },
+            type: PieceType.ROOK,
             color: GameColor.WHITE,
         },
     ],
     [
         "2",
         {
-            position: [1, 0],
-            pieceType: PieceType.Horsie,
+            position: { x: 1, y: 0 },
+            type: PieceType.HORSEY,
             color: GameColor.WHITE,
         },
     ],
     [
         "3",
         {
-            position: [5, 0],
-            pieceType: PieceType.Rook,
+            position: { x: 5, y: 0 },
+            type: PieceType.ROOK,
             color: GameColor.BLACK,
         },
     ],

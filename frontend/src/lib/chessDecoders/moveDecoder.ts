@@ -60,5 +60,5 @@ function decodePath(path: string): {
 function algebraicToPoint(algebraic: string): Point {
     const file = algebraic.charCodeAt(0) - "a".charCodeAt(0);
     const rank = parseInt(algebraic[1]) - 1;
-    return [file, rank];
+    return { x: file, y: rank };
 }
