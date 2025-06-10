@@ -7,6 +7,17 @@ import userEvent from "@testing-library/user-event";
 import { GameColor } from "@/lib/apiClient";
 
 describe("ChessPiece", () => {
+    const normalize = (str: string) => str.replace(/\s+/g, "");
+    function getExpectedTransform(
+        physicalPosition: Point,
+        draggingOffset: Point,
+    ) {
+        const expected = `translate(
+                clamp(0%, calc(${physicalPosition.x}% + ${draggingOffset.x}px), 900%),
+                clamp(0%, calc(${physicalPosition.y}% + ${draggingOffset.y}px), 900%))`;
+        return normalize(expected);
+    }
+
     function renderPiece(position: Point = { x: 0, y: 0 }) {
         const pieceInfo: Piece = {
             position: position,
@@ -32,25 +43,27 @@ describe("ChessPiece", () => {
     it.each([
         [
             { x: 0, y: 0 },
-            { x: 0, y: 0 },
+            { x: 900, y: 900 },
         ],
         [
             { x: 1, y: 1 },
-            { x: 100, y: 100 },
+            { x: 800, y: 800 },
         ],
         [
             { x: 0, y: 5 },
-            { x: 0, y: 500 },
+            { x: 900, y: 400 },
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
-        const { pieceInfo, piece } = renderPiece(position as Point);
+        const { pieceInfo, piece } = renderPiece(position);
 
+        const expectedTransform = getExpectedTransform(physicalPosition, {
+            x: 0,
+            y: 0,
+        });
         expect(piece).toHaveStyle(`
             background-image: url("/assets/pieces/${pieceInfo.type}-${pieceInfo.color}.png");
-            transform: translate(${physicalPosition.x}%, ${physicalPosition.y}%);
-            left: 0px;
-            top: 0px
         `);
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 
     it("should snap to the mouse when clicked", async () => {
@@ -67,10 +80,11 @@ describe("ChessPiece", () => {
             },
         ]);
 
-        expect(piece).toHaveStyle(
-            `left: ${mouseCoords.x}px;
-            top: ${mouseCoords.y}px;`,
+        const expectedTransform = getExpectedTransform(
+            { x: 900, y: 900 },
+            mouseCoords,
         );
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 
     it("should follow the mouse after clicking", async () => {
@@ -87,10 +101,11 @@ describe("ChessPiece", () => {
             { coords: mouseCoords },
         ]);
 
-        expect(piece).toHaveStyle(
-            `left: ${mouseCoords.x}px;
-            top: ${mouseCoords.y}px;`,
+        const expectedTransform = getExpectedTransform(
+            { x: 900, y: 900 },
+            mouseCoords,
         );
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 
     it("should release reset the position of the piece once released", async () => {
@@ -106,9 +121,10 @@ describe("ChessPiece", () => {
             { keys: "[/MouseLeft]" },
         ]);
 
-        expect(piece).toHaveStyle(
-            `left: 0px;
-            top: 0px;`,
+        const expectedTransform = getExpectedTransform(
+            { x: 900, y: 900 },
+            { x: 0, y: 0 },
         );
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 });

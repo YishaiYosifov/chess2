@@ -1,10 +1,14 @@
 import { render, screen } from "@testing-library/react";
 
-import { mockNextCookies } from "@/lib/testUtils/mocks/mockCookies";
+import {
+    mockJsCookie,
+    mockNextCookies,
+} from "@/lib/testUtils/mocks/mockCookies";
 import constants from "@/lib/constants";
 import Navbar from "../Navbar";
 
 vi.mock("next/headers");
+vi.mock("js-cookie");
 
 describe("Navbar Component", () => {
     it("should render NavMobile and NavDesktop components", async () => {
@@ -18,8 +22,10 @@ describe("Navbar Component", () => {
     it.each([true, false])(
         "should pass isCollapsed from the cookie",
         async (isCollapsed) => {
-            if (isCollapsed)
+            if (isCollapsed) {
                 mockNextCookies(constants.COOKIES.SIDEBAR_COLLAPSED);
+                mockJsCookie({ [constants.COOKIES.SIDEBAR_COLLAPSED]: "1" });
+            }
 
             const page = await Navbar();
             render(page);

@@ -75,7 +75,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
                 startDragging(event);
             }}
             style={{
-                backgroundImage: `url("/assets/pieces/${piece.type}-${piece.color == GameColor.WHITE ? "white" : "black"}.png")`,
+                backgroundImage: `url("/assets/pieces/${piece.type}-${piece.color}.png")`,
             }}
         />
     );
