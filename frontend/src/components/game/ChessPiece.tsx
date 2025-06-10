@@ -5,7 +5,6 @@ import { PieceID, type Point } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
 import clsx from "clsx";
-import { GameColor } from "@/lib/apiClient";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<HTMLDivElement>(null);
@@ -75,7 +74,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
                 startDragging(event);
             }}
             style={{
-                backgroundImage: `url("/assets/pieces/${piece.type}-${piece.color}.png")`,
+                backgroundImage: `url("/assets/pieces/${piece.type}${piece.color}.png")`,
             }}
         />
     );
