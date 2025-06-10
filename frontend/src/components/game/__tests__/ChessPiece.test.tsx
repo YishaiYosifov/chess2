@@ -1,21 +1,16 @@
 import { render, screen } from "@testing-library/react";
 
-import {
-    GameColor,
-    PieceMap,
-    PieceType,
-    Piece,
-    Point,
-} from "@/types/tempModels";
+import { PieceMap, PieceType, Piece, Point } from "@/types/tempModels";
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";
+import { GameColor } from "@/lib/apiClient";
 
 describe("ChessPiece", () => {
-    function renderPiece(position: Point = [0, 0]) {
+    function renderPiece(position: Point = { x: 0, y: 0 }) {
         const pieceInfo: Piece = {
             position: position,
-            pieceType: PieceType.Pawn,
+            type: PieceType.PAWN,
             color: GameColor.WHITE,
         };
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
@@ -36,23 +31,23 @@ describe("ChessPiece", () => {
 
     it.each([
         [
-            [0, 0],
-            [0, 0],
+            { x: 0, y: 0 },
+            { x: 0, y: 0 },
         ],
         [
-            [1, 1],
-            [100, 100],
+            { x: 1, y: 1 },
+            { x: 100, y: 100 },
         ],
         [
-            [0, 5],
-            [0, 500],
+            { x: 0, y: 5 },
+            { x: 0, y: 500 },
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
         const { pieceInfo, piece } = renderPiece(position as Point);
 
         expect(piece).toHaveStyle(`
-            background-image: url("/assets/pieces/${pieceInfo.pieceType}-${pieceInfo.color}.png");
-            transform: translate(${physicalPosition[0]}%, ${physicalPosition[1]}%);
+            background-image: url("/assets/pieces/${pieceInfo.type}-${pieceInfo.color}.png");
+            transform: translate(${physicalPosition.x}%, ${physicalPosition.y}%);
             left: 0px;
             top: 0px
         `);

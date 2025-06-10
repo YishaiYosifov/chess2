@@ -18,37 +18,36 @@ describe("decodeFen", () => {
             [
                 "0",
                 {
-                    position: [4, 0],
+                    position: { x: 4, y: 0 },
                     type: PieceType.KING,
-                    color: GameColor.BLACK,
+                    color: GameColor.WHITE,
                 },
             ],
             [
                 "1",
                 {
-                    position: [3, 3],
-                    type: PieceType.BISHOP,
+                    position: { x: 4, y: 3 },
+                    type: PieceType.ROOK,
                     color: GameColor.WHITE,
                 },
             ],
             [
                 "2",
                 {
-                    position: [4, 4],
-                    type: PieceType.ROOK,
+                    position: { x: 3, y: 4 },
+                    type: PieceType.BISHOP,
                     color: GameColor.WHITE,
                 },
             ],
             [
                 "3",
                 {
-                    position: [4, 7],
+                    position: { x: 4, y: 7 },
                     type: PieceType.KING,
-                    color: GameColor.WHITE,
+                    color: GameColor.BLACK,
                 },
             ],
         ]);
-
         const board = decodeFen(fen);
         expect(board).toEqual(expectedBoard);
     });

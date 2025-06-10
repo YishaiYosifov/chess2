@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import constants from "@/lib/constants";
-import { Move, StrPoint, type PieceMap } from "@/types/tempModels";
+import { LegalMoveMap, type PieceMap } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
@@ -52,7 +52,7 @@ const Chessboard = ({
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
-    legalMoves?: Map<StrPoint, Move[]>;
+    legalMoves?: LegalMoveMap;
 
     viewingFrom?: GameColor;
     sideToMove?: GameColor;
@@ -106,7 +106,7 @@ const Chessboard = ({
         return () => window.removeEventListener("resize", resizeBoard);
     }, [defaultOffset, sortedBreakpoints]);
 
-    viewingFrom ??= playingAs;
+    viewingFrom ??= playingAs ?? GameColor.WHITE;
     return (
         <div
             data-testid="chessboard"

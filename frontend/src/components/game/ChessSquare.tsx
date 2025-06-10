@@ -25,7 +25,7 @@ const ChessSquare: ForwardRefRenderFunction<
 > = (
     {
         position,
-        draggingOffset = [0, 0],
+        draggingOffset = { x: 0, y: 0 },
         children,
         className,
         style,
@@ -36,7 +36,7 @@ const ChessSquare: ForwardRefRenderFunction<
     const [boardWidth, boardHeight] = useBoardSize();
     const viewingFrom = useChessStore((state) => state.viewingFrom);
 
-    let [x, y] = position;
+    let { x, y } = position;
 
     // flip the coordinates because white is starts at y 0,
     // but we want to the playing side on the bottom
@@ -60,8 +60,8 @@ const ChessSquare: ForwardRefRenderFunction<
     // tailwind doesn't work well with dynamic values
     style ??= {};
     style.transform = `translate(
-        clamp(0%, calc(${physicalX}% + ${draggingOffset[0]}px), ${maxX}%),
-        clamp(0%, calc(${physicalY}% + ${draggingOffset[1]}px), ${maxY}%))`;
+        clamp(0%, calc(${physicalX}% + ${draggingOffset.x}px), ${maxX}%),
+        clamp(0%, calc(${physicalY}% + ${draggingOffset.y}px), ${maxY}%))`;
     style.width = `${tileWidth}%`;
     style.height = `${tileHeight}%`;
 

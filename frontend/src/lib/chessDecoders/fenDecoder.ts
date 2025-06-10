@@ -34,7 +34,7 @@ export function decodeFen(fen: string): PieceMap {
             const pieceType = square.toLowerCase() as PieceType;
 
             board.set(pieceId, {
-                position: [x, y],
+                position: { x, y },
                 type: pieceType,
                 color,
             });

@@ -25,6 +25,7 @@ export enum ErrorCode {
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
     GAME_NOT_FOUND = "Game.NotFound",
+    GAME_PLAYER_INVALID = "Game.PlayerInvalid",
 }
 
 export type ApiProblemError = {
@@ -36,7 +37,8 @@ export type ApiProblemError = {
         | "Auth.OAuth.Invalid"
         | "Auth.OAuth.ProviderNotFound"
         | "GameLogic.PieceNotFound"
-        | "Game.NotFound";
+        | "Game.NotFound"
+        | "Game.PlayerInvalid";
     description: string;
 };
 
@@ -97,7 +99,7 @@ export type OperationBase = {
 export type GameState = {
     playerWhite: GamePlayer;
     playerBlack: GamePlayer;
-    playerToMove: GameColor;
+    currentPlayerColor: GameColor;
     fen: string;
     fenHistory: Array<string>;
     legalMoves: Array<string>;
@@ -225,6 +227,7 @@ export type GetLiveGameData = {
 };
 
 export type GetLiveGameErrors = {
+    401: ApiProblemDetails;
     404: ApiProblemDetails;
 };
 

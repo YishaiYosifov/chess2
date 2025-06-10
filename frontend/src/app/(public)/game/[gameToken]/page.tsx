@@ -49,7 +49,7 @@ const GamePage = withAuthedSession(
                 startingPieces={decodedFen}
                 legalMoves={decodedLegalMoves}
                 playingAs={playingAs.color}
-                sideToMove={game.playerToMove}
+                sideToMove={game.currentPlayerColor}
             />
         );
     },
