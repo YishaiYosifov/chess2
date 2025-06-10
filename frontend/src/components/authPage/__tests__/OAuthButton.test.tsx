@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import OAuthButton from "../OAuthButton";
 import React from "react";
 import constants, { OAuthProvider } from "@/lib/constants";
-import { mockRouter } from "@/lib/testUtils/mocks";
+import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
 describe("OAuthButton", () => {
     const icon = <span data-testid="icon">Icon</span>;

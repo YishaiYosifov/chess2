@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { useRouter } from "next/navigation";
 import { Mock } from "vitest";
 
@@ -15,13 +14,4 @@ export function mockRouter() {
     routerMock.mockImplementation(() => router);
 
     return router;
-}
-
-export function mockCookies(...cookieNames: string[]): Mock {
-    const cookiesMock = cookies as Mock;
-    cookiesMock.mockImplementation(() => ({
-        has: (cookieName: string) => cookieNames.includes(cookieName),
-    }));
-
-    return cookiesMock;
 }

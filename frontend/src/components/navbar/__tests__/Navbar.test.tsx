@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { mockCookies } from "@/lib/testUtils/mocks";
+import { mockNextCookies } from "@/lib/testUtils/mocks/mockCookies";
 import constants from "@/lib/constants";
 import Navbar from "../Navbar";
 
@@ -18,7 +18,8 @@ describe("Navbar Component", () => {
     it.each([true, false])(
         "should pass isCollapsed from the cookie",
         async (isCollapsed) => {
-            if (isCollapsed) mockCookies(constants.COOKIES.SIDEBAR_COLLAPSED);
+            if (isCollapsed)
+                mockNextCookies(constants.COOKIES.SIDEBAR_COLLAPSED);
 
             const page = await Navbar();
             render(page);
@@ -34,7 +35,7 @@ describe("Navbar Component", () => {
     it.each([true, false])(
         "should pass hasAccessCookie from the cookie",
         async (hasCookie) => {
-            if (hasCookie) mockCookies(constants.COOKIES.IS_AUTHED);
+            if (hasCookie) mockNextCookies(constants.COOKIES.IS_AUTHED);
 
             const page = await Navbar();
             render(page);
