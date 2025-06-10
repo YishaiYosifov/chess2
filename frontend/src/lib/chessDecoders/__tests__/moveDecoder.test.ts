@@ -12,7 +12,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2e4"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedKey = pointToString([4, 1]); // e2
+        const expectedKey = pointToString({ x: 4, y: 1 }); // e2
 
         expect(moves.has(expectedKey)).toBe(true);
         const moveArr = moves.get(expectedKey);
@@ -22,8 +22,8 @@ describe("decodeLegalMoves", () => {
         const move = moveArr![0];
         expect(move).toEqual({
             ...emptyMove,
-            from: [4, 1], // e2
-            to: [4, 3], // e4
+            from: { x: 4, y: 1 }, // e2
+            to: { x: 4, y: 3 }, // e4
         });
     });
 
@@ -31,14 +31,14 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e4d5!d5"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedKey = pointToString([4, 3]); // e4
+        const expectedKey = pointToString({ x: 4, y: 3 }); // e4
         const move = moves.get(expectedKey)![0];
 
         expect(move).toEqual({
             ...emptyMove,
-            from: [4, 3], // e4
-            to: [3, 4], // d5
-            captures: [[3, 4]], // d5
+            from: { x: 4, y: 3 }, // e4
+            to: { x: 3, y: 4 }, // d5
+            captures: [{ x: 3, y: 4 }], // d5
         });
     });
 
@@ -46,14 +46,14 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2d3c4"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedFrom = pointToString([4, 1]); // e2
+        const expectedFrom = pointToString({ x: 4, y: 1 }); // e2
         const move = moves.get(expectedFrom)![0];
 
         expect(move).toEqual({
             ...emptyMove,
-            from: [4, 1], // e2
-            through: [[3, 2]], // d3
-            to: [2, 3], // c4
+            from: { x: 4, y: 1 }, // e2
+            through: [{ x: 3, y: 2 }], // d3
+            to: { x: 2, y: 3 }, // c4
         });
     });
 
@@ -61,18 +61,18 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2d3c4-d3c4d5"];
         const moves = decodeLegalMoves(encoded);
 
-        const move = moves.get(pointToString([4, 1]))![0]; // e2
+        const move = moves.get(pointToString({ x: 4, y: 1 }))![0]; // e2
         expect(move).toEqual({
             ...emptyMove,
-            from: [4, 1], //e2
-            through: [[3, 2]], // d3
-            to: [2, 3], // c4
+            from: { x: 4, y: 1 }, // e2
+            through: [{ x: 3, y: 2 }], // d3
+            to: { x: 2, y: 3 }, // c4
             sideEffects: [
                 {
                     ...emptyMove,
-                    from: [3, 2], // d3
-                    through: [[2, 3]], // c4
-                    to: [3, 4], // d5
+                    from: { x: 3, y: 2 }, // d3
+                    through: [{ x: 2, y: 3 }], // c4
+                    to: { x: 3, y: 4 }, // d5
                 },
             ],
         });
@@ -84,24 +84,21 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2c4!d3-d3c4d5!c4!c5"];
         const moves = decodeLegalMoves(encoded);
 
-        const move = moves.get(pointToString([4, 1]))![0];
-        expect(move.from).toEqual([4, 1]);
-        expect(move.to).toEqual([2, 3]);
-        expect(move.captures).toEqual([[3, 2]]); // d3
+        const move = moves.get(pointToString({ x: 4, y: 1 }))![0];
         expect(move).toEqual({
             ...emptyMove,
-            from: [4, 1], // e2
-            to: [2, 3], // d3
-            captures: [[3, 2]], // d3
+            from: { x: 4, y: 1 }, // e2
+            to: { x: 2, y: 3 }, // c4
+            captures: [{ x: 3, y: 2 }], // d3
             sideEffects: [
                 {
                     ...emptyMove,
-                    from: [3, 2], // d3
-                    through: [[2, 3]], // c4
-                    to: [3, 4], // d5
+                    from: { x: 3, y: 2 }, // d3
+                    through: [{ x: 2, y: 3 }], // c4
+                    to: { x: 3, y: 4 }, // d5
                     captures: [
-                        [2, 3],
-                        [2, 4],
+                        { x: 2, y: 3 },
+                        { x: 2, y: 4 },
                     ], // c4, c5
                 },
             ],

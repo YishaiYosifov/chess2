@@ -28,7 +28,10 @@ export enum PieceType {
 
 export type PieceID = `${number}`;
 
-export type Point = [x: number, y: number];
+export interface Point {
+    x: number;
+    y: number;
+}
 export type StrPoint = `${number},${number}`;
 
 export interface Piece {
@@ -38,6 +41,7 @@ export interface Piece {
 }
 
 export type PieceMap = Map<PieceID, Piece>;
+export type LegalMoveMap = Map<StrPoint, Move[]>;
 
 export interface Move {
     from: Point;

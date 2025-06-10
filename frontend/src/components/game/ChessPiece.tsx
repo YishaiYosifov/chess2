@@ -9,7 +9,7 @@ import { GameColor } from "@/lib/apiClient";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<HTMLDivElement>(null);
-    const [draggingOffset, setDraggingOffset] = useState<Point>([0, 0]);
+    const [draggingOffset, setDraggingOffset] = useState<Point>({ x: 0, y: 0 });
 
     const piece = usePiece(id);
     const sideToMove = useChessStore((state) => state.sideToMove);
@@ -33,7 +33,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         function updateDraggingOffset(mouseX: number, mouseY: number): void {
             const x = mouseX - offsetX;
             const y = mouseY - offsetY;
-            setDraggingOffset([x, y]);
+            setDraggingOffset({ x, y });
         }
 
         // calculate the new offset when the mouse moves
@@ -43,7 +43,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         // reset the event listeners and the dragging offset
         function stopDragging(): void {
             setIsDragging(false);
-            setDraggingOffset([0, 0]);
+            setDraggingOffset({ x: 0, y: 0 });
 
             window.removeEventListener("pointermove", handleMove);
             window.removeEventListener("pointerup", stopDragging);
