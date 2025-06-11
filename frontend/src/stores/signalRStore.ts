@@ -7,7 +7,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 
 interface SignalRStore {
     hubs: Record<string, HubConnection>;
-    getOrJoinHub: (url: string) => HubConnection;
+    joinHub: (url: string) => void;
     leaveHub: (url: string) => Promise<void>;
 }
 
@@ -18,9 +18,9 @@ export const initialSignalRStoreState = {
 const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
     ...initialSignalRStoreState,
 
-    getOrJoinHub: (url: string) => {
+    joinHub(url: string): void {
         const existingHub = get().hubs[url];
-        if (existingHub) return existingHub;
+        if (existingHub) return;
 
         const hubConnection = new HubConnectionBuilder()
             .withUrl(url)
@@ -34,11 +34,9 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
                 [url]: hubConnection,
             },
         }));
-
-        return hubConnection;
     },
 
-    leaveHub: async (url: string) => {
+    async leaveHub(url: string) {
         const hubConnection = get().hubs[url];
         if (!hubConnection) return;
 

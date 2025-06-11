@@ -36,6 +36,7 @@ export function addMockHubConnection(
     mockConnection: signalR.HubConnection,
 ) {
     hubBuilderMethodMocks.build.mockReturnValue(mockConnection);
-    const { getOrJoinHub } = renderHook(() => useSignalRStore()).result.current;
+    const { joinHub: getOrJoinHub } = renderHook(() => useSignalRStore()).result
+        .current;
     act(() => getOrJoinHub(hubUrl));
 }

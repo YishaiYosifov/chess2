@@ -1,21 +1,18 @@
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import useSignalRStore from "@/stores/signalRStore";
 
 const useSignalRConnection = (hubUrl: string): HubConnection | null => {
-    const [connection, setConnection] = useState<HubConnection | null>(null);
-    const signalRStore = useSignalRStore();
+    const joinHub = useSignalRStore((state) => state.joinHub);
+    const connection = useSignalRStore((state) => state.hubs[hubUrl]);
 
-    useEffect(() => {
-        const newConnection = signalRStore.getOrJoinHub(hubUrl);
-        newConnection.on("ReceiveErrorAsync", console.error);
-        setConnection(newConnection);
-    }, [hubUrl, signalRStore]);
+    useEffect(() => joinHub(hubUrl), [hubUrl, joinHub]);
 
     useEffect(() => {
         if (!connection) return;
 
+        connection.on("ReceiveErrorAsync", console.error);
         if (connection.state === HubConnectionState.Disconnected) {
             connection
                 .start()
