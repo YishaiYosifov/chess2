@@ -4,6 +4,7 @@ using Chess2.Api.Game.Actors;
 using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 using ErrorOr;
 
 namespace Chess2.Api.Game.Services;
@@ -13,6 +14,13 @@ public interface IGameService
     Task<ErrorOr<GameStateDto>> GetGameStateAsync(
         string gameToken,
         string userId,
+        CancellationToken token = default
+    );
+    Task<ErrorOr<Success>> PerformMoveAsync(
+        string gameToken,
+        string userId,
+        Point from,
+        Point to,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(
@@ -67,6 +75,25 @@ public class GameService(
             token
         );
         return state.State;
+    }
+
+    public async Task<ErrorOr<Success>> PerformMoveAsync(
+        string gameToken,
+        string userId,
+        Point from,
+        Point to,
+        CancellationToken token = default
+    )
+    {
+        var gameStartedResult = await ChechGameStartedAsync(gameToken, token);
+        if (gameStartedResult.IsError)
+            return gameStartedResult.Errors;
+
+        var response = await _gameActor.ActorRef.Ask<object>(
+            new GameCommands.MovePiece(gameToken, userId, from, to),
+            token
+        );
+        return Result.Success;
     }
 
     private async Task<ErrorOr<Success>> ChechGameStartedAsync(
