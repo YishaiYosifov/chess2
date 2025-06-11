@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import constants from "@/lib/constants";
-import { LegalMoveMap, type PieceMap } from "@/types/tempModels";
+import { LegalMoveMap, Point, type PieceMap } from "@/types/tempModels";
 
 import { ChessProvider } from "@/contexts/chessStoreContext";
 import PieceRenderer from "./PieceRenderer";
@@ -18,6 +18,24 @@ interface PaddingOffset {
 interface Breakpoint {
     maxScreenSize: number;
     paddingOffset: PaddingOffset;
+}
+
+export interface ChessboardProps {
+    breakpoints?: Breakpoint[];
+    defaultOffset?: PaddingOffset;
+
+    startingPieces?: PieceMap;
+    boardWidth?: number;
+    boardHeight?: number;
+    legalMoves?: LegalMoveMap;
+
+    viewingFrom?: GameColor;
+    sideToMove?: GameColor;
+    playingAs?: GameColor;
+
+    onPieceMovement?: (from: Point, to: Point) => Promise<void>;
+
+    className?: string;
 }
 
 /**
@@ -44,22 +62,10 @@ const Chessboard = ({
     sideToMove,
     playingAs,
 
+    onPieceMovement,
+
     className,
-}: {
-    breakpoints?: Breakpoint[];
-    defaultOffset?: PaddingOffset;
-
-    startingPieces?: PieceMap;
-    boardWidth?: number;
-    boardHeight?: number;
-    legalMoves?: LegalMoveMap;
-
-    viewingFrom?: GameColor;
-    sideToMove?: GameColor;
-    playingAs?: GameColor;
-
-    className?: string;
-}) => {
+}: ChessboardProps) => {
     const [boardSize, setBoardSize] = useState<number>(0);
 
     // Sort the offset breakpoints in ascending order
@@ -129,6 +135,7 @@ const Chessboard = ({
                 playingAs={playingAs}
                 boardWidth={boardWidth}
                 boardHeight={boardHeight}
+                onPieceMovement={onPieceMovement}
             >
                 <PieceRenderer />
             </ChessProvider>
