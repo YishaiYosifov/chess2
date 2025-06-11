@@ -28,10 +28,10 @@ describe("signalRStore", () => {
             const mockHub = mock<signalR.HubConnection>();
             hubBuilderInstanceMock.build.mockReturnValue(mockHub);
 
-            const { getOrJoinHub, leaveHub } = renderSignalRStore();
+            const { joinHub, leaveHub } = renderSignalRStore();
 
             // Create the hub first
-            await act(() => getOrJoinHub(url));
+            act(() => joinHub(url));
 
             expect(useSignalRStore.getState().hubs[url]).toBe(mockHub);
 
@@ -43,16 +43,16 @@ describe("signalRStore", () => {
         });
     });
 
-    describe("getOrJoinHub", () => {
+    describe("joinHub", () => {
         it("should create a hub if it doesn't exist", async () => {
             const url = "test-url";
             const mockHub = mock<signalR.HubConnection>();
             hubBuilderInstanceMock.build.mockReturnValue(mockHub);
 
-            const { getOrJoinHub } = renderSignalRStore();
+            const { joinHub } = renderSignalRStore();
 
-            const result = await act(() => getOrJoinHub(url));
-            expect(result).toBe(mockHub);
+            act(() => joinHub(url));
+            expect(useSignalRStore.getState().hubs[url]).toBe(mockHub);
 
             expect(
                 hubBuilderInstanceMock.withUrl,
@@ -84,17 +84,24 @@ describe("signalRStore", () => {
 
             hubBuilderInstanceMock.build.mockReturnValue(expectedHub);
 
-            const { getOrJoinHub } = renderSignalRStore();
+            const { joinHub } = renderSignalRStore();
 
-            // First call to create the hub
-            await act(() => getOrJoinHub("test-url"));
+            // First call creates the hub
+            act(() => joinHub("test-url"));
+            expect(useSignalRStore.getState().hubs["test-url"]).toBe(
+                expectedHub,
+            );
 
             hubBuilderInstanceMock.build.mockReturnValue(otherHub);
 
-            // Second call should return the existing hub
-            const result = await act(() => getOrJoinHub("test-url"));
-            expect(result).toBe(expectedHub);
-            expect(result).not.toBe(otherHub);
+            // Second call should not create a new hub, so the stored one stays the same
+            act(() => joinHub("test-url"));
+            expect(useSignalRStore.getState().hubs["test-url"]).toBe(
+                expectedHub,
+            );
+            expect(useSignalRStore.getState().hubs["test-url"]).not.toBe(
+                otherHub,
+            );
         });
     });
 });
