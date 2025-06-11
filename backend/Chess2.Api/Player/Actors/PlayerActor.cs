@@ -16,7 +16,7 @@ public class PlayerActor : ReceiveActor
 {
     private readonly string _userId;
     private ActiveSeekInfo? _currentPool;
-    private string? _gameId;
+    private string? _gameToken;
 
     private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
     private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
@@ -97,7 +97,7 @@ public class PlayerActor : ReceiveActor
 
     private void HandleMatchFound(MatchmakingEvents.MatchFound matchFound)
     {
-        _gameId = matchFound.GameId;
+        _gameToken = matchFound.GameToken;
         _currentPool = null;
 
         RunTask(
@@ -121,10 +121,12 @@ public class PlayerActor : ReceiveActor
 
     private void InGame()
     {
-        if (_gameId is null)
+        if (_gameToken is null)
             throw new InvalidOperationException(
-                $"Cannot transition to {nameof(InGame)} state when {nameof(_gameId)} is not set"
+                $"Cannot transition to {nameof(InGame)} state when {nameof(_gameToken)} is not set"
             );
+
+        Receive<ReceiveTimeout>(_ => { });
     }
 
     protected override void PreStart()
