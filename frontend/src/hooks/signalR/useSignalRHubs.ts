@@ -1,6 +1,7 @@
 import constants from "@/lib/constants";
 import { signalREventHookFactory } from "./useSignalREvent";
 import { signalREmitterHookFactory } from "./useSignalREmitter";
+import { Point } from "@/types/tempModels";
 
 type MatchmakingClientEvents = {
     MatchFoundAsync: [token: string];
@@ -21,3 +22,11 @@ export const useMatchmakingEmitter =
     signalREmitterHookFactory<MatchmakingHubEvents>(
         constants.SIGNALR_PATHS.MATCHMAKING,
     );
+
+type GameHubEvents = {
+    MovePieceAsync: [gameToken: string, from: Point, to: Point];
+};
+
+export const useGameEmitter = signalREmitterHookFactory<GameHubEvents>(
+    constants.SIGNALR_PATHS.GAME,
+);
