@@ -39,5 +39,5 @@ public static class MatchmakingBroadcasts
 
 public static class MatchmakingEvents
 {
-    public record MatchFound(string GameId);
+    public record MatchFound(string GameToken);
 }
