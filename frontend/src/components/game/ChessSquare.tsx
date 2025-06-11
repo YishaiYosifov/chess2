@@ -39,8 +39,9 @@ const ChessSquare: ForwardRefRenderFunction<
     // flip the coordinates because white is starts at y 0,
     // but we want to the playing side on the bottom
     if (viewingFrom == GameColor.WHITE) {
-        x = boardWidth - x - 1;
         y = boardHeight - y - 1;
+    } else {
+        x = boardWidth - x - 1;
     }
 
     const tileWidthStepPercent = boardWidth * boardWidth;
