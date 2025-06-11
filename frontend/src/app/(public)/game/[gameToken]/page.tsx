@@ -1,4 +1,4 @@
-import Chessboard from "@/components/game/Chessboard";
+import LiveChessboard from "@/components/liveGame/LiveChessboard";
 import withAuthedSession from "@/hocs/withAuthedSession";
 import { getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
@@ -45,7 +45,8 @@ const GamePage = withAuthedSession(
                 ? game.playerWhite
                 : game.playerBlack;
         return (
-            <Chessboard
+            <LiveChessboard
+                gameToken={gameToken}
                 startingPieces={decodedFen}
                 legalMoves={decodedLegalMoves}
                 playingAs={playingAs.color}

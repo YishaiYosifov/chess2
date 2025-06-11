@@ -7,12 +7,10 @@ import {
     type Point,
     type PieceMap,
     type PieceID,
-    WSEventOut,
     LegalMoveMap,
 } from "@/types/tempModels";
 import { pointToString } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
-import { SendEventMessageFunction } from "@/hooks/useEventWS";
 import { GameColor } from "@/lib/apiClient";
 
 export interface ChessStore {
@@ -31,8 +29,10 @@ export interface ChessStore {
 
     selectedPiecePosition?: Point;
 
-    movePiece(from: Point, to: Point): void;
-    sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void;
+    onPieceMovement?: (from: Point, to: Point) => Promise<void>;
+
+    movePiece(from: Point, to: Point): Promise<void>;
+    executePieceMovement(to: Point): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
     clearLegalMoves(): void;
@@ -64,8 +64,8 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              * @param from - the current position of the piece
              * @param to - the new position of the piece
              */
-            movePiece(from: Point, to: Point): void {
-                const { position2Id } = get();
+            async movePiece(from: Point, to: Point): Promise<void> {
+                const { position2Id, onPieceMovement } = get();
 
                 const pieceId = position2Id(from);
                 if (!pieceId) {
@@ -81,15 +81,17 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     state.pieces.get(pieceId)!.position = to;
                     if (captureId) state.pieces.delete(captureId);
                 });
+
+                await onPieceMovement?.(from, to);
             },
 
             /**
-             * Send a websocket event to move the selected piece to a point
+             * Process the execution of a move
              *
-             * @param wsSendMethod - the method to call to send the websocket event
-             * @param to - the position to move the piece to
+             * @param to - the new position of the piece
+             * @returns where the piece moved
              */
-            sendMove(wsSendMethod: SendEventMessageFunction, to: Point): void {
+            async executePieceMovement(to: Point): Promise<void> {
                 const {
                     selectedPiecePosition: from,
                     movePiece,
@@ -104,12 +106,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 }
 
                 clearLegalMoves();
-                wsSendMethod(WSEventOut.Move, {
-                    origin: from,
-                    destination: to,
-                });
-
-                movePiece(from, to);
+                await movePiece(from, to);
             },
 
             /**
