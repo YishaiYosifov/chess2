@@ -115,4 +115,31 @@ public class MoveEncoderTests : BaseUnitTest
 
         result.Should().BeEquivalentTo(["e4d5!d7-b2b3!f3!b3"]);
     }
+
+    [Fact]
+    public void EncodeSingleMove_returns_expected_basic_path()
+    {
+        var move = new Move(new Point(4, 1), new Point(4, 3), _dummyPiece); // e2e4
+        _encoder.EncodeSingleMove(move).Should().Be("e2e4");
+    }
+
+    [Fact]
+    public void EncodeSingleMove_handles_side_effects_and_captures()
+    {
+        var sideEffect = new Move(
+            new Point(1, 1),
+            new Point(1, 2),
+            _dummyPiece,
+            CapturedSquares: [new Point(5, 2)]
+        );
+        var move = new Move(
+            new Point(4, 3),
+            new Point(3, 4),
+            _dummyPiece,
+            SideEffects: [sideEffect],
+            CapturedSquares: [new Point(3, 6)]
+        );
+
+        _encoder.EncodeSingleMove(move).Should().Be("e4d5!d7-b2b3!f3");
+    }
 }

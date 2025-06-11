@@ -27,4 +27,6 @@ public static class ErrorCodes
     public const string GameLogicPieceNotFound = "GameLogic.PieceNotFound";
 
     public const string GameNotFound = "Game.NotFound";
+    public const string GamePlayerInvalid = "Game.PlayerInvalid";
+    public const string GameMoveInvalid = "Game.MoveInvalid";
 }

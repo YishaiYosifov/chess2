@@ -61,6 +61,8 @@ public class ChessBoard
         return Result.Success;
     }
 
+    public void ClearSquare(Point point) => _board[point.Y, point.X] = null;
+
     public bool IsWithinBoundaries(Point point) =>
         point.Y >= 0 && point.Y < Height && point.X >= 0 && point.X < Width;
 

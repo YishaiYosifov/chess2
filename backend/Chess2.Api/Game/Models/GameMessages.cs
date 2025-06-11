@@ -1,5 +1,7 @@
 ﻿using Akka.Actor;
 using Chess2.Api.Game.DTOs;
+using Chess2.Api.GameLogic.Models;
+using ErrorOr;
 
 namespace Chess2.Api.Game.Models;
 
@@ -24,7 +26,7 @@ public class GameCommands
         IActorRef BlackActor
     ) : IGameMessage;
 
-    public record MovePiece(string GameToken, string UserId) : IGameMessage;
+    public record MovePiece(string GameToken, string UserId, Point From, Point To) : IGameMessage;
 
     public record Resign(string GameToken, string UserId) : IGameMessage;
 
@@ -45,4 +47,6 @@ public class GameEvents
     public record GameStatusEvent(GameStatus Status);
 
     public record GameStateEvent(GameStateDto State);
+
+    public record GameError(Error Error);
 }

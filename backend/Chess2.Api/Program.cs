@@ -8,6 +8,7 @@ using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Game.Services;
+using Chess2.Api.Game.SignalR;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.Infrastructure;
@@ -364,6 +365,7 @@ app.UseExceptionHandler();
 app.MapControllers();
 
 app.MapHub<MatchmakingHub>("/api/hub/matchmaking");
+app.MapHub<GameHub>("/api/hub/game");
 
 app.Run();
 
