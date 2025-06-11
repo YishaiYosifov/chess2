@@ -105,6 +105,18 @@ describe("decodeLegalMoves", () => {
         });
     });
 
+    it("should decode algebric with multiple numbers correctly", () => {
+        const encoded = ["e70g421"];
+        const moves = decodeLegalMoves(encoded);
+
+        const move = moves.get(pointToString({ x: 4, y: 69 }))![0];
+        expect(move).toEqual({
+            ...emptyMove,
+            from: { x: 4, y: 69 }, // e70
+            to: { x: 6, y: 420 }, // g421
+        });
+    });
+
     it("should throw an error on invalid move (too few points)", () => {
         const invalid = ["e2"];
         expect(() => decodeLegalMoves(invalid)).toThrow(/not enough points/);
