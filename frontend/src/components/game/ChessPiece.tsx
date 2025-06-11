@@ -46,7 +46,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         }
 
         // calculate the new offset when the mouse moves
-        const handleMove = (event: MouseEvent | ReactMouseEvent) => {
+        function handleMove(event: MouseEvent | ReactMouseEvent) {
             lastMouseX = event.clientX;
             lastMouseY = event.clientY;
 
@@ -55,7 +55,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
                     updateDraggingOffset(),
                 );
             }
-        };
+        }
 
         // reset the event listeners and the dragging offset
         function stopDragging(): void {
