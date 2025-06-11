@@ -5,7 +5,8 @@ namespace Chess2.Api.Game.Services;
 
 public interface IMoveEncoder
 {
-    IEnumerable<string> EncodeMoves(IEnumerable<Move> legalMoves);
+    IEnumerable<string> EncodeMoves(IEnumerable<Move> moves);
+    string EncodeSingleMove(Move move);
 }
 
 public class MoveEncoder : IMoveEncoder
@@ -23,10 +24,10 @@ public class MoveEncoder : IMoveEncoder
     /// Example encoding for castling with rook side effect and a capture:
     /// <code>e1>f1g1-h1f1!d4</code>
     /// </summary>
-    public IEnumerable<string> EncodeMoves(IEnumerable<Move> legalMoves) =>
-        legalMoves.Select(EncodeMoveFlat);
+    public IEnumerable<string> EncodeMoves(IEnumerable<Move> moves) =>
+        moves.Select(EncodeSingleMove);
 
-    private static string EncodeMoveFlat(Move move)
+    public string EncodeSingleMove(Move move)
     {
         var path = new StringBuilder();
         BuildPath(move, path);

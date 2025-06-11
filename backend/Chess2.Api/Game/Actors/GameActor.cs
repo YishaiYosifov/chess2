@@ -2,6 +2,7 @@
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.Game.DTOs;
+using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
@@ -12,10 +13,10 @@ public class PlayerRoster
 {
     public required GamePlayer PlayerWhite { get; init; }
     public required GamePlayer PlayerBlack { get; init; }
-    public required Dictionary<string, GamePlayer> IdToPlayer { get; init; }
-    public required Dictionary<GameColor, GamePlayer> ColorToPlayer { get; init; }
+    public required IReadOnlyDictionary<string, GamePlayer> IdToPlayer { get; init; }
+    public required IReadOnlyDictionary<GameColor, GamePlayer> ColorToPlayer { get; init; }
 
-    public required GameColor PlayerToMove { get; set; }
+    public required GameColor CurrentPlayerColor { get; set; }
 }
 
 public class GameActor : ReceiveActor
@@ -58,21 +59,24 @@ public class GameActor : ReceiveActor
             Color = GameColor.Black,
             PlayerActor = startGame.BlackActor,
         };
+        var idToPlayer = new Dictionary<string, GamePlayer>()
+        {
+            [playerWhite.UserId] = playerWhite,
+            [playerBlack.UserId] = playerBlack,
+        };
+        var colorToPlayer = new Dictionary<GameColor, GamePlayer>()
+        {
+            [GameColor.White] = playerWhite,
+            [GameColor.Black] = playerBlack,
+        };
+
         var players = new PlayerRoster()
         {
             PlayerWhite = playerWhite,
             PlayerBlack = playerBlack,
-            IdToPlayer = new()
-            {
-                [playerWhite.UserId] = playerWhite,
-                [playerBlack.UserId] = playerBlack,
-            },
-            ColorToPlayer = new()
-            {
-                [GameColor.White] = playerWhite,
-                [GameColor.Black] = playerBlack,
-            },
-            PlayerToMove = GameColor.White,
+            IdToPlayer = idToPlayer.AsReadOnly(),
+            ColorToPlayer = colorToPlayer.AsReadOnly(),
+            CurrentPlayerColor = GameColor.White,
         };
         _game.InitializeGame();
 
@@ -89,6 +93,8 @@ public class GameActor : ReceiveActor
         Receive<GameQueries.GetGameState>(getGameState =>
             HandleGetGameState(getGameState, players)
         );
+
+        Receive<GameCommands.MovePiece>(movePiece => HandleMovePiece(movePiece, players));
     }
 
     private void HandleGetGameState(GameQueries.GetGameState getGameState, PlayerRoster players)
@@ -108,12 +114,29 @@ public class GameActor : ReceiveActor
         var gameStateDto = new GameStateDto(
             PlayerWhite: new GamePlayerDto(players.PlayerWhite),
             PlayerBlack: new GamePlayerDto(players.PlayerBlack),
-            PlayerToMove: players.PlayerToMove,
+            CurrentPlayerColor: players.CurrentPlayerColor,
             Fen: _game.Fen,
-            FenHistory: _game.FenHistory,
+            MoveHistory: _game.EncodedMoveHistory,
             LegalMoves: legalMoves
         );
 
         Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);
+    }
+
+    private void HandleMovePiece(GameCommands.MovePiece movePiece, PlayerRoster players)
+    {
+        var currentPlayerId = players.ColorToPlayer[players.CurrentPlayerColor]?.UserId;
+        if (currentPlayerId != movePiece.UserId)
+        {
+            _logger.Warning(
+                "User {0} attmpted to move a piece, but their id doesn't match the current player {1}",
+                movePiece.UserId,
+                currentPlayerId
+            );
+            Sender.Tell(new GameEvents.GameError(GameErrors.PlayerInvalid));
+            return;
+        }
+
+        _game.MakeMove(movePiece.From, movePiece.To);
     }
 }
