@@ -5,6 +5,7 @@ using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Actors;
@@ -138,5 +139,7 @@ public class GameActor : ReceiveActor
         }
 
         _game.MakeMove(movePiece.From, movePiece.To);
+        var newCurrentPlayerColor = players.CurrentPlayerColor.Invert();
+        players.CurrentPlayerColor = newCurrentPlayerColor;
     }
 }
