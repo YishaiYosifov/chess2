@@ -1,14 +1,13 @@
 import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
 import { useChessStore, usePiece } from "@/hooks/useChess";
-import { PieceID, type Point } from "@/types/tempModels";
+import { PieceID } from "@/types/tempModels";
 
-import ChessSquare from "./ChessSquare";
+import ChessSquare, { ChessSquareHandle } from "./ChessSquare";
 import clsx from "clsx";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
-    const pieceRef = useRef<HTMLDivElement>(null);
-    const [draggingOffset, setDraggingOffset] = useState<Point>({ x: 0, y: 0 });
+    const pieceRef = useRef<ChessSquareHandle>(null);
 
     const piece = usePiece(id);
     const sideToMove = useChessStore((state) => state.sideToMove);
@@ -20,29 +19,49 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     if (!piece) return;
 
     function startDragging(event: ReactMouseEvent): void {
+        if (!pieceRef.current) return;
+
         setIsDragging(true);
 
         // calculate the dragging offset
         // snap the center of the piece to the mouse when dragging start
-        const rect = pieceRef.current!.getBoundingClientRect();
+        const rect = pieceRef.current.getBoundingClientRect();
+        if (!rect) return;
 
         const offsetX = rect.left + rect.width / 2;
         const offsetY = rect.top + rect.height / 2;
 
-        function updateDraggingOffset(mouseX: number, mouseY: number): void {
-            const x = mouseX - offsetX;
-            const y = mouseY - offsetY;
-            setDraggingOffset({ x, y });
+        let didStopDragging = false;
+        let animationFrameId: number | null = null;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+
+        function updateDraggingOffset(): void {
+            if (didStopDragging) return;
+
+            const x = lastMouseX - offsetX;
+            const y = lastMouseY - offsetY;
+            pieceRef.current?.updateDraggingOffset(x, y);
+            animationFrameId = null;
         }
 
         // calculate the new offset when the mouse moves
-        const handleMove = (event: MouseEvent) =>
-            updateDraggingOffset(event.clientX, event.clientY);
+        const handleMove = (event: MouseEvent | ReactMouseEvent) => {
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+
+            if (animationFrameId == null) {
+                animationFrameId = requestAnimationFrame(() =>
+                    updateDraggingOffset(),
+                );
+            }
+        };
 
         // reset the event listeners and the dragging offset
         function stopDragging(): void {
             setIsDragging(false);
-            setDraggingOffset({ x: 0, y: 0 });
+            didStopDragging = true;
+            pieceRef.current?.updateDraggingOffset(0, 0);
 
             window.removeEventListener("pointermove", handleMove);
             window.removeEventListener("pointerup", stopDragging);
@@ -51,14 +70,14 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         // add event listeners for mouse movement and release
         window.addEventListener("pointermove", handleMove);
         window.addEventListener("pointerup", stopDragging);
-        updateDraggingOffset(event.clientX, event.clientY);
+
+        handleMove(event);
     }
 
     return (
         <ChessSquare
             data-testid="piece"
             position={piece.position}
-            draggingOffset={draggingOffset}
             className={clsx(
                 `z-10 touch-none bg-size-[length:100%] bg-no-repeat transition-transform
                 duration-100 ease-out select-none`,

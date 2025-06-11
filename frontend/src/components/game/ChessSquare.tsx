@@ -3,6 +3,9 @@ import {
     ReactNode,
     forwardRef,
     ForwardRefRenderFunction,
+    memo,
+    useImperativeHandle,
+    useRef,
 } from "react";
 import clsx from "clsx";
 
@@ -12,29 +15,24 @@ import { GameColor } from "@/lib/apiClient";
 
 type ChessSquareProps = {
     position: Point;
-    draggingOffset?: Point;
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
+
+export interface ChessSquareHandle {
+    updateDraggingOffset: (x: number, y: number) => void;
+    getBoundingClientRect: () => DOMRect | null;
+}
 
 /**
  * Render an element in a specific location on the chess board
  */
 const ChessSquare: ForwardRefRenderFunction<
-    HTMLDivElement,
+    ChessSquareHandle,
     ChessSquareProps
-> = (
-    {
-        position,
-        draggingOffset = { x: 0, y: 0 },
-        children,
-        className,
-        style,
-        ...divProps
-    },
-    ref,
-) => {
+> = ({ position, children, className, style, ...divProps }, ref) => {
     const [boardWidth, boardHeight] = useBoardSize();
     const viewingFrom = useChessStore((state) => state.viewingFrom);
+    const squareDivRef = useRef<HTMLDivElement>(null);
 
     let { x, y } = position;
 
@@ -51,29 +49,47 @@ const ChessSquare: ForwardRefRenderFunction<
     const tileWidth = 100 / boardWidth;
     const tileHeight = 100 / boardHeight;
 
-    const maxX = (boardWidth - 1) * tileWidthStepPercent;
-    const maxY = (boardHeight - 1) * tileHeightStepPercent;
-
     const physicalX = x * tileWidthStepPercent;
     const physicalY = y * tileHeightStepPercent;
 
-    // tailwind doesn't work well with dynamic values
-    style ??= {};
-    style.transform = `translate(
-        clamp(0%, calc(${physicalX}% + ${draggingOffset.x}px), ${maxX}%),
-        clamp(0%, calc(${physicalY}% + ${draggingOffset.y}px), ${maxY}%))`;
-    style.width = `${tileWidth}%`;
-    style.height = `${tileHeight}%`;
+    const maxX = (boardWidth - 1) * tileWidthStepPercent;
+    const maxY = (boardHeight - 1) * tileHeightStepPercent;
+
+    const calculateTransform = (offsetX: number, offsetY: number): string =>
+        `translate(
+            clamp(0%, calc(${physicalX}% + ${offsetX}px), ${maxX}%),
+            clamp(0%, calc(${physicalY}% + ${offsetY}px), ${maxY}%))`;
+
+    useImperativeHandle(ref, () => ({
+        updateDraggingOffset(offsetX: number, offsetY: number) {
+            if (squareDivRef.current)
+                squareDivRef.current.style.transform = calculateTransform(
+                    offsetX,
+                    offsetY,
+                );
+        },
+        getBoundingClientRect: () =>
+            squareDivRef.current?.getBoundingClientRect() ?? null,
+    }));
 
     return (
         <div
-            className={clsx(className, "absolute transform")}
-            style={style}
+            className={clsx(
+                className,
+                "absolute transform will-change-transform",
+            )}
+            // tailwind doesn't work well with dynamic values
+            style={{
+                width: `${tileWidth}%`,
+                height: `${tileHeight}%`,
+                transform: calculateTransform(0, 0),
+                ...style,
+            }}
+            ref={squareDivRef}
             {...divProps}
-            ref={ref}
         >
             {children}
         </div>
     );
 };
-export default forwardRef(ChessSquare);
+export default memo(forwardRef(ChessSquare));

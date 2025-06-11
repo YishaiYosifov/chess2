@@ -18,6 +18,10 @@ describe("ChessPiece", () => {
         return normalize(expected);
     }
 
+    beforeEach(() => {
+        vi.useFakeTimers({ toFake: ["requestAnimationFrame"] });
+    });
+
     function renderPiece(position: Point = { x: 0, y: 0 }) {
         const pieceInfo: Piece = {
             position: position,
@@ -79,6 +83,7 @@ describe("ChessPiece", () => {
                 keys: "[MouseLeft>]",
             },
         ]);
+        vi.advanceTimersToNextFrame();
 
         const expectedTransform = getExpectedTransform(
             { x: 900, y: 900 },
@@ -100,6 +105,7 @@ describe("ChessPiece", () => {
             },
             { coords: mouseCoords },
         ]);
+        vi.advanceTimersToNextFrame();
 
         const expectedTransform = getExpectedTransform(
             { x: 900, y: 900 },
