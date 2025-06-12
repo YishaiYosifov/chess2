@@ -10,16 +10,14 @@ export const ChessStoreContext = createContext<StoreApi<ChessStore> | null>(
 );
 
 export const ChessProvider = ({
+    store,
     children,
-    ...state
 }: {
+    store: StoreApi<ChessStore>;
     children: ReactNode;
-} & Partial<ChessStore>) => {
-    const storeRef = useRef<StoreApi<ChessStore>>(null);
-    if (!storeRef.current) storeRef.current = createChessStore(state);
-
+}) => {
     return (
-        <ChessStoreContext.Provider value={storeRef.current}>
+        <ChessStoreContext.Provider value={store}>
             {children}
         </ChessStoreContext.Provider>
     );
