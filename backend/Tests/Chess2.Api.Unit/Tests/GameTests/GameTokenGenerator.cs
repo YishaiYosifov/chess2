@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameTests;
 
-public class GameTokenGeneratorTests : BaseUnitTest
+public class GameTokenGeneratorTests : BaseActorTest
 {
     private readonly GameTokenGenerator _tokenGenerator;
     private readonly TestProbe _gameActorProbe;
