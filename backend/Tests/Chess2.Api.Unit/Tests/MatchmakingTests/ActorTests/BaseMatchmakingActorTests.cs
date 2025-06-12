@@ -9,7 +9,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
 
-public abstract class BaseMatchmakingActorTests<TPool> : BaseUnitTest
+public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     where TPool : class, IMatchmakingPool
 {
     protected ITimerScheduler TimerMock { get; } = Substitute.For<ITimerScheduler>();
