@@ -23,12 +23,7 @@ public interface IGameService
         Point to,
         CancellationToken token = default
     );
-    Task<string> StartGameAsync(
-        string userId1,
-        IActorRef user1Actor,
-        string userId2,
-        IActorRef user2Actor
-    );
+    Task<string> StartGameAsync(string userId1, string userId2);
 }
 
 public class GameService(
@@ -39,22 +34,11 @@ public class GameService(
     private readonly IRequiredActor<GameActor> _gameActor = gameActor;
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
 
-    public async Task<string> StartGameAsync(
-        string userId1,
-        IActorRef user1Actor,
-        string userId2,
-        IActorRef user2Actor
-    )
+    public async Task<string> StartGameAsync(string userId1, string userId2)
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         await _gameActor.ActorRef.Ask<GameEvents.GameStartedEvent>(
-            new GameCommands.StartGame(
-                token,
-                WhiteId: userId1,
-                WhiteActor: user1Actor,
-                BlackId: userId2,
-                BlackActor: user2Actor
-            )
+            new GameCommands.StartGame(token, WhiteId: userId1, BlackId: userId2)
         );
 
         return token;
