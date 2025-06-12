@@ -105,8 +105,8 @@ public class GameActor : ReceiveActor
         var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
 
         var gameStateDto = new GameStateDto(
-            PlayerWhite: new GamePlayerDto(players.PlayerWhite),
-            PlayerBlack: new GamePlayerDto(players.PlayerBlack),
+            PlayerWhite: players.PlayerWhite,
+            PlayerBlack: players.PlayerBlack,
             CurrentPlayerColor: players.CurrentPlayerColor,
             Fen: _game.Fen,
             MoveHistory: _game.EncodedMoveHistory,
