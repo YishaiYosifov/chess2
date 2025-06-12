@@ -11,7 +11,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameTests;
 
-public class GameActorTests : BaseUnitTest
+public class GameActorTests : BaseActorTest
 {
     private const string TestGameToken = "testtoken";
 

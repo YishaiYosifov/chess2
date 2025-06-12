@@ -12,7 +12,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
 
-public class PlayerActorTests : BaseUnitTest
+public class PlayerActorTests : BaseActorTest
 {
     private readonly TestProbe _ratedPoolProbe;
     private readonly TestProbe _casualPoolProbe;
