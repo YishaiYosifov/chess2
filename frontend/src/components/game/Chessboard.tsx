@@ -1,27 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import {
+    forwardRef,
+    ForwardRefRenderFunction,
+    useImperativeHandle,
+    useRef,
+} from "react";
 
 import constants from "@/lib/constants";
 import { LegalMoveMap, Point, type PieceMap } from "@/types/tempModels";
 
-import { ChessProvider } from "@/contexts/chessStoreContext";
-import PieceRenderer from "./PieceRenderer";
-import clsx from "clsx";
 import { GameColor } from "@/lib/apiClient";
-
-interface PaddingOffset {
-    width: number;
-    height: number;
-}
-
-interface Breakpoint {
-    maxScreenSize: number;
-    paddingOffset: PaddingOffset;
-}
+import { StoreApi, useStore } from "zustand";
+import { ChessStore, createChessStore } from "@/stores/chessStore";
+import ChessboardLayout, {
+    ChessboardBreakpoint,
+    PaddingOffset,
+} from "./ChessboardLayout";
+import { ChessStoreContext } from "@/contexts/chessStoreContext";
 
 export interface ChessboardProps {
-    breakpoints?: Breakpoint[];
+    breakpoints?: ChessboardBreakpoint[];
     defaultOffset?: PaddingOffset;
 
     startingPieces?: PieceMap;
@@ -38,6 +37,14 @@ export interface ChessboardProps {
     className?: string;
 }
 
+export interface ChessboardRef {
+    makeMove: (
+        encodedMove: string,
+        encodedLegalMoves: string[],
+        playerTurn: GameColor,
+    ) => void;
+}
+
 /**
  * Display a chessboard
  *
@@ -49,98 +56,62 @@ export interface ChessboardProps {
  * @param playingAs - the color of the player that is controlling the chessboard.
  *  leave undefined if no player should be controlling this chessboard, thus making it a fixed position
  */
-const Chessboard = ({
-    breakpoints = [],
-    defaultOffset,
+const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
+    {
+        breakpoints = [],
+        defaultOffset,
 
-    startingPieces = constants.DEFAULT_CHESS_BOARD,
-    boardHeight = constants.BOARD_HEIGHT,
-    boardWidth = constants.BOARD_WIDTH,
-    legalMoves,
+        startingPieces = constants.DEFAULT_CHESS_BOARD,
+        boardHeight = constants.BOARD_HEIGHT,
+        boardWidth = constants.BOARD_WIDTH,
+        legalMoves,
 
-    viewingFrom,
-    sideToMove,
-    playingAs,
+        viewingFrom,
+        sideToMove,
+        playingAs,
 
-    onPieceMovement,
+        onPieceMovement,
 
-    className,
-}: ChessboardProps) => {
-    const [boardSize, setBoardSize] = useState<number>(0);
-
-    // Sort the offset breakpoints in ascending order
-    const sortedBreakpoints = useMemo(
-        () => breakpoints.sort((a, b) => a.maxScreenSize - b.maxScreenSize),
-        [breakpoints],
-    );
-
-    useEffect(() => {
-        /**
-         * Calculate the width and height offset based on the offsetBreakpoints param and window width
-         */
-        function calculateOffset(): { width: number; height: number } {
-            const width = window.innerWidth;
-            for (const { maxScreenSize, paddingOffset } of sortedBreakpoints) {
-                if (maxScreenSize > width) return paddingOffset;
-            }
-
-            return (
-                defaultOffset ?? {
-                    width: 0,
-                    height: 0,
-                }
-            );
-        }
-
-        /**
-         * Set the board size based on the viewport size and the offset
-         */
-        function resizeBoard(): void {
-            const { width: offsetWidth, height: offsetHeight } =
-                calculateOffset();
-
-            const width = window.innerWidth - offsetWidth;
-            const height = window.innerHeight - offsetHeight;
-
-            const minSize = Math.min(width, height);
-            setBoardSize(minSize);
-        }
-
-        window.addEventListener("resize", resizeBoard);
-        resizeBoard();
-
-        return () => window.removeEventListener("resize", resizeBoard);
-    }, [defaultOffset, sortedBreakpoints]);
-
+        className,
+    }: ChessboardProps,
+    ref,
+) => {
     viewingFrom ??= playingAs ?? GameColor.WHITE;
+
+    const storeRef = useRef<StoreApi<ChessStore>>(null);
+    if (!storeRef.current)
+        storeRef.current = createChessStore({
+            pieces: startingPieces,
+            legalMoves,
+            viewingFrom,
+            sideToMove,
+            playingAs,
+            boardWidth,
+            boardHeight,
+            onPieceMovement,
+        });
+    const chessStore = storeRef.current;
+    const movePiece = useStore(chessStore, (state) => state.movePiece);
+
+    useImperativeHandle(ref, () => ({
+        makeMove(
+            encodedMove: string,
+            encodedLegalMoves: string[],
+            playerTurn: GameColor,
+        ) {
+            console.log(encodedMove, encodedLegalMoves, playerTurn);
+        },
+    }));
+
     return (
-        <div
-            data-testid="chessboard"
-            className={clsx(
-                `grid-template-rows-10 relative grid min-h-[300px] min-w-[300px] cursor-pointer
-                grid-cols-10 rounded-md border-2 border-blue-400 bg-[url(/assets/board.svg)]
-                bg-[length:100%] bg-no-repeat`,
-                className,
-            )}
-            style={{
-                width: `${boardSize}px`,
-                height: `${boardSize}px`,
-            }}
-        >
-            <ChessProvider
-                pieces={startingPieces}
-                legalMoves={legalMoves}
-                viewingFrom={viewingFrom}
-                sideToMove={sideToMove}
-                playingAs={playingAs}
-                boardWidth={boardWidth}
-                boardHeight={boardHeight}
-                onPieceMovement={onPieceMovement}
-            >
-                <PieceRenderer />
-            </ChessProvider>
-        </div>
+        <ChessStoreContext.Provider value={chessStore}>
+            <ChessboardLayout
+                breakpoints={breakpoints}
+                defaultOffset={defaultOffset}
+                className={className}
+            />
+        </ChessStoreContext.Provider>
     );
 };
 
-export default Chessboard;
+export default forwardRef(Chessboard);

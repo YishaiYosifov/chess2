@@ -26,6 +26,7 @@ export enum ErrorCode {
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
     GAME_NOT_FOUND = "Game.NotFound",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
+    GAME_MOVE_INVALID = "Game.MoveInvalid",
 }
 
 export type ApiProblemError = {
@@ -38,7 +39,8 @@ export type ApiProblemError = {
         | "Auth.OAuth.ProviderNotFound"
         | "GameLogic.PieceNotFound"
         | "Game.NotFound"
-        | "Game.PlayerInvalid";
+        | "Game.PlayerInvalid"
+        | "Game.MoveInvalid";
     description: string;
 };
 
@@ -101,7 +103,7 @@ export type GameState = {
     playerBlack: GamePlayer;
     currentPlayerColor: GameColor;
     fen: string;
-    fenHistory: Array<string>;
+    moveHistory: Array<string>;
     legalMoves: Array<string>;
 };
 
