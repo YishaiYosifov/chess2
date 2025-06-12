@@ -3,11 +3,11 @@ import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 import { useChessStore, usePiece } from "@/hooks/useChess";
 import { PieceID } from "@/types/tempModels";
 
-import ChessSquare, { ChessSquareHandle } from "./ChessSquare";
+import ChessSquare, { ChessSquareRef } from "./ChessSquare";
 import clsx from "clsx";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
-    const pieceRef = useRef<ChessSquareHandle>(null);
+    const pieceRef = useRef<ChessSquareRef>(null);
 
     const piece = usePiece(id);
     const sideToMove = useChessStore((state) => state.sideToMove);

@@ -18,7 +18,7 @@ type ChessSquareProps = {
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
-export interface ChessSquareHandle {
+export interface ChessSquareRef {
     updateDraggingOffset: (x: number, y: number) => void;
     getBoundingClientRect: () => DOMRect | null;
 }
@@ -27,7 +27,7 @@ export interface ChessSquareHandle {
  * Render an element in a specific location on the chess board
  */
 const ChessSquare: ForwardRefRenderFunction<
-    ChessSquareHandle,
+    ChessSquareRef,
     ChessSquareProps
 > = ({ position, children, className, style, ...divProps }, ref) => {
     const [boardWidth, boardHeight] = useBoardSize();
