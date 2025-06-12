@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.Game.DTOs;
 using Chess2.Api.GameLogic.Models;
-using ErrorOr;
 
 namespace Chess2.Api.Game.Models;
 
@@ -40,12 +39,6 @@ public class GameEvents
     public record GameStatusEvent(GameStatus Status);
 
     public record GameStateEvent(GameStateDto State);
-
-    public record GameError(IEnumerable<Error> Errors)
-    {
-        public GameError(Error error)
-            : this([error]) { }
-    }
 
     public record PieceMoved(
         string EncodedMove,

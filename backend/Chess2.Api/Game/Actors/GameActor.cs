@@ -7,6 +7,7 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Shared.Extensions;
 
 namespace Chess2.Api.Game.Actors;
 
@@ -98,7 +99,7 @@ public class GameActor : ReceiveActor
                 getGameState.ForUserId,
                 _token
             );
-            Sender.Tell(new GameEvents.GameError(GameErrors.PlayerInvalid));
+            Sender.Tell(ErrorOrFacEx.From<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid));
             return;
         }
         var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
@@ -125,14 +126,14 @@ public class GameActor : ReceiveActor
                 movePiece.UserId,
                 currentPlayerId
             );
-            Sender.Tell(new GameEvents.GameError(GameErrors.PlayerInvalid));
+            Sender.Tell(ErrorOrFacEx.From<GameEvents.PieceMoved>(GameErrors.PlayerInvalid));
             return;
         }
 
         var moveResult = _game.MakeMove(movePiece.From, movePiece.To);
         if (moveResult.IsError)
         {
-            Sender.Tell(new GameEvents.GameError(moveResult.Errors));
+            Sender.Tell(ErrorOrFacEx.From<GameEvents.PieceMoved>(moveResult.Errors));
             return;
         }
 

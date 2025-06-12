@@ -16,7 +16,7 @@ public interface IGameService
         string userId,
         CancellationToken token = default
     );
-    Task<ErrorOr<Success>> PerformMoveAsync(
+    Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
         string gameToken,
         string userId,
         Point from,
@@ -27,10 +27,12 @@ public interface IGameService
 }
 
 public class GameService(
+    ILogger<GameService> logger,
     IRequiredActor<GameActor> gameActor,
     IGameTokenGenerator gameTokenGenerator
 ) : IGameService
 {
+    private readonly ILogger<GameService> _logger = logger;
     private readonly IRequiredActor<GameActor> _gameActor = gameActor;
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
 
@@ -50,7 +52,7 @@ public class GameService(
         CancellationToken token = default
     )
     {
-        var gameStartedResult = await ChechGameStartedAsync(gameToken, token);
+        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
         if (gameStartedResult.IsError)
             return gameStartedResult.Errors;
 
@@ -61,7 +63,7 @@ public class GameService(
         return state.State;
     }
 
-    public async Task<ErrorOr<Success>> PerformMoveAsync(
+    public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
         string gameToken,
         string userId,
         Point from,
@@ -69,18 +71,18 @@ public class GameService(
         CancellationToken token = default
     )
     {
-        var gameStartedResult = await ChechGameStartedAsync(gameToken, token);
+        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
         if (gameStartedResult.IsError)
             return gameStartedResult.Errors;
 
-        var response = await _gameActor.ActorRef.Ask<object>(
+        var response = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.PieceMoved>>(
             new GameCommands.MovePiece(gameToken, userId, from, to),
             token
         );
-        return Result.Success;
+        return response;
     }
 
-    private async Task<ErrorOr<Success>> ChechGameStartedAsync(
+    private async Task<ErrorOr<Success>> CheckGameStartedAsync(
         string gameToken,
         CancellationToken token = default
     )
