@@ -8,6 +8,7 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Shared.Extensions;
+using ErrorOr;
 
 namespace Chess2.Api.Game.Actors;
 
@@ -141,11 +142,13 @@ public class GameActor : ReceiveActor
         players.CurrentPlayerColor = newCurrentPlayerColor;
 
         Sender.Tell(
-            new GameEvents.PieceMoved(
-                EncodedMove: moveResult.Value,
-                WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
-                BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
-                PlayerTurn: newCurrentPlayerColor
+            ErrorOrFactory.From(
+                new GameEvents.PieceMoved(
+                    EncodedMove: moveResult.Value,
+                    WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
+                    BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
+                    PlayerTurn: newCurrentPlayerColor
+                )
             )
         );
     }
