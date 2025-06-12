@@ -83,14 +83,15 @@ public class GameActorTests : BaseActorTest
         await StartGameAsync("white", "black");
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, "white"), _probe);
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
             cancellationToken: TestContext.Current.CancellationToken
         );
 
-        result.State.CurrentPlayerColor.Should().Be(GameColor.White);
-        result.State.Fen.Should().Be("some-fen");
-        result.State.MoveHistory.Should().ContainSingle("e2e4");
-        result.State.LegalMoves.Should().ContainSingle("e2e4");
+        result.IsError.Should().BeFalse();
+        result.Value.State.CurrentPlayerColor.Should().Be(GameColor.White);
+        result.Value.State.Fen.Should().Be("some-fen");
+        result.Value.State.MoveHistory.Should().ContainSingle("e2e4");
+        result.Value.State.LegalMoves.Should().ContainSingle("e2e4");
     }
 
     [Fact]
@@ -127,11 +128,12 @@ public class GameActorTests : BaseActorTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
             cancellationToken: TestContext.Current.CancellationToken
         );
+        result.IsError.Should().BeFalse();
         result
-            .Should()
+            .Value.Should()
             .BeEquivalentTo(
                 new GameEvents.PieceMoved(
                     encodedMove,

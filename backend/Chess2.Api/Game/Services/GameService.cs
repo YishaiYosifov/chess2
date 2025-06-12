@@ -56,11 +56,14 @@ public class GameService(
         if (gameStartedResult.IsError)
             return gameStartedResult.Errors;
 
-        var state = await _gameActor.ActorRef.Ask<GameEvents.GameStateEvent>(
+        var state = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameStateEvent>>(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
-        return state.State;
+        if (state.IsError)
+            return state.Errors;
+
+        return state.Value.State;
     }
 
     public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
