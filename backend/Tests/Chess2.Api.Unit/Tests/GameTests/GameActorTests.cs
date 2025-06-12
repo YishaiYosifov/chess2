@@ -137,9 +137,11 @@ public class GameActorTests : BaseActorTest
             .BeEquivalentTo(
                 new GameEvents.PieceMoved(
                     encodedMove,
-                    newWhiteLegalMoves,
-                    newBlackLegalMoves,
-                    GameColor.Black
+                    WhiteLegalMoves: newWhiteLegalMoves,
+                    WhiteId: "white",
+                    BlackLegalMoves: newBlackLegalMoves,
+                    BlackId: "black",
+                    PlayerTurn: GameColor.Black
                 )
             );
     }
