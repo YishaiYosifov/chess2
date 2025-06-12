@@ -8,7 +8,6 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Shared.Extensions;
-using ErrorOr;
 
 namespace Chess2.Api.Game.Actors;
 
@@ -100,7 +99,7 @@ public class GameActor : ReceiveActor
                 getGameState.ForUserId,
                 _token
             );
-            Sender.Tell(ErrorOrFacEx.From<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid));
+            Sender.ReplyWithErrorOr<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid);
             return;
         }
         var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
@@ -114,7 +113,7 @@ public class GameActor : ReceiveActor
             LegalMoves: legalMoves
         );
 
-        Sender.Tell(new GameEvents.GameStateEvent(gameStateDto));
+        Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameStateDto));
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece, PlayerRoster players)
@@ -127,28 +126,26 @@ public class GameActor : ReceiveActor
                 movePiece.UserId,
                 currentPlayerId
             );
-            Sender.Tell(ErrorOrFacEx.From<GameEvents.PieceMoved>(GameErrors.PlayerInvalid));
+            Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(GameErrors.PlayerInvalid);
             return;
         }
 
         var moveResult = _game.MakeMove(movePiece.From, movePiece.To);
         if (moveResult.IsError)
         {
-            Sender.Tell(ErrorOrFacEx.From<GameEvents.PieceMoved>(moveResult.Errors));
+            Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(moveResult.Errors);
             return;
         }
 
         var newCurrentPlayerColor = players.CurrentPlayerColor.Invert();
         players.CurrentPlayerColor = newCurrentPlayerColor;
 
-        Sender.Tell(
-            ErrorOrFactory.From(
-                new GameEvents.PieceMoved(
-                    EncodedMove: moveResult.Value,
-                    WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
-                    BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
-                    PlayerTurn: newCurrentPlayerColor
-                )
+        Sender.ReplyWithErrorOr(
+            new GameEvents.PieceMoved(
+                EncodedMove: moveResult.Value,
+                WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
+                BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
+                PlayerTurn: newCurrentPlayerColor
             )
         );
     }
