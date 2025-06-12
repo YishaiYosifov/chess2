@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka.TestKit.Xunit" Version="1.5.42" />
-    <PackageReference Include="AwesomeAssertions" Version="8.1.0" />
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.5.43" />
+    <PackageReference Include="AwesomeAssertions" Version="8.2.0" />
     <PackageReference Include="Azure.Identity" Version="1.13.2" />
     <PackageReference Include="Bogus" Version="35.6.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />

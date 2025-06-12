@@ -1,5 +1,4 @@
-﻿using Akka.Actor;
-using Chess2.Api.Game.DTOs;
+﻿using Chess2.Api.Game.DTOs;
 using Chess2.Api.GameLogic.Models;
 using ErrorOr;
 
@@ -18,13 +17,7 @@ public enum GameStatus
 
 public class GameCommands
 {
-    public record StartGame(
-        string GameToken,
-        string WhiteId,
-        IActorRef WhiteActor,
-        string BlackId,
-        IActorRef BlackActor
-    ) : IGameMessage;
+    public record StartGame(string GameToken, string WhiteId, string BlackId) : IGameMessage;
 
     public record MovePiece(string GameToken, string UserId, Point From, Point To) : IGameMessage;
 
@@ -48,5 +41,16 @@ public class GameEvents
 
     public record GameStateEvent(GameStateDto State);
 
-    public record GameError(Error Error);
+    public record GameError(IEnumerable<Error> Errors)
+    {
+        public GameError(Error error)
+            : this([error]) { }
+    }
+
+    public record PieceMoved(
+        string EncodedMove,
+        IReadOnlyCollection<string> WhiteLegalMoves,
+        IReadOnlyCollection<string> BlackLegalMoves,
+        GameColor PlayerTurn
+    );
 }

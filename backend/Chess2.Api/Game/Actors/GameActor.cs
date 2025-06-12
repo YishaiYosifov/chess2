@@ -48,18 +48,8 @@ public class GameActor : ReceiveActor
 
     private void HandleStartGame(GameCommands.StartGame startGame)
     {
-        var playerWhite = new GamePlayer()
-        {
-            UserId = startGame.WhiteId,
-            Color = GameColor.White,
-            PlayerActor = startGame.WhiteActor,
-        };
-        var playerBlack = new GamePlayer()
-        {
-            UserId = startGame.BlackId,
-            Color = GameColor.Black,
-            PlayerActor = startGame.BlackActor,
-        };
+        var playerWhite = new GamePlayer() { UserId = startGame.WhiteId, Color = GameColor.White };
+        var playerBlack = new GamePlayer() { UserId = startGame.BlackId, Color = GameColor.Black };
         var idToPlayer = new Dictionary<string, GamePlayer>()
         {
             [playerWhite.UserId] = playerWhite,
@@ -108,6 +98,7 @@ public class GameActor : ReceiveActor
                 getGameState.ForUserId,
                 _token
             );
+            Sender.Tell(new GameEvents.GameError(GameErrors.PlayerInvalid));
             return;
         }
         var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
@@ -121,7 +112,7 @@ public class GameActor : ReceiveActor
             LegalMoves: legalMoves
         );
 
-        Sender.Tell(new GameEvents.GameStateEvent(gameStateDto), Self);
+        Sender.Tell(new GameEvents.GameStateEvent(gameStateDto));
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece, PlayerRoster players)
@@ -138,8 +129,23 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        _game.MakeMove(movePiece.From, movePiece.To);
+        var moveResult = _game.MakeMove(movePiece.From, movePiece.To);
+        if (moveResult.IsError)
+        {
+            Sender.Tell(new GameEvents.GameError(moveResult.Errors));
+            return;
+        }
+
         var newCurrentPlayerColor = players.CurrentPlayerColor.Invert();
         players.CurrentPlayerColor = newCurrentPlayerColor;
+
+        Sender.Tell(
+            new GameEvents.PieceMoved(
+                EncodedMove: moveResult.Value,
+                WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
+                BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
+                PlayerTurn: newCurrentPlayerColor
+            )
+        );
     }
 }

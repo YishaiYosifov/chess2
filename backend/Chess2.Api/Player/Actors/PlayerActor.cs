@@ -101,7 +101,7 @@ public class PlayerActor : ReceiveActor
         _currentPool = null;
 
         RunTask(
-            () => _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameId)
+            () => _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameToken)
         );
 
         Become(InGame);
