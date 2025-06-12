@@ -8,12 +8,13 @@ function useSignalREvent<
 >(
     hubUrl: string,
     eventName: TEventName,
-    onEvent: (...args: TEventMap[TEventName]) => void,
+    onEvent?: (...args: TEventMap[TEventName]) => void,
 ): void {
     const signalRConnection = useSignalRConnection(hubUrl);
 
     useEffect(() => {
-        signalRConnection?.on(eventName, onEvent);
+        const handler = onEvent ?? (() => {});
+        signalRConnection?.on(eventName, handler);
     }, [signalRConnection, eventName, onEvent]);
 }
 export default useSignalREvent;
@@ -25,7 +26,7 @@ export function signalREventHookFactory<
         TEventName extends Extract<keyof TEventMap, string>,
     >(
         eventName: TEventName,
-        onEvent: (...args: TEventMap[TEventName]) => void,
+        onEvent?: (...args: TEventMap[TEventName]) => void,
     ) => useSignalREvent<TEventMap, TEventName>(hubUrl, eventName, onEvent);
     return useSignalREventHook;
 }

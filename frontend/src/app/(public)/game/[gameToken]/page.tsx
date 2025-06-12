@@ -45,13 +45,22 @@ const GamePage = withAuthedSession(
                 ? game.playerWhite
                 : game.playerBlack;
         return (
-            <LiveChessboard
-                gameToken={gameToken}
-                startingPieces={decodedFen}
-                legalMoves={decodedLegalMoves}
-                playingAs={playingAs.color}
-                sideToMove={game.currentPlayerColor}
-            />
+            <div className="grid">
+                <LiveChessboard
+                    gameToken={gameToken}
+                    startingPieces={decodedFen}
+                    legalMoves={decodedLegalMoves}
+                    playingAs={playingAs.color}
+                    sideToMove={game.currentPlayerColor}
+                    breakpoints={[
+                        {
+                            maxScreenSize: 768,
+                            paddingOffset: { width: 0, height: 76 },
+                        },
+                    ]}
+                    defaultOffset={{ width: 256, height: 0 }}
+                />
+            </div>
         );
     },
 );

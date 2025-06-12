@@ -40,8 +40,8 @@ const mockBoard: PieceMap = new Map([
 
 describe("Chessboard", () => {
     it.each([
-        [GameColor.WHITE, 900, 900],
-        [GameColor.BLACK, 0, 0],
+        [GameColor.WHITE, 0, 900],
+        [GameColor.BLACK, 900, 0],
     ])(
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {

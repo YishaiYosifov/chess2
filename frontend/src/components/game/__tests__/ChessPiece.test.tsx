@@ -47,15 +47,15 @@ describe("ChessPiece", () => {
     it.each([
         [
             { x: 0, y: 0 },
-            { x: 900, y: 900 },
+            { x: 0, y: 900 },
         ],
         [
             { x: 1, y: 1 },
-            { x: 800, y: 800 },
+            { x: 100, y: 800 },
         ],
         [
             { x: 0, y: 5 },
-            { x: 900, y: 400 },
+            { x: 0, y: 400 },
         ],
     ])("should be in the correct position", (position, physicalPosition) => {
         const { pieceInfo, piece } = renderPiece(position);
@@ -86,7 +86,7 @@ describe("ChessPiece", () => {
         vi.advanceTimersToNextFrame();
 
         const expectedTransform = getExpectedTransform(
-            { x: 900, y: 900 },
+            { x: 0, y: 900 },
             mouseCoords,
         );
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
@@ -108,7 +108,7 @@ describe("ChessPiece", () => {
         vi.advanceTimersToNextFrame();
 
         const expectedTransform = getExpectedTransform(
-            { x: 900, y: 900 },
+            { x: 0, y: 900 },
             mouseCoords,
         );
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
@@ -128,7 +128,7 @@ describe("ChessPiece", () => {
         ]);
 
         const expectedTransform = getExpectedTransform(
-            { x: 900, y: 900 },
+            { x: 0, y: 900 },
             { x: 0, y: 0 },
         );
         expect(normalize(piece.style.transform)).toBe(expectedTransform);

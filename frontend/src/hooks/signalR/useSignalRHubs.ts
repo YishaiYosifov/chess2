@@ -1,7 +1,11 @@
 import constants from "@/lib/constants";
-import { signalREventHookFactory } from "./useSignalREvent";
-import { signalREmitterHookFactory } from "./useSignalREmitter";
+import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
+import useSignalREmitter, {
+    signalREmitterHookFactory,
+} from "./useSignalREmitter";
 import { Point } from "@/types/tempModels";
+import { useMemo } from "react";
+import { GameColor } from "@/lib/apiClient";
 
 type MatchmakingClientEvents = {
     MatchFoundAsync: [token: string];
@@ -23,10 +27,44 @@ export const useMatchmakingEmitter =
         constants.SIGNALR_PATHS.MATCHMAKING,
     );
 
+type GameClientEvents = {
+    MoveMadeAsync: [
+        encodedMove: string,
+        legalMoves: string[],
+        playerTurn: GameColor,
+    ];
+};
+
 type GameHubEvents = {
     MovePieceAsync: [gameToken: string, from: Point, to: Point];
 };
 
-export const useGameEmitter = signalREmitterHookFactory<GameHubEvents>(
-    constants.SIGNALR_PATHS.GAME,
-);
+export function useGameEvent<
+    TEventName extends Extract<keyof GameClientEvents, string>,
+>(
+    gameToken: string,
+    eventName: TEventName,
+    onEvent?: (...args: GameClientEvents[TEventName]) => void,
+) {
+    const url = useMemo(() => {
+        const u = new URL(constants.SIGNALR_PATHS.GAME);
+        u.searchParams.append("gameToken", gameToken);
+        return u.toString();
+    }, [gameToken]);
+
+    return useSignalREvent<GameClientEvents, TEventName>(
+        url,
+        eventName,
+        onEvent,
+    );
+}
+
+export function useGameEmitter(gameToken: string) {
+    const url = useMemo(() => {
+        const u = new URL(constants.SIGNALR_PATHS.GAME);
+        u.searchParams.append("gameToken", gameToken);
+        return u.toString();
+    }, [gameToken]);
+
+    return useSignalREmitter<GameHubEvents>(url);
+}
