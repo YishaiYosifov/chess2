@@ -142,9 +142,11 @@ public class GameActor : ReceiveActor
 
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
-                EncodedMove: moveResult.Value,
+                Move: moveResult.Value,
                 WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
+                WhiteId: players.PlayerWhite.UserId,
                 BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
+                BlackId: players.PlayerBlack.UserId,
                 PlayerTurn: newCurrentPlayerColor
             )
         );
