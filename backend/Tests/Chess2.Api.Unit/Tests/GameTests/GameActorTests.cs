@@ -6,7 +6,6 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.TestInfrastructure.TestActors;
 using FluentAssertions;
 using NSubstitute;
 
@@ -30,23 +29,20 @@ public class GameActorTests : BaseUnitTest
     [Fact]
     public async Task GetGameStatus_before_game_started_should_return_NotStarted_and_passivate()
     {
-        var parent = Sys.ActorOf(
-            Props.Create(
-                () =>
-                    new ForwardingParentActor<GameActor>(
-                        () => new GameActor(TestGameToken, _gameMock),
-                        _probe.Ref
-                    )
-            )
+        var parentActor = CreateTestProbe();
+        var gameActor = parentActor.ChildActorOf(
+            Props.Create(() => new GameActor(TestGameToken, _gameMock)),
+            cancellationToken: CT
         );
-        parent.Tell(new GameQueries.GetGameStatus(TestGameToken), _probe);
+
+        gameActor.Tell(new GameQueries.GetGameStatus(TestGameToken), _probe);
 
         var result = await _probe.ExpectMsgAsync<GameEvents.GameStatusEvent>(
             cancellationToken: TestContext.Current.CancellationToken
         );
         result.Status.Should().Be(GameStatus.NotStarted);
 
-        var passivate = await _probe.ExpectMsgAsync<Passivate>(
+        var passivate = await parentActor.ExpectMsgAsync<Passivate>(
             cancellationToken: TestContext.Current.CancellationToken
         );
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
