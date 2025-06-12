@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Game.SignalR;
 
-public interface IGameHub : IChess2HubClient { }
+public interface IGameHub : IChess2HubClient
+{
+    Task MoveMadeAsync(string move, IEnumerable<string> legalMoves, GameColor playerTurn);
+}
 
 [Authorize(AuthPolicies.AuthedSesssion)]
 public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2Hub<IGameHub>
@@ -26,7 +29,21 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             return;
         }
 
-        await _gameService.PerformMoveAsync(gameToken, userId, from, to);
+        var moveResult = await _gameService.PerformMoveAsync(gameToken, userId, from, to);
+        if (moveResult.IsError)
+        {
+            await HandleErrors(moveResult.Errors);
+            return;
+        }
+        var move = moveResult.Value;
+
+        _logger.LogInformation("User {UserId} made a move in game {GameToken}", userId, gameToken);
+        await Clients
+            .User(move.WhiteId)
+            .MoveMadeAsync(move.Move, move.WhiteLegalMoves, move.PlayerTurn);
+        await Clients
+            .User(move.BlackId)
+            .MoveMadeAsync(move.Move, move.BlackLegalMoves, move.PlayerTurn);
     }
 
     public override async Task OnConnectedAsync()
