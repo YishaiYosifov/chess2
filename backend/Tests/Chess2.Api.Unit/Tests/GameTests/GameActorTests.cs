@@ -6,6 +6,7 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
+using ErrorOr;
 using FluentAssertions;
 using NSubstitute;
 
@@ -65,9 +66,10 @@ public class GameActorTests : BaseActorTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameError>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
             cancellationToken: TestContext.Current.CancellationToken
         );
+        result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
     }
 
@@ -101,9 +103,10 @@ public class GameActorTests : BaseActorTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameError>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
             cancellationToken: TestContext.Current.CancellationToken
         );
+        result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
     }
 
@@ -151,7 +154,10 @@ public class GameActorTests : BaseActorTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameError>(cancellationToken: CT);
+        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
+            cancellationToken: CT
+        );
+        result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
     }
 
