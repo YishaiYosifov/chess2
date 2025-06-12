@@ -8,6 +8,7 @@ import {
     type PieceMap,
     type PieceID,
     LegalMoveMap,
+    Move,
 } from "@/types/tempModels";
 import { pointToString } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
@@ -31,7 +32,7 @@ export interface ChessStore {
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
-    movePiece(from: Point, to: Point): Promise<void>;
+    playMove(move: Move): void;
     executePieceMovement(to: Point): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
@@ -64,8 +65,8 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
              * @param from - the current position of the piece
              * @param to - the new position of the piece
              */
-            async movePiece(from: Point, to: Point): Promise<void> {
-                const { position2Id, onPieceMovement } = get();
+            movePiece(from: Point, to: Point): void {
+                const { position2Id } = get();
 
                 const pieceId = position2Id(from);
                 if (!pieceId) {
@@ -81,8 +82,32 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     state.pieces.get(pieceId)!.position = to;
                     if (captureId) state.pieces.delete(captureId);
                 });
+            },
 
-                await onPieceMovement?.(from, to);
+            playMove(move: Move): void {
+                const { position2Id, playMove } = get();
+
+                const pieceId = position2Id(move.from);
+                if (!pieceId) {
+                    console.warn(
+                        `Could not move piece from ${move.from} to ${move.to} ` +
+                            `because no piece was found at ${move.from}`,
+                    );
+                    return;
+                }
+
+                const captureIds = [position2Id(move.to)];
+                for (const capture of move.captures)
+                    captureIds.push(position2Id(capture));
+
+                set((state) => {
+                    state.pieces.get(pieceId)!.position = move.to;
+                    for (const captureId of captureIds) {
+                        if (captureId) state.pieces.delete(captureId);
+                    }
+                });
+
+                for (const sideEffect of move.sideEffects) playMove(sideEffect);
             },
 
             /**
@@ -94,7 +119,9 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
             async executePieceMovement(to: Point): Promise<void> {
                 const {
                     selectedPiecePosition: from,
-                    movePiece,
+                    onPieceMovement,
+                    playMove,
+                    legalMoves,
                     clearLegalMoves,
                 } = get();
                 if (!from) {
@@ -105,8 +132,21 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     return;
                 }
 
+                const positionStr = pointToString(from);
+                const moves = legalMoves.get(positionStr);
+                const move = moves?.find(
+                    (m) => m.to.x == to.x && m.to.y == to.y,
+                );
+                if (!move) {
+                    console.warn(
+                        `Could not move piece from ${from} to ${to} because no legal move found`,
+                    );
+                    return;
+                }
+
+                playMove(move);
                 clearLegalMoves();
-                await movePiece(from, to);
+                await onPieceMovement?.(from, to);
             },
 
             /**
