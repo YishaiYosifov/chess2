@@ -16,9 +16,9 @@ import { pointToStr } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import { decodeMoves } from "@/lib/chessDecoders/moveDecoder";
+import { decodeMoves, decodeSingleMove } from "@/lib/chessDecoders/moveDecoder";
 
-export interface ChessStore {
+export interface ChessboardStore {
     viewingFrom: GameColor;
     sideToMove: GameColor;
     playingAs?: GameColor;
@@ -41,13 +41,6 @@ export interface ChessStore {
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
     clearLegalMoves(): void;
-    syncServerState(
-        move: string,
-        fen: string,
-        legalMoves: string[],
-        sideToMove: GameColor,
-        moveNumber: number,
-    ): void;
 }
 
 const defaultState = {
@@ -64,8 +57,10 @@ const defaultState = {
 };
 
 enableMapSet();
-export function createChessStore(initState: Partial<ChessStore> = {}) {
-    return createWithEqualityFn<ChessStore>()(
+export function createChessboardStore(
+    initState: Partial<ChessboardStore> = {},
+) {
+    return createWithEqualityFn<ChessboardStore>()(
         immer((set, get) => ({
             ...defaultState,
             ...initState,
@@ -129,6 +124,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 moveNumber: number,
             ) {
                 const pieces = decodeFen(fen);
+                const move = decodeSingleMove(move);
                 const decodedLegalMoves = decodeMoves(legalMoves);
 
                 set((state) => {
