@@ -7,12 +7,12 @@ import ChessSquare from "./ChessSquare";
 
 const HighlightedLegalMove = ({ position }: { position: Point }) => {
     const executePieceMovement = useChessStore(
-        (state) => state.executePieceMovement,
+        (state) => state.moveSelectedPiece,
     );
 
     return (
         <ChessSquare
-            onPointerUp={async () => await executePieceMovement(position)}
+            onClick={async () => await executePieceMovement(position)}
             className="z-20 animate-[fadeIn_0.15s_ease-out]
                 bg-[radial-gradient(rgba(0,0,0,0.25)_20%,_rgba(0,0,0,0)_23%)]
                 bg-[length:100%_100%] bg-center bg-no-repeat transition-all duration-100
