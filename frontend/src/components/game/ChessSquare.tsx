@@ -9,7 +9,7 @@ import {
 } from "react";
 import clsx from "clsx";
 
-import { useBoardSize, useChessStore } from "@/hooks/useChess";
+import { useChessStore } from "@/hooks/useChess";
 import { Point } from "@/types/tempModels";
 import { GameColor } from "@/lib/apiClient";
 
@@ -30,7 +30,10 @@ const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
 > = ({ position, children, className, style, ...divProps }, ref) => {
-    const [boardWidth, boardHeight] = useBoardSize();
+    const { width: boardWidth, height: boardHeight } = useChessStore(
+        (store) => store.boardDimensions,
+    );
+
     const viewingFrom = useChessStore((state) => state.viewingFrom);
     const squareDivRef = useRef<HTMLDivElement>(null);
 
@@ -44,17 +47,14 @@ const ChessSquare: ForwardRefRenderFunction<
         x = boardWidth - x - 1;
     }
 
-    const tileWidthStepPercent = boardWidth * boardWidth;
-    const tileHeightStepPercent = boardHeight * boardHeight;
-
     const tileWidth = 100 / boardWidth;
     const tileHeight = 100 / boardHeight;
 
-    const physicalX = x * tileWidthStepPercent;
-    const physicalY = y * tileHeightStepPercent;
+    const physicalX = x * 100;
+    const physicalY = y * 100;
 
-    const maxX = (boardWidth - 1) * tileWidthStepPercent;
-    const maxY = (boardHeight - 1) * tileHeightStepPercent;
+    const maxX = (boardWidth - 1) * 100;
+    const maxY = (boardHeight - 1) * 100;
 
     const calculateTransform = (offsetX: number, offsetY: number): string =>
         `translate(

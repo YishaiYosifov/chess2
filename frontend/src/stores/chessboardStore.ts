@@ -14,44 +14,59 @@ import { pointToStr } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
 
+export interface BoardDimensions {
+    width: number;
+    height: number;
+}
+
 export interface ChessboardStore {
     viewingFrom: GameColor;
     sideToMove: GameColor;
     playingAs?: GameColor;
 
-    boardWidth: number;
-    boardHeight: number;
+    boardDimensions: BoardDimensions;
+    boardRect?: DOMRect;
 
     pieces: PieceMap;
     legalMoves: LegalMoveMap;
 
     highlighted: Point[];
     highlightedLegalMoves: Point[];
-    animatingPieces: PieceID[];
+    animatingPieces: Set<PieceID>;
 
     selectedPieceId?: PieceID;
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
     playMove(move: Move): void;
-    executePieceMovement(to: Point): Promise<void>;
+    moveSelectedPiece(to: Point): Promise<void>;
+    handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(pieceId: PieceID): void;
     clearLegalMoves(): void;
+    addAnimatingPiece(pieceId: PieceID): void;
+    setBoardRect(rect: DOMRect): void;
 }
 
 const defaultState = {
     viewingFrom: GameColor.WHITE,
     sideToMove: GameColor.WHITE,
-    boardWidth: constants.BOARD_WIDTH,
-    boardHeight: constants.BOARD_HEIGHT,
+    boardDimensions: {
+        width: constants.BOARD_WIDTH,
+        height: constants.BOARD_HEIGHT,
+    },
+    physicalBoardDimensions: {
+        width: 0,
+        height: 0,
+    },
 
     pieces: new Map(),
     legalMoves: new Map(),
 
     highlighted: [],
     highlightedLegalMoves: [],
-    animatingPieces: [],
+    animatingPieces: new Set<PieceID>(),
+    boardRef: undefined,
 };
 
 enableMapSet();
@@ -64,7 +79,7 @@ export function createChessboardStore(
             ...initState,
 
             playMove(move: Move): void {
-                const { position2Id, playMove } = get();
+                const { position2Id, addAnimatingPiece, playMove } = get();
 
                 const pieceId = position2Id(move.from);
                 if (!pieceId) {
@@ -74,6 +89,7 @@ export function createChessboardStore(
                     );
                     return;
                 }
+                addAnimatingPiece(pieceId);
 
                 const captureIds = [position2Id(move.to)];
                 for (const capture of move.captures)
@@ -95,7 +111,7 @@ export function createChessboardStore(
              * @param to - the new position of the piece
              * @returns where the piece moved
              */
-            async executePieceMovement(to: Point): Promise<void> {
+            async moveSelectedPiece(to: Point): Promise<void> {
                 const strTo = pointToStr(to);
 
                 const {
@@ -108,7 +124,7 @@ export function createChessboardStore(
                 } = get();
                 if (!selectedPieceId) {
                     console.warn(
-                        `Could not execute piece movement to ${strTo}` +
+                        `Could not execute piece movement to ${strTo} ` +
                             "because no piece was selected",
                     );
                     return;
@@ -132,6 +148,39 @@ export function createChessboardStore(
                 clearLegalMoves();
                 await onPieceMovement?.(from, to);
                 playMove(move);
+            },
+
+            async handlePieceDrop(
+                mouseX: number,
+                mouseY: number,
+            ): Promise<void> {
+                const {
+                    boardDimensions,
+                    boardRect,
+                    viewingFrom,
+                    moveSelectedPiece,
+                } = get();
+                if (!boardRect) {
+                    console.warn("Cannot move piece, board rect not set yet");
+                    return;
+                }
+
+                const relX = Math.max(mouseX - boardRect.left, 0);
+                const relY = Math.max(mouseY - boardRect.top, 0);
+
+                let x = Math.floor(
+                    (relX / boardRect.width) * boardDimensions.width,
+                );
+                let y = Math.floor(
+                    (relY / boardRect.height) * boardDimensions.height,
+                );
+                if (viewingFrom == GameColor.WHITE) {
+                    y = boardDimensions.height - y - 1;
+                } else {
+                    x = boardDimensions.width - x - 1;
+                }
+
+                await moveSelectedPiece({ x, y });
             },
 
             /**
@@ -190,6 +239,25 @@ export function createChessboardStore(
                     state.highlightedLegalMoves = [];
                     state.selectedPieceId = undefined;
                 });
+            },
+
+            addAnimatingPiece(pieceId: PieceID): void {
+                set((state) => {
+                    if (!state.animatingPieces.has(pieceId))
+                        state.animatingPieces.add(pieceId);
+                });
+
+                setTimeout(
+                    () =>
+                        set((state) => {
+                            state.animatingPieces.delete(pieceId);
+                        }),
+                    100,
+                );
+            },
+
+            setBoardRect(rect: DOMRect): void {
+                set(() => ({ boardRect: rect }));
             },
         })),
         shallow,
