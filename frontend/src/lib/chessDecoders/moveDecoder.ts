@@ -1,10 +1,10 @@
 import { Move, Point, StrPoint } from "@/types/tempModels";
 import { pointToStr } from "../utils/pointUtils";
 
-export function decodeLegalMoves(encoded: string[]): Map<StrPoint, Move[]> {
+export function decodeMoves(encoded: string[]): Map<StrPoint, Move[]> {
     const moves = new Map<StrPoint, Move[]>();
     for (const encodedMove of encoded) {
-        const decodedMove = parseMove(encodedMove);
+        const decodedMove = decodeSingleMove(encodedMove);
 
         const stringPoint = pointToStr(decodedMove.from);
         const movesFromPoint = moves.get(stringPoint) ?? [];
@@ -15,7 +15,7 @@ export function decodeLegalMoves(encoded: string[]): Map<StrPoint, Move[]> {
     return moves;
 }
 
-function parseMove(path: string): Move {
+export function decodeSingleMove(path: string): Move {
     const sideEffects: Move[] = [];
     const parts = path.split("-");
 
@@ -26,7 +26,7 @@ function parseMove(path: string): Move {
     const rootMove = decodePath(mainPart);
 
     for (let i = 1; i < parts.length; i++) {
-        const effectPath = parseMove(parts[i]);
+        const effectPath = decodeSingleMove(parts[i]);
         sideEffects.push(effectPath);
     }
 
