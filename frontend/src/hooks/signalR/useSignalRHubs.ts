@@ -29,9 +29,11 @@ export const useMatchmakingEmitter =
 
 type GameClientEvents = {
     MoveMadeAsync: [
-        encodedMove: string,
+        move: string,
+        fen: string,
         legalMoves: string[],
-        playerTurn: GameColor,
+        sideToMove: GameColor,
+        moveNumber: number,
     ];
 };
 

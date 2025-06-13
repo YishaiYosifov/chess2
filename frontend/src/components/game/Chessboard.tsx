@@ -18,7 +18,6 @@ import ChessboardLayout, {
     PaddingOffset,
 } from "./ChessboardLayout";
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
-import { decodeMoves } from "@/lib/chessDecoders/moveDecoder";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
@@ -40,9 +39,11 @@ export interface ChessboardProps {
 
 export interface ChessboardRef {
     makeMove: (
-        encodedMove: string,
-        encodedLegalMoves: string[],
-        playerTurn: GameColor,
+        move: string,
+        fen: string,
+        legalMoves: string[],
+        sideToMove: GameColor,
+        moveNumber: number,
     ) => void;
 }
 
@@ -92,21 +93,13 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
             onPieceMovement,
         });
     const chessStore = storeRef.current;
-    const playMove = useStore(chessStore, (state) => state.playMove);
+    const syncServerState = useStore(
+        chessStore,
+        (state) => state.syncServerState,
+    );
 
     useImperativeHandle(ref, () => ({
-        makeMove(
-            encodedMove: string,
-            encodedLegalMoves: string[],
-            playerTurn: GameColor,
-        ) {
-            //const legalMoves = decodeLegalMoves(encodedLegalMoves);
-            const move = decodeMoves([encodedMove])
-                .entries()
-                .toArray()
-                .at(0)![1][0];
-            playMove(move);
-        },
+        makeMove: syncServerState,
     }));
 
     return (
