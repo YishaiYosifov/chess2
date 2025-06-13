@@ -1,4 +1,4 @@
-import { pointToString } from "@/lib/utils/pointUtils";
+import { pointToStr } from "@/lib/utils/pointUtils";
 import { decodeLegalMoves } from "../moveDecoder";
 
 describe("decodeLegalMoves", () => {
@@ -12,7 +12,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2e4"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedKey = pointToString({ x: 4, y: 1 }); // e2
+        const expectedKey = pointToStr({ x: 4, y: 1 }); // e2
 
         expect(moves.has(expectedKey)).toBe(true);
         const moveArr = moves.get(expectedKey);
@@ -31,7 +31,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e4d5!d5"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedKey = pointToString({ x: 4, y: 3 }); // e4
+        const expectedKey = pointToStr({ x: 4, y: 3 }); // e4
         const move = moves.get(expectedKey)![0];
 
         expect(move).toEqual({
@@ -46,7 +46,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2d3c4"];
         const moves = decodeLegalMoves(encoded);
 
-        const expectedFrom = pointToString({ x: 4, y: 1 }); // e2
+        const expectedFrom = pointToStr({ x: 4, y: 1 }); // e2
         const move = moves.get(expectedFrom)![0];
 
         expect(move).toEqual({
@@ -61,7 +61,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2d3c4-d3c4d5"];
         const moves = decodeLegalMoves(encoded);
 
-        const move = moves.get(pointToString({ x: 4, y: 1 }))![0]; // e2
+        const move = moves.get(pointToStr({ x: 4, y: 1 }))![0]; // e2
         expect(move).toEqual({
             ...emptyMove,
             from: { x: 4, y: 1 }, // e2
@@ -84,7 +84,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e2c4!d3-d3c4d5!c4!c5"];
         const moves = decodeLegalMoves(encoded);
 
-        const move = moves.get(pointToString({ x: 4, y: 1 }))![0];
+        const move = moves.get(pointToStr({ x: 4, y: 1 }))![0];
         expect(move).toEqual({
             ...emptyMove,
             from: { x: 4, y: 1 }, // e2
@@ -109,7 +109,7 @@ describe("decodeLegalMoves", () => {
         const encoded = ["e70g421"];
         const moves = decodeLegalMoves(encoded);
 
-        const move = moves.get(pointToString({ x: 4, y: 69 }))![0];
+        const move = moves.get(pointToStr({ x: 4, y: 69 }))![0];
         expect(move).toEqual({
             ...emptyMove,
             from: { x: 4, y: 69 }, // e70

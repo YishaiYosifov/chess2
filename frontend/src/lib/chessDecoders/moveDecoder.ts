@@ -1,16 +1,16 @@
 import { Move, Point, StrPoint } from "@/types/tempModels";
-import { pointToString } from "../utils/pointUtils";
+import { pointToStr } from "../utils/pointUtils";
 
 export function decodeLegalMoves(encoded: string[]): Map<StrPoint, Move[]> {
     const moves = new Map<StrPoint, Move[]>();
     for (const encodedMove of encoded) {
         const decodedMove = parseMove(encodedMove);
 
-        const stringPoint = pointToString(decodedMove.from);
+        const stringPoint = pointToStr(decodedMove.from);
         const movesFromPoint = moves.get(stringPoint) ?? [];
         movesFromPoint.push(decodedMove);
 
-        moves.set(pointToString(decodedMove.from), movesFromPoint);
+        moves.set(pointToStr(decodedMove.from), movesFromPoint);
     }
     return moves;
 }
