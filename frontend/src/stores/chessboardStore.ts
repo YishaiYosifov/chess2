@@ -30,7 +30,6 @@ export interface ChessboardStore {
     pieces: PieceMap;
     legalMoves: LegalMoveMap;
 
-    highlighted: Point[];
     highlightedLegalMoves: Point[];
     animatingPieces: Set<PieceID>;
 
@@ -43,9 +42,18 @@ export interface ChessboardStore {
     handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(pieceId: PieceID): void;
-    clearLegalMoves(): void;
+    something(
+        move: Move,
+        legalMoves: LegalMoveMap,
+        sideToMove: GameColor,
+    ): void;
     addAnimatingPiece(pieceId: PieceID): void;
     setBoardRect(rect: DOMRect): void;
+    resetState(
+        pieces: PieceMap,
+        legalMoves: LegalMoveMap,
+        sideToMove: GameColor,
+    ): void;
 }
 
 const defaultState = {
@@ -63,7 +71,6 @@ const defaultState = {
     pieces: new Map(),
     legalMoves: new Map(),
 
-    highlighted: [],
     highlightedLegalMoves: [],
     animatingPieces: new Set<PieceID>(),
     boardRef: undefined,
@@ -119,7 +126,6 @@ export function createChessboardStore(
                     onPieceMovement,
                     playMove,
                     legalMoves,
-                    clearLegalMoves,
                     pieces,
                 } = get();
                 if (!selectedPieceId) {
@@ -145,7 +151,6 @@ export function createChessboardStore(
                     return;
                 }
 
-                clearLegalMoves();
                 await onPieceMovement?.(from, to);
                 playMove(move);
             },
@@ -231,13 +236,18 @@ export function createChessboardStore(
                 });
             },
 
-            /**
-             * Hide all highlighted legal moves
-             */
-            clearLegalMoves(): void {
+            something(
+                move: Move,
+                legalMoves: LegalMoveMap,
+                sideToMove: GameColor,
+            ): void {
+                const { playMove } = get();
+                playMove(move);
                 set((state) => {
+                    state.legalMoves = legalMoves;
                     state.highlightedLegalMoves = [];
                     state.selectedPieceId = undefined;
+                    state.sideToMove = sideToMove;
                 });
             },
 
@@ -258,6 +268,20 @@ export function createChessboardStore(
 
             setBoardRect(rect: DOMRect): void {
                 set(() => ({ boardRect: rect }));
+            },
+
+            resetState(
+                pieces: PieceMap,
+                legalMoves: LegalMoveMap,
+                sideToMove: GameColor,
+            ) {
+                set((state) => {
+                    state.pieces = pieces;
+                    state.legalMoves = legalMoves;
+                    state.sideToMove = sideToMove;
+                    state.highlightedLegalMoves = [];
+                    state.selectedPieceId = undefined;
+                });
             },
         })),
         shallow,

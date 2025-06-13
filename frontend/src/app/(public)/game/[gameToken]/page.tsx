@@ -2,7 +2,10 @@ import LiveChessboard from "@/components/liveGame/LiveChessboard";
 import withAuthedSession from "@/hocs/withAuthedSession";
 import { getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import { decodeMoves } from "@/lib/chessDecoders/moveDecoder";
+import {
+    decodeMoves,
+    decodeMovesIntoMap,
+} from "@/lib/chessDecoders/moveDecoder";
 import { notFound, redirect } from "next/navigation";
 
 export const metadata = { title: "Live Game - Chess 2" };
@@ -37,7 +40,8 @@ const GamePage = withAuthedSession(
         )
             redirect("/");
 
-        const decodedLegalMoves = decodeMoves(game.legalMoves);
+        const decodedLegalMoves = decodeMovesIntoMap(game.legalMoves);
+        const decodedMoveHistory = decodeMoves(game.moveHistory);
         const decodedFen = decodeFen(game.fen);
 
         const playingAs =
@@ -48,6 +52,7 @@ const GamePage = withAuthedSession(
             <div className="grid">
                 <LiveChessboard
                     gameToken={gameToken}
+                    initialMoveHistory={decodedMoveHistory}
                     startingPieces={decodedFen}
                     legalMoves={decodedLegalMoves}
                     playingAs={playingAs.color}

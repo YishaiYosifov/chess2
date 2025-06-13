@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import constants from "@/lib/constants";
-import { LegalMoveMap, Point, type PieceMap } from "@/types/tempModels";
+import { LegalMoveMap, Move, Point, type PieceMap } from "@/types/tempModels";
 
 import { GameColor } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
@@ -41,13 +41,8 @@ export interface ChessboardProps {
 }
 
 export interface ChessboardRef {
-    makeMove: (
-        move: string,
-        fen: string,
-        legalMoves: string[],
-        sideToMove: GameColor,
-        moveNumber: number,
-    ) => void;
+    makeMove: ChessboardStore["something"];
+    resetState: ChessboardStore["resetState"];
 }
 
 /**
@@ -95,13 +90,12 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
             onPieceMovement,
         });
     const chessStore = storeRef.current;
-    const syncServerState = useStore(
-        chessStore,
-        (state) => state.syncServerState,
-    );
+    const playMove = useStore(chessStore, (state) => state.something);
+    const resetState = useStore(chessStore, (state) => state.resetState);
 
     useImperativeHandle(ref, () => ({
-        makeMove: syncServerState,
+        makeMove: playMove,
+        resetState,
     }));
 
     return (
