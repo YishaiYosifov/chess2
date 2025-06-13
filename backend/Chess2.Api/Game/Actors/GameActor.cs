@@ -136,18 +136,20 @@ public class GameActor : ReceiveActor
             Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(moveResult.Errors);
             return;
         }
+        var encodedMove = moveResult.Value;
 
         var newSideToMove = players.SideToMove.Invert();
         players.SideToMove = newSideToMove;
 
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
-                Fen: _game.Fen,
+                Move: encodedMove,
                 WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
                 WhiteId: players.PlayerWhite.UserId,
                 BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
                 BlackId: players.PlayerBlack.UserId,
-                SideToMove: newSideToMove
+                SideToMove: newSideToMove,
+                MoveNumber: _game.MoveNumber
             )
         );
     }
