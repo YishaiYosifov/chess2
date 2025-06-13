@@ -6,7 +6,7 @@ import {
     StrPoint,
     type Point,
 } from "@/types/tempModels";
-import { createChessStore } from "../chessStore";
+import { createChessboardStore } from "../chessboardStore";
 import constants from "@/lib/constants";
 
 describe("movePiece", () => {
@@ -20,7 +20,7 @@ describe("movePiece", () => {
         // piece not found
         [new Map(), { x: 0, y: 0 }, { x: 1, y: 2 }],
     ])("should correctly move and capture pieces", (pieces, from, to) => {
-        const chessStore = createChessStore({ pieces });
+        const chessStore = createChessboardStore({ pieces });
 
         const { movePiece, position2Id } = chessStore.getState();
         const fromId = position2Id(from);
@@ -54,7 +54,7 @@ describe("position2Id", () => {
     ])(
         "should select the correct piece id from the position",
         (pieces, position, expectedId) => {
-            const chessStore = createChessStore({ pieces });
+            const chessStore = createChessboardStore({ pieces });
             const { position2Id } = chessStore.getState();
             expect(position2Id(position)).toEqual(expectedId);
         },
@@ -128,7 +128,7 @@ describe("showLegalMoves", () => {
     ])(
         "should highlight the correct squares depending on the position",
         (legalMoves, position, expectedLegalMoves) => {
-            const chessStore = createChessStore({ legalMoves });
+            const chessStore = createChessboardStore({ legalMoves });
             const { showLegalMoves } = chessStore.getState();
 
             showLegalMoves(position);

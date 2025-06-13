@@ -12,7 +12,10 @@ import { LegalMoveMap, Point, type PieceMap } from "@/types/tempModels";
 
 import { GameColor } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
-import { ChessStore, createChessStore } from "@/stores/chessStore";
+import {
+    ChessboardStore,
+    createChessboardStore,
+} from "@/stores/chessboardStore";
 import ChessboardLayout, {
     ChessboardBreakpoint,
     PaddingOffset,
@@ -80,9 +83,9 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
 ) => {
     viewingFrom ??= playingAs ?? GameColor.WHITE;
 
-    const storeRef = useRef<StoreApi<ChessStore>>(null);
+    const storeRef = useRef<StoreApi<ChessboardStore>>(null);
     if (!storeRef.current)
-        storeRef.current = createChessStore({
+        storeRef.current = createChessboardStore({
             pieces: startingPieces,
             legalMoves,
             viewingFrom,

@@ -2,10 +2,10 @@ import { useContext } from "react";
 import { useStore } from "zustand";
 
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
-import { type ChessStore } from "@/stores/chessStore";
+import { type ChessboardStore } from "@/stores/chessboardStore";
 import { PieceID } from "@/lib/apiClient/models";
 
-export function useChessStore<T>(selector: (store: ChessStore) => T): T {
+export function useChessStore<T>(selector: (store: ChessboardStore) => T): T {
     const chessStoreContext = useContext(ChessStoreContext);
 
     if (!chessStoreContext)
