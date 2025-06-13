@@ -9,14 +9,10 @@ import {
     type PieceID,
     LegalMoveMap,
     Move,
-    Piece,
-    PieceType,
 } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
-import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import { decodeMoves, decodeSingleMove } from "@/lib/chessDecoders/moveDecoder";
 
 export interface ChessboardStore {
     viewingFrom: GameColor;
@@ -31,15 +27,16 @@ export interface ChessboardStore {
 
     highlighted: Point[];
     highlightedLegalMoves: Point[];
+    animatingPieces: PieceID[];
 
-    selectedPiecePosition?: Point;
+    selectedPieceId?: PieceID;
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
     playMove(move: Move): void;
     executePieceMovement(to: Point): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
-    showLegalMoves(position: Point): void;
+    showLegalMoves(pieceId: PieceID): void;
     clearLegalMoves(): void;
 }
 
@@ -54,6 +51,7 @@ const defaultState = {
 
     highlighted: [],
     highlightedLegalMoves: [],
+    animatingPieces: [],
 };
 
 enableMapSet();
@@ -64,31 +62,6 @@ export function createChessboardStore(
         immer((set, get) => ({
             ...defaultState,
             ...initState,
-
-            /**
-             * Move a piece from one position to another
-             *
-             * @param from - the current position of the piece
-             * @param to - the new position of the piece
-             */
-            movePiece(from: Point, to: Point): void {
-                const { position2Id } = get();
-
-                const pieceId = position2Id(from);
-                if (!pieceId) {
-                    console.warn(
-                        `Could not move piece from ${from} to ${to} ` +
-                            `because no piece was found at ${from}`,
-                    );
-                    return;
-                }
-
-                const captureId = position2Id(to);
-                set((state) => {
-                    state.pieces.get(pieceId)!.position = to;
-                    if (captureId) state.pieces.delete(captureId);
-                });
-            },
 
             playMove(move: Move): void {
                 const { position2Id, playMove } = get();
@@ -116,24 +89,6 @@ export function createChessboardStore(
                 for (const sideEffect of move.sideEffects) playMove(sideEffect);
             },
 
-            syncServerState(
-                move: string,
-                fen: string,
-                legalMoves: string[],
-                sideToMove: GameColor,
-                moveNumber: number,
-            ) {
-                const pieces = decodeFen(fen);
-                const move = decodeSingleMove(move);
-                const decodedLegalMoves = decodeMoves(legalMoves);
-
-                set((state) => {
-                    state.pieces = pieces;
-                    state.legalMoves = decodedLegalMoves;
-                    state.sideToMove = sideToMove;
-                });
-            },
-
             /**
              * Process the execution of a move
              *
@@ -141,36 +96,42 @@ export function createChessboardStore(
              * @returns where the piece moved
              */
             async executePieceMovement(to: Point): Promise<void> {
+                const strTo = pointToStr(to);
+
                 const {
-                    selectedPiecePosition: from,
+                    selectedPieceId,
                     onPieceMovement,
                     playMove,
                     legalMoves,
                     clearLegalMoves,
+                    pieces,
                 } = get();
-                if (!from) {
+                if (!selectedPieceId) {
                     console.warn(
-                        `Could not send piece movement from ${from} to ${to}` +
+                        `Could not execute piece movement to ${strTo}` +
                             "because no piece was selected",
                     );
                     return;
                 }
 
-                const positionStr = pointToStr(from);
-                const moves = legalMoves.get(positionStr);
+                const selectedPiece = pieces.get(selectedPieceId)!;
+                const from = selectedPiece.position;
+                const strFrom = pointToStr(from);
+
+                const moves = legalMoves.get(strFrom);
                 const move = moves?.find(
                     (m) => m.to.x == to.x && m.to.y == to.y,
                 );
                 if (!move) {
                     console.warn(
-                        `Could not move piece from ${from} to ${to} because no legal move found`,
+                        `Could not move piece from ${strFrom} to ${strTo} because no legal move found`,
                     );
                     return;
                 }
 
-                playMove(move);
                 clearLegalMoves();
                 await onPieceMovement?.(from, to);
+                playMove(move);
             },
 
             /**
@@ -195,10 +156,17 @@ export function createChessboardStore(
              *
              * @param position - the position of the piece to highlight the legal moves of
              */
-            showLegalMoves(position: Point): void {
-                const { legalMoves } = get();
+            showLegalMoves(pieceId: PieceID): void {
+                const { legalMoves, pieces } = get();
+                const piece = pieces.get(pieceId);
+                if (!piece) {
+                    console.warn(
+                        `Cannot show legal moves, no piece was found with id ${pieceId}`,
+                    );
+                    return;
+                }
 
-                const positionStr = pointToStr(position);
+                const positionStr = pointToStr(piece.position);
                 const moves = legalMoves.get(positionStr);
 
                 const toHighlightPoints = moves
@@ -210,7 +178,7 @@ export function createChessboardStore(
 
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
-                    state.selectedPiecePosition = position;
+                    state.selectedPieceId = pieceId;
                 });
             },
 
@@ -220,7 +188,7 @@ export function createChessboardStore(
             clearLegalMoves(): void {
                 set((state) => {
                     state.highlightedLegalMoves = [];
-                    state.selectedPiecePosition = undefined;
+                    state.selectedPieceId = undefined;
                 });
             },
         })),
