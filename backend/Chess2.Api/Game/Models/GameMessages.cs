@@ -41,11 +41,11 @@ public class GameEvents
     public record GameStateEvent(GameStateDto State);
 
     public record PieceMoved(
-        string Move,
+        string Fen,
         IReadOnlyCollection<string> WhiteLegalMoves,
         string WhiteId,
         IReadOnlyCollection<string> BlackLegalMoves,
         string BlackId,
-        GameColor PlayerTurn
+        GameColor SideToMove
     );
 }

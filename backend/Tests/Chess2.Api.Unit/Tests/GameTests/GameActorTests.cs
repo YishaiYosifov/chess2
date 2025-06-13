@@ -141,7 +141,7 @@ public class GameActorTests : BaseActorTest
                     WhiteId: "white",
                     BlackLegalMoves: newBlackLegalMoves,
                     BlackId: "black",
-                    PlayerTurn: GameColor.Black
+                    SideToMove: GameColor.Black
                 )
             );
     }

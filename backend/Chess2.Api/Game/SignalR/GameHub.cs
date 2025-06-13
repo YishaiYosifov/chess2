@@ -10,7 +10,7 @@ namespace Chess2.Api.Game.SignalR;
 
 public interface IGameHub : IChess2HubClient
 {
-    Task MoveMadeAsync(string move, IEnumerable<string> legalMoves, GameColor playerTurn);
+    Task MoveMadeAsync(string fen, IEnumerable<string> legalMoves, GameColor sideToMove);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
@@ -40,10 +40,10 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
         _logger.LogInformation("User {UserId} made a move in game {GameToken}", userId, gameToken);
         await Clients
             .User(move.WhiteId)
-            .MoveMadeAsync(move.Move, move.WhiteLegalMoves, move.PlayerTurn);
+            .MoveMadeAsync(move.Fen, move.WhiteLegalMoves, move.SideToMove);
         await Clients
             .User(move.BlackId)
-            .MoveMadeAsync(move.Move, move.BlackLegalMoves, move.PlayerTurn);
+            .MoveMadeAsync(move.Fen, move.BlackLegalMoves, move.SideToMove);
     }
 
     public override async Task OnConnectedAsync()
