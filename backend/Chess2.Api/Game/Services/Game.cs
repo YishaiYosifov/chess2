@@ -12,7 +12,7 @@ public interface IGame
 
     void InitializeGame();
     IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor);
-    ErrorOr<string> MakeMove(Point from, Point to);
+    ErrorOr<Success> MakeMove(Point from, Point to);
 }
 
 public class Game(
@@ -56,7 +56,7 @@ public class Game(
             _ => throw new InvalidOperationException($"Invalid Color {forColor}?"),
         };
 
-    public ErrorOr<string> MakeMove(Point from, Point to)
+    public ErrorOr<Success> MakeMove(Point from, Point to)
     {
         if (!_legalMoves.TryGetValue((from, to), out var move))
         {
@@ -71,7 +71,7 @@ public class Game(
 
         var encodedMove = _moveEncoder.EncodeSingleMove(move);
         _encodedMoveHistory.Add(encodedMove);
-        return encodedMove;
+        return Result.Success;
     }
 
     private void MakeMoveOnBoard(Move move)
