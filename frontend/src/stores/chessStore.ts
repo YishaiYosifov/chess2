@@ -10,7 +10,7 @@ import {
     LegalMoveMap,
     Move,
 } from "@/types/tempModels";
-import { pointToString } from "@/lib/utils/pointUtils";
+import { pointToStr } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
 
@@ -90,8 +90,8 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 const pieceId = position2Id(move.from);
                 if (!pieceId) {
                     console.warn(
-                        `Could not move piece from ${move.from} to ${move.to} ` +
-                            `because no piece was found at ${move.from}`,
+                        `Could not move piece from ${pointToStr(move.from)} to ${pointToStr(move.to)} ` +
+                            `because no piece was found at ${pointToStr(move.from)}`,
                     );
                     return;
                 }
@@ -132,7 +132,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                     return;
                 }
 
-                const positionStr = pointToString(from);
+                const positionStr = pointToStr(from);
                 const moves = legalMoves.get(positionStr);
                 const move = moves?.find(
                     (m) => m.to.x == to.x && m.to.y == to.y,
@@ -174,7 +174,7 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
             showLegalMoves(position: Point): void {
                 const { legalMoves } = get();
 
-                const positionStr = pointToString(position);
+                const positionStr = pointToStr(position);
                 const moves = legalMoves.get(positionStr);
 
                 const toHighlightPoints = moves

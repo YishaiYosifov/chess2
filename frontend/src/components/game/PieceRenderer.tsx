@@ -1,7 +1,7 @@
 import { useHighlightedLegalMoves, usePieces } from "@/hooks/useChess";
 import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
-import { pointToString } from "@/lib/utils/pointUtils";
+import { pointToStr } from "@/lib/utils/pointUtils";
 
 const PieceRenderer = () => {
     const pieces = usePieces();
@@ -16,7 +16,7 @@ const PieceRenderer = () => {
             {highlightedLegalMoves.map((point) => (
                 <HighlightedLegalMove
                     position={point}
-                    key={pointToString(point)}
+                    key={pointToStr(point)}
                 />
             ))}
         </>
