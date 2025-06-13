@@ -1,5 +1,5 @@
 import { pointToStr } from "@/lib/utils/pointUtils";
-import { decodeLegalMoves } from "../moveDecoder";
+import { decodeMoves } from "../moveDecoder";
 
 describe("decodeLegalMoves", () => {
     const emptyMove = {
@@ -10,7 +10,7 @@ describe("decodeLegalMoves", () => {
 
     it("should decode a simple move without captures or sideEffects", () => {
         const encoded = ["e2e4"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const expectedKey = pointToStr({ x: 4, y: 1 }); // e2
 
@@ -29,7 +29,7 @@ describe("decodeLegalMoves", () => {
 
     it("should decode a move with captures", () => {
         const encoded = ["e4d5!d5"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const expectedKey = pointToStr({ x: 4, y: 3 }); // e4
         const move = moves.get(expectedKey)![0];
@@ -44,7 +44,7 @@ describe("decodeLegalMoves", () => {
 
     it("should decode a move with through points", () => {
         const encoded = ["e2d3c4"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const expectedFrom = pointToStr({ x: 4, y: 1 }); // e2
         const move = moves.get(expectedFrom)![0];
@@ -59,7 +59,7 @@ describe("decodeLegalMoves", () => {
 
     it("should decode a move with sideEffects", () => {
         const encoded = ["e2d3c4-d3c4d5"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const move = moves.get(pointToStr({ x: 4, y: 1 }))![0]; // e2
         expect(move).toEqual({
@@ -82,7 +82,7 @@ describe("decodeLegalMoves", () => {
         // main move: e2d3c4 capturing d3
         // side effect: d3c4d5 capturing c4
         const encoded = ["e2c4!d3-d3c4d5!c4!c5"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const move = moves.get(pointToStr({ x: 4, y: 1 }))![0];
         expect(move).toEqual({
@@ -107,7 +107,7 @@ describe("decodeLegalMoves", () => {
 
     it("should decode algebric with multiple numbers correctly", () => {
         const encoded = ["e70g421"];
-        const moves = decodeLegalMoves(encoded);
+        const moves = decodeMoves(encoded);
 
         const move = moves.get(pointToStr({ x: 4, y: 69 }))![0];
         expect(move).toEqual({
@@ -119,13 +119,11 @@ describe("decodeLegalMoves", () => {
 
     it("should throw an error on invalid move (too few points)", () => {
         const invalid = ["e2"];
-        expect(() => decodeLegalMoves(invalid)).toThrow(/not enough points/);
+        expect(() => decodeMoves(invalid)).toThrow(/not enough points/);
     });
 
     it("should throw an error on completely invalid input", () => {
         const invalid = ["xyz"];
-        expect(() => decodeLegalMoves(invalid)).toThrow(
-            /could not parse points/,
-        );
+        expect(() => decodeMoves(invalid)).toThrow(/could not parse points/);
     });
 });

@@ -18,7 +18,7 @@ import ChessboardLayout, {
     PaddingOffset,
 } from "./ChessboardLayout";
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
-import { decodeLegalMoves } from "@/lib/chessDecoders/moveDecoder";
+import { decodeMoves } from "@/lib/chessDecoders/moveDecoder";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
@@ -101,7 +101,7 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
             playerTurn: GameColor,
         ) {
             //const legalMoves = decodeLegalMoves(encodedLegalMoves);
-            const move = decodeLegalMoves([encodedMove])
+            const move = decodeMoves([encodedMove])
                 .entries()
                 .toArray()
                 .at(0)![1][0];
