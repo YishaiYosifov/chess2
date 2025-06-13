@@ -89,7 +89,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
                     playingAs == sideToMove && piece.color == sideToMove;
                 if (!canDrag) return;
 
-                showLegalMoves(piece.position);
+                showLegalMoves(id);
                 startDragging(event);
             }}
             style={{

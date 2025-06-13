@@ -132,7 +132,7 @@ describe("showLegalMoves", () => {
             const { showLegalMoves } = chessStore.getState();
 
             showLegalMoves(position);
-            const { highlightedLegalMoves, selectedPiecePosition } =
+            const { highlightedLegalMoves, selectedPieceId } =
                 chessStore.getState();
             expect(highlightedLegalMoves).toEqual(expectedLegalMoves);
             expect(selectedPiecePosition).toEqual(position);
