@@ -9,10 +9,14 @@ import {
     type PieceID,
     LegalMoveMap,
     Move,
+    Piece,
+    PieceType,
 } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
+import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
+import { decodeMoves } from "@/lib/chessDecoders/moveDecoder";
 
 export interface ChessStore {
     viewingFrom: GameColor;
@@ -37,6 +41,13 @@ export interface ChessStore {
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(position: Point): void;
     clearLegalMoves(): void;
+    syncServerState(
+        move: string,
+        fen: string,
+        legalMoves: string[],
+        sideToMove: GameColor,
+        moveNumber: number,
+    ): void;
 }
 
 const defaultState = {
@@ -108,6 +119,23 @@ export function createChessStore(initState: Partial<ChessStore> = {}) {
                 });
 
                 for (const sideEffect of move.sideEffects) playMove(sideEffect);
+            },
+
+            syncServerState(
+                move: string,
+                fen: string,
+                legalMoves: string[],
+                sideToMove: GameColor,
+                moveNumber: number,
+            ) {
+                const pieces = decodeFen(fen);
+                const decodedLegalMoves = decodeMoves(legalMoves);
+
+                set((state) => {
+                    state.pieces = pieces;
+                    state.legalMoves = decodedLegalMoves;
+                    state.sideToMove = sideToMove;
+                });
             },
 
             /**
