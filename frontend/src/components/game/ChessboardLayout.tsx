@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PieceRenderer from "./PieceRenderer";
 import clsx from "clsx";
+import { useChessStore } from "@/hooks/useChess";
 
 export interface PaddingOffset {
     width: number;
@@ -12,16 +13,21 @@ export interface ChessboardBreakpoint {
     paddingOffset: PaddingOffset;
 }
 
+export interface ChessboardLayoutProps {
+    breakpoints?: ChessboardBreakpoint[];
+    defaultOffset?: PaddingOffset;
+    className?: string;
+}
+
 const ChessboardLayout = ({
     breakpoints = [],
     defaultOffset,
     className,
-}: {
-    breakpoints?: ChessboardBreakpoint[];
-    defaultOffset?: PaddingOffset;
-    className?: string;
-}) => {
+}: ChessboardLayoutProps) => {
     const [boardSize, setBoardSize] = useState<number>(0);
+    const setBoardRect = useChessStore((state) => state.setBoardRect);
+
+    const ref = useRef<HTMLDivElement>(null);
 
     // Sort the offset breakpoints in ascending order
     const sortedBreakpoints = useMemo(
@@ -57,7 +63,7 @@ const ChessboardLayout = ({
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
-            const minSize = Math.min(width, height);
+            const minSize = Math.max(300, Math.min(width, height));
             setBoardSize(minSize);
         }
 
@@ -66,6 +72,12 @@ const ChessboardLayout = ({
 
         return () => window.removeEventListener("resize", resizeBoard);
     }, [defaultOffset, sortedBreakpoints]);
+
+    useLayoutEffect(() => {
+        if (ref.current) {
+            setBoardRect(ref.current.getBoundingClientRect());
+        }
+    }, [boardSize, setBoardRect]);
 
     return (
         <div
@@ -80,6 +92,7 @@ const ChessboardLayout = ({
                 width: `${boardSize}px`,
                 height: `${boardSize}px`,
             }}
+            ref={ref}
         >
             <PieceRenderer />
         </div>

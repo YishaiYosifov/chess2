@@ -20,8 +20,3 @@ export const useHighlightedLegalMoves = () =>
 
 export const usePiece = (pieceId: PieceID) =>
     useChessStore((state) => state.pieces.get(pieceId));
-
-export const useBoardSize = (): [boardWidth: number, boardHeight: number] => [
-    useChessStore((state) => state.boardWidth),
-    useChessStore((state) => state.boardHeight),
-];

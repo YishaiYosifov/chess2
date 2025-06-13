@@ -87,12 +87,11 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
     if (!storeRef.current)
         storeRef.current = createChessboardStore({
             pieces: startingPieces,
+            boardDimensions: { width: boardWidth, height: boardHeight },
             legalMoves,
             viewingFrom,
             sideToMove,
             playingAs,
-            boardWidth,
-            boardHeight,
             onPieceMovement,
         });
     const chessStore = storeRef.current;

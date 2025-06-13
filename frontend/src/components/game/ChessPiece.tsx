@@ -13,6 +13,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const sideToMove = useChessStore((state) => state.sideToMove);
     const playingAs = useChessStore((state) => state.playingAs);
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
+    const handlePieceDrop = useChessStore((state) => state.handlePieceDrop);
+    const isAnimating = useChessStore((state) => state.animatingPieces.has(id));
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -58,9 +60,10 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         }
 
         // reset the event listeners and the dragging offset
-        function stopDragging(): void {
+        async function stopDragging(): Promise<void> {
             setIsDragging(false);
             didStopDragging = true;
+            await handlePieceDrop(lastMouseX, lastMouseY);
             pieceRef.current?.updateDraggingOffset(0, 0);
 
             window.removeEventListener("pointermove", handleMove);
@@ -79,8 +82,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             data-testid="piece"
             position={piece.position}
             className={clsx(
-                `z-10 touch-none bg-size-[length:100%] bg-no-repeat transition-transform
-                duration-100 ease-out select-none`,
+                "z-10 touch-none bg-size-[length:100%] bg-no-repeat select-none",
+                isAnimating && "transition-transform duration-100 ease-out",
                 isDragging && "pointer-events-none z-30",
             )}
             ref={pieceRef}
