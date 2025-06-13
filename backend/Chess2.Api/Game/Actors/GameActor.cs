@@ -18,7 +18,7 @@ public class PlayerRoster
     public required IReadOnlyDictionary<string, GamePlayer> IdToPlayer { get; init; }
     public required IReadOnlyDictionary<GameColor, GamePlayer> ColorToPlayer { get; init; }
 
-    public required GameColor CurrentPlayerColor { get; set; }
+    public required GameColor SideToMove { get; set; }
 }
 
 public class GameActor : ReceiveActor
@@ -68,7 +68,7 @@ public class GameActor : ReceiveActor
             PlayerBlack = playerBlack,
             IdToPlayer = idToPlayer.AsReadOnly(),
             ColorToPlayer = colorToPlayer.AsReadOnly(),
-            CurrentPlayerColor = GameColor.White,
+            SideToMove = GameColor.White,
         };
         _game.InitializeGame();
 
@@ -107,7 +107,7 @@ public class GameActor : ReceiveActor
         var gameStateDto = new GameStateDto(
             PlayerWhite: players.PlayerWhite,
             PlayerBlack: players.PlayerBlack,
-            CurrentPlayerColor: players.CurrentPlayerColor,
+            CurrentPlayerColor: players.SideToMove,
             Fen: _game.Fen,
             MoveHistory: _game.EncodedMoveHistory,
             LegalMoves: legalMoves
@@ -118,7 +118,7 @@ public class GameActor : ReceiveActor
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece, PlayerRoster players)
     {
-        var currentPlayerId = players.ColorToPlayer[players.CurrentPlayerColor]?.UserId;
+        var currentPlayerId = players.ColorToPlayer[players.SideToMove]?.UserId;
         if (currentPlayerId != movePiece.UserId)
         {
             _logger.Warning(
@@ -137,17 +137,17 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        var newCurrentPlayerColor = players.CurrentPlayerColor.Invert();
-        players.CurrentPlayerColor = newCurrentPlayerColor;
+        var newSideToMove = players.SideToMove.Invert();
+        players.SideToMove = newSideToMove;
 
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
-                Move: moveResult.Value,
+                Fen: _game.Fen,
                 WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
                 WhiteId: players.PlayerWhite.UserId,
                 BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
                 BlackId: players.PlayerBlack.UserId,
-                PlayerTurn: newCurrentPlayerColor
+                SideToMove: newSideToMove
             )
         );
     }
