@@ -1,7 +1,7 @@
 import { Move, Point, StrPoint } from "@/types/tempModels";
 import { pointToStr } from "../utils/pointUtils";
 
-export function decodeMoves(encoded: string[]): Map<StrPoint, Move[]> {
+export function decodeMovesIntoMap(encoded: string[]): Map<StrPoint, Move[]> {
     const moves = new Map<StrPoint, Move[]>();
     for (const encodedMove of encoded) {
         const decodedMove = decodeSingleMove(encodedMove);
@@ -14,6 +14,9 @@ export function decodeMoves(encoded: string[]): Map<StrPoint, Move[]> {
     }
     return moves;
 }
+
+export const decodeMoves = (encoded: string[]): Move[] =>
+    encoded.map(decodeSingleMove);
 
 export function decodeSingleMove(path: string): Move {
     const sideEffects: Move[] = [];

@@ -15,6 +15,8 @@ function useSignalREvent<
     useEffect(() => {
         const handler = onEvent ?? (() => {});
         signalRConnection?.on(eventName, handler);
+
+        return () => signalRConnection?.off(eventName, handler);
     }, [signalRConnection, eventName, onEvent]);
 }
 export default useSignalREvent;

@@ -6,12 +6,6 @@ export enum GameResult {
     Draw = "draw",
 }
 
-export enum Variant {
-    FogOfWar = "fog of war",
-    Anarchy = "anarchy",
-    Chss = "chss",
-}
-
 export enum PieceType {
     KING = "k",
     QUEEN = "q",
