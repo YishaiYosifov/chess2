@@ -85,6 +85,14 @@ export function createChessboardStore(
             ...defaultState,
             ...initState,
 
+            /**
+             * Updates the game state to reflect the current turn.
+             * Optionally applies the given move before updating legal moves and side to move.
+             *
+             * @param legalMoves - Updated map of legal moves for the board.
+             * @param sideToMove - The color of the player who is to move next.
+             * @param move - Optional move to apply before updating state.
+             */
             playTurn(
                 legalMoves: LegalMoveMap,
                 sideToMove: GameColor,
@@ -101,6 +109,12 @@ export function createChessboardStore(
                 });
             },
 
+            /**
+             * Applies a move on the board by updating piece positions and removing captured pieces.
+             * Animates the moving piece, and recursively applies any side effects of the move.
+             *
+             * @param move - The move to apply on the board.
+             */
             playMove(move: Move): void {
                 const { position2Id, addAnimatingPiece, playMove } = get();
 
@@ -129,10 +143,10 @@ export function createChessboardStore(
             },
 
             /**
-             * Process the execution of a move
+             * Attempts to move the currently selected piece to a new position, if the move is legal.
+             * Calls the onPieceMovement callback if defined, then applies the move and clears selection.
              *
-             * @param to - the new position of the piece
-             * @returns where the piece moved
+             * @param to - The target position to move the selected piece to.
              */
             async moveSelectedPiece(to: Point): Promise<void> {
                 const strTo = pointToStr(to);
@@ -178,6 +192,14 @@ export function createChessboardStore(
                 });
             },
 
+            /**
+             * Handles a piece drop event based on mouse coordinates relative to the board.
+             * Converts pixel coordinates to board position, accounting for viewing orientation,
+             * then attempts to move the selected piece to that position.
+             *
+             * @param mouseX - The x-coordinate of the mouse event relative to the viewport.
+             * @param mouseY - The y-coordinate of the mouse event relative to the viewport.
+             */
             async handlePieceDrop(
                 mouseX: number,
                 mouseY: number,
@@ -212,10 +234,10 @@ export function createChessboardStore(
             },
 
             /**
-             * Find the id of the piece that is at a certain position
+             * Returns the ID of the piece located at a given board position.
              *
-             * @param position - the position to convert to piece id
-             * @returns the id of the piece if it was found, undefined otherwise
+             * @param position - The board coordinate to check for a piece.
+             * @returns The ID of the piece at the position, or undefined if no piece is present.
              */
             position2Id(position: Point): PieceID | undefined {
                 const pieces = get().pieces;
@@ -229,9 +251,10 @@ export function createChessboardStore(
             },
 
             /**
-             * Highlight the legal moves of a piece
+             * Highlights the legal moves available for the specified piece.
+             * Updates the state to reflect these highlighted moves and sets the selected piece.
              *
-             * @param position - the position of the piece to highlight the legal moves of
+             * @param pieceId - The ID of the piece for which to show legal moves.
              */
             showLegalMoves(pieceId: PieceID): void {
                 const { legalMoves, pieces } = get();
@@ -259,6 +282,12 @@ export function createChessboardStore(
                 });
             },
 
+            /**
+             * Adds a piece ID to the set of currently animating pieces,
+             * then removes it after a short delay to control animation lifecycle.
+             *
+             * @param pieceId - The ID of the piece to animate.
+             */
             addAnimatingPiece(pieceId: PieceID): void {
                 set((state) => {
                     if (!state.animatingPieces.has(pieceId))
@@ -274,22 +303,37 @@ export function createChessboardStore(
                 );
             },
 
+            /**
+             * Sets the bounding rectangle of the board in screen coordinates.
+             * Useful for translating mouse coordinates to board positions.
+             *
+             * @param rect - The DOMRect representing the board's position and size.
+             */
             setBoardRect(rect: DOMRect): void {
                 set(() => ({ boardRect: rect }));
             },
 
+            /**
+             * Resets the entire chessboard state to defaults, then sets
+             * the provided pieces, legal moves, and side to move.
+             *
+             * @param pieces - The new piece map for the board.
+             * @param legalMoves - The new legal moves map.
+             * @param sideToMove - The player color to move next.
+             */
             resetState(
                 pieces: PieceMap,
                 legalMoves: LegalMoveMap,
                 sideToMove: GameColor,
             ) {
-                set((state) => {
-                    state.pieces = pieces;
-                    state.legalMoves = legalMoves;
-                    state.sideToMove = sideToMove;
-                    state.highlightedLegalMoves = [];
-                    state.selectedPieceId = undefined;
-                });
+                set(() => ({
+                    ...defaultState,
+                    ...initState,
+
+                    pieces,
+                    legalMoves,
+                    sideToMove,
+                }));
             },
         })),
         shallow,
