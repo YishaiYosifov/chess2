@@ -37,16 +37,16 @@ export interface ChessboardStore {
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
+    playTurn(
+        newLegalMoves: LegalMoveMap,
+        sideToMove: GameColor,
+        move?: Move,
+    ): void;
     playMove(move: Move): void;
     moveSelectedPiece(to: Point): Promise<void>;
     handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
     showLegalMoves(pieceId: PieceID): void;
-    something(
-        move: Move,
-        legalMoves: LegalMoveMap,
-        sideToMove: GameColor,
-    ): void;
     addAnimatingPiece(pieceId: PieceID): void;
     setBoardRect(rect: DOMRect): void;
     resetState(
@@ -84,6 +84,22 @@ export function createChessboardStore(
         immer((set, get) => ({
             ...defaultState,
             ...initState,
+
+            playTurn(
+                legalMoves: LegalMoveMap,
+                sideToMove: GameColor,
+                move?: Move,
+            ): void {
+                const { playMove } = get();
+                if (move) playMove(move);
+
+                set((state) => {
+                    state.legalMoves = legalMoves;
+                    state.highlightedLegalMoves = [];
+                    state.selectedPieceId = undefined;
+                    state.sideToMove = sideToMove;
+                });
+            },
 
             playMove(move: Move): void {
                 const { position2Id, addAnimatingPiece, playMove } = get();
@@ -141,18 +157,25 @@ export function createChessboardStore(
                 const strFrom = pointToStr(from);
 
                 const moves = legalMoves.get(strFrom);
-                const move = moves?.find(
-                    (m) => m.to.x == to.x && m.to.y == to.y,
-                );
-                if (!move) {
+                if (!moves || moves.length === 0) {
                     console.warn(
-                        `Could not move piece from ${strFrom} to ${strTo} because no legal move found`,
+                        `No legal moves found for piece at ${strFrom}, state may be inconsistent`,
                     );
                     return;
                 }
 
+                const move = moves?.find(
+                    (m) => m.to.x == to.x && m.to.y == to.y,
+                );
+                if (!move) return;
+
                 await onPieceMovement?.(from, to);
                 playMove(move);
+
+                set((state) => {
+                    state.legalMoves = new Map();
+                    state.selectedPieceId = undefined;
+                });
             },
 
             async handlePieceDrop(
@@ -233,21 +256,6 @@ export function createChessboardStore(
                 set((state) => {
                     state.highlightedLegalMoves = toHighlightPoints;
                     state.selectedPieceId = pieceId;
-                });
-            },
-
-            something(
-                move: Move,
-                legalMoves: LegalMoveMap,
-                sideToMove: GameColor,
-            ): void {
-                const { playMove } = get();
-                playMove(move);
-                set((state) => {
-                    state.legalMoves = legalMoves;
-                    state.highlightedLegalMoves = [];
-                    state.selectedPieceId = undefined;
-                    state.sideToMove = sideToMove;
                 });
             },
 

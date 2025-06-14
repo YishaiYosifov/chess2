@@ -45,7 +45,6 @@ const LiveChessboard = ({
             sideToMove: GameColor,
             moveNumber: number,
         ) => {
-            // TODO:
             // we missed a move... we need to refetch the state
             if (moveNumber != moveHistory.length + 1) {
                 await refetchGame();
@@ -56,10 +55,12 @@ const LiveChessboard = ({
             const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
             setMoveHistory((last) => [...last, decodedMove]);
 
-            chessboardRef.current?.makeMove(
-                decodedMove,
+            chessboardRef.current?.playTurn(
                 decodedLegalMoves,
                 sideToMove,
+                sideToMove == chessboardProps.playingAs
+                    ? decodedMove
+                    : undefined,
             );
         },
     );
