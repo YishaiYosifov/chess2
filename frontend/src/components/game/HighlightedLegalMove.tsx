@@ -12,6 +12,7 @@ const HighlightedLegalMove = ({ position }: { position: Point }) => {
 
     return (
         <ChessSquare
+            data-testid="highlightedLegalMove"
             onClick={async () => await executePieceMovement(position)}
             className="z-20 animate-[fadeIn_0.15s_ease-out]
                 bg-[radial-gradient(rgba(0,0,0,0.25)_20%,_rgba(0,0,0,0)_23%)]
