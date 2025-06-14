@@ -56,7 +56,7 @@ export interface ChessboardStore {
     ): void;
 }
 
-const defaultState = {
+export const defaultChessboardState = {
     viewingFrom: GameColor.WHITE,
     sideToMove: GameColor.WHITE,
     boardDimensions: {
@@ -82,7 +82,7 @@ export function createChessboardStore(
 ) {
     return createWithEqualityFn<ChessboardStore>()(
         immer((set, get) => ({
-            ...defaultState,
+            ...defaultChessboardState,
             ...initState,
 
             /**
@@ -124,6 +124,7 @@ export function createChessboardStore(
                         `Could not move piece from ${pointToStr(move.from)} to ${pointToStr(move.to)} ` +
                             `because no piece was found at ${pointToStr(move.from)}`,
                     );
+
                     return;
                 }
                 addAnimatingPiece(pieceId);
@@ -327,7 +328,7 @@ export function createChessboardStore(
                 sideToMove: GameColor,
             ) {
                 set(() => ({
-                    ...defaultState,
+                    ...defaultChessboardState,
                     ...initState,
 
                     pieces,
