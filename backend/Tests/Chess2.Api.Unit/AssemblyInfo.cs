@@ -2,4 +2,8 @@
 using Chess2.Api.TestInfrastructure.Serializers;
 using Xunit.Sdk;
 
-[assembly: RegisterXunitSerializer(typeof(PointSerializer), typeof(Point))]
+[assembly: RegisterXunitSerializer(
+    typeof(PointSerializer),
+    typeof(Point),
+    typeof(IEnumerable<Point>)
+)]
