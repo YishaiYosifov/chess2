@@ -41,7 +41,7 @@ export interface ChessboardProps {
 }
 
 export interface ChessboardRef {
-    makeMove: ChessboardStore["something"];
+    playTurn: ChessboardStore["playTurn"];
     resetState: ChessboardStore["resetState"];
 }
 
@@ -90,11 +90,11 @@ const Chessboard: ForwardRefRenderFunction<ChessboardRef, ChessboardProps> = (
             onPieceMovement,
         });
     const chessStore = storeRef.current;
-    const playMove = useStore(chessStore, (state) => state.something);
+    const playTurn = useStore(chessStore, (state) => state.playTurn);
     const resetState = useStore(chessStore, (state) => state.resetState);
 
     useImperativeHandle(ref, () => ({
-        makeMove: playMove,
+        playTurn,
         resetState,
     }));
 
