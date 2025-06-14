@@ -29,11 +29,7 @@ const LiveChessboard = ({
 
         const pieces = decodeFen(data.fen);
         const legalMoves = decodeMovesIntoMap(data.legalMoves);
-        chessboardRef.current?.resetState(
-            pieces,
-            legalMoves,
-            data.currentPlayerColor,
-        );
+        chessboardRef.current?.resetState(pieces, legalMoves, data.sideToMove);
 
         const moveHistory = decodeMoves(data.moveHistory);
         setMoveHistory(moveHistory);

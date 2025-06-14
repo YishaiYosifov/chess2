@@ -56,7 +56,7 @@ const GamePage = withAuthedSession(
                     startingPieces={decodedFen}
                     legalMoves={decodedLegalMoves}
                     playingAs={playingAs.color}
-                    sideToMove={game.currentPlayerColor}
+                    sideToMove={game.sideToMove}
                     breakpoints={[
                         {
                             maxScreenSize: 768,
