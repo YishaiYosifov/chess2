@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import constants from "@/lib/constants";
-import { LegalMoveMap, Move, Point, type PieceMap } from "@/types/tempModels";
+import { LegalMoveMap, Point, type PieceMap } from "@/types/tempModels";
 
 import { GameColor } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
