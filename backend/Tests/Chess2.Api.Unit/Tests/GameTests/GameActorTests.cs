@@ -88,7 +88,7 @@ public class GameActorTests : BaseActorTest
         );
 
         result.IsError.Should().BeFalse();
-        result.Value.State.CurrentPlayerColor.Should().Be(GameColor.White);
+        result.Value.State.SideToMove.Should().Be(GameColor.White);
         result.Value.State.Fen.Should().Be("some-fen");
         result.Value.State.MoveHistory.Should().ContainSingle("e2e4");
         result.Value.State.LegalMoves.Should().ContainSingle("e2e4");

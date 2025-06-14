@@ -107,7 +107,7 @@ public class GameActor : ReceiveActor
         var gameStateDto = new GameStateDto(
             PlayerWhite: players.PlayerWhite,
             PlayerBlack: players.PlayerBlack,
-            CurrentPlayerColor: players.SideToMove,
+            SideToMove: players.SideToMove,
             Fen: _game.Fen,
             MoveHistory: _game.EncodedMoveHistory,
             LegalMoves: legalMoves

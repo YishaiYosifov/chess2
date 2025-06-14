@@ -8,7 +8,7 @@ namespace Chess2.Api.Game.DTOs;
 public record GameStateDto(
     GamePlayer PlayerWhite,
     GamePlayer PlayerBlack,
-    GameColor CurrentPlayerColor,
+    GameColor SideToMove,
     string Fen,
     IReadOnlyCollection<string> MoveHistory,
     IReadOnlyCollection<string> LegalMoves
