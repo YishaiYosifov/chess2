@@ -117,9 +117,11 @@ public class GameActorTests : BaseActorTest
         var newWhiteLegalMoves = new List<string> { "e2e4" };
         var newBlackLegalMoves = new List<string> { "e7e5" };
         const string encodedMove = "e2e4";
+        const int moveNumber = 69;
         _gameMock.MakeMove(new Point(4, 1), new Point(4, 3)).Returns(encodedMove);
         _gameMock.GetEncodedLegalMovesFor(GameColor.White).Returns(newWhiteLegalMoves);
         _gameMock.GetEncodedLegalMovesFor(GameColor.Black).Returns(newBlackLegalMoves);
+        _gameMock.MoveNumber.Returns(moveNumber);
 
         await StartGameAsync("white", "black");
 
@@ -141,7 +143,8 @@ public class GameActorTests : BaseActorTest
                     WhiteId: "white",
                     BlackLegalMoves: newBlackLegalMoves,
                     BlackId: "black",
-                    SideToMove: GameColor.Black
+                    SideToMove: GameColor.Black,
+                    MoveNumber: moveNumber
                 )
             );
     }
