@@ -18,7 +18,7 @@ public class ChessBoard
     public int Width { get; }
 
     public ChessBoard(
-        Dictionary<Point, Piece> pieces,
+        Dictionary<Point, Piece>? pieces = null,
         int height = GameConstants.BoardHeight,
         int width = GameConstants.BoardWidth
     )
@@ -27,7 +27,8 @@ public class ChessBoard
         Width = width;
 
         _board = new Piece[height, width];
-        InitializeBoard(pieces);
+        if (pieces is not null)
+            InitializeBoard(pieces);
     }
 
     private void InitializeBoard(Dictionary<Point, Piece> pieces)
@@ -39,6 +40,16 @@ public class ChessBoard
                 _board[y, x] = pieces.GetValueOrDefault(new Point(x, y));
             }
         }
+    }
+
+    public void PlacePiece(Point point, Piece piece)
+    {
+        if (!IsWithinBoundaries(point))
+            throw new ArgumentOutOfRangeException(
+                nameof(point),
+                "Point is outside the board boundaries"
+            );
+        _board[point.Y, point.X] = piece;
     }
 
     public bool TryGetPieceAt(Point point, [NotNullWhen(true)] out Piece? piece)
