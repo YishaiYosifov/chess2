@@ -34,7 +34,8 @@ public class TimesMovedRestrictedBehaviourTests : MovementBehaviourTestsBase
         var restricted = new TimesMovedRestrictedBehaviour(_mockInnerBehaviour, maxTimesMoved: 3);
         var start = new Point(0, 0);
         var piece = new PieceFaker().RuleFor(x => x.TimesMoved, timesMoved).Generate();
+        var board = CreateBoardWithPieces(start, piece);
 
-        TestMovementEvaluatesTo(restricted, start, shouldMove ? _innerPoints : [], piece);
+        TestMovementEvaluatesTo(restricted, board, start, shouldMove ? _innerPoints : []);
     }
 }
