@@ -12,13 +12,12 @@ public class SlideBehaviourTests : MovementBehaviourTestsBase
         Point offset,
         IEnumerable<Point> expectedPoints,
         IEnumerable<Point> blockingPieces
-    ) =>
-        TestMovementEvaluatesTo(
-            new SlideBehaviour(offset),
-            from,
-            expectedPoints,
-            blockingPieces: blockingPieces
-        );
+    )
+    {
+        var board = CreateBoardWithPieces(from, blockingPieces: blockingPieces);
+
+        TestMovementEvaluatesTo(new SlideBehaviour(offset), board, from, expectedPoints);
+    }
 }
 
 public class SlideBehaviourTestData

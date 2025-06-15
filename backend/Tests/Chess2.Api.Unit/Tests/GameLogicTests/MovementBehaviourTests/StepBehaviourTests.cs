@@ -14,12 +14,8 @@ public class StepBehaviourTests : MovementBehaviourTestsBase
         IEnumerable<Point> blockingPieces
     )
     {
-        TestMovementEvaluatesTo(
-            new StepBehaviour(offset),
-            from,
-            expectedPoints,
-            blockingPieces: blockingPieces
-        );
+        var board = CreateBoardWithPieces(from, blockingPieces: blockingPieces);
+        TestMovementEvaluatesTo(new StepBehaviour(offset), board, from, expectedPoints);
     }
 }
 
