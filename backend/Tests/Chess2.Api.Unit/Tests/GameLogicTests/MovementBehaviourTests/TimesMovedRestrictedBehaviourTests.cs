@@ -1,7 +1,8 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
-using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.TestInfrastructure.Utils;
 using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
@@ -33,8 +34,8 @@ public class TimesMovedRestrictedBehaviourTests : MovementBehaviourTestsBase
     {
         var restricted = new TimesMovedRestrictedBehaviour(_mockInnerBehaviour, maxTimesMoved: 3);
         var start = new Point(0, 0);
-        var piece = new PieceFaker().RuleFor(x => x.TimesMoved, timesMoved).Generate();
-        var board = CreateBoardWithPieces(start, piece);
+        var piece = PieceFactory.White(timesMoved: timesMoved);
+        var board = BoardUtils.CreateBoardWithPieces(start, piece);
 
         TestMovementEvaluatesTo(restricted, board, start, shouldMove ? _innerPoints : []);
     }

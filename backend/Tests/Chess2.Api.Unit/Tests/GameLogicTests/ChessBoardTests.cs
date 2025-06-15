@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Errors;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests;
@@ -12,12 +12,12 @@ public class ChessBoardTests : BaseUnitTest
     public void Constructor_initializes_board_correctly()
     {
         var expectedPt = new Point(2, 3);
-        var expetedPiece = new PieceFaker().Generate();
+        var expetedPiece = PieceFactory.Black();
         var outOfBoundsPoint = new Point(2123, 3123);
         var pieces = new Dictionary<Point, Piece>
         {
             [expectedPt] = expetedPiece,
-            [outOfBoundsPoint] = new PieceFaker().Generate(),
+            [outOfBoundsPoint] = PieceFactory.White(),
         };
 
         var board = new ChessBoard(pieces);
@@ -39,7 +39,8 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void TryGetPieceAt_returns_false_when_the_piece_is_not_found()
     {
-        var board = new ChessBoard(new() { [new Point(3, 5)] = new PieceFaker().Generate() });
+        var board = new ChessBoard();
+        board.PlacePiece(new Point(3, 5), PieceFactory.White());
 
         var result = board.TryGetPieceAt(new Point(0, 0), out var resultPiece);
 
@@ -51,8 +52,9 @@ public class ChessBoardTests : BaseUnitTest
     public void TryGetPieceAt_returns_true_and_the_piece_when_it_is_found()
     {
         var pt = new Point(1, 5);
-        var piece = new PieceFaker().Generate();
-        var board = new ChessBoard(new() { [pt] = piece });
+        var piece = PieceFactory.Black();
+        var board = new ChessBoard();
+        board.PlacePiece(pt, piece);
 
         var result = board.TryGetPieceAt(pt, out var resultPiece);
 
@@ -65,8 +67,9 @@ public class ChessBoardTests : BaseUnitTest
     public void PeekPieceAt_returns_the_piece_if_it_exists()
     {
         var pt = new Point(4, 1);
-        var piece = new PieceFaker().Generate();
-        var board = new ChessBoard(new() { [pt] = piece });
+        var piece = PieceFactory.White();
+        var board = new ChessBoard();
+        board.PlacePiece(pt, piece);
 
         var result = board.PeekPieceAt(pt);
 
@@ -76,7 +79,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PeekPieceAt_returns_null_if_it_doesnt_exist()
     {
-        var board = new ChessBoard([]);
+        var board = new ChessBoard();
 
         var result = board.PeekPieceAt(new Point(1, 2));
 
@@ -86,7 +89,8 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void IsEmpty_returns_true_when_the_square_is_empty()
     {
-        var board = new ChessBoard(new() { [new Point(5, 7)] = new PieceFaker().Generate() });
+        var board = new ChessBoard();
+        board.PlacePiece(new Point(5, 7), PieceFactory.Black());
         board.IsEmpty(new Point(4, 3)).Should().BeTrue();
     }
 
@@ -94,7 +98,8 @@ public class ChessBoardTests : BaseUnitTest
     public void IsEmpty_returns_false_when_the_square_is_not_empty()
     {
         var pt = new Point(4, 2);
-        var board = new ChessBoard(new() { [pt] = new PieceFaker().Generate() });
+        var board = new ChessBoard();
+        board.PlacePiece(pt, PieceFactory.White());
 
         board.IsEmpty(pt).Should().BeFalse();
     }
@@ -104,8 +109,8 @@ public class ChessBoardTests : BaseUnitTest
     {
         var from = new Point(4, 2);
         var to = new Point(6, 3);
-        var piece = new PieceFaker().Generate();
-        var board = new ChessBoard(new Dictionary<Point, Piece> { [from] = piece });
+        var board = new ChessBoard();
+        board.PlacePiece(from, PieceFactory.Black());
 
         var result = board.MovePiece(from, to);
 

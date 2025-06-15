@@ -2,7 +2,7 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.TestInfrastructure;
-using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -51,20 +51,9 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
     {
         var calculator = Scope.ServiceProvider.GetRequiredService<ILegalMoveCalculator>();
 
-        var board = new ChessBoard(
-            new()
-            {
-                [new Point(0, 0)] = new PieceFaker()
-                    .RuleFor(x => x.Type, PieceType.Pawn)
-                    .RuleFor(x => x.Color, GameColor.White)
-                    .Generate(),
-
-                [new Point(0, 2)] = new PieceFaker()
-                    .RuleFor(x => x.Type, PieceType.King)
-                    .RuleFor(x => x.Color, GameColor.Black)
-                    .Generate(),
-            }
-        );
+        var board = new ChessBoard();
+        board.PlacePiece(new Point(0, 0), PieceFactory.White(PieceType.Pawn));
+        board.PlacePiece(new Point(0, 2), PieceFactory.Black(PieceType.King));
 
         var moves = calculator.CalculateAllLegalMoves(board).ToList();
 
