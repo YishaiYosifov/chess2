@@ -13,7 +13,7 @@ public class NoCaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBe
         {
             var isSquareEmpty = board.IsEmpty(destination);
             if (!isSquareEmpty)
-                yield break;
+                continue;
 
             yield return new Move(position, destination, movingPiece);
         }
