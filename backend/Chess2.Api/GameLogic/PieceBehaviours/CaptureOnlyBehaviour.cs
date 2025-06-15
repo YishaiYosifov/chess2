@@ -13,7 +13,7 @@ public class CaptureOnlyBehaviour(IMovementBehaviour movementBehaviour) : IPiece
         {
             var occupantPiece = board.PeekPieceAt(destination);
             if (occupantPiece is null)
-                yield break;
+                continue;
 
             yield return new Move(
                 position,

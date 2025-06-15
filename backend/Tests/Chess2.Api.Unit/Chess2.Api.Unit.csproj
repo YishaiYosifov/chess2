@@ -43,8 +43,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Tests\GameLogicTests\PieceDefinitionTests\" />
-  </ItemGroup>
-
 </Project>

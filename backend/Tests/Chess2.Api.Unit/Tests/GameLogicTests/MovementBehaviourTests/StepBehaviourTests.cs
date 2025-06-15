@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
+using Chess2.Api.TestInfrastructure.Utils;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 
@@ -14,7 +15,7 @@ public class StepBehaviourTests : MovementBehaviourTestsBase
         IEnumerable<Point> blockingPieces
     )
     {
-        var board = CreateBoardWithPieces(from, blockingPieces: blockingPieces);
+        var board = BoardUtils.CreateBoardWithPieces(from, blockingPieces: blockingPieces);
         TestMovementEvaluatesTo(new StepBehaviour(offset), board, from, expectedPoints);
     }
 }

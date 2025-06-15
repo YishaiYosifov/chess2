@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameTests;
@@ -8,7 +8,7 @@ namespace Chess2.Api.Unit.Tests.GameTests;
 public class MoveEncoderTests : BaseUnitTest
 {
     private readonly MoveEncoder _encoder = new();
-    private readonly Piece _dummyPiece = new PieceFaker().Generate();
+    private readonly Piece _dummyPiece = PieceFactory.White();
 
     [Fact]
     public void EncodeMoves_single_basic_move()
