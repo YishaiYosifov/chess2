@@ -65,7 +65,7 @@ public class Game(
             return GameErrors.MoveInvalid;
         }
 
-        MakeMoveOnBoard(move);
+        _board.PlayMove(move);
 
         CalculateAllLegalMoves();
         Fen = _fenCalculator.CalculateFen(_board);
@@ -73,21 +73,6 @@ public class Game(
         var encodedMove = _moveEncoder.EncodeSingleMove(move);
         _encodedMoveHistory.Add(encodedMove);
         return encodedMove;
-    }
-
-    private void MakeMoveOnBoard(Move move)
-    {
-        foreach (var capture in move.CapturedSquares ?? [])
-        {
-            _board.ClearSquare(capture);
-        }
-
-        _board.MovePiece(move.From, move.To);
-
-        foreach (var sideEffect in move.SideEffects ?? [])
-        {
-            MakeMoveOnBoard(sideEffect);
-        }
     }
 
     private void CalculateAllLegalMoves()

@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.GameLogic;
-using Chess2.Api.GameLogic.Errors;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
@@ -12,11 +11,11 @@ public class ChessBoardTests : BaseUnitTest
     public void Constructor_initializes_board_correctly()
     {
         var expectedPt = new Point(2, 3);
-        var expetedPiece = PieceFactory.Black();
+        var expectedPiece = PieceFactory.Black();
         var outOfBoundsPoint = new Point(2123, 3123);
         var pieces = new Dictionary<Point, Piece>
         {
-            [expectedPt] = expetedPiece,
+            [expectedPt] = expectedPiece,
             [outOfBoundsPoint] = PieceFactory.White(),
         };
 
@@ -32,7 +31,7 @@ public class ChessBoardTests : BaseUnitTest
                 continue;
             }
 
-            piece.Should().NotBeNull().And.BeEquivalentTo(expetedPiece);
+            piece.Should().NotBeNull().And.BeEquivalentTo(expectedPiece);
         }
     }
 
@@ -105,32 +104,157 @@ public class ChessBoardTests : BaseUnitTest
     }
 
     [Fact]
-    public void MovePiece_updates_the_board_and_increments_moved_count()
+    public void PlayMove_with_a_regular_moves_correctly_moves_the_piece()
     {
-        var from = new Point(4, 2);
-        var to = new Point(6, 3);
         var board = new ChessBoard();
-        board.PlacePiece(from, PieceFactory.Black());
+        var piece = PieceFactory.White();
+        board.PlacePiece(new Point(4, 1), piece); // e2
+        var move = new Move(
+            From: new Point(4, 1), // e2
+            To: new Point(4, 3), // e4
+            Piece: piece
+        );
 
-        var result = board.MovePiece(from, to);
+        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        expectedBoard[move.From] = null;
+        expectedBoard[move.To] = piece with { TimesMoved = 1 };
+
+        var result = board.PlayMove(move);
 
         result.IsError.Should().BeFalse();
-
-        board.IsEmpty(from).Should().BeTrue();
-        board.TryGetPieceAt(to, out var movedPiece).Should().BeTrue();
-        movedPiece.Should().NotBeNull();
-        movedPiece.TimesMoved.Should().Be(1);
+        board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
     [Fact]
-    public void MovePiece_returns_an_error_when_there_is_no_piece_at_origin_point()
+    public void PlayMove_with_a_capture_removes_captured_pieces_and_moves_piece()
     {
-        var board = new ChessBoard([]);
+        var board = new ChessBoard();
+        var pieceToMove = PieceFactory.White(PieceType.Pawn);
+        var pieceToCapture = PieceFactory.Black(PieceType.Rook);
+        board.PlacePiece(new Point(4, 1), pieceToMove); // e2
+        board.PlacePiece(new Point(4, 4), pieceToCapture); // e5
 
-        var result = board.MovePiece(new Point(3, 4), new Point(2, 1));
+        var move = new Move(
+            From: new Point(4, 1), // e2
+            To: new Point(4, 3), // e4
+            Piece: pieceToMove,
+            CapturedSquares: [new Point(4, 4)]
+        );
 
+        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        expectedBoard[move.From] = null;
+        expectedBoard[move.To] = pieceToMove with { TimesMoved = 1 };
+        expectedBoard[new Point(4, 4)] = null;
+
+        var result = board.PlayMove(move);
+
+        result.IsError.Should().BeFalse();
+        board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
+    }
+
+    [Fact]
+    public void PlayMove_with_multiple_side_effects_executes_all_or_fails_if_any_invalid()
+    {
+        var board = new ChessBoard();
+        var mainPiece = PieceFactory.White(PieceType.Pawn);
+        var sideEffectPiece1 = PieceFactory.White(PieceType.Bishop);
+        var sideEffectPiece2 = PieceFactory.Black(PieceType.Rook);
+
+        board.PlacePiece(new Point(4, 1), mainPiece); // e2
+        board.PlacePiece(new Point(0, 0), sideEffectPiece1); // a1
+        board.PlacePiece(new Point(1, 0), sideEffectPiece2); // b1
+
+        var sideEffect1 = new Move(
+            From: new Point(0, 0), // a1
+            To: new Point(0, 1), // a2
+            Piece: sideEffectPiece1
+        );
+
+        var sideEffect2 = new Move(
+            From: new Point(1, 0), // b1
+            To: new Point(10, 10), // Invalid (out of bounds)
+            Piece: sideEffectPiece2
+        );
+
+        var mainMove = new Move(
+            From: new Point(4, 1), // e2
+            To: new Point(4, 2), // e3
+            Piece: mainPiece,
+            SideEffects: [sideEffect1, sideEffect2]
+        );
+
+        var expectedBoard = board.EnumerateSquares().ToDictionary();
+
+        var result = board.PlayMove(mainMove);
+
+        // Should fail due to sideEffect2 invalid move
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameLogicErrors.PieceNotFound);
+        board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
+    }
+
+    [Fact]
+    public void PlayMove_with_chained_side_effects_executes_all_successfully()
+    {
+        var board = new ChessBoard();
+        var mainPiece = PieceFactory.White(PieceType.Pawn);
+        var sideEffect1 = PieceFactory.White(PieceType.Queen);
+        var sideEffect2 = PieceFactory.Black(PieceType.Horsey);
+
+        board.PlacePiece(new Point(4, 1), mainPiece); // e2
+        board.PlacePiece(new Point(0, 0), sideEffect1); // a1
+        board.PlacePiece(new Point(0, 1), sideEffect2); // a2
+
+        var chainedSideEffect = new Move(
+            From: new Point(0, 1), // a2
+            To: new Point(0, 2), // a3
+            Piece: sideEffect2
+        );
+
+        var sideEffectMove = new Move(
+            From: new Point(0, 0), // a1
+            To: new Point(0, 1), // a2
+            Piece: sideEffect1,
+            SideEffects: [chainedSideEffect]
+        );
+
+        var mainMove = new Move(
+            From: new Point(4, 1), // e2
+            To: new Point(4, 2), // e3
+            Piece: mainPiece,
+            SideEffects: [sideEffectMove]
+        );
+
+        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        expectedBoard[chainedSideEffect.From] = null;
+        expectedBoard[chainedSideEffect.To] = sideEffect2 with { TimesMoved = 1 };
+        expectedBoard[sideEffectMove.From] = null;
+        expectedBoard[sideEffectMove.To] = sideEffect1 with { TimesMoved = 1 };
+        expectedBoard[mainMove.From] = null;
+        expectedBoard[mainMove.To] = mainPiece with { TimesMoved = 1 };
+
+        var result = board.PlayMove(mainMove);
+
+        result.IsError.Should().BeFalse();
+        board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
+    }
+
+    [Fact]
+    public void PlayMove_adds_move_to_move_history_when_successful()
+    {
+        var board = new ChessBoard();
+        var piece = PieceFactory.White(PieceType.Pawn);
+        var move = new Move(
+            From: new Point(4, 1), // e2
+            To: new Point(4, 3), // e4
+            Piece: piece
+        );
+
+        board.PlacePiece(move.From, piece);
+
+        var result = board.PlayMove(move);
+
+        result.IsError.Should().BeFalse();
+        board.Moves.Should().ContainSingle().Which.Should().BeEquivalentTo(move);
     }
 
     [Theory]
