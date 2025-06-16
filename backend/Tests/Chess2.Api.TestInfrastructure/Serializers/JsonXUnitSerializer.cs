@@ -1,10 +1,9 @@
-﻿using Chess2.Api.GameLogic.Models;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Xunit.Sdk;
 
 namespace Chess2.Api.TestInfrastructure.Serializers;
 
-public class PointSerializer : IXunitSerializer
+public class JsonXUnitSerializer<T> : IXunitSerializer
 {
     public object Deserialize(Type type, string serializedValue) =>
         JsonSerializer.Deserialize(serializedValue, type)
@@ -12,14 +11,17 @@ public class PointSerializer : IXunitSerializer
 
     public bool IsSerializable(Type type, object? value, out string failureReason)
     {
-        if (type == typeof(Point) || typeof(IEnumerable<Point>).IsAssignableFrom(type))
+        if (type == typeof(T) || typeof(IEnumerable<T>).IsAssignableFrom(type))
         {
             failureReason = "";
             return true;
         }
-        failureReason = $"Type {type.Name} is not supported by {nameof(PointSerializer)}.";
+        failureReason = $"Type {type.Name} is not supported by {nameof(JsonXUnitSerializer<T>)}.";
         return false;
     }
 
-    public string Serialize(object value) => JsonSerializer.Serialize(value);
+    public string Serialize(object value)
+    {
+        return JsonSerializer.Serialize(value);
+    }
 }

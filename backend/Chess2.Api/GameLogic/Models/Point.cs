@@ -18,3 +18,19 @@ public readonly record struct Point(int X, int Y)
 
     public override string ToString() => $"({X}, {Y})";
 }
+
+public readonly record struct AlgebraicPoint
+{
+    public Point Point { get; }
+
+    public AlgebraicPoint(string algebraic)
+    {
+        var rank = algebraic[0] - 'a';
+        var file = int.Parse(algebraic[1..]) - 1;
+        Point = new Point(rank, file);
+    }
+
+    public override string ToString() => Point.AsAlgebraic();
+
+    public static implicit operator Point(AlgebraicPoint a) => a.Point;
+}

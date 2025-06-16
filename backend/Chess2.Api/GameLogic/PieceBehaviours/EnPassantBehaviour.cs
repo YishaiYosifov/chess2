@@ -2,19 +2,19 @@
 
 namespace Chess2.Api.GameLogic.PieceBehaviours;
 
-public class EnPassantBehaviour(Point offset) : IPieceBehaviour
+public class EnPassantBehaviour(Point direction) : IPieceBehaviour
 {
-    private readonly Point _offset = offset;
+    private readonly Point _direction = direction;
 
     private const PieceType EnPassantType = PieceType.Pawn;
 
     public IEnumerable<Move> Evaluate(ChessBoard board, Point position, Piece movingPiece)
     {
-        var targetPos = position + _offset;
+        var targetPos = position + _direction;
         if (!board.IsWithinBoundaries(targetPos))
             yield break;
 
-        var lastMove = board.LastMove;
+        var lastMove = board.Moves.LastOrDefault();
         if (
             lastMove is null
             || lastMove.Piece.Type != EnPassantType
@@ -27,13 +27,13 @@ public class EnPassantBehaviour(Point offset) : IPieceBehaviour
             yield break;
 
         var distanceBetweenFiles = Math.Abs(lastMove.To.X - targetPos.X);
-        if (distanceBetweenFiles != 1)
+        if (distanceBetweenFiles != 0)
             yield break;
 
         // check if the target position is between last move From and To positions
         if (
-            targetPos.Y < Math.Min(lastMove.From.Y, lastMove.To.Y)
-            || targetPos.Y > Math.Max(lastMove.From.Y, lastMove.To.Y)
+            targetPos.Y <= Math.Min(lastMove.From.Y, lastMove.To.Y)
+            || targetPos.Y >= Math.Max(lastMove.From.Y, lastMove.To.Y)
         )
             yield break;
 
