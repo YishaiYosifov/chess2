@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic;
+﻿using Chess2.Api.Game;
+using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
@@ -21,8 +22,8 @@ public class ChessBoardTests : BaseUnitTest
 
         var board = new ChessBoard(pieces);
 
-        var squares = board.EnumerateSquares().ToList();
-        squares.Should().HaveCount(100); // 10 * 10
+        var squares = board.EnumerateSquares();
+        squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
         foreach (var (point, piece) in board.EnumerateSquares())
         {
             if (point != expectedPt)
@@ -262,7 +263,7 @@ public class ChessBoardTests : BaseUnitTest
     [InlineData(5, 10, false)]
     public void IsWithinBoundaries_checks_boundaries_correctly(int x, int y, bool expected)
     {
-        var board = new ChessBoard([]);
+        var board = new ChessBoard();
         var point = new Point(x, y);
 
         board.IsWithinBoundaries(point).Should().Be(expected);
@@ -271,10 +272,10 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void EnumerateSquares_returns_all_squares()
     {
-        var board = new ChessBoard([]);
+        var board = new ChessBoard();
 
         var squares = board.EnumerateSquares();
 
-        squares.Should().HaveCount(100);
+        squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
     }
 }
