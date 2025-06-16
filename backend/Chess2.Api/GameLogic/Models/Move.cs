@@ -7,4 +7,19 @@ public record Move(
     IEnumerable<Point>? Through = null,
     IEnumerable<Point>? CapturedSquares = null,
     IEnumerable<Move>? SideEffects = null
-);
+)
+{
+    public IEnumerable<Move> Flatten()
+    {
+        if (SideEffects != null)
+        {
+            foreach (var side in SideEffects)
+            {
+                foreach (var nested in side.Flatten())
+                    yield return nested;
+            }
+        }
+
+        yield return this;
+    }
+}

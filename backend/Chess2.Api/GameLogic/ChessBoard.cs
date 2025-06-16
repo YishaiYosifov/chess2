@@ -1,7 +1,5 @@
 ﻿using Chess2.Api.Game;
-using Chess2.Api.GameLogic.Errors;
 using Chess2.Api.GameLogic.Models;
-using ErrorOr;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
@@ -42,6 +40,10 @@ public class ChessBoard
 
     public bool TryGetPieceAt(Point point, [NotNullWhen(true)] out Piece? piece)
     {
+        piece = null;
+        if (!IsWithinBoundaries(point))
+            return false;
+
         piece = _board[point.Y, point.X];
         return piece is not null;
     }
@@ -52,46 +54,37 @@ public class ChessBoard
     public bool IsEmpty(Point point) =>
         !IsWithinBoundaries(point) || _board[point.Y, point.X] is null;
 
-    public ErrorOr<Success> PlayMove(Move move)
+    public void PlayMove(Move move)
     {
-        var tempBoard = (Piece?[,])_board.Clone();
-        var playResult = ExecuteMoveRecursive(move, tempBoard);
-        if (playResult.IsError)
-            return playResult.Errors;
+        var steps = move.Flatten().ToList();
+        foreach (var step in steps)
+        {
+            if (!IsWithinBoundaries(step.From) || !IsWithinBoundaries(step.To))
+                throw new ArgumentOutOfRangeException(
+                    nameof(move),
+                    "Move is out of board boundaries"
+                );
 
-        // apply the move to the actual board
-        for (int y = 0; y < Height; y++)
-            for (int x = 0; x < Width; x++)
-                _board[y, x] = tempBoard[y, x];
+            if (!TryGetPieceAt(step.From, out var piece) || piece.Type != step.Piece.Type)
+                throw new ArgumentException(
+                    $"Piece {step.Piece.Type} not found at the specified 'From' point",
+                    nameof(move)
+                );
+        }
+
+        foreach (var step in steps)
+        {
+            if (step.CapturedSquares != null)
+                foreach (var capture in step.CapturedSquares)
+                    _board[capture.Y, capture.X] = null;
+
+            // we can safely assume that the piece exists here, as we checked it before
+            var piece = _board[step.From.Y, step.From.X]!;
+            _board[step.To.Y, step.To.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
+            _board[step.From.Y, step.From.X] = null;
+        }
+
         _moves.Add(move);
-
-        return Result.Success;
-    }
-
-    private ErrorOr<Success> ExecuteMoveRecursive(Move move, Piece?[,] board)
-    {
-        if (!IsWithinBoundaries(move.To) || !IsWithinBoundaries(move.From))
-            return GameLogicErrors.PointOutOfBound;
-
-        var piece = board[move.From.Y, move.From.X];
-        if (piece is null)
-            return GameLogicErrors.PieceNotFound;
-
-        foreach (var sideEffect in move.SideEffects ?? [])
-        {
-            var playResult = ExecuteMoveRecursive(sideEffect, board);
-            if (playResult.IsError)
-                return playResult.Errors;
-        }
-
-        foreach (var capture in move.CapturedSquares ?? [])
-        {
-            board[capture.Y, capture.X] = null;
-        }
-        board[move.To.Y, move.To.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
-        board[move.From.Y, move.From.X] = null;
-
-        return Result.Success;
     }
 
     public void PlacePiece(Point point, Piece piece) => _board[point.Y, point.X] = piece;
