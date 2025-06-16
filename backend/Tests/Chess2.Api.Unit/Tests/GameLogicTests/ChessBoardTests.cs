@@ -119,9 +119,8 @@ public class ChessBoardTests : BaseUnitTest
         expectedBoard[move.From] = null;
         expectedBoard[move.To] = piece with { TimesMoved = 1 };
 
-        var result = board.PlayMove(move);
+        board.PlayMove(move);
 
-        result.IsError.Should().BeFalse();
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
@@ -146,14 +145,13 @@ public class ChessBoardTests : BaseUnitTest
         expectedBoard[move.To] = pieceToMove with { TimesMoved = 1 };
         expectedBoard[new Point(4, 4)] = null;
 
-        var result = board.PlayMove(move);
+        board.PlayMove(move);
 
-        result.IsError.Should().BeFalse();
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
     [Fact]
-    public void PlayMove_with_multiple_side_effects_executes_all_or_fails_if_any_invalid()
+    public void PlayMove_throws_if_a_side_effect_is_invalid()
     {
         var board = new ChessBoard();
         var mainPiece = PieceFactory.White(PieceType.Pawn);
@@ -185,10 +183,13 @@ public class ChessBoardTests : BaseUnitTest
 
         var expectedBoard = board.EnumerateSquares().ToDictionary();
 
-        var result = board.PlayMove(mainMove);
+        var act = () => board.PlayMove(mainMove);
 
         // Should fail due to sideEffect2 invalid move
-        result.IsError.Should().BeTrue();
+        act.Should()
+            .Throw<ArgumentOutOfRangeException>()
+            .WithMessage("Move is out of board boundaries*")
+            .WithParameterName("move");
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
@@ -232,9 +233,8 @@ public class ChessBoardTests : BaseUnitTest
         expectedBoard[mainMove.From] = null;
         expectedBoard[mainMove.To] = mainPiece with { TimesMoved = 1 };
 
-        var result = board.PlayMove(mainMove);
+        board.PlayMove(mainMove);
 
-        result.IsError.Should().BeFalse();
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
@@ -248,12 +248,10 @@ public class ChessBoardTests : BaseUnitTest
             To: new Point(4, 3), // e4
             Piece: piece
         );
-
         board.PlacePiece(move.From, piece);
 
-        var result = board.PlayMove(move);
+        board.PlayMove(move);
 
-        result.IsError.Should().BeFalse();
         board.Moves.Should().ContainSingle().Which.Should().BeEquivalentTo(move);
     }
 
