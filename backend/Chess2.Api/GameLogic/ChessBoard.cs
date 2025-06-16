@@ -11,7 +11,6 @@ public class ChessBoard
     private readonly List<Move> _moves = [];
 
     public IReadOnlyCollection<Move> Moves => _moves;
-    public Move? LastMove => _moves.Count > 0 ? _moves[^1] : null;
     public int Height { get; }
     public int Width { get; }
 
@@ -92,7 +91,7 @@ public class ChessBoard
     public bool IsWithinBoundaries(Point point) =>
         point.Y >= 0 && point.Y < Height && point.X >= 0 && point.X < Width;
 
-    public IEnumerable<(Point Position, Piece? Piece)> EnumerateSquares()
+    public IEnumerable<(Point Position, Piece? Occupant)> EnumerateSquares()
     {
         for (int y = 0; y < Height; y++)
         {
