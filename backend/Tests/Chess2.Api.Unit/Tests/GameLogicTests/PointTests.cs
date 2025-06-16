@@ -41,18 +41,4 @@ public class PointTests : BaseUnitTest
 
         result.Should().Be(expected);
     }
-
-    [Theory]
-    [InlineData(0, 0, 10, 0)]
-    [InlineData(5, 4, 10, 45)]
-    [InlineData(5, 4, 100, 405)]
-    [InlineData(545, 412, 1000, 412545)]
-    public void AsIdx_returns_correct_index(int x, int y, int boardWidth, int expected)
-    {
-        var point = new Point(x, y);
-
-        var result = point.AsIdx(boardWidth);
-
-        result.Should().Be(expected);
-    }
 }

@@ -14,8 +14,6 @@ public readonly record struct Point(int X, int Y)
         return $"{rank}{Y + 1}";
     }
 
-    public int AsIdx(int boardWidth) => Y * boardWidth + X;
-
     public override string ToString() => $"({X}, {Y})";
 }
 
