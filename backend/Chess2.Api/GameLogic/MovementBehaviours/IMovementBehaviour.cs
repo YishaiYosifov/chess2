@@ -4,5 +4,9 @@ namespace Chess2.Api.GameLogic.MovementBehaviours;
 
 public interface IMovementBehaviour
 {
-    public IEnumerable<Point> Evaluate(ChessBoard board, Point position, Piece movingPiece);
+    public IEnumerable<AlgebraicPoint> Evaluate(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    );
 }

@@ -2,13 +2,13 @@
 
 namespace Chess2.Api.GameLogic.PieceBehaviours;
 
-public class EnPassantBehaviour(Point direction) : IPieceBehaviour
+public class EnPassantBehaviour(Offset direction) : IPieceBehaviour
 {
-    private readonly Point _direction = direction;
+    private readonly Offset _direction = direction;
 
     private const PieceType EnPassantType = PieceType.Pawn;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, Point position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
         var targetPos = position + _direction;
         if (!board.IsWithinBoundaries(targetPos))

@@ -4,7 +4,7 @@ using Chess2.Api.GameLogic.PieceDefinitions;
 namespace Chess2.Api.GameLogic;
 
 public record PieceRule(
-    Point Offset,
+    AlgebraicPoint Offset,
     bool CanCapture = false,
     bool CaptureOnly = false,
     bool Slide = false

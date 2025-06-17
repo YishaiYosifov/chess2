@@ -2,7 +2,7 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.TestInfrastructure.Factories;
-using Chess2.Api.TestInfrastructure.Utils;
+using FluentAssertions;
 using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
@@ -10,19 +10,19 @@ namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 public class TimesMovedRestrictedBehaviourTests : MovementBehaviourTestsBase
 {
     private readonly IMovementBehaviour _mockInnerBehaviour = Substitute.For<IMovementBehaviour>();
-    private readonly IEnumerable<Point> _innerPoints =
+    private readonly IEnumerable<AlgebraicPoint> _innerPoints =
     [
-        new Point(1, 3),
-        new Point(2, 2),
-        new Point(3, 1),
-        new Point(3, 1),
-        new Point(1, 1),
+        new AlgebraicPoint("b5"),
+        new AlgebraicPoint("c6"),
+        new AlgebraicPoint("d7"),
+        new AlgebraicPoint("d7"),
+        new AlgebraicPoint("b7"),
     ];
 
     public TimesMovedRestrictedBehaviourTests()
     {
         _mockInnerBehaviour
-            .Evaluate(Arg.Any<ChessBoard>(), Arg.Any<Point>(), Arg.Any<Piece>())
+            .Evaluate(Arg.Any<ChessBoard>(), Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())
             .Returns(_innerPoints);
     }
 
@@ -33,10 +33,13 @@ public class TimesMovedRestrictedBehaviourTests : MovementBehaviourTestsBase
     public void RestrictsBasedOnTimesMoved(int timesMoved, bool shouldMove)
     {
         var restricted = new TimesMovedRestrictedBehaviour(_mockInnerBehaviour, maxTimesMoved: 3);
-        var start = new Point(0, 0);
+        var start = new AlgebraicPoint("a1");
         var piece = PieceFactory.White(timesMoved: timesMoved);
-        var board = BoardUtils.CreateBoardWithPieces(start, piece);
+        var board = new ChessBoard();
+        board.PlacePiece(start, piece);
 
-        TestMovementEvaluatesTo(restricted, board, start, shouldMove ? _innerPoints : []);
+        var result = restricted.Evaluate(board, start, piece).ToList();
+
+        result.Should().BeEquivalentTo(shouldMove ? _innerPoints : []);
     }
 }

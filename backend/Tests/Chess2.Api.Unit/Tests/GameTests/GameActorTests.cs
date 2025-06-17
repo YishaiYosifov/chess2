@@ -100,7 +100,12 @@ public class GameActorTests : BaseActorTest
         await StartGameAsync("white", "black");
 
         _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, "invalid", new(1, 2), new(3, 4)),
+            new GameCommands.MovePiece(
+                TestGameToken,
+                "invalid",
+                new AlgebraicPoint("a2"),
+                new AlgebraicPoint("c4")
+            ),
             _probe
         );
 
@@ -118,7 +123,7 @@ public class GameActorTests : BaseActorTest
         var newBlackLegalMoves = new List<string> { "e7e5" };
         const string encodedMove = "e2e4";
         const int moveNumber = 69;
-        _gameMock.MakeMove(new Point(4, 1), new Point(4, 3)).Returns(encodedMove);
+        _gameMock.MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4")).Returns(encodedMove);
         _gameMock.GetEncodedLegalMovesFor(GameColor.White).Returns(newWhiteLegalMoves);
         _gameMock.GetEncodedLegalMovesFor(GameColor.Black).Returns(newBlackLegalMoves);
         _gameMock.MoveNumber.Returns(moveNumber);
@@ -126,7 +131,12 @@ public class GameActorTests : BaseActorTest
         await StartGameAsync("white", "black");
 
         _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, "white", new(4, 1), new(4, 3)),
+            new GameCommands.MovePiece(
+                TestGameToken,
+                "white",
+                new AlgebraicPoint("e2"),
+                new AlgebraicPoint("e4")
+            ),
             _probe
         );
 
@@ -152,12 +162,19 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task MovePiece_invalid_should_return_error()
     {
-        _gameMock.MakeMove(new Point(4, 1), new Point(4, 3)).Returns(GameErrors.MoveInvalid);
+        _gameMock
+            .MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4"))
+            .Returns(GameErrors.MoveInvalid);
 
         await StartGameAsync("white", "black");
 
         _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, "white", new(4, 1), new(4, 3)),
+            new GameCommands.MovePiece(
+                TestGameToken,
+                "white",
+                new AlgebraicPoint("e2"),
+                new AlgebraicPoint("e4")
+            ),
             _probe
         );
 

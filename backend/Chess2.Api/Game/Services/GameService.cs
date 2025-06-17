@@ -19,8 +19,8 @@ public interface IGameService
     Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
         string gameToken,
         string userId,
-        Point from,
-        Point to,
+        AlgebraicPoint from,
+        AlgebraicPoint to,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(string userId1, string userId2);
@@ -69,8 +69,8 @@ public class GameService(
     public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
         string gameToken,
         string userId,
-        Point from,
-        Point to,
+        AlgebraicPoint from,
+        AlgebraicPoint to,
         CancellationToken token = default
     )
     {

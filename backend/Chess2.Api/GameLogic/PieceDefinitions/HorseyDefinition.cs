@@ -10,19 +10,19 @@ public class HorseyDefinition : IPieceDefinition
 
     private readonly List<IPieceBehaviour> _behaviours =
     [
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: 2))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: 2))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 1, Y: -2))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -1, Y: -2))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 2, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -2, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: 2, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Point(X: -2, Y: -1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 2))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 2))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: -2))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: -2))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: 2, Y: 1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: -2, Y: 1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: 2, Y: -1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: -2, Y: -1))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
         ChessBoard board,
-        Point position,
+        AlgebraicPoint position,
         Piece movingPiece
     ) => _behaviours;
 }

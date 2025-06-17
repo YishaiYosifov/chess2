@@ -9,7 +9,7 @@ public interface IPieceDefinition
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
         ChessBoard board,
-        Point position,
+        AlgebraicPoint position,
         Piece movingPiece
     );
 }

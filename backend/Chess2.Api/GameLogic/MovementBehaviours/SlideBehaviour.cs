@@ -2,11 +2,15 @@
 
 namespace Chess2.Api.GameLogic.MovementBehaviours;
 
-public class SlideBehaviour(Point offset) : IMovementBehaviour
+public class SlideBehaviour(Offset offset) : IMovementBehaviour
 {
-    private readonly Point _offset = offset;
+    private readonly Offset _offset = offset;
 
-    public IEnumerable<Point> Evaluate(ChessBoard board, Point position, Piece movingPiece)
+    public IEnumerable<AlgebraicPoint> Evaluate(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         while (true)
         {

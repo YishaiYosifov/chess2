@@ -52,8 +52,8 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
         var calculator = Scope.ServiceProvider.GetRequiredService<ILegalMoveCalculator>();
 
         var board = new ChessBoard();
-        board.PlacePiece(new Point(0, 0), PieceFactory.White(PieceType.Pawn));
-        board.PlacePiece(new Point(0, 2), PieceFactory.Black(PieceType.King));
+        board.PlacePiece(new AlgebraicPoint("a1"), PieceFactory.White(PieceType.Pawn));
+        board.PlacePiece(new AlgebraicPoint("a3"), PieceFactory.Black(PieceType.King));
 
         var moves = calculator.CalculateAllLegalMoves(board).ToList();
 
@@ -64,10 +64,14 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
             .Should()
             .ContainSingle()
             .Which.Should()
-            .Satisfy<Move>(move =>
-            {
-                move.From.Should().Be(new Point(0, 0));
-                move.To.Should().Be(new Point(0, 1));
-            });
+            .Satisfy<Move>(
+                (Action<Move>)(
+                    move =>
+                    {
+                        move.From.Should().BeEquivalentTo(new AlgebraicPoint("a1"));
+                        move.To.Should().BeEquivalentTo(new AlgebraicPoint("a2"));
+                    }
+                )
+            );
     }
 }

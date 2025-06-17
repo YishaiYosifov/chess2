@@ -29,18 +29,17 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        // enemy piece at (1,1)
         var enemy = PieceFactory.Black();
-        board.PlacePiece(new(1, 1), enemy);
+        board.PlacePiece(new("b2"), enemy); // capture target
 
         var behaviour = new CaptureBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new Move[]
         {
-            new(Origin, new(1, 1), piece, CapturedSquares: [new(1, 1)]),
-            new(Origin, new(2, 2), piece),
-            new(Origin, new(3, 3), piece),
+            new(Origin, new("b2"), piece, CapturedSquares: [new("b2")]),
+            new(Origin, new("c3"), piece),
+            new(Origin, new("d4"), piece),
         };
 
         result.Should().BeEquivalentTo(expected);
@@ -53,13 +52,12 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        // friendly piece at (2,2)
-        board.PlacePiece(new(2, 2), PieceFactory.White());
+        board.PlacePiece(new("c3"), PieceFactory.White()); // friendly block
 
         var behaviour = new CaptureBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new Move[] { new(Origin, new(1, 1), piece), new(Origin, new(3, 3), piece) };
+        var expected = new Move[] { new(Origin, new("b2"), piece), new(Origin, new("d4"), piece) };
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -71,16 +69,16 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new(1, 1), PieceFactory.Black()); // capture
-        board.PlacePiece(new(2, 2), PieceFactory.White()); // skip
+        board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
+        board.PlacePiece(new("c3"), PieceFactory.White()); // ally
 
         var behaviour = new CaptureBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new Move[]
         {
-            new(Origin, new(1, 1), piece, CapturedSquares: [new(1, 1)]),
-            new(Origin, new(3, 3), piece),
+            new(Origin, new("b2"), piece, CapturedSquares: [new("b2")]),
+            new(Origin, new("d4"), piece),
         };
 
         result.Should().BeEquivalentTo(expected);
