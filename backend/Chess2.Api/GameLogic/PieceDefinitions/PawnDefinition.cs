@@ -18,17 +18,19 @@ public class PawnDefinition : IPieceDefinition
 
         IEnumerable<IPieceBehaviour> behaviours =
         [
-            new NoCaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: 1 * direction))),
+            new NoCaptureBehaviour(
+                new ConditionalBehaviour(
+                    (board, pos, piece) => piece.TimesMoved == 0,
+                    // move 3 squares if this piece has not moved before
+                    trueBranch: new SlideBehaviour(new Offset(X: 0, Y: 1 * direction), max: 3),
+                    // move one square if this piece has moved before
+                    falseBranch: new StepBehaviour(new Offset(X: 0, Y: 1 * direction))
+                )
+            ),
             new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
             new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
             new EnPassantBehaviour(new Offset(X: 1, Y: 1 * direction)),
             new EnPassantBehaviour(new Offset(X: -1, Y: 1 * direction)),
-            new NoCaptureBehaviour(
-                new TimesMovedRestrictedBehaviour(
-                    new StepBehaviour(new Offset(X: 0, Y: 2 * direction)),
-                    maxTimesMoved: 0
-                )
-            ),
         ];
 
         return behaviours;
