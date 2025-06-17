@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 
-namespace Chess2.Api.GameLogic.PieceBehaviours;
+namespace Chess2.Api.GameLogic.PieceMovementRules;
 
-public class CaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBehaviour
+public class CaptureOnlyRule(IMovementBehaviour movementBehaviour) : IPieceMovementRule
 {
     private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
 
@@ -12,15 +12,14 @@ public class CaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBeha
         foreach (var destination in _movementBehaviour.Evaluate(board, position, movingPiece))
         {
             var occupantPiece = board.PeekPieceAt(destination);
-            if (occupantPiece?.Color == movingPiece.Color)
+            if (occupantPiece is null || occupantPiece.Color == movingPiece.Color)
                 continue;
 
-            var isCapture = occupantPiece is not null && occupantPiece.Color != movingPiece.Color;
             yield return new Move(
                 position,
                 destination,
                 movingPiece,
-                CapturedSquares: isCapture ? [destination] : null
+                CapturedSquares: [destination]
             );
         }
     }

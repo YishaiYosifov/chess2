@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
@@ -8,7 +8,7 @@ public class PawnDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Pawn;
 
-    public IEnumerable<IPieceBehaviour> GetBehaviours(
+    public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
@@ -16,9 +16,9 @@ public class PawnDefinition : IPieceDefinition
     {
         var direction = movingPiece.Color == GameColor.White ? 1 : -1;
 
-        IEnumerable<IPieceBehaviour> behaviours =
+        IEnumerable<IPieceMovementRule> behaviours =
         [
-            new NoCaptureBehaviour(
+            new NoCaptureRule(
                 new ConditionalBehaviour(
                     (board, pos, piece) => piece.TimesMoved == 0,
                     // move 3 squares if this piece has not moved before
@@ -27,10 +27,10 @@ public class PawnDefinition : IPieceDefinition
                     falseBranch: new StepBehaviour(new Offset(X: 0, Y: 1 * direction))
                 )
             ),
-            new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
-            new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
-            new EnPassantBehaviour(new Offset(X: 1, Y: 1 * direction)),
-            new EnPassantBehaviour(new Offset(X: -1, Y: 1 * direction)),
+            new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
+            new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
+            new EnPassantRule(new Offset(X: 1, Y: 1 * direction)),
+            new EnPassantRule(new Offset(X: -1, Y: 1 * direction)),
         ];
 
         return behaviours;
