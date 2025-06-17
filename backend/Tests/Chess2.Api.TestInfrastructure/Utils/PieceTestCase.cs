@@ -9,6 +9,7 @@ public class PieceTestCase
 
     public List<Move> ExpectedMoves { get; } = [];
     public List<(AlgebraicPoint Position, Piece Piece)> BlockedBy { get; } = [];
+    public List<Move> PriorMoves { get; } = [];
 
     public string TestDecription { get; private set; } = "";
 
@@ -44,6 +45,12 @@ public class PieceTestCase
     public PieceTestCase WithBlocker(string position, Piece piece)
     {
         BlockedBy.Add((new AlgebraicPoint(position), piece));
+        return this;
+    }
+
+    public PieceTestCase WithPriorMove(Move move)
+    {
+        PriorMoves.Add(move);
         return this;
     }
 
