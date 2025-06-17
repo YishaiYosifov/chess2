@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.GameLogic.Models;
 
-namespace Chess2.Api.GameLogic.PieceBehaviours;
+namespace Chess2.Api.GameLogic.PieceMovementRules;
 
-public class EnPassantBehaviour(Offset direction) : IPieceBehaviour
+public class EnPassantRule(Offset direction) : IPieceMovementRule
 {
     private readonly Offset _direction = direction;
 

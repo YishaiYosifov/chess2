@@ -1,12 +1,13 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
+namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
-public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
+public class CaptureRuleTests : MovementBasedPieceRulesTestBase
 {
     [Fact]
     public void Evaluate_returns_normal_moves_if_all_targets_are_empty()
@@ -15,7 +16,7 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        var behaviour = new CaptureBehaviour(MockMovement);
+        var behaviour = new CaptureRule(MockMovement);
 
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
@@ -32,7 +33,7 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var enemy = PieceFactory.Black();
         board.PlacePiece(new("b2"), enemy); // capture target
 
-        var behaviour = new CaptureBehaviour(MockMovement);
+        var behaviour = new CaptureRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new Move[]
@@ -54,7 +55,7 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
 
         board.PlacePiece(new("c3"), PieceFactory.White()); // friendly block
 
-        var behaviour = new CaptureBehaviour(MockMovement);
+        var behaviour = new CaptureRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new Move[] { new(Origin, new("b2"), piece), new(Origin, new("d4"), piece) };
@@ -72,7 +73,7 @@ public class CaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
         board.PlacePiece(new("c3"), PieceFactory.White()); // ally
 
-        var behaviour = new CaptureBehaviour(MockMovement);
+        var behaviour = new CaptureRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new Move[]

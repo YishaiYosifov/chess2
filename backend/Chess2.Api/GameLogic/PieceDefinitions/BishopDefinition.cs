@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
@@ -8,15 +8,15 @@ public class BishopDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Bishop;
 
-    private readonly List<IPieceBehaviour> _behaviours =
+    private readonly List<IPieceMovementRule> _behaviours =
     [
-        new CaptureBehaviour(new SlideBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureBehaviour(new SlideBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: -1))),
+        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 1))),
+        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: -1))),
+        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 1))),
+        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: -1))),
     ];
 
-    public IEnumerable<IPieceBehaviour> GetBehaviours(
+    public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece

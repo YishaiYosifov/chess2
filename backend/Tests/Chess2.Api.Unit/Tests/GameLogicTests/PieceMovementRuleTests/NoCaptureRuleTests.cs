@@ -1,12 +1,13 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
+namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
-public class NoCaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
+public class NoCaptureRuleTests : MovementBasedPieceRulesTestBase
 {
     [Fact]
     public void Evaluate_returns_only_moves_to_empty_squares()
@@ -18,7 +19,7 @@ public class NoCaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         board.PlacePiece(new("b2"), PieceFactory.Black());
         board.PlacePiece(new("d4"), PieceFactory.White());
 
-        var behaviour = new NoCaptureBehaviour(MockMovement);
+        var behaviour = new NoCaptureRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new[] { new Move(Origin, new("c3"), piece) };
@@ -37,7 +38,7 @@ public class NoCaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         board.PlacePiece(new("c3"), PieceFactory.White());
         board.PlacePiece(new("d4"), PieceFactory.Black());
 
-        var behaviour = new NoCaptureBehaviour(MockMovement);
+        var behaviour = new NoCaptureRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece);
 
         result.Should().BeEmpty();

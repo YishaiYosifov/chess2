@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 
-namespace Chess2.Api.GameLogic.PieceBehaviours;
+namespace Chess2.Api.GameLogic.PieceMovementRules;
 
-public class NoCaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBehaviour
+public class NoCaptureRule(IMovementBehaviour movementBehaviour) : IPieceMovementRule
 {
     private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
 
