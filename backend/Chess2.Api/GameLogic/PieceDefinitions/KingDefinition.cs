@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
@@ -8,19 +8,19 @@ public class KingDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.King;
 
-    private readonly List<IPieceBehaviour> _behaviours =
+    private readonly List<IPieceMovementRule> _behaviours =
     [
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 0))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 0))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: -1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: 0, Y: 1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: 0, Y: -1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 0))),
+        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: -1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 1))),
+        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 0))),
+        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: -1))),
     ];
 
-    public IEnumerable<IPieceBehaviour> GetBehaviours(
+    public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece

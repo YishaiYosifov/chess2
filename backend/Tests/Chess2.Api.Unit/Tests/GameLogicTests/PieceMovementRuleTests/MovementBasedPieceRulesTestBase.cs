@@ -5,14 +5,14 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
 
-public abstract class MovementBasedPieceBehaviourTestBase
+public abstract class MovementBasedPieceRulesTestBase
 {
     protected AlgebraicPoint Origin { get; } = new("a1");
     protected List<AlgebraicPoint> Destinations { get; } = [new("b2"), new("c3"), new("d4")];
 
     protected IMovementBehaviour MockMovement { get; } = Substitute.For<IMovementBehaviour>();
 
-    protected MovementBasedPieceBehaviourTestBase()
+    protected MovementBasedPieceRulesTestBase()
     {
         MockMovement
             .Evaluate(Arg.Any<ChessBoard>(), Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())

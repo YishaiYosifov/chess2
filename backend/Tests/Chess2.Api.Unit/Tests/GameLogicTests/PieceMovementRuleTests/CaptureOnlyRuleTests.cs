@@ -1,12 +1,13 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
+namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
-public class CaptureOnlyBehaviourTests : MovementBasedPieceBehaviourTestBase
+public class CaptureOnlyRuleTests : MovementBasedPieceRulesTestBase
 {
     [Fact]
     public void Evaluate_returns_only_moves_to_occupied_squares()
@@ -18,7 +19,7 @@ public class CaptureOnlyBehaviourTests : MovementBasedPieceBehaviourTestBase
         board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
         board.PlacePiece(new("d4"), PieceFactory.White()); // friend
 
-        var behaviour = new CaptureOnlyBehaviour(MockMovement);
+        var behaviour = new CaptureOnlyRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
         var expected = new[] { new Move(Origin, new("b2"), piece, CapturedSquares: [new("b2")]) };
@@ -33,7 +34,7 @@ public class CaptureOnlyBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        var behaviour = new CaptureOnlyBehaviour(MockMovement);
+        var behaviour = new CaptureOnlyRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece);
 
         result.Should().BeEmpty();

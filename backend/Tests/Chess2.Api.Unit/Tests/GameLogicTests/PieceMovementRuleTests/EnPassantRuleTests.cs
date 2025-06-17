@@ -1,13 +1,13 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameLogic.PieceBehaviours;
+using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
+namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
-public class EnPassantBehaviourTests
+public class EnPassantRuleTests
 {
     [Theory]
     [ClassData(typeof(EnPassantBehaviourTestData))]
@@ -28,7 +28,7 @@ public class EnPassantBehaviourTests
         board.PlacePiece(enemyOrigin, enemyPiece);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemyPiece));
 
-        var behaviour = new EnPassantBehaviour(direction);
+        var behaviour = new EnPassantRule(direction);
 
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
@@ -59,7 +59,7 @@ public class EnPassantBehaviourTests
         board.PlacePiece(enemyOrigin, enemy);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemy));
 
-        var behaviour = new EnPassantBehaviour(direction);
+        var behaviour = new EnPassantRule(direction);
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
         result.Should().BeEmpty();
@@ -74,7 +74,7 @@ public class EnPassantBehaviourTests
 
         board.PlacePiece(origin, pawn);
 
-        var behaviour = new EnPassantBehaviour(direction: new(X: -1, Y: 1));
+        var behaviour = new EnPassantRule(direction: new(X: -1, Y: 1));
         var result = behaviour.Evaluate(board, origin, pawn).ToList();
 
         result.Should().BeEmpty();
