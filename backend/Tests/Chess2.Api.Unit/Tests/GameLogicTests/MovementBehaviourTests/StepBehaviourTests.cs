@@ -31,7 +31,12 @@ public class StepBehaviourTests : MovementBehaviourTestsBase
 }
 
 public class StepBehaviourTestData
-    : TheoryData<AlgebraicPoint, Offset, IEnumerable<AlgebraicPoint>, IEnumerable<AlgebraicPoint>>
+    : TheoryData<
+        AlgebraicPoint, // from position
+        Offset, // offset to slide
+        IEnumerable<AlgebraicPoint>, // expected points to slide to
+        IEnumerable<AlgebraicPoint> // blocking pieces (if any)
+    >
 {
     public StepBehaviourTestData()
     {

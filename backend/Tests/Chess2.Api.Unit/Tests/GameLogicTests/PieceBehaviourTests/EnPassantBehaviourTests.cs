@@ -81,9 +81,15 @@ public class EnPassantBehaviourTests
     }
 }
 
-// origin, destination, enemyOrigin, enemyDestination, direction, capturingColor
 public class EnPassantBehaviourTestData
-    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Offset, GameColor>
+    : TheoryData<
+        AlgebraicPoint, // friendly pawn origin
+        AlgebraicPoint, // destination after en passant
+        AlgebraicPoint, // enemy pawn origin
+        AlgebraicPoint, // enemy pawn destination after moving
+        Offset, // direction of the en passant capture
+        GameColor // color of the capturing pawn
+    >
 {
     public EnPassantBehaviourTestData()
     {
@@ -118,9 +124,13 @@ public class EnPassantBehaviourTestData
     }
 }
 
-// origin, enemyOrigin, enemyDestination, direction
 public class InvalidEnPassantTestData
-    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Offset>
+    : TheoryData<
+        AlgebraicPoint, // friendly pawn origin
+        AlgebraicPoint, // enemy pawn origin
+        AlgebraicPoint, // enemy pawn destination after moving
+        Offset // direction of the en passant capture
+    >
 {
     public InvalidEnPassantTestData()
     {
