@@ -13,6 +13,7 @@ public record PieceRule(
 public interface ILegalMoveCalculator
 {
     IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board);
+    IEnumerable<Move> CalculateLegalMoves(ChessBoard board, AlgebraicPoint position);
 }
 
 public class LegalMoveCalculator : ILegalMoveCalculator
@@ -46,18 +47,30 @@ public class LegalMoveCalculator : ILegalMoveCalculator
             if (piece is null)
                 continue;
 
-            if (!_pieceDefinitions.TryGetValue(piece.Type, out var pieceDefinition))
-            {
-                _logger.LogWarning("Could not find definition for piece {PieceType}", piece.Type);
-                continue;
-            }
+            foreach (var move in CalculateLegalMoves(board, position))
+                yield return move;
+        }
+    }
 
-            var pieceBehaviours = pieceDefinition.GetBehaviours(board, position, piece);
-            foreach (var behaviour in pieceBehaviours)
-            {
-                foreach (var move in behaviour.Evaluate(board, position, piece))
-                    yield return move;
-            }
+    public IEnumerable<Move> CalculateLegalMoves(ChessBoard board, AlgebraicPoint position)
+    {
+        if (!board.TryGetPieceAt(position, out var piece))
+        {
+            _logger.LogWarning("No piece found at position {Position}", position);
+            yield break;
+        }
+
+        if (!_pieceDefinitions.TryGetValue(piece.Type, out var pieceDefinition))
+        {
+            _logger.LogWarning("Could not find definition for piece {PieceType}", piece.Type);
+            yield break;
+        }
+
+        var pieceBehaviours = pieceDefinition.GetBehaviours(board, position, piece);
+        foreach (var behaviour in pieceBehaviours)
+        {
+            foreach (var move in behaviour.Evaluate(board, position, piece))
+                yield return move;
         }
     }
 }
