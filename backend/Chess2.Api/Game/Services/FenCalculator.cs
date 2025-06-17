@@ -23,7 +23,7 @@ public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
             int emptyCount = 0;
             for (int x = 0; x < board.Width; x++)
             {
-                var point = new Point(x, y);
+                var point = new AlgebraicPoint(x, y);
                 if (!board.TryGetPieceAt(point, out var piece))
                 {
                     emptyCount++;

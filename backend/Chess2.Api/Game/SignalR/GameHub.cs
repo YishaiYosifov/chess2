@@ -26,7 +26,7 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
     private readonly ILogger<GameHub> _logger = logger;
     private readonly IGameService _gameService = gameService;
 
-    public async Task MovePieceAsync(string gameToken, Point from, Point to)
+    public async Task MovePieceAsync(string gameToken, AlgebraicPoint from, AlgebraicPoint to)
     {
         if (!TryGetUserId(out var userId))
         {

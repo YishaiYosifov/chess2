@@ -1,11 +1,11 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
 public record Move(
-    Point From,
-    Point To,
+    AlgebraicPoint From,
+    AlgebraicPoint To,
     Piece Piece,
-    IReadOnlyCollection<Point>? Through = null,
-    IReadOnlyCollection<Point>? CapturedSquares = null,
+    IReadOnlyCollection<AlgebraicPoint>? Through = null,
+    IReadOnlyCollection<AlgebraicPoint>? CapturedSquares = null,
     IReadOnlyCollection<Move>? SideEffects = null
 )
 {

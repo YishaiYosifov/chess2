@@ -42,12 +42,12 @@ public class FenCalculatorTests : BaseIntegrationTest
     [Fact]
     public void CalculateFen_correctly_compresses_rows_with_different_piece_colors()
     {
-        var pieces = new Dictionary<Point, Piece>()
+        var pieces = new Dictionary<AlgebraicPoint, Piece>()
         {
-            [new Point(0, 0)] = new Piece(PieceType.King, GameColor.White),
-            [new Point(3, 0)] = new Piece(PieceType.Rook, GameColor.Black),
-            [new Point(6, 0)] = new Piece(PieceType.Queen, GameColor.White),
-            [new Point(2, 1)] = new Piece(PieceType.Pawn, GameColor.White),
+            [new AlgebraicPoint("a1")] = new Piece(PieceType.King, GameColor.White),
+            [new AlgebraicPoint("d1")] = new Piece(PieceType.Rook, GameColor.Black),
+            [new AlgebraicPoint("g1")] = new Piece(PieceType.Queen, GameColor.White),
+            [new AlgebraicPoint("c2")] = new Piece(PieceType.Pawn, GameColor.White),
         };
         var board = new ChessBoard(pieces);
 
@@ -60,12 +60,12 @@ public class FenCalculatorTests : BaseIntegrationTest
     [Fact]
     public void CalculateFen_correctly_places_a_piece_on_all_rows()
     {
-        var pieces = new Dictionary<Point, Piece>()
+        var pieces = new Dictionary<AlgebraicPoint, Piece>()
         {
-            [new Point(0, 0)] = new Piece(PieceType.King, GameColor.White),
-            [new Point(1, 1)] = new Piece(PieceType.Rook, GameColor.Black),
-            [new Point(2, 2)] = new Piece(PieceType.Queen, GameColor.White),
-            [new Point(3, 3)] = new Piece(PieceType.Pawn, GameColor.Black),
+            [new AlgebraicPoint("a1")] = new Piece(PieceType.King, GameColor.White),
+            [new AlgebraicPoint("b2")] = new Piece(PieceType.Rook, GameColor.Black),
+            [new AlgebraicPoint("c3")] = new Piece(PieceType.Queen, GameColor.White),
+            [new AlgebraicPoint("d4")] = new Piece(PieceType.Pawn, GameColor.Black),
         };
         var board = new ChessBoard(pieces, height: 4, width: 4);
 

@@ -10,8 +10,8 @@ public abstract class MovementBehaviourTestsBase
     protected static void TestMovementEvaluatesTo(
         IMovementBehaviour behaviour,
         ChessBoard board,
-        Point from,
-        IEnumerable<Point> expectedPoints
+        AlgebraicPoint from,
+        IEnumerable<AlgebraicPoint> expectedPoints
     )
     {
         if (!board.TryGetPieceAt(from, out var piece))

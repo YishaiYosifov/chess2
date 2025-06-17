@@ -1,6 +1,8 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
-using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.TestInfrastructure.Factories;
+using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 
@@ -9,100 +11,99 @@ public class SlideBehaviourTests : MovementBehaviourTestsBase
     [Theory]
     [ClassData(typeof(SlideBehaviourTestData))]
     public void SlideBehaviour_evaluates_expected_position(
-        Point from,
-        Point offset,
-        IEnumerable<Point> expectedPoints,
-        IEnumerable<Point> blockingPieces
+        AlgebraicPoint from,
+        Offset offset,
+        IEnumerable<AlgebraicPoint> expectedPoints,
+        IEnumerable<AlgebraicPoint> blockingPieces
     )
     {
-        var board = BoardUtils.CreateBoardWithPieces(from, blockingPieces: blockingPieces);
-        TestMovementEvaluatesTo(new SlideBehaviour(offset), board, from, expectedPoints);
+        var piece = PieceFactory.White();
+        var board = new ChessBoard([]);
+        board.PlacePiece(from, piece);
+        foreach (var p in blockingPieces ?? [])
+            board.PlacePiece(p, PieceFactory.Black());
+
+        var behaviour = new SlideBehaviour(offset);
+
+        var result = behaviour.Evaluate(board, from, piece).ToList();
+
+        result.Should().BeEquivalentTo(expectedPoints);
     }
 }
 
+// from, offset, expectedPoints, blockingPieces
 public class SlideBehaviourTestData
-    : TheoryData<Point, Point, IEnumerable<Point>, IEnumerable<Point>>
+    : TheoryData<AlgebraicPoint, Offset, IEnumerable<AlgebraicPoint>, IEnumerable<AlgebraicPoint>>
 {
     public SlideBehaviourTestData()
     {
-        // Slide horizontally to the right from (3,3)
-        Add(
-            new(3, 3),
-            new(1, 0),
-            [new(4, 3), new(5, 3), new(6, 3), new(7, 3), new(8, 3), new(9, 3)],
-            []
-        );
+        // Slide horizontally to the right from e4
+        Add(new("e4"), new(1, 0), [new("f4"), new("g4"), new("h4"), new("i4"), new("j4")], []);
 
-        // Slide vertically upward from (3,3)
+        // Slide vertically upward from e4
         Add(
-            new(3, 3),
+            new("e4"),
             new(0, 1),
-            [new(3, 4), new(3, 5), new(3, 6), new(3, 7), new(3, 8), new(3, 9)],
+            [new("e5"), new("e6"), new("e7"), new("e8"), new("e9"), new("e10")],
             []
         );
 
-        // Slide diagonally up-right from (4,4)
-        Add(new(4, 4), new(-1, 1), [new(3, 5), new(2, 6), new(1, 7), new(0, 8)], []);
+        // Diagonal up-right from e5
+        Add(new("e5"), new(-1, 1), [new("d6"), new("c7"), new("b8"), new("a9")], []);
 
-        // Slide horizontally to the left from (3,3)
-        Add(new(3, 3), new(-1, 0), [new(2, 3), new(1, 3), new(0, 3)], []);
+        // Horizontal left from e4
+        Add(new("e4"), new(-1, 0), [new("d4"), new("c4"), new("b4"), new("a4")], []);
 
-        // Slide diagonally down-right from (5,5)
-        Add(new(5, 5), new(1, 1), [new(6, 6), new(7, 7), new(8, 8), new(9, 9)], []);
+        // Diagonal down-right from f6
+        Add(new("f6"), new(1, 1), [new("g7"), new("h8"), new("i9"), new("j10")], []);
 
-        // Slide diagonally up-left from (6,6)
+        // Diagonal up-left from g7
         Add(
-            new(6, 6),
+            new("g7"),
             new(-1, -1),
-            [new(5, 5), new(4, 4), new(3, 3), new(2, 2), new(1, 1), new(0, 0)],
+            [new("f6"), new("e5"), new("d4"), new("c3"), new("b2"), new("a1")],
             []
         );
 
-        // Slide diagonally down-right from (1,1)
+        // Long down-right from b2
         Add(
-            new(1, 1),
+            new("b2"),
             new(1, 1),
             [
-                new(2, 2),
-                new(3, 3),
-                new(4, 4),
-                new(5, 5),
-                new(6, 6),
-                new(7, 7),
-                new(8, 8),
-                new(9, 9),
+                new("c3"),
+                new("d4"),
+                new("e5"),
+                new("f6"),
+                new("g7"),
+                new("h8"),
+                new("i9"),
+                new("j10"),
             ],
             []
         );
 
-        // Slide vertically downward from (5,5)
-        Add(new(5, 5), new(0, -1), [new(5, 4), new(5, 3), new(5, 2), new(5, 1), new(5, 0)], []);
+        // Downward from f6
+        Add(new("f6"), new(0, -1), [new("f5"), new("f4"), new("f3"), new("f2"), new("f1")], []);
 
-        // Edge case: rightward slide from (9,9) goes out of bounds immediately
-        Add(new(9, 9), new(1, 0), [], []);
+        // Edge cases
+        Add(new("j10"), new(1, 0), [], []);
+        Add(new("a1"), new(-1, 0), [], []);
+        Add(new("f10"), new(0, 1), [], []);
+        Add(new("f1"), new(0, -1), [], []);
 
-        // Edge case: leftward slide from (0,0) goes out of bounds immediately
-        Add(new(0, 0), new(-1, 0), [], []);
+        // Blocked horizontally (g4 blocks after g4)
+        Add(new("e4"), new(1, 0), [new("f4"), new("g4")], [new("g4")]);
 
-        // Edge case: upward slide from top row (5,9) goes out of bounds immediately
-        Add(new(5, 9), new(0, 1), [], []);
+        // Blocked diagonally (c7 blocks after c7)
+        Add(new("e5"), new(-1, 1), [new("d6"), new("c7")], [new("c7")]);
 
-        // Edge case: downward slide from bottom row (5,0) goes out of bounds immediately
-        Add(new(5, 0), new(0, -1), [], []);
+        // Blocked down-right (h8 blocks)
+        Add(new("f6"), new(1, 1), [new("g7"), new("h8")], [new("h8")]);
 
-        // Slide stops at blocker at (6,3)
-        Add(new(3, 3), new(1, 0), [new(4, 3), new(5, 3), new(6, 3)], [new(6, 3)]);
+        // Blocked upward (d5 blocks)
+        Add(new("d4"), new(0, 1), [new("d5")], [new("d5")]);
 
-        // Slide stops at blocker at (2,6)
-        Add(new(4, 4), new(-1, 1), [new(3, 5), new(2, 6)], [new(2, 6)]);
-
-        // Slide stops at blocker at (7,7)
-        Add(new(5, 5), new(1, 1), [new(6, 6), new(7, 7)], [new(7, 7)]);
-
-        // Slide stops at blocker at (3,4)
-        Add(new(3, 3), new(0, 1), [new(3, 4)], [new(3, 4)]);
-
-        // Slide stops at blocker at (0,3)
-        Add(new(3, 3), new(-1, 0), [new(2, 3), new(1, 3), new(0, 3)], [new(0, 3)]);
+        // Blocked left (a4 blocks)
+        Add(new("d4"), new(-1, 0), [new("c4"), new("b4"), new("a4")], [new("a4")]);
     }
 }

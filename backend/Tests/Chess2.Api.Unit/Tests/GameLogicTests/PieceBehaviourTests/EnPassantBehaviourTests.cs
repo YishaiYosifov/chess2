@@ -16,7 +16,7 @@ public class EnPassantBehaviourTests
         AlgebraicPoint destination,
         AlgebraicPoint enemyOrigin,
         AlgebraicPoint enemyDestination,
-        Point direction,
+        Offset direction,
         GameColor capturingColor
     )
     {
@@ -48,7 +48,7 @@ public class EnPassantBehaviourTests
         AlgebraicPoint origin,
         AlgebraicPoint enemyOrigin,
         AlgebraicPoint enemyDestination,
-        Point direction
+        Offset direction
     )
     {
         var board = new ChessBoard();
@@ -83,57 +83,57 @@ public class EnPassantBehaviourTests
 
 // origin, destination, enemyOrigin, enemyDestination, direction, capturingColor
 public class EnPassantBehaviourTestData
-    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Point, GameColor>
+    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Offset, GameColor>
 {
     public EnPassantBehaviourTestData()
     {
         // white capturing black
         // 2 steps
-        Add(new("e7"), new("f8"), new("f9"), new("f7"), new(X: 1, Y: 1), GameColor.White);
-        Add(new("e7"), new("d8"), new("d9"), new("d7"), new(X: -1, Y: 1), GameColor.White);
+        Add(new("e7"), new("f8"), new("f9"), new("f7"), new(1, 1), GameColor.White);
+        Add(new("e7"), new("d8"), new("d9"), new("d7"), new(-1, 1), GameColor.White);
 
         // 3 steps
-        Add(new("e6"), new("f7"), new("f9"), new("f6"), new(X: 1, Y: 1), GameColor.White);
-        Add(new("e6"), new("d7"), new("d9"), new("d6"), new(X: -1, Y: 1), GameColor.White);
+        Add(new("e6"), new("f7"), new("f9"), new("f6"), new(1, 1), GameColor.White);
+        Add(new("e6"), new("d7"), new("d9"), new("d6"), new(-1, 1), GameColor.White);
 
         // 4 steps
-        Add(new("e5"), new("f6"), new("f9"), new("f5"), new(X: 1, Y: 1), GameColor.White);
-        Add(new("e5"), new("d6"), new("d9"), new("d5"), new(X: -1, Y: 1), GameColor.White);
+        Add(new("e5"), new("f6"), new("f9"), new("f5"), new(1, 1), GameColor.White);
+        Add(new("e5"), new("d6"), new("d9"), new("d5"), new(-1, 1), GameColor.White);
 
         // black capturing white
         // 2 steps
-        Add(new("e4"), new("f3"), new("f2"), new("f4"), new(X: 1, Y: -1), GameColor.Black);
-        Add(new("e4"), new("d3"), new("d2"), new("d4"), new(X: -1, Y: -1), GameColor.Black);
+        Add(new("e4"), new("f3"), new("f2"), new("f4"), new(1, -1), GameColor.Black);
+        Add(new("e4"), new("d3"), new("d2"), new("d4"), new(-1, -1), GameColor.Black);
 
         // 3 steps
-        Add(new("e5"), new("f4"), new("f2"), new("f5"), new(X: 1, Y: -1), GameColor.Black);
-        Add(new("e5"), new("d4"), new("d2"), new("d5"), new(X: -1, Y: -1), GameColor.Black);
+        Add(new("e5"), new("f4"), new("f2"), new("f5"), new(1, -1), GameColor.Black);
+        Add(new("e5"), new("d4"), new("d2"), new("d5"), new(-1, -1), GameColor.Black);
 
         // 4 steps
-        Add(new("e6"), new("f5"), new("f2"), new("f6"), new(X: 1, Y: -1), GameColor.Black);
-        Add(new("e6"), new("d5"), new("d2"), new("d6"), new(X: -1, Y: -1), GameColor.Black);
+        Add(new("e6"), new("f5"), new("f2"), new("f6"), new(1, -1), GameColor.Black);
+        Add(new("e6"), new("d5"), new("d2"), new("d6"), new(-1, -1), GameColor.Black);
 
         // edge case: enemy pawn moved 5 squares, and we are capturing it from the 3rd square
-        Add(new("e7"), new("d8"), new("d9"), new("d5"), new(X: -1, Y: 1), GameColor.White);
+        Add(new("e7"), new("d8"), new("d9"), new("d5"), new(-1, 1), GameColor.White);
     }
 }
 
 // origin, enemyOrigin, enemyDestination, direction
 public class InvalidEnPassantTestData
-    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Point>
+    : TheoryData<AlgebraicPoint, AlgebraicPoint, AlgebraicPoint, Offset>
 {
     public InvalidEnPassantTestData()
     {
         // enemy pawn only moved 1 square
-        Add(new("e5"), new("d6"), new("d5"), new(X: -1, Y: 1));
+        Add(new("e5"), new("d6"), new("d5"), new(-1, 1));
 
         // this would be a regular capture, so EnPassantBehaviour shouldn't pick up on it
-        Add(new("e5"), new("d9"), new("d6"), new(X: -1, Y: 1));
+        Add(new("e5"), new("d9"), new("d6"), new(-1, 1));
 
         // enemy pawn ends up on wrong file
-        Add(new("e5"), new("c9"), new("c5"), new(X: -1, Y: 1));
+        Add(new("e5"), new("c9"), new("c5"), new(-1, 1));
 
         // pawn trying to capture where there's no one to en passant
-        Add(new("e5"), new("h2"), new("h4"), new(X: 1, Y: 1));
+        Add(new("e5"), new("h2"), new("h4"), new(1, 1));
     }
 }

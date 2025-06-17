@@ -2,11 +2,15 @@
 
 namespace Chess2.Api.GameLogic.MovementBehaviours;
 
-public class StepBehaviour(Point offset) : IMovementBehaviour
+public class StepBehaviour(Offset offset) : IMovementBehaviour
 {
-    private readonly Point _offset = offset;
+    private readonly Offset _offset = offset;
 
-    public IEnumerable<Point> Evaluate(ChessBoard board, Point position, Piece movingPiece)
+    public IEnumerable<AlgebraicPoint> Evaluate(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         position += _offset;
         if (!board.IsWithinBoundaries(position))

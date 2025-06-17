@@ -8,7 +8,11 @@ public class TimesMovedRestrictedBehaviour(IMovementBehaviour movementBehaviour,
     private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
     private readonly int _maxTimesMoved = maxTimesMoved;
 
-    public IEnumerable<Point> Evaluate(ChessBoard board, Point position, Piece movingPiece)
+    public IEnumerable<AlgebraicPoint> Evaluate(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         return movingPiece.TimesMoved > _maxTimesMoved
             ? []

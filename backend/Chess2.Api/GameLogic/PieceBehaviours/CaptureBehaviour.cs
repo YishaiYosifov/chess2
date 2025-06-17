@@ -7,7 +7,7 @@ public class CaptureBehaviour(IMovementBehaviour movementBehaviour) : IPieceBeha
 {
     private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, Point position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
         foreach (var destination in _movementBehaviour.Evaluate(board, position, movingPiece))
         {

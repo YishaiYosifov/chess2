@@ -10,7 +10,7 @@ public class PawnDefinition : IPieceDefinition
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
         ChessBoard board,
-        Point position,
+        AlgebraicPoint position,
         Piece movingPiece
     )
     {
@@ -18,14 +18,14 @@ public class PawnDefinition : IPieceDefinition
 
         IEnumerable<IPieceBehaviour> behaviours =
         [
-            new NoCaptureBehaviour(new StepBehaviour(new Point(X: 0, Y: 1 * direction))),
-            new CaptureOnlyBehaviour(new StepBehaviour(new Point(X: 1, Y: 1 * direction))),
-            new CaptureOnlyBehaviour(new StepBehaviour(new Point(X: -1, Y: 1 * direction))),
-            new EnPassantBehaviour(new Point(X: 1, Y: 1 * direction)),
-            new EnPassantBehaviour(new Point(X: -1, Y: 1 * direction)),
+            new NoCaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: 1 * direction))),
+            new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
+            new CaptureOnlyBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
+            new EnPassantBehaviour(new Offset(X: 1, Y: 1 * direction)),
+            new EnPassantBehaviour(new Offset(X: -1, Y: 1 * direction)),
             new NoCaptureBehaviour(
                 new TimesMovedRestrictedBehaviour(
-                    new StepBehaviour(new Point(X: 0, Y: 2 * direction)),
+                    new StepBehaviour(new Offset(X: 0, Y: 2 * direction)),
                     maxTimesMoved: 0
                 )
             ),
