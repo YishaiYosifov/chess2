@@ -29,6 +29,26 @@ public class SlideBehaviourTests : MovementBehaviourTestsBase
 
         result.Should().BeEquivalentTo(expectedPoints);
     }
+
+    [Theory]
+    [ClassData(typeof(SlideBehaviourWithMaxTestData))]
+    public void SlideBehaviour_respects_max_distance(
+        AlgebraicPoint from,
+        Offset offset,
+        int max,
+        IEnumerable<AlgebraicPoint> expectedPoints
+    )
+    {
+        var piece = PieceFactory.White();
+        var board = new ChessBoard([]);
+        board.PlacePiece(from, piece);
+
+        var behaviour = new SlideBehaviour(offset, max);
+
+        var result = behaviour.Evaluate(board, from, piece).ToList();
+
+        result.Should().BeEquivalentTo(expectedPoints);
+    }
 }
 
 public class SlideBehaviourTestData
@@ -109,5 +129,29 @@ public class SlideBehaviourTestData
 
         // Blocked left (a4 blocks)
         Add(new("d4"), new(-1, 0), [new("c4"), new("b4"), new("a4")], [new("a4")]);
+    }
+}
+
+public class SlideBehaviourWithMaxTestData
+    : TheoryData<
+        AlgebraicPoint, // from position
+        Offset, // offset to slide
+        int, // max distance
+        IEnumerable<AlgebraicPoint> // expected positions
+    >
+{
+    public SlideBehaviourWithMaxTestData()
+    {
+        // max = 1
+        Add(new("e4"), new(1, 0), 1, [new("f4")]);
+
+        // max = 2
+        Add(new("e4"), new(0, 1), 2, [new("e5"), new("e6")]);
+
+        // max = 3
+        Add(new("a1"), new(1, 1), 3, [new("b2"), new("c3"), new("d4")]);
+
+        // max = 0 (should yield nothing)
+        Add(new("e4"), new(1, 0), 0, []);
     }
 }
