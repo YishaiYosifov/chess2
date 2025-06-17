@@ -18,7 +18,8 @@ public class GameCommands
 {
     public record StartGame(string GameToken, string WhiteId, string BlackId) : IGameMessage;
 
-    public record MovePiece(string GameToken, string UserId, Point From, Point To) : IGameMessage;
+    public record MovePiece(string GameToken, string UserId, AlgebraicPoint From, AlgebraicPoint To)
+        : IGameMessage;
 
     public record Resign(string GameToken, string UserId) : IGameMessage;
 

@@ -8,8 +8,8 @@ public class PointTests : BaseUnitTest
     [Fact]
     public void AdditionOperator_adds_coordinates()
     {
-        var p1 = new Point(2, 3);
-        var p2 = new Point(4, 1);
+        var p1 = new AlgebraicPoint(2, 3);
+        var p2 = new Offset(4, 1);
 
         var result = p1 + p2;
 
@@ -20,8 +20,8 @@ public class PointTests : BaseUnitTest
     [Fact]
     public void SubtractionOperator_subtracts_coordinates()
     {
-        var p1 = new Point(5, 7);
-        var p2 = new Point(3, 2);
+        var p1 = new AlgebraicPoint(5, 7);
+        var p2 = new Offset(3, 2);
 
         var result = p1 - p2;
 
@@ -35,7 +35,7 @@ public class PointTests : BaseUnitTest
     [InlineData(25, 7, "z8")]
     public void AsAlgebraic_returns_correct_string(int x, int y, string expected)
     {
-        var point = new Point(x, y);
+        var point = new AlgebraicPoint(x, y);
 
         var result = point.AsAlgebraic();
 

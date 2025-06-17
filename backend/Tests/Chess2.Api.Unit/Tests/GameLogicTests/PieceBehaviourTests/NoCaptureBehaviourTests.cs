@@ -14,12 +14,14 @@ public class NoCaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var board = new ChessBoard();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
-        board.PlacePiece(new(1, 1), PieceFactory.Black());
-        board.PlacePiece(new(3, 3), PieceFactory.White());
+
+        board.PlacePiece(new("b2"), PieceFactory.Black());
+        board.PlacePiece(new("d4"), PieceFactory.White());
 
         var behaviour = new NoCaptureBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
-        var expected = new[] { new Move(Origin, new(2, 2), piece) };
+
+        var expected = new[] { new Move(Origin, new("c3"), piece) };
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -30,9 +32,10 @@ public class NoCaptureBehaviourTests : MovementBasedPieceBehaviourTestBase
         var board = new ChessBoard();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
-        board.PlacePiece(new(1, 1), PieceFactory.Black());
-        board.PlacePiece(new(2, 2), PieceFactory.White());
-        board.PlacePiece(new(3, 3), PieceFactory.Black());
+
+        board.PlacePiece(new("b2"), PieceFactory.Black());
+        board.PlacePiece(new("c3"), PieceFactory.White());
+        board.PlacePiece(new("d4"), PieceFactory.Black());
 
         var behaviour = new NoCaptureBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece);

@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Game;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Game;
 using Chess2.Api.GameLogic.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
 
@@ -15,7 +15,7 @@ public class ChessBoard
     public int Width { get; }
 
     public ChessBoard(
-        Dictionary<Point, Piece>? pieces = null,
+        Dictionary<AlgebraicPoint, Piece>? pieces = null,
         int height = GameConstants.BoardHeight,
         int width = GameConstants.BoardWidth
     )
@@ -28,7 +28,7 @@ public class ChessBoard
             InitializeBoard(pieces);
     }
 
-    private void InitializeBoard(Dictionary<Point, Piece> pieces)
+    private void InitializeBoard(Dictionary<AlgebraicPoint, Piece> pieces)
     {
         foreach (var (pt, piece) in pieces)
         {
@@ -37,7 +37,7 @@ public class ChessBoard
         }
     }
 
-    public bool TryGetPieceAt(Point point, [NotNullWhen(true)] out Piece? piece)
+    public bool TryGetPieceAt(AlgebraicPoint point, [NotNullWhen(true)] out Piece? piece)
     {
         piece = null;
         if (!IsWithinBoundaries(point))
@@ -47,10 +47,10 @@ public class ChessBoard
         return piece is not null;
     }
 
-    public Piece? PeekPieceAt(Point point) =>
+    public Piece? PeekPieceAt(AlgebraicPoint point) =>
         IsWithinBoundaries(point) ? _board[point.Y, point.X] : null;
 
-    public bool IsEmpty(Point point) =>
+    public bool IsEmpty(AlgebraicPoint point) =>
         !IsWithinBoundaries(point) || _board[point.Y, point.X] is null;
 
     public void PlayMove(Move move)
@@ -86,18 +86,18 @@ public class ChessBoard
         _moves.Add(move);
     }
 
-    public void PlacePiece(Point point, Piece piece) => _board[point.Y, point.X] = piece;
+    public void PlacePiece(AlgebraicPoint point, Piece piece) => _board[point.Y, point.X] = piece;
 
-    public bool IsWithinBoundaries(Point point) =>
+    public bool IsWithinBoundaries(AlgebraicPoint point) =>
         point.Y >= 0 && point.Y < Height && point.X >= 0 && point.X < Width;
 
-    public IEnumerable<(Point Position, Piece? Occupant)> EnumerateSquares()
+    public IEnumerable<(AlgebraicPoint Position, Piece? Occupant)> EnumerateSquares()
     {
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
-                yield return (new Point(x, y), _board[y, x]);
+                yield return (new AlgebraicPoint(x, y), _board[y, x]);
             }
         }
     }

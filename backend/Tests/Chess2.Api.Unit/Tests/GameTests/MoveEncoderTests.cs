@@ -14,8 +14,8 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_single_basic_move()
     {
         var move = new Move(
-            From: new Point(4, 1), // e2
-            To: new Point(4, 3), // e4
+            From: new AlgebraicPoint("e2"),
+            To: new AlgebraicPoint("e4"),
             Piece: _dummyPiece
         );
 
@@ -28,13 +28,13 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_multiple_moves()
     {
         var move1 = new Move(
-            From: new Point(4, 1), // e2
-            To: new Point(4, 3), // e4
+            From: new AlgebraicPoint("e2"),
+            To: new AlgebraicPoint("e4"),
             Piece: _dummyPiece
         );
         var move2 = new Move(
-            From: new Point(6, 0), // g1
-            To: new Point(5, 2), // f3
+            From: new AlgebraicPoint("g1"),
+            To: new AlgebraicPoint("f3"),
             Piece: _dummyPiece
         );
 
@@ -47,9 +47,9 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_single_move_with_through_points()
     {
         var move = new Move(
-            From: new Point(4, 0), // e1
-            Through: [new Point(5, 0)], // f1
-            To: new Point(6, 0), // g1,
+            From: new AlgebraicPoint("e1"),
+            Through: [new AlgebraicPoint("f1")],
+            To: new AlgebraicPoint("g1"),
             Piece: _dummyPiece
         );
 
@@ -62,14 +62,14 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_single_move_with_side_effects()
     {
         var sideEffect = new Move(
-            From: new Point(7, 0), // h1
-            To: new Point(5, 0), // f1
+            From: new AlgebraicPoint("h1"),
+            To: new AlgebraicPoint("f1"),
             Piece: _dummyPiece
         );
         var move = new Move(
-            From: new Point(4, 0), // e1
-            Through: [new Point(5, 0), new Point(6, 0)], // f1, g1
-            To: new Point(7, 0), // h1
+            From: new AlgebraicPoint("e1"),
+            Through: [new AlgebraicPoint("f1"), new AlgebraicPoint("g1")],
+            To: new AlgebraicPoint("h1"),
             Piece: _dummyPiece,
             SideEffects: [sideEffect]
         );
@@ -83,10 +83,10 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_single_move_with_captured_squares()
     {
         var move = new Move(
-            From: new Point(4, 3), // e4
-            To: new Point(3, 4), // d5
+            From: new AlgebraicPoint("e4"),
+            To: new AlgebraicPoint("d5"),
             Piece: _dummyPiece,
-            CapturedSquares: [new Point(3, 4)] // capture on d5
+            CapturedSquares: [new AlgebraicPoint("d5")]
         );
 
         var result = _encoder.EncodeMoves([move]);
@@ -98,17 +98,17 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeMoves_both_move_and_side_effect_with_captures()
     {
         var capture = new Move(
-            From: new Point(1, 1), // b2
-            To: new Point(1, 2), // b3
+            From: new AlgebraicPoint("b2"),
+            To: new AlgebraicPoint("b3"),
             Piece: _dummyPiece,
-            CapturedSquares: [new Point(5, 2), new Point(1, 2)] // f3, b3
+            CapturedSquares: [new AlgebraicPoint("f3"), new AlgebraicPoint("b3")]
         );
         var move = new Move(
-            From: new Point(4, 3), // e4
-            To: new Point(3, 4), // d5
+            From: new AlgebraicPoint("e4"),
+            To: new AlgebraicPoint("d5"),
             Piece: _dummyPiece,
             SideEffects: [capture],
-            CapturedSquares: [new Point(3, 6)] // d7
+            CapturedSquares: [new AlgebraicPoint("d7")]
         );
 
         var result = _encoder.EncodeMoves([move]);
@@ -119,7 +119,7 @@ public class MoveEncoderTests : BaseUnitTest
     [Fact]
     public void EncodeSingleMove_returns_expected_basic_path()
     {
-        var move = new Move(new Point(4, 1), new Point(4, 3), _dummyPiece); // e2e4
+        var move = new Move(new AlgebraicPoint("e2"), new AlgebraicPoint("e4"), _dummyPiece);
         _encoder.EncodeSingleMove(move).Should().Be("e2e4");
     }
 
@@ -127,17 +127,17 @@ public class MoveEncoderTests : BaseUnitTest
     public void EncodeSingleMove_handles_side_effects_and_captures()
     {
         var sideEffect = new Move(
-            new Point(1, 1),
-            new Point(1, 2),
+            new AlgebraicPoint("b2"),
+            new AlgebraicPoint("b3"),
             _dummyPiece,
-            CapturedSquares: [new Point(5, 2)]
+            CapturedSquares: [new AlgebraicPoint("f3")]
         );
         var move = new Move(
-            new Point(4, 3),
-            new Point(3, 4),
+            new AlgebraicPoint("e4"),
+            new AlgebraicPoint("d5"),
             _dummyPiece,
             SideEffects: [sideEffect],
-            CapturedSquares: [new Point(3, 6)]
+            CapturedSquares: [new AlgebraicPoint("d7")]
         );
 
         _encoder.EncodeSingleMove(move).Should().Be("e4d5!d7-b2b3!f3");
