@@ -7,7 +7,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 
-public class TimesMovedRestrictedBehaviourTests : MovementBehaviourTestsBase
+public class TimesMovedRestrictedBehaviourTests
 {
     private readonly IMovementBehaviour _mockInnerBehaviour = Substitute.For<IMovementBehaviour>();
     private readonly IEnumerable<AlgebraicPoint> _innerPoints =
