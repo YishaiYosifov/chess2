@@ -6,7 +6,7 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.MovementBehaviourTests;
 
-public class StepBehaviourTests : MovementBehaviourTestsBase
+public class StepBehaviourTests
 {
     [Theory]
     [ClassData(typeof(StepBehaviourTestData))]
