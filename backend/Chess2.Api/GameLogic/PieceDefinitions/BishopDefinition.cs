@@ -11,9 +11,9 @@ public class BishopDefinition : IPieceDefinition
     private readonly List<IPieceBehaviour> _behaviours =
     [
         new CaptureBehaviour(new SlideBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: -1))),
+        new CaptureBehaviour(new SlideBehaviour(new Offset(X: 1, Y: -1))),
+        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: 1))),
+        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: -1))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
