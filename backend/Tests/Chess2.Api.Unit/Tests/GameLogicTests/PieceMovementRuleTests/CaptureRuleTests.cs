@@ -2,7 +2,6 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
-using Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
