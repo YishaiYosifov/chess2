@@ -13,7 +13,7 @@ public class RookDefinition : IPieceDefinition
         new CaptureBehaviour(new SlideBehaviour(new Offset(X: 0, Y: 1))),
         new CaptureBehaviour(new SlideBehaviour(new Offset(X: 0, Y: -1))),
         new CaptureBehaviour(new SlideBehaviour(new Offset(X: 1, Y: 0))),
-        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: 1))),
+        new CaptureBehaviour(new SlideBehaviour(new Offset(X: -1, Y: 0))),
     ];
 
     public IEnumerable<IPieceBehaviour> GetBehaviours(
