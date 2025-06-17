@@ -12,10 +12,11 @@ public class KingDefinition : IPieceDefinition
     [
         new CaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: 1))),
         new CaptureBehaviour(new StepBehaviour(new Offset(X: 0, Y: -1))),
-        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 0))),
         new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: 0))),
         new CaptureBehaviour(new StepBehaviour(new Offset(X: 1, Y: -1))),
         new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 1))),
+        new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: 0))),
         new CaptureBehaviour(new StepBehaviour(new Offset(X: -1, Y: -1))),
     ];
 
