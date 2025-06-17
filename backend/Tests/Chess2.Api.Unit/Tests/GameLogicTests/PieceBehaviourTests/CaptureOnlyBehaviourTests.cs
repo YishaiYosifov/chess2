@@ -15,17 +15,13 @@ public class CaptureOnlyBehaviourTests : MovementBasedPieceBehaviourTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("b2"), PieceFactory.Black());
-        board.PlacePiece(new("d4"), PieceFactory.White());
+        board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
+        board.PlacePiece(new("d4"), PieceFactory.White()); // friend
 
         var behaviour = new CaptureOnlyBehaviour(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new[]
-        {
-            new Move(Origin, new("b2"), piece, CapturedSquares: [new("b2")]),
-            new Move(Origin, new("d4"), piece, CapturedSquares: [new("d4")]),
-        };
+        var expected = new[] { new Move(Origin, new("b2"), piece, CapturedSquares: [new("b2")]) };
 
         result.Should().BeEquivalentTo(expected);
     }
