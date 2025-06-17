@@ -24,6 +24,9 @@ public abstract class PieceDefinitionTestBase : BaseIntegrationTest
         foreach (var (point, piece) in testCase.BlockedBy ?? [])
             board.PlacePiece(point, piece);
 
+        foreach (var priorMove in testCase.PriorMoves ?? [])
+            board.PlayMove(priorMove);
+
         var result = _legalMoveCalculator.CalculateLegalMoves(board, testCase.Origin).ToList();
 
         result.Should().BeEquivalentTo(testCase.ExpectedMoves);
