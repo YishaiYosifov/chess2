@@ -1,38 +1,17 @@
-﻿using Chess2.Api.GameLogic;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Utils;
-using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
 
-public class QueenDefinitionTests : BaseIntegrationTest
+public class QueenDefinitionTests(Chess2WebApplicationFactory factory)
+    : PieceDefinitionTestBase(factory)
 {
-    private readonly ILegalMoveCalculator _legalMoveCalculator;
-
-    public QueenDefinitionTests(Chess2WebApplicationFactory factory)
-        : base(factory)
-    {
-        _legalMoveCalculator = Scope.ServiceProvider.GetRequiredService<ILegalMoveCalculator>();
-    }
-
     [Theory]
     [ClassData(typeof(QueenDefinitionTestData))]
-    public void QueenDefinition_evaluates_expected_positions(PieceTestCase testCase)
-    {
-        var queen = PieceFactory.White(PieceType.Queen);
-        var board = new ChessBoard();
-        board.PlacePiece(testCase.Origin, queen);
-
-        foreach (var (point, piece) in testCase.BlockedBy ?? [])
-            board.PlacePiece(point, piece);
-
-        var result = _legalMoveCalculator.CalculateLegalMoves(board, testCase.Origin).ToList();
-
-        result.Should().BeEquivalentTo(testCase.ExpectedMoves);
-    }
+    public void QueenDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
+        TestMoves(testCase);
 }
 
 public class QueenDefinitionTestData : TheoryData<PieceTestCase>
