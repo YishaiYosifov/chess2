@@ -1,5 +1,4 @@
-﻿using System.Text;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -10,6 +9,8 @@ public class PieceTestCase
 
     public List<Move> ExpectedMoves { get; } = [];
     public List<(AlgebraicPoint Position, Piece Piece)> BlockedBy { get; } = [];
+
+    public string TestDecription { get; private set; } = "";
 
     private PieceTestCase(AlgebraicPoint from, Piece piece)
     {
@@ -46,20 +47,14 @@ public class PieceTestCase
         return this;
     }
 
-    public override string ToString()
+    public PieceTestCase WithDescription(string testDescription)
     {
-        StringBuilder sb = new();
-        sb.Append($"Piece under test at {Origin}");
-        if (BlockedBy is not null && BlockedBy.Count > 0)
-        {
-            sb.Append(" blocked by a ");
-            sb.Append(
-                string.Join(
-                    ", ",
-                    BlockedBy.Select(x => $"{x.Piece.Color} {x.Piece.Type} at {x.Position}")
-                )
-            );
-        }
-        return sb.ToString();
+        TestDecription = testDescription;
+        return this;
     }
+
+    public override string ToString() =>
+        string.IsNullOrWhiteSpace(TestDecription)
+            ? $"Piece under test at {Origin}"
+            : TestDecription;
 }

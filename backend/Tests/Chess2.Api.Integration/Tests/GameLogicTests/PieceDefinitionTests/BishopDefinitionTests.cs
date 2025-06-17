@@ -22,7 +22,6 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         var friend = PieceFactory.White();
         var enemy = PieceFactory.Black();
 
-        // Open board from e5
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -47,9 +46,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("g3")
                 .GoesTo("h2")
                 .GoesTo("i1")
+                .WithDescription("Open board from e5")
         );
 
-        // Corner case: bishop at a1
         Add(
             PieceTestCase
                 .From("a1", bishop)
@@ -63,9 +62,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("h8")
                 .GoesTo("i9")
                 .GoesTo("j10")
+                .WithDescription("Corner case: bishop at a1")
         );
 
-        // Edge case: bishop at a5
         Add(
             PieceTestCase
                 .From("a5", bishop)
@@ -80,9 +79,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c3")
                 .GoesTo("d2")
                 .GoesTo("e1")
+                .WithDescription("Edge case: bishop at a5")
         );
 
-        // Blocked by friendly piece in diagonal up-right direction
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -105,9 +104,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("g3")
                 .GoesTo("h2")
                 .GoesTo("i1")
+                .WithDescription("Blocked by friendly piece in diagonal up-right direction")
         );
 
-        // Blocked by enemy piece in diagonal down-right direction
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -132,10 +131,10 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 // diagonal down-right
                 .GoesTo("f4")
                 .GoesTo("g3", captures: ["g3"])
-        // cannot go beyond g3 because of enemy blocker
+                // cannot go beyond g3 because of enemy blocker
+                .WithDescription("Blocked by enemy piece in diagonal down-right direction")
         );
 
-        // Bishop surrounded by friendly pieces on all diagonals (no moves)
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -143,9 +142,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("f6", friend)
                 .WithBlocker("d4", friend)
                 .WithBlocker("f4", friend)
+                .WithDescription("Bishop surrounded by friendly pieces on all diagonals (no moves)")
         );
 
-        // Bishop surrounded by enemy pieces on all diagonals (can capture all)
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -157,6 +156,9 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f6", captures: ["f6"])
                 .GoesTo("d4", captures: ["d4"])
                 .GoesTo("f4", captures: ["f4"])
+                .WithDescription(
+                    "Bishop surrounded by enemy pieces on all diagonals (can capture all"
+                )
         );
     }
 }

@@ -22,7 +22,6 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         var friend = PieceFactory.White();
         var enemy = PieceFactory.Black();
 
-        // Open board from d4
         Add(
             PieceTestCase
                 .From("d4", king)
@@ -34,9 +33,9 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c3") // down-left
                 .GoesTo("c4") // left
                 .GoesTo("c5") // up-left
+                .WithDescription("Open board from d4")
         );
 
-        // Surrounded by friendly pieces — no moves
         Add(
             PieceTestCase
                 .From("d4", king)
@@ -48,9 +47,9 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("c3", friend)
                 .WithBlocker("c4", friend)
                 .WithBlocker("c5", friend)
+                .WithDescription("Surrounded by friendly pieces — no moves")
         );
 
-        // Surrounded by enemies — all moves are captures
         Add(
             PieceTestCase
                 .From("d4", king)
@@ -70,27 +69,27 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c3", captures: ["c3"])
                 .GoesTo("c4", captures: ["c4"])
                 .GoesTo("c5", captures: ["c5"])
+                .WithDescription("Surrounded by enemies — all moves are captures")
         );
 
-        // Edge of board: king on a1
         Add(
             PieceTestCase
                 .From("a1", king)
                 .GoesTo("a2") // up
                 .GoesTo("b2") // up-right
                 .GoesTo("b1") // right
+                .WithDescription("Edge of board: king on a1")
         );
 
-        // Corner case: king on j10 (top-right corner)
         Add(
             PieceTestCase
                 .From("j10", king)
                 .GoesTo("i10") // left
                 .GoesTo("i9") // down-left
                 .GoesTo("j9") // down
+                .WithDescription("Corner case: king on j10 (top-right corner)")
         );
 
-        // King on h1, friend at i2, enemy at g2
         Add(
             PieceTestCase
                 .From("h1", king)
@@ -101,6 +100,7 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("i1") // right
                 .GoesTo("g1") // left
                 .GoesTo("g2", captures: ["g2"]) // up-left capture
+                .WithDescription("King on h1, friend at i2, enemy at g2")
         );
     }
 }
