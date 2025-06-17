@@ -3,7 +3,7 @@ using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using NSubstitute;
 
-namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceBehaviourTests;
+namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
 public abstract class MovementBasedPieceRulesTestBase
 {
