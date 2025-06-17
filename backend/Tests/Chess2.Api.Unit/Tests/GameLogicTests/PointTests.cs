@@ -30,6 +30,18 @@ public class PointTests : BaseUnitTest
     }
 
     [Theory]
+    [InlineData("a1", 0, 0)]
+    [InlineData("b2", 1, 1)]
+    [InlineData("z8", 25, 7)]
+    [InlineData("a9", 0, 8)]
+    public void Constructor_parses_algebraic_string(string algebraic, int expectedX, int expectedY)
+    {
+        var point = new AlgebraicPoint(algebraic);
+        point.X.Should().Be(expectedX);
+        point.Y.Should().Be(expectedY);
+    }
+
+    [Theory]
     [InlineData(0, 0, "a1")]
     [InlineData(1, 1, "b2")]
     [InlineData(25, 7, "z8")]
