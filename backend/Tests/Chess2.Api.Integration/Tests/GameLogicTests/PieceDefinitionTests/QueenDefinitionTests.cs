@@ -22,7 +22,6 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         var friend = PieceFactory.White();
         var enemy = PieceFactory.Black();
 
-        // Open board from e5
         Add(
             PieceTestCase
                 .From("e5", queen)
@@ -69,9 +68,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("g3")
                 .GoesTo("h2")
                 .GoesTo("i1")
+                .WithDescription("Open board from e5")
         );
 
-        // Queen in corner a1
         Add(
             PieceTestCase
                 .From("a1", queen)
@@ -105,9 +104,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("h8")
                 .GoesTo("i9")
                 .GoesTo("j10")
+                .WithDescription("Queen in corner a1")
         );
 
-        // Queen on edge a5 with blockers
         Add(
             PieceTestCase
                 .From("a5", queen)
@@ -134,9 +133,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c3")
                 .GoesTo("d2")
                 .GoesTo("e1")
+                .WithDescription("Queen on edge a5 with blockers")
         );
 
-        // Queen surrounded by friendly pieces (no moves)
         Add(
             PieceTestCase
                 .From("e5", queen)
@@ -148,9 +147,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("f6", friend)
                 .WithBlocker("d4", friend)
                 .WithBlocker("f4", friend)
+                .WithDescription("Queen surrounded by friendly pieces — no moves")
         );
 
-        // Queen surrounded by enemy pieces (can capture all adjacent squares)
         Add(
             PieceTestCase
                 .From("e5", queen)
@@ -178,6 +177,7 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("d4", captures: ["d4"])
                 // diagonal down-right
                 .GoesTo("f4", captures: ["f4"])
+                .WithDescription("Queen surrounded by enemy pieces — all moves are captures")
         );
     }
 }
