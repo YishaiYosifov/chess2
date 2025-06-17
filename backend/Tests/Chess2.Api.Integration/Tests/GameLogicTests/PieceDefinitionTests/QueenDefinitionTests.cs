@@ -22,96 +22,56 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         var friend = PieceFactory.White();
         var enemy = PieceFactory.Black();
 
-        // Open board from d4
+        // Open board from e5
         Add(
             PieceTestCase
-                .From("d4", queen)
+                .From("e5", queen)
                 // vertical up
-                .GoesTo("d5")
-                .GoesTo("d6")
-                .GoesTo("d7")
-                .GoesTo("d8")
-                .GoesTo("d9")
-                .GoesTo("d10")
+                .GoesTo("e6")
+                .GoesTo("e7")
+                .GoesTo("e8")
+                .GoesTo("e9")
+                .GoesTo("e10")
                 // vertical down
-                .GoesTo("d3")
-                .GoesTo("d2")
-                .GoesTo("d1")
-                // horizontal right
                 .GoesTo("e4")
-                .GoesTo("f4")
-                .GoesTo("g4")
-                .GoesTo("h4")
-                .GoesTo("i4")
-                .GoesTo("j4")
+                .GoesTo("e3")
+                .GoesTo("e2")
+                .GoesTo("e1")
                 // horizontal left
-                .GoesTo("c4")
-                .GoesTo("b4")
-                .GoesTo("a4")
-                // diagonal up-right
-                .GoesTo("e5")
-                .GoesTo("f6")
-                .GoesTo("g7")
-                .GoesTo("h8")
-                .GoesTo("i9")
-                .GoesTo("j10")
-                // diagonal up-left
-                .GoesTo("c5")
-                .GoesTo("b6")
-                .GoesTo("a7")
-                // diagonal down-right
-                .GoesTo("e3")
-                .GoesTo("f2")
-                .GoesTo("g1")
-                // diagonal down-left
-                .GoesTo("c3")
-                .GoesTo("b2")
-                .GoesTo("a1")
-        );
-
-        // Own piece blocks on f4, black pawn on b6 (can capture)
-        Add(
-            PieceTestCase
-                .From("d4", queen)
-                .WithBlocker("f4", friend)
-                .WithBlocker("b6", enemy)
                 .GoesTo("d5")
+                .GoesTo("c5")
+                .GoesTo("b5")
+                .GoesTo("a5")
+                // horizontal right
+                .GoesTo("f5")
+                .GoesTo("g5")
+                .GoesTo("h5")
+                .GoesTo("i5")
+                .GoesTo("j5")
+                // diagonal up-left
                 .GoesTo("d6")
-                .GoesTo("d7")
-                .GoesTo("d8")
-                .GoesTo("d9")
-                .GoesTo("d10")
-                // vertical down moves unblocked
-                .GoesTo("d3")
-                .GoesTo("d2")
-                .GoesTo("d1")
-                // horizontal right stops before f4, no move onto f4 because own piece
-                .GoesTo("e4")
-                // horizontal left fully free
-                .GoesTo("c4")
-                .GoesTo("b4")
-                .GoesTo("a4")
-                // diagonal up-right unblocked
-                .GoesTo("e5")
+                .GoesTo("c7")
+                .GoesTo("b8")
+                .GoesTo("a9")
+                // diagonal up-right
                 .GoesTo("f6")
                 .GoesTo("g7")
                 .GoesTo("h8")
                 .GoesTo("i9")
                 .GoesTo("j10")
-                // diagonal up-left captures b6
-                .GoesTo("c5")
-                .GoesTo("b6", captures: ["b6"])
-                // diagonal down-right unblocked
-                .GoesTo("e3")
-                .GoesTo("f2")
-                .GoesTo("g1")
-                // diagonal down-left unblocked
+                // diagonal down-left
+                .GoesTo("d4")
                 .GoesTo("c3")
                 .GoesTo("b2")
                 .GoesTo("a1")
+                // diagonal down-right
+                .GoesTo("f4")
+                .GoesTo("g3")
+                .GoesTo("h2")
+                .GoesTo("i1")
         );
 
-        // From a corner
+        // Queen in corner a1
         Add(
             PieceTestCase
                 .From("a1", queen)
@@ -145,6 +105,79 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("h8")
                 .GoesTo("i9")
                 .GoesTo("j10")
+        );
+
+        // Queen on edge a5 with blockers
+        Add(
+            PieceTestCase
+                .From("a5", queen)
+                .WithBlocker("a7", friend) // friendly above, blocks beyond a6 vertical up
+                .WithBlocker("c5", enemy) // enemy right side, can capture at c5 but no further right
+                // vertical up
+                .GoesTo("a6")
+                // horizontal right
+                .GoesTo("b5")
+                .GoesTo("c5", captures: ["c5"])
+                // vertical down
+                .GoesTo("a4")
+                .GoesTo("a3")
+                .GoesTo("a2")
+                .GoesTo("a1")
+                // diagonal up-right
+                .GoesTo("b6")
+                .GoesTo("c7")
+                .GoesTo("d8")
+                .GoesTo("e9")
+                .GoesTo("f10")
+                // diagonal down-right
+                .GoesTo("b4")
+                .GoesTo("c3")
+                .GoesTo("d2")
+                .GoesTo("e1")
+        );
+
+        // Queen surrounded by friendly pieces (no moves)
+        Add(
+            PieceTestCase
+                .From("e5", queen)
+                .WithBlocker("e6", friend)
+                .WithBlocker("e4", friend)
+                .WithBlocker("d5", friend)
+                .WithBlocker("f5", friend)
+                .WithBlocker("d6", friend)
+                .WithBlocker("f6", friend)
+                .WithBlocker("d4", friend)
+                .WithBlocker("f4", friend)
+        );
+
+        // Queen surrounded by enemy pieces (can capture all adjacent squares)
+        Add(
+            PieceTestCase
+                .From("e5", queen)
+                .WithBlocker("e6", enemy)
+                .WithBlocker("e4", enemy)
+                .WithBlocker("d5", enemy)
+                .WithBlocker("f5", enemy)
+                .WithBlocker("d6", enemy)
+                .WithBlocker("f6", enemy)
+                .WithBlocker("d4", enemy)
+                .WithBlocker("f4", enemy)
+                // vertical up
+                .GoesTo("e6", captures: ["e6"])
+                // vertical down
+                .GoesTo("e4", captures: ["e4"])
+                // horizontal left
+                .GoesTo("d5", captures: ["d5"])
+                // horizontal right
+                .GoesTo("f5", captures: ["f5"])
+                // diagonal up-left
+                .GoesTo("d6", captures: ["d6"])
+                // diagonal up-right
+                .GoesTo("f6", captures: ["f6"])
+                // diagonal down-left
+                .GoesTo("d4", captures: ["d4"])
+                // diagonal down-right
+                .GoesTo("f4", captures: ["f4"])
         );
     }
 }
