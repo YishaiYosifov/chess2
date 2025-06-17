@@ -2,9 +2,10 @@
 
 namespace Chess2.Api.GameLogic.MovementBehaviours;
 
-public class SlideBehaviour(Offset offset) : IMovementBehaviour
+public class SlideBehaviour(Offset offset, int? max = null) : IMovementBehaviour
 {
     private readonly Offset _offset = offset;
+    private readonly int? _max = max;
 
     public IEnumerable<AlgebraicPoint> Evaluate(
         ChessBoard board,
@@ -12,8 +13,12 @@ public class SlideBehaviour(Offset offset) : IMovementBehaviour
         Piece movingPiece
     )
     {
+        int steps = 0;
         while (true)
         {
+            if (_max is not null && steps >= _max)
+                yield break;
+
             position += _offset;
             if (!board.IsWithinBoundaries(position))
                 yield break;
@@ -22,6 +27,8 @@ public class SlideBehaviour(Offset offset) : IMovementBehaviour
 
             if (!board.IsEmpty(position))
                 yield break;
+
+            steps++;
         }
     }
 }
