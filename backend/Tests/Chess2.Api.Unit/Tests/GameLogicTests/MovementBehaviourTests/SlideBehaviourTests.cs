@@ -31,9 +31,13 @@ public class SlideBehaviourTests : MovementBehaviourTestsBase
     }
 }
 
-// from, offset, expectedPoints, blockingPieces
 public class SlideBehaviourTestData
-    : TheoryData<AlgebraicPoint, Offset, IEnumerable<AlgebraicPoint>, IEnumerable<AlgebraicPoint>>
+    : TheoryData<
+        AlgebraicPoint, // from position
+        Offset, // offset to slide
+        IEnumerable<AlgebraicPoint>, // expected points to slide to
+        IEnumerable<AlgebraicPoint> // blocking pieces (if any)
+    >
 {
     public SlideBehaviourTestData()
     {
