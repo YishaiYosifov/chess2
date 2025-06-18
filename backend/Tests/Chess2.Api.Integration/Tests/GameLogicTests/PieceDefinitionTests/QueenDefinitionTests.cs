@@ -147,7 +147,7 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("f6", friend)
                 .WithBlocker("d4", friend)
                 .WithBlocker("f4", friend)
-                .WithDescription("Queen surrounded by friendly pieces — no moves")
+                .WithDescription("Queen surrounded by friendly pieces - no moves")
         );
 
         Add(
