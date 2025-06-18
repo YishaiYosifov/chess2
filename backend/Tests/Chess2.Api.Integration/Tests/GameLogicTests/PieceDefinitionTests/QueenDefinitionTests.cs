@@ -177,7 +177,7 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("d4", captures: ["d4"])
                 // diagonal down-right
                 .GoesTo("f4", captures: ["f4"])
-                .WithDescription("Queen surrounded by enemy pieces — all moves are captures")
+                .WithDescription("Queen surrounded by enemy pieces - all moves are captures")
         );
     }
 }

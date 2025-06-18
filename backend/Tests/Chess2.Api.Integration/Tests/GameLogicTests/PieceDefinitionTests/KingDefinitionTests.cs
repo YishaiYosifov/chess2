@@ -47,7 +47,7 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("c3", friend)
                 .WithBlocker("c4", friend)
                 .WithBlocker("c5", friend)
-                .WithDescription("Surrounded by friendly pieces — no moves")
+                .WithDescription("Surrounded by friendly pieces - no moves")
         );
 
         Add(
@@ -69,7 +69,7 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c3", captures: ["c3"])
                 .GoesTo("c4", captures: ["c4"])
                 .GoesTo("c5", captures: ["c5"])
-                .WithDescription("Surrounded by enemies — all moves are captures")
+                .WithDescription("Surrounded by enemies - all moves are captures")
         );
 
         Add(
