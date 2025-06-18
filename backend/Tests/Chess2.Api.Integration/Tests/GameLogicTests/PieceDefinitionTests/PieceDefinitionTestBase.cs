@@ -21,10 +21,10 @@ public abstract class PieceDefinitionTestBase : BaseIntegrationTest
         var board = new ChessBoard();
         board.PlacePiece(testCase.Origin, testCase.Piece);
 
-        foreach (var (point, piece) in testCase.BlockedBy ?? [])
+        foreach (var (point, piece) in testCase.BlockedBy)
             board.PlacePiece(point, piece);
 
-        foreach (var priorMove in testCase.PriorMoves ?? [])
+        foreach (var priorMove in testCase.PriorMoves)
             board.PlayMove(priorMove);
 
         var result = _legalMoveCalculator.CalculateLegalMoves(board, testCase.Origin).ToList();
