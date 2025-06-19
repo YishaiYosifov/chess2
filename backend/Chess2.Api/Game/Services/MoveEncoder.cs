@@ -19,10 +19,10 @@ public class MoveEncoder : IMoveEncoder
     /// - The destination square (<see cref="Move.To"/>)
     /// - Any side effect moves (<see cref="Move.SideEffects"/>), appended after a '-' separator,
     ///   recursively encoded with the same format
-    /// - Any explicitly captured squares (<see cref="Move.CapturedSquares"/>), appended after "!"
+    /// - Any captured squares (<see cref="Move.CapturedSquares"/>), appended after "!"
     ///
     /// Example encoding for castling with rook side effect and a capture:
-    /// <code>e1>f1g1-h1f1!d4</code>
+    /// <code>e1f1g1-h1f1!d4</code>
     /// </summary>
     public IEnumerable<string> EncodeMoves(IEnumerable<Move> moves) =>
         moves.Select(EncodeSingleMove);
