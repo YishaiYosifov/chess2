@@ -43,7 +43,7 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
                 // only 2 valid moves
                 .GoesTo("b3") // up 2, right 1
                 .GoesTo("c2") // up 1, right 2
-                .WithDescription("Corner case: knight at a1")
+                .WithDescription("Corner case: horsey at a1")
         );
 
         Add(
@@ -52,7 +52,7 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
                 // only 2 valid moves
                 .GoesTo("h9") // down 1, left 2
                 .GoesTo("i8") // down 2, left 1
-                .WithDescription("Corner case: knight at j10")
+                .WithDescription("Corner case: horsey at j10")
         );
 
         Add(
@@ -63,7 +63,7 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("c6") // up 1, right 2
                 .GoesTo("c4") // down 1, right 2
                 .GoesTo("b3") // down 2, right 1
-                .WithDescription("Edge case: knight at a5")
+                .WithDescription("Edge case: horsey at a5")
         );
 
         Add(
@@ -77,7 +77,7 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("g4", friend)
                 .WithBlocker("d3", friend)
                 .WithBlocker("f3", friend)
-                // Knights jump, so no legal captures or moves here.
+                // Horsey jump, so no legal captures or moves here.
                 .WithDescription("Surrounded by friendly pieces (should still move freely)")
         );
 
