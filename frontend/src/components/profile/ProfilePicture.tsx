@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 
 export interface ProfilePictureProps {
@@ -19,7 +19,7 @@ const ProfilePicture = ({
     return (
         <Image
             data-testid="profilePicture"
-            className={clsx("aspect-square rounded-md", className)}
+            className={twMerge("aspect-square rounded-md", className)}
             alt="profile picture"
             src={`/assets/logo-image-temp.webp?${lastChanged ?? 0}`}
             width={width}

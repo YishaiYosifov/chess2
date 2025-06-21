@@ -1,6 +1,6 @@
 "use client";
 
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 const Button = ({
     children,
@@ -9,7 +9,7 @@ const Button = ({
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
     return (
         <button
-            className={clsx(
+            className={twMerge(
                 `bg-primary disabled:text-text/50 cursor-pointer rounded-md p-2
                 hover:brightness-90 disabled:brightness-70`,
                 className,

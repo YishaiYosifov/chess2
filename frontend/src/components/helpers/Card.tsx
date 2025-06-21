@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 const Card = ({
     className,
@@ -7,7 +8,7 @@ const Card = ({
 }: React.HTMLAttributes<HTMLDivElement>) => {
     return (
         <div
-            className={clsx("flex rounded-md bg-card p-4", className)}
+            className={twMerge("bg-card flex rounded-md p-4", className)}
             {...props}
         />
     );
