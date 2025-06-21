@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 import type { RatingOverview } from "@/types/tempModels";
 import Card from "../helpers/Card";
@@ -32,7 +32,7 @@ const RatingCard = ({
     const ratingChange = currentRating - (history.at(0)?.elo ?? 0);
 
     return (
-        <Card className={clsx("flex flex-col gap-3", className)}>
+        <Card className={twMerge("flex flex-col gap-3", className)}>
             <Chart
                 options={{
                     chart: {

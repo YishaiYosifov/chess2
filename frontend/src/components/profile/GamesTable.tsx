@@ -1,9 +1,8 @@
 "use client";
 
-import clsx from "clsx";
-
 import type { FinishedGame, User } from "@/lib/apiClient/models";
 
+import { twMerge } from "tailwind-merge";
 import GameRow from "./GameRow";
 
 const GamesTable = ({
@@ -16,7 +15,7 @@ const GamesTable = ({
     className?: string;
 }) => {
     return (
-        <table className={clsx("h-max w-full table-auto", className)}>
+        <table className={twMerge("h-max w-full table-auto", className)}>
             <colgroup>
                 <col style={{ width: "50%" }} />
                 <col style={{ width: "30%" }} />

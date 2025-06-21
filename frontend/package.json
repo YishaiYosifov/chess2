@@ -28,6 +28,7 @@
         "react-apexcharts": "^1.7.0",
         "react-dom": "^19.0.0",
         "react-use-websocket": "^4.13.0",
+        "tailwind-merge": "^3.3.1",
         "use-sync-external-store": "^1.5.0",
         "yup": "^1.6.1",
         "zustand": "^5.0.3"

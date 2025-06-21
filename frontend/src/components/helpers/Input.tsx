@@ -4,7 +4,7 @@ import React, { useId, useState } from "react";
 
 import { EyeIcon as EyeIconOutline } from "@heroicons/react/24/outline";
 import { EyeIcon as EyeIconSolid } from "@heroicons/react/24/solid";
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
     label?: string;
@@ -20,7 +20,7 @@ const Input = ({
 }: InputProps) => {
     const id = useId();
     return (
-        <div className={clsx("w-full", className)}>
+        <div className={twMerge("w-full", className)}>
             {label && (
                 <label className="text-text/90 font-medium" htmlFor={id}>
                     {label}
@@ -30,7 +30,7 @@ const Input = ({
                 <input
                     id={id}
                     aria-label={ariaLabel ?? label}
-                    className={clsx(
+                    className={twMerge(
                         className,
                         "w-full rounded-md bg-white p-1 text-black",
                     )}

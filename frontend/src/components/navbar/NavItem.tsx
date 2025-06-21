@@ -1,8 +1,8 @@
 "use client";
 
+import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import React from "react";
-import clsx from "clsx";
 
 import type { PolymorphicProps } from "@/types/polymorphicProps";
 
@@ -23,7 +23,7 @@ const NavItem = <TProps extends React.ElementType = typeof Link>({
     return (
         <Component
             {...(props as React.ComponentProps<TProps>)}
-            className={clsx(
+            className={twMerge(
                 "flex items-center gap-4 transition-opacity hover:opacity-70",
                 className,
             )}

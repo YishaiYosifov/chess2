@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PieceRenderer from "./PieceRenderer";
-import clsx from "clsx";
 import { useChessStore } from "@/hooks/useChess";
+import { twMerge } from "tailwind-merge";
 
 export interface PaddingOffset {
     width: number;
@@ -82,7 +82,7 @@ const ChessboardLayout = ({
     return (
         <div
             data-testid="chessboard"
-            className={clsx(
+            className={twMerge(
                 `grid-template-rows-10 relative grid min-h-[300px] min-w-[300px] cursor-pointer
                 grid-cols-10 rounded-md border-2 border-blue-400 bg-[url(/assets/board.svg)]
                 bg-[length:100%] bg-no-repeat`,
