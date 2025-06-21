@@ -7,7 +7,7 @@ import {
     useImperativeHandle,
     useRef,
 } from "react";
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 import { useChessStore } from "@/hooks/useChess";
 import { Point } from "@/types/tempModels";
@@ -75,9 +75,9 @@ const ChessSquare: ForwardRefRenderFunction<
 
     return (
         <div
-            className={clsx(
-                className,
+            className={twMerge(
                 "absolute transform will-change-transform",
+                className,
             )}
             // tailwind doesn't work well with dynamic values
             style={{

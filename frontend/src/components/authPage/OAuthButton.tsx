@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { twMerge } from "tailwind-merge";
 import React from "react";
 
 import constants, { OAuthProvider } from "@/lib/constants";
 import Button from "../helpers/Button";
-import clsx from "clsx";
 
 const OAuthButton = ({
     className,
@@ -29,7 +29,7 @@ const OAuthButton = ({
 
     return (
         <Button
-            className={clsx(
+            className={twMerge(
                 `flex cursor-pointer items-center justify-center gap-3 bg-white px-2 font-sans
                 text-[20px] font-bold text-black`,
                 className,
