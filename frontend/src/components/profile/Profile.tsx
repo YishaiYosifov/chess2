@@ -1,6 +1,6 @@
 "use client";
 
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 import { User } from "@/lib/apiClient/models";
 import ProfilePicture from "./ProfilePicture";
@@ -16,7 +16,9 @@ const Profile = ({
     className?: string;
 }) => {
     return (
-        <Card className={"w-full flex-col gap-3 sm:flex-row", className)}>
+        <Card
+            className={twMerge("w-full flex-col gap-3 sm:flex-row", className)}
+        >
             <ProfilePicture
                 className="self-center"
                 username={profile.userName}
