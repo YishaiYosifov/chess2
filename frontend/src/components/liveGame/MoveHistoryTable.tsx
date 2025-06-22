@@ -26,7 +26,7 @@ const MoveRow = ({
     moveWhite?: string;
     moveBlack?: string;
 }) => {
-    const color = index % 2 === 0 ? "bg-white/10" : "";
+    const color = index % 2 === 0 ? "bg-white/5" : "";
     return (
         <tr className={color}>
             <td className="py-3">{moveWhite}</td>
