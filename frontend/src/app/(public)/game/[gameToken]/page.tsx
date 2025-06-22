@@ -1,3 +1,4 @@
+import ChessboardSide from "@/components/liveGame/ChessboardSide";
 import LiveChessboard from "@/components/liveGame/LiveChessboard";
 import withAuthedSession from "@/hocs/withAuthedSession";
 import { getLiveGame } from "@/lib/apiClient";
@@ -49,22 +50,34 @@ const GamePage = withAuthedSession(
                 ? game.playerWhite
                 : game.playerBlack;
         return (
-            <div className="grid">
-                <LiveChessboard
-                    gameToken={gameToken}
-                    initialMoveHistory={decodedMoveHistory}
-                    startingPieces={decodedFen}
-                    legalMoves={decodedLegalMoves}
-                    playingAs={playingAs.color}
-                    sideToMove={game.sideToMove}
-                    breakpoints={[
-                        {
-                            maxScreenSize: 768,
-                            paddingOffset: { width: 0, height: 76 },
-                        },
-                    ]}
-                    defaultOffset={{ width: 256, height: 0 }}
-                />
+            <div
+                className="jutsify-center flex w-full flex-col items-center justify-center gap-5 p-5
+                    lg:h-screen lg:flex-row"
+            >
+                <div className="flex md:max-h-screen">
+                    <LiveChessboard
+                        gameToken={gameToken}
+                        initialMoveHistory={decodedMoveHistory}
+                        startingPieces={decodedFen}
+                        legalMoves={decodedLegalMoves}
+                        playingAs={playingAs.color}
+                        sideToMove={game.sideToMove}
+                        breakpoints={[
+                            {
+                                maxScreenSize: 768,
+                                paddingOffset: { width: 40, height: 110 },
+                            },
+                            {
+                                maxScreenSize: 1024,
+                                paddingOffset: { width: 200, height: 50 },
+                            },
+                        ]}
+                        defaultOffset={{ width: 626, height: 100 }}
+                        className="m-auto"
+                    />
+                </div>
+
+                <ChessboardSide />
             </div>
         );
     },
