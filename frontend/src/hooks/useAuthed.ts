@@ -10,8 +10,7 @@ import { AuthContextInterface, AuthContext } from "@/contexts/authContext";
 
 export function useAuthedContext(): Required<AuthContextInterface> {
     const context = useContext(AuthContext);
-    if (!context.hasAccessToken || context.authedProfile === undefined)
-        throw Error("Profile Not Loaded");
+    if (!context.user) throw Error("Profile Not Loaded");
 
     return context as Required<AuthContextInterface>;
 }
