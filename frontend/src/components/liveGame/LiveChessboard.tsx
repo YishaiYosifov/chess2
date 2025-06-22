@@ -1,24 +1,45 @@
 "use client";
 
 import { Move, Point } from "@/types/tempModels";
-import Chessboard, { ChessboardProps, ChessboardRef } from "../game/Chessboard";
+import Chessboard, { ChessboardRef } from "../game/Chessboard";
 import { useGameEmitter, useGameEvent } from "@/hooks/signalR/useSignalRHubs";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
     decodeMoves,
     decodeMovesIntoMap,
     decodeSingleMove,
 } from "@/lib/chessDecoders/moveDecoder";
-import { GameColor, getLiveGame } from "@/lib/apiClient";
+import { GameColor, GameState, getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
+import ProfilePicture from "../profile/ProfilePicture";
 
 const LiveChessboard = ({
     gameToken,
-    initialMoveHistory,
-    ...chessboardProps
-}: { gameToken: string; initialMoveHistory: Move[] } & ChessboardProps) => {
+    gameState,
+    userId,
+}: {
+    gameToken: string;
+    gameState: GameState;
+    userId: string;
+}) => {
     const chessboardRef = useRef<ChessboardRef>(null);
-    const [moveHistory, setMoveHistory] = useState<Move[]>(initialMoveHistory);
+
+    const decodedLegalMoves = useMemo(
+        () => decodeMovesIntoMap(gameState.legalMoves),
+        [gameState.legalMoves],
+    );
+    const decodedMoveHistory = useMemo(
+        () => decodeMoves(gameState.moveHistory),
+        [gameState.moveHistory],
+    );
+    const decodedFen = useMemo(() => decodeFen(gameState.fen), [gameState.fen]);
+
+    const playingAs =
+        userId == gameState.playerWhite.userId
+            ? gameState.playerWhite
+            : gameState.playerBlack;
+
+    const [moveHistory, setMoveHistory] = useState<Move[]>(decodedMoveHistory);
 
     async function refetchGame() {
         const { error, data } = await getLiveGame({ path: { gameToken } });
@@ -58,9 +79,7 @@ const LiveChessboard = ({
             chessboardRef.current?.playTurn(
                 decodedLegalMoves,
                 sideToMove,
-                sideToMove == chessboardProps.playingAs
-                    ? decodedMove
-                    : undefined,
+                sideToMove == playingAs.color ? decodedMove : undefined,
             );
         },
     );
@@ -70,11 +89,29 @@ const LiveChessboard = ({
     }
 
     return (
-        <Chessboard
-            {...chessboardProps}
-            onPieceMovement={sendMove}
-            ref={chessboardRef}
-        />
+        <div className="flex flex-col gap-3">
+            {/* <ProfilePicture height={50} width={50} /> */}
+            <Chessboard
+                ref={chessboardRef}
+                onPieceMovement={sendMove}
+                startingPieces={decodedFen}
+                legalMoves={decodedLegalMoves}
+                playingAs={playingAs.color}
+                sideToMove={gameState.sideToMove}
+                breakpoints={[
+                    {
+                        maxScreenSize: 768,
+                        paddingOffset: { width: 40, height: 110 },
+                    },
+                    {
+                        maxScreenSize: 1024,
+                        paddingOffset: { width: 200, height: 50 },
+                    },
+                ]}
+                defaultOffset={{ width: 626, height: 100 }}
+            />
+            {/* <ProfilePicture height={50} width={50} /> */}
+        </div>
     );
 };
 export default LiveChessboard;
