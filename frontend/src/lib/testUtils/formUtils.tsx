@@ -42,7 +42,7 @@ export async function submitForm(user: UserEvent): Promise<void> {
  */
 export function renderWithAuthContext(
     ui: ReactElement,
-    contextOptions: AuthContextInterface | {} = {},
+    contextOptions: AuthContextInterface | undefined = {},
     renderOptions: RenderOptions = {},
 ): RenderResult {
     return render(

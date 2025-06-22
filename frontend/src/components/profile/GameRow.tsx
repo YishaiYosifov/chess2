@@ -6,14 +6,10 @@ import {
 
 import Link from "next/link";
 
-import {
-    type User,
-    type FinishedGame,
-    GameResult,
-} from "@/lib/apiClient/models";
+import { type FinishedGame, GameResult } from "@/types/tempModels";
 
-import { Color } from "@/lib/apiClient/models";
 import clsx from "clsx";
+import { User } from "@/lib/apiClient";
 
 const GameRow = ({
     game,
@@ -26,16 +22,16 @@ const GameRow = ({
 }) => {
     const color =
         game.userWhite?.userId == profileViewpoint.userId
-            ? Color.White
-            : Color.Black;
+            ? GameResult.White
+            : GameResult.Black;
 
     const isDraw = game.results === GameResult.Draw;
-    const isWinner = color.valueOf() === game.results;
+    const isWinner = game.results === color;
 
     const GameLink = () => (
         <Link
             data-testid="gameRowLink"
-            className="absolute left-0 right-0 top-0"
+            className="absolute top-0 right-0 left-0"
             href={`/game/${game.token}`}
         />
     );
@@ -57,9 +53,9 @@ const GameRow = ({
         <MinusCircleIcon className="text-red-400" />
     );
 
-    function getScore(color: Color): string {
+    function getScore(color: GameResult): string {
         if (isDraw) return "½";
-        return game.results == color.valueOf() ? "1" : "0";
+        return game.results == color ? "1" : "0";
     }
 
     const usernameWhite = game.userWhite?.userName ?? "DELETED";
@@ -97,11 +93,11 @@ const GameRow = ({
                 <div className="flex items-center gap-3">
                     <div className="flex w-3 flex-col justify-between">
                         <span data-testid="gameRowScoreWhite">
-                            {getScore(Color.White)}
+                            {getScore(GameResult.White)}
                         </span>
 
                         <span data-testid="gameRowScoreBlack">
-                            {getScore(Color.Black)}
+                            {getScore(GameResult.Black)}
                         </span>
                     </div>
                     <span className="size-7">{ResultsIcon}</span>
