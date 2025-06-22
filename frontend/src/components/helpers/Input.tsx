@@ -20,7 +20,7 @@ const Input = ({
 }: InputProps) => {
     const id = useId();
     return (
-        <div className={twMerge("w-full", className)}>
+        <div className="w-full">
             {label && (
                 <label className="text-text/90 font-medium" htmlFor={id}>
                     {label}
@@ -31,8 +31,8 @@ const Input = ({
                     id={id}
                     aria-label={ariaLabel ?? label}
                     className={twMerge(
-                        className,
                         "w-full rounded-md bg-white p-1 text-black",
+                        className,
                     )}
                     {...inputProps}
                 />

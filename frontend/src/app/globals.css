@@ -3,9 +3,13 @@
 @layer utilities {
     /* prettier-ignore */
     .toggle-btn {
-        @apply [&>span::after]:translate-y-0 [&>span::after]:rotate-45
-        [&>span::before]:translate-y-0 [&>span::before]:-rotate-45
-        [&>span]:bg-transparent [&>span]:rotate-[360deg];
+        @apply 
+            [&>span::after]:translate-y-0
+            [&>span::after]:rotate-45
+            [&>span::before]:translate-y-0
+            [&>span::before]:-rotate-45
+            [&>span]:bg-transparent
+            [&>span]:rotate-[360deg];
     }
 
     *::-webkit-scrollbar {
@@ -49,4 +53,9 @@
 
 .apexcharts-svg {
     border-radius: 10px;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
