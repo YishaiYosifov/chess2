@@ -187,8 +187,14 @@ public class GameActorTests : BaseActorTest
 
     private async Task StartGameAsync(string whiteId, string blackId)
     {
+        var timeControl = new TimeControlSettings(600, 5);
         _gameActor.Tell(
-            new GameCommands.StartGame(TestGameToken, WhiteId: whiteId, BlackId: blackId),
+            new GameCommands.StartGame(
+                TestGameToken,
+                WhiteId: whiteId,
+                BlackId: blackId,
+                TimeControl: timeControl
+            ),
             _probe.Ref
         );
         await _probe.ExpectMsgAsync<GameEvents.GameStartedEvent>(
