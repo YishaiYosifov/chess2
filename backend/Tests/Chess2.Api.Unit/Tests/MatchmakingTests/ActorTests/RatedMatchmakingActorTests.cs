@@ -36,9 +36,9 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
             () =>
                 new RatedMatchmakingActor(
                     TimeControl.ToShortString(),
+                    ServiceProviderMock,
                     Options.Create(Settings),
                     PoolMock,
-                    GameServiceMock,
                     TimerMock
                 )
         );

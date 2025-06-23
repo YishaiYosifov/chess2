@@ -18,9 +18,9 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
     protected ILoggingAdapter Logger { get; } = Context.GetLogger();
     protected TPool Pool { get; }
 
-    private readonly AppSettings _settings;
-    private readonly IGameService _gameService;
     private readonly TimeControlSettings _timeControl;
+    private readonly AppSettings _settings;
+    private readonly IServiceProvider _sp;
 
     private readonly Dictionary<string, IActorRef> _subscribers = [];
 
@@ -28,9 +28,9 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 
     public AbstractMatchmakingActor(
         string entityId,
+        IServiceProvider sp,
         IOptions<AppSettings> settings,
         TPool pool,
-        IGameService gameService,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -39,9 +39,9 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             Timers = timerScheduler;
         Pool = pool;
 
+        _sp = sp;
         _timeControl = TimeControlSettings.FromShortString(entityId);
         _settings = settings.Value;
-        _gameService = gameService;
         Receive<ICreateSeekCommand>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingCommands.MatchWave>(_ => HandleMatchWave());
@@ -101,7 +101,22 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
                 continue;
             }
 
-            var startGameTask = _gameService.StartGameAsync(seeker1, seeker2, _timeControl);
+            var scope = _sp.CreateScope();
+            var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
+            var startGameTask = gameService
+                .StartGameAsync(seeker1, seeker2, _timeControl)
+                .ContinueWith(task =>
+                {
+                    try
+                    {
+                        return task.Result;
+                    }
+                    finally
+                    {
+                        scope.Dispose();
+                    }
+                });
+
             startGameTask.PipeTo(
                 seeker1Ref,
                 success: token => new MatchmakingEvents.MatchFound(token)

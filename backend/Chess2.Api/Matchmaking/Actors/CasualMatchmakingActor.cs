@@ -1,6 +1,5 @@
 ﻿using Akka.Actor;
 using Akka.Event;
-using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
@@ -10,18 +9,11 @@ namespace Chess2.Api.Matchmaking.Actors;
 
 public class CasualMatchmakingActor(
     string entityId,
+    IServiceProvider sp,
     IOptions<AppSettings> settings,
     ICasualMatchmakingPool pool,
-    IGameService gameService,
     ITimerScheduler? timerScheduler = null
-)
-    : AbstractMatchmakingActor<ICasualMatchmakingPool>(
-        entityId,
-        settings,
-        pool,
-        gameService,
-        timerScheduler
-    )
+) : AbstractMatchmakingActor<ICasualMatchmakingPool>(entityId, sp, settings, pool, timerScheduler)
 {
     protected override bool EnterPool(ICreateSeekCommand createSeek)
     {

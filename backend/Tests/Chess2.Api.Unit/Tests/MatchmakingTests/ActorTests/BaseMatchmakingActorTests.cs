@@ -6,6 +6,7 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
@@ -16,6 +17,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     protected ITimerScheduler TimerMock { get; } = Substitute.For<ITimerScheduler>();
     protected TPool PoolMock { get; } = Substitute.For<TPool>();
     protected IGameService GameServiceMock { get; } = Substitute.For<IGameService>();
+    protected IServiceProvider ServiceProviderMock { get; } = Substitute.For<IServiceProvider>();
 
     protected IActorRef MatchmakingActor { get; }
     protected TestProbe Probe { get; }
@@ -27,6 +29,15 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
 
     public BaseMatchmakingActorTests()
     {
+        var scopeMock = Substitute.For<IServiceScope>();
+        scopeMock.ServiceProvider.GetService(typeof(IGameService)).Returns(GameServiceMock);
+
+        var scopeFactoryMock = Substitute.For<IServiceScopeFactory>();
+        scopeFactoryMock.CreateScope().Returns(scopeMock);
+        scopeMock
+            .ServiceProvider.GetService(typeof(IServiceScopeFactory))
+            .Returns(scopeFactoryMock);
+
         MatchmakingActor = CreateActor();
         Probe = CreateTestProbe();
 

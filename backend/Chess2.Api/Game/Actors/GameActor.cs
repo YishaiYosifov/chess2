@@ -108,7 +108,7 @@ public class GameActor : ReceiveActor
         }
         var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
 
-        var gameStateDto = new GameStateDto(
+        var gameStateDto = new GameState(
             PlayerWhite: players.PlayerWhite,
             PlayerBlack: players.PlayerBlack,
             SideToMove: players.SideToMove,
