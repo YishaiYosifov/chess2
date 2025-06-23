@@ -11,7 +11,7 @@ public class MatchmakingShardExtractor(int shardCount) : HashCodeMessageExtracto
             return null;
 
         var entityId =
-            $"matchmaking:{matchmakingMessage.PoolInfo.BaseMinutes}+{matchmakingMessage.PoolInfo.Increment}";
+            $"{matchmakingMessage.TimeControl.BaseSeconds}+{matchmakingMessage.TimeControl.IncrementSeconds}";
         return entityId;
     }
 }

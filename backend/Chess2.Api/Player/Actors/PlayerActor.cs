@@ -2,6 +2,7 @@
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Akka.Hosting;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.SignalR;
@@ -10,7 +11,11 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Player.Actors;
 
-public record ActiveSeekInfo(IActorRef PoolActor, PoolInfo PoolInfo, string ConnectionId);
+public record ActiveSeekInfo(
+    IActorRef PoolActor,
+    TimeControlSettings TimeControl,
+    string ConnectionId
+);
 
 public class PlayerActor : ReceiveActor
 {
@@ -42,6 +47,7 @@ public class PlayerActor : ReceiveActor
         Receive<PlayerCommands.CreateSeek>(HandleCreateSeek);
         Receive<PlayerCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingEvents.MatchFound>(HandleMatchFound);
+        Receive<MatchmakingEvents.MatchFailed>((_) => HandleMatchFailed());
 
         Receive<ReceiveTimeout>(_ =>
         {
@@ -57,7 +63,7 @@ public class PlayerActor : ReceiveActor
     {
         // Already seeking, cancel the previous seek
         _currentPool?.PoolActor.Tell(
-            new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+            new MatchmakingCommands.CancelSeek(_userId, _currentPool.TimeControl)
         );
 
         var actor = ResolvePoolActorForSeek(createSeek.CreateSeekCommand);
@@ -65,7 +71,7 @@ public class PlayerActor : ReceiveActor
 
         _currentPool = new ActiveSeekInfo(
             actor,
-            createSeek.CreateSeekCommand.PoolInfo,
+            createSeek.CreateSeekCommand.TimeControl,
             createSeek.ConnectionId
         );
     }
@@ -90,7 +96,7 @@ public class PlayerActor : ReceiveActor
         }
 
         _currentPool.PoolActor.Tell(
-            new MatchmakingCommands.CancelSeek(_userId, _currentPool.PoolInfo)
+            new MatchmakingCommands.CancelSeek(_userId, _currentPool.TimeControl)
         );
         _currentPool = null;
     }
@@ -105,6 +111,11 @@ public class PlayerActor : ReceiveActor
         );
 
         Become(InGame);
+    }
+
+    private void HandleMatchFailed()
+    {
+        RunTask(() => _matchmakingHubContext.Clients.User(_userId).MatchFailedAsync());
     }
 
     private IActorRef ResolvePoolActorForSeek(ICreateSeekCommand createSeekCommand)
