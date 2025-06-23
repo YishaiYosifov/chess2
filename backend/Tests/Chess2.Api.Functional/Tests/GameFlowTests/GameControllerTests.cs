@@ -31,6 +31,7 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
         var players = new[] { gameState.PlayerWhite, gameState.PlayerBlack };
         players.Select(p => p.UserId).Should().BeEquivalentTo(["guest1", "guest2"]);
         players.Should().OnlyContain(p => p.UserName == "Guest");
+        players.Should().OnlyContain(p => p.CountryCode == null);
         players.Should().OnlyContain(p => p.Rating == null);
     }
 
@@ -65,9 +66,11 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
         var player2 = players.First(x => x.UserId == user2.Id);
 
         player1.UserName.Should().Be(user1.UserName);
+        player1.CountryCode.Should().Be(user1.CountryCode);
         player1.Rating.Should().Be(user1Rating.Value);
 
         player2.UserName.Should().Be(user2.UserName);
+        player2.CountryCode.Should().Be(user2.CountryCode);
         player2.Rating.Should().Be(user2Rating.Value);
     }
 

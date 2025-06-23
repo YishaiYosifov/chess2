@@ -132,8 +132,9 @@ public class GameService(
 
         return new GamePlayerDto(
             player,
-            UserName: user?.UserName ?? "Guest",
-            Rating: rating?.Value
+            userName: user?.UserName ?? "Guest",
+            countryCode: user?.CountryCode,
+            rating: rating?.Value
         );
     }
 }
