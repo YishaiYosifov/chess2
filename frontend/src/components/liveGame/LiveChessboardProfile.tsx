@@ -7,7 +7,7 @@ const LiveChessboardProfile = ({ player }: { player: GamePlayer }) => {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <ProfilePicture height={50} width={50} />
-                <Flag size={30} />
+                <Flag countryCode={player.countryCode} size={30} />
 
                 <span className="font-medium text-white">
                     {player.userName}

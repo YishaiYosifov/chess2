@@ -114,6 +114,7 @@ export type GamePlayer = {
     userId: string;
     color: GameColor;
     userName: string;
+    countryCode?: string | null;
     rating?: number | null;
 };
 
