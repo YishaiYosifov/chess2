@@ -49,8 +49,8 @@ public class GameActor : ReceiveActor
 
     private void HandleStartGame(GameCommands.StartGame startGame)
     {
-        var playerWhite = new GamePlayer() { UserId = startGame.WhiteId, Color = GameColor.White };
-        var playerBlack = new GamePlayer() { UserId = startGame.BlackId, Color = GameColor.Black };
+        var playerWhite = new GamePlayer(UserId: startGame.WhiteId, Color: GameColor.White);
+        var playerBlack = new GamePlayer(UserId: startGame.BlackId, Color: GameColor.Black);
         var idToPlayer = new Dictionary<string, GamePlayer>()
         {
             [playerWhite.UserId] = playerWhite,
