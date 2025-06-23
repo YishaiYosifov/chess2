@@ -8,6 +8,7 @@ using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Player.Actors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -53,6 +54,20 @@ public class ApiTestBase : IAsyncLifetime
                 )
                 .WhenTypeIs<DateTime>()
         );
+    }
+
+    protected async Task<HubConnection> ConnectSignalRGuestAsync(string path, string guestId)
+    {
+        var token = TokenProvider.GenerateGuestToken(guestId);
+        var conn = await CreateSignalRConnectionAsync(path, token);
+        return conn;
+    }
+
+    protected async Task<HubConnection> ConnectSignalRAuthedAsync(string path, AuthedUser user)
+    {
+        var token = TokenProvider.GenerateAccessToken(user);
+        var conn = await CreateSignalRConnectionAsync(path, token);
+        return conn;
     }
 
     protected async Task<HubConnection> CreateSignalRConnectionAsync(
