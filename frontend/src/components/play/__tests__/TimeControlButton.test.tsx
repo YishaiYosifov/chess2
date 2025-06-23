@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import TimeControlButton from "../TimeControlButton";
 import userEvent from "@testing-library/user-event";
+import { TimeControlSettings } from "@/lib/apiClient";
 
 describe("TimeControlButton", () => {
     it("should render the formatted time control and type", () => {
@@ -52,11 +53,14 @@ describe("TimeControlButton", () => {
     it("should call onClick with baseMinutes and increment when clicked", async () => {
         const user = userEvent.setup();
         const handleClick = vi.fn();
+        const timeControl: TimeControlSettings = {
+            baseSeconds: 60,
+            incrementSeconds: 5,
+        };
 
         render(
             <TimeControlButton
-                baseMinutes={1}
-                increment={0}
+                timeControl={timeControl}
                 formattedTimeControl="1 + 0"
                 type="Bullet"
                 onClick={handleClick}
@@ -66,6 +70,6 @@ describe("TimeControlButton", () => {
         const button = screen.getByRole("button");
         await user.click(button);
 
-        expect(handleClick).toHaveBeenCalledWith(1, 0);
+        expect(handleClick).toHaveBeenCalledWith(timeControl);
     });
 });

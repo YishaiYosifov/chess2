@@ -24,6 +24,7 @@ export enum ErrorCode {
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
+    GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
     GAME_NOT_FOUND = "Game.NotFound",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
     GAME_MOVE_INVALID = "Game.MoveInvalid",
@@ -38,6 +39,7 @@ export type ApiProblemError = {
         | "Auth.OAuth.Invalid"
         | "Auth.OAuth.ProviderNotFound"
         | "GameLogic.PieceNotFound"
+        | "GameLogic.PointOutOfBound"
         | "Game.NotFound"
         | "Game.PlayerInvalid"
         | "Game.MoveInvalid";
@@ -105,11 +107,15 @@ export type GameState = {
     fen: string;
     moveHistory: Array<string>;
     legalMoves: Array<string>;
+    timeControl: TimeControlSettings;
 };
 
 export type GamePlayer = {
     userId: string;
     color: GameColor;
+    isAuthed: boolean;
+    displayName?: string | null;
+    rating?: number | null;
 };
 
 export enum GameColor {
@@ -122,6 +128,11 @@ export enum GameColor {
      */
     BLACK = 1,
 }
+
+export type TimeControlSettings = {
+    baseSeconds: number;
+    incrementSeconds: number;
+};
 
 export type GetAuthedUserData = {
     body?: never;

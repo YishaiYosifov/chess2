@@ -1,5 +1,8 @@
 import { PieceMap, PieceType } from "@/types/tempModels";
-import { GameColor } from "./apiClient/definition/types.gen";
+import {
+    GameColor,
+    TimeControlSettings,
+} from "./apiClient/definition/types.gen";
 
 const USERNAME_EDIT_EVERY = 2419200;
 
@@ -46,16 +49,28 @@ const SETTING_PAGES = [
     { name: "Security", url: "security" },
 ];
 
-const TIME_CONTROLS = [
-    { type: "Bullet", baseMinutes: 1, increment: 0 },
-    { type: "Bullet", baseMinutes: 2, increment: 1 },
-    { type: "Blitz", baseMinutes: 3, increment: 0 },
-    { type: "Blitz", baseMinutes: 3, increment: 2 },
-    { type: "Blitz", baseMinutes: 5, increment: 0, isMostPopular: true },
-    { type: "Rapid", baseMinutes: 5, increment: 3 },
-    { type: "Rapid", baseMinutes: 10, increment: 0 },
-    { type: "Rapid", baseMinutes: 15, increment: 10 },
-    { type: "Classical", baseMinutes: 30, increment: 0 },
+interface TimeControlLabel {
+    type: string;
+    settings: TimeControlSettings;
+    isMostPopular?: boolean;
+}
+const TIME_CONTROLS: TimeControlLabel[] = [
+    { type: "Bullet", settings: { baseSeconds: 60, incrementSeconds: 0 } },
+    { type: "Bullet", settings: { baseSeconds: 120, incrementSeconds: 1 } },
+    { type: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 0 } },
+    { type: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 2 } },
+    {
+        type: "Blitz",
+        settings: { baseSeconds: 300, incrementSeconds: 0 },
+        isMostPopular: true,
+    },
+    { type: "Rapid", settings: { baseSeconds: 300, incrementSeconds: 3 } },
+    { type: "Rapid", settings: { baseSeconds: 600, incrementSeconds: 0 } },
+    { type: "Rapid", settings: { baseSeconds: 900, incrementSeconds: 10 } },
+    {
+        type: "Classical",
+        settings: { baseSeconds: 1800, incrementSeconds: 0 },
+    },
 ];
 
 // prettier-ignore

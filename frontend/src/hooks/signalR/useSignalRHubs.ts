@@ -5,15 +5,15 @@ import useSignalREmitter, {
 } from "./useSignalREmitter";
 import { Point } from "@/types/tempModels";
 import { useMemo } from "react";
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, TimeControlSettings } from "@/lib/apiClient";
 
 type MatchmakingClientEvents = {
     MatchFoundAsync: [token: string];
 };
 
 type MatchmakingHubEvents = {
-    SeekRatedAsync: [baseMinutes: number, increment: number];
-    SeekCasualAsync: [baseMinutes: number, increment: number];
+    SeekRatedAsync: [timeControl: TimeControlSettings];
+    SeekCasualAsync: [timeControl: TimeControlSettings];
     CancelSeekAsync: [];
 };
 
