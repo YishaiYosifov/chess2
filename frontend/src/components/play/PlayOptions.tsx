@@ -14,6 +14,7 @@ import TimeControlButton from "./TimeControlButton";
 import constants from "@/lib/constants";
 import Card from "../helpers/Card";
 import SeekingOverlay from "./SeekingOverlay";
+import { TimeControlSettings } from "@/lib/apiClient";
 
 /**
  * Card containing the variant and time control options.
@@ -35,23 +36,12 @@ const PlayOptions = () => {
         setShowPoolToggle(isAuthed !== undefined);
     }, []);
 
-    async function handleSeekMatch(baseMinutes: number, increment: number) {
+    async function handleSeekMatch(timeControl: TimeControlSettings) {
         setIsSeeking(true);
 
         const isRated = poolToggleRef.current?.isRated ?? false;
-        if (isRated) {
-            await sendMatchmakingEvent(
-                "SeekRatedAsync",
-                baseMinutes,
-                increment,
-            );
-        } else {
-            await sendMatchmakingEvent(
-                "SeekCasualAsync",
-                baseMinutes,
-                increment,
-            );
-        }
+        if (isRated) await sendMatchmakingEvent("SeekRatedAsync", timeControl);
+        else await sendMatchmakingEvent("SeekCasualAsync", timeControl);
     }
 
     async function cancelSeek() {
@@ -75,12 +65,11 @@ const PlayOptions = () => {
                 {isSeeking && <SeekingOverlay onClick={cancelSeek} />}
 
                 {constants.TIME_CONTROLS.map((timeControl) => {
-                    const formattedTimeControl = `${timeControl.baseMinutes} + ${timeControl.increment}`;
+                    const formattedTimeControl = `${timeControl.settings.baseSeconds / 60} + ${timeControl.settings.incrementSeconds}`;
                     return (
                         <TimeControlButton
                             key={formattedTimeControl}
-                            baseMinutes={timeControl.baseMinutes}
-                            increment={timeControl.increment}
+                            timeControl={timeControl.settings}
                             formattedTimeControl={formattedTimeControl}
                             isMostPopular={timeControl.isMostPopular}
                             type={timeControl.type}

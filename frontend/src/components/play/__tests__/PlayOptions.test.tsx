@@ -80,7 +80,7 @@ describe("PlayOptions", () => {
 
         render(<PlayOptions />);
         const playButton = screen.getByText(
-            `${constants.TIME_CONTROLS[0].baseMinutes} + ${constants.TIME_CONTROLS[0].increment}`,
+            `${constants.TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.TIME_CONTROLS[0].settings.incrementSeconds}`,
         );
 
         const poolToggle = screen.getByTestId("poolToggle");
@@ -92,8 +92,7 @@ describe("PlayOptions", () => {
 
         expect(sendMatchmakingEventMock).toHaveBeenCalledWith(
             "SeekRatedAsync",
-            constants.TIME_CONTROLS[0].baseMinutes,
-            constants.TIME_CONTROLS[0].increment,
+            constants.TIME_CONTROLS[0].settings,
         );
     });
 
@@ -103,7 +102,7 @@ describe("PlayOptions", () => {
         render(<PlayOptions />);
 
         const timeBtn = screen.getByText(
-            `${constants.TIME_CONTROLS[0].baseMinutes} + ${constants.TIME_CONTROLS[0].increment}`,
+            `${constants.TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.TIME_CONTROLS[0].settings.incrementSeconds}`,
         );
         await user.click(timeBtn);
 

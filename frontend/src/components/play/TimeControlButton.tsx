@@ -1,21 +1,20 @@
 import clsx from "clsx";
 import Button from "../helpers/Button";
+import { TimeControlSettings } from "@/lib/apiClient";
 
 const TimeControlButton = ({
-    baseMinutes,
-    increment,
+    timeControl,
     formattedTimeControl,
     type,
     isMostPopular,
     onClick,
     isSeeking,
 }: {
-    baseMinutes: number;
-    increment: number;
+    timeControl: TimeControlSettings;
     formattedTimeControl: string;
     type: string;
     isMostPopular?: boolean;
-    onClick?: (baseMinutes: number, increment: number) => void;
+    onClick?: (timeControl: TimeControlSettings) => void;
     isSeeking?: boolean;
 }) => {
     return (
@@ -26,7 +25,7 @@ const TimeControlButton = ({
                 </span>
             )}
             <Button
-                onClick={() => onClick?.(baseMinutes, increment)}
+                onClick={() => onClick?.(timeControl)}
                 className={clsx(
                     "flex h-full w-full flex-col items-center justify-center rounded-sm",
                     isMostPopular && "border border-amber-300",
