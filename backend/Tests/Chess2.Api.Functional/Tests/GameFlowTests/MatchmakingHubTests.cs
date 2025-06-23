@@ -28,8 +28,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         await AssertPlayersMatchAsync(
             conn1,
             conn2,
-            SeekCasualMethod,
-            new TimeControlSettings(600, 0)
+            new TimeControlSettings(600, 0),
+            SeekCasualMethod
         );
     }
 
@@ -45,8 +45,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         await AssertPlayersMatchAsync(
             conn1,
             conn2,
-            SeekRatedMethod,
-            new TimeControlSettings(300, 10)
+            new TimeControlSettings(300, 10),
+            SeekRatedMethod
         );
     }
 
@@ -61,8 +61,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         await AssertPlayersMatchAsync(
             conn1,
             conn2,
-            SeekCasualMethod,
-            new TimeControlSettings(900, 3)
+            new TimeControlSettings(900, 3),
+            SeekCasualMethod
         );
     }
 
@@ -101,20 +101,20 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         var match1AssertTask = AssertPlayersMatchAsync(
             conn1Match1,
             conn2Match1,
-            SeekRatedMethod,
-            timeControl
+            timeControl,
+            SeekRatedMethod
         );
         var match2AssertTask = AssertPlayersMatchAsync(
             conn1Match2,
             conn2Match2,
-            SeekRatedMethod,
-            timeControl
+            timeControl,
+            SeekRatedMethod
         );
         var match3AssertTask = AssertPlayersMatchAsync(
             conn1Match3,
             conn2Match3,
-            SeekCasualMethod,
-            timeControl
+            timeControl,
+            SeekCasualMethod
         );
 
         await Task.WhenAll(match1AssertTask, match2AssertTask, match3AssertTask);
@@ -147,7 +147,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         await using var conn3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest3");
 
         // users are matched in the order they connected, so if conn1 disconnects, conn2 and conn3 should match
-        await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, timeControl);
+        await AssertPlayersMatchAsync(conn2, conn3, timeControl, SeekCasualMethod);
     }
 
     [Fact]
