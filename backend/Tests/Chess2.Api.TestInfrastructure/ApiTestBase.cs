@@ -59,21 +59,18 @@ public class ApiTestBase : IAsyncLifetime
     protected async Task<HubConnection> ConnectSignalRGuestAsync(string path, string guestId)
     {
         var token = TokenProvider.GenerateGuestToken(guestId);
-        var conn = await CreateSignalRConnectionAsync(path, token);
+        var conn = await ConnectSignalRAsync(path, token);
         return conn;
     }
 
     protected async Task<HubConnection> ConnectSignalRAuthedAsync(string path, AuthedUser user)
     {
         var token = TokenProvider.GenerateAccessToken(user);
-        var conn = await CreateSignalRConnectionAsync(path, token);
+        var conn = await ConnectSignalRAsync(path, token);
         return conn;
     }
 
-    protected async Task<HubConnection> CreateSignalRConnectionAsync(
-        string path,
-        string? accessToken = null
-    )
+    protected async Task<HubConnection> ConnectSignalRAsync(string path, string? accessToken = null)
     {
         var baseAddress =
             ApiClient.Client.BaseAddress

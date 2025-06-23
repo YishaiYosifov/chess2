@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.TestInfrastructure;
+using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -11,6 +12,38 @@ public abstract class BaseFunctionalGameFlowTests(Chess2WebApplicationFactory fa
     protected const string MatchmakingHubPath = "/api/hub/matchmaking";
     protected const string SeekCasualMethod = "SeekCasualAsync";
     protected const string SeekRatedMethod = "SeekRatedAsync";
+
+    protected async Task<(
+        string gameToken,
+        string guest1AccessToken,
+        string guest2AccessToken
+    )> StartGuestMatchAsync(string guestId1, string guestId2, TimeControlSettings timeControl)
+    {
+        var accessToken1 = TokenProvider.GenerateGuestToken(guestId1);
+        var accessToken2 = TokenProvider.GenerateGuestToken(guestId2);
+        var conn1 = await ConnectSignalRAsync(MatchmakingHubPath, accessToken1);
+        var conn2 = await ConnectSignalRAsync(MatchmakingHubPath, accessToken2);
+
+        var gameToken = await AssertPlayersMatchAsync(conn1, conn2, timeControl, SeekCasualMethod);
+
+        return (gameToken, accessToken1, accessToken2);
+    }
+
+    protected async Task<(
+        string gameToken,
+        string user1AccessToken,
+        string user2AccessToken
+    )> StartAuthedMatchAsync(AuthedUser user1, AuthedUser user2, TimeControlSettings timeControl)
+    {
+        var accessToken1 = TokenProvider.GenerateAccessToken(user1);
+        var accessToken2 = TokenProvider.GenerateAccessToken(user2);
+
+        var conn1 = await ConnectSignalRAsync(MatchmakingHubPath, accessToken1);
+        var conn2 = await ConnectSignalRAsync(MatchmakingHubPath, accessToken2);
+        var gameToken = await AssertPlayersMatchAsync(conn1, conn2, timeControl, SeekRatedMethod);
+
+        return (gameToken, accessToken1, accessToken2);
+    }
 
     protected static async Task<string> AssertPlayersMatchAsync(
         HubConnection conn1,
