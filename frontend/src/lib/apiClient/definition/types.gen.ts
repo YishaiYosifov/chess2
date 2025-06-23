@@ -113,8 +113,7 @@ export type GameState = {
 export type GamePlayer = {
     userId: string;
     color: GameColor;
-    isAuthed: boolean;
-    displayName?: string | null;
+    userName: string;
     rating?: number | null;
 };
 
