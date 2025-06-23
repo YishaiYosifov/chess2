@@ -17,6 +17,7 @@ export interface LiveChessboardStore {
     moveHistory: Move[];
     players: PlayerRoster;
 
+    addMoveToHistory: (move: Move) => void;
     setMoveHistory: (moveHistory: Move[]) => void;
     setPlayers: (whitePlayer: GamePlayer, blackPlayer: GamePlayer) => void;
 }
@@ -29,6 +30,10 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
             viewingFrom: GameColor.WHITE,
             players: { colorToPlayer: new Map<GameColor, GamePlayer>() },
 
+            addMoveToHistory: (move: Move) =>
+                set((state) => {
+                    state.moveHistory.push(move);
+                }),
             setMoveHistory: (moveHistory: Move[]) =>
                 set((state) => {
                     state.moveHistory = moveHistory;
