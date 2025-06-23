@@ -61,7 +61,7 @@ public class PlayerActorTests : BaseActorTest
             msg =>
             {
                 msg.UserId.Should().Be(UserId);
-                msg.PoolInfo.Should().Be(poolInfo);
+                msg.TimeControl.Should().Be(poolInfo);
             },
             cancellationToken: CT
         );
@@ -79,7 +79,7 @@ public class PlayerActorTests : BaseActorTest
             msg =>
             {
                 msg.UserId.Should().Be(UserId);
-                msg.PoolInfo.Should().Be(poolInfo);
+                msg.TimeControl.Should().Be(poolInfo);
             },
             cancellationToken: CT
         );
@@ -136,7 +136,7 @@ public class PlayerActorTests : BaseActorTest
             msg =>
             {
                 msg.UserId.Should().Be(UserId);
-                msg.PoolInfo.Should().Be(ratedPool);
+                msg.TimeControl.Should().Be(ratedPool);
             },
             cancellationToken: CT
         );

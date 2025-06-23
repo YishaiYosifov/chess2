@@ -1,15 +1,16 @@
 ﻿using Akka.Actor;
+using Chess2.Api.Game.Models;
 
 namespace Chess2.Api.Matchmaking.Models;
 
 public interface IMatchmakingCommand
 {
-    public PoolInfo PoolInfo { get; init; }
+    public TimeControlSettings TimeControl { get; init; }
 }
 
 public static class MatchmakingCommands
 {
-    public record CancelSeek(string UserId, PoolInfo PoolInfo) : IMatchmakingCommand;
+    public record CancelSeek(string UserId, TimeControlSettings TimeControl) : IMatchmakingCommand;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
 }
@@ -21,13 +22,14 @@ public interface ICreateSeekCommand : IMatchmakingCommand
 
 public static class RatedMatchmakingCommands
 {
-    public record CreateRatedSeek(string UserId, int Rating, PoolInfo PoolInfo)
+    public record CreateRatedSeek(string UserId, int Rating, TimeControlSettings TimeControl)
         : ICreateSeekCommand;
 }
 
 public static class CasualMatchmakingCommands
 {
-    public record CreateCasualSeek(string UserId, PoolInfo PoolInfo) : ICreateSeekCommand;
+    public record CreateCasualSeek(string UserId, TimeControlSettings TimeControl)
+        : ICreateSeekCommand;
 }
 
 public static class MatchmakingBroadcasts
@@ -40,4 +42,6 @@ public static class MatchmakingBroadcasts
 public static class MatchmakingEvents
 {
     public record MatchFound(string GameToken);
+
+    public record MatchFailed();
 }
