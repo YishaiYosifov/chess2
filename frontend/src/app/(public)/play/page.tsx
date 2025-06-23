@@ -1,5 +1,5 @@
 import PlayOptions from "@/components/play/PlayOptions";
-import Chessboard from "@/components/game/Chessboard";
+import StaticChessboard from "@/components/game/StaticChessboard";
 
 export const metadata = { title: "Play - Chess 2" };
 
@@ -10,7 +10,7 @@ const PlayPage = () => {
                 lg:h-screen lg:flex-row"
         >
             <div className="flex md:max-h-screen">
-                <Chessboard
+                <StaticChessboard
                     breakpoints={[
                         {
                             maxScreenSize: 768,
