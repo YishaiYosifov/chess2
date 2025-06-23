@@ -20,7 +20,7 @@ public static class AkkaDIExtensions
     {
         return builder.WithShardRegion<TActor>(
             name,
-            (_, _, resolver) => s => resolver.Props<TActor>(),
+            (_, _, resolver) => s => resolver.Props<TActor>(s),
             new MatchmakingShardExtractor(shardCount),
             new ShardOptions()
             {

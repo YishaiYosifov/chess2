@@ -73,23 +73,27 @@ public class GameActor : ReceiveActor
         _game.InitializeGame();
 
         Sender.Tell(new GameEvents.GameStartedEvent());
-        Become(() => Playing(players));
+        Become(() => Playing(players, startGame.TimeControl));
     }
 
-    private void Playing(PlayerRoster players)
+    private void Playing(PlayerRoster players, TimeControlSettings timeControl)
     {
         Receive<GameQueries.GetGameStatus>(_ =>
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
 
         Receive<GameQueries.GetGameState>(getGameState =>
-            HandleGetGameState(getGameState, players)
+            HandleGetGameState(getGameState, players, timeControl)
         );
 
         Receive<GameCommands.MovePiece>(movePiece => HandleMovePiece(movePiece, players));
     }
 
-    private void HandleGetGameState(GameQueries.GetGameState getGameState, PlayerRoster players)
+    private void HandleGetGameState(
+        GameQueries.GetGameState getGameState,
+        PlayerRoster players,
+        TimeControlSettings timeControl
+    )
     {
         var player = players.IdToPlayer.GetValueOrDefault(getGameState.ForUserId);
         if (player is null)
@@ -111,7 +115,7 @@ public class GameActor : ReceiveActor
             Fen: _game.Fen,
             MoveHistory: _game.EncodedMoveHistory,
             LegalMoves: legalMoves,
-            TimeControl: new(1, 2) // TODO!! replace with actual time control
+            TimeControl: timeControl
         );
 
         Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameStateDto));
