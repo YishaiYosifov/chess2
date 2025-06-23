@@ -40,6 +40,7 @@ const LiveChessboard = ({
             : gameState.playerBlack;
 
     const [moveHistory, setMoveHistory] = useState<Move[]>(decodedMoveHistory);
+    const [viewingFrom, setViewingFrom] = useState<GameColor>(playingAs.color);
 
     async function refetchGame() {
         const { error, data } = await getLiveGame({ path: { gameToken } });
@@ -90,7 +91,13 @@ const LiveChessboard = ({
 
     return (
         <div className="flex flex-col gap-3">
-            <LiveChessboardProfile />
+            <LiveChessboardProfile
+                player={
+                    viewingFrom == GameColor.WHITE
+                        ? gameState.playerBlack
+                        : gameState.playerWhite
+                }
+            />
             <Chessboard
                 breakpoints={[
                     {
@@ -109,8 +116,15 @@ const LiveChessboard = ({
                 legalMoves={decodedLegalMoves}
                 playingAs={playingAs.color}
                 sideToMove={gameState.sideToMove}
+                viewingFrom={viewingFrom}
             />
-            <LiveChessboardProfile />
+            <LiveChessboardProfile
+                player={
+                    viewingFrom == GameColor.WHITE
+                        ? gameState.playerWhite
+                        : gameState.playerBlack
+                }
+            />
         </div>
     );
 };
