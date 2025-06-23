@@ -15,7 +15,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task Connecting_without_access_token_throws_error()
     {
-        var act = async () => await CreateSignalRConnectionAsync(MatchmakingHubPath);
+        var act = async () => await ConnectSignalRAsync(MatchmakingHubPath);
         await act.Should().ThrowAsync<HttpRequestException>().WithMessage("*Unauthorized*");
     }
 
