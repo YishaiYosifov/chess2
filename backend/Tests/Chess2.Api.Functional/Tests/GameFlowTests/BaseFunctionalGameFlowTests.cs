@@ -12,20 +12,21 @@ public abstract class BaseFunctionalGameFlowTests(Chess2WebApplicationFactory fa
     protected const string SeekCasualMethod = "SeekCasualAsync";
     protected const string SeekRatedMethod = "SeekRatedAsync";
 
-    protected static async Task AssertPlayersMatchAsync(
+    protected static async Task<string> AssertPlayersMatchAsync(
         HubConnection conn1,
         HubConnection conn2,
-        string methodName,
-        TimeControlSettings timeControl
+        TimeControlSettings timeControl,
+        string methodName
     )
     {
         await conn1.InvokeAsync(methodName, timeControl);
         await conn2.InvokeAsync(methodName, timeControl);
 
-        await AssertMatchEstablishedAsync(conn1, conn2);
+        var gameToken = await AssertMatchEstablishedAsync(conn1, conn2);
+        return gameToken;
     }
 
-    protected static async Task AssertMatchEstablishedAsync(
+    protected static async Task<string> AssertMatchEstablishedAsync(
         HubConnection conn1,
         HubConnection conn2
     )
@@ -34,10 +35,12 @@ public abstract class BaseFunctionalGameFlowTests(Chess2WebApplicationFactory fa
         var tcs2 = ListenForMatch(conn2);
 
         var timeout = TimeSpan.FromSeconds(10);
-        var gameId1 = await tcs1.Task.WaitAsync(timeout, CT);
-        var gameId2 = await tcs2.Task.WaitAsync(timeout, CT);
+        var gameToken1 = await tcs1.Task.WaitAsync(timeout, CT);
+        var gameToken2 = await tcs2.Task.WaitAsync(timeout, CT);
 
-        gameId1.Should().NotBeNullOrEmpty().And.HaveLength(16).And.Be(gameId2);
+        gameToken1.Should().NotBeNullOrEmpty().And.HaveLength(16).And.Be(gameToken2);
+
+        return gameToken1;
     }
 
     protected static TaskCompletionSource<string> ListenForMatch(HubConnection conn)
