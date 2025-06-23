@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Infrastructure.SignalR;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -28,7 +29,12 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await using var conn1 = await ConnectGuestAsync("guest1");
         await using var conn2 = await ConnectGuestAsync("guest2");
 
-        await AssertPlayersMatchAsync(conn1, conn2, SeekCasualMethod, 10, 0);
+        await AssertPlayersMatchAsync(
+            conn1,
+            conn2,
+            SeekCasualMethod,
+            new TimeControlSettings(600, 0)
+        );
     }
 
     [Fact]
@@ -40,7 +46,12 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await using var conn1 = await ConnectAuthedAsync(user1);
         await using var conn2 = await ConnectAuthedAsync(user2);
 
-        await AssertPlayersMatchAsync(conn1, conn2, SeekRatedMethod, 5, 10);
+        await AssertPlayersMatchAsync(
+            conn1,
+            conn2,
+            SeekRatedMethod,
+            new TimeControlSettings(300, 10)
+        );
     }
 
     [Fact]
@@ -51,12 +62,19 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await using var conn1 = await ConnectAuthedAsync(authedUser);
         await using var conn2 = await ConnectGuestAsync("guest1");
 
-        await AssertPlayersMatchAsync(conn1, conn2, SeekCasualMethod, 15, 3);
+        await AssertPlayersMatchAsync(
+            conn1,
+            conn2,
+            SeekCasualMethod,
+            new TimeControlSettings(900, 3)
+        );
     }
 
     [Fact]
     public async Task SeekRatedAsync_and_SeekCasualAsync_with_multiple_concurrent_user_pairs()
     {
+        var timeControl = new TimeControlSettings(600, 5);
+
         var user1Match1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var user2Match1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
@@ -76,22 +94,19 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
             conn1Match1,
             conn2Match1,
             SeekRatedMethod,
-            10,
-            5
+            timeControl
         );
         var match2AssertTask = AssertPlayersMatchAsync(
             conn1Match2,
             conn2Match2,
             SeekRatedMethod,
-            5,
-            3
+            timeControl
         );
         var match3AssertTask = AssertPlayersMatchAsync(
             conn1Match3,
             conn2Match3,
             SeekCasualMethod,
-            5,
-            3
+            timeControl
         );
 
         await Task.WhenAll(match1AssertTask, match2AssertTask, match3AssertTask);
@@ -105,7 +120,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         var tsc = new TaskCompletionSource<IEnumerable<SignalRError>>();
         conn.On<IEnumerable<SignalRError>>("ReceiveErrorAsync", errors => tsc.TrySetResult(errors));
 
-        await conn.InvokeAsync(SeekRatedMethod, 5, 10, CT);
+        await conn.InvokeAsync(SeekRatedMethod, new TimeControlSettings(300, 10), CT);
 
         var result = await tsc.Task.WaitAsync(TimeSpan.FromSeconds(10), CT);
         result.Should().ContainSingle().Which.Code.Should().Be("General.Unauthorized");
@@ -114,15 +129,17 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task Seek_and_disconnect_cancels_the_seek()
     {
+        var timeControl = new TimeControlSettings(300, 10);
+
         await using var conn1 = await ConnectGuestAsync("guest1");
-        await conn1.InvokeAsync(SeekCasualMethod, 5, 10, CT);
+        await conn1.InvokeAsync(SeekCasualMethod, timeControl, CT);
         await conn1.StopAsync(CT);
 
         await using var conn2 = await ConnectGuestAsync("guest2");
         await using var conn3 = await ConnectGuestAsync("guest3");
 
         // users are matched in the order they connected, so if conn1 disconnects, conn2 and conn3 should match
-        await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, 5, 10);
+        await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, timeControl);
     }
 
     [Fact]
@@ -143,12 +160,11 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         HubConnection conn1,
         HubConnection conn2,
         string methodName,
-        int baseMinutes,
-        int increment
+        TimeControlSettings timeControl
     )
     {
-        await conn1.InvokeAsync(methodName, baseMinutes, increment);
-        await conn2.InvokeAsync(methodName, baseMinutes, increment);
+        await conn1.InvokeAsync(methodName, timeControl);
+        await conn2.InvokeAsync(methodName, timeControl);
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }

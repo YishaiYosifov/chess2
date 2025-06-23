@@ -16,7 +16,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
         const int rating = 1200;
 
         MatchmakingActor.Tell(
-            new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, PoolInfo),
+            new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, TimeControl),
             Probe
         );
         await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(
@@ -28,7 +28,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
     }
 
     protected override ICreateSeekCommand CreateSeekCommand(string userId) =>
-        new RatedMatchmakingCommands.CreateRatedSeek(userId, 1200, PoolInfo);
+        new RatedMatchmakingCommands.CreateRatedSeek(userId, 1200, TimeControl);
 
     protected override IActorRef CreateActor()
     {

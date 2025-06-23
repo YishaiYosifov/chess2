@@ -24,7 +24,7 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
     }
 
     protected override ICreateSeekCommand CreateSeekCommand(string userId) =>
-        new CasualMatchmakingCommands.CreateCasualSeek(userId, PoolInfo);
+        new CasualMatchmakingCommands.CreateCasualSeek(userId, TimeControl);
 
     protected override IActorRef CreateActor()
     {
