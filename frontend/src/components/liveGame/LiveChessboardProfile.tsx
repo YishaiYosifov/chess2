@@ -8,7 +8,16 @@ const LiveChessboardProfile = ({ player }: { player: GamePlayer }) => {
             <div className="flex items-center gap-3">
                 <ProfilePicture height={50} width={50} />
                 <Flag size={30} />
-                <span>{player.userName}</span>
+
+                <span className="font-medium text-white">
+                    {player.userName}
+                </span>
+
+                {player.rating && (
+                    <span className="w-fit rounded bg-white/10 px-2 py-0.5 text-xs text-white/80">
+                        {player.rating}
+                    </span>
+                )}
             </div>
             <span className="text-2xl">1:23:45</span>
         </div>
