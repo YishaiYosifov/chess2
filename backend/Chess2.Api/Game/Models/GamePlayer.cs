@@ -2,8 +2,4 @@
 
 namespace Chess2.Api.Game.Models;
 
-public class GamePlayer
-{
-    public required string UserId { get; init; }
-    public required GameColor Color { get; init; }
-}
+public record GamePlayer(string UserId, GameColor Color);
