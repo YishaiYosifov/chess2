@@ -1,6 +1,7 @@
 using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -19,12 +20,14 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 
     private readonly AppSettings _settings;
     private readonly IGameService _gameService;
+    private readonly TimeControlSettings _timeControl;
 
     private readonly Dictionary<string, IActorRef> _subscribers = [];
 
     public ITimerScheduler Timers { get; set; } = null!;
 
     public AbstractMatchmakingActor(
+        string entityId,
         IOptions<AppSettings> settings,
         TPool pool,
         IGameService gameService,
@@ -36,6 +39,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             Timers = timerScheduler;
         Pool = pool;
 
+        _timeControl = TimeControlSettings.FromShortString(entityId);
         _settings = settings.Value;
         _gameService = gameService;
         Receive<ICreateSeekCommand>(HandleCreateSeek);
@@ -97,7 +101,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
                 continue;
             }
 
-            var startGameTask = _gameService.StartGameAsync(seeker1, seeker2);
+            var startGameTask = _gameService.StartGameAsync(seeker1, seeker2, _timeControl);
             startGameTask.PipeTo(
                 seeker1Ref,
                 success: token => new MatchmakingEvents.MatchFound(token)

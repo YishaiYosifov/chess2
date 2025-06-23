@@ -9,11 +9,19 @@ using Microsoft.Extensions.Options;
 namespace Chess2.Api.Matchmaking.Actors;
 
 public class CasualMatchmakingActor(
+    string entityId,
     IOptions<AppSettings> settings,
     ICasualMatchmakingPool pool,
     IGameService gameService,
     ITimerScheduler? timerScheduler = null
-) : AbstractMatchmakingActor<ICasualMatchmakingPool>(settings, pool, gameService, timerScheduler)
+)
+    : AbstractMatchmakingActor<ICasualMatchmakingPool>(
+        entityId,
+        settings,
+        pool,
+        gameService,
+        timerScheduler
+    )
 {
     protected override bool EnterPool(ICreateSeekCommand createSeek)
     {

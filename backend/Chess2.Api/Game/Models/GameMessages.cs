@@ -16,7 +16,12 @@ public enum GameStatus
 
 public class GameCommands
 {
-    public record StartGame(string GameToken, string WhiteId, string BlackId) : IGameMessage;
+    public record StartGame(
+        string GameToken,
+        string WhiteId,
+        string BlackId,
+        TimeControlSettings TimeControl
+    ) : IGameMessage;
 
     public record MovePiece(string GameToken, string UserId, AlgebraicPoint From, AlgebraicPoint To)
         : IGameMessage;
