@@ -64,9 +64,6 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
         var player1 = players.First(x => x.UserId == user1.Id);
         var player2 = players.First(x => x.UserId == user2.Id);
 
-        player1.Should().NotBeNull();
-        player2.Should().NotBeNull();
-
         player1.UserName.Should().Be(user1.UserName);
         player1.Rating.Should().Be(user1Rating.Value);
 
