@@ -7,7 +7,7 @@ import {
     useMatchmakingEvent,
 } from "@/hooks/signalR/useSignalRHubs";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
-import React from "react";
+import React, { act } from "react";
 import userEvent from "@testing-library/user-event";
 import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 
@@ -16,7 +16,8 @@ vi.mock("@/hooks/signalR/useSignalRHubs");
 
 describe("PlayOptions", () => {
     const sendMatchmakingEventMock = vi.fn();
-    let matchFoundCallback: (token: string) => void;
+    let matchFoundCallback: ((token: string) => void) | undefined;
+    let matchFailedCallback: (() => void) | undefined;
 
     function mockIsAuthedCookie(isAuthed: boolean) {
         const cookieValue = isAuthed ? "true" : undefined;
@@ -30,6 +31,8 @@ describe("PlayOptions", () => {
             (eventName, callback) => {
                 if (eventName === "MatchFoundAsync")
                     matchFoundCallback = callback;
+                else if (eventName === "MatchFailedAsync")
+                    matchFailedCallback = callback;
             },
         );
 
@@ -67,11 +70,27 @@ describe("PlayOptions", () => {
 
         render(<PlayOptions />);
 
-        matchFoundCallback(testToken);
+        act(() => matchFoundCallback?.(testToken));
 
         expect(routerMock.push).toHaveBeenCalledWith(
             `${constants.PATHS.GAME}/${testToken}`,
         );
+    });
+
+    it("should stop seeking when MatchFailedAsync is triggered", async () => {
+        const user = userEvent.setup();
+        mockIsAuthedCookie(true);
+
+        render(<PlayOptions />);
+
+        const timeBtn = screen.getByText(
+            `${constants.TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.TIME_CONTROLS[0].settings.incrementSeconds}`,
+        );
+        await user.click(timeBtn);
+
+        expect(screen.getByTestId("seekingOverlay")).toBeInTheDocument();
+        act(() => matchFailedCallback?.());
+        expect(screen.queryByTestId("seekingOverlay")).not.toBeInTheDocument();
     });
 
     it("should call SeekRatedAsync when isRated is true", async () => {
