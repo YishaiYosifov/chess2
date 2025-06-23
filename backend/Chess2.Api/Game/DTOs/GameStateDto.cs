@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.ComponentModel;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
-using System.ComponentModel;
 
 namespace Chess2.Api.Game.DTOs;
 
@@ -11,5 +11,6 @@ public record GameStateDto(
     GameColor SideToMove,
     string Fen,
     IReadOnlyCollection<string> MoveHistory,
-    IReadOnlyCollection<string> LegalMoves
+    IReadOnlyCollection<string> LegalMoves,
+    TimeControlSettings TimeControl
 );

@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Matchmaking.Services;
@@ -10,6 +11,7 @@ namespace Chess2.Api.Matchmaking.SignalR;
 public interface IMatchmakingClient : IChess2HubClient
 {
     public Task MatchFoundAsync(string token);
+    public Task MatchFailedAsync();
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
@@ -23,7 +25,7 @@ public class MatchmakingHub(
     private readonly ILogger<MatchmakingHub> _logger = logger;
     private readonly IAuthService _authService = authService;
 
-    public async Task SeekRatedAsync(int baseMinutes, int increment)
+    public async Task SeekRatedAsync(TimeControlSettings timeControl)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -41,12 +43,11 @@ public class MatchmakingHub(
         await _matchmakingService.SeekRatedAsync(
             userResult.Value,
             Context.ConnectionId,
-            baseMinutes,
-            increment
+            timeControl
         );
     }
 
-    public async Task SeekCasualAsync(int baseMinutes, int increment)
+    public async Task SeekCasualAsync(TimeControlSettings timeControl)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -55,7 +56,7 @@ public class MatchmakingHub(
         }
 
         _logger.LogInformation("User {UserId} seeking casual match", userId);
-        _matchmakingService.SeekCasual(userId, Context.ConnectionId, baseMinutes, increment);
+        _matchmakingService.SeekCasual(userId, Context.ConnectionId, timeControl);
     }
 
     public async Task CancelSeekAsync()

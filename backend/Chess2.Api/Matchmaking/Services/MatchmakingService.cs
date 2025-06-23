@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Player.Actors;
 using Chess2.Api.Player.Models;
@@ -10,8 +11,8 @@ namespace Chess2.Api.Matchmaking.Services;
 
 public interface IMatchmakingService
 {
-    Task SeekRatedAsync(AuthedUser user, string connectionId, int baseMinutes, int increment);
-    void SeekCasual(string userId, string connectionId, int baseMinutes, int increment);
+    Task SeekRatedAsync(AuthedUser user, string connectionId, TimeControlSettings timeControl);
+    void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl);
     void CancelSeek(string userId, string? connectionId = null);
 }
 
@@ -28,29 +29,26 @@ public class MatchmakingService(
     public async Task SeekRatedAsync(
         AuthedUser user,
         string connectionId,
-        int baseMinutes,
-        int increment
+        TimeControlSettings timeControl
     )
     {
         var rating = await _ratingService.GetOrCreateRatingAsync(
             user,
-            _secondsToTimeControl.FromSeconds(baseMinutes)
+            _secondsToTimeControl.FromSeconds(timeControl.BaseSeconds)
         );
 
-        var poolInfo = new PoolInfo(baseMinutes, increment);
         var poolCommand = new RatedMatchmakingCommands.CreateRatedSeek(
             user.Id,
             rating.Value,
-            poolInfo
+            timeControl
         );
         var playerCommand = new PlayerCommands.CreateSeek(user.Id, connectionId, poolCommand);
         _playerActor.ActorRef.Tell(playerCommand);
     }
 
-    public void SeekCasual(string userId, string connectionId, int baseMinutes, int increment)
+    public void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl)
     {
-        var poolInfo = new PoolInfo(baseMinutes, increment);
-        var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, poolInfo);
+        var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, timeControl);
         var playerCommand = new PlayerCommands.CreateSeek(userId, connectionId, poolCommand);
         _playerActor.ActorRef.Tell(playerCommand);
     }
