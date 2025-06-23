@@ -31,6 +31,7 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
         var props = Props.Create(
             () =>
                 new CasualMatchmakingActor(
+                    TimeControl.ToShortString(),
                     Options.Create(Settings),
                     PoolMock,
                     GameServiceMock,
