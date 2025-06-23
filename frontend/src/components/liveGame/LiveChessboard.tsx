@@ -11,7 +11,7 @@ import {
 } from "@/lib/chessDecoders/moveDecoder";
 import { GameColor, GameState, getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import ProfilePicture from "../profile/ProfilePicture";
+import LiveChessboardProfile from "./LiveChessboardProfile";
 
 const LiveChessboard = ({
     gameToken,
@@ -90,27 +90,27 @@ const LiveChessboard = ({
 
     return (
         <div className="flex flex-col gap-3">
-            {/* <ProfilePicture height={50} width={50} /> */}
+            <LiveChessboardProfile />
             <Chessboard
+                breakpoints={[
+                    {
+                        maxScreenSize: 767,
+                        paddingOffset: { width: 40, height: 258 },
+                    },
+                    {
+                        maxScreenSize: 1024,
+                        paddingOffset: { width: 200, height: 198 },
+                    },
+                ]}
+                defaultOffset={{ width: 626, height: 148 }}
                 ref={chessboardRef}
                 onPieceMovement={sendMove}
                 startingPieces={decodedFen}
                 legalMoves={decodedLegalMoves}
                 playingAs={playingAs.color}
                 sideToMove={gameState.sideToMove}
-                breakpoints={[
-                    {
-                        maxScreenSize: 768,
-                        paddingOffset: { width: 40, height: 110 },
-                    },
-                    {
-                        maxScreenSize: 1024,
-                        paddingOffset: { width: 200, height: 50 },
-                    },
-                ]}
-                defaultOffset={{ width: 626, height: 100 }}
             />
-            {/* <ProfilePicture height={50} width={50} /> */}
+            <LiveChessboardProfile />
         </div>
     );
 };
