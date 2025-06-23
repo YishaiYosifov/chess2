@@ -145,13 +145,15 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task Seek_and_disconnect_on_another_connection_doesnt_cancel_the_seek()
     {
+        var timeControl = new TimeControlSettings(300, 10);
+
         await using var guest1ActiveConn = await ConnectGuestAsync("guest1");
         await using var guest1DisconnectedConn = await ConnectGuestAsync("guest1");
-        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, 5, 10, CT);
+        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, timeControl, CT);
         await guest1DisconnectedConn.StopAsync(CT);
 
         await using var guest2Conn = await ConnectGuestAsync("guest2");
-        await guest2Conn.InvokeAsync(SeekCasualMethod, 5, 10, CT);
+        await guest2Conn.InvokeAsync(SeekCasualMethod, timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
     }
