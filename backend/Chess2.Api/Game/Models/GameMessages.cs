@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.DTOs;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Models;
 
@@ -44,7 +43,7 @@ public class GameEvents
 
     public record GameStatusEvent(GameStatus Status);
 
-    public record GameStateEvent(GameStateDto State);
+    public record GameStateEvent(GameState State);
 
     public record PieceMoved(
         string Move,

@@ -5,7 +5,10 @@ using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.UserRating.Services;
+using Chess2.Api.Users.Entities;
 using ErrorOr;
+using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Game.Services;
 
@@ -29,12 +32,16 @@ public interface IGameService
 public class GameService(
     ILogger<GameService> logger,
     IRequiredActor<GameActor> gameActor,
-    IGameTokenGenerator gameTokenGenerator
+    IGameTokenGenerator gameTokenGenerator,
+    UserManager<AuthedUser> userManager,
+    IRatingService ratingService
 ) : IGameService
 {
     private readonly ILogger<GameService> _logger = logger;
     private readonly IRequiredActor<GameActor> _gameActor = gameActor;
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
+    private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly IRatingService _ratingService = ratingService;
 
     public async Task<string> StartGameAsync(
         string userId1,
@@ -65,14 +72,18 @@ public class GameService(
         if (gameStartedResult.IsError)
             return gameStartedResult.Errors;
 
-        var state = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameStateEvent>>(
+        var stateResult = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameStateEvent>>(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
-        if (state.IsError)
-            return state.Errors;
+        if (stateResult.IsError)
+            return stateResult.Errors;
+        var state = stateResult.Value.State;
 
-        return state.Value.State;
+        var white = await EnrichGamePlayerAsync(state.PlayerWhite, state.TimeControl);
+        var black = await EnrichGamePlayerAsync(state.PlayerBlack, state.TimeControl);
+
+        return new GameStateDto(white, black, state);
     }
 
     public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
@@ -107,5 +118,22 @@ public class GameService(
         return gameStatus.Status is GameStatus.NotStarted
             ? GameErrors.GameNotFound
             : Result.Success;
+    }
+
+    private async Task<GamePlayerDto> EnrichGamePlayerAsync(
+        GamePlayer player,
+        TimeControlSettings timeControl
+    )
+    {
+        var user = await _userManager.FindByIdAsync(player.UserId);
+        var rating = user is not null
+            ? await _ratingService.GetOrCreateRatingAsync(user, timeControl)
+            : null;
+
+        return new GamePlayerDto(
+            player,
+            UserName: user?.UserName ?? "Guest",
+            Rating: rating?.Value
+        );
     }
 }
