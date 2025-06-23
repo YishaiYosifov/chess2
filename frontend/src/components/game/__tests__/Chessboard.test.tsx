@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 import { PieceMap, PieceType } from "@/types/tempModels";
-import Chessboard from "../Chessboard";
+import StaticChessboard from "../StaticChessboard";
 import { GameColor } from "@/lib/apiClient";
 
 vi.mock("@/lib/constants", async (importOriginal) => ({
@@ -46,7 +46,10 @@ describe("Chessboard", () => {
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {
             render(
-                <Chessboard startingPieces={mockBoard} viewingFrom={side} />,
+                <StaticChessboard
+                    startingPieces={mockBoard}
+                    viewingFrom={side}
+                />,
             );
 
             const piece = screen.getAllByTestId("piece")[0];
@@ -102,7 +105,7 @@ describe("Chessboard", () => {
         "should resize board on window resize with different breakpoints",
         async (width, breakpoints, defaultOffset, expectedSize) => {
             render(
-                <Chessboard
+                <StaticChessboard
                     breakpoints={breakpoints}
                     defaultOffset={defaultOffset}
                 />,
