@@ -9,6 +9,7 @@ import { GameColor, TimeControlSettings } from "@/lib/apiClient";
 
 type MatchmakingClientEvents = {
     MatchFoundAsync: [token: string];
+    MatchFailedAsync: [];
 };
 
 type MatchmakingHubEvents = {
