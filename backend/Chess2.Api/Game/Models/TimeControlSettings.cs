@@ -7,6 +7,8 @@ public readonly record struct TimeControlSettings(int BaseSeconds, int Increment
         return $"{BaseSeconds}+{IncrementSeconds}";
     }
 
+    public override string ToString() => ToShortString();
+
     public static TimeControlSettings FromShortString(string value)
     {
         var parts = value.Split('+');
