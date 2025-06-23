@@ -4,7 +4,7 @@ const Flag = ({
     countryCode,
     size,
 }: {
-    countryCode?: string;
+    countryCode?: string | null;
     size: number;
 }) => {
     if (!countryCode)
