@@ -55,7 +55,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         _subscribers.TryAdd(createSeek.UserId, Sender);
         Context.WatchWith(
             Sender,
-            new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.PoolInfo)
+            new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.TimeControl)
         );
         Context.System.EventStream.Publish(
             new MatchmakingBroadcasts.SeekCreated(createSeek.UserId)
