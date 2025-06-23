@@ -30,6 +30,7 @@ const PlayOptions = () => {
     useMatchmakingEvent("MatchFoundAsync", (token) =>
         router.push(`${constants.PATHS.GAME}/${token}`),
     );
+    useMatchmakingEvent("MatchFailedAsync", () => setIsSeeking(false));
 
     useEffect(() => {
         const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
