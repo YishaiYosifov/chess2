@@ -61,7 +61,7 @@ const LiveChessboard = ({
             moveNumber: number,
         ) => {
             // we missed a move... we need to refetch the state
-            const { moveHistory, setMoveHistory } =
+            const { moveHistory, addMoveToHistory } =
                 useLiveChessboardStore.getState();
             if (moveNumber != moveHistory.length + 1) {
                 await refetchGame();
@@ -70,7 +70,7 @@ const LiveChessboard = ({
 
             const decodedMove = decodeSingleMove(move);
             const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
-            setMoveHistory([...moveHistory, decodedMove]);
+            addMoveToHistory(decodedMove);
 
             chessboardStore
                 .getState()
