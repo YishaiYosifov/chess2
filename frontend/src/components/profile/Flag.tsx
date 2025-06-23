@@ -7,7 +7,15 @@ const Flag = ({
     countryCode?: string;
     size: number;
 }) => {
-    if (!countryCode) return;
+    if (!countryCode)
+        return (
+            <Image
+                src="/assets/flags/international.svg"
+                alt="flag"
+                width={size}
+                height={size}
+            />
+        );
 
     return (
         <Image
