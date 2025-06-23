@@ -1,9 +1,8 @@
 "use client";
 
-import { Move, Point } from "@/types/tempModels";
-import Chessboard, { ChessboardRef } from "../game/Chessboard";
+import { Point } from "@/types/tempModels";
 import { useGameEmitter, useGameEvent } from "@/hooks/signalR/useSignalRHubs";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 import {
     decodeMoves,
     decodeMovesIntoMap,
@@ -11,7 +10,13 @@ import {
 } from "@/lib/chessDecoders/moveDecoder";
 import { GameColor, GameState, getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import LiveChessboardProfile from "./LiveChessboardProfile";
+import LiveChessboardProfile, {
+    ProfileSide as ChessProfileSide,
+} from "./LiveChessboardProfile";
+import useLiveChessboardStore from "@/stores/liveChessboardStore";
+import ChessboardLayout from "../game/ChessboardLayout";
+import { createChessboardStore } from "@/stores/chessboardStore";
+import { ChessStoreContext } from "@/contexts/chessStoreContext";
 
 const LiveChessboard = ({
     gameToken,
@@ -22,25 +27,10 @@ const LiveChessboard = ({
     gameState: GameState;
     userId: string;
 }) => {
-    const chessboardRef = useRef<ChessboardRef>(null);
-
-    const decodedLegalMoves = useMemo(
-        () => decodeMovesIntoMap(gameState.legalMoves),
-        [gameState.legalMoves],
-    );
-    const decodedMoveHistory = useMemo(
-        () => decodeMoves(gameState.moveHistory),
-        [gameState.moveHistory],
-    );
-    const decodedFen = useMemo(() => decodeFen(gameState.fen), [gameState.fen]);
-
     const playingAs =
         userId == gameState.playerWhite.userId
             ? gameState.playerWhite
             : gameState.playerBlack;
-
-    const [moveHistory, setMoveHistory] = useState<Move[]>(decodedMoveHistory);
-    const [viewingFrom, setViewingFrom] = useState<GameColor>(playingAs.color);
 
     async function refetchGame() {
         const { error, data } = await getLiveGame({ path: { gameToken } });
@@ -51,9 +41,12 @@ const LiveChessboard = ({
 
         const pieces = decodeFen(data.fen);
         const legalMoves = decodeMovesIntoMap(data.legalMoves);
-        chessboardRef.current?.resetState(pieces, legalMoves, data.sideToMove);
+        chessboardStore
+            .getState()
+            .resetState(pieces, legalMoves, data.sideToMove);
 
         const moveHistory = decodeMoves(data.moveHistory);
+        const { setMoveHistory } = useLiveChessboardStore.getState();
         setMoveHistory(moveHistory);
     }
 
@@ -68,6 +61,8 @@ const LiveChessboard = ({
             moveNumber: number,
         ) => {
             // we missed a move... we need to refetch the state
+            const { moveHistory, setMoveHistory } =
+                useLiveChessboardStore.getState();
             if (moveNumber != moveHistory.length + 1) {
                 await refetchGame();
                 return;
@@ -75,57 +70,72 @@ const LiveChessboard = ({
 
             const decodedMove = decodeSingleMove(move);
             const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
-            setMoveHistory((last) => [...last, decodedMove]);
+            setMoveHistory([...moveHistory, decodedMove]);
 
-            chessboardRef.current?.playTurn(
-                decodedLegalMoves,
-                sideToMove,
-                sideToMove == playingAs.color ? decodedMove : undefined,
-            );
+            chessboardStore
+                .getState()
+                .playTurn(
+                    decodedLegalMoves,
+                    sideToMove,
+                    sideToMove == playingAs.color ? decodedMove : undefined,
+                );
         },
     );
 
-    async function sendMove(from: Point, to: Point) {
-        await sendGameEvent("MovePieceAsync", gameToken, from, to);
-    }
+    const sendMove = useCallback(
+        async (from: Point, to: Point) => {
+            await sendGameEvent("MovePieceAsync", gameToken, from, to);
+        },
+        [sendGameEvent, gameToken],
+    );
+
+    const chessboardStore = useMemo(() => {
+        const decodedLegalMoves = decodeMovesIntoMap(gameState.legalMoves);
+        const decodedFen = decodeFen(gameState.fen);
+
+        return createChessboardStore({
+            pieces: decodedFen,
+            legalMoves: decodedLegalMoves,
+
+            viewingFrom: playingAs.color,
+            playingAs: playingAs.color,
+
+            sideToMove: gameState.sideToMove,
+            onPieceMovement: sendMove,
+        });
+    }, [gameState, sendMove, playingAs.color]);
+
+    useEffect(() => {
+        const decodedMoveHistory = decodeMoves(gameState.moveHistory);
+        const { setMoveHistory, setPlayers } =
+            useLiveChessboardStore.getState();
+
+        setMoveHistory(decodedMoveHistory);
+        setPlayers(gameState.playerWhite, gameState.playerBlack);
+    }, [gameState, playingAs.color]);
 
     return (
-        <div className="flex flex-col gap-3">
-            <LiveChessboardProfile
-                player={
-                    viewingFrom == GameColor.WHITE
-                        ? gameState.playerBlack
-                        : gameState.playerWhite
-                }
-            />
-            <Chessboard
-                breakpoints={[
-                    {
-                        maxScreenSize: 767,
-                        paddingOffset: { width: 40, height: 258 },
-                    },
-                    {
-                        maxScreenSize: 1024,
-                        paddingOffset: { width: 200, height: 198 },
-                    },
-                ]}
-                defaultOffset={{ width: 626, height: 148 }}
-                ref={chessboardRef}
-                onPieceMovement={sendMove}
-                startingPieces={decodedFen}
-                legalMoves={decodedLegalMoves}
-                playingAs={playingAs.color}
-                sideToMove={gameState.sideToMove}
-                viewingFrom={viewingFrom}
-            />
-            <LiveChessboardProfile
-                player={
-                    viewingFrom == GameColor.WHITE
-                        ? gameState.playerWhite
-                        : gameState.playerBlack
-                }
-            />
-        </div>
+        <ChessStoreContext.Provider value={chessboardStore}>
+            <div className="flex flex-col gap-3">
+                <LiveChessboardProfile side={ChessProfileSide.Opponent} />
+                <ChessboardLayout
+                    breakpoints={[
+                        {
+                            maxScreenSize: 767,
+                            paddingOffset: { width: 40, height: 258 },
+                        },
+                        {
+                            maxScreenSize: 1024,
+                            paddingOffset: { width: 200, height: 198 },
+                        },
+                    ]}
+                    defaultOffset={{ width: 626, height: 148 }}
+                />
+                <LiveChessboardProfile
+                    side={ChessProfileSide.CurrentlyPlaying}
+                />
+            </div>
+        </ChessStoreContext.Provider>
     );
 };
 export default LiveChessboard;
