@@ -8,6 +8,10 @@ namespace Chess2.Api.Functional.Tests.GameFlowTests;
 public abstract class BaseFunctionalGameFlowTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
 {
+    protected const string MatchmakingHubPath = "/api/hub/matchmaking";
+    protected const string SeekCasualMethod = "SeekCasualAsync";
+    protected const string SeekRatedMethod = "SeekRatedAsync";
+
     protected static async Task AssertPlayersMatchAsync(
         HubConnection conn1,
         HubConnection conn2,

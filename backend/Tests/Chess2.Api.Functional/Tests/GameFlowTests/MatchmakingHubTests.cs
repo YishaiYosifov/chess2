@@ -12,22 +12,18 @@ namespace Chess2.Api.Functional.Tests.GameFlowTests;
 public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalGameFlowTests(factory)
 {
-    private const string HubPath = "/api/hub/matchmaking";
-    private const string SeekCasualMethod = "SeekCasualAsync";
-    private const string SeekRatedMethod = "SeekRatedAsync";
-
     [Fact]
     public async Task Connecting_without_access_token_throws_error()
     {
-        var act = async () => await CreateSignalRConnectionAsync(HubPath);
+        var act = async () => await CreateSignalRConnectionAsync(MatchmakingHubPath);
         await act.Should().ThrowAsync<HttpRequestException>().WithMessage("*Unauthorized*");
     }
 
     [Fact]
     public async Task SeekCasualAsync_guest_vs_guest_matches()
     {
-        await using var conn1 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest2");
+        await using var conn1 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
+        await using var conn2 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
 
         await AssertPlayersMatchAsync(
             conn1,
@@ -43,8 +39,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         var user1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var user2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await using var conn1 = await ConnectSignalRAuthedAsync(HubPath, user1);
-        await using var conn2 = await ConnectSignalRAuthedAsync(HubPath, user2);
+        await using var conn1 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, user1);
+        await using var conn2 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, user2);
 
         await AssertPlayersMatchAsync(
             conn1,
@@ -59,8 +55,8 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     {
         var authedUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await using var conn1 = await ConnectSignalRAuthedAsync(HubPath, authedUser);
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest1");
+        await using var conn1 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, authedUser);
+        await using var conn2 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
 
         await AssertPlayersMatchAsync(
             conn1,
@@ -81,14 +77,26 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
         var user1Match2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var user2Match2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await using var conn1Match1 = await ConnectSignalRAuthedAsync(HubPath, user1Match1);
-        await using var conn2Match1 = await ConnectSignalRAuthedAsync(HubPath, user2Match1);
+        await using var conn1Match1 = await ConnectSignalRAuthedAsync(
+            MatchmakingHubPath,
+            user1Match1
+        );
+        await using var conn2Match1 = await ConnectSignalRAuthedAsync(
+            MatchmakingHubPath,
+            user2Match1
+        );
 
-        await using var conn1Match2 = await ConnectSignalRAuthedAsync(HubPath, user1Match2);
-        await using var conn2Match2 = await ConnectSignalRAuthedAsync(HubPath, user2Match2);
+        await using var conn1Match2 = await ConnectSignalRAuthedAsync(
+            MatchmakingHubPath,
+            user1Match2
+        );
+        await using var conn2Match2 = await ConnectSignalRAuthedAsync(
+            MatchmakingHubPath,
+            user2Match2
+        );
 
-        await using var conn1Match3 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var conn2Match3 = await ConnectSignalRGuestAsync(HubPath, "guest2");
+        await using var conn1Match3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
+        await using var conn2Match3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
 
         var match1AssertTask = AssertPlayersMatchAsync(
             conn1Match1,
@@ -115,7 +123,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task SeekRated_with_a_guest_should_return_an_error()
     {
-        var conn = await ConnectSignalRGuestAsync(HubPath, "guest1");
+        var conn = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
 
         var tsc = new TaskCompletionSource<IEnumerable<SignalRError>>();
         conn.On<IEnumerable<SignalRError>>("ReceiveErrorAsync", errors => tsc.TrySetResult(errors));
@@ -131,12 +139,12 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     {
         var timeControl = new TimeControlSettings(300, 10);
 
-        await using var conn1 = await ConnectSignalRGuestAsync(HubPath, "guest1");
+        await using var conn1 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
         await conn1.InvokeAsync(SeekCasualMethod, timeControl, CT);
         await conn1.StopAsync(CT);
 
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest2");
-        await using var conn3 = await ConnectSignalRGuestAsync(HubPath, "guest3");
+        await using var conn2 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
+        await using var conn3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest3");
 
         // users are matched in the order they connected, so if conn1 disconnects, conn2 and conn3 should match
         await AssertPlayersMatchAsync(conn2, conn3, SeekCasualMethod, timeControl);
@@ -147,12 +155,18 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory)
     {
         var timeControl = new TimeControlSettings(300, 10);
 
-        await using var guest1ActiveConn = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var guest1DisconnectedConn = await ConnectSignalRGuestAsync(HubPath, "guest1");
+        await using var guest1ActiveConn = await ConnectSignalRGuestAsync(
+            MatchmakingHubPath,
+            "guest1"
+        );
+        await using var guest1DisconnectedConn = await ConnectSignalRGuestAsync(
+            MatchmakingHubPath,
+            "guest1"
+        );
         await guest1ActiveConn.InvokeAsync(SeekCasualMethod, timeControl, CT);
         await guest1DisconnectedConn.StopAsync(CT);
 
-        await using var guest2Conn = await ConnectSignalRGuestAsync(HubPath, "guest2");
+        await using var guest2Conn = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
         await guest2Conn.InvokeAsync(SeekCasualMethod, timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
