@@ -15,6 +15,7 @@ namespace Chess2.Api.Unit.Tests.GameTests;
 public class GameActorTests : BaseActorTest
 {
     private const string TestGameToken = "testtoken";
+    private readonly TimeControlSettings _timeControl = new(600, 5);
 
     private readonly IGame _gameMock = Substitute.For<IGame>();
 
@@ -92,6 +93,7 @@ public class GameActorTests : BaseActorTest
         result.Value.State.Fen.Should().Be("some-fen");
         result.Value.State.MoveHistory.Should().ContainSingle("e2e4");
         result.Value.State.LegalMoves.Should().ContainSingle("e2e4");
+        result.Value.State.TimeControl.Should().Be(_timeControl);
     }
 
     [Fact]
@@ -187,13 +189,12 @@ public class GameActorTests : BaseActorTest
 
     private async Task StartGameAsync(string whiteId, string blackId)
     {
-        var timeControl = new TimeControlSettings(600, 5);
         _gameActor.Tell(
             new GameCommands.StartGame(
                 TestGameToken,
                 WhiteId: whiteId,
                 BlackId: blackId,
-                TimeControl: timeControl
+                TimeControl: _timeControl
             ),
             _probe.Ref
         );
