@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Auth.DTOs;
+using Chess2.Api.Game.DTOs;
 using Chess2.Api.Users.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Refit;
@@ -41,5 +42,10 @@ public interface IChess2Api
     [Put("/api/profile/edit-username")]
     [Headers("Content-Type: application/json; charset=utf-8")]
     Task<IApiResponse<PrivateUserOut>> EditUsernameAsync([Body] string newUsername);
+    #endregion
+
+    #region Game Controller
+    [Get("/api/game/live/{gameToken}")]
+    Task<IApiResponse<GameStateDto>> GetLiveGameAsync([AliasAs("gameToken")] string gameToken);
     #endregion
 }
