@@ -32,9 +32,9 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
             () =>
                 new CasualMatchmakingActor(
                     TimeControl.ToShortString(),
+                    ServiceProviderMock,
                     Options.Create(Settings),
                     PoolMock,
-                    GameServiceMock,
                     TimerMock
                 )
         );

@@ -313,7 +313,7 @@ builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 
-builder.Services.AddSingleton<IGameService, GameService>();
+builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGame, Game>();
 

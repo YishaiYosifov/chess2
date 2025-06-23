@@ -21,7 +21,7 @@ public class RatingRepository(ApplicationDbContext dbContext) : IRatingRepositor
         TimeControl timeControl
     ) =>
         await _dbContext
-            .Ratings.Where(rating => rating.User == user && rating.TimeControl == timeControl)
+            .Ratings.Where(rating => rating.User.Id == user.Id && rating.TimeControl == timeControl)
             .SingleOrDefaultAsync();
 
     public async Task AddRatingAsync(Rating rating, AuthedUser user)
