@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.TestKit;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -19,7 +20,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     protected IActorRef MatchmakingActor { get; }
     protected TestProbe Probe { get; }
 
-    protected PoolInfo PoolInfo { get; } = new(10, 5);
+    protected TimeControlSettings TimeControl { get; } = new(600, 5);
     protected AppSettings Settings { get; } = AppSettingsLoader.LoadAppSettings();
 
     protected abstract IActorRef CreateActor();
@@ -62,7 +63,10 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
 
         MatchmakingActor.Tell(CreateSeekCommand(userIdToKeep), Probe);
         MatchmakingActor.Tell(CreateSeekCommand(userIdToRemove), Probe);
-        MatchmakingActor.Tell(new MatchmakingCommands.CancelSeek(userIdToRemove, PoolInfo), Probe);
+        MatchmakingActor.Tell(
+            new MatchmakingCommands.CancelSeek(userIdToRemove, TimeControl),
+            Probe
+        );
 
         var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(
             x => x.UserId == userIdToRemove,

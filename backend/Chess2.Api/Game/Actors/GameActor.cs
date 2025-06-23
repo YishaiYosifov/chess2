@@ -110,7 +110,8 @@ public class GameActor : ReceiveActor
             SideToMove: players.SideToMove,
             Fen: _game.Fen,
             MoveHistory: _game.EncodedMoveHistory,
-            LegalMoves: legalMoves
+            LegalMoves: legalMoves,
+            TimeControl: new(1, 2) // TODO!! replace with actual time control
         );
 
         Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameStateDto));
