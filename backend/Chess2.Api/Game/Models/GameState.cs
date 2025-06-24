@@ -3,8 +3,8 @@
 namespace Chess2.Api.Game.Models;
 
 public record GameState(
-    GamePlayer PlayerWhite,
-    GamePlayer PlayerBlack,
+    GamePlayer WhitePlayer,
+    GamePlayer BlackPlayer,
     GameColor SideToMove,
     string Fen,
     IReadOnlyCollection<string> MoveHistory,
