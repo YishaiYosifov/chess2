@@ -1,14 +1,16 @@
-﻿using System.Net;
-using Chess2.Api.Auth.Services;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
 public record TestAuthResult(AuthedUser User, string? AccessToken, string? RefreshToken);
+
+public record TestGuestResult(string UserId, string AccessToken);
 
 public class AuthTestUtils(
     ITokenProvider tokenProvider,
@@ -132,5 +134,13 @@ public class AuthTestUtils(
         );
 
         return authResult;
+    }
+
+    public TestGuestResult AuthenticateGuest(ApiClient apiClient, string guestId)
+    {
+        var accessToken = _tokenProvider.GenerateGuestToken(guestId);
+        AuthenticateWithTokens(apiClient, accessToken);
+
+        return new(guestId, accessToken);
     }
 }
