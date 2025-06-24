@@ -10,6 +10,7 @@ public interface IGameCore
     string Fen { get; }
     IReadOnlyCollection<string> EncodedMoveHistory { get; }
     int MoveNumber { get; }
+    GameColor SideToMove { get; }
 
     void InitializeGame();
     IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor);
@@ -42,6 +43,7 @@ public class GameCore(
     public string Fen { get; private set; } = "";
     public IReadOnlyCollection<string> EncodedMoveHistory => _encodedMoveHistory.AsReadOnly();
     public int MoveNumber => EncodedMoveHistory.Count;
+    public GameColor SideToMove => MoveNumber % 2 == 0 ? GameColor.White : GameColor.Black;
 
     public void InitializeGame()
     {
