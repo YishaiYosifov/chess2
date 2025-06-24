@@ -1,10 +1,9 @@
-﻿using Bogus;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class GamePlayerFaker : Faker<GamePlayer>
+public class GamePlayerFaker : RecordFaker<GamePlayer>
 {
     public GamePlayerFaker(GameColor color)
     {
