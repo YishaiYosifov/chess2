@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Chess2.Api.Game.Entities;
+﻿namespace Chess2.Api.Game.Entities;
 
 public class MoveArchive
 {
@@ -8,9 +6,4 @@ public class MoveArchive
 
     public required int MoveNumber { get; set; }
     public required string EncodedMove { get; set; }
-
-    public int GameId { get; set; }
-
-    [ForeignKey(nameof(GameId))]
-    public GameArchive? Game { get; set; }
 }
