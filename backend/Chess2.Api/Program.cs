@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
@@ -38,6 +36,8 @@ using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -316,6 +316,7 @@ builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGameCore, GameCore>();
+builder.Services.AddTransient<IPlayerRoster, PlayerRoster>();
 
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
