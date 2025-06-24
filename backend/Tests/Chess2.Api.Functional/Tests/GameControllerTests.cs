@@ -1,25 +1,30 @@
-﻿using System.Net;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
-namespace Chess2.Api.Functional.Tests.GameFlowTests;
+namespace Chess2.Api.Functional.Tests;
 
-public class GameControllerTests(Chess2WebApplicationFactory factory)
-    : BaseFunctionalGameFlowTests(factory)
+public class GameControllerTests : BaseFunctionalTest
 {
+    private readonly IGameService _gameService;
+
+    public GameControllerTests(Chess2WebApplicationFactory factory)
+        : base(factory)
+    {
+        _gameService = Scope.ServiceProvider.GetRequiredService<IGameService>();
+    }
+
     [Fact]
     public async Task GetLiveGame_returns_game_state_for_guest_player()
     {
         var timeControl = new TimeControlSettings(600, 0);
-        var (gameToken, accessToken, _) = await StartGuestMatchAsync(
-            "guest1",
-            "guest2",
-            timeControl
-        );
-        AuthUtils.AuthenticateWithTokens(ApiClient, accessToken);
+        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", timeControl);
+        AuthUtils.AuthenticateGuest(ApiClient, "guest1");
 
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
 
@@ -38,6 +43,7 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetLiveGame_returns_game_state_for_authed_player()
     {
+        var timeControl = new TimeControlSettings(30, 0);
         var user1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var user2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
@@ -50,10 +56,9 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
             new RatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
         );
 
-        DbContext.Dispose();
-        var (gameToken, accessToken, _) = await StartAuthedMatchAsync(user1, user2, new(30, 0));
+        var gameToken = await _gameService.StartGameAsync(user1.Id, user2.Id, timeControl);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user1);
 
-        AuthUtils.AuthenticateWithTokens(ApiClient, accessToken);
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -77,9 +82,8 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetLiveGame_returns_403_for_guest_not_in_game()
     {
-        var (gameToken, _, _) = await StartGuestMatchAsync("guest1", "guest2", new(600, 0));
-        var unrelatedToken = TokenProvider.GenerateGuestToken("otherGuest");
-        AuthUtils.AuthenticateWithTokens(ApiClient, unrelatedToken);
+        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", new(600, 0));
+        AuthUtils.AuthenticateGuest(ApiClient, "otherGuest");
 
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
 
@@ -89,7 +93,7 @@ public class GameControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetLiveGame_returns_403_for_authed_user_not_in_game()
     {
-        var (gameToken, _, _) = await StartGuestMatchAsync("guest1", "guest2", new(600, 0));
+        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", new(600, 0));
 
         // authenticate with a different user
         await AuthUtils.AuthenticateAsync(ApiClient);
