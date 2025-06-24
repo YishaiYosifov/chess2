@@ -24,13 +24,13 @@ public class GameActor : ReceiveActor
 {
     private readonly string _token;
 
-    private readonly IGameCore _game;
+    private readonly IGameCore _gameCore;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     public GameActor(string token, IGameCore game)
     {
         _token = token;
-        _game = game;
+        _gameCore = game;
 
         Become(WaitingForStart);
     }
@@ -69,7 +69,7 @@ public class GameActor : ReceiveActor
             ColorToPlayer = colorToPlayer.AsReadOnly(),
             SideToMove = GameColor.White,
         };
-        _game.InitializeGame();
+        _gameCore.InitializeGame();
 
         Sender.Tell(new GameEvents.GameStartedEvent());
         Become(() => Playing(players, startGame.TimeControl));
@@ -105,14 +105,14 @@ public class GameActor : ReceiveActor
             Sender.ReplyWithErrorOr<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid);
             return;
         }
-        var legalMoves = _game.GetEncodedLegalMovesFor(player.Color);
+        var legalMoves = _gameCore.GetEncodedLegalMovesFor(player.Color);
 
         var gameStateDto = new GameState(
             PlayerWhite: players.PlayerWhite,
             PlayerBlack: players.PlayerBlack,
             SideToMove: players.SideToMove,
-            Fen: _game.Fen,
-            MoveHistory: _game.EncodedMoveHistory,
+            Fen: _gameCore.Fen,
+            MoveHistory: _gameCore.EncodedMoveHistory,
             LegalMoves: legalMoves,
             TimeControl: timeControl
         );
@@ -134,7 +134,7 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        var moveResult = _game.MakeMove(movePiece.From, movePiece.To);
+        var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To);
         if (moveResult.IsError)
         {
             Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(moveResult.Errors);
@@ -148,12 +148,12 @@ public class GameActor : ReceiveActor
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
                 Move: encodedMove,
-                WhiteLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.White),
+                WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
                 WhiteId: players.PlayerWhite.UserId,
-                BlackLegalMoves: _game.GetEncodedLegalMovesFor(GameColor.Black),
+                BlackLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.Black),
                 BlackId: players.PlayerBlack.UserId,
                 SideToMove: newSideToMove,
-                MoveNumber: _game.MoveNumber
+                MoveNumber: _gameCore.MoveNumber
             )
         );
     }
