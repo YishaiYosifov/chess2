@@ -17,8 +17,8 @@ public class GameCommands
 {
     public record StartGame(
         string GameToken,
-        string WhiteId,
-        string BlackId,
+        GamePlayer WhitePlayer,
+        GamePlayer BlackPlayer,
         TimeControlSettings TimeControl
     ) : IGameMessage;
 

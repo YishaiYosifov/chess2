@@ -40,7 +40,7 @@ public class GameActor : ReceiveActor
 
     private void HandleStartGame(GameCommands.StartGame startGame)
     {
-        _players.InitializePlayers(startGame.WhiteId, startGame.BlackId);
+        _players.InitializePlayers(startGame.WhitePlayer, startGame.BlackPlayer);
         _gameCore.InitializeGame();
         _timeControl = startGame.TimeControl;
 
