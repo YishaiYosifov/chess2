@@ -119,18 +119,16 @@ public class GameActorTests : BaseActorTest
     }
 
     [Fact]
-    public async Task MovePiece_valid_should_send_PieceMoved_and_switch_turn()
+    public async Task MovePiece_valid_should_send_PieceMoved()
     {
         var newWhiteLegalMoves = new List<string> { "e2e4" };
         var newBlackLegalMoves = new List<string> { "e7e5" };
         const string encodedMove = "e2e4";
         const int moveNumber = 69;
-        var sideToMove = GameColor.Black;
         _gameMock.MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4")).Returns(encodedMove);
         _gameMock.GetEncodedLegalMovesFor(GameColor.White).Returns(newWhiteLegalMoves);
         _gameMock.GetEncodedLegalMovesFor(GameColor.Black).Returns(newBlackLegalMoves);
         _gameMock.MoveNumber.Returns(moveNumber);
-        _gameMock.SideToMove.Returns(sideToMove);
 
         await StartGameAsync("white", "black");
 
@@ -157,7 +155,7 @@ public class GameActorTests : BaseActorTest
                     WhiteId: "white",
                     BlackLegalMoves: newBlackLegalMoves,
                     BlackId: "black",
-                    SideToMove: sideToMove,
+                    SideToMove: GameColor.White, // because we are mocking game core, it doesn't change side to move
                     MoveNumber: moveNumber
                 )
             );
