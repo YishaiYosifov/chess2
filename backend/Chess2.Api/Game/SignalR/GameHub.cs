@@ -51,6 +51,23 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             .MoveMadeAsync(move.Move, move.BlackLegalMoves, move.SideToMove, move.MoveNumber);
     }
 
+    public async Task EndGameAsync(string gameToken)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+        var endResult = await _gameService.EndGameAsync(gameToken, userId);
+        if (endResult.IsError)
+        {
+            await HandleErrors(endResult.Errors);
+            return;
+        }
+        _logger.LogInformation("User {UserId} ended game {GameToken}", userId, gameToken);
+        await Clients.Group(gameToken).ReceiveErrorAsync(endResult.Errors);
+    }
+
     public override async Task OnConnectedAsync()
     {
         string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParm];

@@ -10,15 +10,12 @@ using Chess2.Api.Shared.Extensions;
 
 namespace Chess2.Api.Game.Actors;
 
-public class PlayerRoster
-{
-    public required GamePlayer PlayerWhite { get; init; }
-    public required GamePlayer PlayerBlack { get; init; }
-    public required IReadOnlyDictionary<string, GamePlayer> IdToPlayer { get; init; }
-    public required IReadOnlyDictionary<GameColor, GamePlayer> ColorToPlayer { get; init; }
-
-    public required GameColor SideToMove { get; set; }
-}
+public record PlayerRoster(
+    GamePlayer WhitePlayer,
+    GamePlayer BlackPlayer,
+    IReadOnlyDictionary<string, GamePlayer> IdToPlayer,
+    IReadOnlyDictionary<GameColor, GamePlayer> ColorToPlayer
+);
 
 public class GameActor : ReceiveActor
 {
@@ -61,14 +58,12 @@ public class GameActor : ReceiveActor
             [GameColor.Black] = playerBlack,
         };
 
-        var players = new PlayerRoster()
-        {
-            PlayerWhite = playerWhite,
-            PlayerBlack = playerBlack,
-            IdToPlayer = idToPlayer.AsReadOnly(),
-            ColorToPlayer = colorToPlayer.AsReadOnly(),
-            SideToMove = GameColor.White,
-        };
+        var players = new PlayerRoster(
+            WhitePlayer: playerWhite,
+            BlackPlayer: playerBlack,
+            IdToPlayer: idToPlayer.AsReadOnly(),
+            ColorToPlayer: colorToPlayer.AsReadOnly()
+        );
         _gameCore.InitializeGame();
 
         Sender.Tell(new GameEvents.GameStartedEvent());
@@ -85,6 +80,8 @@ public class GameActor : ReceiveActor
             HandleGetGameState(getGameState, players, timeControl)
         );
 
+        Receive<GameCommands.EndGame>(endGame => HandleEndGame(endGame, players, timeControl));
+
         Receive<GameCommands.MovePiece>(movePiece => HandleMovePiece(movePiece, players));
     }
 
@@ -94,8 +91,7 @@ public class GameActor : ReceiveActor
         TimeControlSettings timeControl
     )
     {
-        var player = players.IdToPlayer.GetValueOrDefault(getGameState.ForUserId);
-        if (player is null)
+        if (!players.IdToPlayer.TryGetValue(getGameState.ForUserId, out var player))
         {
             _logger.Warning(
                 "Could not find player {0} when trying to get state for game {1}",
@@ -105,30 +101,63 @@ public class GameActor : ReceiveActor
             Sender.ReplyWithErrorOr<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid);
             return;
         }
-        var legalMoves = _gameCore.GetEncodedLegalMovesFor(player.Color);
 
-        var gameStateDto = new GameState(
-            PlayerWhite: players.PlayerWhite,
-            PlayerBlack: players.PlayerBlack,
-            SideToMove: players.SideToMove,
-            Fen: _gameCore.Fen,
-            MoveHistory: _gameCore.EncodedMoveHistory,
-            LegalMoves: legalMoves,
-            TimeControl: timeControl
-        );
+        var gameState = GetGameStateForPlayer(players, player, timeControl);
+        Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameState));
+    }
 
-        Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameStateDto));
+    private void HandleEndGame(
+        GameCommands.EndGame endGame,
+        PlayerRoster players,
+        TimeControlSettings timeControl
+    )
+    {
+        if (!players.IdToPlayer.TryGetValue(endGame.UserId, out var player))
+        {
+            _logger.Warning(
+                "Could not find player {0} when trying to end game {1}",
+                endGame.UserId,
+                _token
+            );
+            Sender.ReplyWithErrorOr<GameEvents.GameEnded>(GameErrors.PlayerInvalid);
+            return;
+        }
+
+        var state = GetGameStateForPlayer(players, player, timeControl);
+        GameResult result;
+
+        var isAbort = _gameCore.MoveNumber <= 2;
+        if (isAbort)
+        {
+            result = GameResult.Aborted;
+        }
+        else
+        {
+            var winnerColor = player.Color.Invert();
+            result = winnerColor switch
+            {
+                GameColor.White => GameResult.WhiteWin,
+                GameColor.Black => GameResult.BlackWin,
+                _ => throw new InvalidOperationException($"Invalid Color {winnerColor}?"),
+            };
+        }
+
+        _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
+        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, state));
+        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece, PlayerRoster players)
     {
-        var currentPlayerId = players.ColorToPlayer[players.SideToMove]?.UserId;
-        if (currentPlayerId != movePiece.UserId)
+        if (
+            !players.ColorToPlayer.TryGetValue(_gameCore.SideToMove, out var currentPlayer)
+            || currentPlayer.UserId != movePiece.UserId
+        )
         {
             _logger.Warning(
                 "User {0} attmpted to move a piece, but their id doesn't match the current player {1}",
                 movePiece.UserId,
-                currentPlayerId
+                currentPlayer?.UserId
             );
             Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(GameErrors.PlayerInvalid);
             return;
@@ -142,19 +171,35 @@ public class GameActor : ReceiveActor
         }
         var encodedMove = moveResult.Value;
 
-        var newSideToMove = players.SideToMove.Invert();
-        players.SideToMove = newSideToMove;
-
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
                 Move: encodedMove,
                 WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
-                WhiteId: players.PlayerWhite.UserId,
+                WhiteId: players.WhitePlayer.UserId,
                 BlackLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.Black),
-                BlackId: players.PlayerBlack.UserId,
-                SideToMove: newSideToMove,
+                BlackId: players.BlackPlayer.UserId,
+                SideToMove: _gameCore.SideToMove,
                 MoveNumber: _gameCore.MoveNumber
             )
         );
+    }
+
+    private GameState GetGameStateForPlayer(
+        PlayerRoster players,
+        GamePlayer player,
+        TimeControlSettings timeControl
+    )
+    {
+        var legalMoves = _gameCore.GetEncodedLegalMovesFor(player.Color);
+        var gameState = new GameState(
+            PlayerWhite: players.WhitePlayer,
+            PlayerBlack: players.BlackPlayer,
+            SideToMove: _gameCore.SideToMove,
+            Fen: _gameCore.Fen,
+            MoveHistory: _gameCore.EncodedMoveHistory,
+            LegalMoves: legalMoves,
+            TimeControl: timeControl
+        );
+        return gameState;
     }
 }

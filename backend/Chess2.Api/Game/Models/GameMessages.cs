@@ -25,7 +25,7 @@ public class GameCommands
     public record MovePiece(string GameToken, string UserId, AlgebraicPoint From, AlgebraicPoint To)
         : IGameMessage;
 
-    public record Resign(string GameToken, string UserId) : IGameMessage;
+    public record EndGame(string GameToken, string UserId) : IGameMessage;
 
     public record RequestDraw(string GameToken, string UserId) : IGameMessage;
 }
@@ -54,4 +54,6 @@ public class GameEvents
         GameColor SideToMove,
         int MoveNumber
     );
+
+    public record GameEnded(GameResult Result, GameState State);
 }

@@ -14,6 +14,10 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameService
 {
+    Task<ErrorOr<Success>> CheckGameStartedAsync(
+        string gameToken,
+        CancellationToken token = default
+    );
     Task<ErrorOr<GameStateDto>> GetGameStateAsync(
         string gameToken,
         string userId,
@@ -105,7 +109,21 @@ public class GameService(
         return response;
     }
 
-    private async Task<ErrorOr<Success>> CheckGameStartedAsync(
+    public async Task<ErrorOr<Success>> EndGameAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    )
+    {
+        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
+        if (gameStartedResult.IsError)
+            return gameStartedResult.Errors;
+
+        _gameActor.ActorRef.Tell(new GameCommands.EndGame(gameToken, userId));
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> CheckGameStartedAsync(
         string gameToken,
         CancellationToken token = default
     )
