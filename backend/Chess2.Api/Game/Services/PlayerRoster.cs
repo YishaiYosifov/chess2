@@ -16,11 +16,8 @@ public class PlayerRoster
     private GamePlayer? _whitePlayer;
     private GamePlayer? _blackPlayer;
 
-    public void InitializePlayers(string whiteId, string blackId)
+    public void InitializePlayers(GamePlayer whitePlayer, GamePlayer blackPlayer)
     {
-        var whitePlayer = new GamePlayer(UserId: whiteId, Color: GameColor.White);
-        var blackPlayer = new GamePlayer(UserId: blackId, Color: GameColor.Black);
-
         _whitePlayer = whitePlayer;
         _blackPlayer = blackPlayer;
 

@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
-using Chess2.Api.Game.DTOs;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
@@ -17,10 +17,10 @@ public class GameController(IGameService gameService, IAuthService authService) 
     private readonly IAuthService _authService = authService;
 
     [HttpGet("live/{gameToken}", Name = nameof(GetLiveGame))]
-    [ProducesResponseType<GameStateDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<GameState>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize(AuthPolicies.AuthedSesssion)]
-    public async Task<ActionResult<GameStateDto>> GetLiveGame(
+    public async Task<ActionResult<GameState>> GetLiveGame(
         string gameToken,
         CancellationToken token
     )

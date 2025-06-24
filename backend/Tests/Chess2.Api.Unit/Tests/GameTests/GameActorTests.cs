@@ -6,6 +6,7 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
 using FluentAssertions;
 using NSubstitute;
@@ -21,6 +22,9 @@ public class GameActorTests : BaseActorTest
 
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
+
+    private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
+    private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
 
     public GameActorTests()
     {
@@ -53,14 +57,14 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task StartGame_should_initialize_game_and_transition_to_playing_state()
     {
-        await StartGameAsync("user1", "user2");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
         _gameMock.Received(1).InitializeGame();
     }
 
     [Fact]
     public async Task GetGameState_invalid_user_should_return_player_invalid_error()
     {
-        await StartGameAsync("user1", "user2");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
             new GameQueries.GetGameState(TestGameToken, ForUserId: "invalid-user"),
@@ -81,9 +85,9 @@ public class GameActorTests : BaseActorTest
         _gameMock.Fen.Returns("some-fen");
         _gameMock.EncodedMoveHistory.Returns(["e2e4"]);
 
-        await StartGameAsync("white", "black");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
-        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, "white"), _probe);
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
             cancellationToken: TestContext.Current.CancellationToken
         );
@@ -99,7 +103,7 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task MovePiece_wrong_player_should_return_PlayerInvalid_error()
     {
-        await StartGameAsync("white", "black");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
             new GameCommands.MovePiece(
@@ -130,12 +134,12 @@ public class GameActorTests : BaseActorTest
         _gameMock.GetEncodedLegalMovesFor(GameColor.Black).Returns(newBlackLegalMoves);
         _gameMock.MoveNumber.Returns(moveNumber);
 
-        await StartGameAsync("white", "black");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
             new GameCommands.MovePiece(
                 TestGameToken,
-                "white",
+                _whitePlayer.UserId,
                 new AlgebraicPoint("e2"),
                 new AlgebraicPoint("e4")
             ),
@@ -168,12 +172,12 @@ public class GameActorTests : BaseActorTest
             .MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4"))
             .Returns(GameErrors.MoveInvalid);
 
-        await StartGameAsync("white", "black");
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
             new GameCommands.MovePiece(
                 TestGameToken,
-                "white",
+                _whitePlayer.UserId,
                 new AlgebraicPoint("e2"),
                 new AlgebraicPoint("e4")
             ),
@@ -187,13 +191,13 @@ public class GameActorTests : BaseActorTest
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
     }
 
-    private async Task StartGameAsync(string whiteId, string blackId)
+    private async Task StartGameAsync(GamePlayer whitePlayer, GamePlayer blackPlayer)
     {
         _gameActor.Tell(
             new GameCommands.StartGame(
                 TestGameToken,
-                WhiteId: whiteId,
-                BlackId: blackId,
+                WhitePlayer: whitePlayer,
+                BlackPlayer: blackPlayer,
                 TimeControl: _timeControl
             ),
             _probe.Ref
