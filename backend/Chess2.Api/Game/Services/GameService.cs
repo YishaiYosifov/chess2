@@ -84,8 +84,8 @@ public class GameService(
             return stateResult.Errors;
         var state = stateResult.Value.State;
 
-        var white = await EnrichGamePlayerAsync(state.PlayerWhite, state.TimeControl);
-        var black = await EnrichGamePlayerAsync(state.PlayerBlack, state.TimeControl);
+        var white = await EnrichGamePlayerAsync(state.WhitePlayer, state.TimeControl);
+        var black = await EnrichGamePlayerAsync(state.BlackPlayer, state.TimeControl);
 
         return new GameStateDto(white, black, state);
     }

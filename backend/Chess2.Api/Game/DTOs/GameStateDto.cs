@@ -1,15 +1,15 @@
-﻿using System.ComponentModel;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace Chess2.Api.Game.DTOs;
 
 [DisplayName("GameState")]
 [method: JsonConstructor]
 public record GameStateDto(
-    GamePlayerDto PlayerWhite,
-    GamePlayerDto PlayerBlack,
+    GamePlayerDto WhitePlayer,
+    GamePlayerDto BlackPlayer,
     GameColor SideToMove,
     string Fen,
     IReadOnlyCollection<string> MoveHistory,
@@ -30,5 +30,6 @@ public record GameStateDto(
             gameState.MoveHistory,
             gameState.LegalMoves,
             gameState.TimeControl
-        ) { }
+        )
+    { }
 }

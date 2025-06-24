@@ -33,7 +33,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameState = response.Content;
         gameState.Should().NotBeNull();
 
-        var players = new[] { gameState.PlayerWhite, gameState.PlayerBlack };
+        var players = new[] { gameState.WhitePlayer, gameState.BlackPlayer };
         players.Select(p => p.UserId).Should().BeEquivalentTo(["guest1", "guest2"]);
         players.Should().OnlyContain(p => p.UserName == "Guest");
         players.Should().OnlyContain(p => p.CountryCode == null);
@@ -66,7 +66,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameState = response.Content;
         gameState.Should().NotBeNull();
 
-        var players = new[] { gameState.PlayerWhite, gameState.PlayerBlack };
+        var players = new[] { gameState.WhitePlayer, gameState.BlackPlayer };
         var player1 = players.First(x => x.UserId == user1.Id);
         var player2 = players.First(x => x.UserId == user2.Id);
 
