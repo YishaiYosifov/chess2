@@ -18,6 +18,8 @@ public class GameActor : ReceiveActor
     private readonly IPlayerRoster _players;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
+    private TimeControlSettings _timeControl;
+
     public GameActor(string token, IGameCore game, IPlayerRoster playerRoster)
     {
         _token = token;
@@ -41,30 +43,26 @@ public class GameActor : ReceiveActor
     {
         _players.InitializePlayers(startGame.WhiteId, startGame.BlackId);
         _gameCore.InitializeGame();
+        _timeControl = startGame.TimeControl;
 
         Sender.Tell(new GameEvents.GameStartedEvent());
-        Become(() => Playing(startGame.TimeControl));
+        Become(Playing);
     }
 
-    private void Playing(TimeControlSettings timeControl)
+    private void Playing()
     {
         Receive<GameQueries.GetGameStatus>(_ =>
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
 
-        Receive<GameQueries.GetGameState>(getGameState =>
-            HandleGetGameState(getGameState, timeControl)
-        );
+        Receive<GameQueries.GetGameState>(getGameState => HandleGetGameState(getGameState));
 
-        Receive<GameCommands.EndGame>(endGame => HandleEndGame(endGame, timeControl));
+        Receive<GameCommands.EndGame>(HandleEndGame);
 
-        Receive<GameCommands.MovePiece>(movePiece => HandleMovePiece(movePiece));
+        Receive<GameCommands.MovePiece>(HandleMovePiece);
     }
 
-    private void HandleGetGameState(
-        GameQueries.GetGameState getGameState,
-        TimeControlSettings timeControl
-    )
+    private void HandleGetGameState(GameQueries.GetGameState getGameState)
     {
         if (!_players.TryGetPlayerById(getGameState.ForUserId, out var player))
         {
@@ -77,11 +75,11 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        var gameState = GetGameStateForPlayer(player, timeControl);
+        var gameState = GetGameStateForPlayer(player);
         Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameState));
     }
 
-    private void HandleEndGame(GameCommands.EndGame endGame, TimeControlSettings timeControl)
+    private void HandleEndGame(GameCommands.EndGame endGame)
     {
         if (!_players.TryGetPlayerById(endGame.UserId, out var player))
         {
@@ -94,7 +92,7 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        var state = GetGameStateForPlayer(player, timeControl);
+        var state = GetGameStateForPlayer(player);
         GameResult result;
 
         var isAbort = _gameCore.MoveNumber <= 2;
@@ -155,7 +153,7 @@ public class GameActor : ReceiveActor
         );
     }
 
-    private GameState GetGameStateForPlayer(GamePlayer player, TimeControlSettings timeControl)
+    private GameState GetGameStateForPlayer(GamePlayer player)
     {
         var legalMoves = _gameCore.GetEncodedLegalMovesFor(player.Color);
         var gameState = new GameState(
@@ -165,7 +163,7 @@ public class GameActor : ReceiveActor
             Fen: _gameCore.Fen,
             MoveHistory: _gameCore.EncodedMoveHistory,
             LegalMoves: legalMoves,
-            TimeControl: timeControl
+            TimeControl: _timeControl
         );
         return gameState;
     }
