@@ -156,9 +156,9 @@ public class GameActorTests : BaseActorTest
                 new GameEvents.PieceMoved(
                     encodedMove,
                     WhiteLegalMoves: newWhiteLegalMoves,
-                    WhiteId: "white",
+                    WhiteId: _whitePlayer.UserId,
                     BlackLegalMoves: newBlackLegalMoves,
-                    BlackId: "black",
+                    BlackId: _blackPlayer.UserId,
                     SideToMove: GameColor.White, // because we are mocking game core, it doesn't change side to move
                     MoveNumber: moveNumber
                 )
