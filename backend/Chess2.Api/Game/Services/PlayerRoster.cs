@@ -37,6 +37,7 @@ public class PlayerRoster
     public bool TryGetPlayerById(string userId, [NotNullWhen(true)] out GamePlayer? player) =>
         _idToPlayer.TryGetValue(userId, out player);
 
-    public bool TryGetPlayerByColor(GameColor color, [NotNullWhen(true)] out GamePlayer? player) =>
-        _colorToPlayer.TryGetValue(color, out player);
+    public GamePlayer GetPlayerByColor(GameColor color) =>
+        _colorToPlayer.GetValueOrDefault(color)
+        ?? throw new InvalidOperationException("Players not initialized");
 }
