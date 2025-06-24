@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
-using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
@@ -25,10 +24,10 @@ public class GameActor : ReceiveActor
 {
     private readonly string _token;
 
-    private readonly IGame _game;
+    private readonly IGameCore _game;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
-    public GameActor(string token, IGame game)
+    public GameActor(string token, IGameCore game)
     {
         _token = token;
         _game = game;

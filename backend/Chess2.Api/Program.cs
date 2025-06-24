@@ -315,7 +315,7 @@ builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
-builder.Services.AddTransient<IGame, Game>();
+builder.Services.AddTransient<IGameCore, GameCore>();
 
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
