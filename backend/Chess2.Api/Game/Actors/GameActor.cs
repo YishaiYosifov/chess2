@@ -117,10 +117,8 @@ public class GameActor : ReceiveActor
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece)
     {
-        if (
-            !_players.TryGetPlayerByColor(_gameCore.SideToMove, out var currentPlayer)
-            || currentPlayer.UserId != movePiece.UserId
-        )
+        var currentPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
+        if (currentPlayer.UserId != movePiece.UserId)
         {
             _logger.Warning(
                 "User {0} attmpted to move a piece, but their id doesn't match the current player {1}",
