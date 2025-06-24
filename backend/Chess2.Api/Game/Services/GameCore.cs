@@ -5,7 +5,7 @@ using ErrorOr;
 
 namespace Chess2.Api.Game.Services;
 
-public interface IGame
+public interface IGameCore
 {
     string Fen { get; }
     IReadOnlyCollection<string> EncodedMoveHistory { get; }
@@ -16,12 +16,12 @@ public interface IGame
     ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to);
 }
 
-public class Game(
-    ILogger<Game> logger,
+public class GameCore(
+    ILogger<GameCore> logger,
     IFenCalculator fenCalculator,
     ILegalMoveCalculator legalMoveCalculator,
     IMoveEncoder legalMoveEncoder
-) : IGame
+) : IGameCore
 {
     private readonly ChessBoard _board = new(
         GameConstants.StartingPosition,
@@ -34,7 +34,7 @@ public class Game(
     private List<string> _encodedWhiteMoves = [];
     private List<string> _encodedBlackMoves = [];
 
-    private readonly ILogger<Game> _logger = logger;
+    private readonly ILogger<GameCore> _logger = logger;
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
     private readonly IMoveEncoder _moveEncoder = legalMoveEncoder;

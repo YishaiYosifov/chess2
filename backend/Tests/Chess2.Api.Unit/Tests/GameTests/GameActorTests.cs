@@ -17,7 +17,7 @@ public class GameActorTests : BaseActorTest
     private const string TestGameToken = "testtoken";
     private readonly TimeControlSettings _timeControl = new(600, 5);
 
-    private readonly IGame _gameMock = Substitute.For<IGame>();
+    private readonly IGameCore _gameMock = Substitute.For<IGameCore>();
 
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
