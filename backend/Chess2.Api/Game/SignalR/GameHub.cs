@@ -64,7 +64,12 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             await HandleErrors(endResult.Errors);
             return;
         }
-        _logger.LogInformation("User {UserId} ended game {GameToken}", userId, gameToken);
+        _logger.LogInformation(
+            "User {UserId} ended game {GameToken}, result is {GameResult}",
+            userId,
+            gameToken,
+            endResult.Value
+        );
     }
 
     public override async Task OnConnectedAsync()
