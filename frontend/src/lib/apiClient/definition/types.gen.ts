@@ -101,8 +101,8 @@ export type OperationBase = {
 };
 
 export type GameState = {
-    playerWhite: GamePlayer;
-    playerBlack: GamePlayer;
+    whitePlayer: GamePlayer;
+    blackPlayer: GamePlayer;
     sideToMove: GameColor;
     fen: string;
     moveHistory: Array<string>;

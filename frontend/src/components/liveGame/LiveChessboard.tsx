@@ -28,9 +28,9 @@ const LiveChessboard = ({
     userId: string;
 }) => {
     const playingAs =
-        userId == gameState.playerWhite.userId
-            ? gameState.playerWhite
-            : gameState.playerBlack;
+        userId == gameState.whitePlayer.userId
+            ? gameState.whitePlayer
+            : gameState.blackPlayer;
 
     async function refetchGame() {
         const { error, data } = await getLiveGame({ path: { gameToken } });
@@ -111,7 +111,7 @@ const LiveChessboard = ({
             useLiveChessboardStore.getState();
 
         setMoveHistory(decodedMoveHistory);
-        setPlayers(gameState.playerWhite, gameState.playerBlack);
+        setPlayers(gameState.whitePlayer, gameState.blackPlayer);
     }, [gameState, playingAs.color]);
 
     return (

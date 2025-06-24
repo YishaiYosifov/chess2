@@ -31,8 +31,8 @@ const GamePage = withAuthedSession(
         // if the user is not participating in the game, they shouldn't be here
         // TODO: allow spectating
         if (
-            userId != game.playerWhite.userId &&
-            userId != game.playerBlack.userId
+            userId != game.whitePlayer.userId &&
+            userId != game.blackPlayer.userId
         )
             redirect("/");
 
