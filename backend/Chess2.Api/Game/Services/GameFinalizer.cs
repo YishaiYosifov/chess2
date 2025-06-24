@@ -34,6 +34,9 @@ public class GameFinalizer(
         CancellationToken token = default
     )
     {
+        if (gameResult is GameResult.Aborted)
+            return;
+
         var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer);
         var blackArchive = CreatePlayerArchive(gameState.BlackPlayer);
         List<MoveArchive> moves = [];
