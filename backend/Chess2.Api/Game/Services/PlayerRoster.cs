@@ -1,20 +1,10 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Game.Services;
 
-public interface IPlayerRoster
-{
-    GamePlayer BlackPlayer { get; }
-    GamePlayer WhitePlayer { get; }
-
-    void InitializePlayers(string whiteId, string blackId);
-    bool TryGetPlayerByColor(GameColor color, [NotNullWhen(true)] out GamePlayer? player);
-    bool TryGetPlayerById(string userId, [NotNullWhen(true)] out GamePlayer? player);
-}
-
-public class PlayerRoster(ILogger<PlayerRoster> logger) : IPlayerRoster
+public class PlayerRoster
 {
     public GamePlayer WhitePlayer =>
         _whitePlayer ?? throw new InvalidOperationException("White player is not set");
@@ -25,8 +15,6 @@ public class PlayerRoster(ILogger<PlayerRoster> logger) : IPlayerRoster
     private Dictionary<string, GamePlayer> _idToPlayer = [];
     private GamePlayer? _whitePlayer;
     private GamePlayer? _blackPlayer;
-
-    private readonly ILogger<PlayerRoster> _logger = logger;
 
     public void InitializePlayers(string whiteId, string blackId)
     {

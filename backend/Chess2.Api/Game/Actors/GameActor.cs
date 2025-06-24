@@ -15,16 +15,15 @@ public class GameActor : ReceiveActor
     private readonly string _token;
 
     private readonly IGameCore _gameCore;
-    private readonly IPlayerRoster _players;
+    private readonly PlayerRoster _players = new();
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     private TimeControlSettings _timeControl;
 
-    public GameActor(string token, IGameCore game, IPlayerRoster playerRoster)
+    public GameActor(string token, IGameCore game)
     {
         _token = token;
         _gameCore = game;
-        _players = playerRoster;
         Become(WaitingForStart);
     }
 

@@ -18,6 +18,11 @@ public interface IGameService
         string gameToken,
         CancellationToken token = default
     );
+    Task<ErrorOr<GameResult>> EndGameAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    );
     Task<ErrorOr<GameStateDto>> GetGameStateAsync(
         string gameToken,
         string userId,
@@ -38,7 +43,8 @@ public class GameService(
     IRequiredActor<GameActor> gameActor,
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
-    IRatingService ratingService
+    IRatingService ratingService,
+    IGameFinalizer gameFinalizer
 ) : IGameService
 {
     private readonly ILogger<GameService> _logger = logger;
@@ -46,6 +52,7 @@ public class GameService(
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
+    private readonly IGameFinalizer _gameFinalizer = gameFinalizer;
 
     public async Task<string> StartGameAsync(
         string userId1,
@@ -109,7 +116,7 @@ public class GameService(
         return response;
     }
 
-    public async Task<ErrorOr<Success>> EndGameAsync(
+    public async Task<ErrorOr<GameResult>> EndGameAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -119,8 +126,17 @@ public class GameService(
         if (gameStartedResult.IsError)
             return gameStartedResult.Errors;
 
-        _gameActor.ActorRef.Tell(new GameCommands.EndGame(gameToken, userId));
-        return Result.Success;
+        var endResult = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameEnded>>(
+            new GameCommands.EndGame(gameToken, userId),
+            token
+        );
+        if (endResult.IsError)
+            return endResult.Errors;
+
+        var gameEnded = endResult.Value;
+        await _gameFinalizer.FinalizeGameAsync(gameToken, gameEnded.State, gameEnded.Result, token);
+
+        return gameEnded.Result;
     }
 
     public async Task<ErrorOr<Success>> CheckGameStartedAsync(
