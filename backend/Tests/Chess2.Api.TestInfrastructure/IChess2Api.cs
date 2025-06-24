@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Auth.DTOs;
-using Chess2.Api.Game.DTOs;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Users.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Refit;
@@ -46,6 +46,6 @@ public interface IChess2Api
 
     #region Game Controller
     [Get("/api/game/live/{gameToken}")]
-    Task<IApiResponse<GameStateDto>> GetLiveGameAsync([AliasAs("gameToken")] string gameToken);
+    Task<IApiResponse<GameState>> GetLiveGameAsync([AliasAs("gameToken")] string gameToken);
     #endregion
 }

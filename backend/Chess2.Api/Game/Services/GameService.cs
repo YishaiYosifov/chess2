@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Chess2.Api.Game.Actors;
-using Chess2.Api.Game.DTOs;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
@@ -23,7 +22,7 @@ public interface IGameService
         string userId,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameStateDto>> GetGameStateAsync(
+    Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -61,19 +60,16 @@ public class GameService(
     )
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
+        var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
+        var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
         await _gameActor.ActorRef.Ask<GameEvents.GameStartedEvent>(
-            new GameCommands.StartGame(
-                token,
-                WhiteId: userId1,
-                BlackId: userId2,
-                TimeControl: timeControl
-            )
+            new GameCommands.StartGame(token, whitePlayer, blackPlayer, timeControl)
         );
 
         return token;
     }
 
-    public async Task<ErrorOr<GameStateDto>> GetGameStateAsync(
+    public async Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -89,12 +85,9 @@ public class GameService(
         );
         if (stateResult.IsError)
             return stateResult.Errors;
+
         var state = stateResult.Value.State;
-
-        var white = await EnrichGamePlayerAsync(state.WhitePlayer, state.TimeControl);
-        var black = await EnrichGamePlayerAsync(state.BlackPlayer, state.TimeControl);
-
-        return new GameStateDto(white, black, state);
+        return state;
     }
 
     public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
@@ -154,21 +147,23 @@ public class GameService(
             : Result.Success;
     }
 
-    private async Task<GamePlayerDto> EnrichGamePlayerAsync(
-        GamePlayer player,
+    private async Task<GamePlayer> CreatePlayer(
+        string userId,
+        GameColor color,
         TimeControlSettings timeControl
     )
     {
-        var user = await _userManager.FindByIdAsync(player.UserId);
+        var user = await _userManager.FindByIdAsync(userId);
         var rating = user is not null
             ? await _ratingService.GetOrCreateRatingAsync(user, timeControl)
             : null;
 
-        return new GamePlayerDto(
-            player,
-            userName: user?.UserName ?? "Guest",
-            countryCode: user?.CountryCode,
-            rating: rating?.Value
+        return new GamePlayer(
+            UserId: userId,
+            Color: color,
+            UserName: user?.UserName ?? "Guest",
+            CountryCode: user?.CountryCode,
+            Rating: rating?.Value
         );
     }
 }
