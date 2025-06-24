@@ -29,7 +29,6 @@ public class RatingServiceTests : BaseIntegrationTest
 
         result.Should().NotBeNull();
         result.UserId.Should().Be(user.Id);
-        result.User.Should().BeEquivalentTo(user);
         Assert.Equal(TimeControl.Blitz, result.TimeControl);
         Assert.Equal(AppSettings.Game.DefaultRating, result.Value);
 

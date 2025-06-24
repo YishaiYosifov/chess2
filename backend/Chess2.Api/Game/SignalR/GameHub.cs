@@ -65,7 +65,6 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             return;
         }
         _logger.LogInformation("User {UserId} ended game {GameToken}", userId, gameToken);
-        await Clients.Group(gameToken).ReceiveErrorAsync(endResult.Errors);
     }
 
     public override async Task OnConnectedAsync()

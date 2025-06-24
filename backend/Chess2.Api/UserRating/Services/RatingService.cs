@@ -42,7 +42,6 @@ public class RatingService(
         );
         rating = new Rating()
         {
-            User = user,
             UserId = user.Id,
             TimeControl = timeControl,
             Value = _settings.DefaultRating,
