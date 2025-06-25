@@ -10,7 +10,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Integration.Tests.AuthTests;
 
 public class AuthServiceTests : BaseIntegrationTest
 {
