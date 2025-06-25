@@ -20,12 +20,12 @@ public interface IGameFinalizer
 public class GameFinalizer(
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    ApplicationDbContext dbContext
+    IGameArchiveService gameArchiveService
 ) : IGameFinalizer
 {
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
-    private readonly ApplicationDbContext _dbContext = dbContext;
+    private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
 
     public async Task FinalizeGameAsync(
         string gameToken,
@@ -37,40 +37,14 @@ public class GameFinalizer(
         if (gameResult is GameResult.Aborted)
             return;
 
-        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer);
-        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer);
-        List<MoveArchive> moves = [];
-        for (int i = 0; i < gameState.MoveHistory.Count; i++)
-        {
-            var moveArchive = CreateMoveArchive(gameState.MoveHistory.ElementAt(i), i);
-            moves.Add(moveArchive);
-        }
-        var gameArchive = new GameArchive()
-        {
-            GameToken = gameToken,
-            Result = gameResult,
-            WhitePlayerId = whiteArchive.Id,
-            WhitePlayer = whiteArchive,
-            BlackPlayerId = blackArchive.Id,
-            BlackPlayer = blackArchive,
-            FinalFen = gameState.Fen,
-            Moves = moves,
-        };
-
-        _dbContext.GameArchives.Add(gameArchive);
-        await _dbContext.SaveChangesAsync(token);
+        await _gameArchiveService.CreateArchiveAsync(gameToken, gameState, gameResult, token);
     }
 
-    private PlayerArchive CreatePlayerArchive(GamePlayer player) =>
-        new()
-        {
-            Color = player.Color,
-            UserId = player.UserId,
-            UserName = player.UserName,
-            CountryCode = player.CountryCode,
-            Rating = player.Rating,
-        };
 
-    private MoveArchive CreateMoveArchive(string encodedMove, int moveNumber) =>
-        new() { MoveNumber = moveNumber, EncodedMove = encodedMove };
+    private async Task UpdatePlayerRatingAsync(GamePlayer player)
+    {
+        var user = await _userManager.FindByIdAsync(player.UserId);
+        if (user is null)
+            return;
+    }
 }
