@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
-namespace Chess2.Api.Integration.Tests;
+namespace Chess2.Api.Integration.Tests.AuthTests;
 
 public class OAuthServiceTests : BaseIntegrationTest
 {
