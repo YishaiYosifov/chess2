@@ -8,10 +8,10 @@ public class GamePlayerFaker : RecordFaker<GamePlayer>
     public GamePlayerFaker(GameColor color)
     {
         StrictMode(true);
-        RuleFor(p => p.UserId, f => f.Random.Guid().ToString());
-        RuleFor(p => p.Color, color);
-        RuleFor(p => p.UserName, f => f.Person.FullName);
-        RuleFor(p => p.CountryCode, f => f.Address.CountryCode());
-        RuleFor(p => p.Rating, f => f.Random.Int(1000, 3000));
+        RuleFor(x => x.UserId, f => f.Random.Guid().ToString());
+        RuleFor(x => x.Color, color);
+        RuleFor(x => x.UserName, f => f.Person.FullName);
+        RuleFor(x => x.CountryCode, f => f.Address.CountryCode());
+        RuleFor(x => x.Rating, f => f.Random.Int(1000, 3000));
     }
 }

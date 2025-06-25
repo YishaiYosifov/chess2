@@ -39,12 +39,4 @@ public class GameFinalizer(
 
         await _gameArchiveService.CreateArchiveAsync(gameToken, gameState, gameResult, token);
     }
-
-
-    private async Task UpdatePlayerRatingAsync(GamePlayer player)
-    {
-        var user = await _userManager.FindByIdAsync(player.UserId);
-        if (user is null)
-            return;
-    }
 }
