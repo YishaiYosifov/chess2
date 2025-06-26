@@ -25,18 +25,18 @@ public class RatingRepositoryTests : BaseIntegrationTest
         var userToFind = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var ratingToFind = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, TimeControl.Blitz)
+            new RatingFaker(userToFind, timeControl: TimeControl.Blitz)
         );
         await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(userToFind).RuleFor(x => x.TimeControl, TimeControl.Classical)
+            new RatingFaker(userToFind, timeControl: TimeControl.Classical)
         );
 
         // store a rating for another user to ensure it doesn't interfere
         var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(otherUser).RuleFor(x => x.TimeControl, ratingToFind.TimeControl)
+            new RatingFaker(otherUser, timeControl: ratingToFind.TimeControl)
         );
 
         var result = await _ratingRepository.GetTimeControlRatingAsync(
@@ -52,14 +52,27 @@ public class RatingRepositoryTests : BaseIntegrationTest
     public async Task GetTimeControlRatingAsync_returns_null_when_the_rating_doesnt_exist()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var rating = await FakerUtils.StoreFakerAsync(
+        await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(user).RuleFor(x => x.TimeControl, TimeControl.Rapid)
+            new RatingFaker(user, timeControl: TimeControl.Rapid)
         );
 
         var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz);
 
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetTimeControlRatingAsync_finds_the_latest_rating_when_there_are_multiple()
+    {
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var ratings = new RatingFaker(user, timeControl: TimeControl.Rapid).Generate(3);
+        await DbContext.Ratings.AddRangeAsync(ratings, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid);
+
+        result.Should().BeEquivalentTo(ratings.Last());
     }
 
     [Fact]
