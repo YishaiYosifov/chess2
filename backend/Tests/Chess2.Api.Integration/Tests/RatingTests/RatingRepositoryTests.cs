@@ -41,7 +41,8 @@ public class RatingRepositoryTests : BaseIntegrationTest
 
         var result = await _ratingRepository.GetTimeControlRatingAsync(
             userToFind,
-            ratingToFind.TimeControl
+            ratingToFind.TimeControl,
+            CT
         );
 
         result.Should().NotBeNull();
@@ -57,7 +58,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
             new RatingFaker(user, timeControl: TimeControl.Rapid)
         );
 
-        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz);
+        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Blitz, CT);
 
         result.Should().BeNull();
     }
@@ -70,7 +71,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
         await DbContext.Ratings.AddRangeAsync(ratings, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid);
+        var result = await _ratingRepository.GetTimeControlRatingAsync(user, TimeControl.Rapid, CT);
 
         result.Should().BeEquivalentTo(ratings.Last());
     }
@@ -84,7 +85,7 @@ public class RatingRepositoryTests : BaseIntegrationTest
             .RuleFor(x => x.TimeControl, TimeControl.Classical)
             .Generate();
 
-        await _ratingRepository.AddRatingAsync(rating, user);
+        await _ratingRepository.AddRatingAsync(rating, user, CT);
         await DbContext.SaveChangesAsync(CT);
 
         var dbRating = await DbContext.Ratings.SingleOrDefaultAsync(
