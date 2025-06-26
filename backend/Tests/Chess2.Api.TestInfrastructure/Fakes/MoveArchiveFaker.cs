@@ -24,6 +24,7 @@ public class MoveArchiveFaker : Faker<MoveArchive>
     public MoveArchiveFaker()
     {
         StrictMode(true);
+        RuleFor(x => x.Id, 0);
         RuleFor(x => x.MoveNumber, f => f.IndexFaker);
         RuleFor(x => x.EncodedMove, f => f.PickRandom(_encodedMovePool));
     }
