@@ -11,8 +11,8 @@ namespace Chess2.Api.UserRating.Services;
 
 public interface IRatingService
 {
-    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl);
-    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControlSettings timeControl);
+    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl, CancellationToken token = default);
+    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControlSettings timeControl, CancellationToken token = default);
 }
 
 public class RatingService(
@@ -29,9 +29,9 @@ public class RatingService(
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly GameSettings _settings = settings.Value.Game;
 
-    public async Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl)
+    public async Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl, CancellationToken token = default)
     {
-        var rating = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl);
+        var rating = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl, token);
         if (rating is not null)
             return rating;
 
@@ -46,20 +46,21 @@ public class RatingService(
             TimeControl = timeControl,
             Value = _settings.DefaultRating,
         };
-
-        await _ratingRepository.AddRatingAsync(rating, user);
-        await _unitOfWork.CompleteAsync();
+        
+        await _ratingRepository.AddRatingAsync(rating, user, token);
+        await _unitOfWork.CompleteAsync(token);
 
         return rating;
     }
 
     public async Task<Rating> GetOrCreateRatingAsync(
         AuthedUser user,
-        TimeControlSettings timeControl
+        TimeControlSettings timeControl,
+        CancellationToken token = default
     )
     {
         var timeControlEnum = _timeControlTranslator.FromSeconds(timeControl.BaseSeconds);
-        var rating = await GetOrCreateRatingAsync(user, timeControlEnum);
+        var rating = await GetOrCreateRatingAsync(user, timeControlEnum, token);
         return rating;
     }
 }
