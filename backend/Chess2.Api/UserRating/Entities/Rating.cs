@@ -10,4 +10,6 @@ public class Rating
     public required TimeControl TimeControl { get; set; }
 
     public int Value { get; set; } = 800;
+
+    public DateTime AchievedAt { get; set; } = DateTime.UtcNow;
 }
