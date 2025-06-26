@@ -25,7 +25,7 @@ public class RatingServiceTests : BaseIntegrationTest
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Blitz);
+        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Blitz, CT);
 
         result.Should().NotBeNull();
         result.UserId.Should().Be(user.Id);
@@ -51,7 +51,7 @@ public class RatingServiceTests : BaseIntegrationTest
                 .RuleFor(r => r.TimeControl, TimeControl.Rapid)
         );
 
-        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Rapid);
+        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Rapid, CT);
 
         rating.Should().NotBeNull();
         rating.Should().BeEquivalentTo(rating);
