@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Bogus;
+﻿using Bogus;
 using Chess2.Api.Game.Entities;
 using Chess2.Api.GameLogic.Models;
 
@@ -20,6 +14,7 @@ public class PlayerArchiveFaker : Faker<PlayerArchive>
         RuleFor(x => x.UserId, f => f.Random.Guid().ToString());
         RuleFor(x => x.Color, color);
         RuleFor(x => x.InitialRating, f => f.Random.Int(1200, 2500));
+        RuleFor(x => x.NewRating, f => f.Random.Int(1200, 2500));
         RuleFor(x => x.CountryCode, f => f.Address.CountryCode());
     }
 }

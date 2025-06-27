@@ -47,8 +47,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             GameToken = gameToken,
             Result = expectedResult,
             FinalFen = gameState.Fen,
-            WhitePlayer = CreateExpectedPlayerArchive(gameState.WhitePlayer),
-            BlackPlayer = CreateExpectedPlayerArchive(gameState.BlackPlayer),
+            WhitePlayer = CreateExpectedPlayerArchive(gameState.WhitePlayer, whiteRatingDelta),
+            BlackPlayer = CreateExpectedPlayerArchive(gameState.BlackPlayer, -whiteRatingDelta),
             Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
         };
 
@@ -93,7 +93,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         return archive;
     }
 
-    private static PlayerArchive CreateExpectedPlayerArchive(GamePlayer player) =>
+    private static PlayerArchive CreateExpectedPlayerArchive(GamePlayer player, int ratingDelta) =>
         new()
         {
             UserId = player.UserId,
@@ -101,6 +101,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             CountryCode = player.CountryCode,
             Color = player.Color,
             InitialRating = player.Rating,
+            NewRating = player.Rating + ratingDelta,
         };
 
     private static IEnumerable<MoveArchive> CreateExpectedMoveArchives(
