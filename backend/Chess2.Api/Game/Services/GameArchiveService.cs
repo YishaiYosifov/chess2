@@ -27,8 +27,8 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
         CancellationToken token = default
     )
     {
-        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer);
-        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer);
+        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer, whiteRatingDelta);
+        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer, -whiteRatingDelta);
         List<MoveArchive> moves = [];
         for (int i = 0; i < gameState.MoveHistory.Count; i++)
         {
@@ -51,7 +51,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
         return gameArchive;
     }
 
-    private static PlayerArchive CreatePlayerArchive(GamePlayer player) =>
+    private static PlayerArchive CreatePlayerArchive(GamePlayer player, int ratingDelta) =>
         new()
         {
             Color = player.Color,
@@ -59,6 +59,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             UserName = player.UserName,
             CountryCode = player.CountryCode,
             InitialRating = player.Rating,
+            NewRating = player.Rating + ratingDelta,
         };
 
     private static MoveArchive CreateMoveArchive(string encodedMove, int moveNumber) =>
