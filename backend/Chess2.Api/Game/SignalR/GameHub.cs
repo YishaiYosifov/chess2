@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Game.Services;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
@@ -16,12 +17,13 @@ public interface IGameHub : IChess2HubClient
         GameColor sideToMove,
         int moveNumber
     );
+    Task GameEndedAsync(GameResult gameResult, int newWhiteRating, int newBlackRating);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
 public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2Hub<IGameHub>
 {
-    private const string GameTokenQueryParm = "gameToken";
+    private const string GameTokenQueryParam = "gameToken";
 
     private readonly ILogger<GameHub> _logger = logger;
     private readonly IGameService _gameService = gameService;
@@ -74,7 +76,7 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
 
     public override async Task OnConnectedAsync()
     {
-        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParm];
+        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
         if (gameToken is null)
         {
             _logger.LogWarning(
@@ -92,7 +94,7 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParm];
+        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
         if (gameToken is not null)
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameToken);
 
