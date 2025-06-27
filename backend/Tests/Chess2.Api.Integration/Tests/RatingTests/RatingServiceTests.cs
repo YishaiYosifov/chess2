@@ -87,11 +87,16 @@ public class RatingServiceTests : BaseIntegrationTest
     }
 
     [Theory]
-    [InlineData(GameResult.WhiteWin, 24, -24)]
-    [InlineData(GameResult.BlackWin, -8, 8)]
-    [InlineData(GameResult.Draw, 8, -8)]
+    [InlineData(GameResult.WhiteWin, 1500, 1700, 12, -12)]
+    [InlineData(GameResult.BlackWin, 1500, 1700, -4, 4)]
+    [InlineData(GameResult.Draw, 1500, 1700, 4, -4)]
+    // rating can't go bellow 100
+    [InlineData(GameResult.WhiteWin, 100, 100, 8, 0)]
+    [InlineData(GameResult.BlackWin, 100, 100, 0, 8)]
     public async Task UpdateRatingForResultAsync_updates_ratings_correctly(
         GameResult gameResult,
+        int whiteRating,
+        int blackRating,
         int expectedWhiteRatingDelta,
         int expectedBlackRatingDelta
     )
@@ -99,8 +104,6 @@ public class RatingServiceTests : BaseIntegrationTest
         var whiteUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var blackUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        const int whiteRating = 1500;
-        const int blackRating = 1700;
         await _ratingService.AddRatingAsync(whiteUser, TimeControl.Blitz, whiteRating, CT);
         await _ratingService.AddRatingAsync(blackUser, TimeControl.Blitz, blackRating, CT);
         await DbContext.SaveChangesAsync(CT);
