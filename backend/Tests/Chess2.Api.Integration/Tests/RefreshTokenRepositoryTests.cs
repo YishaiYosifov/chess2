@@ -5,7 +5,7 @@ using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests.RepositoryTests;
+namespace Chess2.Api.Integration.Tests;
 
 public class RefreshTokenRepositoryTests : BaseIntegrationTest
 {
