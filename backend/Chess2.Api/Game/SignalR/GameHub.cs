@@ -17,7 +17,7 @@ public interface IGameHub : IChess2HubClient
         GameColor sideToMove,
         int moveNumber
     );
-    Task GameEndedAsync(GameResult gameResult, int newWhiteRating, int newBlackRating);
+    Task GameEndedAsync(GameResult gameResult, int? newWhiteRating, int? newBlackRating);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
@@ -66,12 +66,20 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             await HandleErrors(endResult.Errors);
             return;
         }
+        var gameArchive = endResult.Value;
         _logger.LogInformation(
             "User {UserId} ended game {GameToken}, result is {GameResult}",
             userId,
             gameToken,
-            endResult.Value
+            gameArchive
         );
+        await Clients
+            .Group(gameToken)
+            .GameEndedAsync(
+                gameArchive.Result,
+                gameArchive.WhitePlayer?.NewRating,
+                gameArchive.BlackPlayer?.NewRating
+            );
     }
 
     public override async Task OnConnectedAsync()
