@@ -21,7 +21,7 @@ public class RatingServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetOrCreateRatingAsync_CreatesNewRating_WhenNoneExists()
+    public async Task GetOrCreateRatingAsync_creates_a_new_rating_when_one_doesnt_exist()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
@@ -29,19 +29,21 @@ public class RatingServiceTests : BaseIntegrationTest
 
         result.Should().NotBeNull();
         result.UserId.Should().Be(user.Id);
-        Assert.Equal(TimeControl.Blitz, result.TimeControl);
-        Assert.Equal(AppSettings.Game.DefaultRating, result.Value);
+        result.TimeControl.Should().Be(TimeControl.Blitz);
+        result.Value.Should().Be(AppSettings.Game.DefaultRating);
 
-        var dbRating = await DbContext.Ratings.FirstOrDefaultAsync(
-            r => r.UserId == user.Id && r.TimeControl == TimeControl.Blitz,
-            CT
-        );
+        var dbRating = await DbContext
+            .Ratings.AsNoTracking()
+            .FirstOrDefaultAsync(
+                r => r.UserId == user.Id && r.TimeControl == TimeControl.Blitz,
+                CT
+            );
         dbRating.Should().NotBeNull();
         dbRating.Should().BeEquivalentTo(result);
     }
 
     [Fact]
-    public async Task GetOrCreateRatingAsync_ReturnsExistingRating_WhenExists()
+    public async Task GetOrCreateRatingAsync_finds_the_existing_rating()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var rating = await FakerUtils.StoreFakerAsync(
