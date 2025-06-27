@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Entities;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
@@ -8,7 +9,7 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameFinalizer
 {
-    Task FinalizeGameAsync(
+    Task<GameArchive?> FinalizeGameAsync(
         string gameToken,
         GameState gameState,
         GameResult gameResult,
@@ -28,7 +29,7 @@ public class GameFinalizer(
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
-    public async Task FinalizeGameAsync(
+    public async Task<GameArchive?> FinalizeGameAsync(
         string gameToken,
         GameState gameState,
         GameResult gameResult,
@@ -36,15 +37,14 @@ public class GameFinalizer(
     )
     {
         if (gameResult is GameResult.Aborted)
-            return;
-
-        await _gameArchiveService.CreateArchiveAsync(gameToken, gameState, gameResult, token);
+            return null;
 
         var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
         var blackUser = await _userManager.FindByIdAsync(gameState.BlackPlayer.UserId);
+        int whiteRatingDelta = 0;
         if (whiteUser is not null && blackUser is not null)
         {
-            await _ratingService.UpdateRatingForResultAsync(
+            whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
                 whiteUser,
                 blackUser,
                 gameResult,
@@ -52,5 +52,14 @@ public class GameFinalizer(
                 token
             );
         }
+        var archive = await _gameArchiveService.CreateArchiveAsync(
+            gameToken,
+            gameState,
+            gameResult,
+            whiteRatingDelta,
+            token
+        );
+
+        return archive;
     }
 }
