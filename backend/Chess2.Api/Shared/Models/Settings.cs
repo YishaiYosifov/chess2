@@ -23,6 +23,7 @@ public class GameSettings
     public TimeSpan MatchWaveEvery { get; set; }
 
     public int DefaultRating { get; set; }
+    public int KFactor { get; set; }
 }
 
 public class JwtSettings
