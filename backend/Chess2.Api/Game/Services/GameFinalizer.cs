@@ -9,7 +9,7 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameFinalizer
 {
-    Task<GameArchive?> FinalizeGameAsync(
+    Task<GameArchive> FinalizeGameAsync(
         string gameToken,
         GameState gameState,
         GameResult gameResult,
@@ -29,29 +29,14 @@ public class GameFinalizer(
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
-    public async Task<GameArchive?> FinalizeGameAsync(
+    public async Task<GameArchive> FinalizeGameAsync(
         string gameToken,
         GameState gameState,
         GameResult gameResult,
         CancellationToken token = default
     )
     {
-        if (gameResult is GameResult.Aborted)
-            return null;
-
-        var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
-        var blackUser = await _userManager.FindByIdAsync(gameState.BlackPlayer.UserId);
-        int whiteRatingDelta = 0;
-        if (whiteUser is not null && blackUser is not null)
-        {
-            whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
-                whiteUser,
-                blackUser,
-                gameResult,
-                _timeControlTranslator.FromSeconds(gameState.TimeControl.BaseSeconds),
-                token
-            );
-        }
+        var whiteRatingDelta = await UpdateRatingAsync(gameState, gameResult, token);
         var archive = await _gameArchiveService.CreateArchiveAsync(
             gameToken,
             gameState,
@@ -61,5 +46,29 @@ public class GameFinalizer(
         );
 
         return archive;
+    }
+
+    private async Task<int> UpdateRatingAsync(
+        GameState gameState,
+        GameResult gameResult,
+        CancellationToken token = default
+    )
+    {
+        if (gameResult is GameResult.Aborted)
+            return 0;
+
+        var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
+        var blackUser = await _userManager.FindByIdAsync(gameState.BlackPlayer.UserId);
+        if (whiteUser is null || blackUser is null)
+            return 0;
+
+        int whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
+            whiteUser,
+            blackUser,
+            gameResult,
+            _timeControlTranslator.FromSeconds(gameState.TimeControl.BaseSeconds),
+            token
+        );
+        return whiteRatingDelta;
     }
 }
