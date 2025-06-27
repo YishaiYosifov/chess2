@@ -7,6 +7,7 @@ using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Game.Repositories;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Game.SignalR;
 using Chess2.Api.GameLogic;
@@ -317,6 +318,8 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
+builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
+builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
 
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();

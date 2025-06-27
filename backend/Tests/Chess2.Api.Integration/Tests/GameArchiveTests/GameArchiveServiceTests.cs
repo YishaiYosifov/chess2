@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Chess2.Api.Game.Entities;
+﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
@@ -68,7 +63,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             .BeEquivalentTo(gameState.MoveHistory);
     }
 
-    private void AssertPlayerMatchingArchive(GamePlayer player, PlayerArchive archive)
+    private static void AssertPlayerMatchingArchive(GamePlayer player, PlayerArchive archive)
     {
         archive.UserId.Should().Be(player.UserId);
         archive.UserName.Should().Be(player.UserName);
