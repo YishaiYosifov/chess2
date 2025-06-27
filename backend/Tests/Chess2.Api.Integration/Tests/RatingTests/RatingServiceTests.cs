@@ -87,12 +87,13 @@ public class RatingServiceTests : BaseIntegrationTest
     }
 
     [Theory]
-    [InlineData(GameResult.WhiteWin, 24)]
-    [InlineData(GameResult.BlackWin, -8)]
-    [InlineData(GameResult.Draw, 8)]
+    [InlineData(GameResult.WhiteWin, 24, -24)]
+    [InlineData(GameResult.BlackWin, -8, 8)]
+    [InlineData(GameResult.Draw, 8, -8)]
     public async Task UpdateRatingForResultAsync_updates_ratings_correctly(
         GameResult gameResult,
-        int expectedWhiteRatingChange
+        int expectedWhiteRatingDelta,
+        int expectedBlackRatingDelta
     )
     {
         var whiteUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
@@ -124,7 +125,7 @@ public class RatingServiceTests : BaseIntegrationTest
             CT
         );
 
-        newWhiteRating.Value.Should().Be(whiteRating + expectedWhiteRatingChange);
-        newBlackRating.Value.Should().Be(blackRating - expectedWhiteRatingChange);
+        newWhiteRating.Value.Should().Be(whiteRating + expectedWhiteRatingDelta);
+        newBlackRating.Value.Should().Be(blackRating + expectedBlackRatingDelta);
     }
 }
