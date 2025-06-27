@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Repositories;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Chess2.Api.Game.Services;
 
@@ -11,6 +10,7 @@ public interface IGameArchiveService
         string gameToken,
         GameState gameState,
         GameResult gameResult,
+        int whiteRatingDelta = 0,
         CancellationToken token = default
     );
 }
@@ -23,6 +23,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
         string gameToken,
         GameState gameState,
         GameResult gameResult,
+        int whiteRatingDelta = 0,
         CancellationToken token = default
     )
     {
@@ -57,7 +58,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             UserId = player.UserId,
             UserName = player.UserName,
             CountryCode = player.CountryCode,
-            Rating = player.Rating,
+            InitialRating = player.Rating,
         };
 
     private static MoveArchive CreateMoveArchive(string encodedMove, int moveNumber) =>
