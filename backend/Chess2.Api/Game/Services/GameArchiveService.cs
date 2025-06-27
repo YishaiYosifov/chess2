@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Repositories;
+using Chess2.Api.UserRating.Models;
 
 namespace Chess2.Api.Game.Services;
 
@@ -10,7 +11,7 @@ public interface IGameArchiveService
         string gameToken,
         GameState gameState,
         GameResult gameResult,
-        int whiteRatingDelta = 0,
+        RatingDelta ratingDelta,
         CancellationToken token = default
     );
 }
@@ -23,12 +24,12 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
         string gameToken,
         GameState gameState,
         GameResult gameResult,
-        int whiteRatingDelta = 0,
+        RatingDelta ratingDelta,
         CancellationToken token = default
     )
     {
-        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer, whiteRatingDelta);
-        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer, -whiteRatingDelta);
+        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer, ratingDelta.WhiteDelta);
+        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer, ratingDelta.BlackDelta);
         List<MoveArchive> moves = [];
         for (int i = 0; i < gameState.MoveHistory.Count; i++)
         {

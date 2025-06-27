@@ -4,6 +4,7 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.UserRating.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,13 +27,13 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         var gameToken = Guid.NewGuid().ToString("N")[..16];
         var gameState = CreateTestGameState();
         var expectedResult = GameResult.WhiteWin;
-        var whiteRatingDelta = 100;
+        var ratingDelta = new RatingDelta(WhiteDelta: 100, BlackDelta: -150);
 
         var result = await _gameArchiveService.CreateArchiveAsync(
             gameToken,
             gameState,
             expectedResult,
-            whiteRatingDelta,
+            ratingDelta,
             CT
         );
 
@@ -47,8 +48,14 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             GameToken = gameToken,
             Result = expectedResult,
             FinalFen = gameState.Fen,
-            WhitePlayer = CreateExpectedPlayerArchive(gameState.WhitePlayer, whiteRatingDelta),
-            BlackPlayer = CreateExpectedPlayerArchive(gameState.BlackPlayer, -whiteRatingDelta),
+            WhitePlayer = CreateExpectedPlayerArchive(
+                gameState.WhitePlayer,
+                ratingDelta.WhiteDelta
+            ),
+            BlackPlayer = CreateExpectedPlayerArchive(
+                gameState.BlackPlayer,
+                ratingDelta.BlackDelta
+            ),
             Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
         };
 
