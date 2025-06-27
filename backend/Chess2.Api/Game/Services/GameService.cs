@@ -4,6 +4,7 @@ using Chess2.Api.Game.Actors;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
 using ErrorOr;
@@ -43,7 +44,8 @@ public class GameService(
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    IGameFinalizer gameFinalizer
+    IGameFinalizer gameFinalizer,
+    ITimeControlTranslator timeControlTranslator
 ) : IGameService
 {
     private readonly ILogger<GameService> _logger = logger;
@@ -52,6 +54,7 @@ public class GameService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameFinalizer _gameFinalizer = gameFinalizer;
+    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
     public async Task<string> StartGameAsync(
         string userId1,
@@ -154,8 +157,12 @@ public class GameService(
     )
     {
         var user = await _userManager.FindByIdAsync(userId);
+
         var rating = user is not null
-            ? await _ratingService.GetOrCreateRatingAsync(user, timeControl)
+            ? await _ratingService.GetOrCreateRatingAsync(
+                user,
+                _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
+            )
             : null;
 
         return new GamePlayer(

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chess2.Api.Game.Entities;
 
