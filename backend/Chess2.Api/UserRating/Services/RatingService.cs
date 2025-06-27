@@ -22,11 +22,6 @@ public interface IRatingService
         TimeControl timeControl,
         CancellationToken token = default
     );
-    Task<Rating> GetOrCreateRatingAsync(
-        AuthedUser user,
-        TimeControlSettings timeControl,
-        CancellationToken token = default
-    );
     Task UpdateRatingForResultAsync(
         AuthedUser whiteUser,
         AuthedUser blackUser,
@@ -69,17 +64,6 @@ public class RatingService(
         rating = await AddRatingAsync(user, timeControl, _settings.DefaultRating, token);
         await _unitOfWork.CompleteAsync(token);
 
-        return rating;
-    }
-
-    public async Task<Rating> GetOrCreateRatingAsync(
-        AuthedUser user,
-        TimeControlSettings timeControl,
-        CancellationToken token = default
-    )
-    {
-        var timeControlEnum = _timeControlTranslator.FromSeconds(timeControl.BaseSeconds);
-        var rating = await GetOrCreateRatingAsync(user, timeControlEnum, token);
         return rating;
     }
 
