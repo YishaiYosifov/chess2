@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Infrastructure;
+﻿using System.Data.Common;
+using System.Net;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -11,8 +13,6 @@ using Npgsql;
 using Refit;
 using Respawn;
 using StackExchange.Redis;
-using System.Data.Common;
-using System.Net;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
 
