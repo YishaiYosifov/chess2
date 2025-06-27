@@ -63,4 +63,23 @@ public class RatingService(
         var rating = await GetOrCreateRatingAsync(user, timeControlEnum, token);
         return rating;
     }
+
+    public async Task UpdateRatingForResultAsync(
+        AuthedUser whiteUser,
+        AuthedUser blackUser,
+        GameResult result,
+        TimeControl timeControl,
+        CancellationToken token = default)
+    {
+        var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
+        var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
+
+        
+    }
+
+    private int CalculateNewRating(int playerRating, int opponentRating, int score)
+    {
+        var expectedScore = 1 / (1 + Math.Pow(10, opponentRating - playerRating) / 400);
+
+    }
 }
