@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Game.Models;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Chess2.Api.Game.Models;
 
 namespace Chess2.Api.Game.Entities;
 
@@ -9,10 +9,10 @@ public class GameArchive
     public required string GameToken { get; set; }
     public required GameResult Result { get; set; }
     public required string FinalFen { get; set; }
-    public required IEnumerable<MoveArchive> Moves { get; set; }
+    public IEnumerable<MoveArchive> Moves { get; set; } = [];
 
-    public required int WhitePlayerId { get; set; }
-    public required int BlackPlayerId { get; set; }
+    public int WhitePlayerId { get; set; }
+    public int BlackPlayerId { get; set; }
 
     [ForeignKey(nameof(WhitePlayerId))]
     public required PlayerArchive? WhitePlayer { get; set; }
