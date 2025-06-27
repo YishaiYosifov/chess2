@@ -48,15 +48,13 @@ public class RatingServiceTests : BaseIntegrationTest
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var rating = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(user)
-                .RuleFor(r => r.UserId, user.Id)
-                .RuleFor(r => r.TimeControl, TimeControl.Rapid)
+            new RatingFaker(user, timeControl: TimeControl.Rapid)
         );
 
         var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Rapid, CT);
 
-        rating.Should().NotBeNull();
-        rating.Should().BeEquivalentTo(rating);
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(rating);
     }
 
     [Fact]
