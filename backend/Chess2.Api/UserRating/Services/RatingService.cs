@@ -11,8 +11,16 @@ namespace Chess2.Api.UserRating.Services;
 
 public interface IRatingService
 {
-    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl, CancellationToken token = default);
-    Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControlSettings timeControl, CancellationToken token = default);
+    Task<Rating> GetOrCreateRatingAsync(
+        AuthedUser user,
+        TimeControl timeControl,
+        CancellationToken token = default
+    );
+    Task<Rating> GetOrCreateRatingAsync(
+        AuthedUser user,
+        TimeControlSettings timeControl,
+        CancellationToken token = default
+    );
 }
 
 public class RatingService(
@@ -29,7 +37,11 @@ public class RatingService(
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly GameSettings _settings = settings.Value.Game;
 
-    public async Task<Rating> GetOrCreateRatingAsync(AuthedUser user, TimeControl timeControl, CancellationToken token = default)
+    public async Task<Rating> GetOrCreateRatingAsync(
+        AuthedUser user,
+        TimeControl timeControl,
+        CancellationToken token = default
+    )
     {
         var rating = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl, token);
         if (rating is not null)
@@ -46,7 +58,7 @@ public class RatingService(
             TimeControl = timeControl,
             Value = _settings.DefaultRating,
         };
-        
+
         await _ratingRepository.AddRatingAsync(rating, user, token);
         await _unitOfWork.CompleteAsync(token);
 
@@ -69,17 +81,15 @@ public class RatingService(
         AuthedUser blackUser,
         GameResult result,
         TimeControl timeControl,
-        CancellationToken token = default)
+        CancellationToken token = default
+    )
     {
         var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
         var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
-
-        
     }
 
     private int CalculateNewRating(int playerRating, int opponentRating, int score)
     {
         var expectedScore = 1 / (1 + Math.Pow(10, opponentRating - playerRating) / 400);
-
     }
 }

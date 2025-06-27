@@ -1,11 +1,11 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.Net;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 

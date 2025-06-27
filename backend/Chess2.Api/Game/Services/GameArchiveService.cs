@@ -7,14 +7,24 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameArchiveService
 {
-    Task<GameArchive> CreateArchiveAsync(string gameToken, GameState gameState, GameResult gameResult, CancellationToken token = default);
+    Task<GameArchive> CreateArchiveAsync(
+        string gameToken,
+        GameState gameState,
+        GameResult gameResult,
+        CancellationToken token = default
+    );
 }
 
 public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : IGameArchiveService
 {
     private readonly IGameArchiveRepository _gameArchiveRepository = gameArchiveRepository;
 
-    public async Task<GameArchive> CreateArchiveAsync(string gameToken, GameState gameState, GameResult gameResult, CancellationToken token = default)
+    public async Task<GameArchive> CreateArchiveAsync(
+        string gameToken,
+        GameState gameState,
+        GameResult gameResult,
+        CancellationToken token = default
+    )
     {
         var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer);
         var blackArchive = CreatePlayerArchive(gameState.BlackPlayer);
