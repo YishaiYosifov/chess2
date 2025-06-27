@@ -124,7 +124,13 @@ public class RatingService(
         var expectedWhiteScore = 1 / (1 + Math.Pow(10, (blackRating - whiteRating) / 400.0));
         var whiteRatingDelta = (int)
             Math.Round(_settings.KFactor * (whiteScore - expectedWhiteScore));
+        var blackRatingDelta = -whiteRatingDelta;
 
-        return new(whiteRatingDelta, -whiteRatingDelta);
+        if (whiteRating + whiteRatingDelta < 100)
+            whiteRatingDelta = -Math.Abs(whiteRating - 100);
+        if (blackRating + blackRatingDelta < 100)
+            blackRatingDelta = -Math.Abs(blackRating - 100);
+
+        return new(whiteRatingDelta, blackRatingDelta);
     }
 }
