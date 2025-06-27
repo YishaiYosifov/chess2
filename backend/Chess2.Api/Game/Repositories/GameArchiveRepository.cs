@@ -14,10 +14,12 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<GameArchive?> GetGameArchiveByToken(string gameToken, CancellationToken token = default) =>
+    public Task<GameArchive?> GetGameArchiveByToken(
+        string gameToken,
+        CancellationToken token = default
+    ) =>
         _dbContext
-            .GameArchives
-            .Include(archive => archive.WhitePlayer)
+            .GameArchives.Include(archive => archive.WhitePlayer)
             .Include(archive => archive.BlackPlayer)
             .Include(archive => archive.Moves)
             .Where(archive => archive.GameToken == gameToken)

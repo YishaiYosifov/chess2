@@ -1,4 +1,9 @@
-﻿using Chess2.Api.Game.Entities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
@@ -7,11 +12,6 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Chess2.Api.Integration.Tests.GameArchiveTests;
 
@@ -19,7 +19,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 {
     private readonly IGameArchiveService _gameArchiveService;
 
-    public GameArchiveServiceTests(Chess2WebApplicationFactory factory) : base(factory)
+    public GameArchiveServiceTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
         _gameArchiveService = Scope.ServiceProvider.GetRequiredService<IGameArchiveService>();
     }
@@ -28,12 +29,11 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     public async Task CreateArchiveAsync_ShouldPersistGameArchiveCorrectly()
     {
         var gameToken = Guid.NewGuid().ToString("N")[..16];
-        var gameState = new GameState
-        (
+        var gameState = new GameState(
             Fen: "10/10/10/10/10/10/10/10/10/10",
             WhitePlayer: new GamePlayerFaker(GameColor.White).Generate(),
             BlackPlayer: new GamePlayerFaker(GameColor.Black).Generate(),
-            MoveHistory: [ "e2e4", "e7e5", "g1f3" ],
+            MoveHistory: ["e2e4", "e7e5", "g1f3"],
             SideToMove: GameColor.Black,
             LegalMoves: [],
             TimeControl: new(600, 5)
@@ -43,11 +43,12 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             gameToken,
             gameState,
             GameResult.WhiteWin,
-            CT);
+            CT
+        );
         await DbContext.SaveChangesAsync(CT);
 
-        var savedArchive = await DbContext.GameArchives
-            .Include(g => g.Moves)
+        var savedArchive = await DbContext
+            .GameArchives.Include(g => g.Moves)
             .Include(g => g.WhitePlayer)
             .Include(g => g.BlackPlayer)
             .FirstOrDefaultAsync(g => g.GameToken == gameToken, CT);
@@ -61,7 +62,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         AssertPlayerMatchingArchive(gameState.BlackPlayer, savedArchive.BlackPlayer);
 
         savedArchive.FinalFen.Should().Be(gameState.Fen);
-        savedArchive.Moves.Select(x => x.EncodedMove)
+        savedArchive
+            .Moves.Select(x => x.EncodedMove)
             .Should()
             .BeEquivalentTo(gameState.MoveHistory);
     }

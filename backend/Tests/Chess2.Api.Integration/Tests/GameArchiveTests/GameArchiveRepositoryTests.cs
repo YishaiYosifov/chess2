@@ -13,10 +13,15 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
 {
     private readonly IGameArchiveRepository _gameArchiveRepository;
 
-    private readonly PlayerArchive _whitePlayer = new PlayerArchiveFaker(GameColor.White).Generate();
-    private readonly PlayerArchive _blackPlayer = new PlayerArchiveFaker(GameColor.Black).Generate();
+    private readonly PlayerArchive _whitePlayer = new PlayerArchiveFaker(
+        GameColor.White
+    ).Generate();
+    private readonly PlayerArchive _blackPlayer = new PlayerArchiveFaker(
+        GameColor.Black
+    ).Generate();
 
-    public GameArchiveRepositoryTests(Chess2WebApplicationFactory factory) : base(factory)
+    public GameArchiveRepositoryTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
         _gameArchiveRepository = Scope.ServiceProvider.GetRequiredService<IGameArchiveRepository>();
     }
@@ -29,8 +34,8 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await DbContext.GameArchives
-            .Include(g => g.Moves)
+        var result = await DbContext
+            .GameArchives.Include(g => g.Moves)
             .Include(g => g.WhitePlayer)
             .Include(g => g.BlackPlayer)
             .FirstOrDefaultAsync(g => g.GameToken == gameArchive.GameToken, CT);
