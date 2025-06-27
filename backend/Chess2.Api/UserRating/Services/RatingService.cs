@@ -27,6 +27,13 @@ public interface IRatingService
         TimeControlSettings timeControl,
         CancellationToken token = default
     );
+    Task UpdateRatingForResultAsync(
+        AuthedUser whiteUser,
+        AuthedUser blackUser,
+        GameResult result,
+        TimeControl timeControl,
+        CancellationToken token = default
+    );
 }
 
 public class RatingService(
@@ -104,8 +111,17 @@ public class RatingService(
         var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
         var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
 
-    private int CalculateNewRating(int playerRating, int opponentRating, int score)
-    {
-        var expectedScore = 1 / (1 + Math.Pow(10, opponentRating - playerRating) / 400);
+        var whiteScore = result switch
+        {
+            GameResult.WhiteWin => 1.0,
+            GameResult.BlackWin => 0.0,
+            GameResult.Draw => 0.5,
+            _ => throw new ArgumentOutOfRangeException(nameof(result), result, null),
+        };
+        var expectedScore = 1 / (1 + Math.Pow(10, (blackRating.Value - whiteRating.Value) / 400.0));
+        var ratingChange = (int)Math.Round(_settings.KFactor * (whiteScore - expectedScore));
+
+        await AddRatingAsync(whiteUser, timeControl, whiteRating.Value + ratingChange, token);
+        await AddRatingAsync(blackUser, timeControl, blackRating.Value - ratingChange, token);
     }
 }
