@@ -58,4 +58,33 @@ public class RatingServiceTests : BaseIntegrationTest
         rating.Should().NotBeNull();
         rating.Should().BeEquivalentTo(rating);
     }
+
+    [Fact]
+    public async Task AddRatingAsync_adds_a_new_rating()
+    {
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        int newRatingValue = 1500;
+
+        var result = await _ratingService.AddRatingAsync(
+            user,
+            TimeControl.Classical,
+            newRatingValue,
+            CT
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        result.Should().NotBeNull();
+        result.UserId.Should().Be(user.Id);
+        result.TimeControl.Should().Be(TimeControl.Classical);
+        result.Value.Should().Be(newRatingValue);
+
+        var dbRating = await DbContext
+            .Ratings.AsNoTracking()
+            .FirstOrDefaultAsync(
+                r => r.UserId == user.Id && r.TimeControl == TimeControl.Classical,
+                CT
+            );
+        dbRating.Should().NotBeNull();
+        dbRating.Should().BeEquivalentTo(result);
+    }
 }

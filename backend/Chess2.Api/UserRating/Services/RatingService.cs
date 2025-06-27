@@ -11,6 +11,12 @@ namespace Chess2.Api.UserRating.Services;
 
 public interface IRatingService
 {
+    Task<Rating> AddRatingAsync(
+        AuthedUser user,
+        TimeControl timeControl,
+        int newRating,
+        CancellationToken token = default
+    );
     Task<Rating> GetOrCreateRatingAsync(
         AuthedUser user,
         TimeControl timeControl,
@@ -52,14 +58,8 @@ public class RatingService(
             user.Id,
             timeControl
         );
-        rating = new Rating()
-        {
-            UserId = user.Id,
-            TimeControl = timeControl,
-            Value = _settings.DefaultRating,
-        };
 
-        await _ratingRepository.AddRatingAsync(rating, user, token);
+        rating = await AddRatingAsync(user, timeControl, _settings.DefaultRating, token);
         await _unitOfWork.CompleteAsync(token);
 
         return rating;
@@ -76,6 +76,23 @@ public class RatingService(
         return rating;
     }
 
+    public async Task<Rating> AddRatingAsync(
+        AuthedUser user,
+        TimeControl timeControl,
+        int newRating,
+        CancellationToken token = default
+    )
+    {
+        var rating = new Rating()
+        {
+            UserId = user.Id,
+            TimeControl = timeControl,
+            Value = newRating,
+        };
+        await _ratingRepository.AddRatingAsync(rating, user, token);
+        return rating;
+    }
+
     public async Task UpdateRatingForResultAsync(
         AuthedUser whiteUser,
         AuthedUser blackUser,
@@ -86,7 +103,6 @@ public class RatingService(
     {
         var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
         var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
-    }
 
     private int CalculateNewRating(int playerRating, int opponentRating, int score)
     {
