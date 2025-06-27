@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Chess2.Api.Game.Actors;
+using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
@@ -18,7 +19,7 @@ public interface IGameService
         string gameToken,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameResult>> EndGameAsync(
+    Task<ErrorOr<GameArchive?>> EndGameAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -112,7 +113,7 @@ public class GameService(
         return response;
     }
 
-    public async Task<ErrorOr<GameResult>> EndGameAsync(
+    public async Task<ErrorOr<GameArchive?>> EndGameAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -130,9 +131,14 @@ public class GameService(
             return endResult.Errors;
 
         var gameEnded = endResult.Value;
-        await _gameFinalizer.FinalizeGameAsync(gameToken, gameEnded.State, gameEnded.Result, token);
+        var archive = await _gameFinalizer.FinalizeGameAsync(
+            gameToken,
+            gameEnded.State,
+            gameEnded.Result,
+            token
+        );
 
-        return gameEnded.Result;
+        return archive;
     }
 
     public async Task<ErrorOr<Success>> CheckGameStartedAsync(
