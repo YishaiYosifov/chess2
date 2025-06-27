@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -36,33 +37,33 @@ public class GameFinalizer(
         CancellationToken token = default
     )
     {
-        var whiteRatingDelta = await UpdateRatingAsync(gameState, gameResult, token);
+        var ratingDelta = await UpdateRatingAsync(gameState, gameResult, token);
         var archive = await _gameArchiveService.CreateArchiveAsync(
             gameToken,
             gameState,
             gameResult,
-            whiteRatingDelta,
+            ratingDelta,
             token
         );
 
         return archive;
     }
 
-    private async Task<int> UpdateRatingAsync(
+    private async Task<RatingDelta> UpdateRatingAsync(
         GameState gameState,
         GameResult gameResult,
         CancellationToken token = default
     )
     {
         if (gameResult is GameResult.Aborted)
-            return 0;
+            return new();
 
         var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
         var blackUser = await _userManager.FindByIdAsync(gameState.BlackPlayer.UserId);
         if (whiteUser is null || blackUser is null)
-            return 0;
+            return new();
 
-        int whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
+        var whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
             whiteUser,
             blackUser,
             gameResult,
