@@ -85,4 +85,46 @@ public class RatingServiceTests : BaseIntegrationTest
         dbRating.Should().NotBeNull();
         dbRating.Should().BeEquivalentTo(result);
     }
+
+    [Theory]
+    [InlineData(GameResult.WhiteWin, 24)]
+    [InlineData(GameResult.BlackWin, -8)]
+    [InlineData(GameResult.Draw, 8)]
+    public async Task UpdateRatingForResultAsync_updates_ratings_correctly(
+        GameResult gameResult,
+        int expectedWhiteRatingChange
+    )
+    {
+        var whiteUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var blackUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+
+        const int whiteRating = 1500;
+        const int blackRating = 1700;
+        await _ratingService.AddRatingAsync(whiteUser, TimeControl.Blitz, whiteRating, CT);
+        await _ratingService.AddRatingAsync(blackUser, TimeControl.Blitz, blackRating, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await _ratingService.UpdateRatingForResultAsync(
+            whiteUser,
+            blackUser,
+            gameResult,
+            TimeControl.Blitz,
+            CT
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        var newWhiteRating = await _ratingService.GetOrCreateRatingAsync(
+            whiteUser,
+            TimeControl.Blitz,
+            CT
+        );
+        var newBlackRating = await _ratingService.GetOrCreateRatingAsync(
+            blackUser,
+            TimeControl.Blitz,
+            CT
+        );
+
+        newWhiteRating.Value.Should().Be(whiteRating + expectedWhiteRatingChange);
+        newBlackRating.Value.Should().Be(blackRating - expectedWhiteRatingChange);
+    }
 }
