@@ -19,7 +19,7 @@ public interface IGameService
         string gameToken,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameArchive?>> EndGameAsync(
+    Task<ErrorOr<GameArchive>> EndGameAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
@@ -113,7 +113,7 @@ public class GameService(
         return response;
     }
 
-    public async Task<ErrorOr<GameArchive?>> EndGameAsync(
+    public async Task<ErrorOr<GameArchive>> EndGameAsync(
         string gameToken,
         string userId,
         CancellationToken token = default
