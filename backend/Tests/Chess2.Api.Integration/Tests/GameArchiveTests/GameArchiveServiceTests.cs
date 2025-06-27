@@ -21,10 +21,57 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task CreateArchiveAsync_ShouldPersistGameArchiveCorrectly()
+    public async Task CreateArchiveAsync_creates_and_saves_the_game_archive_correctly()
     {
         var gameToken = Guid.NewGuid().ToString("N")[..16];
-        var gameState = new GameState(
+        var gameState = CreateTestGameState();
+        var expectedResult = GameResult.WhiteWin;
+        var whiteRatingDelta = 100;
+
+        var result = await _gameArchiveService.CreateArchiveAsync(
+            gameToken,
+            gameState,
+            expectedResult,
+            whiteRatingDelta,
+            CT
+        );
+
+        await DbContext.SaveChangesAsync(CT);
+
+        var savedArchive = await GetSavedArchiveAsync(gameToken);
+        // Verify service returned the same object that was saved
+        savedArchive.Should().BeEquivalentTo(result);
+
+        var expectedArchive = new GameArchive
+        {
+            GameToken = gameToken,
+            Result = expectedResult,
+            FinalFen = gameState.Fen,
+            WhitePlayer = CreateExpectedPlayerArchive(gameState.WhitePlayer),
+            BlackPlayer = CreateExpectedPlayerArchive(gameState.BlackPlayer),
+            Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
+        };
+
+        // Verify archive properties match expected values
+        savedArchive
+            .Should()
+            .BeEquivalentTo(
+                expectedArchive,
+                options =>
+                    options
+                        .Excluding(x => x.Id)
+                        .Excluding(x => x.CreatedAt)
+                        .Excluding(x => x.WhitePlayerId)
+                        .Excluding(x => x.WhitePlayer!.Id)
+                        .Excluding(x => x.BlackPlayerId)
+                        .Excluding(x => x.BlackPlayer!.Id)
+                        .For(x => x.Moves)
+                        .Exclude(x => x.Id)
+            );
+    }
+
+    private static GameState CreateTestGameState() =>
+        new(
             Fen: "10/10/10/10/10/10/10/10/10/10",
             WhitePlayer: new GamePlayerFaker(GameColor.White).Generate(),
             BlackPlayer: new GamePlayerFaker(GameColor.Black).Generate(),
@@ -34,41 +81,32 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             TimeControl: new(600, 5)
         );
 
-        var result = await _gameArchiveService.CreateArchiveAsync(
-            gameToken,
-            gameState,
-            GameResult.WhiteWin,
-            CT
-        );
-        await DbContext.SaveChangesAsync(CT);
-
-        var savedArchive = await DbContext
+    private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
+    {
+        var archive = await DbContext
             .GameArchives.Include(g => g.Moves)
             .Include(g => g.WhitePlayer)
             .Include(g => g.BlackPlayer)
             .FirstOrDefaultAsync(g => g.GameToken == gameToken, CT);
 
-        savedArchive.Should().NotBeNull();
-        savedArchive.Should().BeEquivalentTo(result);
-
-        savedArchive.WhitePlayer.Should().NotBeNull();
-        savedArchive.BlackPlayer.Should().NotBeNull();
-        AssertPlayerMatchingArchive(gameState.WhitePlayer, savedArchive.WhitePlayer);
-        AssertPlayerMatchingArchive(gameState.BlackPlayer, savedArchive.BlackPlayer);
-
-        savedArchive.FinalFen.Should().Be(gameState.Fen);
-        savedArchive
-            .Moves.Select(x => x.EncodedMove)
-            .Should()
-            .BeEquivalentTo(gameState.MoveHistory);
+        archive.Should().NotBeNull();
+        return archive;
     }
 
-    private static void AssertPlayerMatchingArchive(GamePlayer player, PlayerArchive archive)
-    {
-        archive.UserId.Should().Be(player.UserId);
-        archive.UserName.Should().Be(player.UserName);
-        archive.Color.Should().Be(player.Color);
-        archive.CountryCode.Should().Be(player.CountryCode);
-        archive.Rating.Should().Be(player.Rating);
-    }
+    private static PlayerArchive CreateExpectedPlayerArchive(GamePlayer player) =>
+        new()
+        {
+            UserId = player.UserId,
+            UserName = player.UserName,
+            CountryCode = player.CountryCode,
+            Color = player.Color,
+            InitialRating = player.Rating,
+        };
+
+    private static IEnumerable<MoveArchive> CreateExpectedMoveArchives(
+        IEnumerable<string> moveHistory
+    ) =>
+        moveHistory.Select(
+            (move, index) => new MoveArchive { EncodedMove = move, MoveNumber = index }
+        );
 }
