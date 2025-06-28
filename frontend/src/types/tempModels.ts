@@ -1,9 +1,10 @@
 import { GameColor, User } from "../lib/apiClient";
 
 export enum GameResult {
-    White = "white",
-    Black = "black",
-    Draw = "draw",
+    WHITE_WIN = 0,
+    BLACK_WIN = 1,
+    DRAW = 2,
+    ABORTED = 3,
 }
 
 export enum PieceType {
