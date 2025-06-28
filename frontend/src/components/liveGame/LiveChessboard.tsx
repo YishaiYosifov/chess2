@@ -2,7 +2,7 @@
 
 import { Point } from "@/types/tempModels";
 import { useGameEmitter, useGameEvent } from "@/hooks/signalR/useSignalRHubs";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef } from "react";
 import {
     decodeMoves,
     decodeMovesIntoMap,
@@ -20,7 +20,7 @@ import { ChessStoreContext } from "@/contexts/chessStoreContext";
 import MoveHistoryTable from "./MoveHistoryTable";
 import GameControls from "./GameControls";
 import GameChat from "./GameChat";
-import GameOverPopup from "./GameOverPopup";
+import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 
 const LiveChessboard = ({
     gameToken,
@@ -35,6 +35,8 @@ const LiveChessboard = ({
         userId == gameState.whitePlayer.userId
             ? gameState.whitePlayer
             : gameState.blackPlayer;
+
+    const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
     async function refetchGame() {
         const { error, data } = await getLiveGame({ path: { gameToken } });
@@ -94,6 +96,7 @@ const LiveChessboard = ({
                 .getState()
                 .endGame(gameResult, newWhiteRating, newBlackRating);
             chessboardStore.getState().disableMovement();
+            gameOverPopupRef.current?.open();
         },
     );
 
@@ -132,7 +135,7 @@ const LiveChessboard = ({
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
-            <GameOverPopup />
+            <GameOverPopup ref={gameOverPopupRef} />
             <div
                 className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
                     lg:items-start"
