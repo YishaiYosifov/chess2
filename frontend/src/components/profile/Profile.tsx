@@ -21,7 +21,7 @@ const Profile = ({
         >
             <ProfilePicture
                 className="self-center"
-                username={profile.userName}
+                userId={profile.userName}
                 lastChanged={profile.pfpLastChanged}
             />
             <section className="flex min-w-0 flex-col gap-3">

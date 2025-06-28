@@ -20,6 +20,7 @@ import { ChessStoreContext } from "@/contexts/chessStoreContext";
 import MoveHistoryTable from "./MoveHistoryTable";
 import GameControls from "./GameControls";
 import GameChat from "./GameChat";
+import GameOverPopup from "./GameOverPopup";
 
 const LiveChessboard = ({
     gameToken,
@@ -131,6 +132,7 @@ const LiveChessboard = ({
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
+            <GameOverPopup />
             <div
                 className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
                     lg:items-start"

@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 
 export interface ProfilePictureProps {
-    username?: string;
+    userId?: string;
     width?: number;
     height?: number;
     lastChanged?: number;
@@ -10,7 +10,7 @@ export interface ProfilePictureProps {
 }
 
 const ProfilePicture = ({
-    username,
+    userId,
     width = 120,
     height = 120,
     lastChanged,
