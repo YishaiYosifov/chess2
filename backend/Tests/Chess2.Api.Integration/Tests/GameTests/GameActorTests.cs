@@ -6,29 +6,31 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
 using FluentAssertions;
-using NSubstitute;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Unit.Tests.GameTests;
+namespace Chess2.Api.Integration.Tests.GameTests;
 
-public class GameActorTests : BaseActorTest
+public class GameActorTests : BaseAkkaIntegrationTest
 {
     private const string TestGameToken = "testtoken";
     private readonly TimeControlSettings _timeControl = new(600, 5);
 
-    private readonly IGameCore _gameMock = Substitute.For<IGameCore>();
-
+    private readonly IGameCore _gameCore;
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
 
-    public GameActorTests()
+    public GameActorTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
-        _gameActor = Sys.ActorOf(Props.Create(() => new GameActor(TestGameToken, _gameMock)));
+        _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
+        _gameActor = Sys.ActorOf(Props.Create(() => new GameActor(TestGameToken, _gameCore)));
         _probe = CreateTestProbe();
     }
 
@@ -37,8 +39,8 @@ public class GameActorTests : BaseActorTest
     {
         var parentActor = CreateTestProbe();
         var gameActor = parentActor.ChildActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameMock)),
-            cancellationToken: CT
+            Props.Create(() => new GameActor(TestGameToken, _gameCore)),
+            cancellationToken: ApiTestBase.CT
         );
 
         gameActor.Tell(new GameQueries.GetGameStatus(TestGameToken), _probe);
@@ -57,8 +59,19 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task StartGame_should_initialize_game_and_transition_to_playing_state()
     {
+        var statusEvent = await _gameActor.Ask<GameEvents.GameStatusEvent>(
+            new GameQueries.GetGameStatus(TestGameToken),
+            ApiTestBase.CT
+        );
+        statusEvent.Status.Should().Be(GameStatus.NotStarted);
+
         await StartGameAsync(_whitePlayer, _blackPlayer);
-        _gameMock.Received(1).InitializeGame();
+
+        statusEvent = await _gameActor.Ask<GameEvents.GameStatusEvent>(
+            new GameQueries.GetGameStatus(TestGameToken),
+            ApiTestBase.CT
+        );
+        statusEvent.Status.Should().Be(GameStatus.OnGoing);
     }
 
     [Fact]
@@ -72,7 +85,7 @@ public class GameActorTests : BaseActorTest
         );
 
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
-            cancellationToken: TestContext.Current.CancellationToken
+            cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
@@ -81,23 +94,24 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task GetGameState_valid_user_should_return_GameStateEvent()
     {
-        _gameMock.GetEncodedLegalMovesFor(GameColor.White).Returns(["e2e4"]);
-        _gameMock.Fen.Returns("some-fen");
-        _gameMock.EncodedMoveHistory.Returns(["e2e4"]);
-
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
-            cancellationToken: TestContext.Current.CancellationToken
+            cancellationToken: ApiTestBase.CT
         );
 
         result.IsError.Should().BeFalse();
-        result.Value.State.SideToMove.Should().Be(GameColor.White);
-        result.Value.State.Fen.Should().Be("some-fen");
-        result.Value.State.MoveHistory.Should().ContainSingle("e2e4");
-        result.Value.State.LegalMoves.Should().ContainSingle("e2e4");
-        result.Value.State.TimeControl.Should().Be(_timeControl);
+        var expectedGameState = new GameState(
+            WhitePlayer: _whitePlayer,
+            BlackPlayer: _blackPlayer,
+            SideToMove: GameColor.White,
+            Fen: _gameCore.Fen,
+            MoveHistory: _gameCore.EncodedMoveHistory,
+            LegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
+            TimeControl: _timeControl
+        );
+        result.Value.State.Should().BeEquivalentTo(expectedGameState);
     }
 
     [Fact]
@@ -108,7 +122,7 @@ public class GameActorTests : BaseActorTest
         _gameActor.Tell(
             new GameCommands.MovePiece(
                 TestGameToken,
-                "invalid",
+                _blackPlayer.UserId,
                 new AlgebraicPoint("a2"),
                 new AlgebraicPoint("c4")
             ),
@@ -116,7 +130,7 @@ public class GameActorTests : BaseActorTest
         );
 
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
-            cancellationToken: TestContext.Current.CancellationToken
+            cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
@@ -125,15 +139,6 @@ public class GameActorTests : BaseActorTest
     [Fact]
     public async Task MovePiece_valid_should_send_PieceMoved()
     {
-        var newWhiteLegalMoves = new List<string> { "e2e4" };
-        var newBlackLegalMoves = new List<string> { "e7e5" };
-        const string encodedMove = "e2e4";
-        const int moveNumber = 69;
-        _gameMock.MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4")).Returns(encodedMove);
-        _gameMock.GetEncodedLegalMovesFor(GameColor.White).Returns(newWhiteLegalMoves);
-        _gameMock.GetEncodedLegalMovesFor(GameColor.Black).Returns(newBlackLegalMoves);
-        _gameMock.MoveNumber.Returns(moveNumber);
-
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
@@ -147,31 +152,25 @@ public class GameActorTests : BaseActorTest
         );
 
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
-            cancellationToken: TestContext.Current.CancellationToken
+            cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeFalse();
-        result
-            .Value.Should()
-            .BeEquivalentTo(
-                new GameEvents.PieceMoved(
-                    encodedMove,
-                    WhiteLegalMoves: newWhiteLegalMoves,
-                    WhiteId: _whitePlayer.UserId,
-                    BlackLegalMoves: newBlackLegalMoves,
-                    BlackId: _blackPlayer.UserId,
-                    SideToMove: GameColor.White, // because we are mocking game core, it doesn't change side to move
-                    MoveNumber: moveNumber
-                )
-            );
+
+        var expectedMove = new GameEvents.PieceMoved(
+            Move: "e2e4",
+            WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
+            WhiteId: _whitePlayer.UserId,
+            BlackLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.Black),
+            BlackId: _blackPlayer.UserId,
+            SideToMove: GameColor.Black,
+            MoveNumber: 1
+        );
+        result.Value.Should().BeEquivalentTo(expectedMove);
     }
 
     [Fact]
     public async Task MovePiece_invalid_should_return_error()
     {
-        _gameMock
-            .MakeMove(new AlgebraicPoint("e2"), new AlgebraicPoint("e4"))
-            .Returns(GameErrors.MoveInvalid);
-
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(
@@ -179,13 +178,13 @@ public class GameActorTests : BaseActorTest
                 TestGameToken,
                 _whitePlayer.UserId,
                 new AlgebraicPoint("e2"),
-                new AlgebraicPoint("e4")
+                new AlgebraicPoint("e8")
             ),
             _probe
         );
 
         var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
-            cancellationToken: CT
+            cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
