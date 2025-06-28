@@ -16,4 +16,6 @@ public class PlayerCommands
     ) : IPlayerCommand;
 
     public record CancelSeek(string UserId, string? ConnectionId = null) : IPlayerCommand;
+
+    public record GameEnded(string UserId) : IPlayerCommand;
 }

@@ -1,6 +1,11 @@
-﻿using Chess2.Api.Game.Entities;
+﻿using Akka.Actor;
+using Akka.Hosting;
+using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Player.Actors;
+using Chess2.Api.Player.Models;
+using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
@@ -22,13 +27,17 @@ public class GameFinalizer(
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
-    ITimeControlTranslator timeControlTranslator
+    ITimeControlTranslator timeControlTranslator,
+    IRequiredActor<PlayerActor> playerActor,
+    IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+    private readonly IRequiredActor<PlayerActor> _playerActor = playerActor;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameArchive> FinalizeGameAsync(
         string gameToken,
@@ -45,6 +54,11 @@ public class GameFinalizer(
             ratingDelta,
             token
         );
+
+        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(gameState.WhitePlayer.UserId));
+        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(gameState.BlackPlayer.UserId));
+
+        await _unitOfWork.CompleteAsync(token);
 
         return archive;
     }
