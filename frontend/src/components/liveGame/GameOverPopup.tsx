@@ -5,19 +5,37 @@ import { GamePlayer } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "../helpers/Button";
 import { GameResult } from "@/types/tempModels";
+import { useState } from "react";
 
 const GameOverPopup = () => {
     const whitePlayer = useLiveChessboardStore((x) => x.whitePlayer);
     const blackPlayer = useLiveChessboardStore((x) => x.blackPlayer);
     const result = useLiveChessboardStore((x) => x.result);
-    if (!whitePlayer || !blackPlayer || !result) return;
+    const [isOpen, setIsOpen] = useState(true);
+
+    if (!whitePlayer || !blackPlayer || !result || !isOpen) return;
+
+    function closePopup() {
+        setIsOpen(false);
+    }
 
     return (
-        <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 p-4">
+        <div
+            className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 p-4"
+            onClick={closePopup}
+        >
             <div
-                className="bg-background shadow-x4 flex h-min max-h-full w-full max-w-md flex-col gap-3
-                    overflow-auto rounded-2xl p-8"
+                className="bg-background shadow-x4 relative flex h-min max-h-full w-full max-w-md flex-col
+                    gap-3 overflow-auto rounded-2xl p-8"
+                onClick={(e) => e.stopPropagation()}
             >
+                <button
+                    onClick={closePopup}
+                    aria-label="Close popup"
+                    className="hover:text-text/80 absolute top-2 right-4 cursor-pointer text-4xl"
+                >
+                    ×
+                </button>
                 <h2 className="text-center text-3xl font-bold">GAME OVER</h2>
                 <p className="text-secondary text-center">
                     You lost by resignation. Better luck next time!
