@@ -7,12 +7,18 @@ import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 import { devtools } from "zustand/middleware";
 
+interface GameResultData {
+    gameResult: GameResult;
+    whiteRatingDelta?: number;
+    blackRatingDelta?: number;
+}
+
 export interface LiveChessboardStore {
     gameToken: string;
     moveHistory: Move[];
     whitePlayer?: GamePlayer;
     blackPlayer?: GamePlayer;
-    gameResult?: GameResult;
+    result?: GameResultData;
 
     setGameToken(gameToken: string): void;
     addMoveToHistory(move: Move): void;
@@ -28,11 +34,16 @@ export interface LiveChessboardStore {
 enableMapSet();
 const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
     devtools(
-        immer((set) => ({
+        immer((set, get) => ({
             gameToken: "",
             moveHistory: [],
             viewingFrom: GameColor.WHITE,
             players: { colorToPlayer: new Map<GameColor, GamePlayer>() },
+            result: {
+                gameResult: GameResult.WHITE_WIN,
+                whiteRatingDelta: 10,
+                blackRatingDelta: -10,
+            },
 
             setGameToken: (gameToken: string) =>
                 set((state) => {
@@ -52,18 +63,35 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
                     state.blackPlayer = blackPlayer;
                 }),
 
-            endGame: (
+            endGame(
                 gameResult: GameResult,
                 newWhiteRating?: number,
                 newBlackRating?: number,
-            ) =>
+            ) {
+                const { whitePlayer, blackPlayer } = get();
+
+                const whiteRatingDelta =
+                    newWhiteRating && whitePlayer?.rating
+                        ? newWhiteRating - whitePlayer.rating
+                        : undefined;
+
+                const blackRatingDelta =
+                    newBlackRating && blackPlayer?.rating
+                        ? newBlackRating - blackPlayer.rating
+                        : undefined;
+
                 set((state) => {
-                    state.gameResult = gameResult;
                     if (state.whitePlayer)
                         state.whitePlayer.rating = newWhiteRating;
                     if (state.blackPlayer)
                         state.blackPlayer.rating = newBlackRating;
-                }),
+                    state.result = {
+                        gameResult,
+                        whiteRatingDelta,
+                        blackRatingDelta,
+                    };
+                });
+            },
         })),
         shallow,
     ),

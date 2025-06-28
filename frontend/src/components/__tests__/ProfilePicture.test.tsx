@@ -20,7 +20,7 @@ describe("ProfilePicture", () => {
 
         render(
             <ProfilePicture
-                username={username}
+                userId={username}
                 width={size}
                 height={size}
                 lastChanged={lastChanged}
