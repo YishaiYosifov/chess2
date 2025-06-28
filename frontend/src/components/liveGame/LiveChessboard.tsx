@@ -17,7 +17,9 @@ import useLiveChessboardStore from "@/stores/liveChessboardStore";
 import ChessboardLayout from "../game/ChessboardLayout";
 import { createChessboardStore } from "@/stores/chessboardStore";
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
-import ChessboardSide from "./ChessboardSide";
+import MoveHistoryTable from "./MoveHistoryTable";
+import GameControls from "./GameControls";
+import GameChat from "./GameChat";
 
 const LiveChessboard = ({
     gameToken,
@@ -153,7 +155,14 @@ const LiveChessboard = ({
                         side={ChessProfileSide.CurrentlyPlaying}
                     />
                 </section>
-                <ChessboardSide />
+                <aside
+                    className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px] gap-3
+                        overflow-auto lg:max-w-xs"
+                >
+                    <MoveHistoryTable />
+                    <GameControls />
+                    <GameChat />
+                </aside>
             </div>
         </ChessStoreContext.Provider>
     );
