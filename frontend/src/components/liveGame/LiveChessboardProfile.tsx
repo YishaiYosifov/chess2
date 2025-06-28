@@ -11,13 +11,15 @@ export enum ProfileSide {
 }
 
 const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
-    const playingAs = useChessStore((state) => state.playingAs);
     const viewingFrom = useChessStore((state) => state.viewingFrom);
-    const players = useLiveChessboardStore((state) => state.players);
-    if (!playingAs) return null;
+    const showSide =
+        side === ProfileSide.CurrentlyPlaying
+            ? viewingFrom
+            : invertColor(viewingFrom);
 
-    const showSide = getShownSide(side, playingAs, viewingFrom);
-    const player = players.colorToPlayer.get(showSide);
+    const player = useLiveChessboardStore((state) =>
+        showSide === GameColor.WHITE ? state.whitePlayer : state.blackPlayer,
+    );
     if (!player) return null;
 
     return (
@@ -41,17 +43,3 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
     );
 };
 export default LiveChessboardProfile;
-
-function getShownSide(
-    side: ProfileSide,
-    playingAs: GameColor,
-    viewingFrom: GameColor,
-): GameColor {
-    const showSide =
-        side === ProfileSide.CurrentlyPlaying
-            ? playingAs
-            : invertColor(playingAs);
-
-    const shouldFlip = viewingFrom !== playingAs;
-    return shouldFlip ? invertColor(showSide) : showSide;
-}
