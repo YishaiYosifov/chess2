@@ -3,7 +3,7 @@ import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
 import useSignalREmitter, {
     signalREmitterHookFactory,
 } from "./useSignalREmitter";
-import { Point } from "@/types/tempModels";
+import { GameResult, Point } from "@/types/tempModels";
 import { useMemo } from "react";
 import { GameColor, TimeControlSettings } from "@/lib/apiClient";
 
@@ -35,10 +35,16 @@ type GameClientEvents = {
         sideToMove: GameColor,
         moveNumber: number,
     ];
+    GameEndedAsync: [
+        gameResult: GameResult,
+        newWhiteRating: number | undefined,
+        newBlackRating: number | undefined,
+    ];
 };
 
 type GameHubEvents = {
     MovePieceAsync: [gameToken: string, from: Point, to: Point];
+    EndGameAsync: [gameToken: string];
 };
 
 export function useGameEvent<
