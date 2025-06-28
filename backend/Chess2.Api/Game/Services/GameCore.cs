@@ -14,8 +14,16 @@ public interface IGameCore
 
     void InitializeGame();
     IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor);
-    ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to);
+    ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
+    IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> GetLegalMovesFor(
+        GameColor forColor
+    );
 }
+
+public record LegalMoveSet(
+    IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> Moves,
+    IReadOnlyList<string> EncodedMoves
+);
 
 public class GameCore(
     ILogger<GameCore> logger,
@@ -31,9 +39,7 @@ public class GameCore(
     );
     private readonly List<string> _encodedMoveHistory = [];
 
-    private Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> _legalMoves = [];
-    private List<string> _encodedWhiteMoves = [];
-    private List<string> _encodedBlackMoves = [];
+    private Dictionary<GameColor, LegalMoveSet> _legalMovesByColor = [];
 
     private readonly ILogger<GameCore> _logger = logger;
     private readonly IFenCalculator _fenCalculator = fenCalculator;
@@ -52,16 +58,19 @@ public class GameCore(
     }
 
     public IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor) =>
-        forColor switch
-        {
-            GameColor.White => _encodedWhiteMoves.AsReadOnly(),
-            GameColor.Black => _encodedBlackMoves.AsReadOnly(),
-            _ => throw new InvalidOperationException($"Invalid Color {forColor}?"),
-        };
+        _legalMovesByColor.TryGetValue(forColor, out var set) ? set.EncodedMoves : [];
 
-    public ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to)
+    public IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> GetLegalMovesFor(
+        GameColor forColor
+    ) =>
+        _legalMovesByColor.TryGetValue(forColor, out var set)
+            ? set.Moves
+            : new Dictionary<(AlgebraicPoint, AlgebraicPoint), Move>();
+
+    public ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
     {
-        if (!_legalMoves.TryGetValue((from, to), out var move))
+        var legalMoves = GetLegalMovesFor(forColor);
+        if (!legalMoves.TryGetValue((from, to), out var move))
         {
             _logger.LogWarning("Could not find move from {From} to {To}", from, to);
             return GameErrors.MoveInvalid;
@@ -79,26 +88,28 @@ public class GameCore(
 
     private void CalculateAllLegalMoves()
     {
-        var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board).ToList();
+        var allMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board);
 
-        _encodedWhiteMoves =
-        [
-            .. _moveEncoder.EncodeMoves(legalMoves.Where(m => m.Piece.Color == GameColor.White)),
-        ];
-        _encodedBlackMoves =
-        [
-            .. _moveEncoder.EncodeMoves(legalMoves.Where(m => m.Piece.Color == GameColor.Black)),
-        ];
-
-        _legalMoves = [];
-        foreach (var move in legalMoves)
+        _legalMovesByColor = [];
+        foreach (var group in allMoves.GroupBy(m => m.Piece.Color))
         {
-            var key = (move.From, move.To);
-            if (!_legalMoves.TryAdd(key, move))
+            var colorMoves = new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>();
+            foreach (var move in group)
             {
-                _logger.LogWarning("Duplicate move found from {From} to {To}", move.From, move.To);
-                continue;
+                var key = (move.From, move.To);
+                if (!colorMoves.TryAdd(key, move))
+                {
+                    _logger.LogWarning(
+                        "Duplicate move found from {From} to {To}",
+                        move.From,
+                        move.To
+                    );
+                    continue;
+                }
             }
+            var encodedMoves = _moveEncoder.EncodeMoves(colorMoves.Values).ToList();
+
+            _legalMovesByColor[group.Key] = new LegalMoveSet(colorMoves, encodedMoves);
         }
     }
 }
