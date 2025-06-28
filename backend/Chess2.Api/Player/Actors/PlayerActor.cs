@@ -137,6 +137,7 @@ public class PlayerActor : ReceiveActor
                 $"Cannot transition to {nameof(InGame)} state when {nameof(_gameToken)} is not set"
             );
 
+        Receive<PlayerCommands.GameEnded>(_ => Become(Seeking));
         Receive<ReceiveTimeout>(_ => { });
     }
 
