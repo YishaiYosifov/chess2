@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PieceRenderer from "./PieceRenderer";
 import { useChessStore } from "@/hooks/useChess";
 import { twMerge } from "tailwind-merge";
+import constants from "@/lib/constants";
 
 export interface PaddingOffset {
     width: number;
@@ -63,7 +64,10 @@ const ChessboardLayout = ({
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
-            const minSize = Math.max(300, Math.min(width, height));
+            const minSize = Math.max(
+                constants.MIN_BOARD_SIZE_PX,
+                Math.min(width, height),
+            );
             setBoardSize(minSize);
         }
 
@@ -83,9 +87,9 @@ const ChessboardLayout = ({
         <div
             data-testid="chessboard"
             className={twMerge(
-                `grid-template-rows-10 relative grid min-h-[300px] min-w-[300px] cursor-pointer
-                grid-cols-10 rounded-md border-2 border-blue-400 bg-[url(/assets/board.svg)]
-                bg-[length:100%] bg-no-repeat`,
+                `grid-template-rows-10 relative grid cursor-pointer grid-cols-10 rounded-md
+                border-2 border-blue-400 bg-[url(/assets/board.svg)] bg-[length:100%]
+                bg-no-repeat`,
                 className,
             )}
             style={{
