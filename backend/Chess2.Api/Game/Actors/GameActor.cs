@@ -130,6 +130,7 @@ public class GameActor : ReceiveActor
         }
 
         var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To);
+        var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
         if (moveResult.IsError)
         {
             Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(moveResult.Errors);
