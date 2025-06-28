@@ -1,8 +1,7 @@
-import ChessboardSide from "@/components/liveGame/ChessboardSide";
 import LiveChessboard from "@/components/liveGame/LiveChessboard";
 import withAuthedSession from "@/hocs/withAuthedSession";
-import { getLiveGame } from "@/lib/apiClient";
 import { notFound, redirect } from "next/navigation";
+import { getLiveGame } from "@/lib/apiClient";
 
 export const metadata = { title: "Live Game - Chess 2" };
 
@@ -37,18 +36,11 @@ const GamePage = withAuthedSession(
             redirect("/");
 
         return (
-            <div
-                className="jutsify-center flex w-full flex-col items-center justify-center gap-5 p-5
-                    lg:h-screen lg:flex-row"
-            >
-                <LiveChessboard
-                    gameToken={gameToken}
-                    gameState={game}
-                    userId={userId}
-                />
-
-                <ChessboardSide />
-            </div>
+            <LiveChessboard
+                gameToken={gameToken}
+                gameState={game}
+                userId={userId}
+            />
         );
     },
 );

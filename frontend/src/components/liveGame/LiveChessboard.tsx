@@ -17,6 +17,7 @@ import useLiveChessboardStore from "@/stores/liveChessboardStore";
 import ChessboardLayout from "../game/ChessboardLayout";
 import { createChessboardStore } from "@/stores/chessboardStore";
 import { ChessStoreContext } from "@/contexts/chessStoreContext";
+import ChessboardSide from "./ChessboardSide";
 
 const LiveChessboard = ({
     gameToken,
@@ -81,6 +82,17 @@ const LiveChessboard = ({
                 );
         },
     );
+    useGameEvent(
+        gameToken,
+        "GameEndedAsync",
+        async (gameResult, newWhiteRating, newBlackRating) => {
+            console.log(gameResult, newWhiteRating, newBlackRating);
+            useLiveChessboardStore
+                .getState()
+                .endGame(gameResult, newWhiteRating, newBlackRating);
+            chessboardStore.getState().disableMovement();
+        },
+    );
 
     const sendMove = useCallback(
         async (from: Point, to: Point) => {
@@ -107,33 +119,41 @@ const LiveChessboard = ({
 
     useEffect(() => {
         const decodedMoveHistory = decodeMoves(gameState.moveHistory);
-        const { setMoveHistory, setPlayers } =
+        const { setMoveHistory, setPlayers, setGameToken } =
             useLiveChessboardStore.getState();
 
         setMoveHistory(decodedMoveHistory);
         setPlayers(gameState.whitePlayer, gameState.blackPlayer);
-    }, [gameState, playingAs.color]);
+        setGameToken(gameToken);
+    }, [gameState, playingAs.color, gameToken]);
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
-            <div className="flex flex-col gap-3">
-                <LiveChessboardProfile side={ChessProfileSide.Opponent} />
-                <ChessboardLayout
-                    breakpoints={[
-                        {
-                            maxScreenSize: 767,
-                            paddingOffset: { width: 40, height: 258 },
-                        },
-                        {
-                            maxScreenSize: 1024,
-                            paddingOffset: { width: 200, height: 198 },
-                        },
-                    ]}
-                    defaultOffset={{ width: 626, height: 148 }}
-                />
-                <LiveChessboardProfile
-                    side={ChessProfileSide.CurrentlyPlaying}
-                />
+            <div
+                className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:h-screen
+                    lg:flex-row lg:items-start"
+            >
+                <section className="flex h-max w-fit flex-col gap-3">
+                    <LiveChessboardProfile side={ChessProfileSide.Opponent} />
+                    <ChessboardLayout
+                        breakpoints={[
+                            {
+                                maxScreenSize: 767,
+                                paddingOffset: { width: 40, height: 258 },
+                            },
+                            {
+                                maxScreenSize: 1024,
+                                paddingOffset: { width: 200, height: 198 },
+                            },
+                        ]}
+                        defaultOffset={{ width: 626, height: 148 }}
+                        className="self-center"
+                    />
+                    <LiveChessboardProfile
+                        side={ChessProfileSide.CurrentlyPlaying}
+                    />
+                </section>
+                <ChessboardSide />
             </div>
         </ChessStoreContext.Provider>
     );
