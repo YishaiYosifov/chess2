@@ -28,7 +28,7 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
                 <ProfilePicture height={50} width={50} />
                 <Flag countryCode={player.countryCode} size={30} />
 
-                <span className="font-medium text-white">
+                <span className="overflow-hidden font-medium text-ellipsis whitespace-nowrap text-white">
                     {player.userName}
                 </span>
 
