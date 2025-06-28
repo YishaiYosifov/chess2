@@ -4,13 +4,6 @@ import { PieceMap, PieceType } from "@/types/tempModels";
 import StaticChessboard from "../StaticChessboard";
 import { GameColor } from "@/lib/apiClient";
 
-vi.mock("@/lib/constants", async (importOriginal) => ({
-    ...(await importOriginal<typeof import("@/lib/constants")>()),
-    BOARD_HEIGHT: 10,
-    BOARD_WIDTH: 10,
-    BOARD_SIZE: 100,
-}));
-
 const mockBoard: PieceMap = new Map([
     [
         "1",
