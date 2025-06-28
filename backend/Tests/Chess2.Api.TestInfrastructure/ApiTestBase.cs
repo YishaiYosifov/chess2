@@ -19,19 +19,19 @@ namespace Chess2.Api.TestInfrastructure;
 
 public class ApiTestBase : IAsyncLifetime
 {
-    protected Chess2WebApplicationFactory Factory { get; }
-    protected IServiceScope Scope { get; }
-    protected ApiClient ApiClient { get; }
+    public Chess2WebApplicationFactory Factory { get; }
+    public IServiceScope Scope { get; }
+    public ApiClient ApiClient { get; }
 
-    protected ApplicationDbContext DbContext { get; }
-    protected ITokenProvider TokenProvider { get; }
-    protected AppSettings AppSettings { get; }
+    public ApplicationDbContext DbContext { get; }
+    public ITokenProvider TokenProvider { get; }
+    public AppSettings AppSettings { get; }
 
-    protected AuthTestUtils AuthUtils { get; }
+    public AuthTestUtils AuthUtils { get; }
 
-    protected static CancellationToken CT => TestContext.Current.CancellationToken;
+    public CancellationToken CT { get; } = TestContext.Current.CancellationToken;
 
-    protected ApiTestBase(Chess2WebApplicationFactory factory)
+    public ApiTestBase(Chess2WebApplicationFactory factory)
     {
         Factory = factory;
         Factory.Server.PreserveExecutionContext = true;
