@@ -129,8 +129,11 @@ const LiveChessboard = ({
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
-            <div className="flex w-full flex-col justify-center gap-5 p-5 lg:flex-row">
-                <section className="mx-auto flex h-max w-fit flex-col gap-3 lg:mx-0">
+            <div
+                className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
+                    lg:items-start"
+            >
+                <section className="flex h-max w-fit flex-col gap-3">
                     <LiveChessboardProfile side={ChessProfileSide.Opponent} />
                     <ChessboardLayout
                         breakpoints={[
@@ -143,7 +146,7 @@ const LiveChessboard = ({
                                 paddingOffset: { width: 200, height: 198 },
                             },
                         ]}
-                        defaultOffset={{ width: 626, height: 148 }}
+                        defaultOffset={{ width: 626, height: 164 }}
                         className="self-center"
                     />
                     <LiveChessboardProfile
