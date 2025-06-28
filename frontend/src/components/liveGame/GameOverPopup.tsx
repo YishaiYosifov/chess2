@@ -5,19 +5,34 @@ import { GamePlayer } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "../helpers/Button";
 import { GameResult } from "@/types/tempModels";
-import { useState } from "react";
+import {
+    forwardRef,
+    ForwardRefRenderFunction,
+    useImperativeHandle,
+    useState,
+} from "react";
 
-const GameOverPopup = () => {
+export interface GameOverPopupRef {
+    open(): void;
+}
+
+const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
+    _,
+    ref,
+) => {
     const whitePlayer = useLiveChessboardStore((x) => x.whitePlayer);
     const blackPlayer = useLiveChessboardStore((x) => x.blackPlayer);
     const result = useLiveChessboardStore((x) => x.result);
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const closePopup = () => setIsOpen(false);
+    const openPopup = () => setIsOpen(true);
+
+    useImperativeHandle(ref, () => ({
+        open: openPopup,
+    }));
 
     if (!whitePlayer || !blackPlayer || !result || !isOpen) return;
-
-    function closePopup() {
-        setIsOpen(false);
-    }
 
     return (
         <div
@@ -62,7 +77,7 @@ const GameOverPopup = () => {
         </div>
     );
 };
-export default GameOverPopup;
+export default forwardRef(GameOverPopup);
 
 const PopupCardProfile = ({
     player,
