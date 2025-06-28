@@ -175,7 +175,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
     }
 
-    private static async Task<string> AssertPlayersMatchAsync(
+    private async Task<string> AssertPlayersMatchAsync(
         HubConnection conn1,
         HubConnection conn2,
         TimeControlSettings timeControl,
@@ -189,10 +189,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         return gameToken;
     }
 
-    private static async Task<string> AssertMatchEstablishedAsync(
-        HubConnection conn1,
-        HubConnection conn2
-    )
+    private async Task<string> AssertMatchEstablishedAsync(HubConnection conn1, HubConnection conn2)
     {
         var tcs1 = ListenForMatch(conn1);
         var tcs2 = ListenForMatch(conn2);
