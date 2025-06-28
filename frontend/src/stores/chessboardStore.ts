@@ -54,6 +54,7 @@ export interface ChessboardStore {
         legalMoves: LegalMoveMap,
         sideToMove: GameColor,
     ): void;
+    disableMovement(): void;
 }
 
 export const defaultChessboardState = {
@@ -335,6 +336,15 @@ export function createChessboardStore(
                     legalMoves,
                     sideToMove,
                 }));
+            },
+
+            disableMovement(): void {
+                set((state) => {
+                    state.legalMoves = new Map();
+                    state.highlightedLegalMoves = [];
+                    state.selectedPieceId = undefined;
+                    state.playingAs = undefined;
+                });
             },
         })),
         shallow,
