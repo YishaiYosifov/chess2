@@ -71,7 +71,7 @@ public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2
             "User {UserId} ended game {GameToken}, result is {GameResult}",
             userId,
             gameToken,
-            gameArchive
+            gameArchive.Result
         );
         await Clients
             .Group(gameToken)
