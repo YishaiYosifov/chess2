@@ -8,7 +8,7 @@ const USERNAME_EDIT_EVERY = 2419200;
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
-const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
+const MIN_BOARD_SIZE_PX = 264;
 
 const GENERIC_ERROR = "Something went wrong.";
 
@@ -126,7 +126,7 @@ const constants = {
     USERNAME_EDIT_EVERY,
     BOARD_WIDTH,
     BOARD_HEIGHT,
-    BOARD_SIZE,
+    MIN_BOARD_SIZE_PX,
     GENERIC_ERROR,
     SETTING_PAGES,
     TIME_CONTROLS,
