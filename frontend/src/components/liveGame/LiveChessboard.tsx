@@ -129,11 +129,8 @@ const LiveChessboard = ({
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
-            <div
-                className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:h-screen
-                    lg:flex-row lg:items-start"
-            >
-                <section className="flex h-max w-fit flex-col gap-3">
+            <div className="flex w-full flex-col justify-center gap-5 p-5 lg:flex-row">
+                <section className="mx-auto flex h-max w-fit flex-col gap-3 lg:mx-0">
                     <LiveChessboardProfile side={ChessProfileSide.Opponent} />
                     <ChessboardLayout
                         breakpoints={[
