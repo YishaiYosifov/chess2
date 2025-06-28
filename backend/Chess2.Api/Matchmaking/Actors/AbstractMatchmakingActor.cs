@@ -101,6 +101,9 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
                 continue;
             }
 
+            Context.Unwatch(seeker1Ref);
+            Context.Unwatch(seeker2Ref);
+
             var scope = _sp.CreateScope();
             var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
             var startGameTask = gameService
