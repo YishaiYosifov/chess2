@@ -8,6 +8,7 @@ public class GameArchive
     public int Id { get; set; }
     public required string GameToken { get; set; }
     public required GameResult Result { get; set; }
+    public required string ResultDescription { get; set; }
     public required string FinalFen { get; set; }
     public IEnumerable<MoveArchive> Moves { get; set; } = [];
 

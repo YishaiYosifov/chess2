@@ -27,12 +27,14 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         var gameToken = Guid.NewGuid().ToString("N")[..16];
         var gameState = CreateTestGameState();
         var expectedResult = GameResult.WhiteWin;
+        var expectedResultDesc = "White Win by Resignation";
         var ratingDelta = new RatingDelta(WhiteDelta: 100, BlackDelta: -150);
 
         var result = await _gameArchiveService.CreateArchiveAsync(
             gameToken,
             gameState,
             expectedResult,
+            expectedResultDesc,
             ratingDelta,
             CT
         );
@@ -47,6 +49,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         {
             GameToken = gameToken,
             Result = expectedResult,
+            ResultDescription = expectedResultDesc,
             FinalFen = gameState.Fen,
             WhitePlayer = CreateExpectedPlayerArchive(
                 gameState.WhitePlayer,

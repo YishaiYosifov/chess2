@@ -17,8 +17,9 @@ public interface IGameFinalizer
 {
     Task<GameArchive> FinalizeGameAsync(
         string gameToken,
-        GameState gameState,
-        GameResult gameResult,
+        GameState state,
+        GameResult result,
+        string resultDescription,
         CancellationToken token = default
     );
 }
@@ -41,22 +42,24 @@ public class GameFinalizer(
 
     public async Task<GameArchive> FinalizeGameAsync(
         string gameToken,
-        GameState gameState,
-        GameResult gameResult,
+        GameState state,
+        GameResult result,
+        string resultDescription,
         CancellationToken token = default
     )
     {
-        var ratingDelta = await UpdateRatingAsync(gameState, gameResult, token);
+        var ratingDelta = await UpdateRatingAsync(state, result, token);
         var archive = await _gameArchiveService.CreateArchiveAsync(
             gameToken,
-            gameState,
-            gameResult,
+            state,
+            result,
+            resultDescription,
             ratingDelta,
             token
         );
 
-        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(gameState.WhitePlayer.UserId));
-        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(gameState.BlackPlayer.UserId));
+        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.WhitePlayer.UserId));
+        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.BlackPlayer.UserId));
 
         await _unitOfWork.CompleteAsync(token);
 
