@@ -146,7 +146,6 @@ public class GameActor : ReceiveActor
         Sender.ReplyWithErrorOr(
             new GameEvents.PieceMoved(
                 Move: encodedMove,
-                WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
                 WhiteLegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
                 WhiteId: _players.WhitePlayer.UserId,
                 BlackLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves,
