@@ -42,7 +42,6 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
     immer((set, get) => ({
         gameToken: "",
         moveHistory: [],
-        players: { colorToPlayer: new Map<GameColor, GamePlayer>() },
 
         setGameToken: (gameToken: string) =>
             set((state) => {
