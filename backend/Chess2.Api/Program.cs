@@ -320,6 +320,7 @@ builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
+builder.Services.AddSingleton<IGameResultDescriber, GameResultDescriber>();
 
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();

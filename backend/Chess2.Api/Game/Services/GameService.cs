@@ -135,6 +135,7 @@ public class GameService(
             gameToken,
             gameEnded.State,
             gameEnded.Result,
+            gameEnded.ResultDescription,
             token
         );
 

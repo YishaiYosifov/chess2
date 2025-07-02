@@ -15,15 +15,18 @@ public class GameActor : ReceiveActor
     private readonly string _token;
 
     private readonly IGameCore _gameCore;
+    private readonly IGameResultDescriber _gameResultDescriber;
+
     private readonly PlayerRoster _players = new();
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     private TimeControlSettings _timeControl;
 
-    public GameActor(string token, IGameCore game)
+    public GameActor(string token, IGameCore game, IGameResultDescriber gameResultDescriber)
     {
         _token = token;
         _gameCore = game;
+        _gameResultDescriber = gameResultDescriber;
         Become(WaitingForStart);
     }
 
@@ -54,7 +57,7 @@ public class GameActor : ReceiveActor
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
 
-        Receive<GameQueries.GetGameState>(getGameState => HandleGetGameState(getGameState));
+        Receive<GameQueries.GetGameState>(HandleGetGameState);
 
         Receive<GameCommands.EndGame>(HandleEndGame);
 
@@ -93,14 +96,17 @@ public class GameActor : ReceiveActor
 
         var state = GetGameStateForPlayer(player);
         GameResult result;
+        string reason;
 
         var isAbort = _gameCore.MoveNumber <= 2;
         if (isAbort)
         {
             result = GameResult.Aborted;
+            reason = _gameResultDescriber.Aborted(player.Color);
         }
         else
         {
+            reason = _gameResultDescriber.Resignation(player.Color);
             var winnerColor = player.Color.Invert();
             result = winnerColor switch
             {
@@ -111,7 +117,7 @@ public class GameActor : ReceiveActor
         }
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
-        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, state));
+        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, reason, state));
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
@@ -129,7 +135,6 @@ public class GameActor : ReceiveActor
             return;
         }
 
-        var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To);
         var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
         if (moveResult.IsError)
         {

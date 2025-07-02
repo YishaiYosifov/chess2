@@ -9,8 +9,9 @@ public interface IGameArchiveService
 {
     Task<GameArchive> CreateArchiveAsync(
         string gameToken,
-        GameState gameState,
-        GameResult gameResult,
+        GameState state,
+        GameResult result,
+        string resultDescription,
         RatingDelta ratingDelta,
         CancellationToken token = default
     );
@@ -22,29 +23,31 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
 
     public async Task<GameArchive> CreateArchiveAsync(
         string gameToken,
-        GameState gameState,
-        GameResult gameResult,
+        GameState state,
+        GameResult result,
+        string resultDescription,
         RatingDelta ratingDelta,
         CancellationToken token = default
     )
     {
-        var whiteArchive = CreatePlayerArchive(gameState.WhitePlayer, ratingDelta.WhiteDelta);
-        var blackArchive = CreatePlayerArchive(gameState.BlackPlayer, ratingDelta.BlackDelta);
+        var whiteArchive = CreatePlayerArchive(state.WhitePlayer, ratingDelta.WhiteDelta);
+        var blackArchive = CreatePlayerArchive(state.BlackPlayer, ratingDelta.BlackDelta);
         List<MoveArchive> moves = [];
-        for (int i = 0; i < gameState.MoveHistory.Count; i++)
+        for (int i = 0; i < state.MoveHistory.Count; i++)
         {
-            var moveArchive = CreateMoveArchive(gameState.MoveHistory.ElementAt(i), i);
+            var moveArchive = CreateMoveArchive(state.MoveHistory.ElementAt(i), i);
             moves.Add(moveArchive);
         }
         var gameArchive = new GameArchive()
         {
             GameToken = gameToken,
-            Result = gameResult,
+            Result = result,
+            ResultDescription = resultDescription,
             WhitePlayerId = whiteArchive.Id,
             WhitePlayer = whiteArchive,
             BlackPlayerId = blackArchive.Id,
             BlackPlayer = blackArchive,
-            FinalFen = gameState.Fen,
+            FinalFen = state.Fen,
             Moves = moves,
         };
 

@@ -55,5 +55,5 @@ public class GameEvents
         int MoveNumber
     );
 
-    public record GameEnded(GameResult Result, GameState State);
+    public record GameEnded(GameResult Result, string ResultDescription, GameState State);
 }

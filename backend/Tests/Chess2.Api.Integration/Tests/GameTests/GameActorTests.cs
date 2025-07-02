@@ -19,6 +19,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private const string TestGameToken = "testtoken";
     private readonly TimeControlSettings _timeControl = new(600, 5);
 
+    private readonly IGameResultDescriber _gameResultDescriber;
     private readonly IMoveEncoder _moveEncoder;
     private readonly IGameCore _gameCore;
     private readonly IActorRef _gameActor;
@@ -32,7 +33,11 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         _moveEncoder = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IMoveEncoder>();
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
-        _gameActor = Sys.ActorOf(Props.Create(() => new GameActor(TestGameToken, _gameCore)));
+        _gameResultDescriber =
+            ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
+        _gameActor = Sys.ActorOf(
+            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber))
+        );
         _probe = CreateTestProbe();
     }
 
@@ -41,7 +46,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         var parentActor = CreateTestProbe();
         var gameActor = parentActor.ChildActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameCore)),
+            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber)),
             cancellationToken: ApiTestBase.CT
         );
 
@@ -207,6 +212,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         );
         result.IsError.Should().BeFalse();
         result.Value.Result.Should().Be(GameResult.Aborted);
+        result.Value.ResultDescription.Should().Be(_gameResultDescriber.Aborted(GameColor.White));
     }
 
     [Fact]
@@ -227,6 +233,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
         );
         result.IsError.Should().BeFalse();
         result.Value.Result.Should().Be(GameResult.BlackWin);
+        result
+            .Value.ResultDescription.Should()
+            .Be(_gameResultDescriber.Resignation(GameColor.White));
     }
 
     [Fact]
@@ -234,7 +243,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         var parentProbe = CreateTestProbe();
         var gameActor = parentProbe.ChildActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameCore)),
+            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber)),
             cancellationToken: ApiTestBase.CT
         );
 

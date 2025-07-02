@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Bogus;
+﻿using Bogus;
 using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 
@@ -17,6 +12,7 @@ public class GameArchiveFaker : Faker<GameArchive>
         RuleFor(x => x.Id, 0);
         RuleFor(x => x.GameToken, f => f.Random.Guid().ToString()[..16]);
         RuleFor(x => x.Result, f => f.PickRandom<GameResult>());
+        RuleFor(x => x.ResultDescription, "some description");
         RuleFor(x => x.FinalFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(x => x.Moves, new MoveArchiveFaker().Generate(moveCount));
         RuleFor(x => x.WhitePlayerId, whitePlayer.Id);
