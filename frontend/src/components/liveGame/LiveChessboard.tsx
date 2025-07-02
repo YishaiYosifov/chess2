@@ -31,10 +31,10 @@ const LiveChessboard = ({
     gameState: GameState;
     userId: string;
 }) => {
-    const playingAs =
+    const playerColor =
         userId == gameState.whitePlayer.userId
-            ? gameState.whitePlayer
-            : gameState.blackPlayer;
+            ? gameState.whitePlayer.color
+            : gameState.blackPlayer.color;
 
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
@@ -82,8 +82,7 @@ const LiveChessboard = ({
                 .getState()
                 .playTurn(
                     decodedLegalMoves,
-                    sideToMove,
-                    sideToMove == playingAs.color ? decodedMove : undefined,
+                    sideToMove == playerColor ? decodedMove : undefined,
                 );
         },
     );
@@ -91,7 +90,6 @@ const LiveChessboard = ({
         gameToken,
         "GameEndedAsync",
         async (result, resultDescription, newWhiteRating, newBlackRating) => {
-            console.log(result, newWhiteRating, newBlackRating);
             useLiveChessboardStore
                 .getState()
                 .endGame(
@@ -120,13 +118,10 @@ const LiveChessboard = ({
             pieces: decodedFen,
             legalMoves: decodedLegalMoves,
 
-            viewingFrom: playingAs.color,
-            playingAs: playingAs.color,
-
-            sideToMove: gameState.sideToMove,
+            viewingFrom: playerColor,
             onPieceMovement: sendMove,
         });
-    }, [gameState, sendMove, playingAs.color]);
+    }, [gameState, sendMove, playerColor]);
 
     useEffect(() => {
         const decodedMoveHistory = decodeMoves(gameState.moveHistory);
@@ -134,9 +129,9 @@ const LiveChessboard = ({
             useLiveChessboardStore.getState();
 
         setMoveHistory(decodedMoveHistory);
-        setPlayers(gameState.whitePlayer, gameState.blackPlayer);
+        setPlayers(gameState.whitePlayer, gameState.blackPlayer, playerColor);
         setGameToken(gameToken);
-    }, [gameState, playingAs.color, gameToken]);
+    }, [gameState, playerColor, gameToken]);
 
     return (
         <ChessStoreContext.Provider value={chessboardStore}>
