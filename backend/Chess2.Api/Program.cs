@@ -336,6 +336,7 @@ builder.Services.AddSingleton<IPieceDefinition, PawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 #endregion
 
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
