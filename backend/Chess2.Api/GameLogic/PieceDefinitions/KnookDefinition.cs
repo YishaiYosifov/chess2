@@ -11,19 +11,19 @@ public class KnookDefinition : IPieceDefinition
     private readonly List<IPieceMovementRule> _behaviours =
     [
         // horsey part
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: -2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: -2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 2, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -2, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 2, Y: -1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -2, Y: -1))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 2))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 2))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: -2))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: -2))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 2, Y: 1))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -2, Y: 1))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 2, Y: -1))),
+        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -2, Y: -1))),
         // rook part
-        new CaptureRule(new SlideBehaviour(new Offset(X: 0, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 0, Y: -1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 0))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 0))),
+        new NoCaptureRule(new SlideBehaviour(new Offset(X: 0, Y: 1))),
+        new NoCaptureRule(new SlideBehaviour(new Offset(X: 0, Y: -1))),
+        new NoCaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 0))),
+        new NoCaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 0))),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
