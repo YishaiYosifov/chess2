@@ -164,12 +164,7 @@ export function createChessboardStore(
                     const strFrom = pointToStr(from);
 
                     const moves = legalMoves.get(strFrom);
-                    if (!moves || moves.length === 0) {
-                        console.warn(
-                            `No legal moves found for piece at ${strFrom}, state may be inconsistent`,
-                        );
-                        return;
-                    }
+                    if (!moves || moves.length === 0) return;
 
                     const move = moves?.find(
                         (m) => m.to.x == to.x && m.to.y == to.y,
