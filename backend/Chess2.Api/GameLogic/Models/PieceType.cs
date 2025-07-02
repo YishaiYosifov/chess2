@@ -8,7 +8,7 @@ public enum PieceType
     Rook,
     Bishop,
     Horsey,
-    //Knook,
+    Knook,
     //Xook,
     //AntiQueen,
     //ChildPawn,
