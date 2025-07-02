@@ -147,8 +147,9 @@ public class GameActor : ReceiveActor
             new GameEvents.PieceMoved(
                 Move: encodedMove,
                 WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
+                WhiteLegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
                 WhiteId: _players.WhitePlayer.UserId,
-                BlackLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.Black),
+                BlackLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves,
                 BlackId: _players.BlackPlayer.UserId,
                 SideToMove: _gameCore.SideToMove,
                 MoveNumber: _gameCore.MoveNumber
@@ -158,14 +159,14 @@ public class GameActor : ReceiveActor
 
     private GameState GetGameStateForPlayer(GamePlayer player)
     {
-        var legalMoves = _gameCore.GetEncodedLegalMovesFor(player.Color);
+        var legalMoves = _gameCore.GetLegalMovesFor(player.Color);
         var gameState = new GameState(
             WhitePlayer: _players.WhitePlayer,
             BlackPlayer: _players.BlackPlayer,
             SideToMove: _gameCore.SideToMove,
             Fen: _gameCore.Fen,
             MoveHistory: _gameCore.EncodedMoveHistory,
-            LegalMoves: legalMoves,
+            LegalMoves: legalMoves.EncodedMoves,
             TimeControl: _timeControl
         );
         return gameState;

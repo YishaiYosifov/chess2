@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Game.Errors;
 using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using ErrorOr;
 
@@ -12,18 +13,19 @@ public interface IGameCore
     int MoveNumber { get; }
     GameColor SideToMove { get; }
 
+    LegalMoveSet GetLegalMovesFor(GameColor forColor);
     void InitializeGame();
-    IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor);
     ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
-    IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> GetLegalMovesFor(
-        GameColor forColor
-    );
 }
 
 public record LegalMoveSet(
     IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> Moves,
     IReadOnlyList<string> EncodedMoves
-);
+)
+{
+    public LegalMoveSet()
+        : this(new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>(), []) { }
+}
 
 public class GameCore(
     ILogger<GameCore> logger,
@@ -39,8 +41,6 @@ public class GameCore(
     );
     private readonly List<string> _encodedMoveHistory = [];
 
-    private Dictionary<GameColor, LegalMoveSet> _legalMovesByColor = [];
-
     private readonly ILogger<GameCore> _logger = logger;
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
@@ -50,27 +50,17 @@ public class GameCore(
     public IReadOnlyCollection<string> EncodedMoveHistory => _encodedMoveHistory.AsReadOnly();
     public int MoveNumber => EncodedMoveHistory.Count;
     public GameColor SideToMove => MoveNumber % 2 == 0 ? GameColor.White : GameColor.Black;
+    public LegalMoveSet LegalMoves { get; private set; } = new();
 
     public void InitializeGame()
     {
         Fen = _fenCalculator.CalculateFen(_board);
-        CalculateAllLegalMoves();
+        CalculateAllLegalMoves(GameColor.White);
     }
-
-    public IReadOnlyCollection<string> GetEncodedLegalMovesFor(GameColor forColor) =>
-        _legalMovesByColor.TryGetValue(forColor, out var set) ? set.EncodedMoves : [];
-
-    public IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> GetLegalMovesFor(
-        GameColor forColor
-    ) =>
-        _legalMovesByColor.TryGetValue(forColor, out var set)
-            ? set.Moves
-            : new Dictionary<(AlgebraicPoint, AlgebraicPoint), Move>();
 
     public ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
     {
-        var legalMoves = GetLegalMovesFor(forColor);
-        if (!legalMoves.TryGetValue((from, to), out var move))
+        if (!LegalMoves.Moves.TryGetValue((from, to), out var move))
         {
             _logger.LogWarning("Could not find move from {From} to {To}", from, to);
             return GameErrors.MoveInvalid;
@@ -78,7 +68,7 @@ public class GameCore(
 
         _board.PlayMove(move);
 
-        CalculateAllLegalMoves();
+        CalculateAllLegalMoves(forColor.Invert());
         Fen = _fenCalculator.CalculateFen(_board);
 
         var encodedMove = _moveEncoder.EncodeSingleMove(move);
@@ -86,30 +76,32 @@ public class GameCore(
         return encodedMove;
     }
 
-    private void CalculateAllLegalMoves()
+    public LegalMoveSet GetLegalMovesFor(GameColor forColor)
     {
-        var allMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board);
+        if (forColor != SideToMove)
+            return new();
+        return LegalMoves;
+    }
 
-        _legalMovesByColor = [];
-        foreach (var group in allMoves.GroupBy(m => m.Piece.Color))
+    private void CalculateAllLegalMoves(GameColor forColor)
+    {
+        var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor);
+        var encodedLegalMoves = _moveEncoder.EncodeMoves(legalMoves).ToList();
+
+        var groupedLegalMoves = new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>();
+        foreach (var move in legalMoves)
         {
-            var colorMoves = new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>();
-            foreach (var move in group)
+            var key = (move.From, move.To);
+            if (!groupedLegalMoves.TryAdd(key, move))
             {
-                var key = (move.From, move.To);
-                if (!colorMoves.TryAdd(key, move))
-                {
-                    _logger.LogWarning(
-                        "Duplicate move found from {From} to {To}",
-                        move.From,
-                        move.To
-                    );
-                    continue;
-                }
+                _logger.LogWarning(
+                    "Duplicate move found from {From} to {To}. This should never happen",
+                    move.From,
+                    move.To
+                );
+                continue;
             }
-            var encodedMoves = _moveEncoder.EncodeMoves(colorMoves.Values).ToList();
-
-            _legalMovesByColor[group.Key] = new LegalMoveSet(colorMoves, encodedMoves);
         }
+        LegalMoves = new(Moves: groupedLegalMoves, EncodedMoves: encodedLegalMoves);
     }
 }
