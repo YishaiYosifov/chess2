@@ -31,27 +31,24 @@ public class GameCoreTests
     [Fact]
     public void InitializeGame_sets_the_initial_state_correctly()
     {
-        var w1 = new Move(new("e2"), new("e4"), PieceFactory.White());
-        var w2 = new Move(new("g1"), new("f3"), PieceFactory.White());
-        var b1 = new Move(new("e7"), new("e5"), PieceFactory.Black());
-        var b2 = new Move(new("b8"), new("c6"), PieceFactory.Black());
+        var m1 = new Move(new("e2"), new("e4"), PieceFactory.White());
+        var m2 = new Move(new("g1"), new("f3"), PieceFactory.White());
+        var allMoves = new[] { m1, m2 };
+        var movesEnc = new[] { "e2e4", "g1f3" };
 
-        var allMoves = new[] { w1, w2, b1, b2 };
-
-        var whiteEnc = new[] { "e2e4", "g1f3" };
-        var blackEnc = new[] { "e7e5", "b8c6" };
-
-        _legalMoveCalculator.CalculateAllLegalMoves(Arg.Any<ChessBoard>()).Returns(allMoves);
+        _legalMoveCalculator
+            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
+            .Returns(allMoves);
         _encoder
             .EncodeMoves(
                 Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.White))
             )
-            .Returns(whiteEnc);
+            .Returns(movesEnc);
         _encoder
             .EncodeMoves(
                 Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.Black))
             )
-            .Returns(blackEnc);
+            .Returns(["nah", "uh"]);
         _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
 
         _gameCore.InitializeGame();
@@ -59,24 +56,22 @@ public class GameCoreTests
         var whiteMoves = _gameCore.GetLegalMovesFor(GameColor.White);
         var blackMoves = _gameCore.GetLegalMovesFor(GameColor.Black);
 
-        whiteMoves.Should().HaveCount(2);
-        whiteMoves.Should().ContainKey((w1.From, w1.To));
-        whiteMoves.Should().ContainKey((w2.From, w2.To));
+        whiteMoves.Moves.Should().HaveCount(2);
+        whiteMoves.Moves.Should().ContainKey((m1.From, m1.To)).WhoseValue.Should().Be(m1);
+        whiteMoves.Moves.Should().ContainKey((m2.From, m2.To)).WhoseValue.Should().Be(m2);
+        whiteMoves.EncodedMoves.Should().BeEquivalentTo(movesEnc);
 
-        blackMoves.Should().HaveCount(2);
-        blackMoves.Should().ContainKey((b1.From, b1.To));
-        blackMoves.Should().ContainKey((b2.From, b2.To));
+        blackMoves.Moves.Should().BeEmpty();
+        blackMoves.EncodedMoves.Should().BeEmpty();
 
-        _gameCore.GetEncodedLegalMovesFor(GameColor.White).Should().BeEquivalentTo(whiteEnc);
-        _gameCore.GetEncodedLegalMovesFor(GameColor.Black).Should().BeEquivalentTo(blackEnc);
         _gameCore.Fen.Should().Be("fen");
     }
 
     [Fact]
     public void GetLegalMovesFor_returns_empty_when_uninitialized()
     {
-        _gameCore.GetLegalMovesFor(GameColor.Black).Should().BeEmpty();
-        _gameCore.GetLegalMovesFor(GameColor.White).Should().BeEmpty();
+        _gameCore.GetLegalMovesFor(GameColor.Black).Should().BeEquivalentTo(new LegalMoveSet());
+        _gameCore.GetLegalMovesFor(GameColor.White).Should().BeEquivalentTo(new LegalMoveSet());
     }
 
     [Fact]
@@ -99,7 +94,9 @@ public class GameCoreTests
         var move = new Move(from, to, PieceFactory.White());
         var encoded = "e2e4";
 
-        _legalMoveCalculator.CalculateAllLegalMoves(Arg.Any<ChessBoard>()).Returns([move]);
+        _legalMoveCalculator
+            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
+            .Returns([move]);
         _encoder.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns([encoded]);
         _encoder.EncodeSingleMove(move).Returns(encoded);
         _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
@@ -124,7 +121,9 @@ public class GameCoreTests
         var to = new AlgebraicPoint("e4");
         var move = new Move(from, to, PieceFactory.White());
 
-        _legalMoveCalculator.CalculateAllLegalMoves(Arg.Any<ChessBoard>()).Returns([move]);
+        _legalMoveCalculator
+            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
+            .Returns([move]);
         _encoder.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns(["e2e4"]);
         _encoder.EncodeSingleMove(Arg.Any<Move>()).Returns("e2e4");
         _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
