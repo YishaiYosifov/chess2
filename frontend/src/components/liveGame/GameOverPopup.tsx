@@ -1,7 +1,7 @@
 import useLiveChessboardStore from "@/stores/liveChessboardStore";
 import ProfilePicture from "../profile/ProfilePicture";
 import Card from "../helpers/Card";
-import { GamePlayer } from "@/lib/apiClient";
+import { GameColor, GamePlayer } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "../helpers/Button";
 import { GameResult } from "@/types/tempModels";
@@ -22,7 +22,8 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
 ) => {
     const whitePlayer = useLiveChessboardStore((x) => x.whitePlayer);
     const blackPlayer = useLiveChessboardStore((x) => x.blackPlayer);
-    const result = useLiveChessboardStore((x) => x.resultData);
+    const resultData = useLiveChessboardStore((x) => x.resultData);
+    const playerColor = useLiveChessboardStore((x) => x.playerColor);
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);
@@ -32,7 +33,21 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
         open: openPopup,
     }));
 
-    if (!whitePlayer || !blackPlayer || !result || !isOpen) return;
+    if (!whitePlayer || !blackPlayer || !resultData || !isOpen) return;
+
+    function getGameOverTitle(): string {
+        if (!resultData) return "GAME OVER";
+
+        if (resultData.result === GameResult.ABORTED) return "ABORTED";
+        else if (resultData.result === GameResult.DRAW) return "DRAW";
+
+        const winColor =
+            resultData.result === GameResult.WHITE_WIN
+                ? GameColor.WHITE
+                : GameColor.BLACK;
+        return playerColor === winColor ? "VICTORY" : "GAME OVER";
+    }
+    const gameOverTitle = getGameOverTitle();
 
     return (
         <div
@@ -54,21 +69,23 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                 >
                     ×
                 </button>
-                <h2 className="text-center text-3xl font-bold">GAME OVER</h2>
+                <h2 className="text-center text-3xl font-bold">
+                    {gameOverTitle}
+                </h2>
                 <p className="text-secondary text-center">
-                    {result.resultDescription}
+                    {resultData.resultDescription}
                 </p>
 
                 <div className="grid grid-cols-2 justify-center gap-2">
                     <PopupCardProfile
                         player={whitePlayer}
-                        ratingDelta={result.whiteRatingDelta}
-                        isWinner={result.result === GameResult.WHITE_WIN}
+                        ratingDelta={resultData.whiteRatingDelta}
+                        isWinner={resultData.result === GameResult.WHITE_WIN}
                     />
                     <PopupCardProfile
                         player={blackPlayer}
-                        ratingDelta={result.blackRatingDelta}
-                        isWinner={result.result === GameResult.BLACK_WIN}
+                        ratingDelta={resultData.blackRatingDelta}
+                        isWinner={resultData.result === GameResult.BLACK_WIN}
                     />
                 </div>
                 <div className="flex gap-3">
