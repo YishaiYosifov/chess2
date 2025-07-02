@@ -12,7 +12,7 @@ public record PieceRule(
 
 public interface ILegalMoveCalculator
 {
-    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board);
+    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor? forColor = null);
     IEnumerable<Move> CalculateLegalMoves(ChessBoard board, AlgebraicPoint position);
 }
 
@@ -40,11 +40,12 @@ public class LegalMoveCalculator : ILegalMoveCalculator
             throw new InvalidOperationException("Could not find definitions for all pieces");
     }
 
-    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board)
+    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor? forColor = null)
     {
         foreach (var (position, piece) in board.EnumerateSquares())
         {
-            if (piece is null)
+            var isColorMismatch = forColor is not null && piece?.Color != forColor;
+            if (piece is null || isColorMismatch)
                 continue;
 
             foreach (var move in CalculateLegalMoves(board, position))

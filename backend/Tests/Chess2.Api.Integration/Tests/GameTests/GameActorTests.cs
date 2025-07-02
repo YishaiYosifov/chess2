@@ -115,7 +115,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             SideToMove: GameColor.White,
             Fen: _gameCore.Fen,
             MoveHistory: _gameCore.EncodedMoveHistory,
-            LegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
+            LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
             TimeControl: _timeControl
         );
         result.Value.State.Should().BeEquivalentTo(expectedGameState);
@@ -153,9 +153,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
         var expectedEncodedMove = _moveEncoder.EncodeSingleMove(move);
         var expectedMove = new GameEvents.PieceMoved(
             Move: expectedEncodedMove,
-            WhiteLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.White),
+            WhiteLegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
             WhiteId: _whitePlayer.UserId,
-            BlackLegalMoves: _gameCore.GetEncodedLegalMovesFor(GameColor.Black),
+            BlackLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves,
             BlackId: _blackPlayer.UserId,
             SideToMove: GameColor.Black,
             MoveNumber: 1
@@ -266,7 +266,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     )
     {
         gameActor ??= _gameActor;
-        var move = _gameCore.GetLegalMovesFor(player.Color).First();
+        var move = _gameCore.GetLegalMovesFor(player.Color).Moves.First();
         var movedFrom = move.Key.from;
         var movedTo = move.Key.to;
         gameActor.Tell(

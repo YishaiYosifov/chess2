@@ -10,12 +10,18 @@ using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.GameLogicTests;
 
-public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
-    : BaseIntegrationTest(factory)
+public class LegalMoveCalculatorTests : BaseIntegrationTest
 {
     private readonly ILogger<LegalMoveCalculator> _loggerMock = Substitute.For<
         ILogger<LegalMoveCalculator>
     >();
+    private readonly ILegalMoveCalculator _calculator;
+
+    public LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
+        : base(factory)
+    {
+        _calculator = Scope.ServiceProvider.GetRequiredService<ILegalMoveCalculator>();
+    }
 
     [Fact]
     public void Constructor_throws_on_duplicate_piecedefinitions()
@@ -49,13 +55,11 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
     [Fact]
     public void CalculateAllLegalMoves_returns_expected_moves_from_pieces()
     {
-        var calculator = Scope.ServiceProvider.GetRequiredService<ILegalMoveCalculator>();
-
         var board = new ChessBoard();
         board.PlacePiece(new AlgebraicPoint("a1"), PieceFactory.White(PieceType.Pawn));
         board.PlacePiece(new AlgebraicPoint("a3"), PieceFactory.Black(PieceType.King));
 
-        var moves = calculator.CalculateAllLegalMoves(board).ToList();
+        var moves = _calculator.CalculateAllLegalMoves(board).ToList();
 
         moves.Should().HaveCount(6);
 
@@ -64,14 +68,30 @@ public class LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
             .Should()
             .ContainSingle()
             .Which.Should()
-            .Satisfy<Move>(
-                (Action<Move>)(
-                    move =>
-                    {
-                        move.From.Should().BeEquivalentTo(new AlgebraicPoint("a1"));
-                        move.To.Should().BeEquivalentTo(new AlgebraicPoint("a2"));
-                    }
-                )
-            );
+            .Satisfy<Move>(move =>
+            {
+                move.From.Should().BeEquivalentTo(new AlgebraicPoint("a1"));
+                move.To.Should().BeEquivalentTo(new AlgebraicPoint("a2"));
+            });
+    }
+
+    [Fact]
+    public void CalculateAllLegalMoves_only_returns_the_moves_for_the_right_color()
+    {
+        var board = new ChessBoard();
+        board.PlacePiece(new AlgebraicPoint("a1"), PieceFactory.White(PieceType.Pawn));
+        board.PlacePiece(new AlgebraicPoint("a3"), PieceFactory.Black(PieceType.King));
+
+        var moves = _calculator.CalculateAllLegalMoves(board, GameColor.White);
+
+        moves
+            .Should()
+            .ContainSingle()
+            .Which.Should()
+            .Satisfy<Move>(move =>
+            {
+                move.From.Should().BeEquivalentTo(new AlgebraicPoint("a1"));
+                move.To.Should().BeEquivalentTo(new AlgebraicPoint("a2"));
+            });
     }
 }
