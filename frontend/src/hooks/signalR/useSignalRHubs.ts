@@ -36,7 +36,8 @@ type GameClientEvents = {
         moveNumber: number,
     ];
     GameEndedAsync: [
-        gameResult: GameResult,
+        result: GameResult,
+        resultDescription: string,
         newWhiteRating: number | undefined,
         newBlackRating: number | undefined,
     ];

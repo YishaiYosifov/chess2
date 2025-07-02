@@ -7,8 +7,9 @@ import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 import { devtools } from "zustand/middleware";
 
-interface GameResultData {
-    gameResult: GameResult;
+export interface GameResultData {
+    result: GameResult;
+    resultDescription: string;
     whiteRatingDelta?: number;
     blackRatingDelta?: number;
 }
@@ -18,14 +19,15 @@ export interface LiveChessboardStore {
     moveHistory: Move[];
     whitePlayer?: GamePlayer;
     blackPlayer?: GamePlayer;
-    result?: GameResultData;
+    resultData?: GameResultData;
 
     setGameToken(gameToken: string): void;
     addMoveToHistory(move: Move): void;
     setMoveHistory(moveHistory: Move[]): void;
     setPlayers(whitePlayer: GamePlayer, blackPlayer: GamePlayer): void;
     endGame(
-        gameResult: GameResult,
+        result: GameResult,
+        resultDescription: string,
         newWhiteRating?: number,
         newBlackRating?: number,
     ): void;
@@ -39,11 +41,6 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
             moveHistory: [],
             viewingFrom: GameColor.WHITE,
             players: { colorToPlayer: new Map<GameColor, GamePlayer>() },
-            result: {
-                gameResult: GameResult.WHITE_WIN,
-                whiteRatingDelta: 10,
-                blackRatingDelta: -10,
-            },
 
             setGameToken: (gameToken: string) =>
                 set((state) => {
@@ -64,7 +61,8 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
                 }),
 
             endGame(
-                gameResult: GameResult,
+                result: GameResult,
+                resultDescription: string,
                 newWhiteRating?: number,
                 newBlackRating?: number,
             ) {
@@ -85,8 +83,9 @@ const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
                         state.whitePlayer.rating = newWhiteRating;
                     if (state.blackPlayer)
                         state.blackPlayer.rating = newBlackRating;
-                    state.result = {
-                        gameResult,
+                    state.resultData = {
+                        result: result,
+                        resultDescription: resultDescription,
                         whiteRatingDelta,
                         blackRatingDelta,
                     };
