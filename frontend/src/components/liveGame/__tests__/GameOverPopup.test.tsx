@@ -9,7 +9,7 @@ import { GameResult } from "@/types/tempModels";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 
-describe("GameOverPopup (with real store)", () => {
+describe("GameOverPopup", () => {
     const whitePlayer: GamePlayer = {
         userId: "w123",
         color: GameColor.WHITE,
