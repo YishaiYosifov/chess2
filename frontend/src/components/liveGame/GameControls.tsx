@@ -22,8 +22,11 @@ const GameControls = () => {
 export default GameControls;
 
 const LiveGameControls = () => {
+    const moveHistory = useLiveChessboardStore((state) => state.moveHistory);
     const gameToken = useLiveChessboardStore((state) => state.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
+
+    const endGameText = moveHistory.length < 3 ? "Abort" : "Resign";
 
     return (
         <>
@@ -31,7 +34,7 @@ const LiveGameControls = () => {
                 className="flex w-full justify-center gap-2"
                 onClick={() => sendGameEvent("EndGameAsync", gameToken)}
             >
-                <FlagIcon className="size-6" /> Resign
+                <FlagIcon className="size-6" /> {endGameText}
             </Button>
             <Button className="flex w-full justify-center gap-2">
                 <ScaleIcon className="size-6" /> Draw
