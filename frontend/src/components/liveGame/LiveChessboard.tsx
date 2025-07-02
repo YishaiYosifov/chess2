@@ -90,11 +90,16 @@ const LiveChessboard = ({
     useGameEvent(
         gameToken,
         "GameEndedAsync",
-        async (gameResult, newWhiteRating, newBlackRating) => {
-            console.log(gameResult, newWhiteRating, newBlackRating);
+        async (result, resultDescription, newWhiteRating, newBlackRating) => {
+            console.log(result, newWhiteRating, newBlackRating);
             useLiveChessboardStore
                 .getState()
-                .endGame(gameResult, newWhiteRating, newBlackRating);
+                .endGame(
+                    result,
+                    resultDescription,
+                    newWhiteRating,
+                    newBlackRating,
+                );
             chessboardStore.getState().disableMovement();
             gameOverPopupRef.current?.open();
         },

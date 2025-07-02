@@ -22,7 +22,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
 ) => {
     const whitePlayer = useLiveChessboardStore((x) => x.whitePlayer);
     const blackPlayer = useLiveChessboardStore((x) => x.blackPlayer);
-    const result = useLiveChessboardStore((x) => x.result);
+    const result = useLiveChessboardStore((x) => x.resultData);
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);
@@ -56,19 +56,19 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                 </button>
                 <h2 className="text-center text-3xl font-bold">GAME OVER</h2>
                 <p className="text-secondary text-center">
-                    You lost by resignation. Better luck next time!
+                    {result.resultDescription}
                 </p>
 
                 <div className="grid grid-cols-2 justify-center gap-2">
                     <PopupCardProfile
                         player={whitePlayer}
                         ratingDelta={result.whiteRatingDelta}
-                        isWinner={result.gameResult === GameResult.WHITE_WIN}
+                        isWinner={result.result === GameResult.WHITE_WIN}
                     />
                     <PopupCardProfile
                         player={blackPlayer}
                         ratingDelta={result.blackRatingDelta}
-                        isWinner={result.gameResult === GameResult.BLACK_WIN}
+                        isWinner={result.result === GameResult.BLACK_WIN}
                     />
                 </div>
                 <div className="flex gap-3">

@@ -2,7 +2,9 @@ import { act, render, screen } from "@testing-library/react";
 import React from "react";
 
 import { GameColor, GamePlayer } from "@/lib/apiClient";
-import useLiveChessboardStore from "@/stores/liveChessboardStore";
+import useLiveChessboardStore, {
+    GameResultData,
+} from "@/stores/liveChessboardStore";
 import { GameResult } from "@/types/tempModels";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
@@ -20,8 +22,9 @@ describe("GameOverPopup (with real store)", () => {
         userName: "Black",
         rating: 1350,
     };
-    const result = {
-        gameResult: GameResult.WHITE_WIN,
+    const result: GameResultData = {
+        result: GameResult.WHITE_WIN,
+        resultDescription: "White Won by Resignation",
         whiteRatingDelta: +10,
         blackRatingDelta: -8,
     };
@@ -31,7 +34,7 @@ describe("GameOverPopup (with real store)", () => {
         useLiveChessboardStore.setState({
             whitePlayer,
             blackPlayer,
-            result,
+            resultData: result,
         });
     });
 
