@@ -10,8 +10,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
 
     const piece = usePiece(id);
-    const sideToMove = useChessStore((state) => state.sideToMove);
-    const playingAs = useChessStore((state) => state.playingAs);
     const showLegalMoves = useChessStore((state) => state.showLegalMoves);
     const handlePieceDrop = useChessStore((state) => state.handlePieceDrop);
     const isAnimating = useChessStore((state) => state.animatingPieces.has(id));
@@ -88,10 +86,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             )}
             ref={pieceRef}
             onPointerDown={(event) => {
-                const canDrag =
-                    playingAs == sideToMove && piece.color == sideToMove;
-                if (!canDrag) return;
-
                 showLegalMoves(id);
                 startDragging(event);
             }}
