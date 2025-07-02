@@ -45,7 +45,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
             resultData.result === GameResult.WHITE_WIN
                 ? GameColor.WHITE
                 : GameColor.BLACK;
-        return playerColor === winColor ? "VICTORY" : "GAME OVER";
+        return playerColor === winColor ? "VICTORY" : "YOU LOST";
     }
     const gameOverTitle = getGameOverTitle();
 
