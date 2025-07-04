@@ -1,5 +1,4 @@
 ﻿using Akka.Actor;
-using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
@@ -110,22 +109,8 @@ public class GameActor : ReceiveActor, IWithTimers
             whenWhite: GameResult.WhiteWin,
             whenBlack: GameResult.BlackWin
         );
-        var state = GetGameStateForPlayer(player);
 
-        RunTask(async () =>
-        {
-            await using var scope = _sp.CreateAsyncScope();
-            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
-            await _gameNotifier.NotifyGameEndedAsync(
-                _token,
-                result,
-                reason,
-                archive.WhitePlayer?.NewRating,
-                archive.BlackPlayer?.NewRating
-            );
-        });
-        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        FinalizeGame(player, result, reason);
     }
 
     private void HandleEndGame(GameCommands.EndGame endGame)
@@ -141,10 +126,8 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        var state = GetGameStateForPlayer(player);
         GameResult result;
         string reason;
-
         var isAbort = _gameCore.MoveNumber <= 2;
         if (isAbort)
         {
@@ -163,23 +146,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
         Sender.Tell(new GameEvents.GameEnded());
-
-        RunTask(async () =>
-        {
-            await using var scope = _sp.CreateAsyncScope();
-            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
-            await _gameNotifier.NotifyGameEndedAsync(
-                _token,
-                result,
-                reason,
-                archive.WhitePlayer?.NewRating,
-                archive.BlackPlayer?.NewRating
-            );
-        });
-
-        // TODO: remember to uncomment when done testing
-        //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        FinalizeGame(player, result, reason);
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece)
@@ -202,7 +169,6 @@ public class GameActor : ReceiveActor, IWithTimers
             Sender.ReplyWithError(moveResult.Errors);
             return;
         }
-        Sender.Tell(new GameEvents.PieceMoved());
 
         var nextPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
         RunTask(
@@ -216,6 +182,29 @@ public class GameActor : ReceiveActor, IWithTimers
                     _gameCore.GetLegalMovesFor(_gameCore.SideToMove).EncodedMoves
                 )
         );
+
+        Sender.Tell(new GameEvents.PieceMoved());
+    }
+
+    private void FinalizeGame(GamePlayer endingPlayer, GameResult result, string reason)
+    {
+        var state = GetGameStateForPlayer(endingPlayer);
+        RunTask(async () =>
+        {
+            await using var scope = _sp.CreateAsyncScope();
+            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
+            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
+            await _gameNotifier.NotifyGameEndedAsync(
+                _token,
+                result,
+                reason,
+                archive.WhitePlayer?.NewRating,
+                archive.BlackPlayer?.NewRating
+            );
+        });
+
+        // TODO: remember to uncomment when done testing
+        //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
     private GameState GetGameStateForPlayer(GamePlayer player)
