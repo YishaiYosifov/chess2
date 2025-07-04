@@ -13,14 +13,12 @@ public class GameClock
     private TimeControlSettings _timeControl = new();
     private long _lastMoveAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-
     public void Reset(TimeControlSettings timeControl)
     {
         _timeControl = timeControl;
         _clocks[GameColor.White] = timeControl.BaseSeconds;
         _clocks[GameColor.Black] = timeControl.BaseSeconds;
     }
-
 
     public void TickMove(GameColor color)
     {
