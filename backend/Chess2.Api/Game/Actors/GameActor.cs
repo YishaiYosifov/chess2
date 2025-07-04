@@ -6,10 +6,7 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Extensions;
-using System.Numerics;
-using static Chess2.Api.Game.Models.GameCommands;
 
 namespace Chess2.Api.Game.Actors;
 
@@ -72,7 +69,7 @@ public class GameActor : ReceiveActor, IWithTimers
         );
         Receive<GameQueries.GetGameState>(HandleGetGameState);
 
-        Receive<GameCommands.TickClock>(HandleClockTick);
+        Receive<GameCommands.TickClock>(_ => HandleClockTick());
 
         Receive<GameCommands.EndGame>(HandleEndGame);
         Receive<GameCommands.MovePiece>(HandleMovePiece);
@@ -98,7 +95,8 @@ public class GameActor : ReceiveActor, IWithTimers
     private void HandleClockTick()
     {
         var timeLeft = _clock.CalculateTimeLeft(_gameCore.SideToMove);
-        if (timeLeft > 0) return;
+        if (timeLeft > 0)
+            return;
 
         var player = _players.GetPlayerByColor(_gameCore.SideToMove);
         _logger.Info("Game {0} ended by user {1} timing out", _token, player.UserId);
@@ -108,11 +106,7 @@ public class GameActor : ReceiveActor, IWithTimers
         var result = winnerColor.ToResult();
         var state = GetGameStateForPlayer(player);
 
-        Sender.ReplyWithErrorOr(
-            new GameEvents.GameEnded(
-                result,
-                reason,
-                state));
+        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, reason, state));
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
@@ -148,6 +142,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
         Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, reason, state));
+        // TODO: remember to uncomment when done testing
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
