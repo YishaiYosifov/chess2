@@ -303,7 +303,7 @@ builder.Services.AddAkka(
                 "casual-matchmaking",
                 runtimeAppSettings.Akka.MatchmakingShardCount
             )
-            .WithPlayerShard(runtimeAppSettings.Akka.PlayerShardCount)
+            .WithPlayerShard(runtimeAppSettings.Akka.PlayerSessionShardCount)
             .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
     }
 );
