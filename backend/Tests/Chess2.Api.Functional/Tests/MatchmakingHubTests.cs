@@ -206,7 +206,7 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     private static TaskCompletionSource<string> ListenForMatch(HubConnection conn)
     {
         var tcs = new TaskCompletionSource<string>();
-        conn.On<string>("MatchFoundAsync", gameId => tcs.TrySetResult(gameId));
+        conn.On<string>("MatchFoundAsync", gameToken => tcs.TrySetResult(gameToken));
         return tcs;
     }
 }

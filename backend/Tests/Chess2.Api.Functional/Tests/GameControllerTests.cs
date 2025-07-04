@@ -1,11 +1,11 @@
-﻿using System.Net;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
@@ -103,7 +103,7 @@ public class GameControllerTests : BaseFunctionalTest
     }
 
     [Fact]
-    public async Task GetLiveGame_returns_404_for_invalid_game_id()
+    public async Task GetLiveGame_returns_404_for_invalid_game_token()
     {
         var token = TokenProvider.GenerateGuestToken("guest1");
         AuthUtils.AuthenticateWithTokens(ApiClient, token);
@@ -115,7 +115,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetLiveGame_returns_401_for_unauthenticated_user()
     {
-        var response = await ApiClient.Api.GetLiveGameAsync("anygameid");
+        var response = await ApiClient.Api.GetLiveGameAsync("anygametoken");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }
