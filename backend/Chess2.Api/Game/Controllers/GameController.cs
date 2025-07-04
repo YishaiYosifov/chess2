@@ -1,11 +1,9 @@
-﻿using Akka.Hosting;
-using Chess2.Api.Auth.Services;
-using Chess2.Api.Game.Actors;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Shared.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,10 +11,9 @@ namespace Chess2.Api.Game.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GameController(IRequiredActor<GameActor> gameActor, IAuthService authService)
-    : Controller
+public class GameController(IGameService gameService, IAuthService authService) : Controller
 {
-    private readonly IRequiredActor<GameActor> _gameActor = gameActor;
+    private readonly IGameService _gameService = gameService;
     private readonly IAuthService _authService = authService;
 
     [HttpGet("live/{gameToken}", Name = nameof(GetLiveGame))]
@@ -32,10 +29,11 @@ public class GameController(IRequiredActor<GameActor> gameActor, IAuthService au
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var gameStateResult = await _gameActor.ActorRef.AskExpecting<GameEvents.GameStateEvent>(
-            new GameQueries.GetGameState(gameToken, userIdResult.Value),
+        var gameStateResult = await _gameService.GetGameStateAsync(
+            gameToken,
+            userIdResult.Value,
             token
         );
-        return gameStateResult.Match(value => Ok(value.State), errors => errors.ToActionResult());
+        return gameStateResult.Match(Ok, errors => errors.ToActionResult());
     }
 }

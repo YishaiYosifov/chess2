@@ -4,6 +4,7 @@ using Chess2.Api.Game.Actors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Shared.Extensions;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
 using ErrorOr;
@@ -13,9 +14,22 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameService
 {
+    Task<ErrorOr<Success>> EndGameAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    );
     Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
+        CancellationToken token = default
+    );
+    Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default);
+    Task<ErrorOr<Success>> MakeMoveAsync(
+        string gameToken,
+        string userId,
+        AlgebraicPoint from,
+        AlgebraicPoint to,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(string userId1, string userId2, TimeControlSettings timeControl);
@@ -27,7 +41,6 @@ public class GameService(
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    IGameFinalizer gameFinalizer,
     ITimeControlTranslator timeControlTranslator
 ) : IGameService
 {
@@ -36,8 +49,16 @@ public class GameService(
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
-    private readonly IGameFinalizer _gameFinalizer = gameFinalizer;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+
+    public async Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default)
+    {
+        var isGameOngoing = await _gameActor.ActorRef.Ask<bool>(
+            new GameQueries.IsGameOngoing(gameToken),
+            token
+        );
+        return isGameOngoing;
+    }
 
     public async Task<string> StartGameAsync(
         string userId1,
@@ -61,15 +82,47 @@ public class GameService(
         CancellationToken token = default
     )
     {
-        var stateResult = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameStateEvent>>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameStateEvent>(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
-        if (stateResult.IsError)
-            return stateResult.Errors;
+        if (response.IsError)
+            return response.Errors;
 
-        var state = stateResult.Value.State;
+        var state = response.Value.State;
         return state;
+    }
+
+    public async Task<ErrorOr<Success>> MakeMoveAsync(
+        string gameToken,
+        string userId,
+        AlgebraicPoint from,
+        AlgebraicPoint to,
+        CancellationToken token = default
+    )
+    {
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.PieceMoved>(
+            new GameCommands.MovePiece(gameToken, userId, from, to),
+            token
+        );
+        if (response.IsError)
+            return response.Errors;
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> EndGameAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    )
+    {
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameEnded>(
+            new GameCommands.EndGame(gameToken, userId),
+            token
+        );
+        if (response.IsError)
+            return response.Errors;
+        return Result.Success;
     }
 
     private async Task<GamePlayer> CreatePlayer(
