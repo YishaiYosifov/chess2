@@ -104,30 +104,15 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             Context.Unwatch(seeker1Ref);
             Context.Unwatch(seeker2Ref);
 
-            var scope = _sp.CreateScope();
-            var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
-            var startGameTask = gameService
-                .StartGameAsync(seeker1, seeker2, _timeControl)
-                .ContinueWith(task =>
-                {
-                    try
-                    {
-                        return task.Result;
-                    }
-                    finally
-                    {
-                        scope.Dispose();
-                    }
-                });
+            RunTask(async () =>
+            {
+                await using var scope = _sp.CreateAsyncScope();
+                var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
+                var gameToken = await gameService.StartGameAsync(seeker1, seeker2, _timeControl);
 
-            startGameTask.PipeTo(
-                seeker1Ref,
-                success: token => new MatchmakingEvents.MatchFound(token)
-            );
-            startGameTask.PipeTo(
-                seeker2Ref,
-                success: token => new MatchmakingEvents.MatchFound(token)
-            );
+                seeker1Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
+                seeker2Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
+            });
         }
     }
 
