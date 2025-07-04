@@ -30,9 +30,13 @@ public class GameActor : ReceiveActor, IWithTimers
         IServiceProvider sp,
         IGameCore game,
         IGameResultDescriber resultDescriber,
-        IGameNotifier gameNotifier
+        IGameNotifier gameNotifier,
+        ITimerScheduler? timerScheduler = null
     )
     {
+        // for testing
+        if (timerScheduler is not null)
+            Timers = timerScheduler;
         _token = token;
 
         _sp = sp;
@@ -120,6 +124,7 @@ public class GameActor : ReceiveActor, IWithTimers
         );
 
         await FinalizeGameAsync(player, result, reason);
+        Sender.Tell(new GameEvents.GameEnded());
     }
 
     private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
@@ -198,7 +203,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
     {
         // TODO: remember to uncomment when done testing
-        //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
 
         var state = GetGameStateForPlayer(endingPlayer);
 
