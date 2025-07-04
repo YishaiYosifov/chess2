@@ -24,10 +24,10 @@ public class GameTokenGenerator(
         while (true)
         {
             var token = _randomCodeGenerator.GenerateBase62Code(16);
-            var existingGameStatus = await _gameActor.ActorRef.Ask<GameEvents.GameStatusEvent>(
-                new GameQueries.GetGameStatus(token)
+            var isGameOngoing = await _gameActor.ActorRef.Ask<bool>(
+                new GameQueries.IsGameOngoing(token)
             );
-            if (existingGameStatus.Status is GameStatus.NotStarted)
+            if (!isGameOngoing)
                 return token;
         }
     }

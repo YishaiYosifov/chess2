@@ -32,10 +32,10 @@ public class GameController(IRequiredActor<GameActor> gameActor, IAuthService au
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var gameStateResult = await _gameActor.ActorRef.AskExpecting<GameEvents.PieceMoved>(
+        var gameStateResult = await _gameActor.ActorRef.AskExpecting<GameEvents.GameStateEvent>(
             new GameQueries.GetGameState(gameToken, userIdResult.Value),
             token
         );
-        return gameStateResult.Match(Ok, errors => errors.ToActionResult());
+        return gameStateResult.Match(value => Ok(value.State), errors => errors.ToActionResult());
     }
 }

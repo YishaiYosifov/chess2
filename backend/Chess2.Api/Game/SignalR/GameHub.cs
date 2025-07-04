@@ -5,6 +5,7 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.Shared.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -42,7 +43,7 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        var response = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.PieceMoved>>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.PieceMoved>(
             new GameCommands.MovePiece(gameToken, userId, from, to)
         );
         if (response.IsError)
@@ -60,7 +61,7 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        var response = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameEnded>>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameEnded>(
             new GameCommands.EndGame(gameToken, userId)
         );
         if (response.IsError)
@@ -84,15 +85,19 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        //var gameStatus = await _gameActor.ActorRef.Ask<GameEvents.GameStatusEvent>(
-        //    new GameQueries.GetGameStatus(gameToken)
-        //);
-        //if (gameStatus.Status is GameStatus.NotStarted)
-        //{
-        //    Context.Abort();
-        //    await base.OnConnectedAsync();
-        //    return;
-        //}
+        var isGameOngoing = await _gameActor.ActorRef.Ask<bool>(
+            new GameQueries.IsGameOngoing(gameToken)
+        );
+        if (!isGameOngoing)
+        {
+            _logger.LogWarning(
+                "User {UserId} connected to game hub for a game that is not ongoing",
+                Context.UserIdentifier
+            );
+            Context.Abort();
+            await base.OnConnectedAsync();
+            return;
+        }
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameToken);
         await base.OnConnectedAsync();

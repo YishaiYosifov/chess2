@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Chess2.Api.Game.Actors;
-using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Matchmaking.Services;
@@ -14,10 +13,6 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameService
 {
-    Task<ErrorOr<Success>> CheckGameStartedAsync(
-        string gameToken,
-        CancellationToken token = default
-    );
     Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
@@ -66,10 +61,6 @@ public class GameService(
         CancellationToken token = default
     )
     {
-        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
-        if (gameStartedResult.IsError)
-            return gameStartedResult.Errors;
-
         var stateResult = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameStateEvent>>(
             new GameQueries.GetGameState(gameToken, userId),
             token
@@ -79,21 +70,6 @@ public class GameService(
 
         var state = stateResult.Value.State;
         return state;
-    }
-
-    public async Task<ErrorOr<Success>> CheckGameStartedAsync(
-        string gameToken,
-        CancellationToken token = default
-    )
-    {
-        var gameStatus = await _gameActor.ActorRef.Ask<GameEvents.GameStatusEvent>(
-            new GameQueries.GetGameStatus(gameToken),
-            token
-        );
-
-        return gameStatus.Status is GameStatus.NotStarted
-            ? GameErrors.GameNotFound
-            : Result.Success;
     }
 
     private async Task<GamePlayer> CreatePlayer(
