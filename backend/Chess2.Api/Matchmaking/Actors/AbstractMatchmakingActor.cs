@@ -148,5 +148,6 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             _settings.Game.MatchWaveEvery
         );
         Context.SetReceiveTimeout(TimeSpan.FromSeconds(30));
+        base.PreStart();
     }
 }
