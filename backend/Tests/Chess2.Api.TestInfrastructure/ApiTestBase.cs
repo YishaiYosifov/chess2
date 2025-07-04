@@ -5,7 +5,7 @@ using Chess2.Api.Auth.Services;
 using Chess2.Api.Game.Actors;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Actors;
-using Chess2.Api.Player.Actors;
+using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.Entities;

@@ -2,8 +2,8 @@
 using Akka.Hosting;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Player.Actors;
-using Chess2.Api.Player.Models;
+using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.PlayerSession.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
 
@@ -42,20 +42,24 @@ public class MatchmakingService(
             rating.Value,
             timeControl
         );
-        var playerCommand = new PlayerCommands.CreateSeek(user.Id, connectionId, poolCommand);
+        var playerCommand = new PlayerSessionCommands.CreateSeek(
+            user.Id,
+            connectionId,
+            poolCommand
+        );
         _playerSessionActor.ActorRef.Tell(playerCommand);
     }
 
     public void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl)
     {
         var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, timeControl);
-        var playerCommand = new PlayerCommands.CreateSeek(userId, connectionId, poolCommand);
+        var playerCommand = new PlayerSessionCommands.CreateSeek(userId, connectionId, poolCommand);
         _playerSessionActor.ActorRef.Tell(playerCommand);
     }
 
     public void CancelSeek(string userId, string? connectionId = null)
     {
-        var command = new PlayerCommands.CancelSeek(userId, connectionId);
+        var command = new PlayerSessionCommands.CancelSeek(userId, connectionId);
         _playerSessionActor.ActorRef.Tell(command);
     }
 }

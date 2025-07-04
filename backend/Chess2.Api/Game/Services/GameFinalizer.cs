@@ -3,8 +3,8 @@ using Akka.Hosting;
 using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.Player.Actors;
-using Chess2.Api.Player.Models;
+using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.PlayerSession.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
@@ -58,8 +58,12 @@ public class GameFinalizer(
             token
         );
 
-        _playerSessionActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.WhitePlayer.UserId));
-        _playerSessionActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.BlackPlayer.UserId));
+        _playerSessionActor.ActorRef.Tell(
+            new PlayerSessionCommands.GameEnded(state.WhitePlayer.UserId)
+        );
+        _playerSessionActor.ActorRef.Tell(
+            new PlayerSessionCommands.GameEnded(state.BlackPlayer.UserId)
+        );
 
         await _unitOfWork.CompleteAsync(token);
 
