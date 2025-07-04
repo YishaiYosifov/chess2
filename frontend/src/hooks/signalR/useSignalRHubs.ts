@@ -29,12 +29,8 @@ export const useMatchmakingEmitter =
     );
 
 type GameClientEvents = {
-    MoveMadeAsync: [
-        move: string,
-        legalMoves: string[],
-        sideToMove: GameColor,
-        moveNumber: number,
-    ];
+    MoveMadeAsync: [move: string, sideToMove: GameColor, moveNumber: number];
+    LegalMovesChangedAsync: [legalMoves: string[]];
     GameEndedAsync: [
         result: GameResult,
         resultDescription: string,
