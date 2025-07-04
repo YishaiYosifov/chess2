@@ -9,12 +9,13 @@ public class MatchmakingNotifierTests
 {
     private const string UserId = "testuser";
 
-    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _hubContextMock =
-        Substitute.For<IHubContext<MatchmakingHub, IMatchmakingClient>>();
-    private readonly IHubClients<IMatchmakingClient> _clientsMock = Substitute.For<
-        IHubClients<IMatchmakingClient>
+    private readonly IHubContext<MatchmakingHub, IMatchmakingHubClient> _hubContextMock =
+        Substitute.For<IHubContext<MatchmakingHub, IMatchmakingHubClient>>();
+    private readonly IHubClients<IMatchmakingHubClient> _clientsMock = Substitute.For<
+        IHubClients<IMatchmakingHubClient>
     >();
-    private readonly IMatchmakingClient _clientProxyMock = Substitute.For<IMatchmakingClient>();
+    private readonly IMatchmakingHubClient _clientProxyMock =
+        Substitute.For<IMatchmakingHubClient>();
 
     private readonly MatchmakingNotifier _notifier;
 
