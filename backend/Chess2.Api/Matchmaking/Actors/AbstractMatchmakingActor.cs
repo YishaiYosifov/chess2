@@ -34,7 +34,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         ITimerScheduler? timerScheduler = null
     )
     {
-        // for unit testing
+        // for testing
         if (timerScheduler is not null)
             Timers = timerScheduler;
         Pool = pool;
