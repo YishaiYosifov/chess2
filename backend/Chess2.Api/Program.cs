@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
@@ -39,6 +37,8 @@ using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -309,11 +309,14 @@ builder.Services.AddAkka(
 );
 #endregion
 
-#region Game
+#region Matchmaking
 builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
+builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
+#endregion
 
+#region Game
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGameCore, GameCore>();
