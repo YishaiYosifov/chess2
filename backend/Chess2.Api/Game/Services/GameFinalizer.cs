@@ -29,7 +29,7 @@ public class GameFinalizer(
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
     ITimeControlTranslator timeControlTranslator,
-    IRequiredActor<PlayerActor> playerActor,
+    IRequiredActor<PlayerSessionActor> playerSessionActor,
     IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
@@ -37,7 +37,7 @@ public class GameFinalizer(
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-    private readonly IRequiredActor<PlayerActor> _playerActor = playerActor;
+    private readonly IRequiredActor<PlayerSessionActor> _playerSessionActor = playerSessionActor;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameArchive> FinalizeGameAsync(
@@ -58,8 +58,8 @@ public class GameFinalizer(
             token
         );
 
-        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.WhitePlayer.UserId));
-        _playerActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.BlackPlayer.UserId));
+        _playerSessionActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.WhitePlayer.UserId));
+        _playerSessionActor.ActorRef.Tell(new PlayerCommands.GameEnded(state.BlackPlayer.UserId));
 
         await _unitOfWork.CompleteAsync(token);
 
