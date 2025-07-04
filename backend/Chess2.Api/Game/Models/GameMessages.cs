@@ -41,5 +41,5 @@ public class GameEvents
 
     public record PieceMoved;
 
-    public record GameEnded(GameResult Result, string ResultDescription, GameState State);
+    public record GameEnded;
 }
