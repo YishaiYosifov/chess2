@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Chess2.Api.Matchmaking.SignalR;
 
-public interface IMatchmakingClient : IChess2HubClient
+public interface IMatchmakingHubClient : IChess2HubClient
 {
     public Task MatchFoundAsync(string token);
     public Task MatchFailedAsync();
@@ -19,7 +19,7 @@ public class MatchmakingHub(
     ILogger<MatchmakingHub> logger,
     IMatchmakingService matchmakingService,
     IAuthService authService
-) : Chess2Hub<IMatchmakingClient>
+) : Chess2Hub<IMatchmakingHubClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
     private readonly ILogger<MatchmakingHub> _logger = logger;
