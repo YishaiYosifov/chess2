@@ -4,8 +4,8 @@ using Chess2.Api.Game.Actors;
 using Chess2.Api.Game.Sharding;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Sharding;
-using Chess2.Api.Player.Actors;
-using Chess2.Api.Player.Sharding;
+using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.PlayerSession.Sharding;
 
 namespace Chess2.Api.Infrastructure.Extensions;
 
@@ -38,7 +38,7 @@ public static class AkkaDIExtensions
         return builder.WithShardRegion<PlayerSessionActor>(
             "player",
             (_, _, resolver) => s => resolver.Props<PlayerSessionActor>(s),
-            new PlayerShardExtractor(shardCount),
+            new PlayerSessionShardExtractor(shardCount),
             new ShardOptions()
             {
                 Role = ActorSystemConstants.BackendRole,

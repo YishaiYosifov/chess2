@@ -5,8 +5,8 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Player.Actors;
-using Chess2.Api.Player.Models;
+using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.PlayerSession.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
@@ -56,7 +56,7 @@ public class PlayerSessionActorTests : BaseActorTest
         var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
         var seek = new RatedMatchmakingCommands.CreateRatedSeek(UserId, 1700, timeControl);
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
 
         await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
             msg =>
@@ -74,7 +74,7 @@ public class PlayerSessionActorTests : BaseActorTest
         var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
 
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             msg =>
@@ -92,12 +92,12 @@ public class PlayerSessionActorTests : BaseActorTest
         var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             cancellationToken: CT
         );
 
-        _playerSessionActor.Tell(new PlayerCommands.CancelSeek(UserId, "connid"));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek(UserId, "connid"));
 
         await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
             msg =>
@@ -122,12 +122,16 @@ public class PlayerSessionActorTests : BaseActorTest
             ratedTimeControl
         );
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid1", firstSeek));
+        _playerSessionActor.Tell(
+            new PlayerSessionCommands.CreateSeek(UserId, "connid1", firstSeek)
+        );
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             cancellationToken: CT
         );
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid2", secondSeek));
+        _playerSessionActor.Tell(
+            new PlayerSessionCommands.CreateSeek(UserId, "connid2", secondSeek)
+        );
         await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
             msg =>
             {
@@ -153,12 +157,12 @@ public class PlayerSessionActorTests : BaseActorTest
         var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
         var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
 
-        _playerSessionActor.Tell(new PlayerCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             cancellationToken: CT
         );
 
-        _playerSessionActor.Tell(new PlayerCommands.CancelSeek(UserId));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek(UserId));
 
         await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
             cancellationToken: CT

@@ -6,10 +6,10 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.SignalR;
-using Chess2.Api.Player.Models;
+using Chess2.Api.PlayerSession.Models;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Chess2.Api.Player.Actors;
+namespace Chess2.Api.PlayerSession.Actors;
 
 public record ActiveSeekInfo(
     IActorRef PoolActor,
@@ -44,8 +44,8 @@ public class PlayerSessionActor : ReceiveActor
 
     private void Seeking()
     {
-        Receive<PlayerCommands.CreateSeek>(HandleCreateSeek);
-        Receive<PlayerCommands.CancelSeek>(HandleCancelSeek);
+        Receive<PlayerSessionCommands.CreateSeek>(HandleCreateSeek);
+        Receive<PlayerSessionCommands.CancelSeek>(HandleCancelSeek);
         Receive<MatchmakingEvents.MatchFound>(HandleMatchFound);
         Receive<MatchmakingEvents.MatchFailed>((_) => HandleMatchFailed());
 
@@ -59,7 +59,7 @@ public class PlayerSessionActor : ReceiveActor
         });
     }
 
-    private void HandleCreateSeek(PlayerCommands.CreateSeek createSeek)
+    private void HandleCreateSeek(PlayerSessionCommands.CreateSeek createSeek)
     {
         // Already seeking, cancel the previous seek
         _currentPool?.PoolActor.Tell(
@@ -76,7 +76,7 @@ public class PlayerSessionActor : ReceiveActor
         );
     }
 
-    private void HandleCancelSeek(PlayerCommands.CancelSeek cancelSeek)
+    private void HandleCancelSeek(PlayerSessionCommands.CancelSeek cancelSeek)
     {
         if (_currentPool is null)
             return;
@@ -137,7 +137,7 @@ public class PlayerSessionActor : ReceiveActor
                 $"Cannot transition to {nameof(InGame)} state when {nameof(_gameToken)} is not set"
             );
 
-        Receive<PlayerCommands.GameEnded>(_ => Become(Seeking));
+        Receive<PlayerSessionCommands.GameEnded>(_ => Become(Seeking));
         Receive<ReceiveTimeout>(_ => { });
     }
 
