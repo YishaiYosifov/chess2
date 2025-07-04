@@ -1,11 +1,8 @@
-﻿using Akka.Actor;
-using Akka.Hosting;
-using Chess2.Api.Game.Actors;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
-using Chess2.Api.Shared.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -27,13 +24,12 @@ public interface IGameHubClient : IChess2HubClient
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
-public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActor)
-    : Chess2Hub<IGameHubClient>
+public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2Hub<IGameHubClient>
 {
     private const string GameTokenQueryParam = "gameToken";
 
     private readonly ILogger<GameHub> _logger = logger;
-    private readonly IRequiredActor<GameActor> _gameActor = gameActor;
+    private readonly IGameService _gameService = gameService;
 
     public async Task MovePieceAsync(string gameToken, AlgebraicPoint from, AlgebraicPoint to)
     {
@@ -43,9 +39,7 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.PieceMoved>(
-            new GameCommands.MovePiece(gameToken, userId, from, to)
-        );
+        var response = await _gameService.MakeMoveAsync(gameToken, userId, from, to);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
@@ -61,9 +55,7 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameEnded>(
-            new GameCommands.EndGame(gameToken, userId)
-        );
+        var response = await _gameService.EndGameAsync(gameToken, userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
@@ -85,9 +77,7 @@ public class GameHub(ILogger<GameHub> logger, IRequiredActor<GameActor> gameActo
             return;
         }
 
-        var isGameOngoing = await _gameActor.ActorRef.Ask<bool>(
-            new GameQueries.IsGameOngoing(gameToken)
-        );
+        var isGameOngoing = await _gameService.IsGameOngoingAsync(gameToken);
         if (!isGameOngoing)
         {
             _logger.LogWarning(
