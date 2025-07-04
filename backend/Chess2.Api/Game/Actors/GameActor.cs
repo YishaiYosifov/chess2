@@ -12,7 +12,7 @@ namespace Chess2.Api.Game.Actors;
 public class GameActor : ReceiveActor, IWithTimers
 {
     private readonly string _token;
-
+    private readonly IServiceProvider _sp;
     private readonly IGameCore _gameCore;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
@@ -27,12 +27,15 @@ public class GameActor : ReceiveActor, IWithTimers
 
     public GameActor(
         string token,
+        IServiceProvider sp,
         IGameCore game,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier
     )
     {
         _token = token;
+
+        _sp = sp;
         _gameCore = game;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
@@ -109,7 +112,19 @@ public class GameActor : ReceiveActor, IWithTimers
         );
         var state = GetGameStateForPlayer(player);
 
-        Sender.Tell(new GameEvents.GameEnded(result, reason, state));
+        RunTask(async () =>
+        {
+            await using var scope = _sp.CreateAsyncScope();
+            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
+            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
+            await _gameNotifier.NotifyGameEndedAsync(
+                _token,
+                result,
+                reason,
+                archive.WhitePlayer?.NewRating,
+                archive.BlackPlayer?.NewRating
+            );
+        });
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
@@ -147,8 +162,22 @@ public class GameActor : ReceiveActor, IWithTimers
         }
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
-        Sender.Tell(new GameEvents.GameEnded(result, reason, state));
-        //_gameNotifier.NotifyGameEndedAsync(_token, result, reason)
+        Sender.Tell(new GameEvents.GameEnded());
+
+        RunTask(async () =>
+        {
+            await using var scope = _sp.CreateAsyncScope();
+            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
+            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
+            await _gameNotifier.NotifyGameEndedAsync(
+                _token,
+                result,
+                reason,
+                archive.WhitePlayer?.NewRating,
+                archive.BlackPlayer?.NewRating
+            );
+        });
+
         // TODO: remember to uncomment when done testing
         //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
