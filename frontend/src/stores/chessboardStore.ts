@@ -36,7 +36,7 @@ export interface ChessboardStore {
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
-    playTurn(newLegalMoves: LegalMoveMap, move?: Move): void;
+    playTurn(move?: Move): void;
     playMove(move: Move): void;
     moveSelectedPiece(to: Point): Promise<void>;
     handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
@@ -49,6 +49,7 @@ export interface ChessboardStore {
         legalMoves: LegalMoveMap,
         sideToMove: GameColor,
     ): void;
+    setLegalMoves(legalMoves: LegalMoveMap): void;
     disableMovement(): void;
 }
 
@@ -89,12 +90,12 @@ export function createChessboardStore(
                  * @param sideToMove - The color of the player who is to move next.
                  * @param move - Optional move to apply before updating state.
                  */
-                playTurn(legalMoves: LegalMoveMap, move?: Move): void {
+                playTurn(move?: Move): void {
                     const { playMove } = get();
                     if (move) playMove(move);
 
                     set((state) => {
-                        state.legalMoves = legalMoves;
+                        state.legalMoves = new Map();
                         state.highlightedLegalMoves = [];
                         state.selectedPieceId = undefined;
                     });
@@ -324,6 +325,12 @@ export function createChessboardStore(
                         legalMoves,
                         sideToMove,
                     }));
+                },
+
+                setLegalMoves(legalMoves: LegalMoveMap) {
+                    set((state) => {
+                        state.legalMoves = legalMoves;
+                    });
                 },
 
                 disableMovement(): void {

@@ -60,12 +60,7 @@ const LiveChessboard = ({
     useGameEvent(
         gameToken,
         "MoveMadeAsync",
-        async (
-            move: string,
-            legalMoves: string[],
-            sideToMove: GameColor,
-            moveNumber: number,
-        ) => {
+        async (move: string, sideToMove: GameColor, moveNumber: number) => {
             // we missed a move... we need to refetch the state
             const { moveHistory, addMoveToHistory } =
                 useLiveChessboardStore.getState();
@@ -75,17 +70,23 @@ const LiveChessboard = ({
             }
 
             const decodedMove = decodeSingleMove(move);
-            const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
             addMoveToHistory(decodedMove);
 
             chessboardStore
                 .getState()
-                .playTurn(
-                    decodedLegalMoves,
-                    sideToMove == playerColor ? decodedMove : undefined,
-                );
+                .playTurn(sideToMove == playerColor ? decodedMove : undefined);
         },
     );
+
+    useGameEvent(
+        gameToken,
+        "LegalMovesChangedAsync",
+        async (legalMoves: string[]) => {
+            const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
+            chessboardStore.getState().setLegalMoves(decodedLegalMoves);
+        },
+    );
+
     useGameEvent(
         gameToken,
         "GameEndedAsync",
