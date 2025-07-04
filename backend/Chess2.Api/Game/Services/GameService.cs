@@ -1,7 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Chess2.Api.Game.Actors;
-using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
@@ -19,21 +18,9 @@ public interface IGameService
         string gameToken,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameArchive>> EndGameAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    );
     Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
-        CancellationToken token = default
-    );
-    Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
-        string gameToken,
-        string userId,
-        AlgebraicPoint from,
-        AlgebraicPoint to,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(string userId1, string userId2, TimeControlSettings timeControl);
@@ -92,54 +79,6 @@ public class GameService(
 
         var state = stateResult.Value.State;
         return state;
-    }
-
-    public async Task<ErrorOr<GameEvents.PieceMoved>> PerformMoveAsync(
-        string gameToken,
-        string userId,
-        AlgebraicPoint from,
-        AlgebraicPoint to,
-        CancellationToken token = default
-    )
-    {
-        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
-        if (gameStartedResult.IsError)
-            return gameStartedResult.Errors;
-
-        var response = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.PieceMoved>>(
-            new GameCommands.MovePiece(gameToken, userId, from, to),
-            token
-        );
-        return response;
-    }
-
-    public async Task<ErrorOr<GameArchive>> EndGameAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    )
-    {
-        var gameStartedResult = await CheckGameStartedAsync(gameToken, token);
-        if (gameStartedResult.IsError)
-            return gameStartedResult.Errors;
-
-        var endResult = await _gameActor.ActorRef.Ask<ErrorOr<GameEvents.GameEnded>>(
-            new GameCommands.EndGame(gameToken, userId),
-            token
-        );
-        if (endResult.IsError)
-            return endResult.Errors;
-
-        var gameEnded = endResult.Value;
-        var archive = await _gameFinalizer.FinalizeGameAsync(
-            gameToken,
-            gameEnded.State,
-            gameEnded.Result,
-            gameEnded.ResultDescription,
-            token
-        );
-
-        return archive;
     }
 
     public async Task<ErrorOr<Success>> CheckGameStartedAsync(

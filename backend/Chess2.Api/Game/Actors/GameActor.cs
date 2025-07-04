@@ -5,7 +5,6 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Shared.Extensions;
 
 namespace Chess2.Api.Game.Actors;
@@ -16,6 +15,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private readonly IGameCore _gameCore;
     private readonly IGameResultDescriber _resultDescriber;
+    private readonly IGameNotifier _gameNotifier;
 
     private readonly GameClock _clock = new();
     private readonly PlayerRoster _players = new();
@@ -25,11 +25,17 @@ public class GameActor : ReceiveActor, IWithTimers
 
     public ITimerScheduler Timers { get; set; } = null!;
 
-    public GameActor(string token, IGameCore game, IGameResultDescriber resultDescriber)
+    public GameActor(
+        string token,
+        IGameCore game,
+        IGameResultDescriber resultDescriber,
+        IGameNotifier gameNotifier
+    )
     {
         _token = token;
         _gameCore = game;
         _resultDescriber = resultDescriber;
+        _gameNotifier = gameNotifier;
         Become(WaitingForStart);
     }
 
@@ -42,6 +48,8 @@ public class GameActor : ReceiveActor, IWithTimers
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.NotStarted), Self);
             Context.Parent.Tell(new Passivate(PoisonPill.Instance));
         });
+
+        ReceiveAny(_ => Sender.Tell(new GameEvents.PieceMoved()));
     }
 
     private void HandleStartGame(GameCommands.StartGame startGame)
@@ -84,12 +92,12 @@ public class GameActor : ReceiveActor, IWithTimers
                 getGameState.ForUserId,
                 _token
             );
-            Sender.ReplyWithErrorOr<GameEvents.GameStateEvent>(GameErrors.PlayerInvalid);
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
             return;
         }
 
         var gameState = GetGameStateForPlayer(player);
-        Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameState));
+        Sender.Tell(new GameEvents.GameStateEvent(gameState));
     }
 
     private void HandleClockTick()
@@ -103,10 +111,13 @@ public class GameActor : ReceiveActor, IWithTimers
 
         var reason = _resultDescriber.Timeout(_gameCore.SideToMove);
         var winnerColor = _gameCore.SideToMove.Invert();
-        var result = winnerColor.ToResult();
+        var result = winnerColor.Match(
+            whenWhite: GameResult.WhiteWin,
+            whenBlack: GameResult.BlackWin
+        );
         var state = GetGameStateForPlayer(player);
 
-        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, reason, state));
+        Sender.Tell(new GameEvents.GameEnded(result, reason, state));
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
@@ -119,7 +130,7 @@ public class GameActor : ReceiveActor, IWithTimers
                 endGame.UserId,
                 _token
             );
-            Sender.ReplyWithErrorOr<GameEvents.GameEnded>(GameErrors.PlayerInvalid);
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
             return;
         }
 
@@ -137,13 +148,17 @@ public class GameActor : ReceiveActor, IWithTimers
         {
             reason = _resultDescriber.Resignation(player.Color);
             var winnerColor = player.Color.Invert();
-            result = winnerColor.ToResult();
+            result = winnerColor.Match(
+                whenWhite: GameResult.WhiteWin,
+                whenBlack: GameResult.BlackWin
+            );
         }
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
-        Sender.ReplyWithErrorOr(new GameEvents.GameEnded(result, reason, state));
+        Sender.Tell(new GameEvents.GameEnded(result, reason, state));
+        //_gameNotifier.NotifyGameEndedAsync(_token, result, reason)
         // TODO: remember to uncomment when done testing
-        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece)
@@ -156,28 +171,29 @@ public class GameActor : ReceiveActor, IWithTimers
                 movePiece.UserId,
                 currentPlayer?.UserId
             );
-            Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(GameErrors.PlayerInvalid);
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
             return;
         }
 
         var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
         if (moveResult.IsError)
         {
-            Sender.ReplyWithErrorOr<GameEvents.PieceMoved>(moveResult.Errors);
+            Sender.ReplyWithError(moveResult.Errors);
             return;
         }
-        var encodedMove = moveResult.Value;
+        Sender.Tell(new GameEvents.PieceMoved());
 
-        Sender.ReplyWithErrorOr(
-            new GameEvents.PieceMoved(
-                Move: encodedMove,
-                WhiteLegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
-                WhiteId: _players.WhitePlayer.UserId,
-                BlackLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves,
-                BlackId: _players.BlackPlayer.UserId,
-                SideToMove: _gameCore.SideToMove,
-                MoveNumber: _gameCore.MoveNumber
-            )
+        var nextPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
+        RunTask(
+            () =>
+                _gameNotifier.NotifyMoveMadeAsync(
+                    _token,
+                    moveResult.Value,
+                    _gameCore.SideToMove,
+                    _gameCore.MoveNumber,
+                    nextPlayer.UserId,
+                    _gameCore.GetLegalMovesFor(_gameCore.SideToMove).EncodedMoves
+                )
         );
     }
 

@@ -41,21 +41,13 @@ public class GameQueries
 
 public class GameEvents
 {
-    public record GameStartedEvent();
+    public record GameStartedEvent;
 
     public record GameStatusEvent(GameStatus Status);
 
     public record GameStateEvent(GameState State);
 
-    public record PieceMoved(
-        string Move,
-        IReadOnlyCollection<string> WhiteLegalMoves,
-        string WhiteId,
-        IReadOnlyCollection<string> BlackLegalMoves,
-        string BlackId,
-        GameColor SideToMove,
-        int MoveNumber
-    );
+    public record PieceMoved;
 
     public record GameEnded(GameResult Result, string ResultDescription, GameState State);
 }
