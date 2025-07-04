@@ -35,9 +35,9 @@ public static class AkkaDIExtensions
         int shardCount
     )
     {
-        return builder.WithShardRegion<PlayerActor>(
+        return builder.WithShardRegion<PlayerSessionActor>(
             "player",
-            (_, _, resolver) => s => resolver.Props<PlayerActor>(s),
+            (_, _, resolver) => s => resolver.Props<PlayerSessionActor>(s),
             new PlayerShardExtractor(shardCount),
             new ShardOptions()
             {

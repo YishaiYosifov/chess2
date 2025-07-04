@@ -17,7 +17,7 @@ public record ActiveSeekInfo(
     string ConnectionId
 );
 
-public class PlayerActor : ReceiveActor
+public class PlayerSessionActor : ReceiveActor
 {
     private readonly string _userId;
     private ActiveSeekInfo? _currentPool;
@@ -28,7 +28,7 @@ public class PlayerActor : ReceiveActor
     private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContext;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
-    public PlayerActor(
+    public PlayerSessionActor(
         string userId,
         IRequiredActor<RatedMatchmakingActor> ratedPoolActor,
         IRequiredActor<CasualMatchmakingActor> casualPoolActor,

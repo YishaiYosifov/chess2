@@ -116,7 +116,7 @@ public class ApiTestBase : IAsyncLifetime
 
     public virtual async ValueTask DisposeAsync()
     {
-        await ResetShardActors<PlayerActor>();
+        await ResetShardActors<PlayerSessionActor>();
         await ResetShardActors<RatedMatchmakingActor>();
         await ResetShardActors<CasualMatchmakingActor>();
         await ResetShardActors<GameActor>();
