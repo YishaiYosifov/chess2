@@ -6,27 +6,33 @@ using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Extensions;
+using System.Numerics;
+using static Chess2.Api.Game.Models.GameCommands;
 
 namespace Chess2.Api.Game.Actors;
 
-public class GameActor : ReceiveActor
+public class GameActor : ReceiveActor, IWithTimers
 {
     private readonly string _token;
 
     private readonly IGameCore _gameCore;
-    private readonly IGameResultDescriber _gameResultDescriber;
+    private readonly IGameResultDescriber _resultDescriber;
 
+    private readonly GameClock _clock = new();
     private readonly PlayerRoster _players = new();
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     private TimeControlSettings _timeControl;
 
-    public GameActor(string token, IGameCore game, IGameResultDescriber gameResultDescriber)
+    public ITimerScheduler Timers { get; set; } = null!;
+
+    public GameActor(string token, IGameCore game, IGameResultDescriber resultDescriber)
     {
         _token = token;
         _gameCore = game;
-        _gameResultDescriber = gameResultDescriber;
+        _resultDescriber = resultDescriber;
         Become(WaitingForStart);
     }
 
@@ -45,7 +51,15 @@ public class GameActor : ReceiveActor
     {
         _players.InitializePlayers(startGame.WhitePlayer, startGame.BlackPlayer);
         _gameCore.InitializeGame();
+        _clock.Reset(startGame.TimeControl);
+
         _timeControl = startGame.TimeControl;
+
+        Timers.StartPeriodicTimer(
+            "tickClock",
+            new GameCommands.TickClock(),
+            TimeSpan.FromSeconds(1)
+        );
 
         Sender.Tell(new GameEvents.GameStartedEvent());
         Become(Playing);
@@ -56,11 +70,11 @@ public class GameActor : ReceiveActor
         Receive<GameQueries.GetGameStatus>(_ =>
             Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
         );
-
         Receive<GameQueries.GetGameState>(HandleGetGameState);
 
-        Receive<GameCommands.EndGame>(HandleEndGame);
+        Receive<GameCommands.TickClock>(HandleClockTick);
 
+        Receive<GameCommands.EndGame>(HandleEndGame);
         Receive<GameCommands.MovePiece>(HandleMovePiece);
     }
 
@@ -79,6 +93,27 @@ public class GameActor : ReceiveActor
 
         var gameState = GetGameStateForPlayer(player);
         Sender.ReplyWithErrorOr(new GameEvents.GameStateEvent(gameState));
+    }
+
+    private void HandleClockTick()
+    {
+        var timeLeft = _clock.CalculateTimeLeft(_gameCore.SideToMove);
+        if (timeLeft > 0) return;
+
+        var player = _players.GetPlayerByColor(_gameCore.SideToMove);
+        _logger.Info("Game {0} ended by user {1} timing out", _token, player.UserId);
+
+        var reason = _resultDescriber.Timeout(_gameCore.SideToMove);
+        var winnerColor = _gameCore.SideToMove.Invert();
+        var result = winnerColor.ToResult();
+        var state = GetGameStateForPlayer(player);
+
+        Sender.ReplyWithErrorOr(
+            new GameEvents.GameEnded(
+                result,
+                reason,
+                state));
+        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
     }
 
     private void HandleEndGame(GameCommands.EndGame endGame)
@@ -102,18 +137,13 @@ public class GameActor : ReceiveActor
         if (isAbort)
         {
             result = GameResult.Aborted;
-            reason = _gameResultDescriber.Aborted(player.Color);
+            reason = _resultDescriber.Aborted(player.Color);
         }
         else
         {
-            reason = _gameResultDescriber.Resignation(player.Color);
+            reason = _resultDescriber.Resignation(player.Color);
             var winnerColor = player.Color.Invert();
-            result = winnerColor switch
-            {
-                GameColor.White => GameResult.WhiteWin,
-                GameColor.Black => GameResult.BlackWin,
-                _ => throw new InvalidOperationException($"Invalid Color {winnerColor}?"),
-            };
+            result = winnerColor.ToResult();
         }
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);

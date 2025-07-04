@@ -22,6 +22,8 @@ public class GameCommands
         TimeControlSettings TimeControl
     ) : IGameMessage;
 
+    public record TickClock;
+
     public record MovePiece(string GameToken, string UserId, AlgebraicPoint From, AlgebraicPoint To)
         : IGameMessage;
 
