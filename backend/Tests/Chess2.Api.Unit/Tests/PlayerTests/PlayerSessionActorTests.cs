@@ -4,11 +4,10 @@ using Akka.TestKit;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.SignalR;
+using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.PlayerSession.Models;
 using FluentAssertions;
-using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
@@ -20,7 +19,7 @@ public class PlayerSessionActorTests : BaseActorTest
     private const string UserId = "test-user-id";
 
     private readonly IActorRef _playerSessionActor;
-    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContextMock;
+    private readonly IMatchmakingNotifier _matchmakingNotifierMock;
 
     public PlayerSessionActorTests()
     {
@@ -33,9 +32,7 @@ public class PlayerSessionActorTests : BaseActorTest
         var casualRequired = Substitute.For<IRequiredActor<CasualMatchmakingActor>>();
         casualRequired.ActorRef.Returns(_casualPoolProbe.Ref);
 
-        _matchmakingHubContextMock = Substitute.For<
-            IHubContext<MatchmakingHub, IMatchmakingClient>
-        >();
+        _matchmakingNotifierMock = Substitute.For<IMatchmakingNotifier>();
 
         _playerSessionActor = Sys.ActorOf(
             Props.Create(
@@ -44,7 +41,7 @@ public class PlayerSessionActorTests : BaseActorTest
                         UserId,
                         ratedRequired,
                         casualRequired,
-                        _matchmakingHubContextMock
+                        _matchmakingNotifierMock
                     )
             )
         );

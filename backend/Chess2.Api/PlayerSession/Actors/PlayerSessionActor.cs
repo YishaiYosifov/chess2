@@ -5,9 +5,8 @@ using Akka.Hosting;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.SignalR;
+using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.PlayerSession.Models;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.PlayerSession.Actors;
 
@@ -25,20 +24,20 @@ public class PlayerSessionActor : ReceiveActor
 
     private readonly IRequiredActor<RatedMatchmakingActor> _ratedPoolActor;
     private readonly IRequiredActor<CasualMatchmakingActor> _casualPoolActor;
-    private readonly IHubContext<MatchmakingHub, IMatchmakingClient> _matchmakingHubContext;
+    private readonly IMatchmakingNotifier _matchmakingNotifier;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     public PlayerSessionActor(
         string userId,
         IRequiredActor<RatedMatchmakingActor> ratedPoolActor,
         IRequiredActor<CasualMatchmakingActor> casualPoolActor,
-        IHubContext<MatchmakingHub, IMatchmakingClient> matchmakingHubContext
+        IMatchmakingNotifier matchmakingNotifier
     )
     {
         _userId = userId;
         _ratedPoolActor = ratedPoolActor;
         _casualPoolActor = casualPoolActor;
-        _matchmakingHubContext = matchmakingHubContext;
+        _matchmakingNotifier = matchmakingNotifier;
         Become(Seeking);
     }
 
@@ -106,16 +105,14 @@ public class PlayerSessionActor : ReceiveActor
         _gameToken = matchFound.GameToken;
         _currentPool = null;
 
-        RunTask(
-            () => _matchmakingHubContext.Clients.User(_userId).MatchFoundAsync(matchFound.GameToken)
-        );
+        RunTask(() => _matchmakingNotifier.NotifyGameFoundAsync(_userId, matchFound.GameToken));
 
         Become(InGame);
     }
 
     private void HandleMatchFailed()
     {
-        RunTask(() => _matchmakingHubContext.Clients.User(_userId).MatchFailedAsync());
+        RunTask(() => _matchmakingNotifier.NotifyMatchFailedAsync(_userId));
     }
 
     private IActorRef ResolvePoolActorForSeek(ICreateSeekCommand createSeekCommand)
