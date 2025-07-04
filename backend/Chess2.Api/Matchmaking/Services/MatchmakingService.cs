@@ -19,12 +19,12 @@ public interface IMatchmakingService
 public class MatchmakingService(
     IRatingService ratingService,
     ITimeControlTranslator secondsToTimeControl,
-    IRequiredActor<PlayerActor> playerActor
+    IRequiredActor<PlayerSessionActor> playerSessionActor
 ) : IMatchmakingService
 {
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
-    private readonly IRequiredActor<PlayerActor> _playerActor = playerActor;
+    private readonly IRequiredActor<PlayerSessionActor> _playerSessionActor = playerSessionActor;
 
     public async Task SeekRatedAsync(
         AuthedUser user,
@@ -43,19 +43,19 @@ public class MatchmakingService(
             timeControl
         );
         var playerCommand = new PlayerCommands.CreateSeek(user.Id, connectionId, poolCommand);
-        _playerActor.ActorRef.Tell(playerCommand);
+        _playerSessionActor.ActorRef.Tell(playerCommand);
     }
 
     public void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl)
     {
         var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, timeControl);
         var playerCommand = new PlayerCommands.CreateSeek(userId, connectionId, poolCommand);
-        _playerActor.ActorRef.Tell(playerCommand);
+        _playerSessionActor.ActorRef.Tell(playerCommand);
     }
 
     public void CancelSeek(string userId, string? connectionId = null)
     {
         var command = new PlayerCommands.CancelSeek(userId, connectionId);
-        _playerActor.ActorRef.Tell(command);
+        _playerSessionActor.ActorRef.Tell(command);
     }
 }
