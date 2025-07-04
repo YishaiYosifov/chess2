@@ -1,4 +1,5 @@
 ﻿using Akka.Actor;
+using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
@@ -43,9 +44,17 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private void WaitingForStart()
     {
-        Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(false));
+        Receive<GameQueries.IsGameOngoing>(_ =>
+        {
+            Sender.Tell(false);
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        });
         Receive<GameCommands.StartGame>(HandleStartGame);
-        ReceiveAny(_ => Sender.ReplyWithError(GameErrors.GameNotFound));
+        ReceiveAny(_ =>
+        {
+            Sender.ReplyWithError(GameErrors.GameNotFound);
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        });
     }
 
     private void HandleStartGame(GameCommands.StartGame startGame)
@@ -71,9 +80,9 @@ public class GameActor : ReceiveActor, IWithTimers
         Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(true));
         Receive<GameQueries.GetGameState>(HandleGetGameState);
 
-        Receive<GameCommands.TickClock>(_ => HandleClockTick());
+        ReceiveAsync<GameCommands.TickClock>(_ => HandleClockTickAsync());
 
-        Receive<GameCommands.EndGame>(HandleEndGame);
+        ReceiveAsync<GameCommands.EndGame>(HandleEndGameAsync);
         Receive<GameCommands.MovePiece>(HandleMovePiece);
     }
 
@@ -94,7 +103,7 @@ public class GameActor : ReceiveActor, IWithTimers
         Sender.Tell(new GameEvents.GameStateEvent(gameState));
     }
 
-    private void HandleClockTick()
+    private async Task HandleClockTickAsync()
     {
         var timeLeft = _clock.CalculateTimeLeft(_gameCore.SideToMove);
         if (timeLeft > 0)
@@ -110,10 +119,10 @@ public class GameActor : ReceiveActor, IWithTimers
             whenBlack: GameResult.BlackWin
         );
 
-        FinalizeGame(player, result, reason);
+        await FinalizeGameAsync(player, result, reason);
     }
 
-    private void HandleEndGame(GameCommands.EndGame endGame)
+    private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
     {
         if (!_players.TryGetPlayerById(endGame.UserId, out var player))
         {
@@ -145,8 +154,8 @@ public class GameActor : ReceiveActor, IWithTimers
         }
 
         _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
+        await FinalizeGameAsync(player, result, reason);
         Sender.Tell(new GameEvents.GameEnded());
-        FinalizeGame(player, result, reason);
     }
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece)
@@ -186,25 +195,23 @@ public class GameActor : ReceiveActor, IWithTimers
         Sender.Tell(new GameEvents.PieceMoved());
     }
 
-    private void FinalizeGame(GamePlayer endingPlayer, GameResult result, string reason)
+    private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
     {
-        var state = GetGameStateForPlayer(endingPlayer);
-        RunTask(async () =>
-        {
-            await using var scope = _sp.CreateAsyncScope();
-            var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-            var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
-            await _gameNotifier.NotifyGameEndedAsync(
-                _token,
-                result,
-                reason,
-                archive.WhitePlayer?.NewRating,
-                archive.BlackPlayer?.NewRating
-            );
-        });
-
         // TODO: remember to uncomment when done testing
         //Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+
+        var state = GetGameStateForPlayer(endingPlayer);
+
+        await using var scope = _sp.CreateAsyncScope();
+        var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
+        var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
+        await _gameNotifier.NotifyGameEndedAsync(
+            _token,
+            result,
+            reason,
+            archive.WhitePlayer?.NewRating,
+            archive.BlackPlayer?.NewRating
+        );
     }
 
     private GameState GetGameStateForPlayer(GamePlayer player)

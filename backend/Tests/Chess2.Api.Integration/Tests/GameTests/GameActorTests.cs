@@ -11,6 +11,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.GameTests;
 
@@ -25,6 +26,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
 
+    private readonly IGameNotifier _gameNotifierMock = Substitute.For<IGameNotifier>();
+
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
 
@@ -36,26 +39,44 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
         _gameActor = Sys.ActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber))
+            Props.Create(
+                () =>
+                    new GameActor(
+                        TestGameToken,
+                        ApiTestBase.Scope.ServiceProvider,
+                        _gameCore,
+                        _gameResultDescriber,
+                        _gameNotifierMock
+                    )
+            )
         );
         _probe = CreateTestProbe();
     }
 
     [Fact]
-    public async Task GetGameStatus_before_game_started_should_return_NotStarted_and_passivate()
+    public async Task IsGameOngoing_before_game_started_should_return_false_and_passivate()
     {
         var parentActor = CreateTestProbe();
         var gameActor = parentActor.ChildActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber)),
+            Props.Create(
+                () =>
+                    new GameActor(
+                        TestGameToken,
+                        ApiTestBase.Scope.ServiceProvider,
+                        _gameCore,
+                        _gameResultDescriber,
+                        _gameNotifierMock
+                    )
+            ),
             cancellationToken: ApiTestBase.CT
         );
 
-        gameActor.Tell(new GameQueries.GetGameStatus(TestGameToken), _probe);
+        gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
 
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameStatusEvent>(
+        var result = await _probe.ExpectMsgAsync<bool>(
             cancellationToken: TestContext.Current.CancellationToken
         );
-        result.Status.Should().Be(GameStatus.NotStarted);
+        result.Should().BeFalse();
 
         var passivate = await parentActor.ExpectMsgAsync<Passivate>(
             cancellationToken: TestContext.Current.CancellationToken
@@ -66,19 +87,15 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task StartGame_should_initialize_game_and_transition_to_playing_state()
     {
-        var statusEvent = await _gameActor.Ask<GameEvents.GameStatusEvent>(
-            new GameQueries.GetGameStatus(TestGameToken),
-            ApiTestBase.CT
-        );
-        statusEvent.Status.Should().Be(GameStatus.NotStarted);
+        _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
+        var isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
+        isOngoing.Should().BeFalse();
 
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
-        statusEvent = await _gameActor.Ask<GameEvents.GameStatusEvent>(
-            new GameQueries.GetGameStatus(TestGameToken),
-            ApiTestBase.CT
-        );
-        statusEvent.Status.Should().Be(GameStatus.OnGoing);
+        _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
+        isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
+        isOngoing.Should().BeTrue();
     }
 
     [Fact]
@@ -91,7 +108,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
@@ -104,11 +121,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameStateEvent>>(
+        var result = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
             cancellationToken: ApiTestBase.CT
         );
 
-        result.IsError.Should().BeFalse();
         var expectedGameState = new GameState(
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
@@ -118,7 +134,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
             TimeControl: _timeControl
         );
-        result.Value.State.Should().BeEquivalentTo(expectedGameState);
+        result.State.Should().BeEquivalentTo(expectedGameState);
     }
 
     [Fact]
@@ -136,7 +152,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
@@ -148,19 +164,19 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         await StartGameAsync(_whitePlayer, _blackPlayer);
 
-        var (result, move) = await MakeLegalMoveAsync(_whitePlayer);
+        var move = await MakeLegalMoveAsync(_whitePlayer);
 
         var expectedEncodedMove = _moveEncoder.EncodeSingleMove(move);
-        var expectedMove = new GameEvents.PieceMoved(
-            Move: expectedEncodedMove,
-            WhiteLegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
-            WhiteId: _whitePlayer.UserId,
-            BlackLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves,
-            BlackId: _blackPlayer.UserId,
-            SideToMove: GameColor.Black,
-            MoveNumber: 1
-        );
-        result.Value.Should().BeEquivalentTo(expectedMove);
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyMoveMadeAsync(
+                gameToken: TestGameToken,
+                move: expectedEncodedMove,
+                sideToMove: GameColor.Black,
+                moveNumber: 1,
+                sideToMoveUserId: _blackPlayer.UserId,
+                _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves
+            );
     }
 
     [Fact]
@@ -178,7 +194,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             _probe
         );
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
@@ -192,7 +208,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, "nonexistent-user"), _probe);
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameEnded>>(
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
@@ -207,12 +223,20 @@ public class GameActorTests : BaseAkkaIntegrationTest
         // No moves or just one move = still abortable
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameEnded>>(
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(
+            TimeSpan.FromDays(1),
             cancellationToken: ApiTestBase.CT
         );
-        result.IsError.Should().BeFalse();
-        result.Value.Result.Should().Be(GameResult.Aborted);
-        result.Value.ResultDescription.Should().Be(_gameResultDescriber.Aborted(GameColor.White));
+
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyGameEndedAsync(
+                TestGameToken,
+                GameResult.Aborted,
+                _gameResultDescriber.Aborted(GameColor.White),
+                Arg.Any<int?>(),
+                Arg.Any<int?>()
+            );
     }
 
     [Fact]
@@ -228,14 +252,17 @@ public class GameActorTests : BaseAkkaIntegrationTest
         // Now White resigns — Black should win
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
 
-        var result = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameEnded>>(
-            cancellationToken: ApiTestBase.CT
-        );
-        result.IsError.Should().BeFalse();
-        result.Value.Result.Should().Be(GameResult.BlackWin);
-        result
-            .Value.ResultDescription.Should()
-            .Be(_gameResultDescriber.Resignation(GameColor.White));
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyGameEndedAsync(
+                TestGameToken,
+                GameResult.BlackWin,
+                _gameResultDescriber.Resignation(GameColor.White),
+                Arg.Any<int?>(),
+                Arg.Any<int?>()
+            );
     }
 
     [Fact]
@@ -243,14 +270,23 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         var parentProbe = CreateTestProbe();
         var gameActor = parentProbe.ChildActorOf(
-            Props.Create(() => new GameActor(TestGameToken, _gameCore, _gameResultDescriber)),
+            Props.Create(
+                () =>
+                    new GameActor(
+                        TestGameToken,
+                        ApiTestBase.Scope.ServiceProvider,
+                        _gameCore,
+                        _gameResultDescriber,
+                        _gameNotifierMock
+                    )
+            ),
             cancellationToken: ApiTestBase.CT
         );
 
         await StartGameAsync(_whitePlayer, _blackPlayer, gameActor);
 
         gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-        var ended = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.GameEnded>>(
+        var ended = await _probe.ExpectMsgAsync<GameEvents.GameEnded>(
             cancellationToken: ApiTestBase.CT
         );
 
@@ -260,10 +296,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
     }
 
-    private async Task<(ErrorOr<GameEvents.PieceMoved> result, Move move)> MakeLegalMoveAsync(
-        GamePlayer player,
-        IActorRef? gameActor = null
-    )
+    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, IActorRef? gameActor = null)
     {
         gameActor ??= _gameActor;
         var move = _gameCore.GetLegalMovesFor(player.Color).Moves.First();
@@ -274,12 +307,12 @@ public class GameActorTests : BaseAkkaIntegrationTest
             _probe
         );
 
-        var moveResult = await _probe.ExpectMsgAsync<ErrorOr<GameEvents.PieceMoved>>(
+        await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
             cancellationToken: ApiTestBase.CT,
             duration: TimeSpan.FromSeconds(10)
         );
-        moveResult.IsError.Should().BeFalse();
-        return (moveResult, move.Value);
+
+        return move.Value;
     }
 
     private async Task StartGameAsync(

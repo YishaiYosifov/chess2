@@ -38,12 +38,12 @@ public class GameTokenGeneratorTests : BaseActorTest
         var act = Task.Run(_tokenGenerator.GenerateUniqueGameToken);
 
         // first token taken
-        await _gameActorProbe.ExpectMsgAsync<GameQueries.GetGameStatus>(cancellationToken: CT);
-        _gameActorProbe.Reply(new GameEvents.GameStatusEvent(GameStatus.OnGoing));
+        await _gameActorProbe.ExpectMsgAsync<GameQueries.IsGameOngoing>(cancellationToken: CT);
+        _gameActorProbe.Reply(true);
 
         // second token doesn't exist
-        await _gameActorProbe.ExpectMsgAsync<GameQueries.GetGameStatus>(cancellationToken: CT);
-        _gameActorProbe.Reply(new GameEvents.GameStatusEvent(GameStatus.NotStarted));
+        await _gameActorProbe.ExpectMsgAsync<GameQueries.IsGameOngoing>(cancellationToken: CT);
+        _gameActorProbe.Reply(false);
 
         var token = await act;
 
