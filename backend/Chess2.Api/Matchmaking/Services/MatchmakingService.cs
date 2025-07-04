@@ -42,19 +42,23 @@ public class MatchmakingService(
             rating.Value,
             timeControl
         );
-        var playerCommand = new PlayerSessionCommands.CreateSeek(
+        var playerSessionCommand = new PlayerSessionCommands.CreateSeek(
             user.Id,
             connectionId,
             poolCommand
         );
-        _playerSessionActor.ActorRef.Tell(playerCommand);
+        _playerSessionActor.ActorRef.Tell(playerSessionCommand);
     }
 
     public void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl)
     {
         var poolCommand = new CasualMatchmakingCommands.CreateCasualSeek(userId, timeControl);
-        var playerCommand = new PlayerSessionCommands.CreateSeek(userId, connectionId, poolCommand);
-        _playerSessionActor.ActorRef.Tell(playerCommand);
+        var playerSessionCommand = new PlayerSessionCommands.CreateSeek(
+            userId,
+            connectionId,
+            poolCommand
+        );
+        _playerSessionActor.ActorRef.Tell(playerSessionCommand);
     }
 
     public void CancelSeek(string userId, string? connectionId = null)
