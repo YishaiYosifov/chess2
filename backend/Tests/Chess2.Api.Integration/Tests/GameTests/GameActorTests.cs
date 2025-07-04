@@ -25,8 +25,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private readonly IGameCore _gameCore;
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
+    private readonly TestProbe _parentProbe;
 
     private readonly IGameNotifier _gameNotifierMock = Substitute.For<IGameNotifier>();
+    private readonly ITimerScheduler _timerMock = Substitute.For<ITimerScheduler>();
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
@@ -38,7 +40,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
-        _gameActor = Sys.ActorOf(
+
+        _parentProbe = CreateTestProbe();
+        _gameActor = _parentProbe.ChildActorOf(
             Props.Create(
                 () =>
                     new GameActor(
@@ -46,7 +50,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
                         ApiTestBase.Scope.ServiceProvider,
                         _gameCore,
                         _gameResultDescriber,
-                        _gameNotifierMock
+                        _gameNotifierMock,
+                        _timerMock
                     )
             )
         );
@@ -56,29 +61,14 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task IsGameOngoing_before_game_started_should_return_false_and_passivate()
     {
-        var parentActor = CreateTestProbe();
-        var gameActor = parentActor.ChildActorOf(
-            Props.Create(
-                () =>
-                    new GameActor(
-                        TestGameToken,
-                        ApiTestBase.Scope.ServiceProvider,
-                        _gameCore,
-                        _gameResultDescriber,
-                        _gameNotifierMock
-                    )
-            ),
-            cancellationToken: ApiTestBase.CT
-        );
-
-        gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
+        _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
 
         var result = await _probe.ExpectMsgAsync<bool>(
             cancellationToken: TestContext.Current.CancellationToken
         );
         result.Should().BeFalse();
 
-        var passivate = await parentActor.ExpectMsgAsync<Passivate>(
+        var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
             cancellationToken: TestContext.Current.CancellationToken
         );
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
@@ -96,6 +86,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
         isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
         isOngoing.Should().BeTrue();
+
+        _timerMock
+            .Received(1)
+            .StartPeriodicTimer("tickClock", new GameCommands.TickClock(), TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -223,10 +217,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         // No moves or just one move = still abortable
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
 
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(
-            TimeSpan.FromDays(1),
-            cancellationToken: ApiTestBase.CT
-        );
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
 
         await _gameNotifierMock
             .Received(1)
@@ -268,41 +259,23 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task EndGame_should_passivate_actor()
     {
-        var parentProbe = CreateTestProbe();
-        var gameActor = parentProbe.ChildActorOf(
-            Props.Create(
-                () =>
-                    new GameActor(
-                        TestGameToken,
-                        ApiTestBase.Scope.ServiceProvider,
-                        _gameCore,
-                        _gameResultDescriber,
-                        _gameNotifierMock
-                    )
-            ),
-            cancellationToken: ApiTestBase.CT
-        );
+        await StartGameAsync(_whitePlayer, _blackPlayer);
 
-        await StartGameAsync(_whitePlayer, _blackPlayer, gameActor);
+        _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
 
-        gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-        var ended = await _probe.ExpectMsgAsync<GameEvents.GameEnded>(
-            cancellationToken: ApiTestBase.CT
-        );
-
-        var passivate = await parentProbe.ExpectMsgAsync<Passivate>(
+        var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
             cancellationToken: ApiTestBase.CT
         );
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
     }
 
-    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, IActorRef? gameActor = null)
+    private async Task<Move> MakeLegalMoveAsync(GamePlayer player)
     {
-        gameActor ??= _gameActor;
         var move = _gameCore.GetLegalMovesFor(player.Color).Moves.First();
         var movedFrom = move.Key.from;
         var movedTo = move.Key.to;
-        gameActor.Tell(
+        _gameActor.Tell(
             new GameCommands.MovePiece(TestGameToken, player.UserId, movedFrom, movedTo),
             _probe
         );
@@ -315,19 +288,42 @@ public class GameActorTests : BaseAkkaIntegrationTest
         return move.Value;
     }
 
+    [Fact]
+    public async Task TickClock_should_end_game_when_time_runs_out()
+    {
+        await StartGameAsync(_whitePlayer, _blackPlayer, timeControl: new(0, 0));
+
+        _gameActor.Tell(new GameCommands.TickClock(), _probe);
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyGameEndedAsync(
+                TestGameToken,
+                GameResult.BlackWin,
+                _gameResultDescriber.Timeout(GameColor.White),
+                Arg.Any<int?>(),
+                Arg.Any<int?>()
+            );
+
+        var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
+            cancellationToken: ApiTestBase.CT
+        );
+        passivate.StopMessage.Should().Be(PoisonPill.Instance);
+    }
+
     private async Task StartGameAsync(
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
-        IActorRef? gameActor = null
+        TimeControlSettings? timeControl = null
     )
     {
-        gameActor ??= _gameActor;
-        gameActor.Tell(
+        _gameActor.Tell(
             new GameCommands.StartGame(
                 TestGameToken,
                 WhitePlayer: whitePlayer,
                 BlackPlayer: blackPlayer,
-                TimeControl: _timeControl
+                TimeControl: timeControl ?? _timeControl
             ),
             _probe.Ref
         );
