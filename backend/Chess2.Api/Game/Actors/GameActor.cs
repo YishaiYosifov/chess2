@@ -41,15 +41,9 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private void WaitingForStart()
     {
+        Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(false));
         Receive<GameCommands.StartGame>(HandleStartGame);
-
-        Receive<GameQueries.GetGameStatus>(_ =>
-        {
-            Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.NotStarted), Self);
-            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
-        });
-
-        ReceiveAny(_ => Sender.Tell(new GameEvents.PieceMoved()));
+        ReceiveAny(_ => Sender.ReplyWithError(GameErrors.GameNotFound));
     }
 
     private void HandleStartGame(GameCommands.StartGame startGame)
@@ -72,9 +66,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private void Playing()
     {
-        Receive<GameQueries.GetGameStatus>(_ =>
-            Sender.Tell(new GameEvents.GameStatusEvent(GameStatus.OnGoing))
-        );
+        Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(true));
         Receive<GameQueries.GetGameState>(HandleGetGameState);
 
         Receive<GameCommands.TickClock>(_ => HandleClockTick());
