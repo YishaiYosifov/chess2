@@ -7,6 +7,8 @@ public class PlayerSessionShardExtractor(int shardCount) : HashCodeMessageExtrac
 {
     public override string? EntityId(object message)
     {
-        return message is IPlayerSessionCommand playerCommand ? playerCommand.UserId : null;
+        return message is IPlayerSessionCommand playerSessionCommand
+            ? playerSessionCommand.UserId
+            : null;
     }
 }
