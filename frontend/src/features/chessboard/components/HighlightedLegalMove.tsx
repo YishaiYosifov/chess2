@@ -1,12 +1,12 @@
 "use client";
 
-import { useChessStore } from "@/features/chessboard/hooks/useChess";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { Point } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
 
 const HighlightedLegalMove = ({ position }: { position: Point }) => {
-    const executePieceMovement = useChessStore(
+    const executePieceMovement = useChessboardStore(
         (state) => state.moveSelectedPiece,
     );
 

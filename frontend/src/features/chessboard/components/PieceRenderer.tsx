@@ -1,7 +1,7 @@
 import {
     useHighlightedLegalMoves,
     usePieces,
-} from "@/features/chessboard/hooks/useChess";
+} from "@/features/chessboard/hooks/useChessboard";
 import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
 import { pointToStr } from "@/lib/utils/pointUtils";

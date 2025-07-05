@@ -8,7 +8,7 @@ import {
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 
-export const ChessStoreContext =
+export const ChessboardStoreContext =
     createContext<StoreApi<ChessboardStore> | null>(null);
 
 export const ChessProvider = ({
@@ -21,8 +21,8 @@ export const ChessProvider = ({
     if (!storeRef.current) storeRef.current = createChessboardStore(state);
 
     return (
-        <ChessStoreContext.Provider value={storeRef.current}>
+        <ChessboardStoreContext.Provider value={storeRef.current}>
             {children}
-        </ChessStoreContext.Provider>
+        </ChessboardStoreContext.Provider>
     );
 };

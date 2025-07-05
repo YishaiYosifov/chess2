@@ -11,7 +11,7 @@ import ChessboardLayout, {
     ChessboardBreakpoint,
     PaddingOffset,
 } from "./ChessboardLayout";
-import { ChessStoreContext } from "@/features/chessboard/contexts/chessStoreContext";
+import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
@@ -59,13 +59,13 @@ const StaticChessboard = ({
     );
 
     return (
-        <ChessStoreContext.Provider value={chessStore}>
+        <ChessboardStoreContext.Provider value={chessStore}>
             <ChessboardLayout
                 breakpoints={breakpoints}
                 defaultOffset={defaultOffset}
                 className={className}
             />
-        </ChessStoreContext.Provider>
+        </ChessboardStoreContext.Provider>
     );
 };
 
