@@ -18,8 +18,8 @@ public class GameActor : ReceiveActor, IWithTimers
     private readonly IGameCore _gameCore;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
+    private readonly IGameClock _clock;
 
-    private readonly GameClock _clock = new();
     private readonly PlayerRoster _players = new();
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
@@ -31,6 +31,7 @@ public class GameActor : ReceiveActor, IWithTimers
         string token,
         IServiceProvider sp,
         IGameCore game,
+        IGameClock clock,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier,
         ITimerScheduler? timerScheduler = null
@@ -43,6 +44,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         _sp = sp;
         _gameCore = game;
+        _clock = clock;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
         Become(WaitingForStart);
