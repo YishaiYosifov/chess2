@@ -66,7 +66,7 @@ const Clock = ({ color }: { color: GameColor }) => {
 
         const interval = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
-            100,
+            10,
         );
 
         return () => clearInterval(interval);
