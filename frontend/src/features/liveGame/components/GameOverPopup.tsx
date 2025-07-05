@@ -33,7 +33,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
         open: openPopup,
     }));
 
-    if (!whitePlayer || !blackPlayer || !resultData || !isOpen) return;
+    if (!resultData || !isOpen) return;
 
     function getGameOverTitle(): string {
         if (!resultData) return "GAME OVER";

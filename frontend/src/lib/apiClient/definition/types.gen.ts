@@ -26,6 +26,7 @@ export enum ErrorCode {
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
     GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
     GAME_NOT_FOUND = "Game.NotFound",
+    GAME_ALREADY_ENDED = "Game.AlreadyEnded",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
     GAME_MOVE_INVALID = "Game.MoveInvalid",
 }
@@ -41,6 +42,7 @@ export type ApiProblemError = {
         | "GameLogic.PieceNotFound"
         | "GameLogic.PointOutOfBound"
         | "Game.NotFound"
+        | "Game.AlreadyEnded"
         | "Game.PlayerInvalid"
         | "Game.MoveInvalid";
     description: string;
@@ -103,6 +105,7 @@ export type OperationBase = {
 export type GameState = {
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
+    clocks: Clocks;
     sideToMove: GameColor;
     fen: string;
     moveHistory: Array<string>;
@@ -128,6 +131,12 @@ export enum GameColor {
      */
     BLACK = 1,
 }
+
+export type Clocks = {
+    whiteClock: number;
+    blackClock: number;
+    lastUpdated: number;
+};
 
 export type TimeControlSettings = {
     baseSeconds: number;
