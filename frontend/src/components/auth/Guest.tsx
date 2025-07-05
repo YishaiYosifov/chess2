@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import constants from "@/lib/constants";
 import { createGuestUser } from "@/lib/apiClient";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 /**
  * Create a guest user and redirect
@@ -25,6 +26,13 @@ const Guest = ({ redirectTo }: { redirectTo: string }) => {
         handleCreateGuest();
     }, [redirectTo, router]);
 
-    return <></>;
+    return (
+        <div className="flex h-screen justify-center text-white">
+            <ArrowPathIcon
+                className="w-32 animate-spin"
+                data-testid="seekingSpinner"
+            />
+        </div>
+    );
 };
 export default Guest;
