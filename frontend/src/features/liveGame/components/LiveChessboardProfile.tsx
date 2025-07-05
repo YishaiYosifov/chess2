@@ -3,7 +3,7 @@ import Flag from "@/features/profile/components/Flag";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { invertColor } from "@/lib/utils/chessUtils";
 import { GameColor } from "@/lib/apiClient";
-import { useLiveChessStore } from "../hooks/useLiveChess";
+import { useLiveChessStore } from "../hooks/useLiveChessStore";
 import GameClock from "./GameClock";
 
 export enum ProfileSide {

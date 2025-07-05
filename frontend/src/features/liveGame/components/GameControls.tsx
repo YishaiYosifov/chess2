@@ -8,7 +8,7 @@ import { FlagIcon } from "@heroicons/react/24/solid";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
-import { useLiveChessStore } from "../hooks/useLiveChess";
+import { useLiveChessStore } from "../hooks/useLiveChessStore";
 
 const GameControls = () => {
     const resultData = useLiveChessStore((state) => state.resultData);
