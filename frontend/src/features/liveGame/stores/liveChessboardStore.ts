@@ -13,22 +13,19 @@ export interface GameResultData {
     blackRatingDelta?: number;
 }
 
-export interface LiveChessboardStore {
+export interface RequiredLiveChessData {
     gameToken: string;
     moveHistory: Move[];
-    playerColor?: GameColor;
-    whitePlayer?: GamePlayer;
-    blackPlayer?: GamePlayer;
+    playerColor: GameColor;
+    whitePlayer: GamePlayer;
+    blackPlayer: GamePlayer;
+}
+
+export interface LiveChessStore extends RequiredLiveChessData {
     resultData?: GameResultData;
 
-    setGameToken(gameToken: string): void;
     addMoveToHistory(move: Move): void;
     setMoveHistory(moveHistory: Move[]): void;
-    setPlayers(
-        whitePlayer: GamePlayer,
-        blackPlayer: GamePlayer,
-        playerColor: GameColor,
-    ): void;
     endGame(
         result: GameResult,
         resultDescription: string,
@@ -38,66 +35,52 @@ export interface LiveChessboardStore {
 }
 
 enableMapSet();
-const useLiveChessboardStore = createWithEqualityFn<LiveChessboardStore>()(
-    immer((set, get) => ({
-        gameToken: "",
-        moveHistory: [],
+export default function createLiveChessStore(initState: RequiredLiveChessData) {
+    return createWithEqualityFn<LiveChessStore>()(
+        immer((set, get) => ({
+            ...initState,
 
-        setGameToken: (gameToken: string) =>
-            set((state) => {
-                state.gameToken = gameToken;
-            }),
-        addMoveToHistory: (move: Move) =>
-            set((state) => {
-                state.moveHistory.push(move);
-            }),
-        setMoveHistory: (moveHistory: Move[]) =>
-            set((state) => {
-                state.moveHistory = moveHistory;
-            }),
-        setPlayers: (
-            whitePlayer: GamePlayer,
-            blackPlayer: GamePlayer,
-            playerColor: GameColor,
-        ) =>
-            set((state) => {
-                state.whitePlayer = whitePlayer;
-                state.blackPlayer = blackPlayer;
-                state.playerColor = playerColor;
-            }),
+            addMoveToHistory: (move: Move) =>
+                set((state) => {
+                    state.moveHistory.push(move);
+                }),
+            setMoveHistory: (moveHistory: Move[]) =>
+                set((state) => {
+                    state.moveHistory = moveHistory;
+                }),
 
-        endGame(
-            result: GameResult,
-            resultDescription: string,
-            newWhiteRating?: number,
-            newBlackRating?: number,
-        ) {
-            const { whitePlayer, blackPlayer } = get();
+            endGame(
+                result: GameResult,
+                resultDescription: string,
+                newWhiteRating?: number,
+                newBlackRating?: number,
+            ) {
+                const { whitePlayer, blackPlayer } = get();
 
-            const whiteRatingDelta =
-                newWhiteRating && whitePlayer?.rating
-                    ? newWhiteRating - whitePlayer.rating
-                    : undefined;
+                const whiteRatingDelta =
+                    newWhiteRating && whitePlayer?.rating
+                        ? newWhiteRating - whitePlayer.rating
+                        : undefined;
 
-            const blackRatingDelta =
-                newBlackRating && blackPlayer?.rating
-                    ? newBlackRating - blackPlayer.rating
-                    : undefined;
+                const blackRatingDelta =
+                    newBlackRating && blackPlayer?.rating
+                        ? newBlackRating - blackPlayer.rating
+                        : undefined;
 
-            set((state) => {
-                if (state.whitePlayer)
-                    state.whitePlayer.rating = newWhiteRating;
-                if (state.blackPlayer)
-                    state.blackPlayer.rating = newBlackRating;
-                state.resultData = {
-                    result: result,
-                    resultDescription: resultDescription,
-                    whiteRatingDelta,
-                    blackRatingDelta,
-                };
-            });
-        },
-    })),
-    shallow,
-);
-export default useLiveChessboardStore;
+                set((state) => {
+                    if (state.whitePlayer)
+                        state.whitePlayer.rating = newWhiteRating;
+                    if (state.blackPlayer)
+                        state.blackPlayer.rating = newBlackRating;
+                    state.resultData = {
+                        result: result,
+                        resultDescription: resultDescription,
+                        whiteRatingDelta,
+                        blackRatingDelta,
+                    };
+                });
+            },
+        })),
+        shallow,
+    );
+}

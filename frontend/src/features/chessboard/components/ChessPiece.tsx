@@ -1,6 +1,9 @@
 import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
 
-import { useChessStore, usePiece } from "@/features/chessboard/hooks/useChess";
+import {
+    useChessboardStore,
+    usePiece,
+} from "@/features/chessboard/hooks/useChessboard";
 import { PieceID } from "@/types/tempModels";
 
 import ChessSquare, { ChessSquareRef } from "./ChessSquare";
@@ -10,9 +13,13 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
 
     const piece = usePiece(id);
-    const showLegalMoves = useChessStore((state) => state.showLegalMoves);
-    const handlePieceDrop = useChessStore((state) => state.handlePieceDrop);
-    const isAnimating = useChessStore((state) => state.animatingPieces.has(id));
+    const showLegalMoves = useChessboardStore((state) => state.showLegalMoves);
+    const handlePieceDrop = useChessboardStore(
+        (state) => state.handlePieceDrop,
+    );
+    const isAnimating = useChessboardStore((state) =>
+        state.animatingPieces.has(id),
+    );
 
     const [isDragging, setIsDragging] = useState(false);
 

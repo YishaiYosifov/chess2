@@ -7,11 +7,11 @@ import { FlagIcon } from "@heroicons/react/24/solid";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
+import { useLiveChessStore } from "../hooks/useLiveChess";
 
 const GameControls = () => {
-    const resultData = useLiveChessboardStore((state) => state.resultData);
+    const resultData = useLiveChessStore((state) => state.resultData);
 
     return (
         <Card className="gap-5">
@@ -22,8 +22,8 @@ const GameControls = () => {
 export default GameControls;
 
 const LiveGameControls = () => {
-    const moveHistory = useLiveChessboardStore((state) => state.moveHistory);
-    const gameToken = useLiveChessboardStore((state) => state.gameToken);
+    const moveHistory = useLiveChessStore((state) => state.moveHistory);
+    const gameToken = useLiveChessStore((state) => state.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
 
     const endGameText = moveHistory.length < 3 ? "Abort" : "Resign";

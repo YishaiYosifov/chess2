@@ -1,9 +1,9 @@
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import Flag from "@/features/profile/components/Flag";
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
-import { useChessStore } from "@/features/chessboard/hooks/useChess";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { invertColor } from "@/lib/utils/chessUtils";
 import { GameColor } from "@/lib/apiClient";
+import { useLiveChessStore } from "../hooks/useLiveChess";
 
 export enum ProfileSide {
     CurrentlyPlaying,
@@ -11,14 +11,14 @@ export enum ProfileSide {
 }
 
 const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
-    const viewingFrom = useChessStore((state) => state.viewingFrom);
+    const viewingFrom = useChessboardStore((state) => state.viewingFrom);
     const showSide =
         side === ProfileSide.CurrentlyPlaying
             ? viewingFrom
             : invertColor(viewingFrom);
 
-    const player = useLiveChessboardStore((state) =>
-        showSide === GameColor.WHITE ? state.whitePlayer : state.blackPlayer,
+    const player = useLiveChessStore((x) =>
+        showSide === GameColor.WHITE ? x.whitePlayer : x.blackPlayer,
     );
     if (!player) return null;
 

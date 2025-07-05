@@ -1,10 +1,10 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChessProvider } from "@/features/chessboard/contexts/chessStoreContext";
+import { ChessProvider } from "@/features/chessboard/contexts/chessboardStoreContext";
 import { GameColor } from "@/lib/apiClient";
 import HighlightedLegalMove from "../HighlightedLegalMove";
-import { useChessStore } from "@/features/chessboard/hooks/useChess";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import {
     createMove,
     createPiece,
@@ -13,7 +13,7 @@ import { LegalMoveMap, PieceID, PieceMap } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
 
 function PiecePositionProbe({ id }: { id: PieceID }) {
-    const piecePosition = useChessStore(
+    const piecePosition = useChessboardStore(
         (state) => state.pieces.get(id)?.position,
     );
 

@@ -1,42 +1,34 @@
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
 
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
-import { GameColor, GamePlayer } from "@/lib/apiClient";
+import { LiveChessStore } from "@/features/liveGame/stores/liveChessboardStore";
+import { GameColor } from "@/lib/apiClient";
 import { GameResult } from "@/types/tempModels";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
+import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
+import { LiveChessStoreContext } from "../../contexts/liveChessContext";
+import { StoreApi } from "zustand";
 
 describe("GameOverPopup", () => {
-    const whitePlayer: GamePlayer = {
-        userId: "w123",
-        color: GameColor.WHITE,
-        userName: "White",
-        rating: 1400,
-    };
-    const blackPlayer: GamePlayer = {
-        userId: "b456",
-        color: GameColor.BLACK,
-        userName: "Black",
-        rating: 1350,
-    };
     const ref = React.createRef<GameOverPopupRef>();
+    let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {
-        useLiveChessboardStore.setState({
-            whitePlayer,
-            blackPlayer,
-            playerColor: GameColor.WHITE,
-        });
+        store = createFakeLiveChessStore({ playerColor: GameColor.WHITE });
     });
 
     it("should not render popup content by default", () => {
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
     it("should show victory title and rating deltas for white win", () => {
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Checkmate",
@@ -45,7 +37,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
@@ -56,7 +52,7 @@ describe("GameOverPopup", () => {
     });
 
     it("should show 'YOU LOST' when black wins and player is white", () => {
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.BLACK_WIN,
                 resultDescription: "Black Won on Time",
@@ -65,7 +61,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         expect(screen.getByText("YOU LOST")).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe("GameOverPopup", () => {
     });
 
     it("should show DRAW title and result description", () => {
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.DRAW,
                 resultDescription: "Draw by Stalemate",
@@ -82,7 +82,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         expect(screen.getByText("DRAW")).toBeInTheDocument();
@@ -90,7 +94,7 @@ describe("GameOverPopup", () => {
     });
 
     it("should show ABORTED title if game was aborted", () => {
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.ABORTED,
                 resultDescription: "Game Aborted",
@@ -99,7 +103,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         expect(screen.getByText("ABORTED")).toBeInTheDocument();
@@ -108,7 +116,7 @@ describe("GameOverPopup", () => {
 
     it("should close when clicking background", async () => {
         const user = userEvent.setup();
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
@@ -117,7 +125,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("gameOverPopupBackground"));
@@ -126,7 +138,7 @@ describe("GameOverPopup", () => {
 
     it("should close when clicking × button", async () => {
         const user = userEvent.setup();
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
@@ -135,7 +147,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("closeGameOverPopup"));
@@ -144,7 +160,7 @@ describe("GameOverPopup", () => {
 
     it("should not close when clicking on the popup content", async () => {
         const user = userEvent.setup();
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
@@ -153,7 +169,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("gameOverPopup"));
@@ -161,7 +181,7 @@ describe("GameOverPopup", () => {
     });
 
     it("should render NEW GAME and REMATCH buttons", () => {
-        useLiveChessboardStore.setState({
+        store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
@@ -170,7 +190,11 @@ describe("GameOverPopup", () => {
             },
         });
 
-        render(<GameOverPopup ref={ref} />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
         act(() => ref.current?.open());
 
         expect(screen.getByText("NEW GAME")).toBeInTheDocument();

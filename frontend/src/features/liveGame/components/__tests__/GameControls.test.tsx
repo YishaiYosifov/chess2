@@ -1,64 +1,65 @@
-import { act, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
+import { LiveChessStore } from "@/features/liveGame/stores/liveChessboardStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControls from "../GameControls";
 import { createMove } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
+import { LiveChessStoreContext } from "../../contexts/liveChessContext";
+import { StoreApi } from "zustand";
+import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("GameControls", () => {
     const useGameEmitterMock = vi.mocked(useGameEmitter);
     const sendGameEventMock = vi.fn();
-
-    const token = "testtoken";
+    let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {
+        store = createFakeLiveChessStore();
         useGameEmitterMock.mockReturnValue(sendGameEventMock);
-        act(() =>
-            useLiveChessboardStore.setState(
-                {
-                    ...useLiveChessboardStore.getInitialState(),
-                    gameToken: token,
-                },
-                true,
-            ),
-        );
     });
 
     it("should first render LiveGameControls with Abort", () => {
-        render(<GameControls />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameControls />
+            </LiveChessStoreContext.Provider>,
+        );
 
         expect(screen.getByText(/Abort/i)).toBeInTheDocument();
         expect(screen.getByText(/Draw/i)).toBeInTheDocument();
     });
 
     it("should render Resign if moveHistory has 3+ moves", () => {
-        act(() =>
-            useLiveChessboardStore.setState({
-                moveHistory: [createMove(), createMove(), createMove()],
-            }),
-        );
+        store.setState({
+            moveHistory: [createMove(), createMove(), createMove()],
+        });
 
-        render(<GameControls />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameControls />
+            </LiveChessStoreContext.Provider>,
+        );
 
         expect(screen.getByText(/Resign/i)).toBeInTheDocument();
         expect(screen.getByText(/Draw/i)).toBeInTheDocument();
     });
 
     it("should render GameOverControls when resultData exists", () => {
-        act(() =>
-            useLiveChessboardStore.setState({
-                resultData: {
-                    result: GameResult.WHITE_WIN,
-                    resultDescription: "white won",
-                },
-            }),
+        store.setState({
+            resultData: {
+                result: GameResult.WHITE_WIN,
+                resultDescription: "white won",
+            },
+        });
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameControls />
+            </LiveChessStoreContext.Provider>,
         );
-
-        render(<GameControls />);
 
         expect(screen.getByText(/New Game/i)).toBeInTheDocument();
         expect(screen.getByText(/Rematch/i)).toBeInTheDocument();
@@ -67,9 +68,16 @@ describe("GameControls", () => {
     it("should call sendGameEvent when clicking Abort", async () => {
         const user = userEvent.setup();
 
-        render(<GameControls />);
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameControls />
+            </LiveChessStoreContext.Provider>,
+        );
 
         await user.click(screen.getByText(/Abort/i));
-        expect(sendGameEventMock).toHaveBeenCalledWith("EndGameAsync", token);
+        expect(sendGameEventMock).toHaveBeenCalledWith(
+            "EndGameAsync",
+            store.getState().gameToken,
+        );
     });
 });
