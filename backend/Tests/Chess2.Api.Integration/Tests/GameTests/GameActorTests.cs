@@ -6,8 +6,10 @@ using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
 {
     private const string TestGameToken = "testtoken";
     private readonly TimeControlSettings _timeControl = new(600, 5);
+    private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
     private readonly IGameResultDescriber _gameResultDescriber;
     private readonly IMoveEncoder _moveEncoder;
@@ -29,6 +32,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
     private readonly IGameNotifier _gameNotifierMock = Substitute.For<IGameNotifier>();
     private readonly ITimerScheduler _timerMock = Substitute.For<ITimerScheduler>();
+    private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
+    private readonly IStopwatchProvider _stopwatchMock = Substitute.For<IStopwatchProvider>();
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
@@ -41,6 +46,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
 
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
+        var clock = new GameClock(_timeProviderMock, _stopwatchMock);
+
         _parentProbe = CreateTestProbe();
         _gameActor = _parentProbe.ChildActorOf(
             Props.Create(
@@ -49,6 +57,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
                         TestGameToken,
                         ApiTestBase.Scope.ServiceProvider,
                         _gameCore,
+                        clock,
                         _gameResultDescriber,
                         _gameNotifierMock,
                         _timerMock
@@ -123,10 +132,16 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
 
+        var expectedClock = new ClockDto(
+            WhiteClock: _timeControl.BaseSeconds * 1000,
+            BlackClock: _timeControl.BaseSeconds * 1000,
+            LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
+        );
         var expectedGameState = new GameState(
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
             SideToMove: GameColor.White,
+            Clocks: expectedClock,
             Fen: _gameCore.Fen,
             MoveHistory: _gameCore.EncodedMoveHistory,
             LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
@@ -161,10 +176,18 @@ public class GameActorTests : BaseAkkaIntegrationTest
     public async Task MovePiece_valid_should_send_PieceMoved()
     {
         await StartGameAsync();
+        _stopwatchMock.Elapsed.Returns(TimeSpan.FromSeconds(2));
 
         var move = await MakeLegalMoveAsync(_whitePlayer);
 
         var expectedEncodedMove = _moveEncoder.EncodeSingleMove(move);
+        var expectedClock = new ClockDto(
+            WhiteClock: _timeControl.BaseSeconds * 1000
+                + _timeControl.IncrementSeconds * 1000 // add increment
+                - 2 * 1000, // removed elapsed time
+            BlackClock: _timeControl.BaseSeconds * 1000,
+            LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
+        );
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
@@ -172,6 +195,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
                 move: expectedEncodedMove,
                 sideToMove: GameColor.Black,
                 moveNumber: 1,
+                clocks: ArgEx.FluentAssert<ClockDto>(x => x.Should().BeEquivalentTo(expectedClock)),
                 sideToMoveUserId: _blackPlayer.UserId,
                 _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves
             );

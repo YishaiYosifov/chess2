@@ -1,10 +1,19 @@
-﻿using System.Diagnostics;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Shared.Services;
 
 namespace Chess2.Api.Game.Services;
 
-public class GameClock
+public interface IGameClock
+{
+    ClockDto Value { get; }
+
+    double CalculateTimeLeft(GameColor color);
+    void Reset(TimeControlSettings timeControl);
+    void TickMove(GameColor color);
+}
+
+public class GameClock(TimeProvider timeProvider, IStopwatchProvider stopwatchProvider) : IGameClock
 {
     private readonly Dictionary<GameColor, double> _clocks = new()
     {
@@ -12,7 +21,10 @@ public class GameClock
         [GameColor.Black] = 0,
     };
     private TimeControlSettings _timeControl = new();
-    private readonly Stopwatch _stopwatch = new();
+
+    private readonly IStopwatchProvider _stopwatch = stopwatchProvider;
+    private readonly TimeProvider _timeProvider = timeProvider;
+
     private double _lastUpdated;
 
     public ClockDto Value => new(_clocks[GameColor.White], _clocks[GameColor.Black], _lastUpdated);
@@ -23,7 +35,7 @@ public class GameClock
         _clocks[GameColor.White] = timeControl.BaseSeconds * 1000;
         _clocks[GameColor.Black] = timeControl.BaseSeconds * 1000;
         _stopwatch.Restart();
-        _lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _lastUpdated = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
     }
 
     public void TickMove(GameColor color)
@@ -31,7 +43,7 @@ public class GameClock
         var timeLeft = CalculateTimeLeft(color) + _timeControl.IncrementSeconds * 1000;
         _clocks[color] = timeLeft;
         _stopwatch.Restart();
-        _lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _lastUpdated = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
     }
 
     public double CalculateTimeLeft(GameColor color)
