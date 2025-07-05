@@ -2,7 +2,7 @@ import * as signalR from "@microsoft/signalr";
 import { mock, MockProxy } from "vitest-mock-extended";
 import { Mock } from "vitest";
 import { act, renderHook } from "@testing-library/react";
-import useSignalRStore from "@/stores/signalRStore";
+import useSignalRStore from "@/features/signalR/stores/signalRStore";
 
 export function mockHubBuilder() {
     const mockHubBuilder = mock<signalR.HubConnectionBuilder>();
