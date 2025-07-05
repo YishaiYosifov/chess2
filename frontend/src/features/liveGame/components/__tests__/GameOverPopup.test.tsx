@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
 
-import { LiveChessStore } from "@/features/liveGame/stores/liveChessboardStore";
+import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { GameResult } from "@/types/tempModels";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
