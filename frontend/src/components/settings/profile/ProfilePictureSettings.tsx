@@ -3,7 +3,7 @@
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { useRef, useState, ChangeEvent } from "react";
 
-import { useAuthedProfile } from "@/hooks/useAuthed";
+import { useAuthedProfile } from "@/features/auth/hooks/useAuthed";
 import { revalidateUser } from "@/app/actions";
 import constants from "@/lib/constants";
 

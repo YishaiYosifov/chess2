@@ -3,7 +3,10 @@
 import { FormikHelpers, Formik } from "formik";
 import { Form } from "react-bootstrap";
 
-import { useAuthedProfile, useAuthedContext } from "@/hooks/useAuthed";
+import {
+    useAuthedProfile,
+    useAuthedContext,
+} from "@/features/auth/hooks/useAuthed";
 import { revalidateUser } from "@/app/actions";
 import countries from "@/data/countries.json";
 import { EditableProfile } from "@/lib/apiClient/models";

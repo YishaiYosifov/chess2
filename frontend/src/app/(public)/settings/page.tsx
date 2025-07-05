@@ -1,6 +1,6 @@
 import ProfilePictureSettings from "@/components/settings/profile/ProfilePictureSettings";
 import CredentialSettings from "@/components/settings/profile/CredentialSettings";
-import withAuthedUser from "@/hocs/withAuthedUser";
+import withAuthedUser from "@/features/auth/hocs/withAuthedUser";
 import ProfileSettings from "@/components/settings/profile/ProfileSettings";
 
 const SettingsPage = withAuthedUser(async () => {

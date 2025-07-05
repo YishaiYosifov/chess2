@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import Guest from "@/components/auth/Guest";
+import GuestRedirect from "@/features/auth/components/GuestRedirect";
 import constants from "@/lib/constants";
 
 const page = async () => {
@@ -9,6 +9,6 @@ const page = async () => {
         headerStore.get(constants.HEADERS.REDIRECT_AFTER_AUTH) ?? "/";
     if (redirectTo === constants.PATHS.GUEST) redirectTo = "/";
 
-    return <Guest redirectTo={redirectTo} />;
+    return <GuestRedirect redirectTo={redirectTo} />;
 };
 export default page;
