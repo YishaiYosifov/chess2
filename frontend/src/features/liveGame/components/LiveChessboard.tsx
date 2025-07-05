@@ -25,6 +25,7 @@ import GameControls from "./GameControls";
 import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
+import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
 
 const LiveChessboard = ({
     gameToken,
@@ -42,75 +43,7 @@ const LiveChessboard = ({
 
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
-    async function refetchGame() {
-        const { error, data } = await getLiveGame({ path: { gameToken } });
-        if (error || !data) {
-            console.error(error);
-            return;
-        }
-
-        const pieces = decodeFen(data.fen);
-        const legalMoves = decodeMovesIntoMap(data.legalMoves);
-        chessboardStore
-            .getState()
-            .resetState(pieces, legalMoves, data.sideToMove);
-
-        const moveHistory = decodeMoves(data.moveHistory);
-        const { setMoveHistory } = liveChessboardStore.getState();
-        setMoveHistory(moveHistory);
-    }
-
     const sendGameEvent = useGameEmitter(gameToken);
-    useGameEvent(
-        gameToken,
-        "MoveMadeAsync",
-        async (
-            move: string,
-            sideToMove: GameColor,
-            moveNumber: number,
-            clocks: Clocks,
-        ) => {
-            const { moveHistory, receiveMove } = liveChessboardStore.getState();
-            // we missed a move... we need to refetch the state
-            if (moveNumber != moveHistory.length + 1) {
-                await refetchGame();
-                return;
-            }
-
-            const decodedMove = decodeSingleMove(move);
-            receiveMove(decodedMove, clocks, sideToMove);
-
-            if (sideToMove === playerColor)
-                chessboardStore.getState().playMove(decodedMove);
-        },
-    );
-
-    useGameEvent(
-        gameToken,
-        "LegalMovesChangedAsync",
-        async (legalMoves: string[]) => {
-            const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
-            chessboardStore.getState().setLegalMoves(decodedLegalMoves);
-        },
-    );
-
-    useGameEvent(
-        gameToken,
-        "GameEndedAsync",
-        async (result, resultDescription, newWhiteRating, newBlackRating) => {
-            liveChessboardStore
-                .getState()
-                .endGame(
-                    result,
-                    resultDescription,
-                    newWhiteRating,
-                    newBlackRating,
-                );
-            chessboardStore.getState().disableMovement();
-            gameOverPopupRef.current?.open();
-        },
-    );
-
     const sendMove = useCallback(
         async (from: Point, to: Point) => {
             await sendGameEvent("MovePieceAsync", gameToken, from, to);
@@ -130,7 +63,7 @@ const LiveChessboard = ({
             onPieceMovement: sendMove,
         });
     }, [gameState, sendMove, playerColor]);
-    const liveChessboardStore = useMemo(() => {
+    const liveChessStore = useMemo(() => {
         const decodedMoveHistory = decodeMoves(gameState.moveHistory);
         return createLiveChessStore({
             gameToken,
@@ -145,8 +78,16 @@ const LiveChessboard = ({
         });
     }, [gameToken, gameState, playerColor]);
 
+    useLiveChessEvents(
+        gameToken,
+        playerColor,
+        liveChessStore,
+        chessboardStore,
+        gameOverPopupRef,
+    );
+
     return (
-        <LiveChessStoreContext.Provider value={liveChessboardStore}>
+        <LiveChessStoreContext.Provider value={liveChessStore}>
             <ChessboardStoreContext.Provider value={chessboardStore}>
                 <GameOverPopup ref={gameOverPopupRef} />
                 <div
