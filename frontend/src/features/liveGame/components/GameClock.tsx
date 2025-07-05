@@ -1,6 +1,7 @@
 import { GameColor } from "@/lib/apiClient";
 import { useLiveChessStore } from "../hooks/useLiveChess";
 import { useCallback, useEffect, useState } from "react";
+import clsx from "clsx";
 
 const GameClock = ({ color }: { color: GameColor }) => {
     const clocks = useLiveChessStore((x) => x.clocks);
@@ -36,13 +37,20 @@ const GameClock = ({ color }: { color: GameColor }) => {
     const seconds = Math.max(0, (timeLeft % 60000) / 1000);
 
     const strMinutes = minutes.toString().padStart(2, "0");
-    const strSeconds =
-        minutes < 1 && seconds < 30
-            ? seconds.toFixed(2).padStart(5, "0") // xx.yy
-            : Math.floor(seconds).toString().padStart(2, "0"); // xx
+
+    const isInTimeTrouble = minutes < 1 && seconds < 30;
+    const strSeconds = isInTimeTrouble
+        ? seconds.toFixed(2).padStart(5, "0") // xx.yy
+        : Math.floor(seconds).toString().padStart(2, "0"); // xx
 
     return (
-        <span className="font-mono text-2xl">
+        <span
+            className={clsx(
+                "font-mono text-2xl",
+                isInTimeTrouble && seconds > 0 && "blinking",
+                seconds <= 0 && "text-red-600",
+            )}
+        >
             {strMinutes}:{strSeconds}
         </span>
     );
