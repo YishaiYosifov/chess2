@@ -10,20 +10,20 @@ const GameClock = ({ color }: { color: GameColor }) => {
 
     const baseTimeLeft =
         color === GameColor.WHITE ? clocks.whiteClock : clocks.blackClock;
+    const isTicking = sideToMove === color && !result;
 
     const calculateTimeLeft = useCallback(() => {
-        if (sideToMove != color) return baseTimeLeft;
+        if (!isTicking) return baseTimeLeft;
+
         const timePassed = new Date().valueOf() - clocks.lastUpdated;
         return baseTimeLeft - timePassed;
-    }, [clocks.lastUpdated, baseTimeLeft, sideToMove, color]);
+    }, [clocks.lastUpdated, baseTimeLeft, isTicking]);
 
     const [timeLeft, setTimeLeft] = useState<number>(0);
 
     useEffect(() => {
         setTimeLeft(calculateTimeLeft());
-        if (sideToMove !== color || result) {
-            return;
-        }
+        if (!isTicking) return;
 
         const interval = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
@@ -31,7 +31,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
         );
 
         return () => clearInterval(interval);
-    }, [sideToMove, color, calculateTimeLeft, result]);
+    }, [calculateTimeLeft, isTicking]);
 
     const minutes = Math.max(0, Math.floor(timeLeft / 60000));
     const seconds = Math.max(0, (timeLeft % 60000) / 1000);
@@ -47,8 +47,8 @@ const GameClock = ({ color }: { color: GameColor }) => {
         <span
             className={clsx(
                 "font-mono text-2xl",
-                isInTimeTrouble && seconds > 0 && "blinking",
-                seconds <= 0 && "text-red-600",
+                isInTimeTrouble && isTicking && "blinking",
+                seconds <= 0 && minutes <= 0 && !isTicking && "text-red-600",
             )}
         >
             {strMinutes}:{strSeconds}
