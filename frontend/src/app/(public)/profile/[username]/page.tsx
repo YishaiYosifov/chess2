@@ -1,7 +1,7 @@
-import GamesTable from "@/components/profile/GamesTable";
-import RatingCard from "@/components/profile/RatingsCard";
+import GamesTable from "@/features/profile/components/GamesTable";
+import RatingCard from "@/features/profile/components/RatingsCard";
 import { profileApi } from "@/lib/apiClient";
-import Profile from "@/components/profile/Profile";
+import Profile from "@/features/profile/components/Profile";
 import { FinishedGame, GameResult, RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";

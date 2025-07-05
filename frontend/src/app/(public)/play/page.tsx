@@ -1,5 +1,5 @@
 import PlayOptions from "@/components/play/PlayOptions";
-import StaticChessboard from "@/components/game/StaticChessboard";
+import StaticChessboard from "@/features/chessboard/components/StaticChessboard";
 
 export const metadata = { title: "Play - Chess 2" };
 
