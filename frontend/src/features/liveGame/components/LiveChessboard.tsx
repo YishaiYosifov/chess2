@@ -75,9 +75,8 @@ const LiveChessboard = ({
             const decodedMove = decodeSingleMove(move);
             addMoveToHistory(decodedMove);
 
-            chessboardStore
-                .getState()
-                .playTurn(sideToMove == playerColor ? decodedMove : undefined);
+            if (sideToMove === playerColor)
+                chessboardStore.getState().playMove(decodedMove);
         },
     );
 

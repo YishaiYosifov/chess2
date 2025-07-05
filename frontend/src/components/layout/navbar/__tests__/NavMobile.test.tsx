@@ -6,7 +6,7 @@ vi.mock("../NavItems");
 
 describe("NavMobile Component", () => {
     it("should render the mobile navbar with logo", () => {
-        render(<NavMobile />);
+        render(<NavMobile hasAccessCookie />);
         const navbar = screen.getByTestId("navbarMobile");
         const logo = screen.getByAltText("logo");
 
@@ -16,7 +16,7 @@ describe("NavMobile Component", () => {
 
     it("should toggle the mobile menu when the button is clicked", async () => {
         const user = userEvent.setup();
-        render(<NavMobile />);
+        render(<NavMobile hasAccessCookie />);
 
         const toggleButton = screen.getByRole("button");
         const mobileNav = screen.getByTestId("navbarMobileOpened");
@@ -36,7 +36,7 @@ describe("NavMobile Component", () => {
     });
 
     it("should close the mobile menu when clicking inside the nav", () => {
-        render(<NavMobile />);
+        render(<NavMobile hasAccessCookie />);
         const toggleButton = screen.getByRole("button");
         const mobileNav = screen.getByTestId("navbarMobileOpened");
 

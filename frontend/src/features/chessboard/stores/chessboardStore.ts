@@ -36,7 +36,6 @@ export interface ChessboardStore {
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
-    playTurn(move?: Move): void;
     playMove(move: Move): void;
     moveSelectedPiece(to: Point): Promise<void>;
     handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
@@ -81,25 +80,6 @@ export function createChessboardStore(
             immer((set, get) => ({
                 ...defaultChessboardState,
                 ...initState,
-
-                /**
-                 * Updates the game state to reflect the current turn.
-                 * Optionally applies the given move before updating legal moves and side to move.
-                 *
-                 * @param legalMoves - Updated map of legal moves for the board.
-                 * @param sideToMove - The color of the player who is to move next.
-                 * @param move - Optional move to apply before updating state.
-                 */
-                playTurn(move?: Move): void {
-                    const { playMove } = get();
-                    if (move) playMove(move);
-
-                    set((state) => {
-                        state.legalMoves = new Map();
-                        state.highlightedLegalMoves = [];
-                        state.selectedPieceId = undefined;
-                    });
-                },
 
                 /**
                  * Applies a move on the board by updating piece positions and removing captured pieces.
@@ -177,6 +157,7 @@ export function createChessboardStore(
 
                     set((state) => {
                         state.legalMoves = new Map();
+                        state.highlightedLegalMoves = [];
                         state.selectedPieceId = undefined;
                     });
                 },

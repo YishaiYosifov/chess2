@@ -10,7 +10,6 @@ export interface ProfilePictureProps {
 }
 
 const ProfilePicture = ({
-    userId,
     width = 120,
     height = 120,
     lastChanged,

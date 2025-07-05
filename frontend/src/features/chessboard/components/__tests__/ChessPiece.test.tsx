@@ -31,7 +31,7 @@ describe("ChessPiece", () => {
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
 
         const renderResults = render(
-            <ChessProvider pieces={pieces} playingAs={GameColor.WHITE}>
+            <ChessProvider pieces={pieces}>
                 <ChessPiece id="0" />
             </ChessProvider>,
         );

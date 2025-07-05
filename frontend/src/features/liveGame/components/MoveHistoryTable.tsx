@@ -1,4 +1,4 @@
-import Card from "../helpers/Card";
+import Card from "@/components/ui/Card";
 
 const MoveHistoryTable = () => {
     return (

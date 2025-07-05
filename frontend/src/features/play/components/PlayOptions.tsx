@@ -12,7 +12,7 @@ import {
 import PoolToggle, { PoolToggleRef } from "./PoolToggle";
 import TimeControlButton from "./TimeControlButton";
 import constants from "@/lib/constants";
-import Card from "../helpers/Card";
+import Card from "@/components/ui/Card";
 import SeekingOverlay from "./SeekingOverlay";
 import { TimeControlSettings } from "@/lib/apiClient";
 

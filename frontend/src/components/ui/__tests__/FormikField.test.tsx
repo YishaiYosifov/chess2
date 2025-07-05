@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { Formik, Form } from "formik";
 import userEvent from "@testing-library/user-event";
-import FormikField from "../../helpers/FormikField";
+import FormikField from "../FormikField";
 
 describe("FormikField", () => {
     it("should render the input field with the correct props", () => {

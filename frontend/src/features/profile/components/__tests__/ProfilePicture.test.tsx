@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 
 import Image from "next/image";
 
-import ProfilePicture from "../../features/profile/components/ProfilePicture";
+import ProfilePicture from "@/features/profile/components/ProfilePicture";
 
 describe("ProfilePicture", () => {
     it("should render with default props", () => {
@@ -23,7 +23,7 @@ describe("ProfilePicture", () => {
                 userId={username}
                 width={size}
                 height={size}
-                lastChanged={lastChanged}
+                lastChanged={lastChanged.valueOf()}
                 className={className}
             />,
         );

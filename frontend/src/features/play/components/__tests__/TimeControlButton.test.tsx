@@ -7,8 +7,7 @@ describe("TimeControlButton", () => {
     it("should render the formatted time control and type", () => {
         render(
             <TimeControlButton
-                baseMinutes={5}
-                increment={3}
+                timeControl={{ baseSeconds: 300, incrementSeconds: 3 }}
                 formattedTimeControl="5 + 3"
                 type="Rapid"
             />,
@@ -21,8 +20,7 @@ describe("TimeControlButton", () => {
     it("should show 'Most Popular' label and apply border if isMostPopular is true", () => {
         render(
             <TimeControlButton
-                baseMinutes={3}
-                increment={2}
+                timeControl={{ baseSeconds: 180, incrementSeconds: 2 }}
                 formattedTimeControl="3 + 2"
                 type="Blitz"
                 isMostPopular
@@ -38,8 +36,7 @@ describe("TimeControlButton", () => {
     it("should blur the component if isSeeking is true", () => {
         const { container } = render(
             <TimeControlButton
-                baseMinutes={10}
-                increment={5}
+                timeControl={{ baseSeconds: 600, incrementSeconds: 5 }}
                 formattedTimeControl="10 + 5"
                 type="Classic"
                 isSeeking

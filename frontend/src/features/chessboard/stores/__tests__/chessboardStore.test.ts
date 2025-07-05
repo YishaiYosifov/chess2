@@ -46,47 +46,8 @@ describe("ChessboardStore", () => {
         expect(state).toMatchObject(defaultChessboardState);
     });
 
-    describe("playTurn", () => {
-        it("should apply move if provided and update legal moves and sideToMove", () => {
-            const piece = createPiece();
-            const move = createMove({ from: piece.position });
-            const pieces: PieceMap = new Map([["0", piece]]);
-            const legalMoves: LegalMoveMap = new Map([
-                [pointToStr(piece.position), [move]],
-            ]);
-            store.setState({
-                pieces,
-                legalMoves,
-                highlightedLegalMoves: [createUniquePoint()],
-                selectedPieceId: "0",
-            });
-
-            const newLegalMoves = new Map();
-            const sideToMove = GameColor.BLACK;
-            store.getState().playTurn(newLegalMoves, sideToMove, move);
-
-            expectPieces({ id: "0", position: move.to, piece });
-            const state = store.getState();
-            expect(state.legalMoves).toBe(newLegalMoves);
-            expect(state.highlightedLegalMoves).toEqual([]);
-            expect(state.selectedPieceId).toBeUndefined();
-            expect(state.sideToMove).toBe(sideToMove);
-        });
-
-        it("should update legal moves and sideToMove without applying move if none provided", () => {
-            const newLegalMoves = new Map();
-            const sideToMove = GameColor.BLACK;
-
-            store.getState().playTurn(newLegalMoves, sideToMove);
-
-            const state = store.getState();
-            expect(state.legalMoves).toBe(newLegalMoves);
-            expect(state.sideToMove).toBe(sideToMove);
-        });
-    });
-
     describe("playMove", () => {
-        it("should warn and return if no piece at move.from", () => {
+        it("should return if no piece at move.from", () => {
             const pieces = createPieceMap();
             store.setState({ pieces });
 
@@ -180,6 +141,14 @@ describe("ChessboardStore", () => {
             await store.getState().moveSelectedPiece(move.to);
 
             expectPieces({ id: "0", position: move.to, piece });
+            const {
+                legalMoves: newLegalMoves,
+                highlightedLegalMoves,
+                selectedPieceId,
+            } = store.getState();
+            expect(newLegalMoves).toEqual(new Map());
+            expect(highlightedLegalMoves.length).toBe(0);
+            expect(selectedPieceId).toBeUndefined();
         });
     });
 

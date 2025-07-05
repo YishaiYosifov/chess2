@@ -2,8 +2,9 @@ import { render, screen } from "@testing-library/react";
 
 import { createFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
-import { FinishedGame, User } from "@/lib/apiClient/models";
 import GamesTable from "../GamesTable";
+import { FinishedGame } from "@/types/tempModels";
+import { User } from "@/lib/apiClient";
 
 describe("GamesTable", () => {
     let gamesMock: FinishedGame[];
