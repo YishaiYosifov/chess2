@@ -1,8 +1,5 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
-import {
-    useGameEmitter,
-    useGameEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
+import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import {

@@ -1,17 +1,13 @@
 "use client";
 
 import { Point } from "@/types/tempModels";
-import {
-    useGameEmitter,
-    useGameEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
+import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useMemo, useCallback, useRef } from "react";
 import {
     decodeMoves,
     decodeMovesIntoMap,
-    decodeSingleMove,
 } from "@/lib/chessDecoders/moveDecoder";
-import { Clocks, GameColor, GameState, getLiveGame } from "@/lib/apiClient";
+import { GameState } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
