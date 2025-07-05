@@ -9,7 +9,7 @@ import { StoreApi } from "zustand";
 import {
     ChessboardStore,
     createChessboardStore,
-} from "../../stores/chessboardStore";
+} from "@/features/chessboard/stores/chessboardStore";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
