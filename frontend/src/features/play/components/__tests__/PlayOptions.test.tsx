@@ -12,7 +12,7 @@ import userEvent from "@testing-library/user-event";
 import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 
 vi.mock("js-cookie");
-vi.mock("@/hooks/signalR/useSignalRHubs");
+vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("PlayOptions", () => {
     const sendMatchmakingEventMock = vi.fn();
