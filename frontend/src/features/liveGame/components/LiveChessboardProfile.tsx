@@ -54,7 +54,7 @@ const Clock = ({ color }: { color: GameColor }) => {
         if (sideToMove != color) return baseTimeLeft;
         const timePassed = new Date().valueOf() - clocks.lastUpdated;
         return baseTimeLeft - timePassed;
-    }, [clocks, baseTimeLeft, sideToMove, color]);
+    }, [clocks.lastUpdated, baseTimeLeft, sideToMove, color]);
 
     const [timeLeft, setTimeLeft] = useState<number>(0);
 
@@ -72,12 +72,18 @@ const Clock = ({ color }: { color: GameColor }) => {
         return () => clearInterval(interval);
     }, [sideToMove, color, calculateTimeLeft]);
 
-    const minutes = Math.floor(timeLeft / 60000);
-    const seconds = (timeLeft % 6000) / 1000;
+    const minutes = Math.max(0, Math.floor(timeLeft / 60000));
+    const seconds = Math.max(0, (timeLeft % 60000) / 1000);
+
+    const strMinutes = minutes.toString().padStart(2, "0");
+    const strSeconds =
+        minutes < 1 && seconds < 30
+            ? seconds.toFixed(2).padStart(5, "0") // xx.yy
+            : Math.floor(seconds).toString().padStart(2, "0"); // xx
+
     return (
         <span className="font-mono text-2xl">
-            {minutes.toString().padStart(2, "0")}:
-            {seconds.toFixed(2).padStart(5, "0")}
+            {strMinutes}:{strSeconds}
         </span>
     );
 };
