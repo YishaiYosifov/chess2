@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
@@ -37,8 +39,6 @@ using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -320,6 +320,7 @@ builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddTransient<IGameCore, GameCore>();
+builder.Services.AddTransient<IGameClock, GameClock>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
@@ -345,6 +346,7 @@ builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
+builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
 builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

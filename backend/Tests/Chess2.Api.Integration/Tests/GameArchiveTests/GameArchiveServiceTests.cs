@@ -87,6 +87,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             BlackPlayer: new GamePlayerFaker(GameColor.Black).Generate(),
             MoveHistory: ["e2e4", "e7e5", "g1f3"],
             SideToMove: GameColor.Black,
+            Clocks: new(20000, 30000, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
             LegalMoves: [],
             TimeControl: new(600, 5)
         );
