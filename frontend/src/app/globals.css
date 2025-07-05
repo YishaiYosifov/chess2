@@ -33,6 +33,20 @@
     .bg-checkerboard {
         background-image: var(--background-checkerboard);
     }
+
+    @keyframes blink {
+        0%,
+        50% {
+            color: red;
+        }
+        50.01%,
+        100% {
+            color: white;
+        }
+    }
+    .blinking {
+        animation: blink 1s infinite;
+    }
 }
 
 @theme {
