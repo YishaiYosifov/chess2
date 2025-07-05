@@ -12,10 +12,19 @@ export function createFakeLiveChessStore(
 ): StoreApi<LiveChessStore> {
     return createLiveChessStore({
         gameToken: faker.string.alpha(16),
+        moveHistory: [],
+
+        sideToMove: faker.helpers.enumValue(GameColor),
         playerColor: faker.helpers.enumValue(GameColor),
         whitePlayer: createPlayer(GameColor.WHITE),
         blackPlayer: createPlayer(GameColor.BLACK),
-        moveHistory: [],
+
+        clocks: {
+            whiteClock: faker.number.int({ min: 10000, max: 100000 }),
+            blackClock: faker.number.int({ min: 10000, max: 100000 }),
+            lastUpdated: Date.now().valueOf(),
+        },
+
         ...override,
     });
 }
