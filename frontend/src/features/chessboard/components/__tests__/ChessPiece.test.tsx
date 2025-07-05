@@ -1,10 +1,15 @@
 import { render, screen } from "@testing-library/react";
 
 import { PieceMap, PieceType, Piece, Point } from "@/types/tempModels";
-import { ChessProvider } from "@/features/chessboard/contexts/chessboardStoreContext";
+import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
 import ChessPiece from "../ChessPiece";
 import userEvent from "@testing-library/user-event";
 import { GameColor } from "@/lib/apiClient";
+import { StoreApi } from "zustand";
+import {
+    ChessboardStore,
+    createChessboardStore,
+} from "../../stores/chessboardStore";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
@@ -18,7 +23,10 @@ describe("ChessPiece", () => {
         return normalize(expected);
     }
 
+    let store: StoreApi<ChessboardStore>;
+
     beforeEach(() => {
+        store = createChessboardStore();
         vi.useFakeTimers({ toFake: ["requestAnimationFrame"] });
     });
 
@@ -29,11 +37,12 @@ describe("ChessPiece", () => {
             color: GameColor.WHITE,
         };
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
+        store.setState({ pieces });
 
         const renderResults = render(
-            <ChessProvider pieces={pieces}>
+            <ChessboardStoreContext.Provider value={store}>
                 <ChessPiece id="0" />
-            </ChessProvider>,
+            </ChessboardStoreContext.Provider>,
         );
         const piece = screen.getByTestId("piece");
 
