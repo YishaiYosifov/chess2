@@ -1,4 +1,3 @@
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import Card from "@/components/ui/Card";
 import { GameColor, GamePlayer } from "@/lib/apiClient";
@@ -11,6 +10,7 @@ import {
     useImperativeHandle,
     useState,
 } from "react";
+import { useLiveChessStore } from "../hooks/useLiveChess";
 
 export interface GameOverPopupRef {
     open(): void;
@@ -20,10 +20,10 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     _,
     ref,
 ) => {
-    const whitePlayer = useLiveChessboardStore((x) => x.whitePlayer);
-    const blackPlayer = useLiveChessboardStore((x) => x.blackPlayer);
-    const resultData = useLiveChessboardStore((x) => x.resultData);
-    const playerColor = useLiveChessboardStore((x) => x.playerColor);
+    const whitePlayer = useLiveChessStore((x) => x.whitePlayer);
+    const blackPlayer = useLiveChessStore((x) => x.blackPlayer);
+    const resultData = useLiveChessStore((x) => x.resultData);
+    const playerColor = useLiveChessStore((x) => x.playerColor);
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);

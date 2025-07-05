@@ -5,7 +5,7 @@ import {
     useGameEmitter,
     useGameEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
-import { useEffect, useMemo, useCallback, useRef } from "react";
+import { useMemo, useCallback, useRef } from "react";
 import {
     decodeMoves,
     decodeMovesIntoMap,
@@ -16,14 +16,15 @@ import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
-import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
+import createLiveChessStore from "@/features/liveGame/stores/liveChessboardStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import { createChessboardStore } from "@/features/chessboard/stores/chessboardStore";
-import { ChessStoreContext } from "@/features/chessboard/contexts/chessStoreContext";
+import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
 import MoveHistoryTable from "./MoveHistoryTable";
 import GameControls from "./GameControls";
 import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
+import { LiveChessStoreContext } from "../contexts/liveChessContext";
 
 const LiveChessboard = ({
     gameToken,
@@ -55,7 +56,7 @@ const LiveChessboard = ({
             .resetState(pieces, legalMoves, data.sideToMove);
 
         const moveHistory = decodeMoves(data.moveHistory);
-        const { setMoveHistory } = useLiveChessboardStore.getState();
+        const { setMoveHistory } = liveChessboardStore.getState();
         setMoveHistory(moveHistory);
     }
 
@@ -66,7 +67,7 @@ const LiveChessboard = ({
         async (move: string, sideToMove: GameColor, moveNumber: number) => {
             // we missed a move... we need to refetch the state
             const { moveHistory, addMoveToHistory } =
-                useLiveChessboardStore.getState();
+                liveChessboardStore.getState();
             if (moveNumber != moveHistory.length + 1) {
                 await refetchGame();
                 return;
@@ -93,7 +94,7 @@ const LiveChessboard = ({
         gameToken,
         "GameEndedAsync",
         async (result, resultDescription, newWhiteRating, newBlackRating) => {
-            useLiveChessboardStore
+            liveChessboardStore
                 .getState()
                 .endGame(
                     result,
@@ -125,54 +126,58 @@ const LiveChessboard = ({
             onPieceMovement: sendMove,
         });
     }, [gameState, sendMove, playerColor]);
-
-    useEffect(() => {
+    const liveChessboardStore = useMemo(() => {
         const decodedMoveHistory = decodeMoves(gameState.moveHistory);
-        const { setMoveHistory, setPlayers, setGameToken } =
-            useLiveChessboardStore.getState();
-
-        setMoveHistory(decodedMoveHistory);
-        setPlayers(gameState.whitePlayer, gameState.blackPlayer, playerColor);
-        setGameToken(gameToken);
-    }, [gameState, playerColor, gameToken]);
+        return createLiveChessStore({
+            gameToken,
+            whitePlayer: gameState.whitePlayer,
+            blackPlayer: gameState.blackPlayer,
+            playerColor,
+            moveHistory: decodedMoveHistory,
+        });
+    }, [gameToken, gameState, playerColor]);
 
     return (
-        <ChessStoreContext.Provider value={chessboardStore}>
-            <GameOverPopup ref={gameOverPopupRef} />
-            <div
-                className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
-                    lg:items-start"
-            >
-                <section className="flex h-max w-fit flex-col gap-3">
-                    <LiveChessboardProfile side={ChessProfileSide.Opponent} />
-                    <ChessboardLayout
-                        breakpoints={[
-                            {
-                                maxScreenSize: 767,
-                                paddingOffset: { width: 40, height: 258 },
-                            },
-                            {
-                                maxScreenSize: 1024,
-                                paddingOffset: { width: 200, height: 198 },
-                            },
-                        ]}
-                        defaultOffset={{ width: 626, height: 164 }}
-                        className="self-center"
-                    />
-                    <LiveChessboardProfile
-                        side={ChessProfileSide.CurrentlyPlaying}
-                    />
-                </section>
-                <aside
-                    className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px] gap-3
-                        overflow-auto lg:max-w-xs"
+        <LiveChessStoreContext.Provider value={liveChessboardStore}>
+            <ChessboardStoreContext.Provider value={chessboardStore}>
+                <GameOverPopup ref={gameOverPopupRef} />
+                <div
+                    className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
+                        lg:items-start"
                 >
-                    <MoveHistoryTable />
-                    <GameControls />
-                    <GameChat />
-                </aside>
-            </div>
-        </ChessStoreContext.Provider>
+                    <section className="flex h-max w-fit flex-col gap-3">
+                        <LiveChessboardProfile
+                            side={ChessProfileSide.Opponent}
+                        />
+                        <ChessboardLayout
+                            breakpoints={[
+                                {
+                                    maxScreenSize: 767,
+                                    paddingOffset: { width: 40, height: 258 },
+                                },
+                                {
+                                    maxScreenSize: 1024,
+                                    paddingOffset: { width: 200, height: 198 },
+                                },
+                            ]}
+                            defaultOffset={{ width: 626, height: 164 }}
+                            className="self-center"
+                        />
+                        <LiveChessboardProfile
+                            side={ChessProfileSide.CurrentlyPlaying}
+                        />
+                    </section>
+                    <aside
+                        className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px] gap-3
+                            overflow-auto lg:max-w-xs"
+                    >
+                        <MoveHistoryTable />
+                        <GameControls />
+                        <GameChat />
+                    </aside>
+                </div>
+            </ChessboardStoreContext.Provider>
+        </LiveChessStoreContext.Provider>
     );
 };
 export default LiveChessboard;

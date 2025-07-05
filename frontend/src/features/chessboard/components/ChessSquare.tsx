@@ -9,7 +9,7 @@ import {
 } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { useChessStore } from "@/features/chessboard/hooks/useChess";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { Point } from "@/types/tempModels";
 import { GameColor } from "@/lib/apiClient";
 
@@ -30,11 +30,11 @@ const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
 > = ({ position, children, className, style, ...divProps }, ref) => {
-    const { width: boardWidth, height: boardHeight } = useChessStore(
+    const { width: boardWidth, height: boardHeight } = useChessboardStore(
         (store) => store.boardDimensions,
     );
 
-    const viewingFrom = useChessStore((state) => state.viewingFrom);
+    const viewingFrom = useChessboardStore((state) => state.viewingFrom);
     const squareDivRef = useRef<HTMLDivElement>(null);
 
     let { x, y } = position;

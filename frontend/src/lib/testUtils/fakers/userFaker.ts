@@ -7,7 +7,7 @@ export function createUser(override?: Partial<User>): User {
         userId: faker.string.uuid(),
         userName: faker.internet.username(),
         about: faker.lorem.paragraph(),
-        countryCode: "IL",
+        countryCode: faker.location.countryCode(),
         ...override,
     };
 }

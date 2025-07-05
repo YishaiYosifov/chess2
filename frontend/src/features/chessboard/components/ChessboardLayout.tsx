@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import PieceRenderer from "./PieceRenderer";
-import { useChessStore } from "@/features/chessboard/hooks/useChess";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
 import constants from "@/lib/constants";
 
@@ -26,7 +26,7 @@ const ChessboardLayout = ({
     className,
 }: ChessboardLayoutProps) => {
     const [boardSize, setBoardSize] = useState<number>(0);
-    const setBoardRect = useChessStore((state) => state.setBoardRect);
+    const setBoardRect = useChessboardStore((state) => state.setBoardRect);
 
     const ref = useRef<HTMLDivElement>(null);
 
