@@ -81,7 +81,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         var isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
         isOngoing.Should().BeFalse();
 
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
         isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
@@ -89,13 +89,17 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         _timerMock
             .Received(1)
-            .StartPeriodicTimer("tickClock", new GameCommands.TickClock(), TimeSpan.FromSeconds(1));
+            .StartPeriodicTimer(
+                GameActor.ClockTimerKey,
+                new GameCommands.TickClock(),
+                TimeSpan.FromSeconds(1)
+            );
     }
 
     [Fact]
     public async Task GetGameState_invalid_user_should_return_player_invalid_error()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(
             new GameQueries.GetGameState(TestGameToken, ForUserId: "invalid-user"),
@@ -112,7 +116,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task GetGameState_valid_user_should_return_GameStateEvent()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var result = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
@@ -134,7 +138,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task MovePiece_wrong_player_should_return_PlayerInvalid_error()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(
             new GameCommands.MovePiece(
@@ -156,7 +160,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task MovePiece_valid_should_send_PieceMoved()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         var move = await MakeLegalMoveAsync(_whitePlayer);
 
@@ -176,7 +180,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task MovePiece_invalid_should_return_error()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(
             new GameCommands.MovePiece(
@@ -198,7 +202,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task EndGame_invalid_user_should_return_PlayerInvalid()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, "nonexistent-user"), _probe);
 
@@ -212,7 +216,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task EndGame_valid_user_should_return_Aborted_if_early_game()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         // No moves or just one move = still abortable
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
@@ -233,7 +237,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task EndGame_valid_user_should_return_win_for_opponent_after_early_moves()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         // Make enough moves to exceed abort threshold
         await MakeLegalMoveAsync(_whitePlayer);
@@ -259,7 +263,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task EndGame_should_passivate_actor()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer);
+        await StartGameAsync();
 
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
@@ -291,7 +295,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task TickClock_should_end_game_when_time_runs_out()
     {
-        await StartGameAsync(_whitePlayer, _blackPlayer, timeControl: new(0, 0));
+        await StartGameAsync(timeControl: new(0, 0));
 
         _gameActor.Tell(new GameCommands.TickClock(), _probe);
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
@@ -310,19 +314,40 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
+        _timerMock.Received(1).Cancel(GameActor.ClockTimerKey);
+    }
+
+    [Fact]
+    public async Task After_game_finishes_actor_becomes_finished()
+    {
+        await StartGameAsync();
+
+        _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+
+        _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
+        var isGameOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
+        isGameOngoing.Should().BeFalse();
+
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var stateResult = await _probe.ExpectMsgAsync<ErrorOr<object>>(
+            cancellationToken: ApiTestBase.CT
+        );
+        stateResult.IsError.Should().BeTrue();
+        stateResult.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.GameAlreadyEnded);
     }
 
     private async Task StartGameAsync(
-        GamePlayer whitePlayer,
-        GamePlayer blackPlayer,
+        GamePlayer? whitePlayer = null,
+        GamePlayer? blackPlayer = null,
         TimeControlSettings? timeControl = null
     )
     {
         _gameActor.Tell(
             new GameCommands.StartGame(
                 TestGameToken,
-                WhitePlayer: whitePlayer,
-                BlackPlayer: blackPlayer,
+                WhitePlayer: whitePlayer ?? _whitePlayer,
+                BlackPlayer: blackPlayer ?? _blackPlayer,
                 TimeControl: timeControl ?? _timeControl
             ),
             _probe.Ref

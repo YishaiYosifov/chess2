@@ -28,6 +28,7 @@ public static class ErrorCodes
     public const string GameLogicPointOutOfBound = "GameLogic.PointOutOfBound";
 
     public const string GameNotFound = "Game.NotFound";
+    public const string GameAlreadyEnded = "Game.AlreadyEnded";
     public const string GamePlayerInvalid = "Game.PlayerInvalid";
     public const string GameMoveInvalid = "Game.MoveInvalid";
 }

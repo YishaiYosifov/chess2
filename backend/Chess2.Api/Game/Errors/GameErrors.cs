@@ -8,6 +8,9 @@ public static class GameErrors
     public static Error GameNotFound =>
         Error.NotFound(ErrorCodes.GameNotFound, "Game with that token doesn't exist");
 
+    public static Error GameAlreadyEnded =>
+        Error.Forbidden(ErrorCodes.GameAlreadyEnded, "Requested game already ended");
+
     public static Error PlayerInvalid =>
         Error.Forbidden(
             ErrorCodes.GamePlayerInvalid,
