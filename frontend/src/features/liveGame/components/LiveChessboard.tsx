@@ -19,12 +19,12 @@ import LiveChessboardProfile, {
 import createLiveChessStore from "@/features/liveGame/stores/liveChessboardStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import { createChessboardStore } from "@/features/chessboard/stores/chessboardStore";
-import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
+import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import MoveHistoryTable from "./MoveHistoryTable";
 import GameControls from "./GameControls";
 import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
-import { LiveChessStoreContext } from "../contexts/liveChessContext";
+import LiveChessStoreContext from "../contexts/liveChessContext";
 
 const LiveChessboard = ({
     gameToken,

@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { LiveChessStoreContext } from "../contexts/liveChessContext";
+import LiveChessStoreContext from "../contexts/liveChessContext";
 import { LiveChessStore } from "../stores/liveChessboardStore";
 import { useStore } from "zustand";
 

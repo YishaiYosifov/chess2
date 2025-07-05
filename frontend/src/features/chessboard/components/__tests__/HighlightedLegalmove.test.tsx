@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
+import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import { GameColor } from "@/lib/apiClient";
 import HighlightedLegalMove from "../HighlightedLegalMove";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";

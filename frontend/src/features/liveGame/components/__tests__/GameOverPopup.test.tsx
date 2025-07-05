@@ -7,7 +7,7 @@ import { GameResult } from "@/types/tempModels";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
-import { LiveChessStoreContext } from "@/features/liveGame/contexts/liveChessContext";
+import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
 
 describe("GameOverPopup", () => {
