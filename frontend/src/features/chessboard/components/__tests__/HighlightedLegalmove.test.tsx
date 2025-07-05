@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ChessProvider } from "@/features/chessboard/contexts/chessboardStoreContext";
+import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
 import { GameColor } from "@/lib/apiClient";
 import HighlightedLegalMove from "../HighlightedLegalMove";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
@@ -11,6 +11,11 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, PieceID, PieceMap } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
+import { StoreApi } from "zustand";
+import {
+    ChessboardStore,
+    createChessboardStore,
+} from "../../stores/chessboardStore";
 
 function PiecePositionProbe({ id }: { id: PieceID }) {
     const piecePosition = useChessboardStore(
@@ -25,11 +30,17 @@ function PiecePositionProbe({ id }: { id: PieceID }) {
 }
 
 describe("HighlightedLegalMove", () => {
+    let store: StoreApi<ChessboardStore>;
+
+    beforeEach(() => {
+        store = createChessboardStore();
+    });
+
     it("renders without crashing", () => {
         render(
-            <ChessProvider>
+            <ChessboardStoreContext.Provider value={store}>
                 <HighlightedLegalMove position={{ x: 1, y: 2 }} />
-            </ChessProvider>,
+            </ChessboardStoreContext.Provider>,
         );
 
         const element = screen.getByTestId("highlightedLegalMove");
@@ -43,19 +54,19 @@ describe("HighlightedLegalMove", () => {
             [pointToStr(piece.position), [move]],
         ]);
         const pieces: PieceMap = new Map([["0", piece]]);
+        store.setState({
+            viewingFrom: GameColor.WHITE,
+            selectedPieceId: "0",
+            legalMoves,
+            pieces,
+        });
 
         const user = userEvent.setup();
         render(
-            <ChessProvider
-                viewingFrom={GameColor.WHITE}
-                boardDimensions={{ width: 10, height: 10 }}
-                selectedPieceId={"0"}
-                legalMoves={legalMoves}
-                pieces={pieces}
-            >
+            <ChessboardStoreContext.Provider value={store}>
                 <HighlightedLegalMove position={move.to} />
                 <PiecePositionProbe id={"0"} />
-            </ChessProvider>,
+            </ChessboardStoreContext.Provider>,
         );
 
         const moveSpot = screen.getByTestId("highlightedLegalMove");
