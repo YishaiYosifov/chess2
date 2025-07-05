@@ -10,7 +10,7 @@ import {
     useImperativeHandle,
     useState,
 } from "react";
-import { useLiveChessStore } from "../hooks/useLiveChess";
+import { useLiveChessStore } from "../hooks/useLiveChessStore";
 
 export interface GameOverPopupRef {
     open(): void;

@@ -1,5 +1,5 @@
 import { GameColor } from "@/lib/apiClient";
-import { useLiveChessStore } from "../hooks/useLiveChess";
+import { useLiveChessStore } from "../hooks/useLiveChessStore";
 import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 
