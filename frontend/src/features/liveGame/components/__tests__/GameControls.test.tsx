@@ -6,7 +6,7 @@ import GameControls from "../GameControls";
 import { createMove } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
-import { LiveChessStoreContext } from "@/features/liveGame/contexts/liveChessContext";
+import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 
