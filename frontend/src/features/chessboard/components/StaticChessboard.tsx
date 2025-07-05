@@ -11,7 +11,7 @@ import ChessboardLayout, {
     ChessboardBreakpoint,
     PaddingOffset,
 } from "./ChessboardLayout";
-import { ChessboardStoreContext } from "@/features/chessboard/contexts/chessboardStoreContext";
+import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
