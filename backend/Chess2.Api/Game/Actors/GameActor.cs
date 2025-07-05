@@ -11,6 +11,8 @@ namespace Chess2.Api.Game.Actors;
 
 public class GameActor : ReceiveActor, IWithTimers
 {
+    public const string ClockTimerKey = "tickClock";
+
     private readonly string _token;
     private readonly IServiceProvider _sp;
     private readonly IGameCore _gameCore;
@@ -70,7 +72,7 @@ public class GameActor : ReceiveActor, IWithTimers
         _timeControl = startGame.TimeControl;
 
         Timers.StartPeriodicTimer(
-            "tickClock",
+            ClockTimerKey,
             new GameCommands.TickClock(),
             TimeSpan.FromSeconds(1)
         );
@@ -124,7 +126,8 @@ public class GameActor : ReceiveActor, IWithTimers
         );
 
         await FinalizeGameAsync(player, result, reason);
-        Sender.Tell(new GameEvents.GameEnded());
+        if (!Sender.IsNobody())
+            Sender.Tell(new GameEvents.GameEnded());
     }
 
     private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
@@ -200,6 +203,21 @@ public class GameActor : ReceiveActor, IWithTimers
         Sender.Tell(new GameEvents.PieceMoved());
     }
 
+    private void Finished()
+    {
+        Receive<GameQueries.IsGameOngoing>(_ =>
+        {
+            Sender.Tell(false);
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        });
+
+        ReceiveAny(_ =>
+        {
+            Sender.ReplyWithError(GameErrors.GameAlreadyEnded);
+            Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        });
+    }
+
     private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
     {
         // TODO: remember to uncomment when done testing
@@ -217,6 +235,8 @@ public class GameActor : ReceiveActor, IWithTimers
             archive.WhitePlayer?.NewRating,
             archive.BlackPlayer?.NewRating
         );
+        Become(Finished);
+        Timers.Cancel(ClockTimerKey);
     }
 
     private GameState GetGameStateForPlayer(GamePlayer player)
