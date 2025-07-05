@@ -1,11 +1,10 @@
 import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
-import { profileApi } from "@/lib/apiClient";
 import Profile from "@/features/profile/components/Profile";
 import { FinishedGame, GameResult, RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
-import { User } from "@/lib/apiClient";
+import { getUser } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
 
@@ -19,10 +18,9 @@ export async function generateMetadata({ params }: { params: Params }) {
 const UserPage = async ({ params }: { params: Params }) => {
     const { username } = await params;
 
-    let profile: User;
-    try {
-        profile = await profileApi.getUser(username);
-    } catch {
+    const { error, data: profile } = await getUser({ path: { username } });
+    if (error || !profile) {
+        console.error(error);
         notFound();
     }
 
@@ -51,7 +49,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             timeControl: 900,
             increment: 1,
 
-            results: GameResult.White,
+            results: GameResult.WHITE_WIN,
             createdAt: Date.now().valueOf(),
         },
         {
@@ -63,7 +61,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             timeControl: 900,
             increment: 1,
 
-            results: GameResult.White,
+            results: GameResult.WHITE_WIN,
             createdAt: Date.now().valueOf(),
         },
         {
@@ -75,7 +73,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             timeControl: 900,
             increment: 1,
 
-            results: GameResult.Draw,
+            results: GameResult.DRAW,
             createdAt: Date.now().valueOf(),
         },
         {
@@ -87,7 +85,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             timeControl: 900,
             increment: 1,
 
-            results: GameResult.Draw,
+            results: GameResult.DRAW,
             createdAt: Date.now().valueOf(),
         },
     ];

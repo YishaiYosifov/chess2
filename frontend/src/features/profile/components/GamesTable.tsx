@@ -1,9 +1,9 @@
 "use client";
 
-import type { FinishedGame, User } from "@/lib/apiClient/models";
-
 import { twMerge } from "tailwind-merge";
 import GameRow from "./GameRow";
+import { FinishedGame } from "@/types/tempModels";
+import { User } from "@/lib/apiClient";
 
 const GamesTable = ({
     games,

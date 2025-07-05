@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import Button from "../helpers/Button";
+import Button from "@/components/ui/Button";
 import { TimeControlSettings } from "@/lib/apiClient";
 
 const TimeControlButton = ({

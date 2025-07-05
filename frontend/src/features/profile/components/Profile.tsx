@@ -2,9 +2,9 @@
 
 import { twMerge } from "tailwind-merge";
 
-import { User } from "@/lib/apiClient/models";
 import ProfilePicture from "./ProfilePicture";
-import Card from "../../../components/ui/Card";
+import Card from "@/components/ui/Card";
+import { User } from "@/lib/apiClient";
 import Flag from "./Flag";
 
 /** Show basic information about a user */
@@ -21,8 +21,8 @@ const Profile = ({
         >
             <ProfilePicture
                 className="self-center"
-                userId={profile.userName}
-                lastChanged={profile.pfpLastChanged}
+                userId={profile.userId}
+                // lastChanged={profile.pfpLastChanged}
             />
             <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">

@@ -9,7 +9,7 @@ import useSignalRStore, {
 import * as signalR from "@microsoft/signalr";
 import { renderHook } from "@testing-library/react";
 import { MockProxy } from "vitest-mock-extended";
-import useSignalREvent from "../../../../hooks/signalR/useSignalREvent";
+import useSignalREvent from "../useSignalREvent";
 
 vi.mock("@microsoft/signalr");
 

@@ -3,9 +3,9 @@ import Chart from "react-apexcharts";
 import { Mock } from "vitest";
 
 import preloadAll from "@/lib/testUtils/dynamicImportMock";
-import { RatingOverview } from "@/lib/apiClient/models";
 
 import RatingCard from "../RatingsCard";
+import { RatingOverview } from "@/types/tempModels";
 
 vi.mock("react-apexcharts");
 

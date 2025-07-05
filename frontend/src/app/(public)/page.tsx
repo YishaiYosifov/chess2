@@ -1,30 +1,6 @@
-import Image from "next/image";
-
 export const metadata = { title: "Home - Chess 2" };
 
 const IndexPage = async () => {
     return;
-    return (
-        <header className={styles["main-container"]}>
-            <div className={styles.header}>
-                <h1>chess 2</h1>
-                <p>the number one and only website to play anarchy chess</p>
-            </div>
-
-            <div className={styles.logo}>
-                <div className={styles["logo-bg-square"]} />
-                <div className={styles["logo-bg-square"]} />
-                <div className={styles["logo-bg-square"]} />
-                <div className={styles["logo-bg-square"]} />
-                <Image
-                    src="/assets/logo.svg"
-                    alt="logo"
-                    width={250}
-                    height={250}
-                    draggable={false}
-                />
-            </div>
-        </header>
-    );
 };
 export default IndexPage;
