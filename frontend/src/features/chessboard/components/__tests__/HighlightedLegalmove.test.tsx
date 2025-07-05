@@ -15,7 +15,7 @@ import { StoreApi } from "zustand";
 import {
     ChessboardStore,
     createChessboardStore,
-} from "../../stores/chessboardStore";
+} from "@/features/chessboard/stores/chessboardStore";
 
 function PiecePositionProbe({ id }: { id: PieceID }) {
     const piecePosition = useChessboardStore(
