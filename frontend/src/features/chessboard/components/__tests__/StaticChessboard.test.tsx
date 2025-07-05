@@ -31,7 +31,7 @@ const mockBoard: PieceMap = new Map([
     ],
 ]);
 
-describe("Chessboard", () => {
+describe("StaticChessboard", () => {
     it.each([
         [GameColor.WHITE, 0, 900],
         [GameColor.BLACK, 900, 0],
