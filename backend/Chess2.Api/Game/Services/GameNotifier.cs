@@ -19,6 +19,7 @@ public interface IGameNotifier
         string move,
         GameColor sideToMove,
         int moveNumber,
+        ClockDto clocks,
         string sideToMoveUserId,
         IEnumerable<string> legalMoves
     );
@@ -33,11 +34,12 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
         string move,
         GameColor sideToMove,
         int moveNumber,
+        ClockDto clocks,
         string sideToMoveUserId,
         IEnumerable<string> legalMoves
     )
     {
-        await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber);
+        await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber, clocks);
         await _hub.Clients.User(sideToMoveUserId).LegalMovesChangedAsync(legalMoves);
     }
 

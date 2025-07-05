@@ -1,39 +1,44 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.Diagnostics;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Services;
 
 public class GameClock
 {
-    private readonly Dictionary<GameColor, float> _clocks = new()
+    private readonly Dictionary<GameColor, double> _clocks = new()
     {
         [GameColor.White] = 0,
         [GameColor.Black] = 0,
     };
     private TimeControlSettings _timeControl = new();
-    private long _lastMoveAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    private readonly Stopwatch _stopwatch = new();
+    private double _lastUpdated;
+
+    public ClockDto Value => new(_clocks[GameColor.White], _clocks[GameColor.Black], _lastUpdated);
 
     public void Reset(TimeControlSettings timeControl)
     {
         _timeControl = timeControl;
-        _clocks[GameColor.White] = timeControl.BaseSeconds;
-        _clocks[GameColor.Black] = timeControl.BaseSeconds;
+        _clocks[GameColor.White] = timeControl.BaseSeconds * 1000;
+        _clocks[GameColor.Black] = timeControl.BaseSeconds * 1000;
+        _stopwatch.Restart();
+        _lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 
     public void TickMove(GameColor color)
     {
-        _lastMoveAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var timeLeft = CalculateTimeLeft(color) + _timeControl.IncrementSeconds;
+        var timeLeft = CalculateTimeLeft(color) + _timeControl.IncrementSeconds * 1000;
         _clocks[color] = timeLeft;
+        _stopwatch.Restart();
+        _lastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
 
-    public float CalculateTimeLeft(GameColor color)
+    public double CalculateTimeLeft(GameColor color)
     {
-        var currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var timeSinceLastMove = currentTimestamp - _lastMoveAt;
-
+        var elapsedMs = _stopwatch.Elapsed.TotalMilliseconds;
         var timeLeftAtLastMove = _clocks[color];
-        var currentTimeLeft = timeLeftAtLastMove - timeSinceLastMove;
+        var currentTimeLeft = timeLeftAtLastMove - elapsedMs;
         return currentTimeLeft;
     }
 }
