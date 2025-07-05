@@ -4,7 +4,7 @@ import React from "react";
 
 import { getAuthedUser, type PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
-import AuthContextProvider from "@/contexts/authContext";
+import AuthContextProvider from "@/features/auth/contexts/authContext";
 
 interface WithAuthedUserProps {
     user: PrivateUser;

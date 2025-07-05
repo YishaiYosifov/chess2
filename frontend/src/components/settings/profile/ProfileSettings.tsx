@@ -5,7 +5,7 @@ import { useId, useMemo } from "react";
 
 import FormikSubmitButton from "@/components/helpers/FormikSubmitButton";
 import FormikField from "@/components/helpers/FormikField";
-import { useAuthedProfile } from "@/hooks/useAuthed";
+import { useAuthedProfile } from "@/features/auth/hooks/useAuthed";
 import Card from "@/components/helpers/Card";
 import { Form, Formik } from "formik";
 

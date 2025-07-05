@@ -2,7 +2,7 @@
 
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
-import { useAuthedProfile } from "@/hooks/useAuthed";
+import { useAuthedProfile } from "@/features/auth/hooks/useAuthed";
 import Input from "@/components/helpers/Input";
 import Card from "@/components/helpers/Card";
 
