@@ -19,11 +19,7 @@ const Profile = ({
         <Card
             className={twMerge("w-full flex-col gap-3 sm:flex-row", className)}
         >
-            <ProfilePicture
-                className="self-center"
-                userId={profile.userId}
-                // lastChanged={profile.pfpLastChanged}
-            />
+            <ProfilePicture className="self-center" userId={profile.userId} />
             <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">
                     <span

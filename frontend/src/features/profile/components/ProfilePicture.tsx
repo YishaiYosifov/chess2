@@ -5,14 +5,12 @@ export interface ProfilePictureProps {
     userId?: string;
     width?: number;
     height?: number;
-    lastChanged?: number;
     className?: string;
 }
 
 const ProfilePicture = ({
     width = 120,
     height = 120,
-    lastChanged,
     className,
 }: ProfilePictureProps) => {
     return (
@@ -20,7 +18,7 @@ const ProfilePicture = ({
             data-testid="profilePicture"
             className={twMerge("aspect-square rounded-md", className)}
             alt="profile picture"
-            src={`/assets/logo-image-temp.webp?${lastChanged ?? 0}`}
+            src={`/assets/logo-image-temp.webp`}
             width={width}
             height={height}
         />

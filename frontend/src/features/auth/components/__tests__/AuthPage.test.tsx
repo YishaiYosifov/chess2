@@ -2,8 +2,10 @@ import { render, screen } from "@testing-library/react";
 
 import AuthPage from "@/features/auth/components/AuthPage";
 
+vi.mock("next/image");
+
 describe("AuthPage", () => {
-    it("should rendersthe logo text image", () => {
+    it("should render the logo text image", () => {
         render(<AuthPage />);
         const logoImg = screen.getByAltText(/logo/i);
         expect(logoImg).toBeInTheDocument();

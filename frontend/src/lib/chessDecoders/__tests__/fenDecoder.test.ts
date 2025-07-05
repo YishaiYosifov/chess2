@@ -6,7 +6,7 @@ import { decodeFen } from "../fenDecoder";
 describe("decodeFen", () => {
     it("should parse a standard starting position correctly", () => {
         const fen =
-            "rh2qkb1hr/pp1pppp1pp/10/10/10/10/10/10/PP1PPPP1PP/RH2QKB1HR";
+            "rhn1qkb1hr/pp1pppp1pp/10/10/10/10/10/10/PP1PPPP1PP/RHN1QKB1HR";
 
         const board = decodeFen(fen);
         expect(board).toEqual(constants.DEFAULT_CHESS_BOARD);
