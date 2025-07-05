@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 
-import Refresh from "@/components/auth/Refresh";
+import RefreshRedirect from "@/features/auth/components/RefreshRedirect";
 import constants from "@/lib/constants";
 
 const page = async () => {
@@ -9,6 +9,6 @@ const page = async () => {
         headerStore.get(constants.HEADERS.REDIRECT_AFTER_AUTH) ?? "/";
     if (redirectTo === constants.PATHS.REFRESH) redirectTo = "/";
 
-    return <Refresh redirectTo={redirectTo} />;
+    return <RefreshRedirect redirectTo={redirectTo} />;
 };
 export default page;

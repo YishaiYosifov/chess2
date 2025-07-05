@@ -5,7 +5,7 @@ import { twMerge } from "tailwind-merge";
 import React from "react";
 
 import constants, { OAuthProvider } from "@/lib/constants";
-import Button from "../helpers/Button";
+import Button from "../../../components/helpers/Button";
 
 const OAuthButton = ({
     className,

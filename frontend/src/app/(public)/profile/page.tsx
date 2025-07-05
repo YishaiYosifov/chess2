@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import withAuthedUser from "@/hocs/withAuthedUser";
+import withAuthedUser from "@/features/auth/hocs/withAuthedUser";
 
 // redirect the user to their profile page
 const RedirectUserPage = withAuthedUser(async ({ user }) =>

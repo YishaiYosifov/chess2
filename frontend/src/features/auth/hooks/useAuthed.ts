@@ -1,6 +1,9 @@
 import { useContext } from "react";
 
-import { AuthContextInterface, AuthContext } from "@/contexts/authContext";
+import {
+    AuthContextInterface,
+    AuthContext,
+} from "@/features/auth/contexts/authContext";
 
 /**
  * Get the authed user context, or raise an error if not loaded

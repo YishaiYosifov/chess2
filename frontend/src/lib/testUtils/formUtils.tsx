@@ -8,7 +8,10 @@ import {
 import { UserEvent } from "@testing-library/user-event";
 import { ReactElement } from "react";
 
-import { AuthContext, AuthContextInterface } from "@/contexts/authContext";
+import {
+    AuthContext,
+    AuthContextInterface,
+} from "@/features/auth/contexts/authContext";
 import { ApiProblemError, ApiProblemDetails } from "../apiClient";
 
 type FormFields<T> = Partial<Record<keyof T, string>>;

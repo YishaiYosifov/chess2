@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import AuthPage from "../AuthPage";
+import AuthPage from "../../../../components/authPage/AuthPage";
 
 describe("AuthPage", () => {
     it("should rendersthe logo text image", () => {

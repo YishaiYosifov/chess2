@@ -4,31 +4,26 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import constants from "@/lib/constants";
-import { logout, refresh } from "@/lib/apiClient";
+import { createGuestUser } from "@/lib/apiClient";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 /**
- * This component is reposible for refreshing the user's access token
- * before reaching a server component.
- *
- * When the middleware detects we are logged in but don't have an access token,
- * we are redirected here, we refresh the token and redirect back to the desired page
+ * Create a guest user and redirect
  */
-const Refresh = ({ redirectTo }: { redirectTo: string }) => {
+const GuestRedirect = ({ redirectTo }: { redirectTo: string }) => {
     const router = useRouter();
 
     useEffect(() => {
-        async function handleRefresh() {
-            const { error } = await refresh();
+        async function handleCreateGuest() {
+            const { error } = await createGuestUser();
             if (error) {
-                await logout();
                 router.replace(constants.PATHS.LOGIN);
                 return;
             }
 
             router.replace(redirectTo);
         }
-        handleRefresh();
+        handleCreateGuest();
     }, [redirectTo, router]);
 
     return (
@@ -40,4 +35,4 @@ const Refresh = ({ redirectTo }: { redirectTo: string }) => {
         </div>
     );
 };
-export default Refresh;
+export default GuestRedirect;
