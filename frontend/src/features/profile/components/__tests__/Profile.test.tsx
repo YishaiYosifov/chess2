@@ -4,6 +4,8 @@ import { createUser } from "@/lib/testUtils/fakers/userFaker";
 import { User } from "@/lib/apiClient";
 import Profile from "../Profile";
 
+vi.mock("next/image");
+
 describe("Profile", () => {
     let userMock: User;
 

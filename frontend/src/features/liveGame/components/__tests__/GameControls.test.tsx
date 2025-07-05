@@ -7,7 +7,7 @@ import { createMove } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
 
-vi.mock("@/hooks/signalR/useSignalRHubs");
+vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("GameControls", () => {
     const useGameEmitterMock = vi.mocked(useGameEmitter);
