@@ -1,10 +1,11 @@
 import { render, screen } from "@testing-library/react";
 
-import { FinishedGame, GameResult, User } from "@/lib/apiClient/models";
 import { createFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
 import { createUser } from "@/lib/testUtils/fakers/userFaker";
 
 import GameRow from "../GameRow";
+import { FinishedGame, GameResult } from "@/types/tempModels";
+import { User } from "@/lib/apiClient";
 
 describe("GameRow", () => {
     let finishedGameMock: FinishedGame;
@@ -33,9 +34,9 @@ describe("GameRow", () => {
     });
 
     it.each([
-        [GameResult.White, "1", "0"],
-        [GameResult.Black, "0", "1"],
-        [GameResult.Draw, "½", "½"],
+        [GameResult.WHITE_WIN, "1", "0"],
+        [GameResult.BLACK_WIN, "0", "1"],
+        [GameResult.DRAW, "½", "½"],
     ])(
         "should correctly calculate the score of each player",
         (results, whiteScore, blackScore) => {

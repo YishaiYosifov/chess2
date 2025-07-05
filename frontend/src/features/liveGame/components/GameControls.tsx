@@ -5,8 +5,8 @@ import { ScaleIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { FlagIcon } from "@heroicons/react/24/solid";
 
-import Button from "../helpers/Button";
-import Card from "../helpers/Card";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 

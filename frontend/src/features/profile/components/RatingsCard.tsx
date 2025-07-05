@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { twMerge } from "tailwind-merge";
 
 import type { RatingOverview } from "@/types/tempModels";
-import Card from "../../../components/ui/Card";
+import Card from "@/components/ui/Card";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 

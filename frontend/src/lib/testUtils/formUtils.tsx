@@ -64,5 +64,6 @@ export const problemDetailsFactory = (
     ...errors: ApiProblemError[]
 ): ApiProblemDetails => ({
     status: status,
+    extensions: {},
     errors,
 });

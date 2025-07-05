@@ -1,5 +1,5 @@
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
-import Button from "../helpers/Button";
+import Button from "@/components/ui/Button";
 
 const SeekingOverlay = ({ onClick }: { onClick: () => void }) => {
     return (

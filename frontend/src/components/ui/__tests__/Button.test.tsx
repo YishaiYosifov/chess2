@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Button from "../../helpers/Button";
+import Button from "../Button";
 
 describe("Button Component", () => {
     it("should render the button with children", () => {

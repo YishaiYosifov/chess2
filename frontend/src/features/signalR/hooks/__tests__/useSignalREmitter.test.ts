@@ -7,7 +7,7 @@ import useSignalRStore, {
     initialSignalRStoreState,
 } from "@/features/signalR/stores/signalRStore";
 import { act, renderHook } from "@testing-library/react";
-import useSignalREmitter from "../../../../hooks/signalR/useSignalREmitter";
+import useSignalREmitter from "../useSignalREmitter";
 import { MockProxy } from "vitest-mock-extended";
 
 vi.mock("@microsoft/signalr");

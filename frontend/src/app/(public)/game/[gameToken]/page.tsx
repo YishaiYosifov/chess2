@@ -1,4 +1,4 @@
-import LiveChessboard from "@/components/liveGame/LiveChessboard";
+import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
 import withAuthedSession from "@/features/auth/hocs/withAuthedSession";
 import { notFound, redirect } from "next/navigation";
 import { getLiveGame } from "@/lib/apiClient";

@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
-import Navbar from "@/components/navbar/Navbar";
+import Navbar from "@/components/layout/navbar/Navbar";
 
 const secularOne = Secular_One({
     weight: ["400"],

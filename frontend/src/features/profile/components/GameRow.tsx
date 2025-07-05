@@ -22,10 +22,10 @@ const GameRow = ({
 }) => {
     const color =
         game.userWhite?.userId == profileViewpoint.userId
-            ? GameResult.White
-            : GameResult.Black;
+            ? GameResult.WHITE_WIN
+            : GameResult.BLACK_WIN;
 
-    const isDraw = game.results === GameResult.Draw;
+    const isDraw = game.results === GameResult.DRAW;
     const isWinner = game.results === color;
 
     const GameLink = () => (
@@ -53,9 +53,10 @@ const GameRow = ({
         <MinusCircleIcon className="text-red-400" />
     );
 
-    function getScore(color: GameResult): string {
+    function getScore(winResult: GameResult): string {
         if (isDraw) return "½";
-        return game.results == color ? "1" : "0";
+
+        return game.results == winResult ? "1" : "0";
     }
 
     const usernameWhite = game.userWhite?.userName ?? "DELETED";
@@ -93,11 +94,11 @@ const GameRow = ({
                 <div className="flex items-center gap-3">
                     <div className="flex w-3 flex-col justify-between">
                         <span data-testid="gameRowScoreWhite">
-                            {getScore(GameResult.White)}
+                            {getScore(GameResult.WHITE_WIN)}
                         </span>
 
                         <span data-testid="gameRowScoreBlack">
-                            {getScore(GameResult.Black)}
+                            {getScore(GameResult.BLACK_WIN)}
                         </span>
                     </div>
                     <span className="size-7">{ResultsIcon}</span>

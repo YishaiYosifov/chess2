@@ -1,5 +1,5 @@
-import ProfilePicture from "../profile/ProfilePicture";
-import Flag from "../profile/Flag";
+import ProfilePicture from "@/features/profile/components/ProfilePicture";
+import Flag from "@/features/profile/components/Flag";
 import useLiveChessboardStore from "@/features/liveGame/stores/liveChessboardStore";
 import { useChessStore } from "@/features/chessboard/hooks/useChess";
 import { invertColor } from "@/lib/utils/chessUtils";
