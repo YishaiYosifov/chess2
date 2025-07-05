@@ -1,7 +1,7 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 
-import { GameColor, GamePlayer } from "@/lib/apiClient";
+import { Clocks, GameColor, GamePlayer } from "@/lib/apiClient";
 import { GameResult, Move } from "@/types/tempModels";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
@@ -16,15 +16,19 @@ export interface GameResultData {
 export interface RequiredLiveChessData {
     gameToken: string;
     moveHistory: Move[];
+
+    sideToMove: GameColor;
     playerColor: GameColor;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
+
+    clocks: Clocks;
 }
 
 export interface LiveChessStore extends RequiredLiveChessData {
     resultData?: GameResultData;
 
-    addMoveToHistory(move: Move): void;
+    receiveMove(move: Move, clocks: Clocks, sideToMove: GameColor): void;
     setMoveHistory(moveHistory: Move[]): void;
     endGame(
         result: GameResult,
@@ -40,10 +44,13 @@ export default function createLiveChessStore(initState: RequiredLiveChessData) {
         immer((set, get) => ({
             ...initState,
 
-            addMoveToHistory: (move: Move) =>
+            receiveMove: (move: Move, clocks: Clocks, sideToMove: GameColor) =>
                 set((state) => {
                     state.moveHistory.push(move);
+                    state.clocks = clocks;
+                    state.sideToMove = sideToMove;
                 }),
+
             setMoveHistory: (moveHistory: Move[]) =>
                 set((state) => {
                     state.moveHistory = moveHistory;

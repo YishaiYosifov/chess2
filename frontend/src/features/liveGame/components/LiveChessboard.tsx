@@ -11,7 +11,7 @@ import {
     decodeMovesIntoMap,
     decodeSingleMove,
 } from "@/lib/chessDecoders/moveDecoder";
-import { GameColor, GameState, getLiveGame } from "@/lib/apiClient";
+import { Clocks, GameColor, GameState, getLiveGame } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
@@ -64,17 +64,21 @@ const LiveChessboard = ({
     useGameEvent(
         gameToken,
         "MoveMadeAsync",
-        async (move: string, sideToMove: GameColor, moveNumber: number) => {
+        async (
+            move: string,
+            sideToMove: GameColor,
+            moveNumber: number,
+            clocks: Clocks,
+        ) => {
+            const { moveHistory, receiveMove } = liveChessboardStore.getState();
             // we missed a move... we need to refetch the state
-            const { moveHistory, addMoveToHistory } =
-                liveChessboardStore.getState();
             if (moveNumber != moveHistory.length + 1) {
                 await refetchGame();
                 return;
             }
 
             const decodedMove = decodeSingleMove(move);
-            addMoveToHistory(decodedMove);
+            receiveMove(decodedMove, clocks, sideToMove);
 
             if (sideToMove === playerColor)
                 chessboardStore.getState().playMove(decodedMove);
@@ -130,10 +134,14 @@ const LiveChessboard = ({
         const decodedMoveHistory = decodeMoves(gameState.moveHistory);
         return createLiveChessStore({
             gameToken,
+
             whitePlayer: gameState.whitePlayer,
             blackPlayer: gameState.blackPlayer,
             playerColor,
+            sideToMove: gameState.sideToMove,
+
             moveHistory: decodedMoveHistory,
+            clocks: gameState.clocks,
         });
     }, [gameToken, gameState, playerColor]);
 
