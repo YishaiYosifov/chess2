@@ -1,6 +1,6 @@
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { StoreApi } from "zustand";
-import { LiveChessStore } from "../../stores/liveChessboardStore";
+import { LiveChessStore } from "../../stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { act, render, screen } from "@testing-library/react";
 import LiveChessStoreContext from "../../contexts/liveChessContext";

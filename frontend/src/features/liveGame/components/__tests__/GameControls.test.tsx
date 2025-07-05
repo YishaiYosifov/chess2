@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { LiveChessStore } from "@/features/liveGame/stores/liveChessboardStore";
+import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControls from "../GameControls";
 import { createMove } from "@/lib/testUtils/fakers/chessboardFakers";

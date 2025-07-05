@@ -16,7 +16,7 @@ import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
-import createLiveChessStore from "@/features/liveGame/stores/liveChessboardStore";
+import createLiveChessStore from "@/features/liveGame/stores/liveChessStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import { createChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";

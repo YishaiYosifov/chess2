@@ -1,7 +1,7 @@
 import createLiveChessStore, {
     LiveChessStore,
     RequiredLiveChessData,
-} from "@/features/liveGame/stores/liveChessboardStore";
+} from "@/features/liveGame/stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { createPlayer } from "./playerFaker";
