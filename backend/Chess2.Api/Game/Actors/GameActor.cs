@@ -186,6 +186,7 @@ public class GameActor : ReceiveActor, IWithTimers
             Sender.ReplyWithError(moveResult.Errors);
             return;
         }
+        _clock.TickMove(currentPlayer.Color);
 
         var nextPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
         RunTask(
@@ -195,6 +196,7 @@ public class GameActor : ReceiveActor, IWithTimers
                     moveResult.Value,
                     _gameCore.SideToMove,
                     _gameCore.MoveNumber,
+                    _clock.Value,
                     nextPlayer.UserId,
                     _gameCore.GetLegalMovesFor(_gameCore.SideToMove).EncodedMoves
                 )
@@ -245,6 +247,7 @@ public class GameActor : ReceiveActor, IWithTimers
         var gameState = new GameState(
             WhitePlayer: _players.WhitePlayer,
             BlackPlayer: _players.BlackPlayer,
+            Clocks: _clock.Value,
             SideToMove: _gameCore.SideToMove,
             Fen: _gameCore.Fen,
             MoveHistory: _gameCore.EncodedMoveHistory,
