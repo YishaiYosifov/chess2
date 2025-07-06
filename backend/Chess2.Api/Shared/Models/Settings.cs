@@ -11,6 +11,8 @@ public class AppSettings
 
     public required string OAuthRedirectUrl { get; set; }
 
+    public required string CSRFHeader { get; set; }
+
     public required string RedisConnString { get; set; }
     public required string DatabaseConnString { get; set; }
     public TimeSpan UsernameEditCooldown { get; set; }
