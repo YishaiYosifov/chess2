@@ -91,6 +91,13 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddSignalR().AddStackExchangeRedis();
 
+#region CSRF
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = resolvedAppSettings.CSRFHeader;
+});
+#endregion
+
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(
     (serviceProvider, options) =>
