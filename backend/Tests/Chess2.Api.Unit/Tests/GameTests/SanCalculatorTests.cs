@@ -83,4 +83,64 @@ public class SanCalculatorTests
 
         san.Should().Be("e4");
     }
+
+    [Fact]
+    public void CalculateSan_includes_destination_when_it_is_not_a_capture()
+    {
+        var move = new Move(
+            new("d4"),
+            new("e5"),
+            PieceFactory.White(PieceType.Rook),
+            CapturedSquares: [new("c4"), new("d5")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("Re5xc4xd5");
+    }
+
+    [Fact]
+    public void CalculateSan_adds_the_destination_to_the_start_when_multi_capturing()
+    {
+        var move = new Move(
+            new("d4"),
+            new("d5"),
+            PieceFactory.White(PieceType.Rook),
+            CapturedSquares: [new("c4"), new("d5")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("Rxd5xc4");
+    }
+
+    [Fact]
+    public void CalculateSan_handles_pawn_multi_capture_and_adds_file_letter()
+    {
+        var move = new Move(
+            new("e5"),
+            new("f6"),
+            PieceFactory.White(PieceType.Pawn),
+            CapturedSquares: [new("f5"), new("f6")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("exf6xf5");
+    }
+
+    [Fact]
+    public void CalculateSan_handles_single_capture_when_destination_is_capture()
+    {
+        var move = new Move(
+            new("e5"),
+            new("f6"),
+            PieceFactory.White(PieceType.Pawn),
+            CapturedSquares: [new("f6")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("exf6");
+    }
 }
