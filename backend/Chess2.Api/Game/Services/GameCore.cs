@@ -3,37 +3,52 @@ using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using ErrorOr;
+using IReadonlyLegalMoveMap = System.Collections.Generic.IReadOnlyDictionary<
+    (
+        Chess2.Api.GameLogic.Models.AlgebraicPoint from,
+        Chess2.Api.GameLogic.Models.AlgebraicPoint to
+    ),
+    Chess2.Api.GameLogic.Models.Move
+>;
+using LegalMoveMap = System.Collections.Generic.Dictionary<
+    (
+        Chess2.Api.GameLogic.Models.AlgebraicPoint from,
+        Chess2.Api.GameLogic.Models.AlgebraicPoint to
+    ),
+    Chess2.Api.GameLogic.Models.Move
+>;
 
 namespace Chess2.Api.Game.Services;
 
 public interface IGameCore
 {
     string Fen { get; }
-    IEnumerable<string> EncodedMoveHistory { get; }
-    int MoveNumber { get; }
+    LegalMoveSet LegalMoves { get; }
     GameColor SideToMove { get; }
 
     LegalMoveSet GetLegalMovesFor(GameColor forColor);
     void InitializeGame();
-    ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
+    ErrorOr<(Move move, string EncodedMove, string San)> MakeMove(
+        AlgebraicPoint from,
+        AlgebraicPoint to,
+        GameColor forColor
+    );
 }
 
-public record LegalMoveSet(
-    IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> Moves,
-    IEnumerable<string> EncodedMoves
-)
+public record LegalMoveSet(IReadonlyLegalMoveMap Moves, IEnumerable<string> EncodedMoves)
 {
     public IEnumerable<Move> AllMoves => Moves.Values;
 
     public LegalMoveSet()
-        : this(new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>(), []) { }
+        : this(new LegalMoveMap(), []) { }
 }
 
 public class GameCore(
     ILogger<GameCore> logger,
     IFenCalculator fenCalculator,
     ILegalMoveCalculator legalMoveCalculator,
-    IMoveEncoder legalMoveEncoder
+    IMoveEncoder legalMoveEncoder,
+    ISanCalculator sanCalculator
 ) : IGameCore
 {
     private readonly ChessBoard _board = new(
@@ -41,18 +56,16 @@ public class GameCore(
         GameConstants.BoardHeight,
         GameConstants.BoardWidth
     );
-    private readonly List<string> _encodedMoveHistory = [];
 
     private readonly ILogger<GameCore> _logger = logger;
     private readonly IFenCalculator _fenCalculator = fenCalculator;
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
     private readonly IMoveEncoder _moveEncoder = legalMoveEncoder;
+    private readonly ISanCalculator _sanCalculator = sanCalculator;
 
     public string Fen { get; private set; } = "";
-    public IEnumerable<string> EncodedMoveHistory => _encodedMoveHistory.AsReadOnly();
-    public int MoveNumber => EncodedMoveHistory.Count();
-    public GameColor SideToMove => MoveNumber % 2 == 0 ? GameColor.White : GameColor.Black;
     public LegalMoveSet LegalMoves { get; private set; } = new();
+    public GameColor SideToMove { get; private set; } = GameColor.White;
 
     public void InitializeGame()
     {
@@ -60,7 +73,11 @@ public class GameCore(
         CalculateAllLegalMoves(GameColor.White);
     }
 
-    public ErrorOr<string> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
+    public ErrorOr<(Move move, string EncodedMove, string San)> MakeMove(
+        AlgebraicPoint from,
+        AlgebraicPoint to,
+        GameColor forColor
+    )
     {
         if (!LegalMoves.Moves.TryGetValue((from, to), out var move))
         {
@@ -69,13 +86,15 @@ public class GameCore(
         }
 
         _board.PlayMove(move);
+        var encodedMove = _moveEncoder.EncodeSingleMove(move);
+        var san = _sanCalculator.CalculateSan(move, LegalMoves.AllMoves);
 
         CalculateAllLegalMoves(forColor.Invert());
         Fen = _fenCalculator.CalculateFen(_board);
 
-        var encodedMove = _moveEncoder.EncodeSingleMove(move);
-        _encodedMoveHistory.Add(encodedMove);
-        return encodedMove;
+        SideToMove = SideToMove.Invert();
+
+        return (move, encodedMove, san);
     }
 
     public LegalMoveSet GetLegalMovesFor(GameColor forColor)
@@ -90,7 +109,7 @@ public class GameCore(
         var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
         var encodedLegalMoves = _moveEncoder.EncodeMoves(legalMoves).ToList();
 
-        var groupedLegalMoves = new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>();
+        LegalMoveMap groupedLegalMoves = [];
         foreach (var move in legalMoves)
         {
             var key = (move.From, move.To);
