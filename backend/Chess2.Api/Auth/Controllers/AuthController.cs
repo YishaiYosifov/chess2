@@ -60,14 +60,6 @@ public class AuthController(
         return NoContent();
     }
 
-    [HttpGet("csrf-token", Name = nameof(GetCSRFToken))]
-    [ProducesResponseType<string>(StatusCodes.Status200OK)]
-    public ActionResult GetCSRFToken()
-    {
-        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
-        return Ok(tokens.RequestToken);
-    }
-
 #if DEBUG
     [HttpPost("test-auth", Name = nameof(TestAuthed))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
