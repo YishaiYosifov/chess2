@@ -16,7 +16,7 @@ public interface IGameNotifier
     );
     Task NotifyMoveMadeAsync(
         string gameToken,
-        string move,
+        MoveSnapshot move,
         GameColor sideToMove,
         int moveNumber,
         ClockDto clocks,
@@ -31,7 +31,7 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
 
     public async Task NotifyMoveMadeAsync(
         string gameToken,
-        string move,
+        MoveSnapshot move,
         GameColor sideToMove,
         int moveNumber,
         ClockDto clocks,
