@@ -39,7 +39,7 @@ const SIGNALR_PATHS = {
 };
 
 const HEADERS = {
-    REDIRECT_AFTER_AUTH: "x-redirect-after-auth",
+    REDIRECT_AFTER_AUTH: "Redirect-After-Auth",
 };
 
 const SETTING_PAGES = [

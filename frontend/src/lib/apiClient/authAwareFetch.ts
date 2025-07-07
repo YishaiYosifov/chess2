@@ -1,6 +1,7 @@
 import { logout, refresh } from "./definition";
 import { navigate } from "@/actions/navigate";
 import constants from "../constants";
+import rawClient from "./rawClient";
 
 type Pending = {
     resolve: (value: Response | PromiseLike<Response>) => void;
@@ -8,8 +9,6 @@ type Pending = {
     input: URL | RequestInfo;
     init?: RequestInit;
 };
-
-const IGNORE_CONTROLLERS: string[] = ["/api/auth"];
 
 let isRefreshing = false;
 let refreshQueue: Pending[] = [];
@@ -21,17 +20,11 @@ export default async function authAwareFetch(
 
     // if the server is making this request we don't want to auto refresh
     const isServerRequest = typeof window === "undefined";
-
-    const url = new URL(input.toString());
-    const shouldIgnoreController = IGNORE_CONTROLLERS.some((path) =>
-        url.pathname.toLocaleLowerCase().startsWith(path.toLowerCase()),
-    );
-    if (response.status !== 401 || isServerRequest || shouldIgnoreController)
-        return response;
-
-    if (isRefreshing) return addToRefreshQueue(input, init);
+    if (response.status !== 401 || isServerRequest) return response;
 
     const newResponse = addToRefreshQueue(input, init);
+    if (isRefreshing) return newResponse;
+
     isRefreshing = true;
     let isRefreshSuccessful: boolean = false;
     try {
@@ -65,7 +58,7 @@ async function logoutWhenUnauthorizedFetch(
 }
 
 async function handleRefresh(): Promise<boolean> {
-    const { error } = await refresh();
+    const { error } = await refresh({ client: rawClient });
     if (error) {
         console.error("Failed refreshing:", error);
         return false;
