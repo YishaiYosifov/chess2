@@ -13,9 +13,8 @@ public class SanCalculatorTests
     public void CalculateSan_doesnt_disambiguate_when_not_necessary()
     {
         var move = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var legalMoves = new List<Move> { move };
 
-        var san = _calculator.CalculateSan(move, legalMoves);
+        var san = _calculator.CalculateSan(move, [move]);
 
         san.Should().Be("Hc3");
     }
