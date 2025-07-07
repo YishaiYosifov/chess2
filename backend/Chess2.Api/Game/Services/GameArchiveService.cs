@@ -38,6 +38,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             var moveArchive = CreateMoveArchive(state.MoveHistory.ElementAt(i), i);
             moves.Add(moveArchive);
         }
+
         var gameArchive = new GameArchive()
         {
             GameToken = gameToken,
@@ -66,6 +67,12 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             NewRating = player.Rating + ratingDelta,
         };
 
-    private static MoveArchive CreateMoveArchive(string encodedMove, int moveNumber) =>
-        new() { MoveNumber = moveNumber, EncodedMove = encodedMove };
+    private static MoveArchive CreateMoveArchive(MoveSnapshot moveSnapshot, int moveNumber) =>
+        new()
+        {
+            MoveNumber = moveNumber,
+            EncodedMove = moveSnapshot.EncodedMove,
+            San = moveSnapshot.San,
+            TimeLeft = moveSnapshot.TimeLeft,
+        };
 }

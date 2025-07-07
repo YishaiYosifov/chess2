@@ -10,7 +10,7 @@ public interface IGameClock
 
     double CalculateTimeLeft(GameColor color);
     void Reset(TimeControlSettings timeControl);
-    void TickMove(GameColor color);
+    double TickMove(GameColor color);
 }
 
 public class GameClock(TimeProvider timeProvider, IStopwatchProvider stopwatchProvider) : IGameClock
@@ -38,12 +38,14 @@ public class GameClock(TimeProvider timeProvider, IStopwatchProvider stopwatchPr
         _lastUpdated = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
     }
 
-    public void TickMove(GameColor color)
+    public double TickMove(GameColor color)
     {
         var timeLeft = CalculateTimeLeft(color) + _timeControl.IncrementSeconds * 1000;
         _clocks[color] = timeLeft;
         _stopwatch.Restart();
         _lastUpdated = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
+
+        return timeLeft;
     }
 
     public double CalculateTimeLeft(GameColor color)

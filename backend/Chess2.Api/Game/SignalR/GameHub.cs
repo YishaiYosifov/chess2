@@ -11,7 +11,7 @@ namespace Chess2.Api.Game.SignalR;
 
 public interface IGameHubClient : IChess2HubClient
 {
-    Task MoveMadeAsync(string move, GameColor sideToMove, int moveNumber, ClockDto clock);
+    Task MoveMadeAsync(MoveSnapshot move, GameColor sideToMove, int moveNumber, ClockDto clock);
 
     Task LegalMovesChangedAsync(IEnumerable<string> legalMoves);
 

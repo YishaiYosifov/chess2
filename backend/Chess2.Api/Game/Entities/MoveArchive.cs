@@ -6,4 +6,6 @@ public class MoveArchive
 
     public required int MoveNumber { get; set; }
     public required string EncodedMove { get; set; }
+    public required string San { get; set; }
+    public required double TimeLeft { get; set; }
 }

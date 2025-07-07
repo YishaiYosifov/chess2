@@ -2,7 +2,6 @@
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,13 +12,11 @@ namespace Chess2.Api.Auth.Controllers;
 public class AuthController(
     IAuthService authService,
     IGuestService guestService,
-    IAuthCookieSetter authCookieSetter,
-    IAntiforgery antiforgery
+    IAuthCookieSetter authCookieSetter
 ) : Controller
 {
     private readonly IGuestService _guestService = guestService;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
-    private readonly IAntiforgery _antiforgery = antiforgery;
     private readonly IAuthService _authService = authService;
 
     [HttpPost("refresh", Name = nameof(Refresh))]
