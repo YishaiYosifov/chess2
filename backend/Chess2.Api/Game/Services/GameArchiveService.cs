@@ -33,7 +33,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
         var whiteArchive = CreatePlayerArchive(state.WhitePlayer, ratingDelta.WhiteDelta);
         var blackArchive = CreatePlayerArchive(state.BlackPlayer, ratingDelta.BlackDelta);
         List<MoveArchive> moves = [];
-        for (int i = 0; i < state.MoveHistory.Count; i++)
+        for (int i = 0; i < state.MoveHistory.Count(); i++)
         {
             var moveArchive = CreateMoveArchive(state.MoveHistory.ElementAt(i), i);
             moves.Add(moveArchive);
