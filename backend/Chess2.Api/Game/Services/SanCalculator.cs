@@ -15,7 +15,10 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
     public string CalculateSan(Move move, IEnumerable<Move> legalMoves)
     {
         StringBuilder sb = new();
-        sb.Append(_pieceToLetter.GetLetter(move.Piece.Type).ToUpper());
+
+        if (move.Piece.Type != PieceType.Pawn)
+            sb.Append(_pieceToLetter.GetLetter(move.Piece.Type).ToUpper());
+
         sb.Append(DisambiguatePosition(move, legalMoves));
         sb.Append(move.To.AsAlgebraic());
 
@@ -25,7 +28,6 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
     private static string DisambiguatePosition(Move move, IEnumerable<Move> legalMoves)
     {
         StringBuilder sb = new();
-
         var movesWithSameDestination = FindMovesAtSameDestination(move, legalMoves);
 
         var isRankAmbiguous = movesWithSameDestination.Any(x => x.From.Y == move.From.Y);
