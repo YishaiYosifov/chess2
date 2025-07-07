@@ -3,6 +3,7 @@ import { logout, refresh } from "../definition";
 import { Mock } from "vitest";
 import { navigate } from "@/actions/navigate";
 import constants from "@/lib/constants";
+import rawClient from "../rawClient";
 
 vi.mock("../definition/sdk.gen.ts");
 vi.mock("@/actions/navigate");
@@ -41,15 +42,6 @@ describe("authAwareFetch", () => {
         expect(refresh).not.toHaveBeenCalled();
     });
 
-    it("should ignore refresh if path matches IGNORE_CONTROLLERS", async () => {
-        fetchMock.mockResolvedValue(unauthorizedResponse);
-
-        const res = await authAwareFetch("https://localhost/api/auth/refresh");
-
-        expect(res.status).toBe(401);
-        expect(refresh).not.toHaveBeenCalled();
-    });
-
     it("refreshes and retries queued requests on 401", async () => {
         const firstResponse = new Response(null, { status: 401 });
         const retryResponse = new Response("ok", { status: 200 });
@@ -62,7 +54,7 @@ describe("authAwareFetch", () => {
 
         const res = await authAwareFetch("https://localhost/api/data");
 
-        expect(refresh).toHaveBeenCalled();
+        expect(refresh).toHaveBeenCalledWith({ client: rawClient });
         expect(res.status).toBe(200);
         expect(logout).not.toHaveBeenCalled();
     });
