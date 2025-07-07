@@ -10,7 +10,7 @@ public class ChessBoard
 
     private readonly List<Move> _moves = [];
 
-    public IReadOnlyCollection<Move> Moves => _moves;
+    public IEnumerable<Move> Moves => _moves;
     public int Height { get; }
     public int Width { get; }
 

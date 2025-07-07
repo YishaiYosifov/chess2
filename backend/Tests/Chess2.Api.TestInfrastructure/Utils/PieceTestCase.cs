@@ -26,7 +26,7 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? through = null,
         IEnumerable<string>? captures = null,
-        IReadOnlyCollection<Move>? sideEffects = null
+        IEnumerable<Move>? sideEffects = null
     )
     {
         ExpectedMoves.Add(

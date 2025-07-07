@@ -9,7 +9,7 @@ namespace Chess2.Api.Game.Services;
 public interface IGameCore
 {
     string Fen { get; }
-    IReadOnlyCollection<string> EncodedMoveHistory { get; }
+    IEnumerable<string> EncodedMoveHistory { get; }
     int MoveNumber { get; }
     GameColor SideToMove { get; }
 
@@ -20,9 +20,11 @@ public interface IGameCore
 
 public record LegalMoveSet(
     IReadOnlyDictionary<(AlgebraicPoint from, AlgebraicPoint to), Move> Moves,
-    IReadOnlyList<string> EncodedMoves
+    IEnumerable<string> EncodedMoves
 )
 {
+    public IEnumerable<Move> AllMoves => Moves.Values;
+
     public LegalMoveSet()
         : this(new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>(), []) { }
 }
@@ -47,8 +49,8 @@ public class GameCore(
     private readonly IMoveEncoder _moveEncoder = legalMoveEncoder;
 
     public string Fen { get; private set; } = "";
-    public IReadOnlyCollection<string> EncodedMoveHistory => _encodedMoveHistory.AsReadOnly();
-    public int MoveNumber => EncodedMoveHistory.Count;
+    public IEnumerable<string> EncodedMoveHistory => _encodedMoveHistory.AsReadOnly();
+    public int MoveNumber => EncodedMoveHistory.Count();
     public GameColor SideToMove => MoveNumber % 2 == 0 ? GameColor.White : GameColor.Black;
     public LegalMoveSet LegalMoves { get; private set; } = new();
 
@@ -85,7 +87,7 @@ public class GameCore(
 
     private void CalculateAllLegalMoves(GameColor forColor)
     {
-        var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor);
+        var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
         var encodedLegalMoves = _moveEncoder.EncodeMoves(legalMoves).ToList();
 
         var groupedLegalMoves = new Dictionary<(AlgebraicPoint from, AlgebraicPoint to), Move>();
