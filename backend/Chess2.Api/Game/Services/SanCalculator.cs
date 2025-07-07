@@ -23,7 +23,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         if (!isPawn)
             sb.Append(_pieceToLetter.GetLetter(move.Piece.Type).ToUpper());
 
-        // if this is a pawn move AND a capture, add the rank
+        // if this is a pawn move AND a capture, add the file
         if (isPawn && isCapture)
             sb.Append(FileLetter(move.From.X));
 
