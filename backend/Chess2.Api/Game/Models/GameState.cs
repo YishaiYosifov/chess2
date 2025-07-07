@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Services;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Models;
 
@@ -9,7 +8,7 @@ public record GameState(
     ClockDto Clocks,
     GameColor SideToMove,
     string Fen,
-    IReadOnlyCollection<string> MoveHistory,
-    IReadOnlyCollection<string> LegalMoves,
+    IEnumerable<string> MoveHistory,
+    IEnumerable<string> LegalMoves,
     TimeControlSettings TimeControl
 );
