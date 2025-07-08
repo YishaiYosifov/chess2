@@ -103,14 +103,19 @@ export type OperationBase = {
 };
 
 export type GameState = {
+    timeControl: TimeControlSettings;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
     clocks: Clocks;
     sideToMove: GameColor;
     fen: string;
-    moveHistory: Array<string>;
     legalMoves: Array<string>;
-    timeControl: TimeControlSettings;
+    moveHistory: Array<MoveSnapshot>;
+};
+
+export type TimeControlSettings = {
+    baseSeconds: number;
+    incrementSeconds: number;
 };
 
 export type GamePlayer = {
@@ -138,9 +143,10 @@ export type Clocks = {
     lastUpdated: number;
 };
 
-export type TimeControlSettings = {
-    baseSeconds: number;
-    incrementSeconds: number;
+export type MoveSnapshot = {
+    encodedMove: string;
+    san: string;
+    timeLeft: number;
 };
 
 export type GetAuthedUserData = {
