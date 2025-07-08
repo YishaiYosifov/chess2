@@ -24,7 +24,7 @@ const MoveHistoryTable = () => {
     }
 
     return (
-        <Card className="block overflow-x-auto p-0">
+        <Card className="block max-h-96 overflow-x-auto p-0">
             <table className="min-w-full overflow-hidden text-center text-sm text-white">
                 <tbody>{moveRows}</tbody>
             </table>
