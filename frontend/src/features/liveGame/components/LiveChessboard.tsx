@@ -83,8 +83,8 @@ const LiveChessboard = ({
             <ChessboardStoreContext.Provider value={chessboardStore}>
                 <GameOverPopup ref={gameOverPopupRef} />
                 <div
-                    className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
-                        lg:items-start"
+                    className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:max-h-screen
+                        lg:flex-row lg:items-start"
                 >
                     <section className="flex h-max w-fit flex-col gap-3">
                         <LiveChessboardProfile
@@ -108,6 +108,7 @@ const LiveChessboard = ({
                             side={ChessProfileSide.CurrentlyPlaying}
                         />
                     </section>
+
                     <aside
                         className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px] gap-3
                             overflow-auto lg:max-w-xs"
