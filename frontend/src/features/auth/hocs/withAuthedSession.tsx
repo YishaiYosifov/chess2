@@ -7,7 +7,7 @@ import constants from "@/lib/constants";
 
 interface WithAuthedSessionProps {
     userId: string;
-    accessToken?: string;
+    accessToken: string;
 }
 
 /**

@@ -1,8 +1,8 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 
-import { Clocks, GameColor, GamePlayer } from "@/lib/apiClient";
-import { GameResult, Move } from "@/types/tempModels";
+import { Clocks, GameColor, GamePlayer, MoveSnapshot } from "@/lib/apiClient";
+import { GameResult } from "@/types/tempModels";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 
@@ -15,7 +15,7 @@ export interface GameResultData {
 
 export interface RequiredLiveChessData {
     gameToken: string;
-    moveHistory: Move[];
+    moveHistory: MoveSnapshot[];
 
     sideToMove: GameColor;
     playerColor: GameColor;
@@ -28,8 +28,12 @@ export interface RequiredLiveChessData {
 export interface LiveChessStore extends RequiredLiveChessData {
     resultData?: GameResultData;
 
-    receiveMove(move: Move, clocks: Clocks, sideToMove: GameColor): void;
-    setMoveHistory(moveHistory: Move[]): void;
+    receiveMove(
+        move: MoveSnapshot,
+        clocks: Clocks,
+        sideToMove: GameColor,
+    ): void;
+    setMoveHistory(moveHistory: MoveSnapshot[]): void;
     endGame(
         result: GameResult,
         resultDescription: string,
@@ -44,14 +48,18 @@ export default function createLiveChessStore(initState: RequiredLiveChessData) {
         immer((set, get) => ({
             ...initState,
 
-            receiveMove: (move: Move, clocks: Clocks, sideToMove: GameColor) =>
+            receiveMove: (
+                move: MoveSnapshot,
+                clocks: Clocks,
+                sideToMove: GameColor,
+            ) =>
                 set((state) => {
                     state.moveHistory.push(move);
                     state.clocks = clocks;
                     state.sideToMove = sideToMove;
                 }),
 
-            setMoveHistory: (moveHistory: Move[]) =>
+            setMoveHistory: (moveHistory: MoveSnapshot[]) =>
                 set((state) => {
                     state.moveHistory = moveHistory;
                 }),

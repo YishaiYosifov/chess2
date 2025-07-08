@@ -1,16 +1,28 @@
 import Card from "@/components/ui/Card";
+import { useLiveChessStore } from "../hooks/useLiveChessStore";
+import React from "react";
 
 const MoveHistoryTable = () => {
+    const moveHistory = useLiveChessStore((x) => x.moveHistory);
+    const moveRows: React.ReactElement[] = [];
+    for (let i = 0; i < moveHistory.length; i += 2) {
+        const currentMove = moveHistory[i];
+        const nextMove = moveHistory[i + 1];
+
+        moveRows.push(
+            <MoveRow
+                key={i}
+                index={i}
+                moveWhite={currentMove.san}
+                moveBlack={nextMove?.san ?? ""}
+            />,
+        );
+    }
+
     return (
         <Card className="block overflow-x-auto p-0">
             <table className="min-w-full overflow-hidden text-center text-sm text-white">
-                <tbody>
-                    <MoveRow index={0} moveWhite="e4" moveBlack="e5" />
-                    <MoveRow index={1} moveWhite="e4" moveBlack="e5" />
-                    <MoveRow index={2} moveWhite="e4" moveBlack="e5" />
-                    <MoveRow index={3} moveWhite="e4" moveBlack="e5" />
-                    <MoveRow index={4} moveWhite="e4" moveBlack="e5" />
-                </tbody>
+                <tbody>{moveRows}</tbody>
             </table>
         </Card>
     );
@@ -18,13 +30,13 @@ const MoveHistoryTable = () => {
 export default MoveHistoryTable;
 
 const MoveRow = ({
-    index,
     moveWhite,
     moveBlack,
+    index,
 }: {
-    index: number;
     moveWhite?: string;
     moveBlack?: string;
+    index: number;
 }) => {
     const color = index % 2 === 0 ? "bg-white/5" : "";
     return (
