@@ -110,8 +110,8 @@ const LiveChessboard = ({
                     </section>
 
                     <aside
-                        className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px] gap-3
-                            overflow-auto lg:max-w-xs"
+                        className="grid h-full w-full max-w-96 min-w-xs grid-rows-[minmax(100px,3fr)_70px_200px]
+                            gap-3 overflow-auto lg:max-w-sm"
                     >
                         <MoveHistoryTable />
                         <GameControls />
