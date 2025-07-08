@@ -5,6 +5,8 @@ import React from "react";
 const MoveHistoryTable = () => {
     const moveHistory = useLiveChessStore((x) => x.moveHistory);
     const moveRows: React.ReactElement[] = [];
+
+    let rowIndex = 0;
     for (let i = 0; i < moveHistory.length; i += 2) {
         const currentMove = moveHistory[i];
         const nextMove = moveHistory[i + 1];
@@ -12,11 +14,13 @@ const MoveHistoryTable = () => {
         moveRows.push(
             <MoveRow
                 key={i}
-                index={i}
+                index={rowIndex}
                 moveWhite={currentMove.san}
                 moveBlack={nextMove?.san ?? ""}
             />,
         );
+
+        rowIndex++;
     }
 
     return (
@@ -41,8 +45,8 @@ const MoveRow = ({
     const color = index % 2 === 0 ? "bg-white/5" : "";
     return (
         <tr className={color}>
-            <td className="py-3">{moveWhite}</td>
-            <td className="py-3">{moveBlack}</td>
+            <td className="w-1/2 py-3">{moveWhite}</td>
+            <td className="w-1/2 py-3">{moveBlack}</td>
         </tr>
     );
 };
