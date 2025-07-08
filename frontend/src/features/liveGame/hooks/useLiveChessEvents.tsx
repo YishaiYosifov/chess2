@@ -1,9 +1,8 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
-import { Clocks, GameColor, getLiveGame } from "@/lib/apiClient";
+import { Clocks, GameColor, getLiveGame, MoveSnapshot } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import {
-    decodeMoves,
     decodeMovesIntoMap,
     decodeSingleMove,
 } from "@/lib/chessDecoders/moveDecoder";
@@ -31,16 +30,15 @@ export function useLiveChessEvents(
             .getState()
             .resetState(pieces, legalMoves, data.sideToMove);
 
-        const moveHistory = decodeMoves(data.moveHistory);
         const { setMoveHistory } = liveChessStore.getState();
-        setMoveHistory(moveHistory);
+        setMoveHistory(data.moveHistory);
     }
 
     useGameEvent(
         gameToken,
         "MoveMadeAsync",
         async (
-            move: string,
+            move: MoveSnapshot,
             sideToMove: GameColor,
             moveNumber: number,
             clocks: Clocks,
@@ -52,11 +50,12 @@ export function useLiveChessEvents(
                 return;
             }
 
-            const decodedMove = decodeSingleMove(move);
-            receiveMove(decodedMove, clocks, sideToMove);
+            receiveMove(move, clocks, sideToMove);
 
-            if (sideToMove === playerColor)
+            if (sideToMove === playerColor) {
+                const decodedMove = decodeSingleMove(move.encodedMove);
                 chessboardStore.getState().playMove(decodedMove);
+            }
         },
     );
 

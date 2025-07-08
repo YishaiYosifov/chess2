@@ -5,7 +5,12 @@ import useSignalREmitter, {
 } from "./useSignalREmitter";
 import { GameResult, Point } from "@/types/tempModels";
 import { useMemo } from "react";
-import { Clocks, GameColor, TimeControlSettings } from "@/lib/apiClient";
+import {
+    Clocks,
+    GameColor,
+    MoveSnapshot,
+    TimeControlSettings,
+} from "@/lib/apiClient";
 
 type MatchmakingClientEvents = {
     MatchFoundAsync: [token: string];
@@ -30,7 +35,7 @@ export const useMatchmakingEmitter =
 
 type GameClientEvents = {
     MoveMadeAsync: [
-        move: string,
+        move: MoveSnapshot,
         sideToMove: GameColor,
         moveNumber: number,
         clocks: Clocks,

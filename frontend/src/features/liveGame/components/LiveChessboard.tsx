@@ -3,10 +3,7 @@
 import { Point } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useMemo, useCallback, useRef } from "react";
-import {
-    decodeMoves,
-    decodeMovesIntoMap,
-} from "@/lib/chessDecoders/moveDecoder";
+import { decodeMovesIntoMap } from "@/lib/chessDecoders/moveDecoder";
 import { GameState } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
@@ -60,7 +57,6 @@ const LiveChessboard = ({
         });
     }, [gameState, sendMove, playerColor]);
     const liveChessStore = useMemo(() => {
-        const decodedMoveHistory = decodeMoves(gameState.moveHistory);
         return createLiveChessStore({
             gameToken,
 
@@ -69,7 +65,7 @@ const LiveChessboard = ({
             playerColor,
             sideToMove: gameState.sideToMove,
 
-            moveHistory: decodedMoveHistory,
+            moveHistory: gameState.moveHistory,
             clocks: gameState.clocks,
         });
     }, [gameToken, gameState, playerColor]);
