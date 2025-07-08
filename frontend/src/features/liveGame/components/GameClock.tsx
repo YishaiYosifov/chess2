@@ -44,10 +44,12 @@ const GameClock = ({ color }: { color: GameColor }) => {
         ? seconds.toFixed(2).padStart(5, "0") // xx.yy
         : Math.floor(seconds).toString().padStart(2, "0"); // xx
 
+    const bgColor = color === GameColor.WHITE ? "bg-white" : "bg-black";
     return (
         <span
             className={clsx(
                 "font-mono text-2xl",
+                bgColor,
                 isInTimeTrouble &&
                     isTicking &&
                     !isGameOver &&
