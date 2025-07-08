@@ -20,7 +20,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
         return baseTimeLeft - timePassed;
     }, [clocks.lastUpdated, baseTimeLeft, isTicking]);
 
-    const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
 
     useEffect(() => {
         setTimeLeft(calculateTimeLeft());
