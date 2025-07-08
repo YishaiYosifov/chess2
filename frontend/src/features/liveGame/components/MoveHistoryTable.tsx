@@ -16,7 +16,7 @@ const MoveHistoryTable = () => {
                 key={i}
                 index={rowIndex}
                 moveWhite={currentMove.san}
-                moveBlack={nextMove?.san ?? ""}
+                moveBlack={nextMove?.san}
             />,
         );
 
@@ -25,7 +25,7 @@ const MoveHistoryTable = () => {
 
     return (
         <Card className="block max-h-96 overflow-x-auto p-0">
-            <table className="min-w-full overflow-hidden text-center text-sm text-white">
+            <table className="w-full table-auto">
                 <tbody>{moveRows}</tbody>
             </table>
         </Card>
@@ -45,8 +45,9 @@ const MoveRow = ({
     const color = index % 2 === 0 ? "" : "bg-white/10";
     return (
         <tr className={color}>
-            <td className="w-1/2 py-3">{moveWhite}</td>
-            <td className="w-1/2 py-3">{moveBlack}</td>
+            <td className="w-10 bg-zinc-900 p-3">{index}.</td>
+            <td className="p-3">{moveWhite}</td>
+            <td className="p-3"> {moveBlack}</td>
         </tr>
     );
 };
