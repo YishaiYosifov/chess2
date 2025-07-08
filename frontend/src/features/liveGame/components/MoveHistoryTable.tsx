@@ -25,7 +25,7 @@ const MoveHistoryTable = () => {
 
     return (
         <Card className="block max-h-96 overflow-x-auto p-0">
-            <table className="w-full table-auto">
+            <table className="w-full table-fixed">
                 <tbody>{moveRows}</tbody>
             </table>
         </Card>
