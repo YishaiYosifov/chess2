@@ -33,20 +33,6 @@
     .bg-checkerboard {
         background-image: var(--background-checkerboard);
     }
-
-    @keyframes blink {
-        0%,
-        50% {
-            color: red;
-        }
-        50.01%,
-        100% {
-            color: white;
-        }
-    }
-    .blinking {
-        animation: blink 1s infinite;
-    }
 }
 
 @theme {
@@ -63,6 +49,39 @@
         #111111 0% 25%,
         transparent 0% 50%
     );
+
+    --animate-blink: blink 1s infinite;
+    --animate-wiggle: wiggle 1s ease-in-out infinite;
+    --animate-freakout: blink 0.5s infinite, wiggle 0.1s ease-in-out infinite;
+
+    @keyframes blink {
+        0%,
+        50% {
+            color: red;
+        }
+        50.01%,
+        100% {
+            color: white;
+        }
+    }
+
+    @keyframes wiggle {
+        0% {
+            transform: rotate(-4deg) translateY(0px);
+        }
+        25% {
+            transform: translateY(-2px);
+        }
+        50% {
+            transform: rotate(4deg) translateY(0px);
+        }
+        75% {
+            transform: translateY(2px);
+        }
+        100% {
+            transform: rotate(-4deg) translateY(0px);
+        }
+    }
 }
 
 .apexcharts-svg {
