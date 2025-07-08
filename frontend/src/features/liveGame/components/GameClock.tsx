@@ -10,7 +10,8 @@ const GameClock = ({ color }: { color: GameColor }) => {
 
     const baseTimeLeft =
         color === GameColor.WHITE ? clocks.whiteClock : clocks.blackClock;
-    const isTicking = sideToMove === color && !result;
+    const isTicking = sideToMove === color;
+    const isGameOver = Boolean(result);
 
     const calculateTimeLeft = useCallback(() => {
         if (!isTicking) return baseTimeLeft;
@@ -23,7 +24,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
 
     useEffect(() => {
         setTimeLeft(calculateTimeLeft());
-        if (!isTicking) return;
+        if (!isTicking || isGameOver) return;
 
         const interval = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
@@ -31,14 +32,14 @@ const GameClock = ({ color }: { color: GameColor }) => {
         );
 
         return () => clearInterval(interval);
-    }, [calculateTimeLeft, isTicking]);
+    }, [calculateTimeLeft, isTicking, isGameOver]);
 
     const minutes = Math.max(0, Math.floor(timeLeft / 60000));
     const seconds = Math.max(0, (timeLeft % 60000) / 1000);
 
     const strMinutes = minutes.toString().padStart(2, "0");
 
-    const isInTimeTrouble = minutes < 1 && seconds < 30;
+    const isInTimeTrouble = minutes < 1 && seconds < 20;
     const strSeconds = isInTimeTrouble
         ? seconds.toFixed(2).padStart(5, "0") // xx.yy
         : Math.floor(seconds).toString().padStart(2, "0"); // xx
@@ -47,8 +48,11 @@ const GameClock = ({ color }: { color: GameColor }) => {
         <span
             className={clsx(
                 "font-mono text-2xl",
-                isInTimeTrouble && isTicking && "blinking",
-                seconds <= 0 && minutes <= 0 && !isTicking && "text-red-600",
+                isInTimeTrouble &&
+                    isTicking &&
+                    !isGameOver &&
+                    "animate-freakout",
+                seconds <= 0 && minutes <= 0 && isGameOver && "text-red-600",
             )}
         >
             {strMinutes}:{strSeconds}
