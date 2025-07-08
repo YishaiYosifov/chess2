@@ -15,12 +15,13 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private readonly string _token;
     private readonly IServiceProvider _sp;
-    private readonly IGameCore _gameCore;
+    private readonly IGameCore _core;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
     private readonly IGameClock _clock;
 
     private readonly PlayerRoster _players = new();
+    private readonly MoveHistoryTracker _historyTracker = new();
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     private TimeControlSettings _timeControl;
@@ -30,7 +31,7 @@ public class GameActor : ReceiveActor, IWithTimers
     public GameActor(
         string token,
         IServiceProvider sp,
-        IGameCore game,
+        IGameCore core,
         IGameClock clock,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier,
@@ -43,7 +44,7 @@ public class GameActor : ReceiveActor, IWithTimers
         _token = token;
 
         _sp = sp;
-        _gameCore = game;
+        _core = core;
         _clock = clock;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
@@ -68,7 +69,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private void HandleStartGame(GameCommands.StartGame startGame)
     {
         _players.InitializePlayers(startGame.WhitePlayer, startGame.BlackPlayer);
-        _gameCore.InitializeGame();
+        _core.InitializeGame();
         _clock.Reset(startGame.TimeControl);
 
         _timeControl = startGame.TimeControl;
@@ -113,15 +114,15 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task HandleClockTickAsync()
     {
-        var timeLeft = _clock.CalculateTimeLeft(_gameCore.SideToMove);
+        var timeLeft = _clock.CalculateTimeLeft(_core.SideToMove);
         if (timeLeft > 0)
             return;
 
-        var player = _players.GetPlayerByColor(_gameCore.SideToMove);
+        var player = _players.GetPlayerByColor(_core.SideToMove);
         _logger.Info("Game {0} ended by user {1} timing out", _token, player.UserId);
 
-        var reason = _resultDescriber.Timeout(_gameCore.SideToMove);
-        var winnerColor = _gameCore.SideToMove.Invert();
+        var reason = _resultDescriber.Timeout(_core.SideToMove);
+        var winnerColor = _core.SideToMove.Invert();
         var result = winnerColor.Match(
             whenWhite: GameResult.WhiteWin,
             whenBlack: GameResult.BlackWin
@@ -147,7 +148,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         GameResult result;
         string reason;
-        var isAbort = _gameCore.MoveNumber <= 2;
+        var isAbort = _historyTracker.MoveNumber <= 2;
         if (isAbort)
         {
             result = GameResult.Aborted;
@@ -170,7 +171,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private void HandleMovePiece(GameCommands.MovePiece movePiece)
     {
-        var currentPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
+        var currentPlayer = _players.GetPlayerByColor(_core.SideToMove);
         if (currentPlayer.UserId != movePiece.UserId)
         {
             _logger.Warning(
@@ -182,25 +183,27 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        var moveResult = _gameCore.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
+        var moveResult = _core.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
         if (moveResult.IsError)
         {
             Sender.ReplyWithError(moveResult.Errors);
             return;
         }
-        _clock.TickMove(currentPlayer.Color);
+        var timeLeft = _clock.TickMove(currentPlayer.Color);
+        var (move, encoded, san) = moveResult.Value;
+        var snapshot = _historyTracker.RecordMove(encoded, san, timeLeft);
 
-        var nextPlayer = _players.GetPlayerByColor(_gameCore.SideToMove);
+        var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
         RunTask(
             () =>
                 _gameNotifier.NotifyMoveMadeAsync(
                     _token,
-                    moveResult.Value,
-                    _gameCore.SideToMove,
-                    _gameCore.MoveNumber,
+                    snapshot,
+                    _core.SideToMove,
+                    _historyTracker.MoveNumber,
                     _clock.Value,
                     nextPlayer.UserId,
-                    _gameCore.GetLegalMovesFor(_gameCore.SideToMove).EncodedMoves
+                    _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
                 )
         );
 
@@ -225,7 +228,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
     {
         // TODO: remember to uncomment when done testing
-        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        // Context.Parent.Tell(new Passivate(PoisonPill.Instance));
 
         var state = GetGameStateForPlayer(endingPlayer);
 
@@ -245,16 +248,17 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private GameState GetGameStateForPlayer(GamePlayer player)
     {
-        var legalMoves = _gameCore.GetLegalMovesFor(player.Color);
+        var legalMoves = _core.GetLegalMovesFor(player.Color);
+
         var gameState = new GameState(
+            TimeControl: _timeControl,
             WhitePlayer: _players.WhitePlayer,
             BlackPlayer: _players.BlackPlayer,
             Clocks: _clock.Value,
-            SideToMove: _gameCore.SideToMove,
-            Fen: _gameCore.Fen,
-            MoveHistory: _gameCore.EncodedMoveHistory,
+            SideToMove: _core.SideToMove,
+            Fen: _core.Fen,
             LegalMoves: legalMoves.EncodedMoves,
-            TimeControl: _timeControl
+            MoveHistory: [.. _historyTracker.MoveHistory]
         );
         return gameState;
     }
