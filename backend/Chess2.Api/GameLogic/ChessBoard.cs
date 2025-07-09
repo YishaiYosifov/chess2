@@ -74,9 +74,6 @@ public class ChessBoard
         // apply captures first
         foreach (var step in steps)
         {
-            if (step.CapturedSquares is null)
-                continue;
-
             foreach (var capture in step.CapturedSquares)
                 _board[capture.Y, capture.X] = null;
         }

@@ -38,17 +38,17 @@ public class MoveEncoder : IMoveEncoder
     private static void BuildPath(Move move, StringBuilder path)
     {
         path.Append(move.From.AsAlgebraic());
-        foreach (var trigger in move.TriggerSquares ?? [])
+        foreach (var trigger in move.TriggerSquares)
             path.Append(trigger.AsAlgebraic());
         path.Append(move.To.AsAlgebraic());
 
-        foreach (var capture in move.CapturedSquares ?? [])
+        foreach (var capture in move.CapturedSquares)
         {
             path.Append('!');
             path.Append(capture.AsAlgebraic());
         }
 
-        foreach (var sideEffect in move.SideEffects ?? [])
+        foreach (var sideEffect in move.SideEffects)
         {
             path.Append('-');
             BuildPath(sideEffect, path);

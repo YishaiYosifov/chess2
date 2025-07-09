@@ -74,9 +74,9 @@ public class CastleRule : IPieceMovementRule
             position,
             targetPosition,
             movingPiece,
-            TriggerSquares: trigger,
-            CapturedSquares: captures,
-            SideEffects: [rookSideEffect]
+            triggerSquares: trigger,
+            capturedSquares: captures,
+            sideEffects: [rookSideEffect]
         );
     }
 }
