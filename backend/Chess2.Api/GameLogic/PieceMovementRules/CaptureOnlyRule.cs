@@ -19,7 +19,7 @@ public class CaptureOnlyRule(IMovementBehaviour movementBehaviour) : IPieceMovem
                 position,
                 destination,
                 movingPiece,
-                CapturedSquares: [destination]
+                capturedSquares: [destination]
             );
         }
     }

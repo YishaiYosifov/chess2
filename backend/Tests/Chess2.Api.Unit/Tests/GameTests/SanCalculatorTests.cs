@@ -91,7 +91,7 @@ public class SanCalculatorTests
             new("d4"),
             new("e5"),
             PieceFactory.White(PieceType.Rook),
-            CapturedSquares: [new("c4"), new("d5")]
+            capturedSquares: [new("c4"), new("d5")]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -106,7 +106,7 @@ public class SanCalculatorTests
             new("d4"),
             new("d5"),
             PieceFactory.White(PieceType.Rook),
-            CapturedSquares: [new("c4"), new("d5")]
+            capturedSquares: [new("c4"), new("d5")]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -121,7 +121,7 @@ public class SanCalculatorTests
             new("e5"),
             new("f6"),
             PieceFactory.White(PieceType.Pawn),
-            CapturedSquares: [new("f5"), new("f6")]
+            capturedSquares: [new("f5"), new("f6")]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -136,7 +136,7 @@ public class SanCalculatorTests
             new("e5"),
             new("f6"),
             PieceFactory.White(PieceType.Pawn),
-            CapturedSquares: [new("f6")]
+            capturedSquares: [new("f6")]
         );
 
         var san = _calculator.CalculateSan(move, [move]);

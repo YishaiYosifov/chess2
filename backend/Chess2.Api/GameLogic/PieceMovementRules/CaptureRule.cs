@@ -20,7 +20,7 @@ public class CaptureRule(IMovementBehaviour movementBehaviour) : IPieceMovementR
                 position,
                 destination,
                 movingPiece,
-                CapturedSquares: isCapture ? [destination] : null
+                capturedSquares: isCapture ? [destination] : null
             );
         }
     }
