@@ -193,4 +193,17 @@ public class CastleRuleTests
 
         result.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Evaluate_returns_nothing_if_castling_piece_is_not_a_rook()
+    {
+        var board = new ChessBoard();
+
+        board.PlacePiece(_kingOrigin, _king);
+        board.PlacePiece(_rookKingsideOrigin, PieceFactory.White(PieceType.Horsey));
+
+        var result = _rule.Evaluate(board, _kingOrigin, _king);
+
+        result.Should().BeEmpty();
+    }
 }
