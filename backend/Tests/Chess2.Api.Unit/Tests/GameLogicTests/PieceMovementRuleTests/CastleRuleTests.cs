@@ -206,4 +206,47 @@ public class CastleRuleTests
 
         result.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Evaluate_supports_castling_for_black_king()
+    {
+        var board = new ChessBoard();
+
+        var blackKing = PieceFactory.Black(PieceType.King);
+        var blackRook = PieceFactory.Black(PieceType.Rook);
+
+        var blackKingOrigin = new AlgebraicPoint("f10");
+
+        var rookKingsideOrigin = new AlgebraicPoint("j10");
+        var kingKingsideDestination = new AlgebraicPoint("h10");
+        var rookKingsideDestination = new AlgebraicPoint("g10");
+
+        var rookQueensideOrigin = new AlgebraicPoint("a10");
+        var kingQueensideDestination = new AlgebraicPoint("d10");
+        var rookQueensideDestination = new AlgebraicPoint("e10");
+
+        board.PlacePiece(blackKingOrigin, blackKing);
+        board.PlacePiece(rookKingsideOrigin, blackRook);
+        board.PlacePiece(rookQueensideOrigin, blackRook);
+
+        var result = _rule.Evaluate(board, blackKingOrigin, blackKing).ToList();
+
+        var kingside = new Move(
+            blackKingOrigin,
+            kingKingsideDestination,
+            blackKing,
+            triggerSquares: [new("i10")],
+            sideEffects: [new(rookKingsideOrigin, rookKingsideDestination, blackRook)]
+        );
+
+        var queenside = new Move(
+            blackKingOrigin,
+            kingQueensideDestination,
+            blackKing,
+            triggerSquares: [new("c10"), new("b10")],
+            sideEffects: [new(rookQueensideOrigin, rookQueensideDestination, blackRook)]
+        );
+
+        result.Should().BeEquivalentTo([kingside, queenside]);
+    }
 }
