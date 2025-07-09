@@ -1,15 +1,15 @@
 import { faker } from "@faker-js/faker";
 
 import { FinishedGame, GameResult } from "@/types/tempModels";
-import { createUser } from "./userFaker";
+import { createFakeUser } from "./userFaker";
 
-export function createFinishedGame(
+export function createFakeFinishedGame(
     override?: Partial<FinishedGame>,
 ): FinishedGame {
     return {
         token: faker.string.uuid(),
-        userWhite: createUser(),
-        userBlack: createUser(),
+        userWhite: createFakeUser(),
+        userBlack: createFakeUser(),
         timeControl: 900,
         increment: 1,
         results: faker.helpers.enumValue(GameResult),

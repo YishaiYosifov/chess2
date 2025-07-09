@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControls from "../GameControls";
-import { createMove } from "@/lib/testUtils/fakers/chessboardFakers";
+import { createFakeMove } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
@@ -35,7 +35,7 @@ describe("GameControls", () => {
 
     it("should render Resign if moveHistory has 3+ moves", () => {
         store.setState({
-            moveHistory: [createMove(), createMove(), createMove()],
+            moveHistory: [createFakeMove(), createFakeMove(), createFakeMove()],
         });
 
         render(

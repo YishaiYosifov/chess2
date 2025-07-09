@@ -23,7 +23,7 @@ export function createUniquePoint(): Point {
     return allPoints.splice(index, 1)[0];
 }
 
-export function createPiece(override?: Partial<Piece>): Piece {
+export function createFakePiece(override?: Partial<Piece>): Piece {
     return {
         type: faker.helpers.enumValue(PieceType),
         color: faker.helpers.enumValue(GameColor),
@@ -32,7 +32,7 @@ export function createPiece(override?: Partial<Piece>): Piece {
     };
 }
 
-export function createMove(override?: Partial<Move>): Move {
+export function createFakeMove(override?: Partial<Move>): Move {
     return {
         from: createUniquePoint(),
         to: createUniquePoint(),
@@ -43,25 +43,25 @@ export function createMove(override?: Partial<Move>): Move {
     };
 }
 
-export function createMoveFromPieces(
+export function createFakeMoveFromPieces(
     pieces: PieceMap,
     override?: Partial<Move>,
 ): Move {
-    return createMove({
+    return createFakeMove({
         from: pieces.values().toArray()[0].position,
         ...override,
     });
 }
 
-export function createPieceMap(count = 5): PieceMap {
+export function createFakePieceMap(count = 5): PieceMap {
     const map: PieceMap = new Map();
     for (let i = 0; i < count; i++) {
-        map.set(`${i}`, createPiece());
+        map.set(`${i}`, createFakePiece());
     }
     return map;
 }
 
-export function createPieceMapFromPieces(...pieces: Piece[]): PieceMap {
+export function createFakePieceMapFromPieces(...pieces: Piece[]): PieceMap {
     const map: PieceMap = new Map();
     for (const [i, piece] of pieces.entries()) {
         map.set(`${i}`, piece);
@@ -69,12 +69,12 @@ export function createPieceMapFromPieces(...pieces: Piece[]): PieceMap {
     return map;
 }
 
-export function createLegalMoveMap(...pieces: Piece[]): LegalMoveMap {
+export function createFakeLegalMoveMap(...pieces: Piece[]): LegalMoveMap {
     const map: LegalMoveMap = new Map();
     for (const piece of pieces) {
         map.set(pointToStr(piece.position), [
-            createMove({ from: piece.position }),
-            createMove({ from: piece.position }),
+            createFakeMove({ from: piece.position }),
+            createFakeMove({ from: piece.position }),
         ]);
     }
     return map;

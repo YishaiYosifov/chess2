@@ -3,7 +3,7 @@ import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
 import { FinishedGame, GameResult, RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
-import { createUser } from "@/lib/testUtils/fakers/userFaker";
+import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import { getUser } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
@@ -44,7 +44,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             token: "123",
 
             userWhite: profile,
-            userBlack: createUser(),
+            userBlack: createFakeUser(),
 
             timeControl: 900,
             increment: 1,
@@ -55,7 +55,7 @@ const UserPage = async ({ params }: { params: Params }) => {
         {
             token: "456",
 
-            userWhite: createUser(),
+            userWhite: createFakeUser(),
             userBlack: profile,
 
             timeControl: 900,
@@ -67,7 +67,7 @@ const UserPage = async ({ params }: { params: Params }) => {
         {
             token: "789",
 
-            userWhite: createUser(),
+            userWhite: createFakeUser(),
             userBlack: profile,
 
             timeControl: 900,
@@ -80,7 +80,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             token: "101112",
 
             userWhite: profile,
-            userBlack: createUser(),
+            userBlack: createFakeUser(),
 
             timeControl: 900,
             increment: 1,

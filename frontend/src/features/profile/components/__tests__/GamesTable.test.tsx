@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
-import { createUser } from "@/lib/testUtils/fakers/userFaker";
+import { createFakeFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
+import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import GamesTable from "../GamesTable";
 import { FinishedGame } from "@/types/tempModels";
 import { User } from "@/lib/apiClient";
@@ -11,11 +11,11 @@ describe("GamesTable", () => {
     let userMock: User;
 
     beforeEach(() => {
-        userMock = createUser();
+        userMock = createFakeUser();
         gamesMock = Array.from({ length: 3 }, () =>
-            createFinishedGame({
+            createFakeFinishedGame({
                 userWhite: userMock,
-                userBlack: createUser(),
+                userBlack: createFakeUser(),
             }),
         );
     });
