@@ -58,10 +58,12 @@ public class CastleRule : IPieceMovementRule
                 continue;
             }
 
-            if (pieceOnSquare.Type != _allowCaptureBlockingPieceType)
-                yield break;
-
-            if (currentSquare != targetPosition && currentSquare != targetRookPosition)
+            var isCapturedAllowed =
+                pieceOnSquare.Type == _allowCaptureBlockingPieceType
+                && pieceOnSquare.Color == movingPiece.Color;
+            var isCaptureOnLandingSquare =
+                currentSquare == targetPosition || currentSquare == targetRookPosition;
+            if (!isCapturedAllowed || !isCaptureOnLandingSquare)
                 yield break;
 
             captures.Add(currentSquare);
