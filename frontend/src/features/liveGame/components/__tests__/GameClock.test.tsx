@@ -80,10 +80,10 @@ describe("GameClock", () => {
         expect(screen.getByText("05:00")).toBeInTheDocument();
     });
 
-    it("should show decimal seconds under 30s", () => {
+    it("should show decimal seconds and animate under 20s", () => {
         store.setState({
             clocks: {
-                whiteClock: 25000, // 25 seconds
+                whiteClock: 15000,
                 blackClock: 300000,
                 lastUpdated: 0,
             },
@@ -96,12 +96,41 @@ describe("GameClock", () => {
             </LiveChessStoreContext.Provider>,
         );
         act(() => {
-            vi.advanceTimersByTime(5000); // 5 seconds pass
+            vi.advanceTimersByTime(5000);
         });
 
-        // Should display decimal format: "00:20.xx"
-        const text = screen.getByText(/00:20\.\d\d/);
-        expect(text).toBeInTheDocument();
+        const clock = screen.getByText(/00:10\.\d\d/);
+        expect(clock).toBeInTheDocument();
+        expect(clock.classList.contains("animate-freakout")).toBe(true);
+    });
+
+    it("should apply 'text-red-600' class when clock is zero and game is over", () => {
+        store.setState({
+            clocks: {
+                whiteClock: 0,
+                blackClock: 300000,
+                lastUpdated: 0,
+            },
+            sideToMove: GameColor.WHITE,
+            resultData: {
+                result: GameResult.BLACK_WIN,
+                resultDescription: "timeout",
+            },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameClock color={GameColor.WHITE} />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        act(() => {
+            vi.advanceTimersByTime(1000);
+        });
+
+        const clock = screen.getByText("00:00.00");
+        expect(clock.classList.contains("text-red-600")).toBe(true);
+        expect(clock.classList.contains("animate-freakout")).toBe(false);
     });
 
     it("should show zero and doesn't go negative", () => {
