@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Game.Services;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
@@ -142,5 +143,38 @@ public class SanCalculatorTests
         var san = _calculator.CalculateSan(move, [move]);
 
         san.Should().Be("exf6");
+    }
+
+    [Theory]
+    [InlineData(SpecialMoveType.KingsideCastle, "O-O")]
+    [InlineData(SpecialMoveType.QueensideCastle, "O-O-O")]
+    public void CalculateSan_uses_castle_notation(SpecialMoveType moveType, string expectedNotation)
+    {
+        var move = new Move(
+            new("a1"),
+            new("a2"),
+            PieceFactory.White(PieceType.King),
+            specialMoveType: moveType
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be(expectedNotation);
+    }
+
+    [Fact]
+    public void CalculateSan_adds_captures_for_castling()
+    {
+        var move = new Move(
+            new("a1"),
+            new("a2"),
+            PieceFactory.White(PieceType.King),
+            specialMoveType: SpecialMoveType.KingsideCastle,
+            capturedSquares: [new("a3")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("O-Oxa3");
     }
 }

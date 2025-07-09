@@ -1,5 +1,6 @@
-﻿using System.Text;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
+using System.Text;
 
 namespace Chess2.Api.Game.Services;
 
@@ -12,7 +13,15 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
 {
     private readonly IPieceToLetter _pieceToLetter = pieceToLetter;
 
-    public string CalculateSan(Move move, IEnumerable<Move> legalMoves)
+    public string CalculateSan(Move move, IEnumerable<Move> legalMoves) =>
+        move.SpecialMoveType switch
+        {
+            SpecialMoveType.KingsideCastle => NotateCastle(move, isKingside: true),
+            SpecialMoveType.QueensideCastle => NotateCastle(move, isKingside: false),
+            _ => NotateRegularMove(move, legalMoves),
+        };
+
+    private string NotateRegularMove(Move move, IEnumerable<Move> legalMoves)
     {
         StringBuilder sb = new();
 
@@ -30,6 +39,19 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         sb.Append(DisambiguatePosition(move, legalMoves));
         sb.Append(NotateDestination(move));
         sb.Append(NotateSideCaptures(move));
+
+        return sb.ToString();
+    }
+
+    private static string NotateCastle(Move move, bool isKingside)
+    {
+        StringBuilder sb = new();
+        sb.Append(isKingside ? "O-O" : "O-O-O");
+        foreach (var capture in move.CapturedSquares)
+        {
+            sb.Append('x');
+            sb.Append(capture.AsAlgebraic());
+        }
 
         return sb.ToString();
     }

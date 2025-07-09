@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
@@ -12,14 +13,28 @@ public class CastleRule : IPieceMovementRule
         if (movingPiece.TimesMoved > 0)
             yield break;
 
-        int rookXRight = board.Width - 1;
-        var castleRight = GetCastlingMovesInDirection(rookXRight, 1, board, movingPiece, position);
-        foreach (var move in castleRight)
+        int rookXKingside = board.Width - 1;
+        var castleKingside = GetCastlingMovesInDirection(
+            rookXKingside,
+            directionX: 1,
+            board,
+            movingPiece,
+            position,
+            SpecialMoveType.KingsideCastle
+        );
+        foreach (var move in castleKingside)
             yield return move;
 
-        int rookXLeft = 0;
-        var castleLeft = GetCastlingMovesInDirection(rookXLeft, -1, board, movingPiece, position);
-        foreach (var move in castleLeft)
+        int rookXQueenside = 0;
+        var castleQueenside = GetCastlingMovesInDirection(
+            rookXQueenside,
+            directionX: -1,
+            board,
+            movingPiece,
+            position,
+            SpecialMoveType.QueensideCastle
+        );
+        foreach (var move in castleQueenside)
             yield return move;
     }
 
@@ -28,7 +43,8 @@ public class CastleRule : IPieceMovementRule
         int directionX,
         ChessBoard board,
         Piece movingPiece,
-        AlgebraicPoint position
+        AlgebraicPoint position,
+        SpecialMoveType moveType
     )
     {
         AlgebraicPoint rookPosition = new(rookX, position.Y);
@@ -86,7 +102,8 @@ public class CastleRule : IPieceMovementRule
             movingPiece,
             triggerSquares: trigger,
             capturedSquares: captures,
-            sideEffects: [rookSideEffect]
+            sideEffects: [rookSideEffect],
+            specialMoveType: moveType
         );
     }
 }

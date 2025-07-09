@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;
@@ -68,14 +69,16 @@ public class CastleRuleTests
             _kingKingsideDestination,
             _king,
             triggerSquares: [new("i1")],
-            sideEffects: [new(_rookKingsideOrigin, _rookKingsideDestination, _rook)]
+            sideEffects: [new(_rookKingsideOrigin, _rookKingsideDestination, _rook)],
+            specialMoveType: SpecialMoveType.KingsideCastle
         );
         var queenside = new Move(
             _kingOrigin,
             _kingQueensideDestination,
             _king,
             triggerSquares: [new("c1"), new("b1")],
-            sideEffects: [new(_rookQueensideOrigin, _rookQueensideDestination, _rook)]
+            sideEffects: [new(_rookQueensideOrigin, _rookQueensideDestination, _rook)],
+            specialMoveType: SpecialMoveType.QueensideCastle
         );
 
         result.Should().BeEquivalentTo([kingside, queenside]);
@@ -116,7 +119,8 @@ public class CastleRuleTests
             _king,
             triggerSquares: [new("i1")],
             capturedSquares: [bishopPosition],
-            sideEffects: [new(_rookKingsideOrigin, _rookKingsideDestination, _rook)]
+            sideEffects: [new(_rookKingsideOrigin, _rookKingsideDestination, _rook)],
+            specialMoveType: SpecialMoveType.KingsideCastle
         );
         result.Should().BeEquivalentTo([expectedMove]);
     }
@@ -236,7 +240,8 @@ public class CastleRuleTests
             kingKingsideDestination,
             blackKing,
             triggerSquares: [new("i10")],
-            sideEffects: [new(rookKingsideOrigin, rookKingsideDestination, blackRook)]
+            sideEffects: [new(rookKingsideOrigin, rookKingsideDestination, blackRook)],
+            specialMoveType: SpecialMoveType.KingsideCastle
         );
 
         var queenside = new Move(
@@ -244,7 +249,8 @@ public class CastleRuleTests
             kingQueensideDestination,
             blackKing,
             triggerSquares: [new("c10"), new("b10")],
-            sideEffects: [new(rookQueensideOrigin, rookQueensideDestination, blackRook)]
+            sideEffects: [new(rookQueensideOrigin, rookQueensideDestination, blackRook)],
+            specialMoveType: SpecialMoveType.QueensideCastle
         );
 
         result.Should().BeEquivalentTo([kingside, queenside]);

@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -111,9 +112,19 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .From("f1", king)
                 .WithBlocker("j1", rook) // Kingside rook
                 .WithBlocker("a1", rook) // Queenside rook
-                .GoesTo("h1", trigger: ["i1"], sideEffects: [rookKingsideCastle]) // Kingside castle destination
-                .GoesTo("d1", trigger: ["c1", "b1"], sideEffects: [rookQueensideCastle]) // Queenside castle destination
-                                                                                         // regular moves
+                .GoesTo(
+                    "h1",
+                    trigger: ["i1"],
+                    sideEffects: [rookKingsideCastle],
+                    specialMoveType: SpecialMoveType.KingsideCastle
+                )
+                .GoesTo(
+                    "d1",
+                    trigger: ["c1", "b1"],
+                    sideEffects: [rookQueensideCastle],
+                    specialMoveType: SpecialMoveType.QueensideCastle
+                )
+                // regular moves
                 .GoesTo("e1")
                 .GoesTo("e2")
                 .GoesTo("f2")

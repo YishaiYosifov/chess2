@@ -1,4 +1,6 @@
-﻿namespace Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Models;
+
+namespace Chess2.Api.GameLogic.Models;
 
 public record Move
 {
@@ -8,6 +10,7 @@ public record Move
     public IEnumerable<AlgebraicPoint> TriggerSquares { get; }
     public IEnumerable<AlgebraicPoint> CapturedSquares { get; }
     public IEnumerable<Move> SideEffects { get; }
+    public SpecialMoveType SpecialMoveType { get; }
 
     public Move(
         AlgebraicPoint from,
@@ -15,7 +18,8 @@ public record Move
         Piece piece,
         IEnumerable<AlgebraicPoint>? triggerSquares = null,
         IEnumerable<AlgebraicPoint>? capturedSquares = null,
-        IEnumerable<Move>? sideEffects = null
+        IEnumerable<Move>? sideEffects = null,
+        SpecialMoveType specialMoveType = SpecialMoveType.None
     )
     {
         From = from;
@@ -24,6 +28,7 @@ public record Move
         TriggerSquares = triggerSquares ?? [];
         CapturedSquares = capturedSquares ?? [];
         SideEffects = sideEffects ?? [];
+        SpecialMoveType = specialMoveType;
     }
 
     public IEnumerable<Move> Flatten()
