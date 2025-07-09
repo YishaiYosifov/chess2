@@ -85,7 +85,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             Fen: "10/10/10/10/10/10/10/10/10/10",
             WhitePlayer: new GamePlayerFaker(GameColor.White).Generate(),
             BlackPlayer: new GamePlayerFaker(GameColor.Black).Generate(),
-            MoveHistory: ["e2e4", "e7e5", "g1f3"],
+            MoveHistory: new MoveSnapshotFaker().Generate(3),
             SideToMove: GameColor.Black,
             Clocks: new(20000, 30000, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
             LegalMoves: [],
@@ -116,9 +116,16 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         };
 
     private static IEnumerable<MoveArchive> CreateExpectedMoveArchives(
-        IEnumerable<string> moveHistory
+        IEnumerable<MoveSnapshot> moveHistory
     ) =>
         moveHistory.Select(
-            (move, index) => new MoveArchive { EncodedMove = move, MoveNumber = index }
+            (move, index) =>
+                new MoveArchive
+                {
+                    EncodedMove = move.EncodedMove,
+                    San = move.San,
+                    TimeLeft = move.TimeLeft,
+                    MoveNumber = index,
+                }
         );
 }

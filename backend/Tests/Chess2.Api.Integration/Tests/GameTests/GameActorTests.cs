@@ -24,6 +24,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
     private readonly IGameResultDescriber _gameResultDescriber;
+    private readonly ISanCalculator _sanCalculator;
     private readonly IMoveEncoder _moveEncoder;
     private readonly IGameCore _gameCore;
     private readonly IActorRef _gameActor;
@@ -41,6 +42,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     public GameActorTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
+        _sanCalculator = ApiTestBase.Scope.ServiceProvider.GetRequiredService<ISanCalculator>();
         _moveEncoder = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IMoveEncoder>();
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
@@ -143,7 +145,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             SideToMove: GameColor.White,
             Clocks: expectedClock,
             Fen: _gameCore.Fen,
-            MoveHistory: _gameCore.EncodedMoveHistory,
+            MoveHistory: [],
             LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
             TimeControl: _timeControl
         );
@@ -178,21 +180,33 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync();
         _stopwatchMock.Elapsed.Returns(TimeSpan.FromSeconds(2));
 
-        var move = await MakeLegalMoveAsync(_whitePlayer);
+        var move = GetLegalMoveFor(_whitePlayer);
+        var expectedTimeLeft =
+            _timeControl.BaseSeconds * 1000
+            + _timeControl.IncrementSeconds * 1000 // add increment
+            - 2 * 1000; // removed elapsed time
 
-        var expectedEncodedMove = _moveEncoder.EncodeSingleMove(move);
-        var expectedClock = new ClockDto(
-            WhiteClock: _timeControl.BaseSeconds * 1000
-                + _timeControl.IncrementSeconds * 1000 // add increment
-                - 2 * 1000, // removed elapsed time
+        MoveSnapshot expectedMoveSnapshot = new(
+            EncodedMove: _moveEncoder.EncodeSingleMove(move),
+            San: _sanCalculator.CalculateSan(
+                move,
+                _gameCore.GetLegalMovesFor(GameColor.White).AllMoves
+            ),
+            TimeLeft: expectedTimeLeft
+        );
+        ClockDto expectedClock = new(
+            WhiteClock: expectedTimeLeft,
             BlackClock: _timeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
+
+        await MakeLegalMoveAsync(_whitePlayer, move);
+
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
                 gameToken: TestGameToken,
-                move: expectedEncodedMove,
+                move: expectedMoveSnapshot,
                 sideToMove: GameColor.Black,
                 moveNumber: 1,
                 clocks: ArgEx.FluentAssert<ClockDto>(x => x.Should().BeEquivalentTo(expectedClock)),
@@ -298,13 +312,14 @@ public class GameActorTests : BaseAkkaIntegrationTest
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
     }
 
-    private async Task<Move> MakeLegalMoveAsync(GamePlayer player)
+    private Move GetLegalMoveFor(GamePlayer player) =>
+        _gameCore.GetLegalMovesFor(player.Color).Moves.First().Value;
+
+    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, Move? move = null)
     {
-        var move = _gameCore.GetLegalMovesFor(player.Color).Moves.First();
-        var movedFrom = move.Key.from;
-        var movedTo = move.Key.to;
+        move ??= GetLegalMoveFor(player);
         _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, player.UserId, movedFrom, movedTo),
+            new GameCommands.MovePiece(TestGameToken, player.UserId, move.From, move.To),
             _probe
         );
 
@@ -313,7 +328,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             duration: TimeSpan.FromSeconds(10)
         );
 
-        return move.Value;
+        return move;
     }
 
     [Fact]

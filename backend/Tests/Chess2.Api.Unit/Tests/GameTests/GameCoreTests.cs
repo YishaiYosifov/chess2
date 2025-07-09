@@ -79,8 +79,8 @@ public class GameCoreTests
     [Fact]
     public void MakeMove_returns_an_error_when_provided_an_invalid_move()
     {
-        var from = new AlgebraicPoint("e2");
-        var to = new AlgebraicPoint("e4");
+        AlgebraicPoint from = new("e2");
+        AlgebraicPoint to = new("e4");
 
         var result = _gameCore.MakeMove(from, to, GameColor.White);
 
@@ -91,19 +91,24 @@ public class GameCoreTests
     [Fact]
     public void MakeMove_moves_the_piece_and_updates_move_history_and_legal_moves()
     {
-        var from = new AlgebraicPoint("e2");
-        var to = new AlgebraicPoint("e4");
-        var move = new Move(from, to, PieceFactory.White());
-        var encoded = "e2e4";
-        var san = "e4";
+        AlgebraicPoint from = new("e2");
+        AlgebraicPoint to = new("e4");
+        Move move = new(from, to, PieceFactory.White());
+        Move[] legalMoves = [move];
+        string encoded = "e2e4";
+        string san = "e4";
 
         _legalMoveCalculator
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
-            .Returns([move]);
-        _encoder.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns([encoded]);
+            .Returns(legalMoves);
+        _encoder
+            .EncodeMoves(Arg.Is<IEnumerable<Move>>(moves => moves.SequenceEqual(legalMoves)))
+            .Returns([encoded]);
         _encoder.EncodeSingleMove(move).Returns(encoded);
         _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
-        _sanCalculator.CalculateSan(move, [move]).Returns(san);
+        _sanCalculator
+            .CalculateSan(move, Arg.Is<IEnumerable<Move>>(moves => moves.SequenceEqual(legalMoves)))
+            .Returns(san);
 
         _gameCore.InitializeGame();
 
@@ -119,9 +124,9 @@ public class GameCoreTests
     [Fact]
     public void SideToMove_should_alternate_depending_on_move_history()
     {
-        var from = new AlgebraicPoint("e2");
-        var to = new AlgebraicPoint("e4");
-        var move = new Move(from, to, PieceFactory.White());
+        AlgebraicPoint from = new("e2");
+        AlgebraicPoint to = new("e4");
+        Move move = new(from, to, PieceFactory.White());
 
         _legalMoveCalculator
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
