@@ -142,12 +142,17 @@ export function createChessboardStore(
                 const strFrom = pointToStr(from);
 
                 const moves = legalMoves.get(strFrom);
-                if (!moves || moves.length === 0) return;
+                if (!moves) return;
 
                 const move = moves?.find(
-                    (m) =>
-                        (m.to.x == to.x && m.to.y == to.y) ||
-                        m.triggers.includes(to),
+                    (candidateMove) =>
+                        (candidateMove.to.x == to.x &&
+                            candidateMove.to.y == to.y) ||
+                        candidateMove.triggers.find(
+                            (triggerPoint) =>
+                                triggerPoint.x == to.x &&
+                                triggerPoint.y == to.y,
+                        ),
                 );
                 if (!move) return;
 
