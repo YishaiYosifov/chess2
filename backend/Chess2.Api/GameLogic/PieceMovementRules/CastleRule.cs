@@ -32,7 +32,11 @@ public class CastleRule : IPieceMovementRule
     )
     {
         AlgebraicPoint rookPosition = new(rookX, position.Y);
-        if (!board.TryGetPieceAt(rookPosition, out var rook) || rook.TimesMoved > 0)
+        if (
+            !board.TryGetPieceAt(rookPosition, out var rook)
+            || rook.TimesMoved > 0
+            || rook.Color != movingPiece.Color
+        )
             yield break;
 
         var targetPosition = new AlgebraicPoint(
