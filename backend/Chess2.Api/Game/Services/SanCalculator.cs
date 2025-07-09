@@ -17,7 +17,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         StringBuilder sb = new();
 
         var isPawn = move.Piece.Type == PieceType.Pawn;
-        var isCapture = move.CapturedSquares?.Any() == true;
+        var isCapture = move.CapturedSquares.Any();
 
         // add the piece letter if this is not a pawn move
         if (!isPawn)
@@ -54,7 +54,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
     {
         StringBuilder sb = new();
 
-        var isCapture = move.CapturedSquares?.Any(x => x == move.To) == true;
+        var isCapture = move.CapturedSquares.Any(x => x == move.To);
         if (isCapture)
             sb.Append('x');
         sb.Append(move.To.AsAlgebraic());
@@ -64,9 +64,6 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
 
     private static string NotateSideCaptures(Move move)
     {
-        if (move.CapturedSquares is null)
-            return "";
-
         StringBuilder sb = new();
 
         // captures that are not the destination

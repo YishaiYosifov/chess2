@@ -21,7 +21,7 @@ public class CaptureOnlyRuleTests : MovementBasedPieceRulesTestBase
         var behaviour = new CaptureOnlyRule(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new[] { new Move(Origin, new("b2"), piece, CapturedSquares: [new("b2")]) };
+        var expected = new[] { new Move(Origin, new("b2"), piece, capturedSquares: [new("b2")]) };
 
         result.Should().BeEquivalentTo(expected);
     }

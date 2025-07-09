@@ -33,10 +33,10 @@ public class EnPassantRuleTests
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
         var expected = new Move(
-            From: origin,
-            To: destination,
-            Piece: piece,
-            CapturedSquares: [enemyDestination]
+            from: origin,
+            to: destination,
+            piece: piece,
+            capturedSquares: [enemyDestination]
         );
 
         result.Should().ContainSingle().Which.Should().BeEquivalentTo(expected);

@@ -34,9 +34,9 @@ public class PieceTestCase
                 Origin,
                 new AlgebraicPoint(to),
                 Piece,
-                TriggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
-                CapturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
-                SideEffects: sideEffects
+                triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
+                capturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
+                sideEffects: sideEffects
             )
         );
         return this;

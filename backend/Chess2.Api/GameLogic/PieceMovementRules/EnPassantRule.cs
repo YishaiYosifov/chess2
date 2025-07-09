@@ -37,6 +37,6 @@ public class EnPassantRule(Offset direction) : IPieceMovementRule
         )
             yield break;
 
-        yield return new Move(position, targetPos, movingPiece, CapturedSquares: [lastMove.To]);
+        yield return new Move(position, targetPos, movingPiece, capturedSquares: [lastMove.To]);
     }
 }

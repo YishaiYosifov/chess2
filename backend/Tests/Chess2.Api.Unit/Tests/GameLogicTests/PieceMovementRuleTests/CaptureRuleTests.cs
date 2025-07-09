@@ -37,7 +37,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
 
         var expected = new Move[]
         {
-            new(Origin, new("b2"), piece, CapturedSquares: [new("b2")]),
+            new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
             new(Origin, new("c3"), piece),
             new(Origin, new("d4"), piece),
         };
@@ -77,7 +77,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
 
         var expected = new Move[]
         {
-            new(Origin, new("b2"), piece, CapturedSquares: [new("b2")]),
+            new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
             new(Origin, new("d4"), piece),
         };
 

@@ -111,9 +111,9 @@ public class ChessBoardTests : BaseUnitTest
         var piece = PieceFactory.White();
         board.PlacePiece(new AlgebraicPoint("e2"), piece);
         var move = new Move(
-            From: new AlgebraicPoint("e2"),
-            To: new AlgebraicPoint("e4"),
-            Piece: piece
+            from: new AlgebraicPoint("e2"),
+            to: new AlgebraicPoint("e4"),
+            piece: piece
         );
 
         var expectedBoard = board.EnumerateSquares().ToDictionary();
@@ -135,10 +135,10 @@ public class ChessBoardTests : BaseUnitTest
         board.PlacePiece(new AlgebraicPoint("e5"), pieceToCapture);
 
         var move = new Move(
-            From: new AlgebraicPoint("e2"),
-            To: new AlgebraicPoint("e4"),
-            Piece: pieceToMove,
-            CapturedSquares: [new AlgebraicPoint("e5")]
+            from: new AlgebraicPoint("e2"),
+            to: new AlgebraicPoint("e4"),
+            piece: pieceToMove,
+            capturedSquares: [new AlgebraicPoint("e5")]
         );
 
         var expectedBoard = board.EnumerateSquares().ToDictionary();
@@ -164,22 +164,22 @@ public class ChessBoardTests : BaseUnitTest
         board.PlacePiece(new AlgebraicPoint("b1"), sideEffectPiece2);
 
         var sideEffect1 = new Move(
-            From: new AlgebraicPoint("a1"),
-            To: new AlgebraicPoint("a2"),
-            Piece: sideEffectPiece1
+            from: new AlgebraicPoint("a1"),
+            to: new AlgebraicPoint("a2"),
+            piece: sideEffectPiece1
         );
 
         var sideEffect2 = new Move(
-            From: new AlgebraicPoint("b1"),
-            To: new AlgebraicPoint(15, 15), // Invalid (out of bounds)
-            Piece: sideEffectPiece2
+            from: new AlgebraicPoint("b1"),
+            to: new AlgebraicPoint(15, 15), // Invalid (out of bounds)
+            piece: sideEffectPiece2
         );
 
         var mainMove = new Move(
-            From: new AlgebraicPoint("e2"),
-            To: new AlgebraicPoint("e3"),
-            Piece: mainPiece,
-            SideEffects: [sideEffect1, sideEffect2]
+            from: new AlgebraicPoint("e2"),
+            to: new AlgebraicPoint("e3"),
+            piece: mainPiece,
+            sideEffects: [sideEffect1, sideEffect2]
         );
 
         var expectedBoard = board.EnumerateSquares().ToDictionary();
@@ -207,23 +207,23 @@ public class ChessBoardTests : BaseUnitTest
         board.PlacePiece(new AlgebraicPoint("a2"), sideEffect2);
 
         var chainedSideEffect = new Move(
-            From: new AlgebraicPoint("a2"),
-            To: new AlgebraicPoint("a3"),
-            Piece: sideEffect2
+            from: new AlgebraicPoint("a2"),
+            to: new AlgebraicPoint("a3"),
+            piece: sideEffect2
         );
 
         var sideEffectMove = new Move(
-            From: new AlgebraicPoint("a1"),
-            To: new AlgebraicPoint("a2"),
-            Piece: sideEffect1,
-            SideEffects: [chainedSideEffect]
+            from: new AlgebraicPoint("a1"),
+            to: new AlgebraicPoint("a2"),
+            piece: sideEffect1,
+            sideEffects: [chainedSideEffect]
         );
 
         var mainMove = new Move(
-            From: new AlgebraicPoint("e2"),
-            To: new AlgebraicPoint("e3"),
-            Piece: mainPiece,
-            SideEffects: [sideEffectMove]
+            from: new AlgebraicPoint("e2"),
+            to: new AlgebraicPoint("e3"),
+            piece: mainPiece,
+            sideEffects: [sideEffectMove]
         );
 
         var expectedBoard = board.EnumerateSquares().ToDictionary();
@@ -245,9 +245,9 @@ public class ChessBoardTests : BaseUnitTest
         var board = new ChessBoard();
         var piece = PieceFactory.White(PieceType.Pawn);
         var move = new Move(
-            From: new AlgebraicPoint("e2"),
-            To: new AlgebraicPoint("e4"),
-            Piece: piece
+            from: new AlgebraicPoint("e2"),
+            to: new AlgebraicPoint("e4"),
+            piece: piece
         );
         board.PlacePiece(move.From, piece);
 
