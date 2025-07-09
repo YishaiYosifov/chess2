@@ -12,13 +12,13 @@ public class CastleRule : IPieceMovementRule
         if (movingPiece.TimesMoved > 0)
             yield break;
 
-        int rookXEnd = board.Width - 1;
-        var castleRight = GetCastlingMovesInDirection(rookXEnd, 1, board, movingPiece, position);
+        int rookXRight = board.Width - 1;
+        var castleRight = GetCastlingMovesInDirection(rookXRight, 1, board, movingPiece, position);
         foreach (var move in castleRight)
             yield return move;
 
-        int rookXStart = 0;
-        var castleLeft = GetCastlingMovesInDirection(rookXStart, -1, board, movingPiece, position);
+        int rookXLeft = 0;
+        var castleLeft = GetCastlingMovesInDirection(rookXLeft, -1, board, movingPiece, position);
         foreach (var move in castleLeft)
             yield return move;
     }
@@ -49,6 +49,9 @@ public class CastleRule : IPieceMovementRule
         for (int x = position.X + directionX; x != rookX; x += directionX)
         {
             AlgebraicPoint currentSquare = new(x, position.Y);
+            if (!board.IsWithinBoundaries(currentSquare))
+                break;
+
             var pieceOnSquare = board.PeekPieceAt(currentSquare);
             if (pieceOnSquare is null)
             {
