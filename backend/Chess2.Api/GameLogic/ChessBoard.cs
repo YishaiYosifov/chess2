@@ -71,12 +71,19 @@ public class ChessBoard
                 );
         }
 
+        // apply captures first
         foreach (var step in steps)
         {
-            if (step.CapturedSquares != null)
-                foreach (var capture in step.CapturedSquares)
-                    _board[capture.Y, capture.X] = null;
+            if (step.CapturedSquares is null)
+                continue;
 
+            foreach (var capture in step.CapturedSquares)
+                _board[capture.Y, capture.X] = null;
+        }
+
+        // then move the pieces
+        foreach (var step in steps)
+        {
             // we can safely assume that the piece exists here, as we checked it before
             var piece = _board[step.From.Y, step.From.X]!;
             _board[step.To.Y, step.To.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
