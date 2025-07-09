@@ -152,4 +152,45 @@ public class CastleRuleTests
 
         result.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Evaluate_returns_nothing_if_rook_not_at_expected_edge_file()
+    {
+        var board = new ChessBoard();
+
+        board.PlacePiece(_kingOrigin, _king);
+        board.PlacePiece(new("e1"), _rook); // not at one of the edges
+
+        var result = _rule.Evaluate(board, _kingOrigin, _king);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_returns_nothing_if_rook_is_opponent_color()
+    {
+        var board = new ChessBoard();
+
+        board.PlacePiece(_kingOrigin, _king);
+        board.PlacePiece(_rookKingsideOrigin, PieceFactory.Black(PieceType.Rook));
+
+        var result = _rule.Evaluate(board, _kingOrigin, _king);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_returns_nothing_if_rook_destination_is_blocked()
+    {
+        var board = new ChessBoard();
+        var blocker = PieceFactory.White(PieceType.Horsey);
+
+        board.PlacePiece(_kingOrigin, _king);
+        board.PlacePiece(_rookKingsideOrigin, _rook);
+        board.PlacePiece(_rookKingsideDestination, blocker);
+
+        var result = _rule.Evaluate(board, _kingOrigin, _king);
+
+        result.Should().BeEmpty();
+    }
 }
