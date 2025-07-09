@@ -96,11 +96,30 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .WithBlocker("i2", friend)
                 .WithBlocker("g2", enemy)
                 .GoesTo("h2") // up
-                // i2 blocked
+                              // i2 blocked
                 .GoesTo("i1") // right
                 .GoesTo("g1") // left
                 .GoesTo("g2", captures: ["g2"]) // up-left capture
                 .WithDescription("King on h1, friend at i2, enemy at g2")
+        );
+
+        var rook = PieceFactory.White(PieceType.Rook);
+        Move rookKingsideCastle = new(new("j1"), new("g1"), rook);
+        Move rookQueensideCastle = new(new("a1"), new("e1"), rook);
+        Add(
+            PieceTestCase
+                .From("f1", king)
+                .WithBlocker("j1", rook) // Kingside rook
+                .WithBlocker("a1", rook) // Queenside rook
+                .GoesTo("h1", trigger: ["i1"], sideEffects: [rookKingsideCastle]) // Kingside castle destination
+                .GoesTo("d1", trigger: ["c1", "b1"], sideEffects: [rookQueensideCastle]) // Queenside castle destination
+                                                                                         // regular moves
+                .GoesTo("e1")
+                .GoesTo("e2")
+                .GoesTo("f2")
+                .GoesTo("g2")
+                .GoesTo("g1")
+                .WithDescription("King on f1 with rooks in castling position")
         );
     }
 }
