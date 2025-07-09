@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -26,7 +27,8 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
-        IEnumerable<Move>? sideEffects = null
+        IEnumerable<Move>? sideEffects = null,
+        SpecialMoveType specialMoveType = SpecialMoveType.None
     )
     {
         ExpectedMoves.Add(
@@ -36,7 +38,8 @@ public class PieceTestCase
                 Piece,
                 triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
                 capturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
-                sideEffects: sideEffects
+                sideEffects: sideEffects,
+                specialMoveType: specialMoveType
             )
         );
         return this;
