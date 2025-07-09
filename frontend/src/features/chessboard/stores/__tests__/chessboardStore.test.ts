@@ -258,8 +258,8 @@ describe("ChessboardStore", () => {
             expect(state.highlightedLegalMoves).toEqual([
                 piece1Move1.to,
                 piece1Move2.to,
-                ...piece1Move1.through,
-                ...piece1Move2.through,
+                ...piece1Move1.triggers,
+                ...piece1Move2.triggers,
             ]);
         });
     });

@@ -36,7 +36,7 @@ export function createFakeMove(override?: Partial<Move>): Move {
     return {
         from: createUniquePoint(),
         to: createUniquePoint(),
-        through: [createUniquePoint(), createUniquePoint()],
+        triggers: [createUniquePoint(), createUniquePoint()],
         captures: [createUniquePoint()],
         sideEffects: [],
         ...override,
