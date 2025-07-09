@@ -145,11 +145,13 @@ export function createChessboardStore(
                 if (!moves || moves.length === 0) return;
 
                 const move = moves?.find(
-                    (m) => m.to.x == to.x && m.to.y == to.y,
+                    (m) =>
+                        (m.to.x == to.x && m.to.y == to.y) ||
+                        m.triggers.includes(to),
                 );
                 if (!move) return;
 
-                await onPieceMovement?.(from, to);
+                await onPieceMovement?.(from, move.to);
                 playMove(move);
 
                 set((state) => {
