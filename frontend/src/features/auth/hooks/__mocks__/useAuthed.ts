@@ -1,5 +1,5 @@
-import { createPrivateUser } from "@/lib/testUtils/fakers/userFaker";
+import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 
 export const useAuthedContext = () => ({
-    user: createPrivateUser(),
+    user: createFakePrivateUser(),
 });

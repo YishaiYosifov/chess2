@@ -1,7 +1,7 @@
 import { GameColor, GamePlayer } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 
-export function createPlayer(
+export function createFakePlayer(
     color: GameColor,
     override?: Partial<GamePlayer>,
 ): GamePlayer {

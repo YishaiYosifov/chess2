@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
-import { createUser } from "@/lib/testUtils/fakers/userFaker";
+import { createFakeFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
+import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 
 import GameRow from "../GameRow";
 import { FinishedGame, GameResult } from "@/types/tempModels";
@@ -12,8 +12,8 @@ describe("GameRow", () => {
     let userMock: User;
 
     beforeEach(() => {
-        finishedGameMock = createFinishedGame();
-        userMock = createUser();
+        finishedGameMock = createFakeFinishedGame();
+        userMock = createFakeUser();
     });
 
     it("should display the correct usernames", () => {

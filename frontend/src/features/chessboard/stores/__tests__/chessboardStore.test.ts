@@ -12,11 +12,11 @@ import {
     defaultChessboardState,
 } from "@/features/chessboard/stores/chessboardStore";
 import {
-    createLegalMoveMap,
-    createMove,
-    createPiece,
-    createPieceMap,
-    createPieceMapFromPieces,
+    createFakeLegalMoveMap,
+    createFakeMove,
+    createFakePiece,
+    createFakePieceMap,
+    createFakePieceMapFromPieces,
     createUniquePoint,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { pointToStr } from "@/lib/utils/pointUtils";
@@ -48,10 +48,10 @@ describe("ChessboardStore", () => {
 
     describe("playMove", () => {
         it("should return if no piece at move.from", () => {
-            const pieces = createPieceMap();
+            const pieces = createFakePieceMap();
             store.setState({ pieces });
 
-            const move: Move = createMove({ from: { x: 69, y: 420 } });
+            const move: Move = createFakeMove({ from: { x: 69, y: 420 } });
             store.getState().playMove(move);
 
             const newPieces = store.getState().pieces;
@@ -59,13 +59,13 @@ describe("ChessboardStore", () => {
         });
 
         it("should move piece, delete captured pieces and handle sideEffects", () => {
-            const piece = createPiece();
-            const capturedPiece = createPiece();
-            const sideEffectPiece = createPiece();
-            const sideEffectCapturedPiece = createPiece();
+            const piece = createFakePiece();
+            const capturedPiece = createFakePiece();
+            const sideEffectPiece = createFakePiece();
+            const sideEffectCapturedPiece = createFakePiece();
 
             store.setState({
-                pieces: createPieceMapFromPieces(
+                pieces: createFakePieceMapFromPieces(
                     piece,
                     capturedPiece,
                     sideEffectPiece,
@@ -73,12 +73,12 @@ describe("ChessboardStore", () => {
                 ),
             });
 
-            const sideEffectMove = createMove({
+            const sideEffectMove = createFakeMove({
                 from: sideEffectPiece.position,
                 captures: [sideEffectCapturedPiece.position],
             });
 
-            const move = createMove({
+            const move = createFakeMove({
                 from: piece.position,
                 captures: [capturedPiece.position],
                 sideEffects: [sideEffectMove],
@@ -99,7 +99,7 @@ describe("ChessboardStore", () => {
 
     describe("moveSelectedPiece", () => {
         it("should not move if no piece is selected", async () => {
-            const pieces = createPieceMap();
+            const pieces = createFakePieceMap();
             store.setState({ pieces });
 
             store.getState().moveSelectedPiece({ x: 6, y: 9 });
@@ -109,9 +109,9 @@ describe("ChessboardStore", () => {
         });
 
         it("should not move if no legal move is found", async () => {
-            const piece = createPiece();
-            const pieces: PieceMap = new Map([["1", createPiece()]]);
-            const legalMoves = createLegalMoveMap(piece);
+            const piece = createFakePiece();
+            const pieces: PieceMap = new Map([["1", createFakePiece()]]);
+            const legalMoves = createFakeLegalMoveMap(piece);
 
             store.setState({
                 selectedPieceId: "1",
@@ -126,8 +126,8 @@ describe("ChessboardStore", () => {
         });
 
         it("should move the piece if the move is found", async () => {
-            const piece = createPiece();
-            const move = createMove({ from: piece.position });
+            const piece = createFakePiece();
+            const move = createFakeMove({ from: piece.position });
             const legalMoves: LegalMoveMap = new Map([
                 [pointToStr(piece.position), [move]],
             ]);
@@ -163,8 +163,8 @@ describe("ChessboardStore", () => {
                 expectedPosition: Point,
                 mousePosition: Point,
             ) => {
-                const piece = createPiece();
-                const move = createMove({
+                const piece = createFakePiece();
+                const move = createFakeMove({
                     from: piece.position,
                     to: expectedPosition,
                 });
@@ -199,7 +199,7 @@ describe("ChessboardStore", () => {
 
     describe("position2Id", () => {
         it("should return piece ID if piece found at position", () => {
-            const piece = createPiece();
+            const piece = createFakePiece();
             store.setState({
                 pieces: new Map([["0", piece]]),
             });
@@ -210,7 +210,7 @@ describe("ChessboardStore", () => {
 
         it("should return undefined if no piece at position", () => {
             store.setState({
-                pieces: new Map([["0", createPiece()]]),
+                pieces: new Map([["0", createFakePiece()]]),
             });
             const id = store.getState().position2Id({ x: 69, y: 420 });
             expect(id).toBeUndefined();
@@ -231,23 +231,23 @@ describe("ChessboardStore", () => {
         });
 
         it("should set highlightedLegalMoves and selectedPieceId correctly", () => {
-            const piece1 = createPiece();
-            const piece1Move1 = createMove({
+            const piece1 = createFakePiece();
+            const piece1Move1 = createFakeMove({
                 from: piece1.position,
             });
-            const piece1Move2 = createMove({
+            const piece1Move2 = createFakeMove({
                 from: piece1.position,
             });
 
-            const piece2 = createPiece();
-            const piece2Move = createMove({ from: piece2.position });
+            const piece2 = createFakePiece();
+            const piece2Move = createFakeMove({ from: piece2.position });
 
             const legalMoves: LegalMoveMap = new Map([
                 [pointToStr(piece1.position), [piece1Move1, piece1Move2]],
                 [pointToStr(piece2.position), [piece2Move]],
             ]);
             store.setState({
-                pieces: createPieceMapFromPieces(piece1, piece2),
+                pieces: createFakePieceMapFromPieces(piece1, piece2),
                 legalMoves,
             });
 
@@ -303,9 +303,9 @@ describe("ChessboardStore", () => {
 
     describe("resetState", () => {
         it("should reset state and set new pieces, legalMoves, and sideToMove", () => {
-            const piece = createPiece();
+            const piece = createFakePiece();
             const pieces: PieceMap = new Map([["0", piece]]);
-            const legalMoves = createLegalMoveMap(piece);
+            const legalMoves = createFakeLegalMoveMap(piece);
             const sideToMove = GameColor.BLACK;
 
             store.getState().resetState(pieces, legalMoves, sideToMove);

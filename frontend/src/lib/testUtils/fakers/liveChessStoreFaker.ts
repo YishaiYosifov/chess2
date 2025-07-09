@@ -4,7 +4,7 @@ import createLiveChessStore, {
 } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
-import { createPlayer } from "./playerFaker";
+import { createFakePlayer } from "./playerFaker";
 import { StoreApi } from "zustand";
 
 export function createFakeLiveChessStore(
@@ -16,8 +16,8 @@ export function createFakeLiveChessStore(
 
         sideToMove: faker.helpers.enumValue(GameColor),
         playerColor: faker.helpers.enumValue(GameColor),
-        whitePlayer: createPlayer(GameColor.WHITE),
-        blackPlayer: createPlayer(GameColor.BLACK),
+        whitePlayer: createFakePlayer(GameColor.WHITE),
+        blackPlayer: createFakePlayer(GameColor.BLACK),
 
         clocks: {
             whiteClock: faker.number.int({ min: 10000, max: 100000 }),

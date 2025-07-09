@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 
 import { PrivateUser, User } from "@/lib/apiClient";
 
-export function createUser(override?: Partial<User>): User {
+export function createFakeUser(override?: Partial<User>): User {
     return {
         userId: faker.string.uuid(),
         userName: faker.internet.username(),
@@ -12,11 +12,11 @@ export function createUser(override?: Partial<User>): User {
     };
 }
 
-export function createPrivateUser(
+export function createFakePrivateUser(
     override?: Partial<PrivateUser>,
 ): PrivateUser {
     return {
-        ...createUser(),
+        ...createFakeUser(),
         email: faker.internet.username(),
         ...override,
     };
