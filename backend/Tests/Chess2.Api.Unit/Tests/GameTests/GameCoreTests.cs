@@ -15,6 +15,7 @@ public class GameCoreTests
     private readonly ILegalMoveCalculator _legalMoveCalculator =
         Substitute.For<ILegalMoveCalculator>();
     private readonly IMoveEncoder _encoder = Substitute.For<IMoveEncoder>();
+    private readonly ISanCalculator _sanCalculator = Substitute.For<ISanCalculator>();
 
     private readonly GameCore _gameCore;
 
@@ -24,7 +25,8 @@ public class GameCoreTests
             Substitute.For<ILogger<GameCore>>(),
             _fenCalculator,
             _legalMoveCalculator,
-            _encoder
+            _encoder,
+            _sanCalculator
         );
     }
 
@@ -93,6 +95,7 @@ public class GameCoreTests
         var to = new AlgebraicPoint("e4");
         var move = new Move(from, to, PieceFactory.White());
         var encoded = "e2e4";
+        var san = "e4";
 
         _legalMoveCalculator
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
@@ -100,17 +103,16 @@ public class GameCoreTests
         _encoder.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns([encoded]);
         _encoder.EncodeSingleMove(move).Returns(encoded);
         _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
+        _sanCalculator.CalculateSan(move, [move]).Returns(san);
 
         _gameCore.InitializeGame();
 
         var result = _gameCore.MakeMove(from, to, GameColor.White);
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(encoded);
+        result.Value.Should().Be((move, encoded, san));
 
-        _gameCore.EncodedMoveHistory.Should().ContainSingle().Which.Should().Be(encoded);
         _gameCore.Fen.Should().Be("updated-fen");
-        _gameCore.MoveNumber.Should().Be(1);
         _gameCore.SideToMove.Should().Be(GameColor.Black);
     }
 
