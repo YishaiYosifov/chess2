@@ -36,6 +36,7 @@ public class CastleRule : IPieceMovementRule
             !board.TryGetPieceAt(rookPosition, out var rook)
             || rook.TimesMoved > 0
             || rook.Color != movingPiece.Color
+            || rook.Type != PieceType.Rook
         )
             yield break;
 
