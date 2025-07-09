@@ -18,6 +18,7 @@ public class KingDefinition : IPieceDefinition
         new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 1))),
         new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 0))),
         new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: -1))),
+        new CastleRule(),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
