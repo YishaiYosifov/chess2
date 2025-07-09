@@ -239,7 +239,7 @@ export function createChessboardStore(
                 const toHighlightPoints = moves
                     ? [
                           ...moves.map((m) => m.to),
-                          ...moves.map((m) => m.through).flat(),
+                          ...moves.map((m) => m.triggers).flat(),
                       ]
                     : [];
 

@@ -42,8 +42,8 @@ export function decodeSingleMove(path: string): Move {
 
 function decodePath(path: string): {
     from: Point;
-    through: Point[];
     to: Point;
+    triggers: Point[];
 } {
     const algebraicMatch = path.match(/[a-zA-Z]+\d+/g);
     if (!algebraicMatch)
@@ -55,8 +55,8 @@ function decodePath(path: string): {
 
     return {
         from: points[0],
-        through: points.slice(1, -1),
         to: points[points.length - 1],
+        triggers: points.slice(1, -1),
     };
 }
 

@@ -3,7 +3,7 @@ import { decodeMovesIntoMap } from "../moveDecoder";
 
 describe("decodeLegalMoves", () => {
     const emptyMove = {
-        through: [],
+        triggers: [],
         captures: [],
         sideEffects: [],
     };
@@ -42,7 +42,7 @@ describe("decodeLegalMoves", () => {
         });
     });
 
-    it("should decode a move with through points", () => {
+    it("should decode a move with trigger points", () => {
         const encoded = ["e2d3c4"];
         const moves = decodeMovesIntoMap(encoded);
 
@@ -52,8 +52,8 @@ describe("decodeLegalMoves", () => {
         expect(move).toEqual({
             ...emptyMove,
             from: { x: 4, y: 1 }, // e2
-            through: [{ x: 3, y: 2 }], // d3
             to: { x: 2, y: 3 }, // c4
+            triggers: [{ x: 3, y: 2 }], // d3
         });
     });
 
@@ -65,14 +65,14 @@ describe("decodeLegalMoves", () => {
         expect(move).toEqual({
             ...emptyMove,
             from: { x: 4, y: 1 }, // e2
-            through: [{ x: 3, y: 2 }], // d3
             to: { x: 2, y: 3 }, // c4
+            triggers: [{ x: 3, y: 2 }], // d3
             sideEffects: [
                 {
                     ...emptyMove,
                     from: { x: 3, y: 2 }, // d3
-                    through: [{ x: 2, y: 3 }], // c4
                     to: { x: 3, y: 4 }, // d5
+                    triggers: [{ x: 2, y: 3 }], // c4
                 },
             ],
         });
@@ -94,7 +94,7 @@ describe("decodeLegalMoves", () => {
                 {
                     ...emptyMove,
                     from: { x: 3, y: 2 }, // d3
-                    through: [{ x: 2, y: 3 }], // c4
+                    triggers: [{ x: 2, y: 3 }], // c4
                     to: { x: 3, y: 4 }, // d5
                     captures: [
                         { x: 2, y: 3 },
