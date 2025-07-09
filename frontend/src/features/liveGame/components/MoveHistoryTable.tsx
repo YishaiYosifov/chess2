@@ -6,7 +6,7 @@ const MoveHistoryTable = () => {
     const moveHistory = useLiveChessStore((x) => x.moveHistory);
     const moveRows: React.ReactElement[] = [];
 
-    let rowIndex = 0;
+    let rowIndex = 1;
     for (let i = 0; i < moveHistory.length; i += 2) {
         const currentMove = moveHistory[i];
         const nextMove = moveHistory[i + 1];
@@ -42,7 +42,7 @@ const MoveRow = ({
     moveBlack?: string;
     index: number;
 }) => {
-    const color = index % 2 === 0 ? "" : "bg-white/10";
+    const color = index % 2 === 0 ? "bg-white/10" : "";
     return (
         <tr className={color}>
             <td className="w-10 bg-zinc-900 p-3">{index}.</td>

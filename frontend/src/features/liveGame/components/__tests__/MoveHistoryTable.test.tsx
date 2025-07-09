@@ -36,7 +36,7 @@ describe("MoveHistoryTable", () => {
             </LiveChessStoreContext.Provider>,
         );
 
-        expect(screen.getByText("0.")).toBeInTheDocument();
+        expect(screen.getByText("1.")).toBeInTheDocument();
         expect(screen.getByText("e4")).toBeInTheDocument();
     });
 
@@ -56,8 +56,8 @@ describe("MoveHistoryTable", () => {
             </LiveChessStoreContext.Provider>,
         );
 
-        expect(screen.getByText("0.")).toBeInTheDocument();
         expect(screen.getByText("1.")).toBeInTheDocument();
+        expect(screen.getByText("2.")).toBeInTheDocument();
         expect(screen.getByText("e4")).toBeInTheDocument();
         expect(screen.getByText("e5")).toBeInTheDocument();
         expect(screen.getByText("Nf3")).toBeInTheDocument();
