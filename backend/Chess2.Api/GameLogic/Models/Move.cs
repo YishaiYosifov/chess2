@@ -4,7 +4,7 @@ public record Move(
     AlgebraicPoint From,
     AlgebraicPoint To,
     Piece Piece,
-    IEnumerable<AlgebraicPoint>? Through = null,
+    IEnumerable<AlgebraicPoint>? TriggerSquares = null,
     IEnumerable<AlgebraicPoint>? CapturedSquares = null,
     IEnumerable<Move>? SideEffects = null
 )

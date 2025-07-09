@@ -44,11 +44,11 @@ public class MoveEncoderTests : BaseUnitTest
     }
 
     [Fact]
-    public void EncodeMoves_single_move_with_through_points()
+    public void EncodeMoves_single_move_with_trigger_squares()
     {
         var move = new Move(
             From: new AlgebraicPoint("e1"),
-            Through: [new AlgebraicPoint("f1")],
+            TriggerSquares: [new AlgebraicPoint("f1")],
             To: new AlgebraicPoint("g1"),
             Piece: _dummyPiece
         );
@@ -68,7 +68,7 @@ public class MoveEncoderTests : BaseUnitTest
         );
         var move = new Move(
             From: new AlgebraicPoint("e1"),
-            Through: [new AlgebraicPoint("f1"), new AlgebraicPoint("g1")],
+            TriggerSquares: [new AlgebraicPoint("f1"), new AlgebraicPoint("g1")],
             To: new AlgebraicPoint("h1"),
             Piece: _dummyPiece,
             SideEffects: [sideEffect]
