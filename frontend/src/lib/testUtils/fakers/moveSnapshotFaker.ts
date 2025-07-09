@@ -1,7 +1,7 @@
 import { MoveSnapshot } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 
-export function createMoveSnapshot(
+export function createFakeMoveSnapshot(
     overrides?: Partial<MoveSnapshot>,
 ): MoveSnapshot {
     return {

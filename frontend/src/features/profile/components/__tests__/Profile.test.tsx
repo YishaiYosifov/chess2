@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 
-import { createUser } from "@/lib/testUtils/fakers/userFaker";
+import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import { User } from "@/lib/apiClient";
 import Profile from "../Profile";
 
@@ -9,7 +9,7 @@ vi.mock("next/image");
 describe("Profile", () => {
     let userMock: User;
 
-    beforeEach(() => (userMock = createUser()));
+    beforeEach(() => (userMock = createFakeUser()));
 
     it("should render the profile correcetly", () => {
         render(<Profile profile={userMock} />);

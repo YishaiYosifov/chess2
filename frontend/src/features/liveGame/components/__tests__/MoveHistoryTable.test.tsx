@@ -5,7 +5,7 @@ import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreF
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import MoveHistoryTable from "../MoveHistoryTable";
-import { createMoveSnapshot } from "@/lib/testUtils/fakers/moveSnapshotFaker";
+import { createFakeMoveSnapshot } from "@/lib/testUtils/fakers/moveSnapshotFaker";
 
 describe("MoveHistoryTable", () => {
     let store: StoreApi<LiveChessStore>;
@@ -27,7 +27,7 @@ describe("MoveHistoryTable", () => {
 
     it("should render a single row when there is one move", () => {
         store.setState({
-            moveHistory: [createMoveSnapshot({ san: "e4" })],
+            moveHistory: [createFakeMoveSnapshot({ san: "e4" })],
         });
 
         render(
@@ -43,10 +43,10 @@ describe("MoveHistoryTable", () => {
     it("should render multiple rows for multiple moves", () => {
         store.setState({
             moveHistory: [
-                createMoveSnapshot({ san: "e4" }),
-                createMoveSnapshot({ san: "e5" }),
-                createMoveSnapshot({ san: "Nf3" }),
-                createMoveSnapshot({ san: "Nc6" }),
+                createFakeMoveSnapshot({ san: "e4" }),
+                createFakeMoveSnapshot({ san: "e5" }),
+                createFakeMoveSnapshot({ san: "Nf3" }),
+                createFakeMoveSnapshot({ san: "Nc6" }),
             ],
         });
 
@@ -67,10 +67,10 @@ describe("MoveHistoryTable", () => {
     it("should apply alternating background color class for odd rows", () => {
         store.setState({
             moveHistory: [
-                createMoveSnapshot({ san: "e4" }),
-                createMoveSnapshot({ san: "e5" }),
-                createMoveSnapshot({ san: "Nf3" }),
-                createMoveSnapshot({ san: "Nf6" }),
+                createFakeMoveSnapshot({ san: "e4" }),
+                createFakeMoveSnapshot({ san: "e5" }),
+                createFakeMoveSnapshot({ san: "Nf3" }),
+                createFakeMoveSnapshot({ san: "Nf6" }),
             ],
         });
 

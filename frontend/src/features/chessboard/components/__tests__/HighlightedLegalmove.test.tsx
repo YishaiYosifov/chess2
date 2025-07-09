@@ -6,8 +6,8 @@ import { GameColor } from "@/lib/apiClient";
 import HighlightedLegalMove from "../HighlightedLegalMove";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import {
-    createMove,
-    createPiece,
+    createFakeMove,
+    createFakePiece,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, PieceID, PieceMap } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
@@ -48,8 +48,8 @@ describe("HighlightedLegalMove", () => {
     });
 
     it("calls moveSelectedPiece with correct position on click", async () => {
-        const piece = createPiece();
-        const move = createMove({ from: piece.position });
+        const piece = createFakePiece();
+        const move = createFakeMove({ from: piece.position });
         const legalMoves: LegalMoveMap = new Map([
             [pointToStr(piece.position), [move]],
         ]);
