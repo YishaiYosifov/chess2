@@ -40,9 +40,9 @@ export type LegalMoveMap = Map<StrPoint, Move[]>;
 
 export interface Move {
     from: Point;
-    through: Point[];
     to: Point;
 
+    triggers: Point[];
     captures: Point[];
     sideEffects: Move[];
 }
