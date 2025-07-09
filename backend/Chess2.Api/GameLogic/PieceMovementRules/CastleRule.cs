@@ -56,6 +56,8 @@ public class CastleRule : IPieceMovementRule
             if (pieceOnSquare is null)
             {
                 bool isAdjacentToKing = Math.Abs(currentSquare.X - position.X) == 1;
+                // we don't want to add the target position if it is the current square
+                // because target position is already a trigger
                 if (currentSquare != targetPosition && !isAdjacentToKing)
                     trigger.Add(currentSquare);
                 continue;
