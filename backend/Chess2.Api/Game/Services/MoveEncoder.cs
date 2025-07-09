@@ -15,7 +15,7 @@ public class MoveEncoder : IMoveEncoder
     /// Encodes a list of legal moves into a compact legal moves string,
     /// where each move include:
     /// - The starting square (<see cref="Move.From"/>)
-    /// - Any intermediate squares the piece moves through (<see cref="Move.Through"/>),
+    /// - Any intermediate squares that trigger this move (<see cref="Move.TriggerSquares"/>),
     /// - The destination square (<see cref="Move.To"/>)
     /// - Any side effect moves (<see cref="Move.SideEffects"/>), appended after a '-' separator,
     ///   recursively encoded with the same format
@@ -38,8 +38,8 @@ public class MoveEncoder : IMoveEncoder
     private static void BuildPath(Move move, StringBuilder path)
     {
         path.Append(move.From.AsAlgebraic());
-        foreach (var throughPoint in move.Through ?? [])
-            path.Append(throughPoint.AsAlgebraic());
+        foreach (var trigger in move.TriggerSquares ?? [])
+            path.Append(trigger.AsAlgebraic());
         path.Append(move.To.AsAlgebraic());
 
         foreach (var capture in move.CapturedSquares ?? [])

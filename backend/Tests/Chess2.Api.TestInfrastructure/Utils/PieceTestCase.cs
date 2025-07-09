@@ -24,7 +24,7 @@ public class PieceTestCase
 
     public PieceTestCase GoesTo(
         string to,
-        IEnumerable<string>? through = null,
+        IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
         IEnumerable<Move>? sideEffects = null
     )
@@ -34,7 +34,7 @@ public class PieceTestCase
                 Origin,
                 new AlgebraicPoint(to),
                 Piece,
-                Through: through?.Select(x => new AlgebraicPoint(x)),
+                TriggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
                 CapturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
                 SideEffects: sideEffects
             )
