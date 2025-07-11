@@ -25,6 +25,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
     private TimeControlSettings _timeControl;
+    private bool _isRated;
 
     public ITimerScheduler Timers { get; set; } = null!;
 
@@ -73,6 +74,7 @@ public class GameActor : ReceiveActor, IWithTimers
         _clock.Reset(startGame.TimeControl);
 
         _timeControl = startGame.TimeControl;
+        _isRated = startGame.IsRated;
 
         Timers.StartPeriodicTimer(
             ClockTimerKey,
@@ -228,7 +230,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
     {
         // TODO: remember to uncomment when done testing
-        // Context.Parent.Tell(new Passivate(PoisonPill.Instance));
+        Context.Parent.Tell(new Passivate(PoisonPill.Instance));
 
         var state = GetGameStateForPlayer(endingPlayer);
 
@@ -252,6 +254,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         var gameState = new GameState(
             TimeControl: _timeControl,
+            IsRated: _isRated,
             WhitePlayer: _players.WhitePlayer,
             BlackPlayer: _players.BlackPlayer,
             Clocks: _clock.Value,

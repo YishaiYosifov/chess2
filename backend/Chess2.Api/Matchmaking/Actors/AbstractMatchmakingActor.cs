@@ -17,6 +17,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 {
     protected ILoggingAdapter Logger { get; } = Context.GetLogger();
     protected TPool Pool { get; }
+    protected abstract bool IsRated { get; }
 
     private readonly TimeControlSettings _timeControl;
     private readonly AppSettings _settings;
@@ -108,7 +109,12 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             {
                 await using var scope = _sp.CreateAsyncScope();
                 var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
-                var gameToken = await gameService.StartGameAsync(seeker1, seeker2, _timeControl);
+                var gameToken = await gameService.StartGameAsync(
+                    seeker1,
+                    seeker2,
+                    _timeControl,
+                    IsRated
+                );
 
                 seeker1Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
                 seeker2Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
