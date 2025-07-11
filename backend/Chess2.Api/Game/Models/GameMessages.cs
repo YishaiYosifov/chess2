@@ -13,7 +13,8 @@ public class GameCommands
         string GameToken,
         GamePlayer WhitePlayer,
         GamePlayer BlackPlayer,
-        TimeControlSettings TimeControl
+        TimeControlSettings TimeControl,
+        bool IsRated
     ) : IGameMessage;
 
     public record TickClock;

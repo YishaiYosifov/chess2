@@ -76,7 +76,7 @@ public class GameFinalizer(
         CancellationToken token = default
     )
     {
-        if (gameResult is GameResult.Aborted)
+        if (!gameState.IsRated || gameResult is GameResult.Aborted)
             return new();
 
         var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);

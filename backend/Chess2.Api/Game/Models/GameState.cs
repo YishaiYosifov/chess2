@@ -4,6 +4,7 @@ namespace Chess2.Api.Game.Models;
 
 public record GameState(
     TimeControlSettings TimeControl,
+    bool IsRated,
     GamePlayer WhitePlayer,
     GamePlayer BlackPlayer,
     ClockDto Clocks,

@@ -15,6 +15,7 @@ public class GameArchiveFaker : Faker<GameArchive>
         RuleFor(x => x.ResultDescription, "some description");
         RuleFor(x => x.FinalFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(x => x.Moves, new MoveArchiveFaker().Generate(moveCount));
+        RuleFor(x => x.IsRated, f => f.Random.Bool());
         RuleFor(x => x.WhitePlayerId, whitePlayer.Id);
         RuleFor(x => x.WhitePlayer, whitePlayer);
         RuleFor(x => x.BlackPlayerId, blackPlayer.Id);

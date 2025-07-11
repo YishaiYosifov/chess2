@@ -32,7 +32,12 @@ public interface IGameService
         AlgebraicPoint to,
         CancellationToken token = default
     );
-    Task<string> StartGameAsync(string userId1, string userId2, TimeControlSettings timeControl);
+    Task<string> StartGameAsync(
+        string userId1,
+        string userId2,
+        TimeControlSettings timeControl,
+        bool isRated
+    );
 }
 
 public class GameService(
@@ -63,14 +68,15 @@ public class GameService(
     public async Task<string> StartGameAsync(
         string userId1,
         string userId2,
-        TimeControlSettings timeControl
+        TimeControlSettings timeControl,
+        bool isRated
     )
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
         await _gameActor.ActorRef.Ask<GameEvents.GameStartedEvent>(
-            new GameCommands.StartGame(token, whitePlayer, blackPlayer, timeControl)
+            new GameCommands.StartGame(token, whitePlayer, blackPlayer, timeControl, isRated)
         );
 
         return token;

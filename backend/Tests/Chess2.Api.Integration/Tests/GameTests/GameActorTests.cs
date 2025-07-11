@@ -127,7 +127,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     [Fact]
     public async Task GetGameState_valid_user_should_return_GameStateEvent()
     {
-        await StartGameAsync();
+        await StartGameAsync(isRated: true);
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var result = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
@@ -147,7 +147,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
             Fen: _gameCore.Fen,
             MoveHistory: [],
             LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
-            TimeControl: _timeControl
+            TimeControl: _timeControl,
+            IsRated: true
         );
         result.State.Should().BeEquivalentTo(expectedGameState);
     }
@@ -379,7 +380,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private async Task StartGameAsync(
         GamePlayer? whitePlayer = null,
         GamePlayer? blackPlayer = null,
-        TimeControlSettings? timeControl = null
+        TimeControlSettings? timeControl = null,
+        bool isRated = true
     )
     {
         _gameActor.Tell(
@@ -387,7 +389,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
                 TestGameToken,
                 WhitePlayer: whitePlayer ?? _whitePlayer,
                 BlackPlayer: blackPlayer ?? _blackPlayer,
-                TimeControl: timeControl ?? _timeControl
+                TimeControl: timeControl ?? _timeControl,
+                isRated
             ),
             _probe.Ref
         );

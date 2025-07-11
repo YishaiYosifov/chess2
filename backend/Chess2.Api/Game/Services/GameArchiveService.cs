@@ -50,6 +50,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             BlackPlayer = blackArchive,
             FinalFen = state.Fen,
             Moves = moves,
+            IsRated = state.IsRated,
         };
 
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, token);
