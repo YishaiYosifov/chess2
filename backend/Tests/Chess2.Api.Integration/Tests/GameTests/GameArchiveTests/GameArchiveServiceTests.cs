@@ -9,7 +9,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests.GameArchiveTests;
+namespace Chess2.Api.Integration.Tests.GameTests.GameArchiveTests;
 
 public class GameArchiveServiceTests : BaseIntegrationTest
 {
@@ -60,6 +60,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                 ratingDelta.BlackDelta
             ),
             Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
+            IsRated = gameState.IsRated,
         };
 
         // Verify archive properties match expected values
@@ -89,7 +90,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             SideToMove: GameColor.Black,
             Clocks: new(20000, 30000, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
             LegalMoves: [],
-            TimeControl: new(600, 5)
+            TimeControl: new(600, 5),
+            IsRated: true
         );
 
     private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
