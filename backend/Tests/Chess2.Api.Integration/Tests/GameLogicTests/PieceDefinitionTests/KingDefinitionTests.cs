@@ -40,28 +40,28 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("d4", king)
-                .WithBlocker("d5", friend)
-                .WithBlocker("e5", friend)
-                .WithBlocker("e4", friend)
-                .WithBlocker("e3", friend)
-                .WithBlocker("d3", friend)
-                .WithBlocker("c3", friend)
-                .WithBlocker("c4", friend)
-                .WithBlocker("c5", friend)
+                .WithPieceAt("d5", friend)
+                .WithPieceAt("e5", friend)
+                .WithPieceAt("e4", friend)
+                .WithPieceAt("e3", friend)
+                .WithPieceAt("d3", friend)
+                .WithPieceAt("c3", friend)
+                .WithPieceAt("c4", friend)
+                .WithPieceAt("c5", friend)
                 .WithDescription("Surrounded by friendly pieces - no moves")
         );
 
         Add(
             PieceTestCase
                 .From("d4", king)
-                .WithBlocker("d5", enemy)
-                .WithBlocker("e5", enemy)
-                .WithBlocker("e4", enemy)
-                .WithBlocker("e3", enemy)
-                .WithBlocker("d3", enemy)
-                .WithBlocker("c3", enemy)
-                .WithBlocker("c4", enemy)
-                .WithBlocker("c5", enemy)
+                .WithPieceAt("d5", enemy)
+                .WithPieceAt("e5", enemy)
+                .WithPieceAt("e4", enemy)
+                .WithPieceAt("e3", enemy)
+                .WithPieceAt("d3", enemy)
+                .WithPieceAt("c3", enemy)
+                .WithPieceAt("c4", enemy)
+                .WithPieceAt("c5", enemy)
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("e5", captures: ["e5"])
                 .GoesTo("e4", captures: ["e4"])
@@ -94,10 +94,10 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("h1", king)
-                .WithBlocker("i2", friend)
-                .WithBlocker("g2", enemy)
+                .WithPieceAt("i2", friend)
+                .WithPieceAt("g2", enemy)
                 .GoesTo("h2") // up
-                              // i2 blocked
+                // i2 blocked
                 .GoesTo("i1") // right
                 .GoesTo("g1") // left
                 .GoesTo("g2", captures: ["g2"]) // up-left capture
@@ -110,8 +110,8 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("f1", king)
-                .WithBlocker("j1", rook) // Kingside rook
-                .WithBlocker("a1", rook) // Queenside rook
+                .WithPieceAt("j1", rook) // Kingside rook
+                .WithPieceAt("a1", rook) // Queenside rook
                 .GoesTo(
                     "h1",
                     trigger: ["i1"],

@@ -110,8 +110,8 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("a5", queen)
-                .WithBlocker("a7", friend) // friendly above, blocks beyond a6 vertical up
-                .WithBlocker("c5", enemy) // enemy right side, can capture at c5 but no further right
+                .WithPieceAt("a7", friend) // friendly above, blocks beyond a6 vertical up
+                .WithPieceAt("c5", enemy) // enemy right side, can capture at c5 but no further right
                 // vertical up
                 .GoesTo("a6")
                 // horizontal right
@@ -139,28 +139,28 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", queen)
-                .WithBlocker("e6", friend)
-                .WithBlocker("e4", friend)
-                .WithBlocker("d5", friend)
-                .WithBlocker("f5", friend)
-                .WithBlocker("d6", friend)
-                .WithBlocker("f6", friend)
-                .WithBlocker("d4", friend)
-                .WithBlocker("f4", friend)
+                .WithPieceAt("e6", friend)
+                .WithPieceAt("e4", friend)
+                .WithPieceAt("d5", friend)
+                .WithPieceAt("f5", friend)
+                .WithPieceAt("d6", friend)
+                .WithPieceAt("f6", friend)
+                .WithPieceAt("d4", friend)
+                .WithPieceAt("f4", friend)
                 .WithDescription("Queen surrounded by friendly pieces - no moves")
         );
 
         Add(
             PieceTestCase
                 .From("e5", queen)
-                .WithBlocker("e6", enemy)
-                .WithBlocker("e4", enemy)
-                .WithBlocker("d5", enemy)
-                .WithBlocker("f5", enemy)
-                .WithBlocker("d6", enemy)
-                .WithBlocker("f6", enemy)
-                .WithBlocker("d4", enemy)
-                .WithBlocker("f4", enemy)
+                .WithPieceAt("e6", enemy)
+                .WithPieceAt("e4", enemy)
+                .WithPieceAt("d5", enemy)
+                .WithPieceAt("f5", enemy)
+                .WithPieceAt("d6", enemy)
+                .WithPieceAt("f6", enemy)
+                .WithPieceAt("d4", enemy)
+                .WithPieceAt("f4", enemy)
                 // vertical up
                 .GoesTo("e6", captures: ["e6"])
                 // vertical down

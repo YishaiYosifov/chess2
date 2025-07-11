@@ -107,9 +107,9 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithBlocker("e7", friend) // blocks beyond e6
-                .WithBlocker("h5", friend) // blocks beyond g5
-                .WithBlocker("f7", friend) // blocks horsey part
+                .WithPieceAt("e7", friend) // blocks beyond e6
+                .WithPieceAt("h5", friend) // blocks beyond g5
+                .WithPieceAt("f7", friend) // blocks horsey part
                 // vertical up
                 .GoesTo("e6")
                 // vertical down
@@ -131,37 +131,37 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithBlocker("e6", friend)
-                .WithBlocker("e4", friend)
-                .WithBlocker("d5", friend)
-                .WithBlocker("f5", friend)
-                .WithBlocker("f5", friend)
-                .WithBlocker("d7", friend)
-                .WithBlocker("f7", friend)
-                .WithBlocker("c6", friend)
-                .WithBlocker("g6", friend)
-                .WithBlocker("c4", friend)
-                .WithBlocker("g4", friend)
-                .WithBlocker("d3", friend)
-                .WithBlocker("f3", friend)
+                .WithPieceAt("e6", friend)
+                .WithPieceAt("e4", friend)
+                .WithPieceAt("d5", friend)
+                .WithPieceAt("f5", friend)
+                .WithPieceAt("f5", friend)
+                .WithPieceAt("d7", friend)
+                .WithPieceAt("f7", friend)
+                .WithPieceAt("c6", friend)
+                .WithPieceAt("g6", friend)
+                .WithPieceAt("c4", friend)
+                .WithPieceAt("g4", friend)
+                .WithPieceAt("d3", friend)
+                .WithPieceAt("f3", friend)
                 .WithDescription("Surrounded by friendly pieces in all directions")
         );
 
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithBlocker("e6", enemy)
-                .WithBlocker("e4", enemy)
-                .WithBlocker("d5", enemy)
-                .WithBlocker("f5", enemy)
-                .WithBlocker("d7", enemy)
-                .WithBlocker("f7", enemy)
-                .WithBlocker("c6", enemy)
-                .WithBlocker("g6", enemy)
-                .WithBlocker("c4", enemy)
-                .WithBlocker("g4", enemy)
-                .WithBlocker("d3", enemy)
-                .WithBlocker("f3", enemy)
+                .WithPieceAt("e6", enemy)
+                .WithPieceAt("e4", enemy)
+                .WithPieceAt("d5", enemy)
+                .WithPieceAt("f5", enemy)
+                .WithPieceAt("d7", enemy)
+                .WithPieceAt("f7", enemy)
+                .WithPieceAt("c6", enemy)
+                .WithPieceAt("g6", enemy)
+                .WithPieceAt("c4", enemy)
+                .WithPieceAt("g4", enemy)
+                .WithPieceAt("d3", enemy)
+                .WithPieceAt("f3", enemy)
                 // only horse movement can capture
                 .GoesTo("d7", captures: ["d7"])
                 .GoesTo("f7", captures: ["f7"])

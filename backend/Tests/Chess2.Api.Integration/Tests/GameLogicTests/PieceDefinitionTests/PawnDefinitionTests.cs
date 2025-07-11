@@ -41,8 +41,8 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithBlocker("d5", blackPiece)
-                .WithBlocker("f5", blackPiece)
+                .WithPieceAt("d5", blackPiece)
+                .WithPieceAt("f5", blackPiece)
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("f5", captures: ["f5"])
@@ -52,8 +52,8 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e6", movedBlackPawn)
-                .WithBlocker("d5", whitePiece)
-                .WithBlocker("f5", whitePiece)
+                .WithPieceAt("d5", whitePiece)
+                .WithPieceAt("f5", whitePiece)
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("f5", captures: ["f5"])
@@ -63,15 +63,15 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithBlocker("e5", movedBlackPawn)
+                .WithPieceAt("e5", movedBlackPawn)
                 .WithDescription("white pawn blocked directly forward by enemy")
         );
 
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithBlocker("d5", whitePiece)
-                .WithBlocker("f5", whitePiece)
+                .WithPieceAt("d5", whitePiece)
+                .WithPieceAt("f5", whitePiece)
                 .GoesTo("e5")
                 .WithDescription("white pawn cannot capture friendly pieces diagonally")
         );
@@ -91,7 +91,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithBlocker("f5", blackPiece)
+                .WithPieceAt("f5", blackPiece)
                 .GoesTo("e5")
                 .GoesTo("f5", captures: ["f5"])
                 .WithDescription("white pawn can only capture diagonally to the right")
@@ -100,7 +100,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e6", movedBlackPawn)
-                .WithBlocker("d5", whitePiece)
+                .WithPieceAt("d5", whitePiece)
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .WithDescription("black pawn can only capture diagonally to the left")
@@ -127,7 +127,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e2", PieceFactory.White(PieceType.Pawn, timesMoved: 0))
-                .WithBlocker("e4", whitePiece)
+                .WithPieceAt("e4", whitePiece)
                 .GoesTo("e3")
                 .WithDescription("white pawn is blocked on the first move")
         );
@@ -135,7 +135,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e9", PieceFactory.Black(PieceType.Pawn, timesMoved: 0))
-                .WithBlocker("e7", whitePiece)
+                .WithPieceAt("e7", whitePiece)
                 .GoesTo("e8")
                 .WithDescription("black pawn is blocked on the first move")
         );
@@ -143,9 +143,9 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e2", PieceFactory.White(PieceType.Pawn, timesMoved: 0))
-                .WithBlocker("e3", blackPiece)
-                .WithBlocker("d3", blackPiece)
-                .WithBlocker("f3", blackPiece)
+                .WithPieceAt("e3", blackPiece)
+                .WithPieceAt("d3", blackPiece)
+                .WithPieceAt("f3", blackPiece)
                 .GoesTo("d3", captures: ["d3"])
                 .GoesTo("f3", captures: ["f3"])
                 .WithDescription(
@@ -156,9 +156,9 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e9", PieceFactory.Black(PieceType.Pawn, timesMoved: 0))
-                .WithBlocker("e8", whitePiece)
-                .WithBlocker("d8", whitePiece)
-                .WithBlocker("f8", whitePiece)
+                .WithPieceAt("e8", whitePiece)
+                .WithPieceAt("d8", whitePiece)
+                .WithPieceAt("f8", whitePiece)
                 .GoesTo("d8", captures: ["d8"])
                 .GoesTo("f8", captures: ["f8"])
                 .WithDescription(
@@ -169,7 +169,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e7", movedWhitePawn)
-                .WithBlocker("d9", movedBlackPawn)
+                .WithPieceAt("d9", movedBlackPawn)
                 .WithPriorMove(new Move(new("d9"), new("d7"), movedBlackPawn))
                 .GoesTo("d8", captures: ["d7"])
                 .GoesTo("e8")
@@ -179,7 +179,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedBlackPawn)
-                .WithBlocker("f2", movedWhitePawn)
+                .WithPieceAt("f2", movedWhitePawn)
                 .WithPriorMove(new Move(new("f2"), new("f4"), movedWhitePawn))
                 .GoesTo("f3", captures: ["f4"])
                 .GoesTo("e3")

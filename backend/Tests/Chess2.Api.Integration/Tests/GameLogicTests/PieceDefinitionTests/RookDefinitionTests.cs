@@ -106,8 +106,8 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithBlocker("e7", friend) // blocks beyond e6
-                .WithBlocker("h5", friend) // blocks beyond g5
+                .WithPieceAt("e7", friend) // blocks beyond e6
+                .WithPieceAt("h5", friend) // blocks beyond g5
                 // vertical up
                 .GoesTo("e6")
                 // vertical down
@@ -129,8 +129,8 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithBlocker("e3", enemy) // can capture
-                .WithBlocker("b5", enemy) // can capture
+                .WithPieceAt("e3", enemy) // can capture
+                .WithPieceAt("b5", enemy) // can capture
                 // vertical up
                 .GoesTo("e6")
                 .GoesTo("e7")
@@ -156,20 +156,20 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithBlocker("e6", friend)
-                .WithBlocker("e4", friend)
-                .WithBlocker("d5", friend)
-                .WithBlocker("f5", friend)
+                .WithPieceAt("e6", friend)
+                .WithPieceAt("e4", friend)
+                .WithPieceAt("d5", friend)
+                .WithPieceAt("f5", friend)
                 .WithDescription("Surrounded by friendly pieces in all directions")
         );
 
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithBlocker("e6", enemy)
-                .WithBlocker("e4", enemy)
-                .WithBlocker("d5", enemy)
-                .WithBlocker("f5", enemy)
+                .WithPieceAt("e6", enemy)
+                .WithPieceAt("e4", enemy)
+                .WithPieceAt("d5", enemy)
+                .WithPieceAt("f5", enemy)
                 .GoesTo("e6", captures: ["e6"])
                 .GoesTo("e4", captures: ["e4"])
                 .GoesTo("d5", captures: ["d5"])

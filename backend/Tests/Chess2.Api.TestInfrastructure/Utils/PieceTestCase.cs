@@ -45,7 +45,7 @@ public class PieceTestCase
         return this;
     }
 
-    public PieceTestCase WithBlocker(string position, Piece piece)
+    public PieceTestCase WithPieceAt(string position, Piece piece)
     {
         BlockedBy.Add((new AlgebraicPoint(position), piece));
         return this;
