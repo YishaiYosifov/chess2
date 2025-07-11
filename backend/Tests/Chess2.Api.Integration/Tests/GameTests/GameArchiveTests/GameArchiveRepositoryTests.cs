@@ -7,7 +7,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests.GameArchiveTests;
+namespace Chess2.Api.Integration.Tests.GameTests.GameArchiveTests;
 
 public class GameArchiveRepositoryTests : BaseIntegrationTest
 {
