@@ -69,14 +69,14 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", horsey)
-                .WithBlocker("d7", friend)
-                .WithBlocker("f7", friend)
-                .WithBlocker("c6", friend)
-                .WithBlocker("g6", friend)
-                .WithBlocker("c4", friend)
-                .WithBlocker("g4", friend)
-                .WithBlocker("d3", friend)
-                .WithBlocker("f3", friend)
+                .WithPieceAt("d7", friend)
+                .WithPieceAt("f7", friend)
+                .WithPieceAt("c6", friend)
+                .WithPieceAt("g6", friend)
+                .WithPieceAt("c4", friend)
+                .WithPieceAt("g4", friend)
+                .WithPieceAt("d3", friend)
+                .WithPieceAt("f3", friend)
                 // Horsey jump, so no legal captures or moves here.
                 .WithDescription("Surrounded by friendly pieces (should still move freely)")
         );
@@ -84,14 +84,14 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", horsey)
-                .WithBlocker("d7", enemy)
-                .WithBlocker("f7", enemy)
-                .WithBlocker("c6", enemy)
-                .WithBlocker("g6", enemy)
-                .WithBlocker("c4", enemy)
-                .WithBlocker("g4", enemy)
-                .WithBlocker("d3", enemy)
-                .WithBlocker("f3", enemy)
+                .WithPieceAt("d7", enemy)
+                .WithPieceAt("f7", enemy)
+                .WithPieceAt("c6", enemy)
+                .WithPieceAt("g6", enemy)
+                .WithPieceAt("c4", enemy)
+                .WithPieceAt("g4", enemy)
+                .WithPieceAt("d3", enemy)
+                .WithPieceAt("f3", enemy)
                 // All captures
                 .GoesTo("d7", captures: ["d7"])
                 .GoesTo("f7", captures: ["f7"])

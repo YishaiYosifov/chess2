@@ -85,7 +85,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithBlocker("g7", friend) // blocks beyond f6
+                .WithPieceAt("g7", friend) // blocks beyond f6
                 // diagonal up-left
                 .GoesTo("d6")
                 .GoesTo("c7")
@@ -110,8 +110,8 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithBlocker("g3", enemy) // enemy can be captured, blocks beyond
-                .WithBlocker("h2", friend) // friendly beyond enemy
+                .WithPieceAt("g3", enemy) // enemy can be captured, blocks beyond
+                .WithPieceAt("h2", friend) // friendly beyond enemy
                 // diagonal up-left
                 .GoesTo("d6")
                 .GoesTo("c7")
@@ -138,20 +138,20 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithBlocker("d6", friend)
-                .WithBlocker("f6", friend)
-                .WithBlocker("d4", friend)
-                .WithBlocker("f4", friend)
+                .WithPieceAt("d6", friend)
+                .WithPieceAt("f6", friend)
+                .WithPieceAt("d4", friend)
+                .WithPieceAt("f4", friend)
                 .WithDescription("Bishop surrounded by friendly pieces on all diagonals (no moves)")
         );
 
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithBlocker("d6", enemy)
-                .WithBlocker("f6", enemy)
-                .WithBlocker("d4", enemy)
-                .WithBlocker("f4", enemy)
+                .WithPieceAt("d6", enemy)
+                .WithPieceAt("f6", enemy)
+                .WithPieceAt("d4", enemy)
+                .WithPieceAt("f4", enemy)
                 .GoesTo("d6", captures: ["d6"])
                 .GoesTo("f6", captures: ["f6"])
                 .GoesTo("d4", captures: ["d4"])
