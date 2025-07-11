@@ -15,6 +15,8 @@ public class CasualMatchmakingActor(
     ITimerScheduler? timerScheduler = null
 ) : AbstractMatchmakingActor<ICasualMatchmakingPool>(entityId, sp, settings, pool, timerScheduler)
 {
+    protected override bool IsRated => false;
+
     protected override bool EnterPool(ICreateSeekCommand createSeek)
     {
         if (createSeek is not CasualMatchmakingCommands.CreateCasualSeek createCasualSeek)

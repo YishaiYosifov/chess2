@@ -1,11 +1,11 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.Net;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
@@ -23,7 +23,12 @@ public class GameControllerTests : BaseFunctionalTest
     public async Task GetLiveGame_returns_game_state_for_guest_player()
     {
         var timeControl = new TimeControlSettings(600, 0);
-        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", timeControl);
+        var gameToken = await _gameService.StartGameAsync(
+            "guest1",
+            "guest2",
+            timeControl,
+            isRated: false
+        );
         AuthUtils.AuthenticateGuest(ApiClient, "guest1");
 
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
@@ -56,7 +61,12 @@ public class GameControllerTests : BaseFunctionalTest
             new RatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
         );
 
-        var gameToken = await _gameService.StartGameAsync(user1.Id, user2.Id, timeControl);
+        var gameToken = await _gameService.StartGameAsync(
+            user1.Id,
+            user2.Id,
+            timeControl,
+            isRated: true
+        );
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user1);
 
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
@@ -82,7 +92,12 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetLiveGame_returns_403_for_guest_not_in_game()
     {
-        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", new(600, 0));
+        var gameToken = await _gameService.StartGameAsync(
+            "guest1",
+            "guest2",
+            new(600, 0),
+            isRated: false
+        );
         AuthUtils.AuthenticateGuest(ApiClient, "otherGuest");
 
         var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
@@ -93,7 +108,12 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetLiveGame_returns_403_for_authed_user_not_in_game()
     {
-        var gameToken = await _gameService.StartGameAsync("guest1", "guest2", new(600, 0));
+        var gameToken = await _gameService.StartGameAsync(
+            "guest1",
+            "guest2",
+            new(600, 0),
+            isRated: false
+        );
 
         // authenticate with a different user
         await AuthUtils.AuthenticateAsync(ApiClient);

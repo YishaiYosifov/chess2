@@ -11,6 +11,7 @@ public class GameArchive
     public required string ResultDescription { get; set; }
     public required string FinalFen { get; set; }
     public IEnumerable<MoveArchive> Moves { get; set; } = [];
+    public bool IsRated { get; set; }
 
     public int WhitePlayerId { get; set; }
     public int BlackPlayerId { get; set; }
