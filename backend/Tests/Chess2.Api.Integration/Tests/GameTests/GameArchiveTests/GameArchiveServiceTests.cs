@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Models;
@@ -25,9 +24,9 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     public async Task CreateArchiveAsync_creates_and_saves_the_game_archive_correctly()
     {
         var gameToken = Guid.NewGuid().ToString("N")[..16];
-        var gameState = CreateTestGameState();
+        var gameState = new GameStateFaker().Generate();
         var expectedResult = GameResult.WhiteWin;
-        var expectedResultDesc = "White Win by Resignation";
+        var expectedResultDesc = "White Won by Resignation";
         var ratingDelta = new RatingDelta(WhiteDelta: 100, BlackDelta: -150);
 
         var result = await _gameArchiveService.CreateArchiveAsync(
@@ -80,19 +79,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                         .Exclude(x => x.Id)
             );
     }
-
-    private static GameState CreateTestGameState() =>
-        new(
-            Fen: "10/10/10/10/10/10/10/10/10/10",
-            WhitePlayer: new GamePlayerFaker(GameColor.White).Generate(),
-            BlackPlayer: new GamePlayerFaker(GameColor.Black).Generate(),
-            MoveHistory: new MoveSnapshotFaker().Generate(3),
-            SideToMove: GameColor.Black,
-            Clocks: new(20000, 30000, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()),
-            LegalMoves: [],
-            TimeControl: new(600, 5),
-            IsRated: true
-        );
 
     private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
     {
