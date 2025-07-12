@@ -12,7 +12,7 @@ public class GameStateFaker : RecordFaker<GameState>
         RuleFor(
             x => x.TimeControl,
             f => new TimeControlSettings(
-                BaseSeconds: f.Random.Number(1000, 100000),
+                BaseSeconds: f.Random.Number(60, 900),
                 IncrementSeconds: f.Random.Number(0, 30)
             )
         );
