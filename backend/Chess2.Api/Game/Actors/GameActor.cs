@@ -191,7 +191,7 @@ public class GameActor : ReceiveActor, IWithTimers
             Sender.ReplyWithError(moveResult.Errors);
             return;
         }
-        var timeLeft = _clock.TickMove(currentPlayer.Color);
+        var timeLeft = _clock.CommitTurn(currentPlayer.Color);
         var (move, encoded, san) = moveResult.Value;
         var snapshot = _historyTracker.RecordMove(encoded, san, timeLeft);
 
@@ -232,6 +232,7 @@ public class GameActor : ReceiveActor, IWithTimers
         // TODO: remember to uncomment when done testing
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
 
+        _clock.CommitTurn(_core.SideToMove);
         var state = GetGameStateForPlayer(endingPlayer);
 
         await using var scope = _sp.CreateAsyncScope();
