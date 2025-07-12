@@ -11,16 +11,16 @@ describe("GameClock", () => {
     let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(1000);
         store = createFakeLiveChessStore({
             clocks: {
                 whiteClock: 300000,
                 blackClock: 300000,
-                lastUpdated: 0,
+                lastUpdated: Date.now().valueOf(),
             },
             sideToMove: GameColor.WHITE,
         });
-        vi.useFakeTimers();
-        vi.setSystemTime(0);
     });
 
     it("should render initial time correctly", () => {
@@ -85,7 +85,7 @@ describe("GameClock", () => {
             clocks: {
                 whiteClock: 15000,
                 blackClock: 300000,
-                lastUpdated: 0,
+                lastUpdated: Date.now().valueOf(),
             },
             sideToMove: GameColor.WHITE,
         });
