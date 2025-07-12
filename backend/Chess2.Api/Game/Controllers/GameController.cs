@@ -16,14 +16,11 @@ public class GameController(IGameService gameService, IAuthService authService) 
     private readonly IGameService _gameService = gameService;
     private readonly IAuthService _authService = authService;
 
-    [HttpGet("live/{gameToken}", Name = nameof(GetLiveGame))]
+    [HttpGet("{gameToken}", Name = nameof(GetGame))]
     [ProducesResponseType<GameState>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize(AuthPolicies.AuthedSesssion)]
-    public async Task<ActionResult<GameState>> GetLiveGame(
-        string gameToken,
-        CancellationToken token
-    )
+    public async Task<ActionResult<GameState>> GetGame(string gameToken, CancellationToken token)
     {
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)

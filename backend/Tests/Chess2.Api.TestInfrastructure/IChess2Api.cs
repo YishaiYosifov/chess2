@@ -46,6 +46,6 @@ public interface IChess2Api
 
     #region Game Controller
     [Get("/api/game/live/{gameToken}")]
-    Task<IApiResponse<GameState>> GetLiveGameAsync([AliasAs("gameToken")] string gameToken);
+    Task<IApiResponse<GameState>> GetGameAsync([AliasAs("gameToken")] string gameToken);
     #endregion
 }
