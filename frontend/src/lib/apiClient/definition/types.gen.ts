@@ -273,28 +273,27 @@ export type EditUsernameResponses = {
 export type EditUsernameResponse =
     EditUsernameResponses[keyof EditUsernameResponses];
 
-export type GetLiveGameData = {
+export type GetGameData = {
     body?: never;
     path: {
         gameToken: string;
     };
     query?: never;
-    url: "/api/Game/live/{gameToken}";
+    url: "/api/Game/{gameToken}";
 };
 
-export type GetLiveGameErrors = {
+export type GetGameErrors = {
     401: ApiProblemDetails;
     404: ApiProblemDetails;
 };
 
-export type GetLiveGameError = GetLiveGameErrors[keyof GetLiveGameErrors];
+export type GetGameError = GetGameErrors[keyof GetGameErrors];
 
-export type GetLiveGameResponses = {
+export type GetGameResponses = {
     200: GameState;
 };
 
-export type GetLiveGameResponse =
-    GetLiveGameResponses[keyof GetLiveGameResponses];
+export type GetGameResponse = GetGameResponses[keyof GetGameResponses];
 
 export type RefreshData = {
     body?: never;
