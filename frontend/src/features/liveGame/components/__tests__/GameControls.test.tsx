@@ -3,12 +3,12 @@ import { render, screen } from "@testing-library/react";
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControls from "../GameControls";
-import { createFakeMove } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
+import { createFakeMoveSnapshot } from "@/lib/testUtils/fakers/moveSnapshotFaker";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -35,7 +35,11 @@ describe("GameControls", () => {
 
     it("should render Resign if moveHistory has 3+ moves", () => {
         store.setState({
-            moveHistory: [createFakeMove(), createFakeMove(), createFakeMove()],
+            moveHistory: [
+                createFakeMoveSnapshot(),
+                createFakeMoveSnapshot(),
+                createFakeMoveSnapshot(),
+            ],
         });
 
         render(
