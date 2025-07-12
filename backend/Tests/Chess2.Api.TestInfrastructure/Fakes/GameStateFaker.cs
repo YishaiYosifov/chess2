@@ -38,5 +38,6 @@ public class GameStateFaker : RecordFaker<GameState>
             }
         );
         RuleFor(x => x.MoveHistory, f => new MoveSnapshotFaker().Generate(f.Random.Number(1, 6)));
+        RuleFor(x => x.ResultData, (GameResultData?)null);
     }
 }

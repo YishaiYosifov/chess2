@@ -41,9 +41,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var savedArchive = await GetSavedArchiveAsync(gameToken);
-        // Verify service returned the same object that was saved
-        savedArchive.Should().BeEquivalentTo(result);
 
+        savedArchive.Should().BeEquivalentTo(result);
         var expectedArchive = new GameArchive
         {
             GameToken = gameToken,
@@ -52,17 +51,20 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             FinalFen = gameState.Fen,
             WhitePlayer = CreateExpectedPlayerArchive(
                 gameState.WhitePlayer,
-                ratingDelta.WhiteDelta
+                ratingDelta.WhiteDelta,
+                gameState.Clocks.WhiteClock
             ),
             BlackPlayer = CreateExpectedPlayerArchive(
                 gameState.BlackPlayer,
-                ratingDelta.BlackDelta
+                ratingDelta.BlackDelta,
+                gameState.Clocks.BlackClock
             ),
             Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
             IsRated = gameState.IsRated,
+            BaseSeconds = gameState.TimeControl.BaseSeconds,
+            IncrementSeconds = gameState.TimeControl.IncrementSeconds,
         };
 
-        // Verify archive properties match expected values
         savedArchive
             .Should()
             .BeEquivalentTo(
@@ -92,7 +94,11 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         return archive;
     }
 
-    private static PlayerArchive CreateExpectedPlayerArchive(GamePlayer player, int ratingDelta) =>
+    private static PlayerArchive CreateExpectedPlayerArchive(
+        GamePlayer player,
+        int ratingDelta,
+        double timeLeft
+    ) =>
         new()
         {
             UserId = player.UserId,
@@ -101,19 +107,22 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             Color = player.Color,
             InitialRating = player.Rating,
             NewRating = player.Rating + ratingDelta,
+            FinalTimeRemaining = timeLeft,
         };
 
-    private static IEnumerable<MoveArchive> CreateExpectedMoveArchives(
+    private static List<MoveArchive> CreateExpectedMoveArchives(
         IEnumerable<MoveSnapshot> moveHistory
     ) =>
-        moveHistory.Select(
-            (move, index) =>
-                new MoveArchive
-                {
-                    EncodedMove = move.EncodedMove,
-                    San = move.San,
-                    TimeLeft = move.TimeLeft,
-                    MoveNumber = index,
-                }
-        );
+        [
+            .. moveHistory.Select(
+                (move, index) =>
+                    new MoveArchive
+                    {
+                        EncodedMove = move.EncodedMove,
+                        San = move.San,
+                        TimeLeft = move.TimeLeft,
+                        MoveNumber = index,
+                    }
+            ),
+        ];
 }
