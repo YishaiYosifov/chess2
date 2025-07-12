@@ -31,7 +31,7 @@ public class GameStateBuilder : IGameStateBuilder
         var clocks = new ClockDto(
             whitePlayerArchive.FinalTimeRemaining,
             blackPlayerArchive.FinalTimeRemaining,
-            sortedMoves.LastOrDefault()?.PlayedAt.ToUnixTimeMilliseconds()
+            LastUpdated: null
         );
         var sideToMove = moveHistory.Count % 2 == 0 ? GameColor.White : GameColor.Black;
 

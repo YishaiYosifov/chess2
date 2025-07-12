@@ -30,7 +30,7 @@ public class GameStateBuilderTests
         var expectedClocks = new ClockDto(
             whitePlayer.FinalTimeRemaining,
             blackPlayer.FinalTimeRemaining,
-            archive.Moves.Last()?.PlayedAt.ToUnixTimeMilliseconds() ?? 0
+            LastUpdated: null
         );
 
         var expectedGameState = new GameState(
