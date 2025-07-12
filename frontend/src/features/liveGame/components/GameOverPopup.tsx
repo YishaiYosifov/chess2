@@ -79,12 +79,12 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                 <div className="grid grid-cols-2 justify-center gap-2">
                     <PopupCardProfile
                         player={whitePlayer}
-                        ratingDelta={resultData.whiteRatingDelta}
+                        ratingDelta={resultData.whiteRatingDelta ?? null}
                         isWinner={resultData.result === GameResult.WHITE_WIN}
                     />
                     <PopupCardProfile
                         player={blackPlayer}
-                        ratingDelta={resultData.blackRatingDelta}
+                        ratingDelta={resultData.blackRatingDelta ?? null}
                         isWinner={resultData.result === GameResult.BLACK_WIN}
                     />
                 </div>
@@ -104,7 +104,7 @@ const PopupCardProfile = ({
     isWinner,
 }: {
     player: GamePlayer;
-    ratingDelta?: number;
+    ratingDelta: number | null;
     isWinner: boolean;
 }) => {
     return (
