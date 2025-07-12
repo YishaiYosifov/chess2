@@ -11,5 +11,6 @@ public record GameState(
     GameColor SideToMove,
     string Fen,
     IEnumerable<string> LegalMoves,
-    IEnumerable<MoveSnapshot> MoveHistory
+    IEnumerable<MoveSnapshot> MoveHistory,
+    GameResultData? ResultData = null
 );

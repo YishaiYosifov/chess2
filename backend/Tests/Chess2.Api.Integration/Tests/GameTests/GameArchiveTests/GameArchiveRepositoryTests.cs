@@ -1,6 +1,4 @@
-﻿using Chess2.Api.Game.Entities;
-using Chess2.Api.Game.Repositories;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -13,13 +11,6 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
 {
     private readonly IGameArchiveRepository _gameArchiveRepository;
 
-    private readonly PlayerArchive _whitePlayer = new PlayerArchiveFaker(
-        GameColor.White
-    ).Generate();
-    private readonly PlayerArchive _blackPlayer = new PlayerArchiveFaker(
-        GameColor.Black
-    ).Generate();
-
     public GameArchiveRepositoryTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
@@ -29,7 +20,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task AddArchiveAsync_adds_the_archive_and_its_children()
     {
-        var gameArchive = new GameArchiveFaker(_whitePlayer, _blackPlayer).Generate();
+        var gameArchive = new GameArchiveFaker().Generate();
 
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -47,8 +38,8 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetGameArchiveByToken_finds_archive_and_all_its_navigation_properties()
     {
-        var gameArchive = new GameArchiveFaker(_whitePlayer, _blackPlayer).Generate();
-        var otherGameArchive = new GameArchiveFaker(_whitePlayer, _blackPlayer).Generate();
+        var gameArchive = new GameArchiveFaker().Generate();
+        var otherGameArchive = new GameArchiveFaker().Generate();
         await DbContext.GameArchives.AddAsync(gameArchive, CT);
         await DbContext.GameArchives.AddAsync(otherGameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -62,7 +53,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetGameArchiveByToken_returns_null_when_archive_is_not_found()
     {
-        var gameArchive = new GameArchiveFaker(_whitePlayer, _blackPlayer).Generate();
+        var gameArchive = new GameArchiveFaker().Generate();
         await DbContext.GameArchives.AddAsync(gameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
 
