@@ -119,7 +119,7 @@ const PopupCardProfile = ({
             <p className="w-full overflow-hidden text-sm text-ellipsis whitespace-nowrap">
                 {player.userName}
             </p>
-            {player.rating && ratingDelta !== undefined && (
+            {player.rating && ratingDelta !== null && (
                 <p className="flex gap-2 text-xl">
                     {player.rating}
                     <span
