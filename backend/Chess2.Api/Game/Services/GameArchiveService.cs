@@ -1,7 +1,9 @@
 ﻿using Chess2.Api.Game.Entities;
+using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Repositories;
 using Chess2.Api.UserRating.Models;
+using ErrorOr;
 
 namespace Chess2.Api.Game.Services;
 
@@ -15,11 +17,19 @@ public interface IGameArchiveService
         RatingDelta ratingDelta,
         CancellationToken token = default
     );
+    Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
+        string gameToken,
+        CancellationToken token = default
+    );
 }
 
-public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : IGameArchiveService
+public class GameArchiveService(
+    IGameArchiveRepository gameArchiveRepository,
+    IGameStateBuilder gameStateBuilder
+) : IGameArchiveService
 {
     private readonly IGameArchiveRepository _gameArchiveRepository = gameArchiveRepository;
+    private readonly IGameStateBuilder _gameStateBuilder = gameStateBuilder;
 
     public async Task<GameArchive> CreateArchiveAsync(
         string gameToken,
@@ -65,6 +75,19 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
 
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, token);
         return gameArchive;
+    }
+
+    public async Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
+        string gameToken,
+        CancellationToken token = default
+    )
+    {
+        var archive = await _gameArchiveRepository.GetGameArchiveByToken(gameToken, token);
+        if (archive is null)
+            return GameErrors.GameNotFound;
+
+        var state = _gameStateBuilder.FromArchive(archive);
+        return state;
     }
 
     private static PlayerArchive CreatePlayerArchive(

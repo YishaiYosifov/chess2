@@ -46,7 +46,8 @@ public class GameService(
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    ITimeControlTranslator timeControlTranslator
+    ITimeControlTranslator timeControlTranslator,
+    IGameArchiveService gameArchiveService
 ) : IGameService
 {
     private readonly ILogger<GameService> _logger = logger;
@@ -55,6 +56,7 @@ public class GameService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+    private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
 
     public async Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default)
     {
@@ -92,11 +94,11 @@ public class GameService(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
-        if (response.IsError)
-            return response.Errors;
+        if (!response.IsError)
+            return response.Value.State;
 
-        var state = response.Value.State;
-        return state;
+        var stateResult = await _gameArchiveService.GetGameStateByTokenAsync(gameToken, token);
+        return stateResult;
     }
 
     public async Task<ErrorOr<Success>> MakeMoveAsync(
