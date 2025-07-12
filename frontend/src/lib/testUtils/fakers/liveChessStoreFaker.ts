@@ -24,6 +24,7 @@ export function createFakeLiveChessStore(
             blackClock: faker.number.int({ min: 10000, max: 100000 }),
             lastUpdated: Date.now().valueOf(),
         },
+        resultData: null,
 
         ...override,
     });
