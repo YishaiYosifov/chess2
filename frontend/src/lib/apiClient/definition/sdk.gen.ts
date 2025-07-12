@@ -20,9 +20,9 @@ import type {
     EditUsernameData,
     EditUsernameResponses,
     EditUsernameErrors,
-    GetLiveGameData,
-    GetLiveGameResponses,
-    GetLiveGameErrors,
+    GetGameData,
+    GetGameResponses,
+    GetGameErrors,
     RefreshData,
     RefreshResponses,
     RefreshErrors,
@@ -132,15 +132,15 @@ export const editUsername = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getLiveGame = <ThrowOnError extends boolean = false>(
-    options: Options<GetLiveGameData, ThrowOnError>,
+export const getGame = <ThrowOnError extends boolean = false>(
+    options: Options<GetGameData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetLiveGameResponses,
-        GetLiveGameErrors,
+        GetGameResponses,
+        GetGameErrors,
         ThrowOnError
     >({
-        url: "/api/Game/live/{gameToken}",
+        url: "/api/Game/{gameToken}",
         ...options,
     });
 };

@@ -1,6 +1,6 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
-import { Clocks, GameColor, getLiveGame, MoveSnapshot } from "@/lib/apiClient";
+import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import {
     decodeMovesIntoMap,
@@ -18,7 +18,7 @@ export function useLiveChessEvents(
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
 ) {
     async function refetchGame() {
-        const { error, data } = await getLiveGame({ path: { gameToken } });
+        const { error, data } = await getGame({ path: { gameToken } });
         if (error || !data) {
             console.error(error);
             return;
