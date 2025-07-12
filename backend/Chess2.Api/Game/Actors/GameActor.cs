@@ -150,7 +150,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         GameResult result;
         string reason;
-        var isAbort = _historyTracker.MoveNumber <= 2;
+        var isAbort = _historyTracker.MoveNumber < 2;
         if (isAbort)
         {
             result = GameResult.Aborted;

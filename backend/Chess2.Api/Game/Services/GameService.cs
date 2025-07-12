@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Chess2.Api.Game.Actors;
+using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Matchmaking.Services;
@@ -96,6 +97,8 @@ public class GameService(
         );
         if (!response.IsError)
             return response.Value.State;
+        if (!response.Errors.Contains(GameErrors.GameNotFound))
+            return response.Errors;
 
         var stateResult = await _gameArchiveService.GetGameStateByTokenAsync(gameToken, token);
         return stateResult;

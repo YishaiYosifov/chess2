@@ -8,5 +8,4 @@ public class MoveArchive
     public required string EncodedMove { get; set; }
     public required string San { get; set; }
     public required double TimeLeft { get; set; }
-    public DateTimeOffset PlayedAt { get; set; } = DateTime.UtcNow;
 }
