@@ -138,7 +138,7 @@ describe("GameClock", () => {
             clocks: {
                 whiteClock: 5000,
                 blackClock: 300000,
-                lastUpdated: 0,
+                lastUpdated: Date.now().valueOf(),
             },
             sideToMove: GameColor.WHITE,
         });
@@ -153,5 +153,27 @@ describe("GameClock", () => {
         });
 
         expect(screen.getByText("00:00.00")).toBeInTheDocument();
+    });
+
+    it("should stop ticking when lastUpdated is null", () => {
+        store.setState({
+            clocks: {
+                whiteClock: 1000,
+                blackClock: 1000,
+                lastUpdated: null,
+            },
+            sideToMove: GameColor.WHITE,
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameClock color={GameColor.WHITE} />
+            </LiveChessStoreContext.Provider>,
+        );
+        act(() => {
+            vi.advanceTimersByTime(1000);
+        });
+
+        expect(screen.getByText("00:01.00")).toBeInTheDocument();
     });
 });
