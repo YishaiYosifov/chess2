@@ -1,17 +1,16 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 
-import { Clocks, GameColor, GamePlayer, MoveSnapshot } from "@/lib/apiClient";
+import {
+    Clocks,
+    GameColor,
+    GamePlayer,
+    GameResultData,
+    MoveSnapshot,
+} from "@/lib/apiClient";
 import { GameResult } from "@/types/tempModels";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
-
-export interface GameResultData {
-    result: GameResult;
-    resultDescription: string;
-    whiteRatingDelta?: number;
-    blackRatingDelta?: number;
-}
 
 export interface RequiredLiveChessData {
     gameToken: string;
@@ -23,11 +22,10 @@ export interface RequiredLiveChessData {
     blackPlayer: GamePlayer;
 
     clocks: Clocks;
+    resultData: GameResultData | null;
 }
 
 export interface LiveChessStore extends RequiredLiveChessData {
-    resultData?: GameResultData;
-
     receiveMove(
         move: MoveSnapshot,
         clocks: Clocks,

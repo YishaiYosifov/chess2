@@ -14,7 +14,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
     const isGameOver = Boolean(result);
 
     const calculateTimeLeft = useCallback(() => {
-        if (!isTicking) return baseTimeLeft;
+        if (!isTicking || !clocks.lastUpdated) return baseTimeLeft;
 
         const timePassed = new Date().valueOf() - clocks.lastUpdated;
         return baseTimeLeft - timePassed;

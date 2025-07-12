@@ -104,6 +104,7 @@ export type OperationBase = {
 
 export type GameState = {
     timeControl: TimeControlSettings;
+    isRated: boolean;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
     clocks: Clocks;
@@ -111,6 +112,7 @@ export type GameState = {
     fen: string;
     legalMoves: Array<string>;
     moveHistory: Array<MoveSnapshot>;
+    resultData?: GameResultData | null;
 };
 
 export type TimeControlSettings = {
@@ -140,7 +142,7 @@ export enum GameColor {
 export type Clocks = {
     whiteClock: number;
     blackClock: number;
-    lastUpdated: number;
+    lastUpdated?: number | null;
 };
 
 export type MoveSnapshot = {
@@ -148,6 +150,32 @@ export type MoveSnapshot = {
     san: string;
     timeLeft: number;
 };
+
+export type GameResultData = {
+    result: GameResult;
+    resultDescription: string;
+    whiteRatingDelta?: number | null;
+    blackRatingDelta?: number | null;
+};
+
+export enum GameResult {
+    /**
+     * WhiteWin
+     */
+    WHITE_WIN = 0,
+    /**
+     * BlackWin
+     */
+    BLACK_WIN = 1,
+    /**
+     * Draw
+     */
+    DRAW = 2,
+    /**
+     * Aborted
+     */
+    ABORTED = 3,
+}
 
 export type GetAuthedUserData = {
     body?: never;

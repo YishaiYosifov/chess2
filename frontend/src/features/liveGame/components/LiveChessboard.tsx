@@ -67,6 +67,7 @@ const LiveChessboard = ({
 
             moveHistory: gameState.moveHistory,
             clocks: gameState.clocks,
+            resultData: gameState.resultData ?? null,
         });
     }, [gameToken, gameState, playerColor]);
 
