@@ -31,7 +31,7 @@ public class GameControllerTests : BaseFunctionalTest
         );
         AuthUtils.AuthenticateGuest(ApiClient, "guest1");
 
-        var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
+        var response = await ApiClient.Api.GetGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -69,7 +69,7 @@ public class GameControllerTests : BaseFunctionalTest
         );
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user1);
 
-        var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
+        var response = await ApiClient.Api.GetGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -100,7 +100,7 @@ public class GameControllerTests : BaseFunctionalTest
         );
         AuthUtils.AuthenticateGuest(ApiClient, "otherGuest");
 
-        var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
+        var response = await ApiClient.Api.GetGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -117,7 +117,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         // authenticate with a different user
         await AuthUtils.AuthenticateAsync(ApiClient);
-        var response = await ApiClient.Api.GetLiveGameAsync(gameToken);
+        var response = await ApiClient.Api.GetGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -128,14 +128,14 @@ public class GameControllerTests : BaseFunctionalTest
         var token = TokenProvider.GenerateGuestToken("guest1");
         AuthUtils.AuthenticateWithTokens(ApiClient, token);
 
-        var response = await ApiClient.Api.GetLiveGameAsync("thisgamedoesnotexist123");
+        var response = await ApiClient.Api.GetGameAsync("thisgamedoesnotexist123");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
     public async Task GetLiveGame_returns_401_for_unauthenticated_user()
     {
-        var response = await ApiClient.Api.GetLiveGameAsync("anygametoken");
+        var response = await ApiClient.Api.GetGameAsync("anygametoken");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 }
