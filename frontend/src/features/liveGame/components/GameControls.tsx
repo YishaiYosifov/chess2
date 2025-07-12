@@ -26,7 +26,7 @@ const LiveGameControls = () => {
     const gameToken = useLiveChessStore((state) => state.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
 
-    const endGameText = moveHistory.length < 3 ? "Abort" : "Resign";
+    const endGameText = moveHistory.length < 2 ? "Abort" : "Resign";
 
     return (
         <>
