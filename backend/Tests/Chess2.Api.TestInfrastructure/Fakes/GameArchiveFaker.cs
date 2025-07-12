@@ -1,12 +1,17 @@
 ﻿using Bogus;
 using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class GameArchiveFaker : Faker<GameArchive>
 {
-    public GameArchiveFaker(PlayerArchive whitePlayer, PlayerArchive blackPlayer, int moveCount = 5)
+    public GameArchiveFaker(
+        PlayerArchive? whitePlayer = null,
+        PlayerArchive? blackPlayer = null,
+        int moveCount = 5
+    )
     {
         StrictMode(true);
         RuleFor(x => x.Id, 0);
@@ -16,10 +21,22 @@ public class GameArchiveFaker : Faker<GameArchive>
         RuleFor(x => x.FinalFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(x => x.Moves, new MoveArchiveFaker().Generate(moveCount));
         RuleFor(x => x.IsRated, f => f.Random.Bool());
-        RuleFor(x => x.WhitePlayerId, whitePlayer.Id);
-        RuleFor(x => x.WhitePlayer, whitePlayer);
-        RuleFor(x => x.BlackPlayerId, blackPlayer.Id);
-        RuleFor(x => x.BlackPlayer, blackPlayer);
+
+        RuleFor(x => x.BaseSeconds, f => f.Random.Int(60, 6000));
+        RuleFor(x => x.IncrementSeconds, f => f.Random.Int(1, 30));
+
+        RuleFor(
+            x => x.WhitePlayer,
+            f => whitePlayer ?? new PlayerArchiveFaker(GameColor.White).Generate()
+        );
+        RuleFor(x => x.WhitePlayerId, (f, g) => g.WhitePlayer?.Id);
+
+        RuleFor(
+            x => x.BlackPlayer,
+            f => blackPlayer ?? new PlayerArchiveFaker(GameColor.Black).Generate()
+        );
+        RuleFor(x => x.BlackPlayerId, (f, g) => g.WhitePlayer?.Id);
+
         RuleFor(g => g.CreatedAt, f => f.Date.PastOffset(1).UtcDateTime);
     }
 }

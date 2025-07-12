@@ -10,8 +10,11 @@ public class GameArchive
     public required GameResult Result { get; set; }
     public required string ResultDescription { get; set; }
     public required string FinalFen { get; set; }
-    public IEnumerable<MoveArchive> Moves { get; set; } = [];
-    public bool IsRated { get; set; }
+    public required IEnumerable<MoveArchive> Moves { get; set; } = [];
+    public required bool IsRated { get; set; }
+
+    public required int BaseSeconds { get; set; }
+    public required int IncrementSeconds { get; set; }
 
     public int WhitePlayerId { get; set; }
     public int BlackPlayerId { get; set; }
