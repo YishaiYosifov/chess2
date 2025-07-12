@@ -1,7 +1,7 @@
 import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
 import withAuthedSession from "@/features/auth/hocs/withAuthedSession";
 import { notFound, redirect } from "next/navigation";
-import { getLiveGame } from "@/lib/apiClient";
+import { getGame } from "@/lib/apiClient";
 
 export const metadata = { title: "Live Game - Chess 2" };
 
@@ -17,7 +17,7 @@ const GamePage = withAuthedSession(
     }) => {
         const { gameToken } = await params;
 
-        const { error, data: game } = await getLiveGame({
+        const { error, data: game } = await getGame({
             path: { gameToken },
             auth: () => accessToken,
         });
