@@ -20,10 +20,10 @@ public class GameArchive
     public int BlackPlayerId { get; set; }
 
     [ForeignKey(nameof(WhitePlayerId))]
-    public required PlayerArchive? WhitePlayer { get; set; }
+    public required PlayerArchive WhitePlayer { get; set; }
 
     [ForeignKey(nameof(BlackPlayerId))]
-    public required PlayerArchive? BlackPlayer { get; set; }
+    public required PlayerArchive BlackPlayer { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
