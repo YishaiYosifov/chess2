@@ -4,6 +4,7 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,9 +12,14 @@ namespace Chess2.Api.Game.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class GameController(IGameService gameService, IAuthService authService) : Controller
+public class GameController(
+    IGameService gameService,
+    IGameArchiveService gameArchiveService,
+    IAuthService authService
+) : Controller
 {
     private readonly IGameService _gameService = gameService;
+    private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly IAuthService _authService = authService;
 
     [HttpGet("{gameToken}", Name = nameof(GetGame))]
@@ -32,5 +38,17 @@ public class GameController(IGameService gameService, IAuthService authService) 
             token
         );
         return gameStateResult.Match(Ok, errors => errors.ToActionResult());
+    }
+
+    [HttpGet("/results/{userId}", Name = nameof(GetGameResults))]
+    [ProducesResponseType<PagedResult<GameSummaryDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<GameSummaryDto>>> GetGameResults(
+        string userId,
+        [FromQuery] PaginationQuery pagination,
+        CancellationToken token
+    )
+    {
+        var result = await _gameArchiveService.GetPaginatedResultsAsync(userId, pagination, token);
+        return Ok(result);
     }
 }

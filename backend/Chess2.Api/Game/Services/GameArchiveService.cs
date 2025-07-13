@@ -2,6 +2,7 @@
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Repositories;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Models;
 using ErrorOr;
 
@@ -19,6 +20,11 @@ public interface IGameArchiveService
     );
     Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
         string gameToken,
+        CancellationToken token = default
+    );
+    Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
+        string userId,
+        PaginationQuery pagination,
         CancellationToken token = default
     );
 }
@@ -82,12 +88,54 @@ public class GameArchiveService(
         CancellationToken token = default
     )
     {
-        var archive = await _gameArchiveRepository.GetGameArchiveByToken(gameToken, token);
+        var archive = await _gameArchiveRepository.GetGameArchiveByTokenAsync(gameToken, token);
         if (archive is null)
             return GameErrors.GameNotFound;
 
         var state = _gameStateBuilder.FromArchive(archive);
         return state;
+    }
+
+    public async Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
+        string userId,
+        PaginationQuery pagination,
+        CancellationToken token = default
+    )
+    {
+        var archives = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
+            userId,
+            take: pagination.PageSize,
+            skip: pagination.Skip,
+            token
+        );
+        var totalCount = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, token);
+
+        var summeries = archives.Select(archive =>
+        {
+            var whitePlayer = archive.WhitePlayer;
+            var blackPlayer = archive.BlackPlayer;
+            return new GameSummaryDto(
+                archive.GameToken,
+                new PlayerSummaryDto(
+                    UserId: whitePlayer.UserId,
+                    UserName: whitePlayer.UserName,
+                    Rating: whitePlayer.NewRating
+                ),
+                new PlayerSummaryDto(
+                    UserId: blackPlayer.UserId,
+                    UserName: blackPlayer.UserName,
+                    Rating: blackPlayer.NewRating
+                ),
+                archive.Result
+            );
+        });
+
+        return new(
+            Items: summeries,
+            TotalCount: totalCount,
+            Page: pagination.Page,
+            PageSize: pagination.PageSize
+        );
     }
 
     private static PlayerArchive CreatePlayerArchive(
