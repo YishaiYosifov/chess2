@@ -44,7 +44,10 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         await DbContext.GameArchives.AddAsync(otherGameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _gameArchiveRepository.GetGameArchiveByToken(gameArchive.GameToken, CT);
+        var result = await _gameArchiveRepository.GetGameArchiveByTokenAsync(
+            gameArchive.GameToken,
+            CT
+        );
 
         result.Should().NotBeNull();
         result.Should().BeEquivalentTo(gameArchive);
@@ -57,7 +60,10 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         await DbContext.GameArchives.AddAsync(gameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _gameArchiveRepository.GetGameArchiveByToken("some random token", CT);
+        var result = await _gameArchiveRepository.GetGameArchiveByTokenAsync(
+            "some random token",
+            CT
+        );
 
         result.Should().BeNull();
     }

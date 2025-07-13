@@ -29,13 +29,13 @@ public class GameArchiveFaker : Faker<GameArchive>
             x => x.WhitePlayer,
             f => whitePlayer ?? new PlayerArchiveFaker(GameColor.White).Generate()
         );
-        RuleFor(x => x.WhitePlayerId, (f, g) => g.WhitePlayer?.Id);
+        RuleFor(x => x.WhitePlayerId, (f, g) => g.WhitePlayer.Id);
 
         RuleFor(
             x => x.BlackPlayer,
             f => blackPlayer ?? new PlayerArchiveFaker(GameColor.Black).Generate()
         );
-        RuleFor(x => x.BlackPlayerId, (f, g) => g.WhitePlayer?.Id);
+        RuleFor(x => x.BlackPlayerId, (f, g) => g.WhitePlayer.Id);
 
         RuleFor(g => g.CreatedAt, f => f.Date.PastOffset(1).UtcDateTime);
     }

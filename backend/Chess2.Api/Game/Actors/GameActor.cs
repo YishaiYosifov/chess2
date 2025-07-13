@@ -242,8 +242,8 @@ public class GameActor : ReceiveActor, IWithTimers
             _token,
             result,
             reason,
-            archive.WhitePlayer?.NewRating,
-            archive.BlackPlayer?.NewRating
+            archive.WhitePlayer.NewRating,
+            archive.BlackPlayer.NewRating
         );
         Become(Finished);
         Timers.Cancel(ClockTimerKey);

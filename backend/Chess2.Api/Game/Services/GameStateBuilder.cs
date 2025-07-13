@@ -15,9 +15,6 @@ public class GameStateBuilder : IGameStateBuilder
     {
         var whitePlayerArchive = archive.WhitePlayer;
         var blackPlayerArchive = archive.BlackPlayer;
-        if (whitePlayerArchive is null || blackPlayerArchive is null)
-            throw new InvalidOperationException("Missing player archive");
-
         var sortedMoves = archive.Moves.OrderBy(m => m.MoveNumber);
 
         TimeControlSettings timeControl = new(archive.BaseSeconds, archive.IncrementSeconds);
@@ -62,7 +59,7 @@ public class GameStateBuilder : IGameStateBuilder
         new(
             archive.Result,
             archive.ResultDescription,
-            archive.WhitePlayer?.NewRating - archive.WhitePlayer?.InitialRating,
-            archive.BlackPlayer?.NewRating - archive.BlackPlayer?.InitialRating
+            archive.WhitePlayer.NewRating - archive.WhitePlayer.InitialRating,
+            archive.BlackPlayer.NewRating - archive.BlackPlayer.InitialRating
         );
 }
