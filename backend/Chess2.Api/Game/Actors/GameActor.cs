@@ -18,6 +18,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private readonly IGameCore _core;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
+    private readonly IDrawEvaulator _drawEvaulator;
     private readonly IGameClock _clock;
 
     private readonly PlayerRoster _players = new();
@@ -36,6 +37,7 @@ public class GameActor : ReceiveActor, IWithTimers
         IGameClock clock,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier,
+        IDrawEvaulator drawEvaulator,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -49,6 +51,7 @@ public class GameActor : ReceiveActor, IWithTimers
         _clock = clock;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
+        _drawEvaulator = drawEvaulator;
         Become(WaitingForStart);
     }
 
@@ -94,7 +97,7 @@ public class GameActor : ReceiveActor, IWithTimers
         ReceiveAsync<GameCommands.TickClock>(_ => HandleClockTickAsync());
 
         ReceiveAsync<GameCommands.EndGame>(HandleEndGameAsync);
-        Receive<GameCommands.MovePiece>(HandleMovePiece);
+        ReceiveAsync<GameCommands.MovePiece>(HandleMovePieceAsync);
     }
 
     private void HandleGetGameState(GameQueries.GetGameState getGameState)
@@ -171,7 +174,7 @@ public class GameActor : ReceiveActor, IWithTimers
         Sender.Tell(new GameEvents.GameEnded());
     }
 
-    private void HandleMovePiece(GameCommands.MovePiece movePiece)
+    private async Task HandleMovePieceAsync(GameCommands.MovePiece movePiece)
     {
         var currentPlayer = _players.GetPlayerByColor(_core.SideToMove);
         if (currentPlayer.UserId != movePiece.UserId)
@@ -194,19 +197,19 @@ public class GameActor : ReceiveActor, IWithTimers
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
         var (move, encoded, san) = moveResult.Value;
         var snapshot = _historyTracker.RecordMove(encoded, san, timeLeft);
+        
+        if (_drawEvaulator.TryEvaluateDraw(move, _core.Fen, out var drawReason))
+            await FinalizeGameAsync(currentPlayer, GameResult.Draw, drawReason);
 
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
-        RunTask(
-            () =>
-                _gameNotifier.NotifyMoveMadeAsync(
-                    _token,
-                    snapshot,
-                    _core.SideToMove,
-                    _historyTracker.MoveNumber,
-                    _clock.Value,
-                    nextPlayer.UserId,
-                    _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
-                )
+        await _gameNotifier.NotifyMoveMadeAsync(
+            _token,
+            snapshot,
+            _core.SideToMove,
+            _historyTracker.MoveNumber,
+            _clock.Value,
+            nextPlayer.UserId,
+            _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
         );
 
         Sender.Tell(new GameEvents.PieceMoved());
