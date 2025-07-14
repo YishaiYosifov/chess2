@@ -4,8 +4,8 @@ import { createFakeFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 
 import GameRow from "../GameRow";
-import { FinishedGame, GameResult } from "@/types/tempModels";
-import { User } from "@/lib/apiClient";
+import { FinishedGame } from "@/types/tempModels";
+import { GameResult, User } from "@/lib/apiClient";
 
 describe("GameRow", () => {
     let finishedGameMock: FinishedGame;

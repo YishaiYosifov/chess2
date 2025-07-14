@@ -1,7 +1,8 @@
 import { faker } from "@faker-js/faker";
 
-import { FinishedGame, GameResult } from "@/types/tempModels";
+import { FinishedGame } from "@/types/tempModels";
 import { createFakeUser } from "./userFaker";
+import { GameResult } from "@/lib/apiClient";
 
 export function createFakeFinishedGame(
     override?: Partial<FinishedGame>,

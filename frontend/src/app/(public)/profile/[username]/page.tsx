@@ -1,10 +1,10 @@
 import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
-import { FinishedGame, GameResult, RatingOverview } from "@/types/tempModels";
+import { FinishedGame, RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
-import { getUser } from "@/lib/apiClient";
+import { GameResult, getUser } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
 
