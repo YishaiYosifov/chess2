@@ -1,19 +1,14 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Game.SignalR;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.UserRating.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Game.Services;
 
 public interface IGameNotifier
 {
-    Task NotifyGameEndedAsync(
-        string gameToken,
-        GameResult result,
-        string resultDescription,
-        int? newWhiteRating,
-        int? newBlackRating
-    );
+    Task NotifyGameEndedAsync(string gameToken, GameResultData result);
     Task NotifyMoveMadeAsync(
         string gameToken,
         MoveSnapshot move,
@@ -43,14 +38,6 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
         await _hub.Clients.User(sideToMoveUserId).LegalMovesChangedAsync(legalMoves);
     }
 
-    public Task NotifyGameEndedAsync(
-        string gameToken,
-        GameResult result,
-        string resultDescription,
-        int? newWhiteRating,
-        int? newBlackRating
-    ) =>
-        _hub
-            .Clients.Group(gameToken)
-            .GameEndedAsync(result, resultDescription, newWhiteRating, newBlackRating);
+    public Task NotifyGameEndedAsync(string gameToken, GameResultData result) =>
+        _hub.Clients.Group(gameToken).GameEndedAsync(result);
 }

@@ -60,31 +60,30 @@ public class GameFinalizerTests : BaseActorTest
     }
 
     [Fact]
-    public async Task FinalizeGame_RatedGame_ForwardsAllArguments_And_NotifiesPlayers()
+    public async Task FinalizeGame_creates_archive_and_updates_rating_correctly()
     {
         var (whiteUser, whitePlayer, blackUser, blackPlayer) = CreatePlayers();
 
         var state = CreateRatedGameState(whitePlayer, blackPlayer);
-        var desc = "desc";
-        var delta = new RatingDelta(15, -15);
         var timeControl = TimeControl.Rapid;
-        var result = GameResult.WhiteWin;
+        RatingChange ratingChange = new(15, -15);
+        GameEndStatus endStatus = new(Result: GameResult.WhiteWin, ResultDescription: "desc");
         _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
         _ratingServiceMock
-            .UpdateRatingForResultAsync(whiteUser, blackUser, result, timeControl, CT)
-            .Returns(delta);
+            .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, timeControl, CT)
+            .Returns(ratingChange);
 
-        await _gameFinalizer.FinalizeGameAsync(GameToken, state, result, desc, CT);
+        await _gameFinalizer.FinalizeGameAsync(GameToken, state, endStatus, CT);
 
         await _gameArchiveServiceMock
             .Received(1)
-            .CreateArchiveAsync(GameToken, state, result, desc, delta, CT);
+            .CreateArchiveAsync(GameToken, state, endStatus, ratingChange, CT);
         await _ratingServiceMock
             .Received(1)
             .UpdateRatingForResultAsync(
                 whiteUser,
                 blackUser,
-                result,
+                endStatus.Result,
                 timeControl,
                 Arg.Any<CancellationToken>()
             );
@@ -109,7 +108,12 @@ public class GameFinalizerTests : BaseActorTest
 
         _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
 
-        await _gameFinalizer.FinalizeGameAsync(GameToken, state, GameResult.Aborted, "desc", CT);
+        await _gameFinalizer.FinalizeGameAsync(
+            GameToken,
+            state,
+            new(GameResult.Aborted, "desc"),
+            CT
+        );
 
         _ratingServiceMock.Received(0);
     }
@@ -118,12 +122,17 @@ public class GameFinalizerTests : BaseActorTest
     public async Task FinalizeGameAsync_unrated_game_does_not_call_rating_service()
     {
         var state = new GameStateFaker().RuleFor(x => x.IsRated, false).Generate();
-        var delta = new RatingDelta(15, -15);
+        var ratingChange = new RatingChange(15, -15);
         var timeControl = TimeControl.Rapid;
 
         _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
 
-        await _gameFinalizer.FinalizeGameAsync(GameToken, state, GameResult.WhiteWin, "desc", CT);
+        await _gameFinalizer.FinalizeGameAsync(
+            GameToken,
+            state,
+            new(GameResult.WhiteWin, "desc"),
+            CT
+        );
 
         _ratingServiceMock.Received(0);
     }

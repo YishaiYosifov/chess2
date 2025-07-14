@@ -3,6 +3,7 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.UserRating.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -15,12 +16,7 @@ public interface IGameHubClient : IChess2HubClient
 
     Task LegalMovesChangedAsync(IEnumerable<string> legalMoves);
 
-    Task GameEndedAsync(
-        GameResult result,
-        string resultDescription,
-        int? newWhiteRating,
-        int? newBlackRating
-    );
+    Task GameEndedAsync(GameResultData result);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]

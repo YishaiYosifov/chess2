@@ -1,6 +1,5 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
-using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.PlayerSession.Actors;
@@ -15,11 +14,10 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameFinalizer
 {
-    Task<GameArchive> FinalizeGameAsync(
+    Task<GameResultData> FinalizeGameAsync(
         string gameToken,
         GameState state,
-        GameResult result,
-        string resultDescription,
+        GameEndStatus endStatus,
         CancellationToken token = default
     );
 }
@@ -40,21 +38,19 @@ public class GameFinalizer(
     private readonly IRequiredActor<PlayerSessionActor> _playerSessionActor = playerSessionActor;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<GameArchive> FinalizeGameAsync(
+    public async Task<GameResultData> FinalizeGameAsync(
         string gameToken,
         GameState state,
-        GameResult result,
-        string resultDescription,
+        GameEndStatus endStatus,
         CancellationToken token = default
     )
     {
-        var ratingDelta = await UpdateRatingAsync(state, result, token);
-        var archive = await _gameArchiveService.CreateArchiveAsync(
+        var ratingChange = await UpdateRatingAsync(state, endStatus.Result, token);
+        await _gameArchiveService.CreateArchiveAsync(
             gameToken,
             state,
-            result,
-            resultDescription,
-            ratingDelta,
+            endStatus,
+            ratingChange,
             token
         );
 
@@ -67,30 +63,35 @@ public class GameFinalizer(
 
         await _unitOfWork.CompleteAsync(token);
 
-        return archive;
+        return new(
+            Result: endStatus.Result,
+            ResultDescription: endStatus.ResultDescription,
+            WhiteRatingChange: ratingChange?.WhiteChange,
+            BlackRatingChange: ratingChange?.BlackChange
+        );
     }
 
-    private async Task<RatingDelta> UpdateRatingAsync(
+    private async Task<RatingChange?> UpdateRatingAsync(
         GameState gameState,
         GameResult gameResult,
         CancellationToken token = default
     )
     {
         if (!gameState.IsRated || gameResult is GameResult.Aborted)
-            return new();
+            return null;
 
         var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
         var blackUser = await _userManager.FindByIdAsync(gameState.BlackPlayer.UserId);
         if (whiteUser is null || blackUser is null)
-            return new();
+            return null;
 
-        var whiteRatingDelta = await _ratingService.UpdateRatingForResultAsync(
+        var ratingChange = await _ratingService.UpdateRatingForResultAsync(
             whiteUser,
             blackUser,
             gameResult,
             _timeControlTranslator.FromSeconds(gameState.TimeControl.BaseSeconds),
             token
         );
-        return whiteRatingDelta;
+        return ratingChange;
     }
 }

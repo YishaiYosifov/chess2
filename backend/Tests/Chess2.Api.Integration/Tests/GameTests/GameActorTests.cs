@@ -262,14 +262,18 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
 
+        var expectedEndStatus = _gameResultDescriber.Aborted(GameColor.White);
         await _gameNotifierMock
             .Received(1)
             .NotifyGameEndedAsync(
                 TestGameToken,
-                GameResult.Aborted,
-                _gameResultDescriber.Aborted(GameColor.White),
-                Arg.Any<int?>(),
-                Arg.Any<int?>()
+                ArgEx.FluentAssert<GameResultData>(
+                    (x) =>
+                    {
+                        x.Result.Should().Be(expectedEndStatus.Result);
+                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+                    }
+                )
             );
     }
 
@@ -288,14 +292,18 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
 
+        var expectedEndStatus = _gameResultDescriber.Resignation(GameColor.White);
         await _gameNotifierMock
             .Received(1)
             .NotifyGameEndedAsync(
                 TestGameToken,
-                GameResult.BlackWin,
-                _gameResultDescriber.Resignation(GameColor.White),
-                Arg.Any<int?>(),
-                Arg.Any<int?>()
+                ArgEx.FluentAssert<GameResultData>(
+                    (x) =>
+                    {
+                        x.Result.Should().Be(expectedEndStatus.Result);
+                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+                    }
+                )
             );
     }
 
@@ -340,14 +348,18 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameActor.Tell(new GameCommands.TickClock(), _probe);
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
 
+        var expectedEndStatus = _gameResultDescriber.Timeout(GameColor.White);
         await _gameNotifierMock
             .Received(1)
             .NotifyGameEndedAsync(
                 TestGameToken,
-                GameResult.BlackWin,
-                _gameResultDescriber.Timeout(GameColor.White),
-                Arg.Any<int?>(),
-                Arg.Any<int?>()
+                ArgEx.FluentAssert<GameResultData>(
+                    (x) =>
+                    {
+                        x.Result.Should().Be(expectedEndStatus.Result);
+                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+                    }
+                )
             );
 
         var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(

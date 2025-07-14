@@ -4,7 +4,6 @@ using Akka.Event;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
-using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.Shared.Extensions;
 
 namespace Chess2.Api.Game.Actors;
@@ -18,7 +17,6 @@ public class GameActor : ReceiveActor, IWithTimers
     private readonly IGameCore _core;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
-    private readonly IDrawEvaulator _drawEvaulator;
     private readonly IGameClock _clock;
 
     private readonly PlayerRoster _players = new();
@@ -27,6 +25,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private TimeControlSettings _timeControl;
     private bool _isRated;
+    private GameResultData? _result;
 
     public ITimerScheduler Timers { get; set; } = null!;
 
@@ -37,7 +36,6 @@ public class GameActor : ReceiveActor, IWithTimers
         IGameClock clock,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier,
-        IDrawEvaulator drawEvaulator,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -51,7 +49,6 @@ public class GameActor : ReceiveActor, IWithTimers
         _clock = clock;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
-        _drawEvaulator = drawEvaulator;
         Become(WaitingForStart);
     }
 
@@ -126,14 +123,7 @@ public class GameActor : ReceiveActor, IWithTimers
         var player = _players.GetPlayerByColor(_core.SideToMove);
         _logger.Info("Game {0} ended by user {1} timing out", _token, player.UserId);
 
-        var reason = _resultDescriber.Timeout(_core.SideToMove);
-        var winnerColor = _core.SideToMove.Invert();
-        var result = winnerColor.Match(
-            whenWhite: GameResult.WhiteWin,
-            whenBlack: GameResult.BlackWin
-        );
-
-        await FinalizeGameAsync(player, result, reason);
+        await FinalizeGameAsync(player, _resultDescriber.Timeout(_core.SideToMove));
         if (!Sender.IsNobody())
             Sender.Tell(new GameEvents.GameEnded());
     }
@@ -151,26 +141,20 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        GameResult result;
-        string reason;
+        GameEndStatus endStatus;
         var isAbort = _historyTracker.MoveNumber < 2;
         if (isAbort)
-        {
-            result = GameResult.Aborted;
-            reason = _resultDescriber.Aborted(player.Color);
-        }
+            endStatus = _resultDescriber.Aborted(player.Color);
         else
-        {
-            reason = _resultDescriber.Resignation(player.Color);
-            var winnerColor = player.Color.Invert();
-            result = winnerColor.Match(
-                whenWhite: GameResult.WhiteWin,
-                whenBlack: GameResult.BlackWin
-            );
-        }
+            endStatus = _resultDescriber.Resignation(player.Color);
 
-        _logger.Info("Game {0} ended by user {1}. Result: {2}", _token, endGame.UserId, result);
-        await FinalizeGameAsync(player, result, reason);
+        _logger.Info(
+            "Game {0} ended by user {1}. Result: {2}",
+            _token,
+            endGame.UserId,
+            endStatus.Result
+        );
+        await FinalizeGameAsync(player, endStatus);
         Sender.Tell(new GameEvents.GameEnded());
     }
 
@@ -188,18 +172,18 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        var moveResult = _core.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
-        if (moveResult.IsError)
+        var makeMoveResult = _core.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
+        if (makeMoveResult.IsError)
         {
-            Sender.ReplyWithError(moveResult.Errors);
+            Sender.ReplyWithError(makeMoveResult.Errors);
             return;
         }
+        var moveResult = makeMoveResult.Value;
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
-        var (move, encoded, san) = moveResult.Value;
-        var snapshot = _historyTracker.RecordMove(encoded, san, timeLeft);
-        
-        if (_drawEvaulator.TryEvaluateDraw(move, _core.Fen, out var drawReason))
-            await FinalizeGameAsync(currentPlayer, GameResult.Draw, drawReason);
+        var snapshot = _historyTracker.RecordMove(moveResult.EncodedMove, moveResult.San, timeLeft);
+
+        if (moveResult.EndStatus is not null)
+            await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
 
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
         await _gameNotifier.NotifyMoveMadeAsync(
@@ -230,7 +214,7 @@ public class GameActor : ReceiveActor, IWithTimers
         });
     }
 
-    private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameResult result, string reason)
+    private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameEndStatus endStatus)
     {
         // TODO: remember to uncomment when done testing
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
@@ -240,14 +224,9 @@ public class GameActor : ReceiveActor, IWithTimers
 
         await using var scope = _sp.CreateAsyncScope();
         var gameFinalizer = scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-        var archive = await gameFinalizer.FinalizeGameAsync(_token, state, result, reason);
-        await _gameNotifier.NotifyGameEndedAsync(
-            _token,
-            result,
-            reason,
-            archive.WhitePlayer.NewRating,
-            archive.BlackPlayer.NewRating
-        );
+
+        _result = await gameFinalizer.FinalizeGameAsync(_token, state, endStatus);
+        await _gameNotifier.NotifyGameEndedAsync(_token, _result);
         Become(Finished);
         Timers.Cancel(ClockTimerKey);
     }
@@ -265,7 +244,8 @@ public class GameActor : ReceiveActor, IWithTimers
             SideToMove: _core.SideToMove,
             Fen: _core.Fen,
             LegalMoves: legalMoves.EncodedMoves,
-            MoveHistory: [.. _historyTracker.MoveHistory]
+            MoveHistory: [.. _historyTracker.MoveHistory],
+            ResultData: _result
         );
         return gameState;
     }

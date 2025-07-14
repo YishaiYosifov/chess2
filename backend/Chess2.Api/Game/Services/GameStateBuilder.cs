@@ -48,18 +48,18 @@ public class GameStateBuilder : IGameStateBuilder
 
     private static GamePlayer CreatePlayerFromArchive(PlayerArchive playerArchive) =>
         new(
-            playerArchive.UserId,
-            playerArchive.Color,
-            playerArchive.UserName,
-            playerArchive.CountryCode,
-            playerArchive.NewRating
+            UserId: playerArchive.UserId,
+            Color: playerArchive.Color,
+            UserName: playerArchive.UserName,
+            CountryCode: playerArchive.CountryCode,
+            Rating: playerArchive.NewRating
         );
 
     private static GameResultData CreateResultDataFromArchive(GameArchive archive) =>
         new(
-            archive.Result,
-            archive.ResultDescription,
-            archive.WhitePlayer.NewRating - archive.WhitePlayer.InitialRating,
-            archive.BlackPlayer.NewRating - archive.BlackPlayer.InitialRating
+            Result: archive.Result,
+            ResultDescription: archive.ResultDescription,
+            WhiteRatingChange: archive.WhitePlayer.RatingChange,
+            BlackRatingChange: archive.BlackPlayer.RatingChange
         );
 }

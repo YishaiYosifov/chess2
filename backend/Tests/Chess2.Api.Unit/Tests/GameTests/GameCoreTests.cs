@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Game.Errors;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
@@ -11,11 +12,12 @@ namespace Chess2.Api.Unit.Tests.GameTests;
 
 public class GameCoreTests
 {
-    private readonly IFenCalculator _fenCalculator = Substitute.For<IFenCalculator>();
-    private readonly ILegalMoveCalculator _legalMoveCalculator =
+    private readonly IFenCalculator _fenCalculatorMock = Substitute.For<IFenCalculator>();
+    private readonly ILegalMoveCalculator _legalMoveCalculatorMock =
         Substitute.For<ILegalMoveCalculator>();
-    private readonly IMoveEncoder _encoder = Substitute.For<IMoveEncoder>();
-    private readonly ISanCalculator _sanCalculator = Substitute.For<ISanCalculator>();
+    private readonly IMoveEncoder _encoderMock = Substitute.For<IMoveEncoder>();
+    private readonly ISanCalculator _sanCalculatorMock = Substitute.For<ISanCalculator>();
+    private readonly IDrawEvaulator _drawEvaluatorMock = Substitute.For<IDrawEvaulator>();
 
     private readonly GameCore _gameCore;
 
@@ -23,10 +25,11 @@ public class GameCoreTests
     {
         _gameCore = new(
             Substitute.For<ILogger<GameCore>>(),
-            _fenCalculator,
-            _legalMoveCalculator,
-            _encoder,
-            _sanCalculator
+            _fenCalculatorMock,
+            _legalMoveCalculatorMock,
+            _encoderMock,
+            _sanCalculatorMock,
+            _drawEvaluatorMock
         );
     }
 
@@ -38,20 +41,20 @@ public class GameCoreTests
         var allMoves = new[] { m1, m2 };
         var movesEnc = new[] { "e2e4", "g1f3" };
 
-        _legalMoveCalculator
+        _legalMoveCalculatorMock
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
             .Returns(allMoves);
-        _encoder
+        _encoderMock
             .EncodeMoves(
                 Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.White))
             )
             .Returns(movesEnc);
-        _encoder
+        _encoderMock
             .EncodeMoves(
                 Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.Black))
             )
             .Returns(["nah", "uh"]);
-        _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
+        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
 
         _gameCore.InitializeGame();
 
@@ -89,56 +92,77 @@ public class GameCoreTests
     }
 
     [Fact]
-    public void MakeMove_moves_the_piece_and_updates_move_history_and_legal_moves()
+    public void MakeMove_moves_the_piece_and_updates_legal_moves()
     {
-        AlgebraicPoint from = new("e2");
-        AlgebraicPoint to = new("e4");
-        Move move = new(from, to, PieceFactory.White());
-        Move[] legalMoves = [move];
+        Move move = new(new("e2"), new("e4"), PieceFactory.White());
         string encoded = "e2e4";
         string san = "e4";
 
-        _legalMoveCalculator
-            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
-            .Returns(legalMoves);
-        _encoder
-            .EncodeMoves(Arg.Is<IEnumerable<Move>>(moves => moves.SequenceEqual(legalMoves)))
-            .Returns([encoded]);
-        _encoder.EncodeSingleMove(move).Returns(encoded);
-        _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
-        _sanCalculator
-            .CalculateSan(move, Arg.Is<IEnumerable<Move>>(moves => moves.SequenceEqual(legalMoves)))
-            .Returns(san);
+        SetupLegalMove(move, encoded, san);
+        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
 
         _gameCore.InitializeGame();
 
-        var result = _gameCore.MakeMove(from, to, GameColor.White);
+        var result = _gameCore.MakeMove(move.From, move.To, GameColor.White);
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be((move, encoded, san));
+        result
+            .Value.Should()
+            .Be(new MoveResult(Move: move, EncodedMove: encoded, San: san, EndStatus: null));
 
         _gameCore.Fen.Should().Be("updated-fen");
         _gameCore.SideToMove.Should().Be(GameColor.Black);
     }
 
     [Fact]
-    public void SideToMove_should_alternate_depending_on_move_history()
+    public void MakeMove_alternates_when_making_a_move()
     {
-        AlgebraicPoint from = new("e2");
-        AlgebraicPoint to = new("e4");
-        Move move = new(from, to, PieceFactory.White());
-
-        _legalMoveCalculator
-            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
-            .Returns([move]);
-        _encoder.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns(["e2e4"]);
-        _encoder.EncodeSingleMove(Arg.Any<Move>()).Returns("e2e4");
-        _fenCalculator.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
+        Move move = new(new("e2"), new("e4"), PieceFactory.White());
+        SetupLegalMove(move, "e2e4", "e4");
 
         _gameCore.InitializeGame();
 
         _gameCore.SideToMove.Should().Be(GameColor.White);
-        _gameCore.MakeMove(from, to, GameColor.White);
+        _gameCore.MakeMove(move.From, move.To, GameColor.White);
         _gameCore.SideToMove.Should().Be(GameColor.Black);
+    }
+
+    [Fact]
+    public void MakeMove_sets_end_status_when_move_results_in_draw()
+    {
+        Move move = new(new("e2"), new("e4"), PieceFactory.White());
+        string fen = "some fen";
+        GameEndStatus drawStatus = new(GameResult.Draw, "test draw reason");
+        SetupLegalMove(move, "e2e4", "e4");
+
+        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns(fen);
+        _drawEvaluatorMock
+            .TryEvaluateDraw(move, fen, out Arg.Any<GameEndStatus?>())
+            .Returns(ci =>
+            {
+                ci[2] = drawStatus;
+                return true;
+            });
+        _gameCore.InitializeGame();
+
+        var result = _gameCore.MakeMove(move.From, move.To, GameColor.White);
+
+        result.IsError.Should().BeFalse();
+        result.Value.EndStatus.Should().Be(drawStatus);
+    }
+
+    private void SetupLegalMove(Move move, string encoded, string san)
+    {
+        _legalMoveCalculatorMock
+            .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
+            .Returns([move]);
+
+        _encoderMock.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns([encoded]);
+        _encoderMock.EncodeSingleMove(move).Returns(encoded);
+
+        Move[] legalMoves = [move];
+        _sanCalculatorMock
+            .CalculateSan(move, Arg.Is<IEnumerable<Move>>(moves => moves.SequenceEqual(legalMoves)))
+            .Returns(san);
     }
 }
