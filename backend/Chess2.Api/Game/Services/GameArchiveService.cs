@@ -124,7 +124,8 @@ public class GameArchiveService(
                     UserName: blackPlayer.UserName,
                     Rating: blackPlayer.NewRating
                 ),
-                archive.Result
+                archive.Result,
+                CreatedAt: archive.CreatedAt
             );
         });
 

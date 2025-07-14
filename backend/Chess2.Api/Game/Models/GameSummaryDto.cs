@@ -7,5 +7,6 @@ public record GameSummaryDto(
     string GameToken,
     PlayerSummaryDto WhitePlayer,
     PlayerSummaryDto BlackPlayer,
-    GameResult Result
+    GameResult Result,
+    DateTime CreatedAt
 );
