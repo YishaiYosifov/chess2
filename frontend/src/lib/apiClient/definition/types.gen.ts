@@ -102,6 +102,35 @@ export type OperationBase = {
     from?: string | null;
 };
 
+export type RatingOverview = {
+    timeControl: TimeControl;
+    ratings: Array<Rating>;
+};
+
+export enum TimeControl {
+    /**
+     * Bullet
+     */
+    BULLET = 0,
+    /**
+     * Blitz
+     */
+    BLITZ = 1,
+    /**
+     * Rapid
+     */
+    RAPID = 2,
+    /**
+     * Classical
+     */
+    CLASSICAL = 3,
+}
+
+export type Rating = {
+    rating: number;
+    at: number;
+};
+
 export type GameState = {
     timeControl: TimeControlSettings;
     isRated: boolean;
@@ -294,6 +323,31 @@ export type EditUsernameResponses = {
 
 export type EditUsernameResponse =
     EditUsernameResponses[keyof EditUsernameResponses];
+
+export type GetRatingArchivesData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: {
+        since?: string | null;
+    };
+    url: "/api/Rating/{userId}";
+};
+
+export type GetRatingArchivesErrors = {
+    404: ApiProblemDetails;
+};
+
+export type GetRatingArchivesError =
+    GetRatingArchivesErrors[keyof GetRatingArchivesErrors];
+
+export type GetRatingArchivesResponses = {
+    200: Array<RatingOverview>;
+};
+
+export type GetRatingArchivesResponse =
+    GetRatingArchivesResponses[keyof GetRatingArchivesResponses];
 
 export type GetGameData = {
     body?: never;

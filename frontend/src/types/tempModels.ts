@@ -39,14 +39,3 @@ export interface Move {
     captures: Point[];
     sideEffects: Move[];
 }
-
-export interface Rating {
-    elo: number;
-    achievedAt: number;
-}
-
-export interface RatingOverview {
-    max: number;
-    current: number;
-    history: Array<Rating>;
-}
