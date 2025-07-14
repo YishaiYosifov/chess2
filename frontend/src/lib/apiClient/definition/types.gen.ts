@@ -190,6 +190,7 @@ export type GameSummary = {
     whitePlayer: PlayerSummary;
     blackPlayer: PlayerSummary;
     result: GameResult;
+    createdAt: string;
 };
 
 export type PlayerSummary = {

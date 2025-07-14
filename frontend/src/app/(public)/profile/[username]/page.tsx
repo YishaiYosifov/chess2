@@ -1,10 +1,9 @@
 import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
-import { FinishedGame, RatingOverview } from "@/types/tempModels";
+import { getGameResults, getUser } from "@/lib/apiClient";
+import { RatingOverview } from "@/types/tempModels";
 import { notFound } from "next/navigation";
-import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
-import { GameResult, getUser } from "@/lib/apiClient";
 
 type Params = Promise<{ username: string }>;
 
@@ -18,9 +17,20 @@ export async function generateMetadata({ params }: { params: Params }) {
 const UserPage = async ({ params }: { params: Params }) => {
     const { username } = await params;
 
-    const { error, data: profile } = await getUser({ path: { username } });
-    if (error || !profile) {
-        console.error(error);
+    const { error: profileError, data: profile } = await getUser({
+        path: { username },
+    });
+    if (profileError || !profile) {
+        console.error(profileError);
+        notFound();
+    }
+
+    const { error: gamesError, data: games } = await getGameResults({
+        path: { userId: profile?.userId },
+        query: { Page: 0, PageSize: 10 },
+    });
+    if (gamesError || !games) {
+        console.error(gamesError);
         notFound();
     }
 
@@ -39,59 +49,8 @@ const UserPage = async ({ params }: { params: Params }) => {
         ],
     };
 
-    const testGamesData: FinishedGame[] = [
-        {
-            token: "123",
-
-            userWhite: profile,
-            userBlack: createFakeUser(),
-
-            timeControl: 900,
-            increment: 1,
-
-            results: GameResult.WHITE_WIN,
-            createdAt: Date.now().valueOf(),
-        },
-        {
-            token: "456",
-
-            userWhite: createFakeUser(),
-            userBlack: profile,
-
-            timeControl: 900,
-            increment: 1,
-
-            results: GameResult.WHITE_WIN,
-            createdAt: Date.now().valueOf(),
-        },
-        {
-            token: "789",
-
-            userWhite: createFakeUser(),
-            userBlack: profile,
-
-            timeControl: 900,
-            increment: 1,
-
-            results: GameResult.DRAW,
-            createdAt: Date.now().valueOf(),
-        },
-        {
-            token: "101112",
-
-            userWhite: profile,
-            userBlack: createFakeUser(),
-
-            timeControl: 900,
-            increment: 1,
-
-            results: GameResult.DRAW,
-            createdAt: Date.now().valueOf(),
-        },
-    ];
-
     return (
-        <div className="flex w-screen max-w-4xl flex-col gap-10 p-10">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 p-6">
             <Profile profile={profile} />
 
             <section className="flex flex-shrink-0 gap-10 overflow-x-auto">
@@ -106,7 +65,7 @@ const UserPage = async ({ params }: { params: Params }) => {
             </section>
 
             <section className="flex-shrink-0 overflow-x-auto">
-                <GamesTable games={testGamesData} profileViewpoint={profile} />
+                <GamesTable games={games.items} profileViewpoint={profile} />
             </section>
         </div>
     );

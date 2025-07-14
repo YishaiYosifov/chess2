@@ -102,7 +102,7 @@ const RatingCard = ({
                     {maxRating}
                 </span>
                 <span>
-                    Rating Chaing
+                    Rating Change
                     <span className="text-text/50 ms-2">last month</span>
                 </span>
                 <span className="justify-self-end" data-testid="ratingChange">

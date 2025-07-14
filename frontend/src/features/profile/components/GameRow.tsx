@@ -6,33 +6,31 @@ import {
 
 import Link from "next/link";
 
-import { type FinishedGame } from "@/types/tempModels";
-
 import clsx from "clsx";
-import { GameResult, User } from "@/lib/apiClient";
+import { GameColor, GameResult, GameSummary, User } from "@/lib/apiClient";
 
 const GameRow = ({
     game,
     profileViewpoint,
     index,
 }: {
-    game: FinishedGame;
+    game: GameSummary;
     profileViewpoint: User;
     index: number;
 }) => {
-    const color =
-        game.userWhite?.userId == profileViewpoint.userId
+    const winCondition =
+        game.whitePlayer.userId == profileViewpoint.userId
             ? GameResult.WHITE_WIN
             : GameResult.BLACK_WIN;
 
-    const isDraw = game.results === GameResult.DRAW;
-    const isWinner = game.results === color;
+    const isDraw = game.result === GameResult.DRAW;
+    const isWinner = game.result === winCondition;
 
     const GameLink = () => (
         <Link
             data-testid="gameRowLink"
             className="absolute top-0 right-0 left-0"
-            href={`/game/${game.token}`}
+            href={`/game/${game.gameToken}`}
         />
     );
 
@@ -56,11 +54,11 @@ const GameRow = ({
     function getScore(winResult: GameResult): string {
         if (isDraw) return "½";
 
-        return game.results == winResult ? "1" : "0";
+        return game.result == winResult ? "1" : "0";
     }
 
-    const usernameWhite = game.userWhite?.userName ?? "DELETED";
-    const usernameBlack = game.userBlack?.userName ?? "DELETED";
+    const whiteUsername = game.whitePlayer.userName;
+    const blackUsername = game.blackPlayer.userName;
 
     return (
         <tr
@@ -74,17 +72,17 @@ const GameRow = ({
                 <GameLink />
                 <div className="flex flex-col justify-between">
                     <Link
-                        href={`/profile/${usernameWhite}`}
-                        data-testid="gameRowUsernameWhite"
+                        href={`/profile/${whiteUsername}`}
+                        data-testid="gameRowWhiteUsername"
                     >
-                        {usernameWhite}
+                        {whiteUsername}
                     </Link>
                     <Link
-                        href={`/profile/${usernameBlack}`}
+                        href={`/profile/${blackUsername}`}
                         className="text-white/50"
-                        data-testid="gameRowUsernameBlack"
+                        data-testid="gameRowBlackUsername"
                     >
-                        {usernameBlack}
+                        {blackUsername}
                     </Link>
                 </div>
             </td>
