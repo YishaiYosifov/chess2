@@ -1,11 +1,4 @@
-import { GameColor, User } from "../lib/apiClient";
-
-export enum GameResult {
-    WHITE_WIN = 0,
-    BLACK_WIN = 1,
-    DRAW = 2,
-    ABORTED = 3,
-}
+import { GameColor, GameResult, User } from "../lib/apiClient";
 
 export enum PieceType {
     KING = "k",

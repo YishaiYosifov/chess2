@@ -2,8 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import React from "react";
 
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
-import { GameColor } from "@/lib/apiClient";
-import { GameResult } from "@/types/tempModels";
+import { GameColor, GameResult } from "@/lib/apiClient";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";

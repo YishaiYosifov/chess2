@@ -3,12 +3,12 @@ import { render, screen } from "@testing-library/react";
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControls from "../GameControls";
-import { GameResult } from "@/types/tempModels";
 import userEvent from "@testing-library/user-event";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { createFakeMoveSnapshot } from "@/lib/testUtils/fakers/moveSnapshotFaker";
+import { GameResult } from "@/lib/apiClient";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 

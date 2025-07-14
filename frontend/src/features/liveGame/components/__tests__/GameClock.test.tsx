@@ -1,11 +1,10 @@
 import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { StoreApi } from "zustand";
 import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, GameResult } from "@/lib/apiClient";
 import { act, render, screen } from "@testing-library/react";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import GameClock from "../GameClock";
-import { GameResult } from "@/types/tempModels";
 
 describe("GameClock", () => {
     let store: StoreApi<LiveChessStore>;
