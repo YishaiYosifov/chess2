@@ -13,9 +13,8 @@ public interface IGameArchiveService
     Task<GameArchive> CreateArchiveAsync(
         string gameToken,
         GameState state,
-        GameResult result,
-        string resultDescription,
-        RatingDelta ratingDelta,
+        GameEndStatus endStatus,
+        RatingChange? ratingChange,
         CancellationToken token = default
     );
     Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
@@ -40,20 +39,19 @@ public class GameArchiveService(
     public async Task<GameArchive> CreateArchiveAsync(
         string gameToken,
         GameState state,
-        GameResult result,
-        string resultDescription,
-        RatingDelta ratingDelta,
+        GameEndStatus endStatus,
+        RatingChange? ratingChange,
         CancellationToken token = default
     )
     {
         var whiteArchive = CreatePlayerArchive(
             state.WhitePlayer,
-            ratingDelta.WhiteDelta,
+            ratingChange?.WhiteChange,
             state.Clocks.WhiteClock
         );
         var blackArchive = CreatePlayerArchive(
             state.BlackPlayer,
-            ratingDelta.BlackDelta,
+            ratingChange?.BlackChange,
             state.Clocks.BlackClock
         );
         List<MoveArchive> moves = [];
@@ -66,8 +64,8 @@ public class GameArchiveService(
         GameArchive gameArchive = new()
         {
             GameToken = gameToken,
-            Result = result,
-            ResultDescription = resultDescription,
+            Result = endStatus.Result,
+            ResultDescription = endStatus.ResultDescription,
             WhitePlayerId = whiteArchive.Id,
             WhitePlayer = whiteArchive,
             BlackPlayerId = blackArchive.Id,
@@ -140,7 +138,7 @@ public class GameArchiveService(
 
     private static PlayerArchive CreatePlayerArchive(
         GamePlayer player,
-        int ratingDelta,
+        int? ratingChange,
         double timeRemaining
     ) =>
         new()
@@ -150,8 +148,8 @@ public class GameArchiveService(
             UserName = player.UserName,
             FinalTimeRemaining = timeRemaining,
             CountryCode = player.CountryCode,
-            InitialRating = player.Rating,
-            NewRating = player.Rating + ratingDelta,
+            NewRating = player.Rating + (ratingChange ?? 0),
+            RatingChange = ratingChange,
         };
 
     private static MoveArchive CreateMoveArchive(MoveSnapshot moveSnapshot, int moveNumber) =>

@@ -14,6 +14,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 {
     private readonly IGameArchiveService _gameArchiveService;
 
+    private const string GameToken = "test game token";
+
     public GameArchiveServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
@@ -23,40 +25,37 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     [Fact]
     public async Task CreateArchiveAsync_creates_and_saves_the_game_archive_correctly()
     {
-        var gameToken = Guid.NewGuid().ToString("N")[..16];
         var gameState = new GameStateFaker().Generate();
-        var expectedResult = GameResult.WhiteWin;
-        var expectedResultDesc = "White Won by Resignation";
-        var ratingDelta = new RatingDelta(WhiteDelta: 100, BlackDelta: -150);
+        GameEndStatus endStatus = new(GameResult.WhiteWin, "White Won by Resignation");
+        var ratingChange = new RatingChange(WhiteChange: 100, BlackChange: -150);
 
         var result = await _gameArchiveService.CreateArchiveAsync(
-            gameToken,
+            GameToken,
             gameState,
-            expectedResult,
-            expectedResultDesc,
-            ratingDelta,
+            endStatus,
+            ratingChange,
             CT
         );
 
         await DbContext.SaveChangesAsync(CT);
 
-        var savedArchive = await GetSavedArchiveAsync(gameToken);
+        var savedArchive = await GetSavedArchiveAsync(GameToken);
 
         savedArchive.Should().BeEquivalentTo(result);
         var expectedArchive = new GameArchive
         {
-            GameToken = gameToken,
-            Result = expectedResult,
-            ResultDescription = expectedResultDesc,
+            GameToken = GameToken,
+            Result = endStatus.Result,
+            ResultDescription = endStatus.ResultDescription,
             FinalFen = gameState.Fen,
             WhitePlayer = CreateExpectedPlayerArchive(
                 gameState.WhitePlayer,
-                ratingDelta.WhiteDelta,
+                ratingChange.WhiteChange,
                 gameState.Clocks.WhiteClock
             ),
             BlackPlayer = CreateExpectedPlayerArchive(
                 gameState.BlackPlayer,
-                ratingDelta.BlackDelta,
+                ratingChange.BlackChange,
                 gameState.Clocks.BlackClock
             ),
             Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
@@ -82,6 +81,27 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             );
     }
 
+    [Fact]
+    public async Task CreateArchiveAsync_saves_rating_even_if_rating_change_is_null()
+    {
+        var gameState = new GameStateFaker().Generate();
+        GameEndStatus endStatus = new(GameResult.WhiteWin, "White Won by Resignation");
+
+        var result = await _gameArchiveService.CreateArchiveAsync(
+            GameToken,
+            gameState,
+            endStatus,
+            ratingChange: null,
+            CT
+        );
+
+        result.WhitePlayer.RatingChange.Should().BeNull();
+        result.WhitePlayer.NewRating.Should().Be(gameState.WhitePlayer.Rating);
+
+        result.BlackPlayer.RatingChange.Should().BeNull();
+        result.BlackPlayer.NewRating.Should().Be(gameState.BlackPlayer.Rating);
+    }
+
     private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
     {
         var archive = await DbContext
@@ -96,7 +116,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 
     private static PlayerArchive CreateExpectedPlayerArchive(
         GamePlayer player,
-        int ratingDelta,
+        int ratingChange,
         double timeLeft
     ) =>
         new()
@@ -105,8 +125,8 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             UserName = player.UserName,
             CountryCode = player.CountryCode,
             Color = player.Color,
-            InitialRating = player.Rating,
-            NewRating = player.Rating + ratingDelta,
+            NewRating = player.Rating + ratingChange,
+            RatingChange = ratingChange,
             FinalTimeRemaining = timeLeft,
         };
 
