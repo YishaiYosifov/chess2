@@ -1,11 +1,12 @@
-﻿using Chess2.Api.GameLogic.Models;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.Game.Services;
 
 public interface IDrawEvaulator
 {
-    bool TryEvaluateDraw(Move move, string fen, [NotNullWhen(true)] out string? reason);
+    bool TryEvaluateDraw(Move move, string fen, [NotNullWhen(true)] out GameEndStatus? reason);
 }
 
 public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvaulator
@@ -14,20 +15,24 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
     private readonly Dictionary<string, int> _fenOccurrences = [];
     private int _halfMoveClock = 0;
 
-    public bool TryEvaluateDraw(Move move, string fen, [NotNullWhen(true)] out string? reason)
+    public bool TryEvaluateDraw(
+        Move move,
+        string fen,
+        [NotNullWhen(true)] out GameEndStatus? endStatus
+    )
     {
         if (IsThreeFold(fen))
         {
-            reason = _gameResultDescriber.ThreeFold();
+            endStatus = _gameResultDescriber.ThreeFold();
             return true;
         }
         if (Is50Moves(move))
         {
-            reason = _gameResultDescriber.FiftyMoves();
+            endStatus = _gameResultDescriber.FiftyMoves();
             return true;
         }
 
-        reason = null;
+        endStatus = null;
         return false;
     }
 

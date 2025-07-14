@@ -27,13 +27,13 @@ public class GameStateBuilderTests
             .Select(m => new MoveSnapshot(m.EncodedMove, m.San, m.TimeLeft))
             .ToList();
 
-        var expectedClocks = new ClockDto(
+        ClockDto expectedClocks = new(
             whitePlayer.FinalTimeRemaining,
             blackPlayer.FinalTimeRemaining,
             LastUpdated: null
         );
 
-        var expectedGameState = new GameState(
+        GameState expectedGameState = new(
             TimeControl: new TimeControlSettings(archive.BaseSeconds, archive.IncrementSeconds),
             IsRated: archive.IsRated,
             WhitePlayer: new GamePlayer(
@@ -56,10 +56,10 @@ public class GameStateBuilderTests
             LegalMoves: [],
             MoveHistory: expectedMoveHistory,
             ResultData: new GameResultData(
-                archive.Result,
-                archive.ResultDescription,
-                whitePlayer.NewRating - whitePlayer.InitialRating,
-                blackPlayer.NewRating - blackPlayer.InitialRating
+                Result: archive.Result,
+                ResultDescription: archive.ResultDescription,
+                WhiteRatingChange: whitePlayer.RatingChange,
+                BlackRatingChange: blackPlayer.RatingChange
             )
         );
 

@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Game.Errors;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Game.Errors;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
@@ -28,11 +30,7 @@ public interface IGameCore
 
     LegalMoveSet GetLegalMovesFor(GameColor forColor);
     void InitializeGame();
-    ErrorOr<(Move move, string EncodedMove, string San)> MakeMove(
-        AlgebraicPoint from,
-        AlgebraicPoint to,
-        GameColor forColor
-    );
+    ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
 }
 
 public record LegalMoveSet(IReadonlyLegalMoveMap Moves, IEnumerable<string> EncodedMoves)
@@ -43,12 +41,20 @@ public record LegalMoveSet(IReadonlyLegalMoveMap Moves, IEnumerable<string> Enco
         : this(new LegalMoveMap(), []) { }
 }
 
+public readonly record struct MoveResult(
+    Move Move,
+    string EncodedMove,
+    string San,
+    GameEndStatus? EndStatus
+);
+
 public class GameCore(
     ILogger<GameCore> logger,
     IFenCalculator fenCalculator,
     ILegalMoveCalculator legalMoveCalculator,
     IMoveEncoder legalMoveEncoder,
-    ISanCalculator sanCalculator
+    ISanCalculator sanCalculator,
+    IDrawEvaulator drawEvaulator
 ) : IGameCore
 {
     private readonly ChessBoard _board = new(
@@ -62,6 +68,7 @@ public class GameCore(
     private readonly ILegalMoveCalculator _legalMoveCalculator = legalMoveCalculator;
     private readonly IMoveEncoder _moveEncoder = legalMoveEncoder;
     private readonly ISanCalculator _sanCalculator = sanCalculator;
+    private readonly IDrawEvaulator _drawEvaulator = drawEvaulator;
 
     public string Fen { get; private set; } = "";
     public LegalMoveSet LegalMoves { get; private set; } = new();
@@ -73,11 +80,7 @@ public class GameCore(
         CalculateAllLegalMoves(GameColor.White);
     }
 
-    public ErrorOr<(Move move, string EncodedMove, string San)> MakeMove(
-        AlgebraicPoint from,
-        AlgebraicPoint to,
-        GameColor forColor
-    )
+    public ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
     {
         if (!LegalMoves.Moves.TryGetValue((from, to), out var move))
         {
@@ -91,10 +94,13 @@ public class GameCore(
 
         CalculateAllLegalMoves(forColor.Invert());
         Fen = _fenCalculator.CalculateFen(_board);
-
         SideToMove = SideToMove.Invert();
 
-        return (move, encodedMove, san);
+        GameEndStatus? endStatus = null;
+        if (_drawEvaulator.TryEvaluateDraw(move, Fen, out var drawReason))
+            endStatus = drawReason;
+
+        return new MoveResult(move, encodedMove, san, endStatus);
     }
 
     public LegalMoveSet GetLegalMovesFor(GameColor forColor)

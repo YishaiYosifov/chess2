@@ -22,7 +22,7 @@ public interface IRatingService
         TimeControl timeControl,
         CancellationToken token = default
     );
-    Task<RatingDelta> UpdateRatingForResultAsync(
+    Task<RatingChange> UpdateRatingForResultAsync(
         AuthedUser whiteUser,
         AuthedUser blackUser,
         GameResult result,
@@ -82,7 +82,7 @@ public class RatingService(
         return rating;
     }
 
-    public async Task<RatingDelta> UpdateRatingForResultAsync(
+    public async Task<RatingChange> UpdateRatingForResultAsync(
         AuthedUser whiteUser,
         AuthedUser blackUser,
         GameResult result,
@@ -93,26 +93,26 @@ public class RatingService(
         var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
         var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
 
-        var ratingDelta = CalculateRatingDelta(whiteRating.Value, blackRating.Value, result);
-        if (ratingDelta.WhiteDelta != 0)
+        var ratingChange = CalculateRatingChange(whiteRating.Value, blackRating.Value, result);
+        if (ratingChange.WhiteChange != 0)
             await AddRatingAsync(
                 whiteUser,
                 timeControl,
-                whiteRating.Value + ratingDelta.WhiteDelta,
+                whiteRating.Value + ratingChange.WhiteChange,
                 token
             );
-        if (ratingDelta.BlackDelta != 0)
+        if (ratingChange.BlackChange != 0)
             await AddRatingAsync(
                 blackUser,
                 timeControl,
-                blackRating.Value + ratingDelta.BlackDelta,
+                blackRating.Value + ratingChange.BlackChange,
                 token
             );
 
-        return ratingDelta;
+        return ratingChange;
     }
 
-    private RatingDelta CalculateRatingDelta(int whiteRating, int blackRating, GameResult result)
+    private RatingChange CalculateRatingChange(int whiteRating, int blackRating, GameResult result)
     {
         var whiteScore = result switch
         {
@@ -122,15 +122,15 @@ public class RatingService(
             _ => throw new ArgumentOutOfRangeException(nameof(result), result, null),
         };
         var expectedWhiteScore = 1 / (1 + Math.Pow(10, (blackRating - whiteRating) / 400.0));
-        var whiteRatingDelta = (int)
+        var whiteRatingChange = (int)
             Math.Round(_settings.KFactor * (whiteScore - expectedWhiteScore));
-        var blackRatingDelta = -whiteRatingDelta;
+        var blackRatingChange = -whiteRatingChange;
 
-        if (whiteRating + whiteRatingDelta < 100)
-            whiteRatingDelta = -Math.Abs(whiteRating - 100);
-        if (blackRating + blackRatingDelta < 100)
-            blackRatingDelta = -Math.Abs(blackRating - 100);
+        if (whiteRating + whiteRatingChange < 100)
+            whiteRatingChange = -Math.Abs(whiteRating - 100);
+        if (blackRating + blackRatingChange < 100)
+            blackRatingChange = -Math.Abs(blackRating - 100);
 
-        return new(whiteRatingDelta, blackRatingDelta);
+        return new(whiteRatingChange, blackRatingChange);
     }
 }
