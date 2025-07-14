@@ -20,6 +20,9 @@ import type {
     EditUsernameData,
     EditUsernameResponses,
     EditUsernameErrors,
+    GetRatingArchivesData,
+    GetRatingArchivesResponses,
+    GetRatingArchivesErrors,
     GetGameData,
     GetGameResponses,
     GetGameErrors,
@@ -131,6 +134,19 @@ export const editUsername = <ThrowOnError extends boolean = false>(
             "Content-Type": "application/json",
             ...options.headers,
         },
+    });
+};
+
+export const getRatingArchives = <ThrowOnError extends boolean = false>(
+    options: Options<GetRatingArchivesData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetRatingArchivesResponses,
+        GetRatingArchivesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Rating/{userId}",
+        ...options,
     });
 };
 

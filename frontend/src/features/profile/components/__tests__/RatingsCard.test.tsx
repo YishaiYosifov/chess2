@@ -5,17 +5,16 @@ import { Mock } from "vitest";
 import preloadAll from "@/lib/testUtils/dynamicImportMock";
 
 import RatingCard from "../RatingsCard";
-import { RatingOverview } from "@/types/tempModels";
+import { RatingOverview, TimeControl } from "@/lib/apiClient";
 
 vi.mock("react-apexcharts");
 
 const ratingMock: RatingOverview = {
-    history: [
-        { elo: 800, achievedAt: new Date("2024-11-24T11:00:00").getTime() },
-        { elo: 900, achievedAt: new Date("2024-11-24T12:00:00").getTime() },
+    timeControl: TimeControl.BLITZ,
+    ratings: [
+        { rating: 800, at: new Date("2024-11-24T11:00:00").valueOf() },
+        { rating: 900, at: new Date("2024-11-24T12:00:00").valueOf() },
     ],
-    current: 1000,
-    max: 1100,
 };
 
 describe("RatingsCard", () => {
@@ -40,13 +39,13 @@ describe("RatingsCard", () => {
             {
                 name: "Elo",
                 data: [
-                    ...ratingMock.history.map((rating) => ({
-                        x: rating.achievedAt,
-                        y: rating.elo,
+                    ...ratingMock.ratings.map((rating) => ({
+                        x: rating.at,
+                        y: rating.rating,
                     })),
                     {
                         x: currDate.getTime(),
-                        y: ratingMock.current,
+                        y: ratingMock.ratings[0].rating,
                     },
                 ],
             },
