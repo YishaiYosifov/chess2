@@ -6,10 +6,10 @@ import {
 
 import Link from "next/link";
 
-import { type FinishedGame, GameResult } from "@/types/tempModels";
+import { type FinishedGame } from "@/types/tempModels";
 
 import clsx from "clsx";
-import { User } from "@/lib/apiClient";
+import { GameResult, User } from "@/lib/apiClient";
 
 const GameRow = ({
     game,

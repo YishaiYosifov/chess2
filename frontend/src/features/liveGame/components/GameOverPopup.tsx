@@ -1,9 +1,8 @@
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import Card from "@/components/ui/Card";
-import { GameColor, GamePlayer } from "@/lib/apiClient";
+import { GameColor, GamePlayer, GameResult } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "@/components/ui/Button";
-import { GameResult } from "@/types/tempModels";
 import {
     forwardRef,
     ForwardRefRenderFunction,
