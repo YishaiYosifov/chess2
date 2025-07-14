@@ -160,7 +160,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         var rating = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(authedUser, 1500).RuleFor(x => x.TimeControl, TimeControl.Blitz)
+            new CurrentRatingFaker(authedUser, 1500).RuleFor(x => x.TimeControl, TimeControl.Blitz)
         );
 
         var gameToken = await _gameService.StartGameAsync(
@@ -175,7 +175,7 @@ public class GameControllerTests : BaseFunctionalTest
 
     private async Task AssertMixedPlayersGameState(
         AuthedUser authedUser,
-        Rating authedRating,
+        CurrentRating authedRating,
         string guestId,
         string gameToken
     )
@@ -202,9 +202,9 @@ public class GameControllerTests : BaseFunctionalTest
 
     private async Task<(
         AuthedUser user1,
-        Rating user1Rating,
+        CurrentRating user1Rating,
         AuthedUser user2,
-        Rating user2Rating,
+        CurrentRating user2Rating,
         string gameToken
     )> CreateRatedGameAsync()
     {
@@ -214,11 +214,11 @@ public class GameControllerTests : BaseFunctionalTest
 
         var user1Rating = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(user1, 1200).RuleFor(x => x.TimeControl, TimeControl.Bullet)
+            new CurrentRatingFaker(user1, 1200).RuleFor(x => x.TimeControl, TimeControl.Bullet)
         );
         var user2Rating = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
+            new CurrentRatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
         );
 
         var gameToken = await _gameService.StartGameAsync(
@@ -233,9 +233,9 @@ public class GameControllerTests : BaseFunctionalTest
 
     private static void AssertAuthedPlayersMatch(
         AuthedUser user1,
-        Rating user1Rating,
+        CurrentRating user1Rating,
         AuthedUser user2,
-        Rating user2Rating,
+        CurrentRating user2Rating,
         GameState gameState
     )
     {

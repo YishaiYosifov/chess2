@@ -1,15 +1,16 @@
 ﻿using Chess2.Api.Game.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.UserRating.Entities;
 
-public class Rating
+[Index(nameof(UserId))]
+public class RatingArchive
 {
     public int Id { get; set; }
     public required string UserId { get; set; }
 
     public required TimeControl TimeControl { get; set; }
-
-    public int Value { get; set; } = 800;
+    public required int Value { get; set; }
 
     public DateTime AchievedAt { get; set; } = DateTime.UtcNow;
 }

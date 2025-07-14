@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,6 +14,4 @@ public class AuthedUser : IdentityUser, IUser
 
     public DateTime UsernameLastChanged { get; set; } = DateTime.UtcNow;
     public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
-
-    public ICollection<Rating> Ratings { get; set; } = [];
 }

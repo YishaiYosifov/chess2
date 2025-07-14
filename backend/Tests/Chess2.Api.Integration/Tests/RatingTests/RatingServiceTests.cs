@@ -21,69 +21,101 @@ public class RatingServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetOrCreateRatingAsync_creates_a_new_rating_when_one_doesnt_exist()
+    public async Task GetRatingAsync_returns_default_rating_when_none_exists()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Blitz, CT);
+        var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Blitz, CT);
 
-        result.Should().NotBeNull();
-        result.UserId.Should().Be(user.Id);
-        result.TimeControl.Should().Be(TimeControl.Blitz);
-        result.Value.Should().Be(AppSettings.Game.DefaultRating);
+        ratingValue.Should().Be(AppSettings.Game.DefaultRating);
 
         var dbRating = await DbContext
-            .Ratings.AsNoTracking()
+            .CurrentRatings.AsNoTracking()
             .FirstOrDefaultAsync(
                 r => r.UserId == user.Id && r.TimeControl == TimeControl.Blitz,
                 CT
             );
-        dbRating.Should().NotBeNull();
-        dbRating.Should().BeEquivalentTo(result);
+        dbRating.Should().BeNull();
     }
 
     [Fact]
-    public async Task GetOrCreateRatingAsync_finds_the_existing_rating()
+    public async Task GetRatingAsync_returns_existing_rating()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var rating = await FakerUtils.StoreFakerAsync(
             DbContext,
-            new RatingFaker(user, timeControl: TimeControl.Rapid)
+            new CurrentRatingFaker(user, timeControl: TimeControl.Rapid)
         );
 
-        var result = await _ratingService.GetOrCreateRatingAsync(user, TimeControl.Rapid, CT);
+        var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Rapid, CT);
 
-        result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(rating);
+        ratingValue.Should().Be(rating.Value);
     }
 
     [Fact]
-    public async Task AddRatingAsync_adds_a_new_rating()
+    public async Task UpdateRatingAsync_updates_current_rating_and_adds_archive_entry()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         int newRatingValue = 1500;
+        var timeControl = TimeControl.Blitz;
 
-        var result = await _ratingService.AddRatingAsync(
-            user,
-            TimeControl.Classical,
-            newRatingValue,
-            CT
-        );
+        await _ratingService.UpdateRatingAsync(user, timeControl, newRatingValue, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        result.Should().NotBeNull();
-        result.UserId.Should().Be(user.Id);
-        result.TimeControl.Should().Be(TimeControl.Classical);
-        result.Value.Should().Be(newRatingValue);
+        var current = await DbContext
+            .CurrentRatings.AsNoTracking()
+            .FirstOrDefaultAsync(r => r.UserId == user.Id && r.TimeControl == timeControl, CT);
 
-        var dbRating = await DbContext
-            .Ratings.AsNoTracking()
-            .FirstOrDefaultAsync(
-                r => r.UserId == user.Id && r.TimeControl == TimeControl.Classical,
-                CT
-            );
-        dbRating.Should().NotBeNull();
-        dbRating.Should().BeEquivalentTo(result);
+        current.Should().NotBeNull();
+        current.Value.Should().Be(newRatingValue);
+        current.TimeControl.Should().Be(timeControl);
+        current.UserId.Should().Be(user.Id);
+
+        var archives = await DbContext
+            .RatingArchives.AsNoTracking()
+            .Where(r => r.UserId == user.Id && r.TimeControl == timeControl)
+            .ToListAsync(CT);
+
+        archives.Should().ContainSingle();
+        var archive = archives.Single();
+        archive.Value.Should().Be(newRatingValue);
+        archive.TimeControl.Should().Be(timeControl);
+        archive.UserId.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public async Task UpdateRatingAsync_can_be_called_multiple_times_and_appends_archives()
+    {
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var timeControl = TimeControl.Classical;
+
+        int[] ratingSequence = [1400, 1500, 1600];
+        foreach (var rating in ratingSequence)
+        {
+            await _ratingService.UpdateRatingAsync(user, timeControl, rating, CT);
+            await DbContext.SaveChangesAsync(CT);
+        }
+
+        // Assert current rating is the last one
+        var current = await DbContext
+            .CurrentRatings.AsNoTracking()
+            .FirstOrDefaultAsync(r => r.UserId == user.Id && r.TimeControl == timeControl, CT);
+
+        current.Should().NotBeNull();
+        current!.Value.Should().Be(ratingSequence.Last());
+
+        // Assert an archive entry exists for each update
+        var archives = await DbContext
+            .RatingArchives.AsNoTracking()
+            .Where(r => r.UserId == user.Id && r.TimeControl == timeControl)
+            .OrderBy(r => r.Id)
+            .ToListAsync(CT);
+
+        archives.Should().HaveCount(ratingSequence.Length);
+        archives
+            .Select(a => a.Value)
+            .Should()
+            .BeEquivalentTo(ratingSequence, o => o.WithStrictOrdering());
     }
 
     [Theory]
@@ -104,8 +136,8 @@ public class RatingServiceTests : BaseIntegrationTest
         var whiteUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var blackUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await _ratingService.AddRatingAsync(whiteUser, TimeControl.Blitz, whiteRating, CT);
-        await _ratingService.AddRatingAsync(blackUser, TimeControl.Blitz, blackRating, CT);
+        await _ratingService.UpdateRatingAsync(whiteUser, TimeControl.Blitz, whiteRating, CT);
+        await _ratingService.UpdateRatingAsync(blackUser, TimeControl.Blitz, blackRating, CT);
         await DbContext.SaveChangesAsync(CT);
 
         await _ratingService.UpdateRatingForResultAsync(
@@ -117,18 +149,10 @@ public class RatingServiceTests : BaseIntegrationTest
         );
         await DbContext.SaveChangesAsync(CT);
 
-        var newWhiteRating = await _ratingService.GetOrCreateRatingAsync(
-            whiteUser,
-            TimeControl.Blitz,
-            CT
-        );
-        var newBlackRating = await _ratingService.GetOrCreateRatingAsync(
-            blackUser,
-            TimeControl.Blitz,
-            CT
-        );
+        var newWhiteRating = await _ratingService.GetRatingAsync(whiteUser, TimeControl.Blitz, CT);
+        var newBlackRating = await _ratingService.GetRatingAsync(blackUser, TimeControl.Blitz, CT);
 
-        newWhiteRating.Value.Should().Be(whiteRating + expectedWhiteRatingChange);
-        newBlackRating.Value.Should().Be(blackRating + expectedBlackRatingChange);
+        newWhiteRating.Should().Be(whiteRating + expectedWhiteRatingChange);
+        newBlackRating.Should().Be(blackRating + expectedBlackRatingChange);
     }
 }
