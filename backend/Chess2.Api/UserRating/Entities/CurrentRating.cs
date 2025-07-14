@@ -1,11 +1,10 @@
 ﻿using Chess2.Api.Game.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.UserRating.Entities;
 
-[PrimaryKey(nameof(UserId))]
 public class CurrentRating
 {
+    public int Id { get; set; }
     public required string UserId { get; set; }
 
     public required TimeControl TimeControl { get; set; }
