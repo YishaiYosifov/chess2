@@ -144,19 +144,19 @@ public class GameService(
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        var rating = user is not null
-            ? await _ratingService.GetOrCreateRatingAsync(
+        int? rating = null;
+        if (user is not null)
+            rating = await _ratingService.GetRatingAsync(
                 user,
                 _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
-            )
-            : null;
+            );
 
         return new GamePlayer(
             UserId: userId,
             Color: color,
             UserName: user?.UserName ?? "Guest",
             CountryCode: user?.CountryCode,
-            Rating: rating?.Value
+            Rating: rating
         );
     }
 }

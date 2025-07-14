@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Repositories;
@@ -11,13 +10,13 @@ namespace Chess2.Api.UserRating.Services;
 
 public interface IRatingService
 {
-    Task<Rating> AddRatingAsync(
+    Task UpdateRatingAsync(
         AuthedUser user,
         TimeControl timeControl,
         int newRating,
         CancellationToken token = default
     );
-    Task<Rating> GetOrCreateRatingAsync(
+    Task<int> GetRatingAsync(
         AuthedUser user,
         TimeControl timeControl,
         CancellationToken token = default
@@ -33,53 +32,48 @@ public interface IRatingService
 
 public class RatingService(
     ILogger<RatingService> logger,
-    IRatingRepository ratingRepository,
-    IOptions<AppSettings> settings,
-    IUnitOfWork unitOfWork
+    ICurrentRatingRepository currentRatingRepository,
+    IRatingArchiveRepository ratingArchiveRepository,
+    IOptions<AppSettings> settings
 ) : IRatingService
 {
     private readonly ILogger<RatingService> _logger = logger;
-    private readonly IRatingRepository _ratingRepository = ratingRepository;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly ICurrentRatingRepository _currentRatingRepository = currentRatingRepository;
+    private readonly IRatingArchiveRepository _ratingArchiveRepository = ratingArchiveRepository;
     private readonly GameSettings _settings = settings.Value.Game;
 
-    public async Task<Rating> GetOrCreateRatingAsync(
+    public async Task<int> GetRatingAsync(
         AuthedUser user,
         TimeControl timeControl,
         CancellationToken token = default
     )
     {
-        var rating = await _ratingRepository.GetTimeControlRatingAsync(user, timeControl, token);
-        if (rating is not null)
-            return rating;
-
-        _logger.LogInformation(
-            "Creating new rating for user {UserId} with time control {TimeControl}",
-            user.Id,
-            timeControl
-        );
-
-        rating = await AddRatingAsync(user, timeControl, _settings.DefaultRating, token);
-        await _unitOfWork.CompleteAsync(token);
-
-        return rating;
+        var rating = await _currentRatingRepository.GetRatingAsync(user.Id, timeControl, token);
+        return rating is null ? _settings.DefaultRating : rating.Value;
     }
 
-    public async Task<Rating> AddRatingAsync(
+    public async Task UpdateRatingAsync(
         AuthedUser user,
         TimeControl timeControl,
         int newRating,
         CancellationToken token = default
     )
     {
-        var rating = new Rating()
+        CurrentRating rating = new()
         {
             UserId = user.Id,
             TimeControl = timeControl,
             Value = newRating,
         };
-        await _ratingRepository.AddRatingAsync(rating, user, token);
-        return rating;
+        RatingArchive ratingArchive = new()
+        {
+            UserId = user.Id,
+            TimeControl = timeControl,
+            Value = newRating,
+        };
+
+        await _currentRatingRepository.UpsertRatingAsync(rating, token);
+        await _ratingArchiveRepository.AddRatingAsync(ratingArchive, token);
     }
 
     public async Task<RatingChange> UpdateRatingForResultAsync(
@@ -90,22 +84,22 @@ public class RatingService(
         CancellationToken token = default
     )
     {
-        var whiteRating = await GetOrCreateRatingAsync(whiteUser, timeControl, token);
-        var blackRating = await GetOrCreateRatingAsync(blackUser, timeControl, token);
+        var whiteRating = await GetRatingAsync(whiteUser, timeControl, token);
+        var blackRating = await GetRatingAsync(blackUser, timeControl, token);
 
-        var ratingChange = CalculateRatingChange(whiteRating.Value, blackRating.Value, result);
+        var ratingChange = CalculateRatingChange(whiteRating, blackRating, result);
         if (ratingChange.WhiteChange != 0)
-            await AddRatingAsync(
+            await UpdateRatingAsync(
                 whiteUser,
                 timeControl,
-                whiteRating.Value + ratingChange.WhiteChange,
+                whiteRating + ratingChange.WhiteChange,
                 token
             );
         if (ratingChange.BlackChange != 0)
-            await AddRatingAsync(
+            await UpdateRatingAsync(
                 blackUser,
                 timeControl,
-                blackRating.Value + ratingChange.BlackChange,
+                blackRating + ratingChange.BlackChange,
                 token
             );
 
