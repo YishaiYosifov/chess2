@@ -1,10 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { twMerge } from "tailwind-merge";
 
-import type { RatingOverview } from "@/types/tempModels";
 import Card from "@/components/ui/Card";
+import { RatingOverview } from "@/lib/apiClient";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -13,26 +12,32 @@ interface DataPoint {
     y: number;
 }
 
-const RatingCard = ({
-    ratingData,
-    className,
-}: {
-    ratingData: RatingOverview;
-    className?: string;
-}) => {
-    const { history, current: currentRating, max: maxRating } = ratingData;
+const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
+    const { ratings } = ratingData;
+    const currentRating = ratings.at(-1)?.rating ?? 0;
+    const maxRating = Math.max(...ratings.map((x) => x.rating));
 
     // Format the rating history for the chart
-    const formattedRartings: DataPoint[] = history.map((rating) => ({
-        x: rating.achievedAt,
-        y: rating.elo,
+    const formattedRartings: DataPoint[] = ratings.map((rating) => ({
+        x: rating.at,
+        y: rating.rating,
     }));
-    formattedRartings.push({ x: new Date().getTime(), y: currentRating });
+    if (formattedRartings.length === 1)
+        formattedRartings.push({
+            x: new Date().getTime() + 3600000,
+            y: currentRating,
+        });
 
-    const ratingChange = currentRating - (history.at(0)?.elo ?? 0);
+    const earliestRating = ratings.at(0)?.rating ?? 0;
+    const ratingChange = currentRating - earliestRating;
+
+    function formatNumberWithSign(num: number): string {
+        if (num === 0) return "±0";
+        return num > 0 ? `+${num}` : `${num}`;
+    }
 
     return (
-        <Card className={twMerge("flex flex-col gap-3", className)}>
+        <Card className="flex min-w-96 flex-col gap-3">
             <Chart
                 options={{
                     chart: {
@@ -82,7 +87,7 @@ const RatingCard = ({
                 }}
                 series={[
                     {
-                        name: "Elo",
+                        name: "Rating",
                         data: formattedRartings,
                     },
                 ]}
@@ -113,8 +118,3 @@ const RatingCard = ({
     );
 };
 export default RatingCard;
-
-function formatNumberWithSign(num: number): string {
-    if (num === 0) return "±0";
-    return num > 0 ? `+${num}` : `${num}`;
-}
