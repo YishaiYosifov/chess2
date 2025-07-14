@@ -68,20 +68,9 @@ export function useLiveChessEvents(
         },
     );
 
-    useGameEvent(
-        gameToken,
-        "GameEndedAsync",
-        async (result, resultDescription, newWhiteRating, newBlackRating) => {
-            liveChessStore
-                .getState()
-                .endGame(
-                    result,
-                    resultDescription,
-                    newWhiteRating,
-                    newBlackRating,
-                );
-            chessboardStore.getState().disableMovement();
-            gameOverPopupRef.current?.open();
-        },
-    );
+    useGameEvent(gameToken, "GameEndedAsync", async (result) => {
+        liveChessStore.getState().endGame(result);
+        chessboardStore.getState().disableMovement();
+        gameOverPopupRef.current?.open();
+    });
 }

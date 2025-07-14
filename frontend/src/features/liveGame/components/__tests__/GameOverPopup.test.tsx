@@ -27,13 +27,13 @@ describe("GameOverPopup", () => {
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
-    it("should show victory title and rating deltas for white win", () => {
+    it("should show victory title and rating changes for white win", () => {
         store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Checkmate",
-                whiteRatingDelta: 12,
-                blackRatingDelta: -10,
+                whiteRatingChange: 12,
+                blackRatingChange: -10,
             },
         });
 
@@ -56,8 +56,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.BLACK_WIN,
                 resultDescription: "Black Won on Time",
-                whiteRatingDelta: -15,
-                blackRatingDelta: +18,
+                whiteRatingChange: -15,
+                blackRatingChange: +18,
             },
         });
 
@@ -77,8 +77,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.DRAW,
                 resultDescription: "Draw by Stalemate",
-                whiteRatingDelta: 0,
-                blackRatingDelta: 0,
+                whiteRatingChange: 0,
+                blackRatingChange: 0,
             },
         });
 
@@ -98,8 +98,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.ABORTED,
                 resultDescription: "Game Aborted",
-                whiteRatingDelta: 0,
-                blackRatingDelta: 0,
+                whiteRatingChange: 0,
+                blackRatingChange: 0,
             },
         });
 
@@ -120,8 +120,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
-                whiteRatingDelta: 10,
-                blackRatingDelta: -8,
+                whiteRatingChange: 10,
+                blackRatingChange: -8,
             },
         });
 
@@ -142,8 +142,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
-                whiteRatingDelta: 10,
-                blackRatingDelta: -8,
+                whiteRatingChange: 10,
+                blackRatingChange: -8,
             },
         });
 
@@ -164,8 +164,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
-                whiteRatingDelta: 10,
-                blackRatingDelta: -8,
+                whiteRatingChange: 10,
+                blackRatingChange: -8,
             },
         });
 
@@ -185,8 +185,8 @@ describe("GameOverPopup", () => {
             resultData: {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "White Won by Resignation",
-                whiteRatingDelta: 10,
-                blackRatingDelta: -8,
+                whiteRatingChange: 10,
+                blackRatingChange: -8,
             },
         });
 
