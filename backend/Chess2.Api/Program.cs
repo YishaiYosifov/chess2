@@ -107,7 +107,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<ICurrentRatingRepository, CurrentRatingRepository>();
+builder.Services.AddScoped<IRatingArchiveRepository, RatingArchiveRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 #endregion
 

@@ -32,14 +32,14 @@ public class MatchmakingService(
         TimeControlSettings timeControl
     )
     {
-        var rating = await _ratingService.GetOrCreateRatingAsync(
+        var rating = await _ratingService.GetRatingAsync(
             user,
             _secondsToTimeControl.FromSeconds(timeControl.BaseSeconds)
         );
 
         var poolCommand = new RatedMatchmakingCommands.CreateRatedSeek(
             user.Id,
-            rating.Value,
+            rating,
             timeControl
         );
         var playerSessionCommand = new PlayerSessionCommands.CreateSeek(

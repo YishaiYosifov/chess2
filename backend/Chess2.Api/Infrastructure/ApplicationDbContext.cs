@@ -12,7 +12,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public required DbSet<RefreshToken> RefreshTokens { get; set; }
 
-    public required DbSet<Rating> Ratings { get; set; }
+    public required DbSet<CurrentRating> CurrentRatings { get; set; }
+    public required DbSet<RatingArchive> RatingArchives { get; set; }
 
     public required DbSet<GameArchive> GameArchives { get; set; }
     public required DbSet<PlayerArchive> PlayerArchives { get; set; }
