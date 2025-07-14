@@ -79,12 +79,12 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                 <div className="grid grid-cols-2 justify-center gap-2">
                     <PopupCardProfile
                         player={whitePlayer}
-                        ratingDelta={resultData.whiteRatingDelta ?? null}
+                        ratingChange={resultData.whiteRatingChange ?? null}
                         isWinner={resultData.result === GameResult.WHITE_WIN}
                     />
                     <PopupCardProfile
                         player={blackPlayer}
-                        ratingDelta={resultData.blackRatingDelta ?? null}
+                        ratingChange={resultData.blackRatingChange ?? null}
                         isWinner={resultData.result === GameResult.BLACK_WIN}
                     />
                 </div>
@@ -100,11 +100,11 @@ export default forwardRef(GameOverPopup);
 
 const PopupCardProfile = ({
     player,
-    ratingDelta,
+    ratingChange,
     isWinner,
 }: {
     player: GamePlayer;
-    ratingDelta: number | null;
+    ratingChange: number | null;
     isWinner: boolean;
 }) => {
     return (
@@ -119,17 +119,17 @@ const PopupCardProfile = ({
             <p className="w-full overflow-hidden text-sm text-ellipsis whitespace-nowrap">
                 {player.userName}
             </p>
-            {player.rating && ratingDelta !== null && (
+            {player.rating && ratingChange !== null && (
                 <p className="flex gap-2 text-xl">
                     {player.rating}
                     <span
                         className={clsx(
-                            ratingDelta > 0 && "text-green-500",
-                            ratingDelta < 0 && "text-red-500",
-                            ratingDelta === 0 && "text-gray-400",
+                            ratingChange > 0 && "text-green-500",
+                            ratingChange < 0 && "text-red-500",
+                            ratingChange === 0 && "text-gray-400",
                         )}
                     >
-                        {ratingDelta >= 0 ? `+${ratingDelta}` : ratingDelta}
+                        {ratingChange >= 0 ? `+${ratingChange}` : ratingChange}
                     </span>
                 </p>
             )}
