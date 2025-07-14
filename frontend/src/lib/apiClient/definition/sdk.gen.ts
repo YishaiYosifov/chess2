@@ -23,6 +23,8 @@ import type {
     GetGameData,
     GetGameResponses,
     GetGameErrors,
+    GetGameResultsData,
+    GetGameResultsResponses,
     RefreshData,
     RefreshResponses,
     RefreshErrors,
@@ -141,6 +143,19 @@ export const getGame = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Game/{gameToken}",
+        ...options,
+    });
+};
+
+export const getGameResults = <ThrowOnError extends boolean = false>(
+    options: Options<GetGameResultsData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetGameResultsResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/results/{userId}",
         ...options,
     });
 };

@@ -154,8 +154,8 @@ export type MoveSnapshot = {
 export type GameResultData = {
     result: GameResult;
     resultDescription: string;
-    whiteRatingDelta?: number | null;
-    blackRatingDelta?: number | null;
+    whiteRatingChange?: number | null;
+    blackRatingChange?: number | null;
 };
 
 export enum GameResult {
@@ -176,6 +176,27 @@ export enum GameResult {
      */
     ABORTED = 3,
 }
+
+export type PagedResultOfGameSummaryDto = {
+    items: Array<GameSummary>;
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+};
+
+export type GameSummary = {
+    gameToken: string;
+    whitePlayer: PlayerSummary;
+    blackPlayer: PlayerSummary;
+    result: GameResult;
+};
+
+export type PlayerSummary = {
+    userId: string;
+    userName: string;
+    rating?: number | null;
+};
 
 export type GetAuthedUserData = {
     body?: never;
@@ -294,6 +315,26 @@ export type GetGameResponses = {
 };
 
 export type GetGameResponse = GetGameResponses[keyof GetGameResponses];
+
+export type GetGameResultsData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: {
+        Page?: number;
+        PageSize?: number;
+        Skip?: number;
+    };
+    url: "/results/{userId}";
+};
+
+export type GetGameResultsResponses = {
+    200: PagedResultOfGameSummaryDto;
+};
+
+export type GetGameResultsResponse =
+    GetGameResultsResponses[keyof GetGameResultsResponses];
 
 export type RefreshData = {
     body?: never;

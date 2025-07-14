@@ -1,13 +1,14 @@
+import { useMemo } from "react";
 import constants from "@/lib/constants";
 import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
 import useSignalREmitter, {
     signalREmitterHookFactory,
 } from "./useSignalREmitter";
-import { GameResult, Point } from "@/types/tempModels";
-import { useMemo } from "react";
+import { Point } from "@/types/tempModels";
 import {
     Clocks,
     GameColor,
+    GameResultData,
     MoveSnapshot,
     TimeControlSettings,
 } from "@/lib/apiClient";
@@ -41,12 +42,7 @@ type GameClientEvents = {
         clocks: Clocks,
     ];
     LegalMovesChangedAsync: [legalMoves: string[]];
-    GameEndedAsync: [
-        result: GameResult,
-        resultDescription: string,
-        newWhiteRating: number | undefined,
-        newBlackRating: number | undefined,
-    ];
+    GameEndedAsync: [result: GameResultData];
 };
 
 type GameHubEvents = {

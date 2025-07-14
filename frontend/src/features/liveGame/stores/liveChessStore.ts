@@ -8,7 +8,6 @@ import {
     GameResultData,
     MoveSnapshot,
 } from "@/lib/apiClient";
-import { GameResult } from "@/types/tempModels";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 
@@ -32,18 +31,13 @@ export interface LiveChessStore extends RequiredLiveChessData {
         sideToMove: GameColor,
     ): void;
     setMoveHistory(moveHistory: MoveSnapshot[]): void;
-    endGame(
-        result: GameResult,
-        resultDescription: string,
-        newWhiteRating?: number,
-        newBlackRating?: number,
-    ): void;
+    endGame(resultData: GameResultData): void;
 }
 
 enableMapSet();
 export default function createLiveChessStore(initState: RequiredLiveChessData) {
     return createWithEqualityFn<LiveChessStore>()(
-        immer((set, get) => ({
+        immer((set) => ({
             ...initState,
 
             receiveMove: (
@@ -62,35 +56,22 @@ export default function createLiveChessStore(initState: RequiredLiveChessData) {
                     state.moveHistory = moveHistory;
                 }),
 
-            endGame(
-                result: GameResult,
-                resultDescription: string,
-                newWhiteRating?: number,
-                newBlackRating?: number,
-            ) {
-                const { whitePlayer, blackPlayer } = get();
-
-                const whiteRatingDelta =
-                    newWhiteRating && whitePlayer?.rating
-                        ? newWhiteRating - whitePlayer.rating
-                        : undefined;
-
-                const blackRatingDelta =
-                    newBlackRating && blackPlayer?.rating
-                        ? newBlackRating - blackPlayer.rating
-                        : undefined;
-
+            endGame(resultData: GameResultData) {
                 set((state) => {
-                    if (state.whitePlayer)
-                        state.whitePlayer.rating = newWhiteRating;
-                    if (state.blackPlayer)
-                        state.blackPlayer.rating = newBlackRating;
-                    state.resultData = {
-                        result: result,
-                        resultDescription: resultDescription,
-                        whiteRatingDelta,
-                        blackRatingDelta,
-                    };
+                    if (
+                        state.whitePlayer.rating &&
+                        resultData.whiteRatingChange
+                    )
+                        state.whitePlayer.rating +=
+                            resultData.whiteRatingChange;
+                    if (
+                        state.blackPlayer.rating &&
+                        resultData.blackRatingChange
+                    )
+                        state.blackPlayer.rating +=
+                            resultData.blackRatingChange;
+
+                    state.resultData = resultData;
                 });
             },
         })),
