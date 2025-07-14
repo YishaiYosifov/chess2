@@ -1,4 +1,4 @@
-import { GameColor, GameResult, User } from "../lib/apiClient";
+import { GameColor } from "../lib/apiClient";
 
 export enum PieceType {
     KING = "k",
@@ -38,19 +38,6 @@ export interface Move {
     triggers: Point[];
     captures: Point[];
     sideEffects: Move[];
-}
-
-export interface FinishedGame {
-    token: string;
-
-    userWhite?: User;
-    userBlack?: User;
-
-    timeControl: number;
-    increment: number;
-
-    results: GameResult;
-    createdAt: number;
 }
 
 export interface Rating {

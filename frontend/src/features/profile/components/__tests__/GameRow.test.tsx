@@ -1,35 +1,34 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFakeFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
+import { createFakeGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 
 import GameRow from "../GameRow";
-import { FinishedGame } from "@/types/tempModels";
-import { GameResult, User } from "@/lib/apiClient";
+import { GameResult, GameSummary, User } from "@/lib/apiClient";
 
 describe("GameRow", () => {
-    let finishedGameMock: FinishedGame;
+    let gameSummaryMock: GameSummary;
     let userMock: User;
 
     beforeEach(() => {
-        finishedGameMock = createFakeFinishedGame();
+        gameSummaryMock = createFakeGameSummary();
         userMock = createFakeUser();
     });
 
     it("should display the correct usernames", () => {
         render(
             <GameRow
-                game={finishedGameMock}
+                game={gameSummaryMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
         );
 
-        expect(screen.getByTestId("gameRowUsernameWhite").textContent).toBe(
-            finishedGameMock.userWhite?.userName,
+        expect(screen.getByTestId("gameRowWhiteUsername").textContent).toBe(
+            gameSummaryMock.whitePlayer?.userName,
         );
-        expect(screen.getByTestId("gameRowUsernameBlack").textContent).toBe(
-            finishedGameMock.userBlack?.userName,
+        expect(screen.getByTestId("gameRowBlackUsername").textContent).toBe(
+            gameSummaryMock.blackPlayer?.userName,
         );
     });
 
@@ -39,12 +38,12 @@ describe("GameRow", () => {
         [GameResult.DRAW, "½", "½"],
     ])(
         "should correctly calculate the score of each player",
-        (results, whiteScore, blackScore) => {
-            finishedGameMock.results = results;
+        (result, whiteScore, blackScore) => {
+            gameSummaryMock.result = result;
 
             render(
                 <GameRow
-                    game={finishedGameMock}
+                    game={gameSummaryMock}
                     profileViewpoint={userMock}
                     index={0}
                 />,
@@ -62,7 +61,7 @@ describe("GameRow", () => {
     it("should display the correct game link", () => {
         render(
             <GameRow
-                game={finishedGameMock}
+                game={gameSummaryMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
@@ -71,7 +70,7 @@ describe("GameRow", () => {
             .getAllByTestId("gameRowLink")
             .forEach((gameLink) =>
                 expect(gameLink.getAttribute("href")).toBe(
-                    `/game/${finishedGameMock.token}`,
+                    `/game/${gameSummaryMock.gameToken}`,
                 ),
             );
     });
@@ -79,14 +78,14 @@ describe("GameRow", () => {
     it("should display the correct date", () => {
         render(
             <GameRow
-                game={finishedGameMock}
+                game={gameSummaryMock}
                 profileViewpoint={userMock}
                 index={0}
             />,
         );
 
         const formattedDate = new Date(
-            finishedGameMock.createdAt,
+            gameSummaryMock.createdAt,
         ).toLocaleDateString("en-us", {
             month: "short",
             day: "numeric",

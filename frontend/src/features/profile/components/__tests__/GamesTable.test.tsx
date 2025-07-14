@@ -1,21 +1,24 @@
 import { render, screen } from "@testing-library/react";
 
-import { createFakeFinishedGame } from "@/lib/testUtils/fakers/gameFaker";
+import { createFakeGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import GamesTable from "../GamesTable";
-import { FinishedGame } from "@/types/tempModels";
-import { User } from "@/lib/apiClient";
+import { GameSummary, User } from "@/lib/apiClient";
+import {
+    createFakePlayerSummary,
+    createFakePlayerSummaryFromUser,
+} from "@/lib/testUtils/fakers/playerSummaryFaker";
 
 describe("GamesTable", () => {
-    let gamesMock: FinishedGame[];
+    let gamesMock: GameSummary[];
     let userMock: User;
 
     beforeEach(() => {
         userMock = createFakeUser();
         gamesMock = Array.from({ length: 3 }, () =>
-            createFakeFinishedGame({
-                userWhite: userMock,
-                userBlack: createFakeUser(),
+            createFakeGameSummary({
+                whitePlayer: createFakePlayerSummaryFromUser(userMock),
+                blackPlayer: createFakePlayerSummary(),
             }),
         );
     });
@@ -36,15 +39,15 @@ describe("GamesTable", () => {
     it("should render game rows correctly", () => {
         render(<GamesTable games={gamesMock} profileViewpoint={userMock} />);
 
-        const usernamesWhite = screen.getAllByTestId("gameRowUsernameWhite");
-        const usernamesBlack = screen.getAllByTestId("gameRowUsernameBlack");
+        const usernamesWhite = screen.getAllByTestId("gameRowWhiteUsername");
+        const usernamesBlack = screen.getAllByTestId("gameRowBlackUsername");
         gamesMock.forEach((expectedGame, i) => {
             expect(usernamesWhite[i].textContent).toBe(
-                expectedGame.userWhite?.userName,
+                expectedGame.whitePlayer?.userName,
             );
 
             expect(usernamesBlack[i].textContent).toBe(
-                expectedGame.userBlack?.userName,
+                expectedGame.blackPlayer?.userName,
             );
         });
     });
