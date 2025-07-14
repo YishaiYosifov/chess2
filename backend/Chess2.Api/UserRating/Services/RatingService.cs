@@ -28,6 +28,11 @@ public interface IRatingService
         TimeControl timeControl,
         CancellationToken token = default
     );
+    Task<IEnumerable<RatingOverview>> GetRatingOverviewsAsync(
+        AuthedUser user,
+        DateTime? since,
+        CancellationToken token = default
+    );
 }
 
 public class RatingService(
@@ -74,6 +79,47 @@ public class RatingService(
 
         await _currentRatingRepository.UpsertRatingAsync(rating, token);
         await _ratingArchiveRepository.AddRatingAsync(ratingArchive, token);
+    }
+
+    public async Task<IEnumerable<RatingOverview>> GetRatingOverviewsAsync(
+        AuthedUser user,
+        DateTime? since,
+        CancellationToken token = default
+    )
+    {
+        var effectiveSince = DateTime.SpecifyKind(since ?? DateTime.MinValue, DateTimeKind.Utc);
+        List<RatingOverview> ratingOverviews = [];
+        foreach (var timeControl in Enum.GetValues<TimeControl>())
+        {
+            var archives = await _ratingArchiveRepository.GetArchivesAsync(
+                user.Id,
+                timeControl,
+                effectiveSince,
+                token
+            );
+
+            IEnumerable<RatingDto> ratings = [];
+            if (archives.Count == 0)
+            {
+                ratings =
+                [
+                    new RatingDto(
+                        _settings.DefaultRating,
+                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+                    ),
+                ];
+            }
+            else
+            {
+                ratings = archives.Select(r => new RatingDto(
+                    Rating: r.Value,
+                    At: new DateTimeOffset(r.AchievedAt).ToUnixTimeMilliseconds()
+                ));
+            }
+            ratingOverviews.Add(new(timeControl, ratings));
+        }
+
+        return ratingOverviews;
     }
 
     public async Task<RatingChange> UpdateRatingForResultAsync(
