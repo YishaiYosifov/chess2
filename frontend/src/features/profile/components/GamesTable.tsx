@@ -2,15 +2,14 @@
 
 import { twMerge } from "tailwind-merge";
 import GameRow from "./GameRow";
-import { FinishedGame } from "@/types/tempModels";
-import { User } from "@/lib/apiClient";
+import { GameSummary, User } from "@/lib/apiClient";
 
 const GamesTable = ({
     games,
     profileViewpoint,
     className,
 }: {
-    games: FinishedGame[];
+    games: GameSummary[];
     profileViewpoint: User;
     className?: string;
 }) => {
@@ -38,7 +37,7 @@ const GamesTable = ({
                 {games.length ? (
                     games.map((game, i) => (
                         <GameRow
-                            key={game.token}
+                            key={game.gameToken}
                             game={game}
                             profileViewpoint={profileViewpoint}
                             index={i}
