@@ -1,20 +1,17 @@
 "use client";
 
-import { twMerge } from "tailwind-merge";
 import GameRow from "./GameRow";
 import { GameSummary, User } from "@/lib/apiClient";
 
 const GamesTable = ({
     games,
     profileViewpoint,
-    className,
 }: {
     games: GameSummary[];
     profileViewpoint: User;
-    className?: string;
 }) => {
     return (
-        <table className={twMerge("h-max w-full table-auto", className)}>
+        <table className="h-min w-full table-auto">
             <colgroup>
                 <col style={{ width: "50%" }} />
                 <col style={{ width: "30%" }} />

@@ -5,10 +5,12 @@ import {
     getGameResults,
     getRatingArchives,
     getUser,
-    RatingOverview,
     TimeControl,
 } from "@/lib/apiClient";
 import { notFound } from "next/navigation";
+import { JSX } from "react";
+import constants from "@/lib/constants";
+import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
 
 type Params = Promise<{ username: string }>;
 
@@ -51,22 +53,24 @@ const UserPage = async ({ params }: { params: Params }) => {
         notFound();
     }
 
-    const a = new Map(ratings.map((x) => [x.timeControl, x.ratings]));
-    for (const timeControl of Object.values(TimeControl)) {
-        if (typeof timeControl !== "number" || a.has(timeControl)) continue;
-        a.set(timeControl, []);
-    }
+    const ratingCards = constants.DISPLAY_TIME_CONTROLS.map((timeControl) => {
+        const overview = ratings.find((x) => x.timeControl === timeControl);
+        return overview ? (
+            <RatingCard key={timeControl} overview={overview} />
+        ) : (
+            <EmptyRatingCard key={timeControl} timeControl={timeControl} />
+        );
+    });
+
     return (
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 p-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-6">
             <Profile profile={profile} />
 
-            <section className="flex flex-shrink-0 gap-10 overflow-x-auto">
-                {Array.from(a.values()).map((rating, i) => (
-                    <RatingCard ratings={rating} key={i} />
-                ))}
+            <section className="flex flex-shrink-0 gap-5 overflow-x-auto">
+                {ratingCards}
             </section>
 
-            <section className="flex-shrink-0 overflow-x-auto">
+            <section className="flex-shrink-0 overflow-x-auto p-0">
                 <GamesTable games={games.items} profileViewpoint={profile} />
             </section>
         </div>

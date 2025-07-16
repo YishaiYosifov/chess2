@@ -105,6 +105,9 @@ export type OperationBase = {
 export type RatingOverview = {
     timeControl: TimeControl;
     ratings: Array<Rating>;
+    current: number;
+    highest: number;
+    lowest: number;
 };
 
 export enum TimeControl {

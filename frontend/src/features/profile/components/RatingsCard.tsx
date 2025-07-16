@@ -3,7 +3,10 @@
 import dynamic from "next/dynamic";
 
 import Card from "@/components/ui/Card";
-import { Rating } from "@/lib/apiClient";
+import { RatingOverview } from "@/lib/apiClient";
+import constants from "@/lib/constants";
+import { getTimeControlIcon } from "../utils/timeControlIcons";
+import clsx from "clsx";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -12,20 +15,30 @@ interface DataPoint {
     y: number;
 }
 
-const RatingCard = ({ ratings }: { ratings: Rating[] }) => {
-    const currentRating = ratings.at(-1)?.rating ?? 0;
-    const maxRating = Math.max(...ratings.map((x) => x.rating));
+const RatingCard = ({ overview }: { overview: RatingOverview }) => {
+    const {
+        timeControl,
+        ratings,
+        highest: highestRating,
+        lowest: lowestRating,
+        current: currentRating,
+    } = overview;
 
-    // Format the rating history for the chart
-    const formattedRartings: DataPoint[] = ratings.map((rating) => ({
-        x: rating.at,
-        y: rating.rating,
-    }));
-    if (formattedRartings.length === 1)
-        formattedRartings.push({
-            x: new Date().getTime(),
-            y: currentRating,
-        });
+    let formattedRatings: DataPoint[];
+    // if there are enough recent rating points, use them directly
+    if (ratings.length >= 2) {
+        formattedRatings = ratings.map(({ at, rating }) => ({
+            x: at,
+            y: rating,
+        }));
+    } else {
+        // otherwise show a flat line at the current rating over the last month
+        const monthAgo = Date.now() - 1000 * 60 * 60 * 24 * 30;
+        formattedRatings = [
+            { x: monthAgo, y: currentRating },
+            { x: Date.now(), y: currentRating },
+        ];
+    }
 
     const earliestRating = ratings.at(0)?.rating ?? 0;
     const ratingChange = currentRating - earliestRating;
@@ -35,8 +48,21 @@ const RatingCard = ({ ratings }: { ratings: Rating[] }) => {
         return num > 0 ? `+${num}` : `${num}`;
     }
 
+    function getRatingChangeColor(): string {
+        if (ratingChange === 0) return "text-neutral-400";
+        return ratingChange > 0 ? "text-green-400" : "text-red-400";
+    }
+
     return (
-        <Card className="flex min-w-96 flex-col gap-3">
+        <Card className="min-w-96 flex-col gap-3">
+            <section className="flex justify-between">
+                <span className="flex gap-2">
+                    {constants.TIME_CONTROL_LABELS[timeControl]}
+                    {getTimeControlIcon(timeControl)}
+                </span>
+                {currentRating}
+            </section>
+
             <Chart
                 options={{
                     chart: {
@@ -87,7 +113,7 @@ const RatingCard = ({ ratings }: { ratings: Rating[] }) => {
                 series={[
                     {
                         name: "Rating",
-                        data: formattedRartings,
+                        data: formattedRatings,
                     },
                 ]}
                 height="100"
@@ -98,18 +124,26 @@ const RatingCard = ({ ratings }: { ratings: Rating[] }) => {
                 data-testid="ratingInfoSection"
             >
                 <span>Current</span>
-                <span className="justify-self-end" data-testid="currentRating">
-                    {currentRating}
-                </span>
+                <span data-testid="currentRating">{currentRating}</span>
                 <span>Height</span>
-                <span className="justify-self-end" data-testid="maxRating">
-                    {maxRating}
+                <span
+                    className="text-end text-green-400"
+                    data-testid="maxRating"
+                >
+                    {highestRating}
+                </span>
+                <span>Lowest</span>
+                <span className="text-end text-red-400" data-testid="maxRating">
+                    {lowestRating}
                 </span>
                 <span>
                     Rating Change
                     <span className="text-text/50 ms-2">last month</span>
                 </span>
-                <span className="justify-self-end" data-testid="ratingChange">
+                <span
+                    className={clsx(getRatingChangeColor(), "text-end")}
+                    data-testid="ratingChange"
+                >
                     {formatNumberWithSign(ratingChange)}
                 </span>
             </section>
