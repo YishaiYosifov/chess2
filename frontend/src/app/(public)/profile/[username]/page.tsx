@@ -1,14 +1,8 @@
 import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
-import {
-    getGameResults,
-    getRatingArchives,
-    getUser,
-    TimeControl,
-} from "@/lib/apiClient";
+import { getGameResults, getRatingArchives, getUser } from "@/lib/apiClient";
 import { notFound } from "next/navigation";
-import { JSX } from "react";
 import constants from "@/lib/constants";
 import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
 
@@ -36,18 +30,24 @@ const UserPage = async ({ params }: { params: Params }) => {
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const { error: ratingsError, data: ratings } = await getRatingArchives({
-        path: { userId: profile.userId },
-        query: { since: lastMonth.toLocaleString() },
-    });
+    const [ratingsResult, gamesResult] = await Promise.all([
+        getRatingArchives({
+            path: { userId: profile.userId },
+            query: { since: lastMonth.toLocaleString() },
+        }),
+        getGameResults({
+            path: { userId: profile.userId },
+            query: { Page: 0, PageSize: 10 },
+        }),
+    ]);
+
+    const { error: ratingsError, data: ratings } = ratingsResult;
     if (ratingsError || !ratings) {
         console.error(ratingsError);
         notFound();
     }
-    const { error: gamesError, data: games } = await getGameResults({
-        path: { userId: profile.userId },
-        query: { Page: 0, PageSize: 10 },
-    });
+
+    const { error: gamesError, data: games } = gamesResult;
     if (gamesError || !games) {
         console.error(gamesError);
         notFound();
