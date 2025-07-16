@@ -1,6 +1,7 @@
 import { PieceMap, PieceType } from "@/types/tempModels";
 import {
     GameColor,
+    TimeControl,
     TimeControlSettings,
 } from "./apiClient/definition/types.gen";
 
@@ -74,6 +75,20 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
     },
 ];
 
+const TIME_CONTROL_LABELS: Record<TimeControl, string> = {
+    [TimeControl.BULLET]: "Bullet",
+    [TimeControl.BLITZ]: "Blitz",
+    [TimeControl.RAPID]: "Rapid",
+    [TimeControl.CLASSICAL]: "Classical",
+};
+
+const DISPLAY_TIME_CONTROLS: TimeControl[] = [
+    TimeControl.BULLET,
+    TimeControl.BLITZ,
+    TimeControl.RAPID,
+    TimeControl.CLASSICAL,
+];
+
 // prettier-ignore
 export const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["0", { position: { x: 0, y: 0 }, type: PieceType.ROOK, color: GameColor.WHITE }],
@@ -131,10 +146,12 @@ const constants = {
     GENERIC_ERROR,
     SETTING_PAGES,
     STANDARD_TIME_CONTROLS,
+    TIME_CONTROL_LABELS,
+    DISPLAY_TIME_CONTROLS,
     COOKIES,
     PATHS,
     HEADERS,
     DEFAULT_CHESS_BOARD,
     SIGNALR_PATHS,
-};
+} as const;
 export default constants;
