@@ -65,7 +65,7 @@ const PlayOptions = () => {
             <section className="relative grid w-full grid-cols-3 gap-x-3 gap-y-7">
                 {isSeeking && <SeekingOverlay onClick={cancelSeek} />}
 
-                {constants.TIME_CONTROLS.map((timeControl) => {
+                {constants.STANDARD_TIME_CONTROLS.map((timeControl) => {
                     const formattedTimeControl = `${timeControl.settings.baseSeconds / 60} + ${timeControl.settings.incrementSeconds}`;
                     return (
                         <TimeControlButton

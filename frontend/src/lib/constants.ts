@@ -54,7 +54,8 @@ interface TimeControlLabel {
     settings: TimeControlSettings;
     isMostPopular?: boolean;
 }
-const TIME_CONTROLS: TimeControlLabel[] = [
+
+const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
     { type: "Bullet", settings: { baseSeconds: 60, incrementSeconds: 0 } },
     { type: "Bullet", settings: { baseSeconds: 120, incrementSeconds: 1 } },
     { type: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 0 } },
@@ -129,7 +130,7 @@ const constants = {
     MIN_BOARD_SIZE_PX,
     GENERIC_ERROR,
     SETTING_PAGES,
-    TIME_CONTROLS,
+    STANDARD_TIME_CONTROLS,
     COOKIES,
     PATHS,
     HEADERS,
