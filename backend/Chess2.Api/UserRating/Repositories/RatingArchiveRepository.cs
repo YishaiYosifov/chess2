@@ -14,6 +14,16 @@ public interface IRatingArchiveRepository
         DateTime since,
         CancellationToken token = default
     );
+    Task<RatingArchive?> GetHighestAsync(
+        string userId,
+        TimeControl timeControl,
+        CancellationToken token = default
+    );
+    Task<RatingArchive?> GetLowestAsync(
+        string userId,
+        TimeControl timeControl,
+        CancellationToken token = default
+    );
 }
 
 public class RatingArchiveRepository(ApplicationDbContext dbContext) : IRatingArchiveRepository
@@ -30,9 +40,29 @@ public class RatingArchiveRepository(ApplicationDbContext dbContext) : IRatingAr
         CancellationToken token = default
     ) =>
         _dbContext
-            .RatingArchives.Where(r =>
-                r.UserId == userId && r.TimeControl == timeControl && r.AchievedAt > since
+            .RatingArchives.Where(x =>
+                x.UserId == userId && x.TimeControl == timeControl && x.AchievedAt > since
             )
             .OrderBy(x => x.AchievedAt)
             .ToListAsync(token);
+
+    public Task<RatingArchive?> GetHighestAsync(
+        string userId,
+        TimeControl timeControl,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .RatingArchives.Where(r => r.UserId == userId && r.TimeControl == timeControl)
+            .OrderByDescending(x => x.Value)
+            .FirstOrDefaultAsync(token);
+
+    public Task<RatingArchive?> GetLowestAsync(
+        string userId,
+        TimeControl timeControl,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .RatingArchives.Where(r => r.UserId == userId && r.TimeControl == timeControl)
+            .OrderBy(x => x.Value)
+            .FirstOrDefaultAsync(token);
 }

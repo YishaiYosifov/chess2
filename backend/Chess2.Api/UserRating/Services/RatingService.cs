@@ -88,27 +88,44 @@ public class RatingService(
     )
     {
         var effectiveSince = DateTime.SpecifyKind(since ?? DateTime.MinValue, DateTimeKind.Utc);
-        List<RatingOverview> ratingOverviews = [];
+        List<RatingOverview> overviews = [];
         foreach (var timeControl in Enum.GetValues<TimeControl>())
         {
-            var archives = await _ratingArchiveRepository.GetArchivesAsync(
-                user.Id,
-                timeControl,
-                effectiveSince,
-                token
-            );
-
-            if (archives.Count == 0)
-                continue;
-
-            var ratings = archives.Select(r => new RatingDto(
-                Rating: r.Value,
-                At: new DateTimeOffset(r.AchievedAt).ToUnixTimeMilliseconds()
-            ));            
-            ratingOverviews.Add(new(timeControl, ratings));
+            var overview = await BuildOverviewAsync(user.Id, timeControl, effectiveSince, token);
+            if (overview is not null)
+                overviews.Add(overview);
         }
+        return overviews;
+    }
 
-        return ratingOverviews;
+    private async Task<RatingOverview?> BuildOverviewAsync(
+        string userId,
+        TimeControl timeControl,
+        DateTime since,
+        CancellationToken token = default
+    )
+    {
+        var current = await _currentRatingRepository.GetRatingAsync(userId, timeControl, token);
+        if (current is null)
+            return null;
+
+        var archives = await _ratingArchiveRepository.GetArchivesAsync(
+            userId,
+            timeControl,
+            since,
+            token
+        );
+        var highest = await _ratingArchiveRepository.GetHighestAsync(userId, timeControl, token);
+        var lowest = await _ratingArchiveRepository.GetLowestAsync(userId, timeControl, token);
+
+        var ratings = archives.Select(r => new RatingSummary(r)).ToList();
+        return new RatingOverview(
+            timeControl,
+            ratings,
+            Current: current.Value,
+            Highest: highest?.Value ?? _settings.DefaultRating,
+            Lowest: lowest?.Value ?? _settings.DefaultRating
+        );
     }
 
     public async Task<RatingChange> UpdateRatingForResultAsync(
