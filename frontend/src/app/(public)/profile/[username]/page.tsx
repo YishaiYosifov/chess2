@@ -5,6 +5,7 @@ import { getGameResults, getRatingArchives, getUser } from "@/lib/apiClient";
 import { notFound } from "next/navigation";
 import constants from "@/lib/constants";
 import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
+import GameHistory from "@/features/profile/components/GameHistory";
 
 type Params = Promise<{ username: string }>;
 
@@ -70,9 +71,10 @@ const UserPage = async ({ params }: { params: Params }) => {
                 {ratingCards}
             </section>
 
-            <section className="flex-shrink-0 overflow-x-auto p-0">
-                <GamesTable games={games.items} profileViewpoint={profile} />
-            </section>
+            <GameHistory
+                initialGameResults={games}
+                profileViewpoint={profile}
+            />
         </div>
     );
 };
