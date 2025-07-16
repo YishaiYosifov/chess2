@@ -98,24 +98,13 @@ public class RatingService(
                 token
             );
 
-            IEnumerable<RatingDto> ratings = [];
             if (archives.Count == 0)
-            {
-                ratings =
-                [
-                    new RatingDto(
-                        _settings.DefaultRating,
-                        DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
-                    ),
-                ];
-            }
-            else
-            {
-                ratings = archives.Select(r => new RatingDto(
-                    Rating: r.Value,
-                    At: new DateTimeOffset(r.AchievedAt).ToUnixTimeMilliseconds()
-                ));
-            }
+                continue;
+
+            var ratings = archives.Select(r => new RatingDto(
+                Rating: r.Value,
+                At: new DateTimeOffset(r.AchievedAt).ToUnixTimeMilliseconds()
+            ));            
             ratingOverviews.Add(new(timeControl, ratings));
         }
 
