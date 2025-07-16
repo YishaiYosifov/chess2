@@ -133,7 +133,7 @@ const RatingCard = ({ overview }: { overview: RatingOverview }) => {
                     {highestRating}
                 </span>
                 <span>Lowest</span>
-                <span className="text-end text-red-400" data-testid="maxRating">
+                <span className="text-end text-red-400" data-testid="minRating">
                     {lowestRating}
                 </span>
                 <span>
