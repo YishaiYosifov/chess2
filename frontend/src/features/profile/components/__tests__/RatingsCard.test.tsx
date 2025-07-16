@@ -1,6 +1,5 @@
 import { render, screen } from "@testing-library/react";
 import Chart from "react-apexcharts";
-import { Mock } from "vitest";
 
 import preloadAll from "@/lib/testUtils/dynamicImportMock";
 
@@ -15,75 +14,82 @@ const ratingMock: RatingOverview = {
         { rating: 800, at: new Date("2024-11-24T11:00:00").valueOf() },
         { rating: 900, at: new Date("2024-11-24T12:00:00").valueOf() },
     ],
+    highest: 1200,
+    lowest: 600,
+    current: 900,
 };
 
 describe("RatingsCard", () => {
+    const chartMock = vi.mocked(Chart);
+
     beforeAll(() => preloadAll());
 
     it("should render the card with variant, rating data, and chart", () => {
-        render(<RatingCard ratingData={ratingMock} />);
+        render(<RatingCard overview={ratingMock} />);
 
         expect(screen.getByTestId("chart")).toBeInTheDocument();
         expect(screen.queryByTestId("ratingInfoSection")).toBeInTheDocument();
     });
 
-    it("should correctly render the rating history chart", () => {
-        const currDate = new Date("2024-11-24T12:00:00");
+    it("should render correct formatted ratings in chart series", () => {
+        const currDate = new Date("2024-11-24T12:00:00").getTime();
         vi.setSystemTime(currDate);
 
-        render(<RatingCard ratingData={ratingMock} />);
+        render(<RatingCard overview={ratingMock} />);
 
-        const chartMock = Chart as unknown as Mock;
-        const data = chartMock.mock.calls[0][0].series;
-        expect(data).toEqual([
+        const callArgs = chartMock.mock.calls[0][0];
+        expect(callArgs.series).toEqual([
             {
-                name: "Elo",
-                data: [
-                    ...ratingMock.ratings.map((rating) => ({
-                        x: rating.at,
-                        y: rating.rating,
-                    })),
-                    {
-                        x: currDate.getTime(),
-                        y: ratingMock.ratings[0].rating,
-                    },
-                ],
+                name: "Rating",
+                data: ratingMock.ratings.map(({ at, rating }) => ({
+                    x: at,
+                    y: rating,
+                })),
             },
         ]);
     });
 
-    it("should display the provided rating information", () => {
-        render(<RatingCard ratingData={ratingMock} />);
+    it("displays current, highest, lowest ratings correctly", () => {
+        render(<RatingCard overview={ratingMock} />);
 
-        expect(screen.getByTestId("maxRating").textContent).toBe(
-            ratingMock.max.toString(),
-        );
         expect(screen.getByTestId("currentRating").textContent).toBe(
             ratingMock.current.toString(),
         );
+        const maxRating = screen.getByTestId("maxRating");
+        const minRating = screen.getByTestId("minRating");
+        expect(maxRating.textContent).toBe(ratingMock.highest.toString());
+        expect(minRating.textContent).toBe(ratingMock.lowest.toString());
     });
 
     it.each([
-        [1000, 1100, "-100"],
-        [1000, 900, "+100"],
-        [1000, 1000, "±0"],
+        [
+            { ratings: [{ rating: 1000, at: 1 }], current: 1100 },
+            "+100",
+            "text-green-400",
+        ],
+        [
+            { ratings: [{ rating: 1000, at: 1 }], current: 900 },
+            "-100",
+            "text-red-400",
+        ],
+        [
+            { ratings: [{ rating: 1000, at: 1 }], current: 1000 },
+            "±0",
+            "text-neutral-400",
+        ],
     ])(
-        "should display the rating change",
-        (current, previous, expectedText) => {
-            const newMockRating: RatingOverview = {
+        "displays correct rating change and color for %p",
+        (partialOverview, expectedText, expectedClass) => {
+            const ratingOverview = {
                 ...ratingMock,
-                current: current,
-                history: [
-                    {
-                        elo: previous,
-                        achievedAt: new Date("2023-01-01T12:00:00").getTime(),
-                    },
-                ],
+                ratings: partialOverview.ratings,
+                current: partialOverview.current,
             };
-            render(<RatingCard ratingData={newMockRating} />);
+            render(<RatingCard overview={ratingOverview} />);
 
-            const ratingChange = screen.getByTestId("ratingChange");
-            expect(ratingChange.textContent).toBe(expectedText);
+            const change = screen.getByTestId("ratingChange");
+            expect(change.textContent).toBe(expectedText);
+            expect(change).toHaveClass(expectedClass);
         },
     );
 });
