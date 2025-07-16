@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 import Card from "@/components/ui/Card";
-import { RatingOverview } from "@/lib/apiClient";
+import { Rating } from "@/lib/apiClient";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -12,8 +12,7 @@ interface DataPoint {
     y: number;
 }
 
-const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
-    const { ratings } = ratingData;
+const RatingCard = ({ ratings }: { ratings: Rating[] }) => {
     const currentRating = ratings.at(-1)?.rating ?? 0;
     const maxRating = Math.max(...ratings.map((x) => x.rating));
 
@@ -24,7 +23,7 @@ const RatingCard = ({ ratingData }: { ratingData: RatingOverview }) => {
     }));
     if (formattedRartings.length === 1)
         formattedRartings.push({
-            x: new Date().getTime() + 3600000,
+            x: new Date().getTime(),
             y: currentRating,
         });
 

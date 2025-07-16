@@ -1,7 +1,13 @@
 import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
-import { getGameResults, getRatingArchives, getUser } from "@/lib/apiClient";
+import {
+    getGameResults,
+    getRatingArchives,
+    getUser,
+    RatingOverview,
+    TimeControl,
+} from "@/lib/apiClient";
 import { notFound } from "next/navigation";
 
 type Params = Promise<{ username: string }>;
@@ -45,13 +51,18 @@ const UserPage = async ({ params }: { params: Params }) => {
         notFound();
     }
 
+    const a = new Map(ratings.map((x) => [x.timeControl, x.ratings]));
+    for (const timeControl of Object.values(TimeControl)) {
+        if (typeof timeControl !== "number" || a.has(timeControl)) continue;
+        a.set(timeControl, []);
+    }
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 p-6">
             <Profile profile={profile} />
 
             <section className="flex flex-shrink-0 gap-10 overflow-x-auto">
-                {ratings.map((rating, i) => (
-                    <RatingCard ratingData={rating} key={i} />
+                {Array.from(a.values()).map((rating, i) => (
+                    <RatingCard ratings={rating} key={i} />
                 ))}
             </section>
 
