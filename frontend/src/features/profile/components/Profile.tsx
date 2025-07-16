@@ -1,24 +1,13 @@
 "use client";
 
-import { twMerge } from "tailwind-merge";
-
 import ProfilePicture from "./ProfilePicture";
 import Card from "@/components/ui/Card";
 import { User } from "@/lib/apiClient";
 import Flag from "./Flag";
 
-/** Show basic information about a user */
-const Profile = ({
-    profile,
-    className,
-}: {
-    profile: User;
-    className?: string;
-}) => {
+const Profile = ({ profile }: { profile: User }) => {
     return (
-        <Card
-            className={twMerge("w-full flex-col gap-3 sm:flex-row", className)}
-        >
+        <Card className={"w-full flex-col gap-3 sm:flex-row"}>
             <ProfilePicture className="self-center" userId={profile.userId} />
             <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">
