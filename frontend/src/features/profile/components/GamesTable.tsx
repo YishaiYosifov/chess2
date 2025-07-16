@@ -11,7 +11,7 @@ const GamesTable = ({
     profileViewpoint: User;
 }) => {
     return (
-        <table className="h-min w-full table-auto">
+        <table className="h-min w-full table-auto overflow-x-auto">
             <colgroup>
                 <col style={{ width: "50%" }} />
                 <col style={{ width: "30%" }} />
