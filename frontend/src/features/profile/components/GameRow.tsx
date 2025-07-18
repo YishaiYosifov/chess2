@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 
 import clsx from "clsx";
-import { GameColor, GameResult, GameSummary, User } from "@/lib/apiClient";
+import { GameResult, GameSummary, User } from "@/lib/apiClient";
 
 const GameRow = ({
     game,
@@ -62,7 +62,7 @@ const GameRow = ({
 
     return (
         <tr
-            data-testid="gameRow"
+            data-testid={`gameRow-${game.gameToken}`}
             className={clsx(
                 index % 2 == 0 ? "bg-gray-400/5" : "bg-gray-600/5",
                 "whitespace-nowrap",
