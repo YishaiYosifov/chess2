@@ -115,6 +115,9 @@ public class RatingService(
             since,
             token
         );
+        if (archives.Count == 0)
+            return null;
+
         var highest = await _ratingArchiveRepository.GetHighestAsync(userId, timeControl, token);
         var lowest = await _ratingArchiveRepository.GetLowestAsync(userId, timeControl, token);
 
