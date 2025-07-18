@@ -48,7 +48,7 @@ public class DrawEvaluatorTests
             piece: PieceFactory.White(PieceType.Horsey)
         );
 
-        for (int i = 0; i < 49; i++)
+        for (int i = 0; i < 99; i++)
         {
             _drawEvaluator.TryEvaluateDraw(move, $"fen {i}", out _).Should().BeFalse();
         }
@@ -89,14 +89,14 @@ public class DrawEvaluatorTests
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Horsey)
         );
-        for (int i = 0; i < 29; i++)
+        for (int i = 0; i < 49; i++)
         {
             _drawEvaluator.TryEvaluateDraw(regularMove, $"fen {i}", out _).Should().BeFalse();
         }
 
         _drawEvaluator.TryEvaluateDraw(resetMove, "fen reset", out var _).Should().BeFalse();
 
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 50; i++)
         {
             _drawEvaluator
                 .TryEvaluateDraw(regularMove, $"fen after reset {i}", out _)

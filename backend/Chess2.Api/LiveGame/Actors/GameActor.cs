@@ -196,7 +196,6 @@ public class GameActor : ReceiveActor, IWithTimers
             nextPlayer.UserId,
             _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
         );
-
         Sender.Tell(new GameEvents.PieceMoved());
     }
 

@@ -70,6 +70,7 @@ public class GameCoreTests
         blackMoves.EncodedMoves.Should().BeEmpty();
 
         _gameCore.Fen.Should().Be("fen");
+        _drawEvaluatorMock.Received(1).RegisterInitialPosition("fen");
     }
 
     [Fact]
