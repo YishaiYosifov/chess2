@@ -50,6 +50,10 @@ const SETTING_PAGES = [
     { name: "Security", url: "security" },
 ];
 
+const PAGINATION_PAGE_SIZE = {
+    GAME_SUMMARY: 10,
+};
+
 interface TimeControlLabel {
     type: string;
     settings: TimeControlSettings;
@@ -153,5 +157,6 @@ const constants = {
     HEADERS,
     DEFAULT_CHESS_BOARD,
     SIGNALR_PATHS,
+    PAGINATION_PAGE_SIZE,
 } as const;
 export default constants;
