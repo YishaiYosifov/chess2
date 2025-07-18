@@ -4,13 +4,13 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.LiveGameTests;
+namespace Chess2.Api.Unit.Tests.ArchivedGameTests;
 
-public class GameStateBuilderTests
+public class ArchivedGameStateBuilderTests
 {
     private readonly ArchivedGameStateBuilder _stateBuilder;
 
-    public GameStateBuilderTests()
+    public ArchivedGameStateBuilderTests()
     {
         _stateBuilder = new();
     }
