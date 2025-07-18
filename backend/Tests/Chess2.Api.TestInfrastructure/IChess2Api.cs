@@ -1,5 +1,7 @@
-﻿using Chess2.Api.Auth.DTOs;
+﻿using Chess2.Api.ArchivedGames.Models;
+using Chess2.Api.Auth.DTOs;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Refit;
@@ -47,5 +49,11 @@ public interface IChess2Api
     #region Game Controller
     [Get("/api/game/{gameToken}")]
     Task<IApiResponse<GameState>> GetGameAsync([AliasAs("gameToken")] string gameToken);
+
+    [Get("/api/game/results/{userId}")]
+    Task<IApiResponse<PagedResult<GameSummaryDto>>> GetGameResultsAsync(
+        [AliasAs("userId")] string userId,
+        [Query] PaginationQuery pagination
+    );
     #endregion
 }
