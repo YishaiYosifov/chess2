@@ -171,7 +171,7 @@ export const getGameResults = <ThrowOnError extends boolean = false>(
         unknown,
         ThrowOnError
     >({
-        url: "/results/{userId}",
+        url: "/api/Game/results/{userId}",
         ...options,
     });
 };
