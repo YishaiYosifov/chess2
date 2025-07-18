@@ -9,11 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.RatingTests;
 
-public class RatingRepositoryTests : BaseIntegrationTest
+public class CurrentRatingRepositoryTests : BaseIntegrationTest
 {
     private readonly ICurrentRatingRepository _ratingRepository;
 
-    public RatingRepositoryTests(Chess2WebApplicationFactory factory)
+    public CurrentRatingRepositoryTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _ratingRepository = Scope.ServiceProvider.GetRequiredService<ICurrentRatingRepository>();
