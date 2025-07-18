@@ -173,6 +173,47 @@ public class GameControllerTests : BaseFunctionalTest
         await AssertMixedPlayersGameState(authedUser, rating, guestId, gameToken);
     }
 
+    [Fact]
+    public async Task GetGameResults_ReturnsExpectedResults()
+    {
+        string userId = "test-user";
+        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(3);
+        var otherArchives = new GameArchiveFaker(whiteUserId: "someone else").Generate(3);
+        await DbContext.GameArchives.AddRangeAsync(archives.Concat(otherArchives), CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetGameResultsAsync(userId, new(Page: 0, PageSize: 2));
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var content = response.Content;
+        content.Should().NotBeNull();
+        content.Page.Should().Be(0);
+        content.PageSize.Should().Be(2);
+        content.TotalCount.Should().Be(3);
+        content
+            .Items.Should()
+            .OnlyContain(game => game.WhitePlayer.UserId == userId)
+            .And.HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetGameResults_ReturnsEmptyResult_WhenUserHasNoArchives()
+    {
+        var response = await ApiClient.Api.GetGameResultsAsync(
+            "non existing",
+            new(Page: 0, PageSize: 5)
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = response.Content;
+        content.Should().NotBeNull();
+        content.Page.Should().Be(0);
+        content.PageSize.Should().Be(5);
+        content.TotalCount.Should().Be(0);
+        content.Items.Should().BeEmpty();
+    }
+
     private async Task AssertMixedPlayersGameState(
         AuthedUser authedUser,
         CurrentRating authedRating,
