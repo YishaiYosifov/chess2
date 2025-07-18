@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Game.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 
 namespace Chess2.Api.UserRating.Entities;
 
