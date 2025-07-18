@@ -1,8 +1,10 @@
 ﻿using Chess2.Api.Game.Entities;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +102,72 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 
         result.BlackPlayer.RatingChange.Should().BeNull();
         result.BlackPlayer.NewRating.Should().Be(gameState.BlackPlayer.Rating);
+    }
+
+    [Fact]
+    public async Task GetPaginatedResultsAsync_returns_expected_metadata_and_items()
+    {
+        var userId = "user123";
+        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(4);
+        await DbContext.GameArchives.AddRangeAsync(archives, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var pagination = new PaginationQuery(Page: 0, PageSize: 2);
+
+        var result = await _gameArchiveService.GetPaginatedResultsAsync(userId, pagination, CT);
+
+        result.Page.Should().Be(0);
+        result.PageSize.Should().Be(2);
+        result.TotalCount.Should().Be(4);
+
+        result.Items.Should().HaveCount(2);
+        result.Items.Should().OnlyContain(dto => archives.Any(a => a.GameToken == dto.GameToken));
+    }
+
+    [Fact]
+    public async Task GetPaginatedResultsAsync_returns_empty_when_user_has_no_archives()
+    {
+        var pagination = new PaginationQuery(Page: 0, PageSize: 5);
+
+        var result = await _gameArchiveService.GetPaginatedResultsAsync("no one", pagination, CT);
+
+        result.Page.Should().Be(0);
+        result.PageSize.Should().Be(5);
+        result.TotalCount.Should().Be(0);
+        result.Items.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetPaginatedResultsAsync_maps_all_properties_correctly()
+    {
+        var archive = await FakerUtils.StoreFakerAsync(DbContext, new GameArchiveFaker());
+
+        var pagination = new PaginationQuery(Page: 0, PageSize: 1);
+        var result = await _gameArchiveService.GetPaginatedResultsAsync(
+            archive.BlackPlayer.UserId,
+            pagination,
+            CT
+        );
+
+        result.Items.Should().ContainSingle();
+        var summary = result.Items.Single();
+
+        GameSummaryDto expectedSummary = new(
+            GameToken: archive.GameToken,
+            WhitePlayer: new PlayerSummaryDto(
+                UserId: archive.WhitePlayer.UserId,
+                UserName: archive.WhitePlayer.UserName,
+                Rating: archive.WhitePlayer.NewRating
+            ),
+            BlackPlayer: new PlayerSummaryDto(
+                UserId: archive.BlackPlayer.UserId,
+                UserName: archive.BlackPlayer.UserName,
+                Rating: archive.BlackPlayer.NewRating
+            ),
+            Result: archive.Result,
+            CreatedAt: archive.CreatedAt
+        );
+        summary.Should().BeEquivalentTo(expectedSummary);
     }
 
     private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
