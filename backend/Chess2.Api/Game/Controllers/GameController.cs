@@ -42,7 +42,7 @@ public class GameController(
         return gameStateResult.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpGet("/results/{userId}", Name = nameof(GetGameResults))]
+    [HttpGet("results/{userId}", Name = nameof(GetGameResults))]
     [ProducesResponseType<PagedResult<GameSummaryDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<GameSummaryDto>>> GetGameResults(
         string userId,
