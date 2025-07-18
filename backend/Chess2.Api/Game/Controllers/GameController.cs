@@ -1,26 +1,26 @@
 ﻿using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Services;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chess2.Api.LiveGame.Controllers;
+namespace Chess2.Api.Game.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class GameController(
-    ILiveGameService gameService,
+    IGameStateProvider gameStateProvider,
     IGameArchiveService gameArchiveService,
     IAuthService authService
 ) : Controller
 {
-    private readonly ILiveGameService _gameService = gameService;
+    private readonly IGameStateProvider _gameStateProvider = gameStateProvider;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly IAuthService _authService = authService;
 
@@ -34,7 +34,7 @@ public class GameController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var gameStateResult = await _gameService.GetGameStateAsync(
+        var gameStateResult = await _gameStateProvider.GetGameStateAsync(
             gameToken,
             userIdResult.Value,
             token
