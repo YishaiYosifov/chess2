@@ -4,7 +4,7 @@ using Chess2.Api.UserRating.Entities;
 namespace Chess2.Api.UserRating.Models;
 
 [DisplayName("Rating")]
-public record RatingSummary(int Rating, double At)
+public record RatingSummary(int Rating, long At)
 {
     public RatingSummary(RatingArchive rating)
         : this(

@@ -3,6 +3,7 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -116,6 +117,130 @@ public class RatingServiceTests : BaseIntegrationTest
             .Select(a => a.Value)
             .Should()
             .BeEquivalentTo(ratingSequence, o => o.WithStrictOrdering());
+    }
+
+    [Fact]
+    public async Task GetRatingOverviewsAsync_returns_overviews_only_for_controls_with_current_ratings()
+    {
+        var user = new AuthedUserFaker().Generate();
+        var blitzCurrent = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
+        var rapidCurrent = new CurrentRatingFaker(user, timeControl: TimeControl.Rapid).Generate();
+
+        var blitzHigh = new RatingArchiveFaker(
+            user,
+            rating: blitzCurrent.Value + 100,
+            timeControl: TimeControl.Blitz
+        )
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-30))
+            .Generate();
+        var blitzWithin1 = new RatingArchiveFaker(
+            user,
+            rating: blitzCurrent.Value + 10,
+            timeControl: TimeControl.Blitz
+        )
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-3))
+            .Generate();
+        var blitzWithin2 = new RatingArchiveFaker(
+            user,
+            rating: blitzCurrent.Value - 10,
+            TimeControl.Blitz
+        )
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-1))
+            .Generate();
+        var blitzLow = new RatingArchiveFaker(
+            user,
+            rating: blitzCurrent.Value - 100,
+            timeControl: TimeControl.Blitz
+        )
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-20))
+            .Generate();
+
+        var otherUser = new AuthedUserFaker().Generate();
+        var otherUserRating = new CurrentRatingFaker(
+            otherUser,
+            timeControl: TimeControl.Blitz
+        ).Generate();
+
+        await DbContext.AddRangeAsync(
+            [
+                user,
+                blitzCurrent,
+                rapidCurrent,
+                blitzHigh,
+                blitzWithin1,
+                blitzWithin2,
+                blitzLow,
+                otherUser,
+                otherUserRating,
+            ],
+            CT
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        var since = DateTime.UtcNow.AddDays(-7);
+
+        var result = (await _ratingService.GetRatingOverviewsAsync(user, since, CT)).ToList();
+
+        result.Should().HaveCount(1); // only blitz has archives
+
+        var blitzOverview = result.Single(o => o.TimeControl == TimeControl.Blitz);
+        RatingOverview expectedBlitzOverview = new(
+            TimeControl.Blitz,
+            Current: blitzCurrent.Value,
+            Highest: blitzHigh.Value,
+            Lowest: blitzLow.Value,
+            Ratings: [new RatingSummary(blitzWithin1), new RatingSummary(blitzWithin2)]
+        );
+    }
+
+    [Fact]
+    public async Task GetRatingOverviewsAsync_returns_empty_when_user_has_no_current_ratings()
+    {
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+
+        var result = await _ratingService.GetRatingOverviewsAsync(user, since: null, CT);
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetRatingOverviewsAsync_with_null_since_returns_all_archives()
+    {
+        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var blitzCurrent = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new CurrentRatingFaker(user, timeControl: TimeControl.Blitz)
+        );
+
+        var older = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingArchiveFaker(user, timeControl: TimeControl.Blitz).RuleFor(
+                x => x.AchievedAt,
+                DateTime.UtcNow.AddYears(-2)
+            )
+        );
+
+        var recent = await FakerUtils.StoreFakerAsync(
+            DbContext,
+            new RatingArchiveFaker(user, timeControl: TimeControl.Blitz).RuleFor(
+                x => x.AchievedAt,
+                DateTime.UtcNow.AddDays(-1)
+            )
+        );
+
+        var overviews = await _ratingService.GetRatingOverviewsAsync(user, since: null, CT);
+
+        overviews.Should().ContainSingle();
+        overviews
+            .ElementAt(0)
+            .Ratings.Select(r => r.At)
+            .Should()
+            .BeEquivalentTo(
+                [
+                    new DateTimeOffset(older.AchievedAt).ToUnixTimeMilliseconds(),
+                    new DateTimeOffset(recent.AchievedAt).ToUnixTimeMilliseconds(),
+                ]
+            );
     }
 
     [Theory]
