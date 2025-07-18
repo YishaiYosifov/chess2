@@ -1,161 +1,147 @@
-import { render, screen } from "@testing-library/react";
-import { getGameResults, User } from "@/lib/apiClient";
+import { render, screen, waitFor } from "@testing-library/react";
+import {
+    GameSummary,
+    getGameResults,
+    PagedResultOfGameSummaryDto,
+    User,
+} from "@/lib/apiClient";
 import GameHistory from "../GameHistory";
-import { createFakePagedGameSummaryResult } from "@/lib/testUtils/fakers/pagedGameSummaryResultFaker";
+import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
+import { problemDetailsFactory } from "@/lib/testUtils/formUtils";
+import userEvent from "@testing-library/user-event";
+import constants from "@/lib/constants";
 
 vi.mock("@/lib/apiClient");
 
 describe("GameHistory", () => {
     const getGameResultsMock = vi.mocked(getGameResults);
-    let user: User;
+    let userMock: User;
 
     beforeEach(() => {
-        user = createFakeUser();
+        userMock = createFakeUser();
     });
 
-    it("renders initial game results", () => {
-        const pagedResults = createFakePagedGameSummaryResult({
-            count: 3,
-            overrides: { page: 0, pageSize: 3, totalPages: 1 },
+    it("should render initial games and pagination buttons", () => {
+        const initialGameResults = createFakePagedGameSummary({
+            pagination: { page: 0, pageSize: 5, totalCount: 15 },
         });
 
         render(
             <GameHistory
-                initialGameResults={pagedResults}
-                profileViewpoint={user}
+                initialGameResults={initialGameResults}
+                profileViewpoint={userMock}
             />,
         );
 
-        for (const game of pagedResults.items) {
-            expect(screen.getByText(game.gameToken)).toBeInTheDocument();
-        }
+        testGameRowsVisible(initialGameResults.items);
+        expect(screen.getByTestId("paginationPage0")).toBeInTheDocument();
+        expect(screen.getByTestId("paginationPage1")).toBeInTheDocument();
+        expect(screen.getByTestId("paginationPage2")).toBeInTheDocument();
     });
 
-    it("renders pagination buttons when there are multiple pages", () => {
-        const pagedResults = createFakePagedGameSummaryResult({
-            count: 9,
-            overrides: { page: 1, pageSize: 3 },
+    it("should fetch the next page when pagination button is clicked and update games", async () => {
+        const initialGameResults = createFakePagedGameSummary({
+            pagination: { page: 0, pageSize: 5, totalCount: 15 },
+        });
+
+        const newPageResults = createFakePagedGameSummary({
+            pagination: { page: 1, pageSize: 5, totalCount: 15 },
+        });
+
+        getGameResultsMock.mockResolvedValue({
+            data: newPageResults,
+            response: new Response(),
         });
 
         render(
             <GameHistory
-                initialGameResults={pagedResults}
-                profileViewpoint={user}
+                initialGameResults={initialGameResults}
+                profileViewpoint={userMock}
             />,
         );
 
-        expect(
-            screen.getByRole("button", { name: "First" }),
-        ).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "‹" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "›" })).toBeInTheDocument();
-        expect(
-            screen.getByRole("button", { name: "Last" }),
-        ).toBeInTheDocument();
+        const page2Button = screen.getByTestId("paginationPage1");
+        await userEvent.click(page2Button);
+
+        testGameRowsVisible(newPageResults.items);
+        expect(getGameResultsMock).toHaveBeenCalledWith({
+            path: { userId: userMock.userId },
+            query: { Page: 1, PageSize: initialGameResults.pageSize },
+        });
     });
 
-    it("calls getGameResults when navigating to the next page", async () => {
-        const initialPage = 1;
-        const initialResults = createFakePagedGameSummaryResult({
-            count: 9,
-            overrides: { page: initialPage, pageSize: 3 },
+    it("should disable pagination buttons while loading", async () => {
+        const initialGameResults = createFakePagedGameSummary();
+
+        type GetGameResultsReturnType = {
+            data: PagedResultOfGameSummaryDto;
+            response: Response;
+        };
+
+        let resolveFetch!: (value: GetGameResultsReturnType) => void;
+        const fetchPromise = new Promise<GetGameResultsReturnType>(
+            (resolve) => {
+                resolveFetch = resolve;
+            },
+        );
+        getGameResultsMock.mockReturnValue(fetchPromise);
+
+        render(
+            <GameHistory
+                initialGameResults={initialGameResults}
+                profileViewpoint={userMock}
+            />,
+        );
+
+        // click and disable
+        expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
+        await userEvent.click(screen.getByTestId("paginationPage1"));
+        expect(screen.getByTestId("paginationPage1")).toBeDisabled();
+
+        // resolve fetch and reenable
+        resolveFetch({ data: initialGameResults, response: new Response() });
+        await waitFor(() => expect(getGameResultsMock).toHaveBeenCalled());
+        expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
+    });
+
+    it("should handle API errors gracefully", async () => {
+        const initialResults = createFakePagedGameSummary({
+            pagination: { totalCount: 20 },
         });
 
-        const nextPage = 2;
-        const nextResults = createFakePagedGameSummaryResult({
-            count: 9,
-            overrides: { page: nextPage, pageSize: 3 },
+        getGameResultsMock.mockResolvedValueOnce({
+            data: undefined,
+            error: problemDetailsFactory(400),
+            response: new Response(),
         });
 
-        getGameResultsMock.mockResolvedValueOnce({ data: nextResults });
-
+        const user = userEvent.setup();
         render(
             <GameHistory
                 initialGameResults={initialResults}
-                profileViewpoint={user}
+                profileViewpoint={userMock}
             />,
         );
 
-        fireEvent.click(screen.getByRole("button", { name: "›" }));
+        await user.click(screen.getByTestId("paginationNext"));
 
-        await waitFor(() =>
-            expect(getGameResults).toHaveBeenCalledWith({
-                path: { userId: mockUser.userId },
-                query: { Page: nextPage, PageSize: 10 }, // Matches hardcoded PageSize in component
-            }),
-        );
+        expect(getGameResults).toHaveBeenCalledWith({
+            path: { userId: userMock.userId },
+            query: {
+                Page: 1,
+                PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+            },
+        });
 
-        for (const game of nextResults.items) {
-            expect(await screen.findByText(game.gameId)).toBeInTheDocument();
-        }
+        testGameRowsVisible(initialResults.items);
     });
 
-    it("disables pagination buttons while loading", async () => {
-        let resolveFetch: (data: any) => void;
-        const fetchPromise = new Promise((res) => (resolveFetch = res));
-
-        (getGameResults as any).mockReturnValueOnce(fetchPromise);
-
-        const pagedResults = createFakePagedGameSummaryResult({
-            count: 9,
-            overrides: { page: 1, pageSize: 3, totalPages: 3 },
-        });
-
-        render(
-            <GameHistory
-                initialGameResults={pagedResults}
-                profileViewpoint={mockUser}
-            />,
-        );
-
-        fireEvent.click(screen.getByRole("button", { name: "›" }));
-
-        expect(screen.getByRole("button", { name: "›" })).toBeDisabled();
-
-        resolveFetch!({
-            data: createFakePagedGameSummaryResult({
-                count: 9,
-                overrides: { page: 2, pageSize: 3, totalPages: 3 },
-            }),
-        });
-
-        await waitFor(() =>
+    function testGameRowsVisible(games: GameSummary[]) {
+        for (const game of games) {
             expect(
-                screen.getByRole("button", { name: "›" }),
-            ).not.toBeDisabled(),
-        );
-    });
-
-    it("handles API errors gracefully", async () => {
-        const initialResults = createFakePagedGameSummaryResult({
-            count: 6,
-            overrides: { page: 0, pageSize: 3, totalPages: 2 },
-        });
-
-        (getGameResults as any).mockResolvedValueOnce({
-            error: "Network error",
-        });
-
-        render(
-            <GameHistory
-                initialGameResults={initialResults}
-                profileViewpoint={mockUser}
-            />,
-        );
-
-        fireEvent.click(screen.getByRole("button", { name: "›" }));
-
-        await waitFor(() =>
-            expect(getGameResults).toHaveBeenCalledWith({
-                path: { userId: "123" },
-                query: { Page: 1, PageSize: 10 },
-            }),
-        );
-
-        // Ensure original page is still visible
-        for (const game of initialResults.items) {
-            expect(screen.getByText(game.gameId)).toBeInTheDocument();
+                screen.getByTestId(`gameRow-${game.gameToken}`),
+            ).toBeInTheDocument();
         }
-    });
+    }
 });
