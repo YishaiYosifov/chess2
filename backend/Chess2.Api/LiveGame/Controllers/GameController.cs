@@ -15,12 +15,12 @@ namespace Chess2.Api.LiveGame.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class GameController(
-    IGameService gameService,
+    ILiveGameService gameService,
     IGameArchiveService gameArchiveService,
     IAuthService authService
 ) : Controller
 {
-    private readonly IGameService _gameService = gameService;
+    private readonly ILiveGameService _gameService = gameService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly IAuthService _authService = authService;
 

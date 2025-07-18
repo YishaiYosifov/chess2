@@ -16,7 +16,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
 {
     protected ITimerScheduler TimerMock { get; } = Substitute.For<ITimerScheduler>();
     protected TPool PoolMock { get; } = Substitute.For<TPool>();
-    protected IGameService GameServiceMock { get; } = Substitute.For<IGameService>();
+    protected ILiveGameService GameServiceMock { get; } = Substitute.For<ILiveGameService>();
     protected IServiceProvider ServiceProviderMock { get; } = Substitute.For<IServiceProvider>();
 
     protected IActorRef MatchmakingActor { get; }
@@ -30,7 +30,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     public BaseMatchmakingActorTests()
     {
         var scopeMock = Substitute.For<IServiceScope>();
-        scopeMock.ServiceProvider.GetService(typeof(IGameService)).Returns(GameServiceMock);
+        scopeMock.ServiceProvider.GetService(typeof(ILiveGameService)).Returns(GameServiceMock);
 
         var scopeFactoryMock = Substitute.For<IServiceScopeFactory>();
         scopeFactoryMock.CreateScope().Returns(scopeMock);

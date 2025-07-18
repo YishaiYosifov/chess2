@@ -13,12 +13,12 @@ namespace Chess2.Api.Functional.Tests;
 
 public class GameControllerTests : BaseFunctionalTest
 {
-    private readonly IGameService _gameService;
+    private readonly ILiveGameService _gameService;
 
     public GameControllerTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _gameService = Scope.ServiceProvider.GetRequiredService<IGameService>();
+        _gameService = Scope.ServiceProvider.GetRequiredService<ILiveGameService>();
     }
 
     [Fact]

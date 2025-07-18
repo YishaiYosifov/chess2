@@ -320,7 +320,7 @@ builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
 #endregion
 
 #region Game
-builder.Services.AddScoped<IGameService, LiveGameService>();
+builder.Services.AddScoped<ILiveGameService, LiveGameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();

@@ -26,12 +26,13 @@ public interface IGameHubClient : IChess2HubClient
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
-public class GameHub(ILogger<GameHub> logger, IGameService gameService) : Chess2Hub<IGameHubClient>
+public class GameHub(ILogger<GameHub> logger, ILiveGameService gameService)
+    : Chess2Hub<IGameHubClient>
 {
     private const string GameTokenQueryParam = "gameToken";
 
     private readonly ILogger<GameHub> _logger = logger;
-    private readonly IGameService _gameService = gameService;
+    private readonly ILiveGameService _gameService = gameService;
 
     public async Task MovePieceAsync(string gameToken, AlgebraicPoint from, AlgebraicPoint to)
     {

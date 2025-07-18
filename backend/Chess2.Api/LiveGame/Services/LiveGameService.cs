@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.LiveGame.Services;
 
-public interface IGameService
+public interface ILiveGameService
 {
     Task<ErrorOr<Success>> EndGameAsync(
         string gameToken,
@@ -51,7 +51,7 @@ public class LiveGameService(
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
     IGameArchiveService gameArchiveService
-) : IGameService
+) : ILiveGameService
 {
     private readonly ILogger<LiveGameService> _logger = logger;
     private readonly IRequiredActor<GameActor> _gameActor = gameActor;

@@ -108,7 +108,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             RunTask(async () =>
             {
                 await using var scope = _sp.CreateAsyncScope();
-                var gameService = scope.ServiceProvider.GetRequiredService<IGameService>();
+                var gameService = scope.ServiceProvider.GetRequiredService<ILiveGameService>();
                 var gameToken = await gameService.StartGameAsync(
                     seeker1,
                     seeker2,
