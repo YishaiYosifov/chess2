@@ -38,7 +38,10 @@ const UserPage = async ({ params }: { params: Params }) => {
         }),
         getGameResults({
             path: { userId: profile.userId },
-            query: { Page: 0, PageSize: 10 },
+            query: {
+                Page: 0,
+                PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+            },
         }),
     ]);
 
