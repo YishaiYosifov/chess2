@@ -1,9 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.GameLogic;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using ErrorOr;
 using IReadonlyLegalMoveMap = System.Collections.Generic.IReadOnlyDictionary<
@@ -78,6 +76,7 @@ public class GameCore(
     public void InitializeGame()
     {
         Fen = _fenCalculator.CalculateFen(_board);
+        _drawEvaulator.RegisterInitialPosition(Fen);
         CalculateAllLegalMoves(GameColor.White);
     }
 
