@@ -108,27 +108,7 @@ public class GameArchiveService(
         );
         var totalCount = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, token);
 
-        var summeries = archives.Select(archive =>
-        {
-            var whitePlayer = archive.WhitePlayer;
-            var blackPlayer = archive.BlackPlayer;
-            return new GameSummaryDto(
-                archive.GameToken,
-                new PlayerSummaryDto(
-                    UserId: whitePlayer.UserId,
-                    UserName: whitePlayer.UserName,
-                    Rating: whitePlayer.NewRating
-                ),
-                new PlayerSummaryDto(
-                    UserId: blackPlayer.UserId,
-                    UserName: blackPlayer.UserName,
-                    Rating: blackPlayer.NewRating
-                ),
-                archive.Result,
-                CreatedAt: archive.CreatedAt
-            );
-        });
-
+        var summeries = archives.Select(CreateGameSummary);
         return new(
             Items: summeries,
             TotalCount: totalCount,
@@ -136,6 +116,23 @@ public class GameArchiveService(
             PageSize: pagination.PageSize
         );
     }
+
+    private static GameSummaryDto CreateGameSummary(GameArchive archive) =>
+        new(
+            archive.GameToken,
+            new PlayerSummaryDto(
+                UserId: archive.WhitePlayer.UserId,
+                UserName: archive.WhitePlayer.UserName,
+                Rating: archive.WhitePlayer.NewRating
+            ),
+            new PlayerSummaryDto(
+                UserId: archive.BlackPlayer.UserId,
+                UserName: archive.BlackPlayer.UserName,
+                Rating: archive.BlackPlayer.NewRating
+            ),
+            archive.Result,
+            CreatedAt: archive.CreatedAt
+        );
 
     private static PlayerArchive CreatePlayerArchive(
         GamePlayer player,

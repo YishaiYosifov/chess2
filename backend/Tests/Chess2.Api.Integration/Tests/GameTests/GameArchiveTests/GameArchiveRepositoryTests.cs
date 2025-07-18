@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Game.Repositories;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -73,10 +72,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     public async Task GetPaginatedArchivedGamesForUserAsync_skips_and_takes_correct_number_of_items()
     {
         var userId = "user123";
-        var gamePlayer = new PlayerArchiveFaker(GameColor.White)
-            .RuleFor(x => x.UserId, userId)
-            .Generate();
-        var archives = new GameArchiveFaker(whitePlayer: gamePlayer).Generate(5);
+        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(5);
         await DbContext.AddRangeAsync(archives, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -94,10 +90,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     public async Task GetPaginatedArchivedGamesForUserAsync_returns_empty_when_skip_exceeds_total()
     {
         var userId = "user123";
-        var gamePlayer = new PlayerArchiveFaker(GameColor.White)
-            .RuleFor(x => x.UserId, userId)
-            .Generate();
-        var archives = new GameArchiveFaker(whitePlayer: gamePlayer).Generate(5);
+        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(5);
         await DbContext.AddRangeAsync(archives, CT);
         await DbContext.SaveChangesAsync(CT);
 
