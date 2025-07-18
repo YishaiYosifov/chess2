@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Users.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;

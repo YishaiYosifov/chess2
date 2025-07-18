@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.Matchmaking.Services;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.GameSnapshot.Services;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests;

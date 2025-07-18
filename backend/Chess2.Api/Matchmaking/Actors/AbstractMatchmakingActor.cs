@@ -1,8 +1,8 @@
 using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
-using Chess2.Api.Game.Models;
-using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;

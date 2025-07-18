@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure.TestData;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
@@ -21,7 +21,7 @@ public class GameStateFaker : RecordFaker<GameState>
         RuleFor(x => x.BlackPlayer, f => new GamePlayerFaker(GameColor.Black).Generate());
         RuleFor(
             x => x.Clocks,
-            f => new ClockDto(
+            f => new ClockSnapshot(
                 WhiteClock: f.Random.Double(1000, 100000),
                 BlackClock: f.Random.Double(1000, 100000),
                 LastUpdated: f.Random.Double(1000000, 10000000)

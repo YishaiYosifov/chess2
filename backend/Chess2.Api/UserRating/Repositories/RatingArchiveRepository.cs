@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Game.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.EntityFrameworkCore;

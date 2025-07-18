@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Utils;
