@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Game.Repositories;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -66,5 +67,68 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         );
 
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetPaginatedArchivedGamesForUserAsync_skips_and_takes_correct_number_of_items()
+    {
+        var userId = "user123";
+        var gamePlayer = new PlayerArchiveFaker(GameColor.White)
+            .RuleFor(x => x.UserId, userId)
+            .Generate();
+        var archives = new GameArchiveFaker(whitePlayer: gamePlayer).Generate(5);
+        await DbContext.AddRangeAsync(archives, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
+            userId,
+            take: 2,
+            skip: 1,
+            CT
+        );
+
+        result.Should().BeEquivalentTo(archives.Skip(1).Take(2));
+    }
+
+    [Fact]
+    public async Task GetPaginatedArchivedGamesForUserAsync_returns_empty_when_skip_exceeds_total()
+    {
+        var userId = "user123";
+        var gamePlayer = new PlayerArchiveFaker(GameColor.White)
+            .RuleFor(x => x.UserId, userId)
+            .Generate();
+        var archives = new GameArchiveFaker(whitePlayer: gamePlayer).Generate(5);
+        await DbContext.AddRangeAsync(archives, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
+            userId,
+            take: 2,
+            skip: 10,
+            CT
+        );
+
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CountArchivedGamesForUserAsync_returns_correct_count()
+    {
+        var userId = "user1";
+
+        var archive1 = new GameArchiveFaker().Generate();
+        archive1.WhitePlayer.UserId = userId;
+        var archive2 = new GameArchiveFaker().Generate();
+        archive2.BlackPlayer.UserId = userId;
+
+        var otherArchive = new GameArchiveFaker().Generate();
+        otherArchive.WhitePlayer.UserId = "otherUser";
+
+        await DbContext.GameArchives.AddRangeAsync([archive1, archive2, otherArchive], CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var count = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, CT);
+
+        count.Should().Be(2);
     }
 }
