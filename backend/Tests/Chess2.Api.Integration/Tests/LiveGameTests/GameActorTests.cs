@@ -9,6 +9,7 @@ using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using ErrorOr;
@@ -242,6 +243,27 @@ public class GameActorTests : BaseAkkaIntegrationTest
     }
 
     [Fact]
+    public async Task MovePiece_that_results_in_draw_ends_the_game()
+    {
+        await StartGameAsync();
+        var whiteMove1 = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        var whiteMove2 = new Move(new("c3"), new("b1"), PieceFactory.White(PieceType.Horsey));
+        var blackMove1 = new Move(new("b10"), new("c8"), PieceFactory.Black(PieceType.Horsey));
+        var blackMove2 = new Move(new("c8"), new("b10"), PieceFactory.Black(PieceType.Horsey));
+
+        for (int i = 0; i < 4; i++)
+        {
+            var whiteMove = i % 2 == 0 ? whiteMove1 : whiteMove2;
+            var blackMove = i % 2 == 0 ? blackMove1 : blackMove2;
+
+            await MakeLegalMoveAsync(_whitePlayer, whiteMove);
+            await MakeLegalMoveAsync(_blackPlayer, blackMove);
+        }
+
+        await TestGameEndedAsync(_gameResultDescriber.ThreeFold());
+    }
+
+    [Fact]
     public async Task EndGame_invalid_user_should_return_PlayerInvalid()
     {
         await StartGameAsync();
@@ -264,20 +286,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
 
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
-
-        var expectedEndStatus = _gameResultDescriber.Aborted(GameColor.White);
-        await _gameNotifierMock
-            .Received(1)
-            .NotifyGameEndedAsync(
-                TestGameToken,
-                ArgEx.FluentAssert<GameResultData>(
-                    (x) =>
-                    {
-                        x.Result.Should().Be(expectedEndStatus.Result);
-                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
-                    }
-                )
-            );
+        await TestGameEndedAsync(_gameResultDescriber.Aborted(GameColor.White));
     }
 
     [Fact]
@@ -285,62 +294,14 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         await StartGameAsync();
 
-        // Make enough moves to exceed abort threshold
+        // make enough moves to exceed abort threshold
         await MakeLegalMoveAsync(_whitePlayer);
         await MakeLegalMoveAsync(_blackPlayer);
         await MakeLegalMoveAsync(_whitePlayer);
 
-        // Now White resigns — Black should win
-        _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
-
-        var expectedEndStatus = _gameResultDescriber.Resignation(GameColor.White);
-        await _gameNotifierMock
-            .Received(1)
-            .NotifyGameEndedAsync(
-                TestGameToken,
-                ArgEx.FluentAssert<GameResultData>(
-                    (x) =>
-                    {
-                        x.Result.Should().Be(expectedEndStatus.Result);
-                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
-                    }
-                )
-            );
-    }
-
-    [Fact]
-    public async Task EndGame_should_passivate_actor()
-    {
-        await StartGameAsync();
-
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
         await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
-
-        var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
-            cancellationToken: ApiTestBase.CT
-        );
-        passivate.StopMessage.Should().Be(PoisonPill.Instance);
-    }
-
-    private Move GetLegalMoveFor(GamePlayer player) =>
-        _gameCore.GetLegalMovesFor(player.Color).Moves.First().Value;
-
-    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, Move? move = null)
-    {
-        move ??= GetLegalMoveFor(player);
-        _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, player.UserId, move.From, move.To),
-            _probe
-        );
-
-        await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
-            cancellationToken: ApiTestBase.CT,
-            duration: TimeSpan.FromSeconds(10)
-        );
-
-        return move;
+        await TestGameEndedAsync(_gameResultDescriber.Resignation(GameColor.White));
     }
 
     [Fact]
@@ -392,6 +353,25 @@ public class GameActorTests : BaseAkkaIntegrationTest
         stateResult.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.GameAlreadyEnded);
     }
 
+    private Move GetLegalMoveFor(GamePlayer player) =>
+        _gameCore.GetLegalMovesFor(player.Color).Moves.First().Value;
+
+    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, Move? move = null)
+    {
+        move ??= GetLegalMoveFor(player);
+        _gameActor.Tell(
+            new GameCommands.MovePiece(TestGameToken, player.UserId, move.From, move.To),
+            _probe
+        );
+
+        await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
+            cancellationToken: ApiTestBase.CT,
+            duration: TimeSpan.FromHours(10)
+        );
+
+        return move;
+    }
+
     private async Task StartGameAsync(
         GamePlayer? whitePlayer = null,
         GamePlayer? blackPlayer = null,
@@ -412,5 +392,26 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await _probe.ExpectMsgAsync<GameEvents.GameStartedEvent>(
             cancellationToken: TestContext.Current.CancellationToken
         );
+    }
+
+    private async Task TestGameEndedAsync(GameEndStatus expectedEndStatus)
+    {
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyGameEndedAsync(
+                TestGameToken,
+                ArgEx.FluentAssert<GameResultData>(
+                    (x) =>
+                    {
+                        x.Result.Should().Be(expectedEndStatus.Result);
+                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+                    }
+                )
+            );
+
+        var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
+            cancellationToken: ApiTestBase.CT
+        );
+        passivate.StopMessage.Should().Be(PoisonPill.Instance);
     }
 }

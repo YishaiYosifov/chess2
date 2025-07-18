@@ -6,6 +6,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IDrawEvaulator
 {
+    void RegisterInitialPosition(string fen);
     bool TryEvaluateDraw(Move move, string fen, [NotNullWhen(true)] out GameEndStatus? reason);
 }
 
@@ -14,6 +15,8 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
     private readonly IGameResultDescriber _gameResultDescriber = gameResultDescriber;
     private readonly Dictionary<string, int> _fenOccurrences = [];
     private int _halfMoveClock = 0;
+
+    public void RegisterInitialPosition(string fen) => _fenOccurrences.TryAdd(fen, 1);
 
     public bool TryEvaluateDraw(
         Move move,
@@ -54,6 +57,6 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
         }
 
         _halfMoveClock++;
-        return _halfMoveClock >= 50;
+        return _halfMoveClock >= 100;
     }
 }
