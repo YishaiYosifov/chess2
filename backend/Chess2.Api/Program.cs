@@ -9,6 +9,7 @@ using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.GameSnapshot.Services;
@@ -320,6 +321,7 @@ builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
 #endregion
 
 #region Game
+builder.Services.AddScoped<IGameStateProvider, GameStateProvider>();
 builder.Services.AddScoped<ILiveGameService, LiveGameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
