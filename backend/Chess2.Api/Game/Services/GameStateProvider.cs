@@ -34,6 +34,8 @@ public class GameStateProvider(
             forUserId,
             token
         );
+        if (!liveGameStateResult.IsError)
+            return liveGameStateResult.Value;
         if (!liveGameStateResult.Errors.Contains(GameErrors.GameNotFound))
             return liveGameStateResult.Errors;
 
