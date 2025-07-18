@@ -1,11 +1,9 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
-using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Actors;
-using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Shared.Extensions;
 using Chess2.Api.UserRating.Services;
@@ -44,22 +42,18 @@ public interface ILiveGameService
 }
 
 public class LiveGameService(
-    ILogger<LiveGameService> logger,
     IRequiredActor<GameActor> gameActor,
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    ITimeControlTranslator timeControlTranslator,
-    IGameArchiveService gameArchiveService
+    ITimeControlTranslator timeControlTranslator
 ) : ILiveGameService
 {
-    private readonly ILogger<LiveGameService> _logger = logger;
     private readonly IRequiredActor<GameActor> _gameActor = gameActor;
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-    private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
 
     public async Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default)
     {
@@ -97,13 +91,9 @@ public class LiveGameService(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
-        if (!response.IsError)
-            return response.Value.State;
-        if (!response.Errors.Contains(GameErrors.GameNotFound))
+        if (response.IsError)
             return response.Errors;
-
-        var stateResult = await _gameArchiveService.GetGameStateByTokenAsync(gameToken, token);
-        return stateResult;
+        return response.Value.State;
     }
 
     public async Task<ErrorOr<Success>> MakeMoveAsync(
