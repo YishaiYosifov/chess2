@@ -2,7 +2,7 @@
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Akka.Hosting;
-using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;

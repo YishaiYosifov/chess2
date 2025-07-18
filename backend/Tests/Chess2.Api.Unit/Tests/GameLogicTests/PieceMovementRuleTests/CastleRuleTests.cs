@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.PieceMovementRules;
 using Chess2.Api.TestInfrastructure.Factories;

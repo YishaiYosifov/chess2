@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Game;
-using Chess2.Api.GameLogic;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.LiveGame;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 

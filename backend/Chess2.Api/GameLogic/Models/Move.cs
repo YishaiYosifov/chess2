@@ -1,6 +1,4 @@
-﻿using Chess2.Api.Game.Models;
-
-namespace Chess2.Api.GameLogic.Models;
+﻿namespace Chess2.Api.GameLogic.Models;
 
 public record Move
 {

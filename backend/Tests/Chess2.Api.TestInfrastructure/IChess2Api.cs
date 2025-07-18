@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Auth.DTOs;
-using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Users.DTOs;
 using Microsoft.AspNetCore.JsonPatch;
 using Refit;

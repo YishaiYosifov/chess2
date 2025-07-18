@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Auth.Entities;
-using Chess2.Api.Game.Entities;
+﻿using Chess2.Api.ArchivedGames.Entities;
+using Chess2.Api.Auth.Entities;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

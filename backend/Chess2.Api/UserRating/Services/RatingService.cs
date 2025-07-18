@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Game.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Models;

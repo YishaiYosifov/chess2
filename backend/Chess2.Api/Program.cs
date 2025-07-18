@@ -3,19 +3,21 @@ using System.Text;
 using Akka.Cluster.Hosting;
 using Akka.Hosting;
 using Akka.Remote.Hosting;
+using Chess2.Api.ArchivedGames.Repositories;
+using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
-using Chess2.Api.Game.Repositories;
-using Chess2.Api.Game.Services;
-using Chess2.Api.Game.SignalR;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.PieceDefinitions;
+using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Infrastructure.OpenAPI;
+using Chess2.Api.LiveGame.Services;
+using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -318,14 +320,14 @@ builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
 #endregion
 
 #region Game
-builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IGameService, LiveGameService>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
 builder.Services.AddSingleton<IGameResultDescriber, GameResultDescriber>();
 builder.Services.AddSingleton<IGameNotifier, GameNotifier>();
-builder.Services.AddSingleton<IGameStateBuilder, GameStateBuilder>();
+builder.Services.AddSingleton<IArchivedGameStateBuilder, ArchivedGameStateBuilder>();
 
 builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddTransient<IGameClock, GameClock>();

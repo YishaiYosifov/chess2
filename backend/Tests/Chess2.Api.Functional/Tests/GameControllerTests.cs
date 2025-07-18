@@ -1,6 +1,6 @@
 ﻿using System.Net;
-using Chess2.Api.Game.Models;
-using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;

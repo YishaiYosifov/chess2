@@ -1,5 +1,5 @@
 ﻿using Bogus;
-using Chess2.Api.Game.Entities;
+using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.TestInfrastructure.TestData;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;

@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Game.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure.TestData;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;

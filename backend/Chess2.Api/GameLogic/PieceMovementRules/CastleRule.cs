@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 

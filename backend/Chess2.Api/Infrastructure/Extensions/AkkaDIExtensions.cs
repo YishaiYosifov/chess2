@@ -1,7 +1,7 @@
 ﻿using Akka.Cluster.Hosting;
 using Akka.Hosting;
-using Chess2.Api.Game.Actors;
-using Chess2.Api.Game.Sharding;
+using Chess2.Api.LiveGame.Actors;
+using Chess2.Api.LiveGame.Sharding;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Sharding;
 using Chess2.Api.PlayerSession.Actors;

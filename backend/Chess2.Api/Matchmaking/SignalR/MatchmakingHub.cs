@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
-using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Matchmaking.Services;

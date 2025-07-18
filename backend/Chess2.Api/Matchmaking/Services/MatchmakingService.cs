@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
-using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.PlayerSession.Models;
