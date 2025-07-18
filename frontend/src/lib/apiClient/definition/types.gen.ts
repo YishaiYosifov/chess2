@@ -384,7 +384,7 @@ export type GetGameResultsData = {
         PageSize?: number;
         Skip?: number;
     };
-    url: "/results/{userId}";
+    url: "/api/Game/results/{userId}";
 };
 
 export type GetGameResultsResponses = {
