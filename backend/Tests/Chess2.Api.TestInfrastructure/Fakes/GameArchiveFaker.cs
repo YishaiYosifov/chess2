@@ -37,6 +37,9 @@ public class GameArchiveFaker : Faker<GameArchive>
         );
         RuleFor(x => x.BlackPlayerId, (f, g) => g.WhitePlayer.Id);
 
-        RuleFor(g => g.CreatedAt, f => f.Date.PastOffset(1).UtcDateTime);
+        RuleFor(
+            g => g.CreatedAt,
+            f => f.Date.PastOffset(yearsToGoBack: 1).UtcDateTime + TimeSpan.FromDays(f.IndexFaker)
+        );
     }
 }
