@@ -1,4 +1,5 @@
-﻿using Chess2.Api.ArchivedGames.Services;
+﻿using Chess2.Api.ArchivedGames.Entities;
+using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -24,7 +25,7 @@ public class ArchivedGameStateBuilderTests
 
         var expectedMoveHistory = archive
             .Moves.OrderBy(m => m.MoveNumber)
-            .Select(m => new MoveSnapshot(m.EncodedMove, m.San, m.TimeLeft))
+            .Select(m => new MoveSnapshot(MapMovePath(m), m.San, m.TimeLeft))
             .ToList();
 
         ClockSnapshot expectedClocks = new(
@@ -66,6 +67,26 @@ public class ArchivedGameStateBuilderTests
         var result = _stateBuilder.FromArchive(archive);
 
         result.Should().BeEquivalentTo(expectedGameState);
+    }
+
+    private static MovePath MapMovePath(MoveArchive moveArchive)
+    {
+        List<MoveSideEffectPath> sideEffects = [];
+        if (moveArchive.SideEffects is not null)
+            sideEffects =
+            [
+                .. moveArchive.SideEffects.Select(se => new MoveSideEffectPath(
+                    FromIdx: se.FromIdx,
+                    ToIdx: se.ToIdx
+                )),
+            ];
+        return new(
+            FromIdx: moveArchive.FromIdx,
+            ToIdx: moveArchive.ToIdx,
+            CapturedIdxs: [.. moveArchive.Captures],
+            TriggerIdxs: [.. moveArchive.Triggers],
+            SideEffects: sideEffects
+        );
     }
 
     [Fact]

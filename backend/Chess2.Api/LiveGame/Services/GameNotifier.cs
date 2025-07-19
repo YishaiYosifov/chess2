@@ -1,8 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.SignalR;
-using Chess2.Api.UserRating.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -13,11 +11,11 @@ public interface IGameNotifier
     Task NotifyMoveMadeAsync(
         string gameToken,
         MoveSnapshot move,
-        GameColor sideToMove,
         int moveNumber,
         ClockSnapshot clocks,
+        GameColor sideToMove,
         string sideToMoveUserId,
-        IEnumerable<string> legalMoves
+        IEnumerable<byte> encodedLegalMoves
     );
 }
 
@@ -28,11 +26,11 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
     public async Task NotifyMoveMadeAsync(
         string gameToken,
         MoveSnapshot move,
-        GameColor sideToMove,
         int moveNumber,
         ClockSnapshot clocks,
+        GameColor sideToMove,
         string sideToMoveUserId,
-        IEnumerable<string> legalMoves
+        IEnumerable<byte> legalMoves
     )
     {
         await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber, clocks);
