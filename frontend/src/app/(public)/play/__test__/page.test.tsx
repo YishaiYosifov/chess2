@@ -1,7 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import PlayPage from "../page";
+import { mockHubBuilder } from "@/lib/testUtils/mocks/mockSignalR";
+
+vi.mock("@microsoft/signalr");
 
 describe("PlayPage", () => {
+    beforeEach(() => mockHubBuilder());
+
     it("should render the PlayPage with Chessboard and PlayOptions", () => {
         render(<PlayPage />);
 

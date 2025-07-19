@@ -37,5 +37,10 @@ export interface Move {
 
     triggers: Point[];
     captures: Point[];
-    sideEffects: Move[];
+    sideEffects: MoveSideEffect[];
+}
+
+export interface MoveSideEffect {
+    from: Point;
+    to: Point;
 }
