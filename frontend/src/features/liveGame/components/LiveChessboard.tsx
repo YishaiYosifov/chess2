@@ -4,7 +4,7 @@ import { Point } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useMemo, useCallback, useRef } from "react";
 import { GameState } from "@/lib/apiClient";
-import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
+import { decodeFen } from "../lib/fenDecoder";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
@@ -18,7 +18,7 @@ import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
-import { decodePathIntoMap } from "@/lib/chessDecoders/moveDecoder";
+import { decodePathIntoMap } from "../lib/moveDecoder";
 import constants from "@/lib/constants";
 
 const LiveChessboard = ({

@@ -1,7 +1,7 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
-import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
+import { decodeFen } from "../lib/fenDecoder";
 import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
 import { GameOverPopupRef } from "../components/GameOverPopup";
@@ -9,7 +9,7 @@ import {
     decodePath,
     decodePathIntoMap,
     decodeEncodedMovesIntoMap,
-} from "@/lib/chessDecoders/moveDecoder";
+} from "../lib/moveDecoder";
 
 export function useLiveChessEvents(
     gameToken: string,
