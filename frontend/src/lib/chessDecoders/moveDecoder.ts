@@ -50,10 +50,12 @@ function sideEffectToMove(
     };
 }
 
-export function whatever(encoded: string, boardWidth: number): LegalMoveMap {
+export function decodeEncodedMovesIntoMap(
+    encoded: string,
+    boardWidth: number,
+): LegalMoveMap {
     const buffer = Buffer.from(encoded, "base64");
     const decoded = gunzipSync(buffer).toString();
-    console.log(encoded, JSON.parse(decoded));
     const moves = decodePathIntoMap(JSON.parse(decoded), boardWidth);
     return moves;
 }

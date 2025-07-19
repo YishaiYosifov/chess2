@@ -8,7 +8,7 @@ import { GameOverPopupRef } from "../components/GameOverPopup";
 import {
     decodePath,
     decodePathIntoMap,
-    whatever,
+    decodeEncodedMovesIntoMap,
 } from "@/lib/chessDecoders/moveDecoder";
 
 export function useLiveChessEvents(
@@ -66,7 +66,10 @@ export function useLiveChessEvents(
     );
 
     useGameEvent(gameToken, "LegalMovesChangedAsync", async (legalMoves) => {
-        const decodedLegalMoves = whatever(legalMoves, boardDimensions.width);
+        const decodedLegalMoves = decodeEncodedMovesIntoMap(
+            legalMoves,
+            boardDimensions.width,
+        );
         console.log(decodedLegalMoves);
         chessboardStore.getState().setLegalMoves(decodedLegalMoves);
     });
