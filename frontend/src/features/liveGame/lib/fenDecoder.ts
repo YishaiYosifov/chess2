@@ -1,5 +1,5 @@
 import { PieceID, PieceMap, PieceType } from "@/types/tempModels";
-import { GameColor } from "../apiClient";
+import { GameColor } from "@/lib/apiClient";
 
 /**
  * Parse a fen into a PieceMap
