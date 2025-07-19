@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.TestInfrastructure.TestData;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
@@ -33,8 +32,8 @@ public class GameStateFaker : RecordFaker<GameState>
             x => x.LegalMoves,
             f =>
             {
-                var count = f.Random.Number(1, MoveData.EncodedMoves.Length);
-                return f.Random.Shuffle(MoveData.EncodedMoves).Take(count);
+                var count = f.Random.Number(1, 10);
+                return new MovePathFaker().Generate(count);
             }
         );
         RuleFor(x => x.MoveHistory, f => new MoveSnapshotFaker().Generate(f.Random.Number(1, 6)));

@@ -3,6 +3,7 @@ using Akka.Cluster.Sharding;
 using Akka.TestKit;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
@@ -148,7 +149,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             Clocks: expectedClock,
             Fen: _gameCore.Fen,
             MoveHistory: [],
-            LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).EncodedMoves,
+            LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).MovePaths,
             TimeControl: _timeControl,
             IsRated: true
         );
@@ -190,7 +191,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             - 2 * 1000; // removed elapsed time
 
         MoveSnapshot expectedMoveSnapshot = new(
-            EncodedMove: _moveEncoder.EncodeSingleMove(move),
+            Path: MovePath.FromMove(move, GameConstants.BoardWidth),
             San: _sanCalculator.CalculateSan(
                 move,
                 _gameCore.GetLegalMovesFor(GameColor.White).AllMoves
@@ -210,13 +211,13 @@ public class GameActorTests : BaseAkkaIntegrationTest
             .NotifyMoveMadeAsync(
                 gameToken: TestGameToken,
                 move: expectedMoveSnapshot,
-                sideToMove: GameColor.Black,
                 moveNumber: 1,
                 clocks: ArgEx.FluentAssert<ClockSnapshot>(x =>
                     x.Should().BeEquivalentTo(expectedClock)
                 ),
+                sideToMove: GameColor.Black,
                 sideToMoveUserId: _blackPlayer.UserId,
-                _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves
+                encodedLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves
             );
     }
 

@@ -181,20 +181,24 @@ public class GameActor : ReceiveActor, IWithTimers
         }
         var moveResult = makeMoveResult.Value;
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
-        var snapshot = _historyTracker.RecordMove(moveResult.EncodedMove, moveResult.San, timeLeft);
+        var moveSnapshot = _historyTracker.RecordMove(
+            moveResult.MovePath,
+            moveResult.San,
+            timeLeft
+        );
 
         if (moveResult.EndStatus is not null)
             await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
 
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
         await _gameNotifier.NotifyMoveMadeAsync(
-            _token,
-            snapshot,
-            _core.SideToMove,
-            _historyTracker.MoveNumber,
-            _clock.Value,
-            nextPlayer.UserId,
-            _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
+            gameToken: _token,
+            move: moveSnapshot,
+            moveNumber: _historyTracker.MoveNumber,
+            clocks: _clock.Value,
+            sideToMove: _core.SideToMove,
+            sideToMoveUserId: nextPlayer.UserId,
+            encodedLegalMoves: _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
         );
         Sender.Tell(new GameEvents.PieceMoved());
     }
@@ -243,8 +247,8 @@ public class GameActor : ReceiveActor, IWithTimers
             Clocks: _clock.Value,
             SideToMove: _core.SideToMove,
             Fen: _core.Fen,
-            LegalMoves: legalMoves.EncodedMoves,
-            MoveHistory: [.. _historyTracker.MoveHistory],
+            LegalMoves: legalMoves.MovePaths,
+            MoveHistory: _historyTracker.MoveHistory,
             ResultData: _result
         );
         return gameState;

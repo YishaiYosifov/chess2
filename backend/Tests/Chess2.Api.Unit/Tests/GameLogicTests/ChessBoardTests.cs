@@ -163,16 +163,16 @@ public class ChessBoardTests : BaseUnitTest
         board.PlacePiece(new AlgebraicPoint("a1"), sideEffectPiece1);
         board.PlacePiece(new AlgebraicPoint("b1"), sideEffectPiece2);
 
-        var sideEffect1 = new Move(
-            from: new AlgebraicPoint("a1"),
-            to: new AlgebraicPoint("a2"),
-            piece: sideEffectPiece1
+        var sideEffect1 = new MoveSideEffect(
+            From: new AlgebraicPoint("a1"),
+            To: new AlgebraicPoint("a2"),
+            Piece: sideEffectPiece1
         );
 
-        var sideEffect2 = new Move(
-            from: new AlgebraicPoint("b1"),
-            to: new AlgebraicPoint(15, 15), // Invalid (out of bounds)
-            piece: sideEffectPiece2
+        var sideEffect2 = new MoveSideEffect(
+            From: new AlgebraicPoint("b1"),
+            To: new AlgebraicPoint(15, 15), // Invalid (out of bounds)
+            Piece: sideEffectPiece2
         );
 
         var mainMove = new Move(
@@ -191,51 +191,6 @@ public class ChessBoardTests : BaseUnitTest
             .Throw<ArgumentOutOfRangeException>()
             .WithMessage("Move is out of board boundaries*")
             .WithParameterName("move");
-        board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
-    }
-
-    [Fact]
-    public void PlayMove_with_chained_side_effects_executes_all_successfully()
-    {
-        var board = new ChessBoard();
-        var mainPiece = PieceFactory.White(PieceType.Pawn);
-        var sideEffect1 = PieceFactory.White(PieceType.Queen);
-        var sideEffect2 = PieceFactory.Black(PieceType.Horsey);
-
-        board.PlacePiece(new AlgebraicPoint("e2"), mainPiece);
-        board.PlacePiece(new AlgebraicPoint("a1"), sideEffect1);
-        board.PlacePiece(new AlgebraicPoint("a2"), sideEffect2);
-
-        var chainedSideEffect = new Move(
-            from: new AlgebraicPoint("a2"),
-            to: new AlgebraicPoint("a3"),
-            piece: sideEffect2
-        );
-
-        var sideEffectMove = new Move(
-            from: new AlgebraicPoint("a1"),
-            to: new AlgebraicPoint("a2"),
-            piece: sideEffect1,
-            sideEffects: [chainedSideEffect]
-        );
-
-        var mainMove = new Move(
-            from: new AlgebraicPoint("e2"),
-            to: new AlgebraicPoint("e3"),
-            piece: mainPiece,
-            sideEffects: [sideEffectMove]
-        );
-
-        var expectedBoard = board.EnumerateSquares().ToDictionary();
-        expectedBoard[chainedSideEffect.From] = null;
-        expectedBoard[chainedSideEffect.To] = sideEffect2 with { TimesMoved = 1 };
-        expectedBoard[sideEffectMove.From] = null;
-        expectedBoard[sideEffectMove.To] = sideEffect1 with { TimesMoved = 1 };
-        expectedBoard[mainMove.From] = null;
-        expectedBoard[mainMove.To] = mainPiece with { TimesMoved = 1 };
-
-        board.PlayMove(mainMove);
-
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 

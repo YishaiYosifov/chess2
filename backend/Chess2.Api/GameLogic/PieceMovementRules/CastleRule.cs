@@ -94,7 +94,11 @@ public class CastleRule : IPieceMovementRule
             captures.Add(currentSquare);
         }
 
-        Move rookSideEffect = new(rookPosition, targetRookPosition, rook);
+        MoveSideEffect rookSideEffect = new(
+            From: rookPosition,
+            To: targetRookPosition,
+            Piece: rook
+        );
         yield return new Move(
             position,
             targetPosition,

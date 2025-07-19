@@ -32,17 +32,21 @@ public interface IGameCore
     ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
 }
 
-public record LegalMoveSet(IReadonlyLegalMoveMap Moves, IEnumerable<string> EncodedMoves)
+public record LegalMoveSet(
+    IReadonlyLegalMoveMap Moves,
+    IReadOnlyCollection<MovePath> MovePaths,
+    IReadOnlyCollection<byte> EncodedMoves
+)
 {
     public IEnumerable<Move> AllMoves => Moves.Values;
 
     public LegalMoveSet()
-        : this(new LegalMoveMap(), []) { }
+        : this(new LegalMoveMap(), [], []) { }
 }
 
 public readonly record struct MoveResult(
     Move Move,
-    string EncodedMove,
+    MovePath MovePath,
     string San,
     GameEndStatus? EndStatus
 );
@@ -89,7 +93,7 @@ public class GameCore(
         }
 
         _board.PlayMove(move);
-        var encodedMove = _moveEncoder.EncodeSingleMove(move);
+        var path = MovePath.FromMove(move, _board.Width);
         var san = _sanCalculator.CalculateSan(move, LegalMoves.AllMoves);
 
         CalculateAllLegalMoves(forColor.Invert());
@@ -100,7 +104,7 @@ public class GameCore(
         if (_drawEvaulator.TryEvaluateDraw(move, Fen, out var drawReason))
             endStatus = drawReason;
 
-        return new MoveResult(move, encodedMove, san, endStatus);
+        return new MoveResult(move, path, san, endStatus);
     }
 
     public LegalMoveSet GetLegalMovesFor(GameColor forColor)
@@ -112,14 +116,15 @@ public class GameCore(
 
     private void CalculateAllLegalMoves(GameColor forColor)
     {
-        var legalMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
-        var encodedLegalMoves = _moveEncoder.EncodeMoves(legalMoves).ToList();
+        var moves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
+        var movePaths = moves.Select(move => MovePath.FromMove(move, _board.Width)).ToList();
+        var encodedMoves = _moveEncoder.EncodeMoves(movePaths);
 
-        LegalMoveMap groupedLegalMoves = [];
-        foreach (var move in legalMoves)
+        LegalMoveMap groupedMoves = [];
+        foreach (var move in moves)
         {
             var key = (move.From, move.To);
-            if (!groupedLegalMoves.TryAdd(key, move))
+            if (!groupedMoves.TryAdd(key, move))
             {
                 _logger.LogWarning(
                     "Duplicate move found from {From} to {To}. This should never happen",
@@ -129,6 +134,6 @@ public class GameCore(
                 continue;
             }
         }
-        LegalMoves = new(Moves: groupedLegalMoves, EncodedMoves: encodedLegalMoves);
+        LegalMoves = new(Moves: groupedMoves, MovePaths: movePaths, EncodedMoves: encodedMoves);
     }
 }

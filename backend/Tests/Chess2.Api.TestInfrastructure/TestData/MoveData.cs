@@ -1,21 +1,9 @@
-﻿namespace Chess2.Api.TestInfrastructure.TestData;
+﻿using Bogus;
+
+namespace Chess2.Api.TestInfrastructure.TestData;
 
 public static class MoveData
 {
-    public static readonly string[] EncodedMoves =
-    [
-        "e2e4",
-        "g1f3",
-        "e1g1-h1f1",
-        "b8c6",
-        "e7e8q",
-        "e1c1-a1d1!d7",
-        "d2d4",
-        "f1c4",
-        "a7a8r",
-        "e5d6!c7",
-    ];
-
     public static readonly string[] SanMoves =
     [
         "e4",
@@ -29,4 +17,15 @@ public static class MoveData
         "a8=R",
         "exd6",
     ];
+
+    public static byte[] RandomIdxs(Faker faker)
+    {
+        var length = faker.Random.Number(0, 5);
+        byte[] idxs = new byte[length];
+        for (int i = 0; i < length; i++)
+        {
+            idxs[i] = (byte)faker.Random.Number(0, 99);
+        }
+        return idxs;
+    }
 }

@@ -104,8 +104,8 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         );
 
         var rook = PieceFactory.White(PieceType.Rook);
-        Move rookKingsideCastle = new(new("j1"), new("g1"), rook);
-        Move rookQueensideCastle = new(new("a1"), new("e1"), rook);
+        MoveSideEffect rookKingsideCastle = new(new("j1"), new("g1"), rook);
+        MoveSideEffect rookQueensideCastle = new(new("a1"), new("e1"), rook);
         Add(
             PieceTestCase
                 .From("f1", king)

@@ -1,57 +1,30 @@
-﻿using System.Text;
-using Chess2.Api.GameLogic.Models;
+﻿using System.IO.Compression;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Chess2.Api.GameSnapshot.Models;
 
 namespace Chess2.Api.LiveGame.Services;
 
 public interface IMoveEncoder
 {
-    IEnumerable<string> EncodeMoves(IEnumerable<Move> moves);
-    string EncodeSingleMove(Move move);
+    byte[] EncodeMoves(IEnumerable<MovePath> moves);
 }
 
 public class MoveEncoder : IMoveEncoder
 {
-    /// <summary>
-    /// Encodes a list of legal moves into a compact legal moves string,
-    /// where each move include:
-    /// - The starting square (<see cref="Move.From"/>)
-    /// - Any intermediate squares that trigger this move (<see cref="Move.TriggerSquares"/>),
-    /// - The destination square (<see cref="Move.To"/>)
-    /// - Any side effect moves (<see cref="Move.SideEffects"/>), appended after a '-' separator,
-    ///   recursively encoded with the same format
-    /// - Any captured squares (<see cref="Move.CapturedSquares"/>), appended after "!"
-    ///
-    /// Example encoding for castling with rook side effect and a capture:
-    /// <code>e1f1g1-h1f1!d4</code>
-    /// </summary>
-    public IEnumerable<string> EncodeMoves(IEnumerable<Move> moves) =>
-        moves.Select(EncodeSingleMove);
-
-    public string EncodeSingleMove(Move move)
+    private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        var path = new StringBuilder();
-        BuildPath(move, path);
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    };
 
-        return path.ToString();
-    }
-
-    private static void BuildPath(Move move, StringBuilder path)
+    public byte[] EncodeMoves(IEnumerable<MovePath> moves)
     {
-        path.Append(move.From.AsAlgebraic());
-        foreach (var trigger in move.TriggerSquares)
-            path.Append(trigger.AsAlgebraic());
-        path.Append(move.To.AsAlgebraic());
-
-        foreach (var capture in move.CapturedSquares)
+        using var output = new MemoryStream();
+        using (var gzip = new GZipStream(output, CompressionLevel.Fastest, leaveOpen: true))
         {
-            path.Append('!');
-            path.Append(capture.AsAlgebraic());
+            JsonSerializer.Serialize(gzip, moves, JsonOptions);
         }
-
-        foreach (var sideEffect in move.SideEffects)
-        {
-            path.Append('-');
-            BuildPath(sideEffect, path);
-        }
+        return output.ToArray();
     }
 }

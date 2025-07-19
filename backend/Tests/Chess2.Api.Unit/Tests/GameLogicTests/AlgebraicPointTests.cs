@@ -3,7 +3,7 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests;
 
-public class PointTests : BaseUnitTest
+public class AlgebraicPointTests : BaseUnitTest
 {
     [Fact]
     public void AdditionOperator_adds_coordinates()
@@ -52,5 +52,21 @@ public class PointTests : BaseUnitTest
         var result = point.AsAlgebraic();
 
         result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(0, 0, 10, 0)]
+    [InlineData(1, 1, 10, 11)]
+    [InlineData(7, 7, 10, 77)]
+    [InlineData(0, 8, 10, 80)]
+    [InlineData(9, 0, 10, 9)]
+    [InlineData(9, 9, 10, 99)]
+    [InlineData(5, 5, 10, 55)]
+    [InlineData(3, 2, 10, 23)]
+    public void AsIndex_calculates_correct_index(int x, int y, int boardWidth, byte expectedIndex)
+    {
+        var point = new AlgebraicPoint(x, y);
+        var result = point.AsIndex(boardWidth);
+        result.Should().Be(expectedIndex);
     }
 }
