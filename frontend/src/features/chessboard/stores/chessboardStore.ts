@@ -36,6 +36,7 @@ export interface ChessboardStore {
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
     playMove(move: Move): void;
+    movePiece(from: Point, to: Point): void;
     moveSelectedPiece(to: Point): Promise<void>;
     handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
     position2Id(position: Point): PieceID | undefined;
@@ -86,31 +87,41 @@ export function createChessboardStore(
              * @param move - The move to apply on the board.
              */
             playMove(move: Move): void {
-                const { position2Id, addAnimatingPiece, playMove } = get();
-
-                const pieceId = position2Id(move.from);
-                if (!pieceId) {
-                    console.warn(
-                        `Could not move piece from ${pointToStr(move.from)} to ${pointToStr(move.to)} ` +
-                            `because no piece was found at ${pointToStr(move.from)}`,
-                    );
-
-                    return;
-                }
-                addAnimatingPiece(pieceId);
+                const { position2Id, movePiece } = get();
 
                 const captureIds = [position2Id(move.to)];
                 for (const capture of move.captures)
                     captureIds.push(position2Id(capture));
 
                 set((state) => {
-                    state.pieces.get(pieceId)!.position = move.to;
                     for (const captureId of captureIds) {
                         if (captureId) state.pieces.delete(captureId);
                     }
                 });
 
-                for (const sideEffect of move.sideEffects) playMove(sideEffect);
+                movePiece(move.from, move.to);
+                for (const sideEffect of move.sideEffects) {
+                    movePiece(sideEffect.from, sideEffect.to);
+                }
+            },
+
+            movePiece(from: Point, to: Point) {
+                const { position2Id, addAnimatingPiece } = get();
+
+                const pieceId = position2Id(from);
+                if (!pieceId) {
+                    console.warn(
+                        `Could not move piece from ${pointToStr(from)} to ${pointToStr(to)} ` +
+                            `because no piece was found at ${pointToStr(from)}`,
+                    );
+
+                    return;
+                }
+                addAnimatingPiece(pieceId);
+
+                set((state) => {
+                    state.pieces.get(pieceId)!.position = to;
+                });
             },
 
             /**

@@ -62,20 +62,17 @@ describe("ChessboardStore", () => {
             const piece = createFakePiece();
             const capturedPiece = createFakePiece();
             const sideEffectPiece = createFakePiece();
-            const sideEffectCapturedPiece = createFakePiece();
 
             store.setState({
                 pieces: createFakePieceMapFromPieces(
                     piece,
                     capturedPiece,
                     sideEffectPiece,
-                    sideEffectCapturedPiece,
                 ),
             });
 
             const sideEffectMove = createFakeMove({
                 from: sideEffectPiece.position,
-                captures: [sideEffectCapturedPiece.position],
             });
 
             const move = createFakeMove({

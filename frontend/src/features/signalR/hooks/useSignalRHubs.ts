@@ -41,7 +41,7 @@ type GameClientEvents = {
         moveNumber: number,
         clocks: Clocks,
     ];
-    LegalMovesChangedAsync: [legalMoves: string[]];
+    LegalMovesChangedAsync: [encodedLegalMoves: string];
     GameEndedAsync: [result: GameResultData];
 };
 
