@@ -5,7 +5,12 @@ public class MoveArchive
     public int Id { get; set; }
 
     public required int MoveNumber { get; set; }
-    public required string EncodedMove { get; set; }
     public required string San { get; set; }
     public required double TimeLeft { get; set; }
+
+    public required byte FromIdx { get; set; }
+    public required byte ToIdx { get; set; }
+    public required ICollection<byte> Captures { get; set; } = [];
+    public required ICollection<byte> Triggers { get; set; } = [];
+    public required ICollection<MoveSideEffectArchive> SideEffects { get; set; } = [];
 }

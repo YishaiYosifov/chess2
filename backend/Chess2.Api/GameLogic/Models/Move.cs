@@ -5,9 +5,9 @@ public record Move
     public AlgebraicPoint From { get; }
     public AlgebraicPoint To { get; }
     public Piece Piece { get; }
-    public IEnumerable<AlgebraicPoint> TriggerSquares { get; }
-    public IEnumerable<AlgebraicPoint> CapturedSquares { get; }
-    public IEnumerable<Move> SideEffects { get; }
+    public IReadOnlyList<AlgebraicPoint> TriggerSquares { get; }
+    public IReadOnlyList<AlgebraicPoint> CapturedSquares { get; }
+    public IReadOnlyList<MoveSideEffect> SideEffects { get; }
     public SpecialMoveType SpecialMoveType { get; }
 
     public Move(
@@ -16,30 +16,29 @@ public record Move
         Piece piece,
         IEnumerable<AlgebraicPoint>? triggerSquares = null,
         IEnumerable<AlgebraicPoint>? capturedSquares = null,
-        IEnumerable<Move>? sideEffects = null,
+        IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None
     )
     {
         From = from;
         To = to;
         Piece = piece;
-        TriggerSquares = triggerSquares ?? [];
-        CapturedSquares = capturedSquares ?? [];
-        SideEffects = sideEffects ?? [];
+        TriggerSquares = triggerSquares?.ToList() ?? [];
+        CapturedSquares = capturedSquares?.ToList() ?? [];
+        SideEffects = sideEffects?.ToList() ?? [];
         SpecialMoveType = specialMoveType;
     }
 
-    public IEnumerable<Move> Flatten()
+    public IEnumerable<(AlgebraicPoint From, AlgebraicPoint To)> Flatten()
     {
         if (SideEffects != null)
         {
             foreach (var side in SideEffects)
             {
-                foreach (var nested in side.Flatten())
-                    yield return nested;
+                yield return (side.From, side.To);
             }
         }
 
-        yield return this;
+        yield return (From, To);
     }
 }

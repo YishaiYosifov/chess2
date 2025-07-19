@@ -22,7 +22,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
         var blackPlayer = CreatePlayerFromArchive(blackPlayerArchive);
         var result = CreateResultDataFromArchive(archive);
         var moveHistory = sortedMoves
-            .Select(m => new MoveSnapshot(m.EncodedMove, m.San, m.TimeLeft))
+            .Select(m => new MoveSnapshot(CreateMovePathFromArchive(m), m.San, m.TimeLeft))
             .ToList();
 
         var clocks = new ClockSnapshot(
@@ -43,6 +43,27 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
             LegalMoves: [],
             MoveHistory: moveHistory,
             ResultData: result
+        );
+    }
+
+    private static MovePath CreateMovePathFromArchive(MoveArchive move)
+    {
+        List<MoveSideEffectPath> sideEffects = [];
+        if (move.SideEffects is not null)
+            sideEffects =
+            [
+                .. move.SideEffects.Select(se => new MoveSideEffectPath(
+                    FromIdx: se.FromIdx,
+                    ToIdx: se.ToIdx
+                )),
+            ];
+
+        return new MovePath(
+            FromIdx: move.FromIdx,
+            ToIdx: move.ToIdx,
+            CapturedIdxs: [.. move.Captures],
+            TriggerIdxs: [.. move.Triggers],
+            SideEffects: sideEffects
         );
     }
 

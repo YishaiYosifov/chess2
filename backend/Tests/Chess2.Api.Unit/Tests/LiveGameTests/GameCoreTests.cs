@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure.Factories;
@@ -36,24 +37,22 @@ public class GameCoreTests
     [Fact]
     public void InitializeGame_sets_the_initial_state_correctly()
     {
-        var m1 = new Move(new("e2"), new("e4"), PieceFactory.White());
-        var m2 = new Move(new("g1"), new("f3"), PieceFactory.White());
-        var allMoves = new[] { m1, m2 };
-        var movesEnc = new[] { "e2e4", "g1f3" };
+        Move m1 = new(new("e2"), new("e4"), PieceFactory.White());
+        Move m2 = new(new("g1"), new("f3"), PieceFactory.White());
+        Move[] allMoves = [m1, m2];
+        MovePath[] movePaths =
+        [
+            MovePath.FromMove(m1, GameConstants.BoardWidth),
+            MovePath.FromMove(m2, GameConstants.BoardWidth),
+        ];
+        byte[] movesEnc = [1, 2, 3];
 
         _legalMoveCalculatorMock
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
             .Returns(allMoves);
         _encoderMock
-            .EncodeMoves(
-                Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.White))
-            )
+            .EncodeMoves(Arg.Is<IEnumerable<MovePath>>(m => m.SequenceEqual(movePaths)))
             .Returns(movesEnc);
-        _encoderMock
-            .EncodeMoves(
-                Arg.Is<IEnumerable<Move>>(m => m.All(x => x.Piece.Color == GameColor.Black))
-            )
-            .Returns(["nah", "uh"]);
         _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
 
         _gameCore.InitializeGame();
@@ -64,9 +63,11 @@ public class GameCoreTests
         whiteMoves.Moves.Should().HaveCount(2);
         whiteMoves.Moves.Should().ContainKey((m1.From, m1.To)).WhoseValue.Should().Be(m1);
         whiteMoves.Moves.Should().ContainKey((m2.From, m2.To)).WhoseValue.Should().Be(m2);
+        whiteMoves.MovePaths.Should().BeEquivalentTo(movePaths);
         whiteMoves.EncodedMoves.Should().BeEquivalentTo(movesEnc);
 
         blackMoves.Moves.Should().BeEmpty();
+        blackMoves.MovePaths.Should().BeEmpty();
         blackMoves.EncodedMoves.Should().BeEmpty();
 
         _gameCore.Fen.Should().Be("fen");
@@ -96,7 +97,8 @@ public class GameCoreTests
     public void MakeMove_moves_the_piece_and_updates_legal_moves()
     {
         Move move = new(new("e2"), new("e4"), PieceFactory.White());
-        string encoded = "e2e4";
+        MovePath path = MovePath.FromMove(move, GameConstants.BoardWidth);
+        byte[] encoded = [1, 2, 3];
         string san = "e4";
 
         SetupLegalMove(move, encoded, san);
@@ -109,7 +111,7 @@ public class GameCoreTests
         result.IsError.Should().BeFalse();
         result
             .Value.Should()
-            .Be(new MoveResult(Move: move, EncodedMove: encoded, San: san, EndStatus: null));
+            .Be(new MoveResult(Move: move, MovePath: path, San: san, EndStatus: null));
 
         _gameCore.Fen.Should().Be("updated-fen");
         _gameCore.SideToMove.Should().Be(GameColor.Black);
@@ -119,7 +121,7 @@ public class GameCoreTests
     public void MakeMove_alternates_when_making_a_move()
     {
         Move move = new(new("e2"), new("e4"), PieceFactory.White());
-        SetupLegalMove(move, "e2e4", "e4");
+        SetupLegalMove(move);
 
         _gameCore.InitializeGame();
 
@@ -134,7 +136,7 @@ public class GameCoreTests
         Move move = new(new("e2"), new("e4"), PieceFactory.White());
         string fen = "some fen";
         GameEndStatus drawStatus = new(GameResult.Draw, "test draw reason");
-        SetupLegalMove(move, "e2e4", "e4");
+        SetupLegalMove(move);
 
         _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns(fen);
         _drawEvaluatorMock
@@ -152,14 +154,20 @@ public class GameCoreTests
         result.Value.EndStatus.Should().Be(drawStatus);
     }
 
-    private void SetupLegalMove(Move move, string encoded, string san)
+    private void SetupLegalMove(Move? move = null, byte[]? encoded = null, string? san = null)
     {
+        move ??= new Move(new("e2"), new("e4"), PieceFactory.White());
+        encoded ??= [1, 2, 3];
+        san ??= "e4";
+
         _legalMoveCalculatorMock
             .CalculateAllLegalMoves(Arg.Any<ChessBoard>(), GameColor.White)
             .Returns([move]);
 
-        _encoderMock.EncodeMoves(Arg.Any<IEnumerable<Move>>()).Returns([encoded]);
-        _encoderMock.EncodeSingleMove(move).Returns(encoded);
+        MovePath[] expectedPaths = [MovePath.FromMove(move, GameConstants.BoardWidth)];
+        _encoderMock
+            .EncodeMoves(Arg.Is<IEnumerable<MovePath>>(paths => paths.SequenceEqual(expectedPaths)))
+            .Returns(encoded);
 
         Move[] legalMoves = [move];
         _sanCalculatorMock

@@ -26,7 +26,7 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
-        IEnumerable<Move>? sideEffects = null,
+        IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None
     )
     {

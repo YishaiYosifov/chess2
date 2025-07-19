@@ -11,8 +11,15 @@ public class MoveArchiveFaker : Faker<MoveArchive>
         StrictMode(true);
         RuleFor(x => x.Id, 0);
         RuleFor(x => x.MoveNumber, f => f.IndexFaker);
-        RuleFor(x => x.EncodedMove, f => f.PickRandom(MoveData.EncodedMoves));
         RuleFor(x => x.San, f => f.PickRandom(MoveData.SanMoves));
         RuleFor(x => x.TimeLeft, f => f.Random.Double(1000, 10000));
+        RuleFor(x => x.FromIdx, f => (byte)f.Random.Number(0, 99));
+        RuleFor(x => x.ToIdx, f => (byte)f.Random.Number(0, 99));
+        RuleFor(x => x.Captures, MoveData.RandomIdxs);
+        RuleFor(x => x.Triggers, MoveData.RandomIdxs);
+        RuleFor(
+            x => x.SideEffects,
+            f => new MoveSideEffectArchiveFaker().Generate(f.Random.Number(1, 5))
+        );
     }
 }

@@ -56,7 +56,7 @@ public class GameArchiveService(
             state.Clocks.BlackClock
         );
         List<MoveArchive> moves = [];
-        for (int i = 0; i < state.MoveHistory.Count(); i++)
+        for (int i = 0; i < state.MoveHistory.Count; i++)
         {
             var moveArchive = CreateMoveArchive(state.MoveHistory.ElementAt(i), i);
             moves.Add(moveArchive);
@@ -151,12 +151,27 @@ public class GameArchiveService(
             RatingChange = ratingChange,
         };
 
-    private static MoveArchive CreateMoveArchive(MoveSnapshot moveSnapshot, int moveNumber) =>
-        new()
+    private static MoveArchive CreateMoveArchive(MoveSnapshot moveSnapshot, int moveNumber)
+    {
+        var path = moveSnapshot.Path;
+        var sideEffects =
+            path.SideEffects?.Select(se => new MoveSideEffectArchive
+                {
+                    FromIdx = se.FromIdx,
+                    ToIdx = se.ToIdx,
+                })
+                .ToList() ?? [];
+
+        return new()
         {
             MoveNumber = moveNumber,
-            EncodedMove = moveSnapshot.EncodedMove,
             San = moveSnapshot.San,
             TimeLeft = moveSnapshot.TimeLeft,
+            FromIdx = path.FromIdx,
+            ToIdx = path.ToIdx,
+            Captures = path.CapturedIdxs?.ToList() ?? [],
+            Triggers = path.TriggerIdxs?.ToList() ?? [],
+            SideEffects = sideEffects,
         };
+    }
 }

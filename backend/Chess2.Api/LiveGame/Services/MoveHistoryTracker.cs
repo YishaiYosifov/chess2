@@ -9,9 +9,9 @@ public class MoveHistoryTracker
     public IReadOnlyList<MoveSnapshot> MoveHistory => _moveHistory;
     public int MoveNumber => MoveHistory.Count;
 
-    public MoveSnapshot RecordMove(string encoded, string san, double timeLeft)
+    public MoveSnapshot RecordMove(MovePath path, string san, double timeLeft)
     {
-        MoveSnapshot moveSnapshot = new(encoded, san, timeLeft);
+        MoveSnapshot moveSnapshot = new(path, san, timeLeft);
         _moveHistory.Add(moveSnapshot);
         return moveSnapshot;
     }

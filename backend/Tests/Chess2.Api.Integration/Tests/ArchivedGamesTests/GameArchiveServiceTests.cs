@@ -2,7 +2,6 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -62,7 +61,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                 ratingChange.BlackChange,
                 gameState.Clocks.BlackClock
             ),
-            Moves = CreateExpectedMoveArchives(gameState.MoveHistory),
+            Moves = [.. CreateExpectedMoveArchives(gameState.MoveHistory)],
             IsRated = gameState.IsRated,
             BaseSeconds = gameState.TimeControl.BaseSeconds,
             IncrementSeconds = gameState.TimeControl.IncrementSeconds,
@@ -77,10 +76,13 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                         .Excluding(x => x.Id)
                         .Excluding(x => x.CreatedAt)
                         .Excluding(x => x.WhitePlayerId)
-                        .Excluding(x => x.WhitePlayer!.Id)
+                        .Excluding(x => x.WhitePlayer.Id)
                         .Excluding(x => x.BlackPlayerId)
-                        .Excluding(x => x.BlackPlayer!.Id)
+                        .Excluding(x => x.BlackPlayer.Id)
                         .For(x => x.Moves)
+                        .Exclude(x => x.Id)
+                        .For(x => x.Moves)
+                        .For(x => x.SideEffects)
                         .Exclude(x => x.Id)
             );
     }
@@ -200,19 +202,27 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             FinalTimeRemaining = timeLeft,
         };
 
-    private static List<MoveArchive> CreateExpectedMoveArchives(
+    private static IEnumerable<MoveArchive> CreateExpectedMoveArchives(
         IEnumerable<MoveSnapshot> moveHistory
     ) =>
-        [
-            .. moveHistory.Select(
-                (move, index) =>
-                    new MoveArchive
-                    {
-                        EncodedMove = move.EncodedMove,
-                        San = move.San,
-                        TimeLeft = move.TimeLeft,
-                        MoveNumber = index,
-                    }
-            ),
-        ];
+        moveHistory.Select(
+            (move, index) =>
+                new MoveArchive
+                {
+                    TimeLeft = move.TimeLeft,
+                    MoveNumber = index,
+                    San = move.San,
+                    FromIdx = move.Path.FromIdx,
+                    ToIdx = move.Path.ToIdx,
+                    Captures = move.Path.CapturedIdxs?.ToList() ?? [],
+                    Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
+                    SideEffects =
+                        move.Path.SideEffects?.Select(se => new MoveSideEffectArchive
+                            {
+                                FromIdx = se.FromIdx,
+                                ToIdx = se.ToIdx,
+                            })
+                            .ToList() ?? [],
+                }
+        );
 }

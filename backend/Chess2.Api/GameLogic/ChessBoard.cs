@@ -56,35 +56,34 @@ public class ChessBoard
     public void PlayMove(Move move)
     {
         var steps = move.Flatten().ToList();
-        foreach (var step in steps)
+        foreach (var (from, to) in steps)
         {
-            if (!IsWithinBoundaries(step.From) || !IsWithinBoundaries(step.To))
+            if (!IsWithinBoundaries(from) || !IsWithinBoundaries(to))
                 throw new ArgumentOutOfRangeException(
                     nameof(move),
                     "Move is out of board boundaries"
                 );
 
-            if (!TryGetPieceAt(step.From, out var piece) || piece.Type != step.Piece.Type)
+            if (!TryGetPieceAt(from, out var piece))
                 throw new ArgumentException(
-                    $"Piece {step.Piece.Type} not found at the specified 'From' point",
+                    $"Piece not found at the specified 'From' point",
                     nameof(move)
                 );
         }
 
         // apply captures first
-        foreach (var step in steps)
+        foreach (var capture in move.CapturedSquares)
         {
-            foreach (var capture in step.CapturedSquares)
-                _board[capture.Y, capture.X] = null;
+            _board[capture.Y, capture.X] = null;
         }
 
         // then move the pieces
-        foreach (var step in steps)
+        foreach (var (from, to) in steps)
         {
             // we can safely assume that the piece exists here, as we checked it before
-            var piece = _board[step.From.Y, step.From.X]!;
-            _board[step.To.Y, step.To.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
-            _board[step.From.Y, step.From.X] = null;
+            var piece = _board[from.Y, from.X]!;
+            _board[to.Y, to.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
+            _board[from.Y, from.X] = null;
         }
 
         _moves.Add(move);
