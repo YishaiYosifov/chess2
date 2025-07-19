@@ -10,7 +10,7 @@ namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 public class EnPassantRuleTests
 {
     [Theory]
-    [ClassData(typeof(EnPassantBehaviourTestData))]
+    [ClassData(typeof(EnPassantRuleTestData))]
     public void Evaluate_allows_en_passant_move_when_conditions_are_met(
         AlgebraicPoint origin,
         AlgebraicPoint destination,
@@ -81,7 +81,7 @@ public class EnPassantRuleTests
     }
 }
 
-public class EnPassantBehaviourTestData
+public class EnPassantRuleTestData
     : TheoryData<
         AlgebraicPoint, // friendly pawn origin
         AlgebraicPoint, // destination after en passant
@@ -91,7 +91,7 @@ public class EnPassantBehaviourTestData
         GameColor // color of the capturing pawn
     >
 {
-    public EnPassantBehaviourTestData()
+    public EnPassantRuleTestData()
     {
         // white capturing black
         // 2 steps
@@ -137,7 +137,7 @@ public class InvalidEnPassantTestData
         // enemy pawn only moved 1 square
         Add(new("e5"), new("d6"), new("d5"), new(-1, 1));
 
-        // this would be a regular capture, so EnPassantBehaviour shouldn't pick up on it
+        // this would be a regular capture, so it shouldn't pick up on it
         Add(new("e5"), new("d9"), new("d6"), new(-1, 1));
 
         // enemy pawn ends up on wrong file
