@@ -1,6 +1,6 @@
 import { LegalMoveMap, Move, MoveSideEffect } from "@/types/tempModels";
-import { MovePath, MoveSideEffectPath } from "../apiClient";
-import { idxToPoint, pointToStr } from "../utils/pointUtils";
+import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
+import { idxToPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { gunzipSync } from "zlib";
 
 export function decodePathIntoMap(
