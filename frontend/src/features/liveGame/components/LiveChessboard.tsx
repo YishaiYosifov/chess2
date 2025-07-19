@@ -3,7 +3,6 @@
 import { Point } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useMemo, useCallback, useRef } from "react";
-import { decodeMovesIntoMap } from "@/lib/chessDecoders/moveDecoder";
 import { GameState } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
 import LiveChessboardProfile, {
@@ -19,6 +18,8 @@ import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
+import { decodePathIntoMap } from "@/lib/chessDecoders/moveDecoder";
+import constants from "@/lib/constants";
 
 const LiveChessboard = ({
     gameToken,
@@ -45,12 +46,18 @@ const LiveChessboard = ({
     );
 
     const chessboardStore = useMemo(() => {
-        const decodedLegalMoves = decodeMovesIntoMap(gameState.legalMoves);
+        const boardWidth = constants.BOARD_WIDTH;
+        const boardHeight = constants.BOARD_HEIGHT;
+        const decodedLegalMoves = decodePathIntoMap(
+            gameState.legalMoves,
+            boardWidth,
+        );
         const decodedFen = decodeFen(gameState.fen);
 
         return createChessboardStore({
             pieces: decodedFen,
             legalMoves: decodedLegalMoves,
+            boardDimensions: { width: boardWidth, height: boardHeight },
 
             viewingFrom: playerColor,
             onPieceMovement: sendMove,

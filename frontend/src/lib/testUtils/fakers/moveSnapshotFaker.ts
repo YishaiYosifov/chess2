@@ -1,5 +1,6 @@
 import { MoveSnapshot } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
+import { createFakeMovePath } from "./movePathFaker";
 
 export function createFakeMoveSnapshot(
     overrides?: Partial<MoveSnapshot>,
@@ -13,7 +14,7 @@ export function createFakeMoveSnapshot(
             "Bb5",
             "e5",
         ]),
-        encodedMove: faker.string.alpha(4).toLowerCase(),
+        path: createFakeMovePath(),
         timeLeft: faker.number.int({ min: 1000, max: 600000 }),
         ...overrides,
     };

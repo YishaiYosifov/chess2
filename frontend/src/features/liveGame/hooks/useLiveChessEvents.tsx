@@ -2,13 +2,14 @@ import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
 import { decodeFen } from "@/lib/chessDecoders/fenDecoder";
-import {
-    decodeMovesIntoMap,
-    decodeSingleMove,
-} from "@/lib/chessDecoders/moveDecoder";
-import { StoreApi } from "zustand";
+import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
 import { GameOverPopupRef } from "../components/GameOverPopup";
+import {
+    decodePath,
+    decodePathIntoMap,
+    whatever,
+} from "@/lib/chessDecoders/moveDecoder";
 
 export function useLiveChessEvents(
     gameToken: string,
@@ -17,6 +18,8 @@ export function useLiveChessEvents(
     chessboardStore: StoreApi<ChessboardStore>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
 ) {
+    const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
+
     async function refetchGame() {
         const { error, data } = await getGame({ path: { gameToken } });
         if (error || !data) {
@@ -25,7 +28,10 @@ export function useLiveChessEvents(
         }
 
         const pieces = decodeFen(data.fen);
-        const legalMoves = decodeMovesIntoMap(data.legalMoves);
+        const legalMoves = decodePathIntoMap(
+            data.legalMoves,
+            boardDimensions.width,
+        );
         chessboardStore
             .getState()
             .resetState(pieces, legalMoves, data.sideToMove);
@@ -53,20 +59,17 @@ export function useLiveChessEvents(
             receiveMove(move, clocks, sideToMove);
 
             if (sideToMove === playerColor) {
-                const decodedMove = decodeSingleMove(move.encodedMove);
-                chessboardStore.getState().playMove(decodedMove);
+                const decoded = decodePath(move.path, boardDimensions.width);
+                chessboardStore.getState().playMove(decoded);
             }
         },
     );
 
-    useGameEvent(
-        gameToken,
-        "LegalMovesChangedAsync",
-        async (legalMoves: string[]) => {
-            const decodedLegalMoves = decodeMovesIntoMap(legalMoves);
-            chessboardStore.getState().setLegalMoves(decodedLegalMoves);
-        },
-    );
+    useGameEvent(gameToken, "LegalMovesChangedAsync", async (legalMoves) => {
+        const decodedLegalMoves = whatever(legalMoves, boardDimensions.width);
+        console.log(decodedLegalMoves);
+        chessboardStore.getState().setLegalMoves(decodedLegalMoves);
+    });
 
     useGameEvent(gameToken, "GameEndedAsync", async (result) => {
         liveChessStore.getState().endGame(result);

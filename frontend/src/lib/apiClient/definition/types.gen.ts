@@ -142,7 +142,7 @@ export type GameState = {
     clocks: Clocks;
     sideToMove: GameColor;
     fen: string;
-    legalMoves: Array<string>;
+    legalMoves: Array<MovePath>;
     moveHistory: Array<MoveSnapshot>;
     resultData?: GameResultData | null;
 };
@@ -177,8 +177,21 @@ export type Clocks = {
     lastUpdated?: number | null;
 };
 
+export type MovePath = {
+    fromIdx: number;
+    toIdx: number;
+    capturedIdxs?: Array<number> | null;
+    triggerIdxs?: Array<number> | null;
+    sideEffects?: Array<MoveSideEffectPath> | null;
+};
+
+export type MoveSideEffectPath = {
+    fromIdx: number;
+    toIdx: number;
+};
+
 export type MoveSnapshot = {
-    encodedMove: string;
+    path: MovePath;
     san: string;
     timeLeft: number;
 };
