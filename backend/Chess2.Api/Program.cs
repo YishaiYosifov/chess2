@@ -35,9 +35,11 @@ using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
@@ -62,12 +64,25 @@ var resolvedAppSettings =
 
 builder
     .Services.AddControllers()
-    .AddNewtonsoftJson()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+    })
     .AddMvcOptions(options =>
     {
         options.Conventions.Add(new UnauthorizedResponseConvention());
         options.Filters.Add<ReformatValidationProblemAttribute>();
     });
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest; // or Optimal
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApiDocument(options =>
@@ -386,6 +401,8 @@ app.MapControllers();
 
 app.MapHub<MatchmakingHub>("/api/hub/matchmaking");
 app.MapHub<GameHub>("/api/hub/game");
+
+app.UseResponseCompression();
 
 app.Run();
 
