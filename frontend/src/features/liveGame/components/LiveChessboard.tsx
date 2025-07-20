@@ -57,6 +57,8 @@ const LiveChessboard = ({
         return createChessboardStore({
             pieces: decodedFen,
             legalMoves: decodedLegalMoves,
+            hasForcedMoves: gameState.hasForcedMoves,
+
             boardDimensions: { width: boardWidth, height: boardHeight },
 
             viewingFrom: playerColor,
