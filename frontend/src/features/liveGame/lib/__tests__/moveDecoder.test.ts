@@ -1,3 +1,5 @@
+import brotliCompress from "brotli/compress";
+
 import { MovePath } from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
 import { gzipSync } from "zlib";
@@ -77,8 +79,8 @@ describe("decodeEncodedMovesIntoMap", () => {
         ];
 
         const jsonString = JSON.stringify(moves);
-        const gzipped = gzipSync(Buffer.from(jsonString));
-        const encoded = gzipped.toString("base64");
+        const gzipped = brotliCompress(Buffer.from(jsonString));
+        const encoded = Buffer.from(gzipped).toString("base64");
 
         const result = decodeEncodedMovesIntoMap(encoded, 10);
 
