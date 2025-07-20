@@ -65,14 +65,20 @@ export function useLiveChessEvents(
         },
     );
 
-    useGameEvent(gameToken, "LegalMovesChangedAsync", async (legalMoves) => {
-        const decodedLegalMoves = decodeEncodedMovesIntoMap(
-            legalMoves,
-            boardDimensions.width,
-        );
-        console.log(decodedLegalMoves);
-        chessboardStore.getState().setLegalMoves(decodedLegalMoves);
-    });
+    useGameEvent(
+        gameToken,
+        "LegalMovesChangedAsync",
+        async (legalMoves, hasForcedMoves) => {
+            const decodedLegalMoves = decodeEncodedMovesIntoMap(
+                legalMoves,
+                boardDimensions.width,
+            );
+
+            chessboardStore
+                .getState()
+                .setLegalMoves(decodedLegalMoves, hasForcedMoves);
+        },
+    );
 
     useGameEvent(gameToken, "GameEndedAsync", async (result) => {
         liveChessStore.getState().endGame(result);
