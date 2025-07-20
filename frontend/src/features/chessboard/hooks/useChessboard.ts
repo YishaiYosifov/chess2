@@ -2,11 +2,11 @@ import { useContext } from "react";
 import { useStore } from "zustand";
 
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
-import { type ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
+import { type ChessboardState } from "@/features/chessboard/stores/chessboardStore";
 import { PieceID } from "@/types/tempModels";
 
 export function useChessboardStore<T>(
-    selector: (store: ChessboardStore) => T,
+    selector: (store: ChessboardState) => T,
 ): T {
     const chessStoreContext = useContext(ChessboardStoreContext);
 
