@@ -1,4 +1,4 @@
-import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
+import { ChessboardState } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
 import { decodeFen } from "../lib/fenDecoder";
@@ -15,7 +15,7 @@ export function useLiveChessEvents(
     gameToken: string,
     playerColor: GameColor,
     liveChessStore: StoreApi<LiveChessStore>,
-    chessboardStore: StoreApi<ChessboardStore>,
+    chessboardStore: StoreApi<ChessboardState>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);

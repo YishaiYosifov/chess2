@@ -52,6 +52,7 @@ const StaticChessboard = ({
             createChessboardStore({
                 pieces: startingPieces,
                 boardDimensions: { width: boardWidth, height: boardHeight },
+                hasForcedMoves: false,
                 legalMoves,
                 viewingFrom,
             }),
