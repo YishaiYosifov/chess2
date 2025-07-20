@@ -3,16 +3,29 @@ using System.Text;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Services;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
-public class MoveEncoderTests : BaseUnitTest
+public class MoveEncoderTests
 {
-    private readonly MoveEncoder _encoder = new();
+    private readonly MoveEncoder _encoder;
+
+    public MoveEncoderTests()
+    {
+        var jsonOptions = new MvcNewtonsoftJsonOptions();
+        jsonOptions.SerializerSettings.ContractResolver =
+            new CamelCasePropertyNamesContractResolver();
+        jsonOptions.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+
+        _encoder = new MoveEncoder(Options.Create(jsonOptions));
+    }
 
     [Fact]
-    public void EncodeMoves_RoundTripsObjectsLosslessly()
+    public void EncodeMoves_round_trips_encoding_losslessly()
     {
         MovePath[] paths =
         [
@@ -33,7 +46,7 @@ public class MoveEncoderTests : BaseUnitTest
     }
 
     [Fact]
-    public void EncodeMoves_WithEmptyCollection_ReturnsGzipOfEmptyArray()
+    public void EncodeMoves_can_handle_empty_move_collection()
     {
         var result = _encoder.EncodeMoves([]);
 
@@ -45,8 +58,8 @@ public class MoveEncoderTests : BaseUnitTest
     private static List<MovePath>? DecompressToPath(byte[] gzipBytes)
     {
         using var input = new MemoryStream(gzipBytes);
-        using var gzip = new GZipStream(input, CompressionMode.Decompress);
-        using var reader = new StreamReader(gzip, Encoding.UTF8);
+        using var brotli = new BrotliStream(input, CompressionMode.Decompress);
+        using var reader = new StreamReader(brotli, Encoding.UTF8);
         var paths = JsonConvert.DeserializeObject<List<MovePath>>(reader.ReadToEnd());
         return paths;
     }
