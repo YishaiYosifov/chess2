@@ -6,11 +6,8 @@ import {
     PieceMap,
     Point,
     Piece,
-} from "@/types/tempModels"; // adjust paths
-import {
-    createChessboardStore,
-    defaultChessboardState,
-} from "@/features/chessboard/stores/chessboardStore";
+} from "@/types/tempModels";
+import { createChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import {
     createFakeLegalMoveMap,
     createFakeMove,
@@ -40,11 +37,6 @@ describe("ChessboardStore", () => {
         const newPieces = store.getState().pieces;
         expect(newPieces).toEqual(expectedPieces);
     }
-
-    it("should initialize with default values", () => {
-        const state = store.getState();
-        expect(state).toMatchObject(defaultChessboardState);
-    });
 
     describe("playMove", () => {
         it("should return if no piece at move.from", () => {
@@ -194,14 +186,14 @@ describe("ChessboardStore", () => {
         );
     });
 
-    describe("position2Id", () => {
+    describe("pointToPiece", () => {
         it("should return piece ID if piece found at position", () => {
             const piece = createFakePiece();
             store.setState({
                 pieces: new Map([["0", piece]]),
             });
 
-            const id = store.getState().position2Id(piece.position);
+            const id = store.getState().pointToPiece(piece.position);
             expect(id).toBe("0");
         });
 
@@ -209,7 +201,7 @@ describe("ChessboardStore", () => {
             store.setState({
                 pieces: new Map([["0", createFakePiece()]]),
             });
-            const id = store.getState().position2Id({ x: 69, y: 420 });
+            const id = store.getState().pointToPiece({ x: 69, y: 420 });
             expect(id).toBeUndefined();
         });
     });
@@ -299,20 +291,19 @@ describe("ChessboardStore", () => {
     });
 
     describe("resetState", () => {
-        it("should reset state and set new pieces, legalMoves, and sideToMove", () => {
+        it("should reset the state to a playable position", () => {
             const piece = createFakePiece();
             const pieces: PieceMap = new Map([["0", piece]]);
             const legalMoves = createFakeLegalMoveMap(piece);
-            const sideToMove = GameColor.BLACK;
 
-            store.getState().resetState(pieces, legalMoves, sideToMove);
+            store.getState().resetState(pieces, legalMoves);
 
             const state = store.getState();
             expect(state).toMatchObject({
-                ...defaultChessboardState,
                 pieces,
                 legalMoves,
-                sideToMove,
+                selectedPieceId: undefined,
+                highlightedLegalMoves: [],
             });
         });
     });

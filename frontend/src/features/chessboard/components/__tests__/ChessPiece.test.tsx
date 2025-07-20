@@ -7,7 +7,7 @@ import userEvent from "@testing-library/user-event";
 import { GameColor } from "@/lib/apiClient";
 import { StoreApi } from "zustand";
 import {
-    ChessboardStore,
+    ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 
@@ -23,7 +23,7 @@ describe("ChessPiece", () => {
         return normalize(expected);
     }
 
-    let store: StoreApi<ChessboardStore>;
+    let store: StoreApi<ChessboardState>;
 
     beforeEach(() => {
         store = createChessboardStore();

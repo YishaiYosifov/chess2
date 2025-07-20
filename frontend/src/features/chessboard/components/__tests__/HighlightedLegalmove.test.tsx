@@ -13,7 +13,7 @@ import { LegalMoveMap, PieceID, PieceMap } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
 import { StoreApi } from "zustand";
 import {
-    ChessboardStore,
+    ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 
@@ -30,7 +30,7 @@ function PiecePositionProbe({ id }: { id: PieceID }) {
 }
 
 describe("HighlightedLegalMove", () => {
-    let store: StoreApi<ChessboardStore>;
+    let store: StoreApi<ChessboardState>;
 
     beforeEach(() => {
         store = createChessboardStore();
