@@ -1,7 +1,8 @@
+import brotliDecompress from "brotli/decompress";
+
 import { LegalMoveMap, Move, MoveSideEffect } from "@/types/tempModels";
 import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
 import { idxToPoint, pointToStr } from "@/lib/utils/pointUtils";
-import { gunzipSync } from "zlib";
 
 export function decodePathIntoMap(
     paths: MovePath[],
@@ -55,7 +56,8 @@ export function decodeEncodedMovesIntoMap(
     boardWidth: number,
 ): LegalMoveMap {
     const buffer = Buffer.from(encoded, "base64");
-    const decoded = gunzipSync(buffer).toString();
+    const decompressed = brotliDecompress(buffer);
+    const decoded = new TextDecoder().decode(decompressed);
     const moves = decodePathIntoMap(JSON.parse(decoded), boardWidth);
     return moves;
 }
