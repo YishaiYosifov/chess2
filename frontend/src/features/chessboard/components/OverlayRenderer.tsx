@@ -5,43 +5,66 @@ import { Point } from "@/types/tempModels";
 import { OverlayItem } from "../stores/overlaySlice";
 import { pointEquals } from "@/lib/utils/pointUtils";
 
-const OverlayRenderer = ({
-    strokeColor = "#15781B",
-    strokeWidth = 0.2,
-    opacity = 0.8,
-}: {
-    strokeColor?: string;
-    strokeWidth?: number;
-    opacity?: number;
-}) => {
+const COLOR = "#5e3b59";
+const OPACITY = 0.7;
+const STROKE_DRAWING_REDUCTION = 20;
+
+const ARROW_STROKE_WIDTH = 0.2;
+
+const CIRCLE_STROKE_WIDTH = 0.08;
+const CIRCLE_PADDING = 0.05;
+
+const OverlayRenderer = () => {
     const dimensions = useChessboardStore((x) => x.boardDimensions);
     const overlays = useChessboardStore((x) => x.overlays);
     const currentlyDrawing = useChessboardStore((x) => x.currentlyDrawing);
     const headId = useId();
 
-    function drawOverlay(item: OverlayItem, key?: number): JSX.Element {
+    function getAdjustedStrokeWidth(base: number, isDrawing: boolean): number {
+        return isDrawing ? base * (1 - STROKE_DRAWING_REDUCTION / 100) : base;
+    }
+
+    function drawOverlay({
+        item,
+        isDrawing,
+        key,
+    }: {
+        item: OverlayItem;
+        isDrawing: boolean;
+        key?: number;
+    }): JSX.Element {
         const { from, to } = item;
-        if (pointEquals(from, to)) {
+        const color = item.color ?? COLOR;
+
+        if (pointEquals(from, to))
             return (
-                <circle
+                <CircleRenderer
+                    position={from}
+                    color={color}
+                    strokeWidth={getAdjustedStrokeWidth(
+                        CIRCLE_STROKE_WIDTH,
+                        isDrawing,
+                    )}
+                    opacity={OPACITY}
+                    padding={CIRCLE_PADDING}
                     key={key}
-                    cx={from.x + 0.5}
-                    cy={from.y + 0.5}
-                    r={strokeWidth / 2}
-                    fill={strokeColor}
                 />
             );
-        }
-        return (
-            <LineRenderer
-                key={key}
-                color={strokeColor}
-                strokeWidth={strokeWidth}
-                opacity={opacity}
-                headId={headId}
-                shape={item}
-            />
-        );
+        else
+            return (
+                <LineRenderer
+                    color={color}
+                    strokeWidth={getAdjustedStrokeWidth(
+                        ARROW_STROKE_WIDTH,
+                        isDrawing,
+                    )}
+                    opacity={OPACITY}
+                    headId={headId}
+                    from={from}
+                    to={to}
+                    key={key}
+                />
+            );
     }
 
     return (
@@ -61,31 +84,67 @@ const OverlayRenderer = ({
                     refY="1.75"
                     markerUnits="strokeWidth"
                 >
-                    <path d="M0,0 V3.5 L2.8,1.75 Z" fill={strokeColor} />
+                    <path d="M0,0 V3.5 L2.8,1.75 Z" fill={COLOR} />
                 </marker>
             </defs>
 
             <g>
-                {overlays.map((item, i) => drawOverlay(item, i))}
-                {currentlyDrawing && drawOverlay(currentlyDrawing)}
+                {overlays.map((item, i) =>
+                    drawOverlay({ item, isDrawing: false, key: i }),
+                )}
+                {currentlyDrawing &&
+                    drawOverlay({
+                        item: currentlyDrawing,
+                        isDrawing: true,
+                    })}
             </g>
         </svg>
     );
 };
 export default OverlayRenderer;
 
+const CircleRenderer = ({
+    position,
+    color,
+    strokeWidth,
+    opacity,
+    padding,
+}: {
+    position: Point;
+    color: string;
+    strokeWidth: number;
+    opacity: number;
+    padding: number;
+}) => {
+    const r = 0.5 - strokeWidth / 2 - padding;
+
+    return (
+        <circle
+            cx={position.x + 0.5}
+            cy={position.y + 0.5}
+            r={r}
+            fill="none"
+            stroke={color}
+            opacity={opacity}
+            strokeWidth={strokeWidth}
+        />
+    );
+};
+
 const LineRenderer = ({
     color,
     strokeWidth,
     opacity,
     headId,
-    shape,
+    from,
+    to,
 }: {
     color: string;
     strokeWidth: number;
     opacity: number;
     headId: string;
-    shape: OverlayItem;
+    from: Point;
+    to: Point;
 }) => {
     const centerPoint = ({ x, y }: Point): Point => ({
         x: x + 0.5,
@@ -110,14 +169,14 @@ const LineRenderer = ({
         };
     }
 
-    const from = centerPoint(shape.from);
-    const to = centerPoint(shape.to);
-    const { x1, y1, x2, y2 } = shortenLine(from, to);
+    const centeredFrom = centerPoint(from);
+    const centeredTo = centerPoint(to);
+    const { x1, y1, x2, y2 } = shortenLine(centeredFrom, centeredTo);
 
     return (
         <line
             stroke={color}
-            strokeWidth={strokeWidth - 0.02}
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
             markerEnd={`url(#${headId})`}
             opacity={opacity}
