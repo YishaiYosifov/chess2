@@ -10,3 +10,7 @@ export function idxToPoint(index: number, boardWidth: number): Point {
         y: Math.floor(index / boardWidth),
     };
 }
+
+export function pointEquals(a: Point, b: Point): boolean {
+    return a.x === b.x && a.y === b.y;
+}

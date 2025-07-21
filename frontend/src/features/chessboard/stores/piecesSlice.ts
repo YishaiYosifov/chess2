@@ -1,7 +1,7 @@
 import { Move, PieceID, PieceMap, Point } from "@/types/tempModels";
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { GameColor } from "@/lib/apiClient";
 
 export interface PieceSliceProps {
@@ -114,11 +114,9 @@ export function createPiecesSlice(
 
             const move = moves?.find(
                 (candidateMove) =>
-                    (candidateMove.to.x == to.x &&
-                        candidateMove.to.y == to.y) ||
-                    candidateMove.triggers.find(
-                        (triggerPoint) =>
-                            triggerPoint.x == to.x && triggerPoint.y == to.y,
+                    pointEquals(candidateMove.to, to) ||
+                    candidateMove.triggers.some((triggerPoint) =>
+                        pointEquals(triggerPoint, to),
                     ),
             );
             if (!move) return;
@@ -143,32 +141,24 @@ export function createPiecesSlice(
          */
         async handlePieceDrop(mouseX: number, mouseY: number): Promise<void> {
             const {
-                boardDimensions,
-                boardRect,
-                viewingFrom,
                 moveSelectedPiece,
+                screenPointToBoardPoint,
+                viewingFrom,
+                boardDimensions,
             } = get();
-            if (!boardRect) {
-                console.warn("Cannot move piece, board rect not set yet");
-                return;
-            }
 
-            const relX = Math.max(mouseX - boardRect.left, 0);
-            const relY = Math.max(mouseY - boardRect.top, 0);
+            const boardPoint = screenPointToBoardPoint({
+                x: mouseX,
+                y: mouseY,
+            });
+            if (!boardPoint) return;
 
-            let x = Math.floor(
-                (relX / boardRect.width) * boardDimensions.width,
-            );
-            let y = Math.floor(
-                (relY / boardRect.height) * boardDimensions.height,
-            );
             if (viewingFrom == GameColor.WHITE) {
-                y = boardDimensions.height - y - 1;
+                boardPoint.y = boardDimensions.height - boardPoint.y - 1;
             } else {
-                x = boardDimensions.width - x - 1;
+                boardPoint.x = boardDimensions.width - boardPoint.x - 1;
             }
-
-            await moveSelectedPiece({ x, y });
+            await moveSelectedPiece(boardPoint);
         },
 
         /**
@@ -201,11 +191,7 @@ export function createPiecesSlice(
         pointToPiece(position: Point): PieceID | undefined {
             const pieces = get().pieces;
             for (const [id, piece] of pieces) {
-                if (
-                    piece.position.x == position.x &&
-                    piece.position.y == position.y
-                )
-                    return id;
+                if (pointEquals(piece.position, position)) return id;
             }
         },
     });
