@@ -5,6 +5,7 @@ import { Point } from "@/types/tempModels";
 export interface OverlayItem {
     from: Point;
     to: Point;
+    color?: string;
 }
 
 export interface OverlaySlice {
@@ -37,11 +38,11 @@ export const createOverlaySlice: StateCreator<
             state.currentlyDrawing = { from, to };
         }),
     commitCurrentlyDrawing() {
-        const { currentlyDrawing, addOverlay } = get();
+        const { currentlyDrawing } = get();
         if (!currentlyDrawing) return;
 
-        addOverlay(currentlyDrawing.from, currentlyDrawing.to);
         set((state) => {
+            state.overlays.push(currentlyDrawing);
             state.currentlyDrawing = undefined;
         });
     },
