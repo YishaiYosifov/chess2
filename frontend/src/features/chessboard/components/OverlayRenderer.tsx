@@ -87,11 +87,14 @@ const LineRenderer = ({
     headId: string;
     shape: OverlayItem;
 }) => {
+    const centerPoint = ({ x, y }: Point): Point => ({
+        x: x + 0.5,
+        y: y + 0.5,
+    });
+
     function shortenLine(
-        x1: number,
-        y1: number,
-        x2: number,
-        y2: number,
+        { x: x1, y: y1 }: Point,
+        { x: x2, y: y2 }: Point,
         shortenBy = 0.2,
     ): { x1: number; y1: number; x2: number; y2: number } {
         const dx = x2 - x1;
@@ -107,22 +110,9 @@ const LineRenderer = ({
         };
     }
 
-    const calculateArrowCoordinates = (
-        point1: Point,
-        point2: Point,
-    ): { x1: number; y1: number; x2: number; y2: number } =>
-        shortenLine(
-            point1.x + 0.5,
-            point1.y + 0.5,
-            point2.x + 0.5,
-            point2.y + 0.5,
-            0.2,
-        );
-
-    const currentlyDrawingCoords = calculateArrowCoordinates(
-        shape.from,
-        shape.to,
-    );
+    const from = centerPoint(shape.from);
+    const to = centerPoint(shape.to);
+    const { x1, y1, x2, y2 } = shortenLine(from, to);
 
     return (
         <line
@@ -131,10 +121,10 @@ const LineRenderer = ({
             strokeLinecap="round"
             markerEnd={`url(#${headId})`}
             opacity={opacity}
-            x1={currentlyDrawingCoords.x1}
-            y1={currentlyDrawingCoords.y1}
-            x2={currentlyDrawingCoords.x2}
-            y2={currentlyDrawingCoords.y2}
+            x1={x1}
+            y1={y1}
+            x2={x2}
+            y2={y2}
         />
     );
 };
