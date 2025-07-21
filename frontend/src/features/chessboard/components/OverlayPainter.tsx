@@ -31,17 +31,16 @@ const OverlayPainter = () => {
 
         setCurrentlyDrawing(startPoint, startPoint);
 
-        let lastSquare: Point | null = startPoint;
+        let lastSquare: Point = startPoint;
         function handleMove(event: MouseEvent | ReactMouseEvent) {
             const movePoint = screenPointToBoardPoint({
                 x: event.clientX,
                 y: event.clientY,
             });
-            if (!movePoint || !startPoint) return;
+            if (!movePoint || !startPoint || pointEquals(movePoint, lastSquare))
+                return;
 
-            if (lastSquare && pointEquals(movePoint, lastSquare)) return;
             lastSquare = movePoint;
-
             setCurrentlyDrawing(startPoint, movePoint);
         }
 
