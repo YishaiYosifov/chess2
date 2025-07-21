@@ -60,7 +60,7 @@ export function useLiveChessEvents(
 
             if (sideToMove === playerColor) {
                 const decoded = decodePath(move.path, boardDimensions.width);
-                chessboardStore.getState().playMove(decoded);
+                chessboardStore.getState().applyMove(decoded);
             }
         },
     );

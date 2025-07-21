@@ -64,7 +64,8 @@ const LiveChessboard = ({
             viewingFrom: playerColor,
             onPieceMovement: sendMove,
         });
-    }, [gameState, sendMove, playerColor]);
+        // }, [gameState, sendMove, playerColor]);
+    }, []);
     const liveChessStore = useMemo(() => {
         return createLiveChessStore({
             gameToken,
@@ -78,7 +79,8 @@ const LiveChessboard = ({
             clocks: gameState.clocks,
             resultData: gameState.resultData ?? null,
         });
-    }, [gameToken, gameState, playerColor]);
+        // }, [gameToken, gameState, playerColor]);
+    }, []);
 
     useLiveChessEvents(
         gameToken,

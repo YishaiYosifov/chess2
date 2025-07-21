@@ -57,7 +57,6 @@ export function createLegalMovesSlice(
 
             set((state) => {
                 state.highlightedLegalMoves = toHighlightPoints;
-                state.selectedPieceId = pieceId;
             });
         },
 

@@ -2,7 +2,6 @@ import { Move, PieceID, PieceMap, Point } from "@/types/tempModels";
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
-import { GameColor } from "@/lib/apiClient";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
@@ -11,17 +10,21 @@ export interface PieceSliceProps {
 
 export interface PiecesSlice {
     pieces: PieceMap;
-    selectedPieceId?: PieceID;
     animatingPieces: Set<PieceID>;
+    selectedPieceId?: PieceID;
+    draggingPieceId?: PieceID;
+
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
-    moveSelectedPiece(to: Point): Promise<void>;
-    handlePieceDrop(mouseX: number, mouseY: number): Promise<void>;
-    playMove(move: Move): void;
-    movePiece(from: Point, to: Point): void;
+    selectPiece(piece: PieceID): void;
+    moveSelectedPiece(to: Point): Promise<boolean>;
+    moveSelectedPieceToMouse(mousePoint: Point): Promise<boolean>;
+    applyMove(move: Move): void;
+    updatePiecePosition(from: Point, to: Point): void;
 
     addAnimatingPiece(pieceId: PieceID): void;
     pointToPiece(position: Point): PieceID | undefined;
+    screenPointToPiece(position: Point): PieceID | undefined;
 }
 
 export function createPiecesSlice(
@@ -37,14 +40,24 @@ export function createPiecesSlice(
 
         animatingPieces: new Set(),
 
+        selectPiece(piece: PieceID): void {
+            const { showLegalMoves } = get();
+
+            showLegalMoves(piece);
+            set((state) => {
+                state.selectedPieceId = piece;
+                state.draggingPieceId = piece;
+            });
+        },
+
         /**
          * Applies a move on the board by updating piece positions and removing captured pieces.
          * Animates the moving piece, and recursively applies any side effects of the move.
          *
          * @param move - The move to apply on the board.
          */
-        playMove(move: Move): void {
-            const { pointToPiece, movePiece } = get();
+        applyMove(move: Move): void {
+            const { pointToPiece, updatePiecePosition } = get();
 
             const captureIds = [pointToPiece(move.to)];
             for (const capture of move.captures)
@@ -56,13 +69,13 @@ export function createPiecesSlice(
                 }
             });
 
-            movePiece(move.from, move.to);
+            updatePiecePosition(move.from, move.to);
             for (const sideEffect of move.sideEffects) {
-                movePiece(sideEffect.from, sideEffect.to);
+                updatePiecePosition(sideEffect.from, sideEffect.to);
             }
         },
 
-        movePiece(from: Point, to: Point) {
+        updatePiecePosition(from: Point, to: Point) {
             const { pointToPiece, addAnimatingPiece } = get();
 
             const pieceId = pointToPiece(from);
@@ -87,13 +100,13 @@ export function createPiecesSlice(
          *
          * @param to - The target position to move the selected piece to.
          */
-        async moveSelectedPiece(to: Point): Promise<void> {
+        async moveSelectedPiece(to: Point): Promise<boolean> {
             const strTo = pointToStr(to);
 
             const {
                 selectedPieceId,
                 onPieceMovement,
-                playMove,
+                applyMove: playMove,
                 legalMoves,
                 pieces,
             } = get();
@@ -102,7 +115,7 @@ export function createPiecesSlice(
                     `Could not execute piece movement to ${strTo} ` +
                         "because no piece was selected",
                 );
-                return;
+                return false;
             }
 
             const selectedPiece = pieces.get(selectedPieceId)!;
@@ -110,7 +123,7 @@ export function createPiecesSlice(
             const strFrom = pointToStr(from);
 
             const moves = legalMoves.get(strFrom);
-            if (!moves) return;
+            if (!moves) return false;
 
             const move = moves?.find(
                 (candidateMove) =>
@@ -119,7 +132,7 @@ export function createPiecesSlice(
                         pointEquals(triggerPoint, to),
                     ),
             );
-            if (!move) return;
+            if (!move) return false;
 
             await onPieceMovement?.(from, move.to);
             playMove(move);
@@ -129,6 +142,7 @@ export function createPiecesSlice(
                 state.highlightedLegalMoves = [];
                 state.selectedPieceId = undefined;
             });
+            return true;
         },
 
         /**
@@ -139,16 +153,17 @@ export function createPiecesSlice(
          * @param mouseX - The x-coordinate of the mouse event relative to the viewport.
          * @param mouseY - The y-coordinate of the mouse event relative to the viewport.
          */
-        async handlePieceDrop(mouseX: number, mouseY: number): Promise<void> {
+        async moveSelectedPieceToMouse(mousePoint: Point): Promise<boolean> {
             const { moveSelectedPiece, screenToPiecePoint } = get();
 
             const piecePoint = screenToPiecePoint({
-                x: mouseX,
-                y: mouseY,
+                x: mousePoint.x,
+                y: mousePoint.y,
             });
-            if (!piecePoint) return;
+            if (!piecePoint) return false;
 
-            await moveSelectedPiece(piecePoint);
+            const didMove = await moveSelectedPiece(piecePoint);
+            return didMove;
         },
 
         /**
@@ -183,6 +198,15 @@ export function createPiecesSlice(
             for (const [id, piece] of pieces) {
                 if (pointEquals(piece.position, position)) return id;
             }
+        },
+
+        screenPointToPiece(point: Point): PieceID | undefined {
+            const { screenToPiecePoint, pointToPiece } = get();
+
+            const piecePoint = screenToPiecePoint(point);
+            if (!piecePoint) return;
+
+            return pointToPiece(piecePoint);
         },
     });
 }

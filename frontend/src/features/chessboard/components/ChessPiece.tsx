@@ -1,101 +1,82 @@
-import { memo, useRef, useState, MouseEvent as ReactMouseEvent } from "react";
+import { memo, useRef } from "react";
+import clsx from "clsx";
 
 import {
     useChessboardStore,
     usePiece,
 } from "@/features/chessboard/hooks/useChessboard";
-import { PieceID } from "@/types/tempModels";
+import { PieceID, Point } from "@/types/tempModels";
 
 import ChessSquare, { ChessSquareRef } from "./ChessSquare";
-import clsx from "clsx";
+import useBoardInteraction from "../hooks/useBoardInteraction";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
-
     const piece = usePiece(id);
-    const showLegalMoves = useChessboardStore((state) => state.showLegalMoves);
-    const handlePieceDrop = useChessboardStore(
-        (state) => state.handlePieceDrop,
+
+    const isSelected = useChessboardStore(
+        (state) => state.selectedPieceId === id,
     );
     const isAnimating = useChessboardStore((state) =>
         state.animatingPieces.has(id),
     );
 
-    const [isDragging, setIsDragging] = useState(false);
+    const screenPointToPiece = useChessboardStore((x) => x.screenPointToPiece);
+    const selectPiece = useChessboardStore((x) => x.selectPiece);
+    const moveSelectedPieceToMouse = useChessboardStore(
+        (x) => x.moveSelectedPieceToMouse,
+    );
+    const offset = useRef<Point | null>(null);
+
+    const isDragging = useBoardInteraction({
+        shouldStartDrag(info) {
+            if (info.button !== 0) return false;
+
+            const piece = screenPointToPiece(info.point);
+            if (piece !== id) return false;
+
+            const rect = pieceRef.current?.getBoundingClientRect();
+            if (!rect) return false;
+
+            const offsetX = rect.left + rect.width / 2;
+            const offsetY = rect.top + rect.height / 2;
+            offset.current = { x: offsetX, y: offsetY };
+
+            return true;
+        },
+
+        onDragStart() {
+            selectPiece(id);
+        },
+        onDragMove(point) {
+            if (!offset.current) return;
+
+            const x = point.x - offset.current.x;
+            const y = point.y - offset.current.y;
+            pieceRef.current?.updateDraggingOffset(x, y);
+        },
+        async onInteractionEnd(info) {
+            console.log(info, isSelected);
+            if (!isSelected) return;
+
+            const didMove = await moveSelectedPieceToMouse(info.point);
+            if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
+        },
+    });
 
     if (!piece) return;
-
-    function startDragging(event: ReactMouseEvent): void {
-        if (!pieceRef.current) return;
-
-        setIsDragging(true);
-
-        // calculate the dragging offset
-        // snap the center of the piece to the mouse when dragging start
-        const rect = pieceRef.current.getBoundingClientRect();
-        if (!rect) return;
-
-        const offsetX = rect.left + rect.width / 2;
-        const offsetY = rect.top + rect.height / 2;
-
-        let didStopDragging = false;
-        let animationFrameId: number | null = null;
-        let lastMouseX = 0;
-        let lastMouseY = 0;
-
-        function updateDraggingOffset(): void {
-            if (didStopDragging) return;
-
-            const x = lastMouseX - offsetX;
-            const y = lastMouseY - offsetY;
-            pieceRef.current?.updateDraggingOffset(x, y);
-            animationFrameId = null;
-        }
-
-        // calculate the new offset when the mouse moves
-        function handleMove(event: MouseEvent | ReactMouseEvent) {
-            lastMouseX = event.clientX;
-            lastMouseY = event.clientY;
-
-            if (animationFrameId == null) {
-                animationFrameId = requestAnimationFrame(() =>
-                    updateDraggingOffset(),
-                );
-            }
-        }
-
-        // reset the event listeners and the dragging offset
-        async function stopDragging(): Promise<void> {
-            setIsDragging(false);
-            didStopDragging = true;
-            await handlePieceDrop(lastMouseX, lastMouseY);
-            pieceRef.current?.updateDraggingOffset(0, 0);
-
-            window.removeEventListener("pointermove", handleMove);
-            window.removeEventListener("pointerup", stopDragging);
-        }
-
-        // add event listeners for mouse movement and release
-        window.addEventListener("pointermove", handleMove);
-        window.addEventListener("pointerup", stopDragging);
-
-        handleMove(event);
-    }
 
     return (
         <ChessSquare
             data-testid="piece"
             position={piece.position}
             className={clsx(
-                "z-10 touch-none bg-size-[length:100%] bg-no-repeat select-none",
+                `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
+                select-none`,
                 isAnimating && "transition-transform duration-100 ease-out",
-                isDragging && "pointer-events-none z-30",
+                isDragging && "z-30",
             )}
             ref={pieceRef}
-            onPointerDown={(event) => {
-                showLegalMoves(id);
-                startDragging(event);
-            }}
             style={{
                 backgroundImage: `url("/assets/pieces/${piece.type}${piece.color}.png")`,
             }}

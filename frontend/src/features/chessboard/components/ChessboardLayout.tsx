@@ -1,4 +1,10 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, {
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import PieceRenderer from "./PieceRenderer";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
@@ -28,6 +34,8 @@ const ChessboardLayout = ({
 }: ChessboardLayoutProps) => {
     const [boardSize, setBoardSize] = useState<number>(0);
     const setBoardRect = useChessboardStore((state) => state.setBoardRect);
+    const onPointerDown = useChessboardStore((state) => state.onPointerDown);
+    const onPointerUp = useChessboardStore((state) => state.onPointerUp);
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -98,9 +106,11 @@ const ChessboardLayout = ({
                 height: `${boardSize}px`,
             }}
             ref={ref}
+            onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
             onContextMenu={(e) => e.preventDefault()}
         >
-            <OverlayPainter />
+            {/* <OverlayPainter /> */}
             <PieceRenderer />
         </div>
     );

@@ -1,19 +1,13 @@
 "use client";
 
-import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { Point } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
 
 const HighlightedLegalMove = ({ position }: { position: Point }) => {
-    const executePieceMovement = useChessboardStore(
-        (state) => state.moveSelectedPiece,
-    );
-
     return (
         <ChessSquare
             data-testid="highlightedLegalMove"
-            onClick={async () => await executePieceMovement(position)}
             className="z-20 animate-[fadeIn_0.15s_ease-out]
                 bg-[radial-gradient(rgba(0,0,0,0.25)_20%,_rgba(0,0,0,0)_23%)]
                 bg-[length:100%_100%] bg-center bg-no-repeat transition-all duration-100
