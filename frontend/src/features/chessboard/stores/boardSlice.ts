@@ -19,7 +19,8 @@ export interface BoardSlice extends BoardSliceProps {
     boardDimensions: BoardDimensions;
     boardRect?: DOMRect;
 
-    screenPointToBoardPoint(screenPoint: Point): Point | null;
+    screenToPiecePoint(screenPoint: Point): Point | null;
+    screenToBoardPoint(screenPoint: Point): Point | null;
     setBoardRect: (rect: DOMRect) => void;
 }
 
@@ -34,7 +35,21 @@ export function createBoardSlice(
     return (set, get) => ({
         ...initState,
 
-        screenPointToBoardPoint(screenPoint: Point): Point | null {
+
+        screenToPiecePoint(screenPoint: Point): Point | null {
+            const { screenToBoardPoint, viewingFrom, boardDimensions } = get();
+
+            const boardPoint = screenToBoardPoint(screenPoint);
+            if (!boardPoint) return null;
+
+            if (viewingFrom == GameColor.WHITE) {
+                boardPoint.y = boardDimensions.height - boardPoint.y - 1;
+            } else {
+                boardPoint.x = boardDimensions.width - boardPoint.x - 1;
+            }
+            return boardPoint;
+        },
+        screenToBoardPoint(screenPoint: Point): Point | null {
             const { boardDimensions, boardRect } = get();
             if (!boardRect) {
                 console.warn("Cannot move piece, board rect not set yet");

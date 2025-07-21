@@ -140,25 +140,15 @@ export function createPiecesSlice(
          * @param mouseY - The y-coordinate of the mouse event relative to the viewport.
          */
         async handlePieceDrop(mouseX: number, mouseY: number): Promise<void> {
-            const {
-                moveSelectedPiece,
-                screenPointToBoardPoint,
-                viewingFrom,
-                boardDimensions,
-            } = get();
+            const { moveSelectedPiece, screenToPiecePoint } = get();
 
-            const boardPoint = screenPointToBoardPoint({
+            const piecePoint = screenToPiecePoint({
                 x: mouseX,
                 y: mouseY,
             });
-            if (!boardPoint) return;
+            if (!piecePoint) return;
 
-            if (viewingFrom == GameColor.WHITE) {
-                boardPoint.y = boardDimensions.height - boardPoint.y - 1;
-            } else {
-                boardPoint.x = boardDimensions.width - boardPoint.x - 1;
-            }
-            await moveSelectedPiece(boardPoint);
+            await moveSelectedPiece(piecePoint);
         },
 
         /**
