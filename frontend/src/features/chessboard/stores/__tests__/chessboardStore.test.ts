@@ -44,7 +44,7 @@ describe("ChessboardStore", () => {
             store.setState({ pieces });
 
             const move: Move = createFakeMove({ from: { x: 69, y: 420 } });
-            store.getState().playMove(move);
+            store.getState().applyMove(move);
 
             const newPieces = store.getState().pieces;
             expect(newPieces).toEqual(pieces);
@@ -73,7 +73,7 @@ describe("ChessboardStore", () => {
                 sideEffects: [sideEffectMove],
             });
 
-            store.getState().playMove(move);
+            store.getState().applyMove(move);
 
             expectPieces(
                 { id: "0", position: move.to, piece },
@@ -179,7 +179,7 @@ describe("ChessboardStore", () => {
 
                 await store
                     .getState()
-                    .handlePieceDrop(mousePosition.x, mousePosition.y);
+                    .moveSelectedPieceToMouse(mousePosition.x, mousePosition.y);
 
                 expectPieces({ id: "0", position: expectedPosition, piece });
             },

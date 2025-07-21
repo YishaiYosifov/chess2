@@ -15,11 +15,13 @@ import { OverlaySlice, createOverlaySlice } from "./overlaySlice";
 import { CoreSlice, createCoreSlice } from "./coreSlice";
 import { GameColor } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import { createInteractionSlice, InteractionSlice } from "./interactionSlice";
 
 export type ChessboardState = BoardSlice &
     PiecesSlice &
     LegalMovesSlice &
     OverlaySlice &
+    InteractionSlice &
     CoreSlice;
 export type ChessboardProps = BoardSliceProps &
     PieceSliceProps &
@@ -47,6 +49,7 @@ export function createChessboardStore(
                 ...createPiecesSlice(initState)(...a),
                 ...createLegalMovesSlice(initState)(...a),
                 ...createOverlaySlice(...a),
+                ...createInteractionSlice(...a),
                 ...createCoreSlice(...a),
             })),
         ),

@@ -35,7 +35,6 @@ export function createBoardSlice(
     return (set, get) => ({
         ...initState,
 
-
         screenToPiecePoint(screenPoint: Point): Point | null {
             const { screenToBoardPoint, viewingFrom, boardDimensions } = get();
 
