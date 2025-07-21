@@ -1,15 +1,17 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
+import { devtools } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 
-import { BoardSlice, BoardSliceProps, createBoardSlice } from "./boardSlice";
 import { createPiecesSlice, PieceSliceProps, PiecesSlice } from "./piecesSlice";
+import { BoardSlice, BoardSliceProps, createBoardSlice } from "./boardSlice";
 import {
     createLegalMovesSlice,
     LegalMovesSlice,
     LegalMovesSliceProps,
 } from "./legalMovesSlice";
+import { OverlaySlice, createOverlaySlice } from "./overlaySlice";
 import { CoreSlice, createCoreSlice } from "./coreSlice";
 import { GameColor } from "@/lib/apiClient";
 import constants from "@/lib/constants";
@@ -17,6 +19,7 @@ import constants from "@/lib/constants";
 export type ChessboardState = BoardSlice &
     PiecesSlice &
     LegalMovesSlice &
+    OverlaySlice &
     CoreSlice;
 export type ChessboardProps = BoardSliceProps &
     PieceSliceProps &
@@ -38,12 +41,15 @@ export function createChessboardStore(
     initState: ChessboardProps = defaultChessboardState,
 ) {
     return createWithEqualityFn<ChessboardState>()(
-        immer((...a) => ({
-            ...createBoardSlice(initState)(...a),
-            ...createPiecesSlice(initState)(...a),
-            ...createLegalMovesSlice(initState)(...a),
-            ...createCoreSlice(...a),
-        })),
+        devtools(
+            immer((...a) => ({
+                ...createBoardSlice(initState)(...a),
+                ...createPiecesSlice(initState)(...a),
+                ...createLegalMovesSlice(initState)(...a),
+                ...createOverlaySlice(...a),
+                ...createCoreSlice(...a),
+            })),
+        ),
         shallow,
     );
 }

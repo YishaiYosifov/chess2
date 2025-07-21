@@ -3,6 +3,7 @@ import PieceRenderer from "./PieceRenderer";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
 import constants from "@/lib/constants";
+import OverlayPainter from "./OverlayPainter";
 
 export interface PaddingOffset {
     width: number;
@@ -97,7 +98,9 @@ const ChessboardLayout = ({
                 height: `${boardSize}px`,
             }}
             ref={ref}
+            onContextMenu={(e) => e.preventDefault()}
         >
+            <OverlayPainter />
             <PieceRenderer />
         </div>
     );
