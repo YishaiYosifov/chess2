@@ -14,12 +14,12 @@ export interface InteractionSlice {
     interaction: InteractionInfo | null;
 
     onPointerDownListeners: Set<(info: InteractionInfo) => void>;
-    listenToPointerDown(handler: (info: InteractionInfo) => void): void;
-    disregardPointerDown(handler: (info: InteractionInfo) => void): void;
+    subscribePointerDown(handler: (info: InteractionInfo) => void): void;
+    unsubscribePointerDown(handler: (info: InteractionInfo) => void): void;
 
     onPointerUpListeners: Set<(info: InteractionInfo) => void>;
-    listenToPointerUp(handler: (info: InteractionInfo) => void): void;
-    disregardPointerUp(handler: (info: InteractionInfo) => void): void;
+    subscribePointerUp(handler: (info: InteractionInfo) => void): void;
+    unsubscribePointerUp(handler: (info: InteractionInfo) => void): void;
 
     onPointerDown(event: React.MouseEvent): void;
     onPointerUp(event: React.MouseEvent): void;
@@ -35,24 +35,24 @@ export const createInteractionSlice: StateCreator<
     interaction: null,
 
     onPointerDownListeners: new Set(),
-    listenToPointerDown(handler) {
+    subscribePointerDown(handler) {
         set((state) => {
             state.onPointerDownListeners.add(handler);
         });
     },
-    disregardPointerDown(handler) {
+    unsubscribePointerDown(handler) {
         set((state) => {
             state.onPointerDownListeners.delete(handler);
         });
     },
 
     onPointerUpListeners: new Set(),
-    listenToPointerUp(handler) {
+    subscribePointerUp(handler) {
         set((state) => {
             state.onPointerUpListeners.add(handler);
         });
     },
-    disregardPointerUp(handler) {
+    unsubscribePointerUp(handler) {
         set((state) => {
             state.onPointerUpListeners.delete(handler);
         });

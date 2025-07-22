@@ -137,7 +137,7 @@ describe("ChessboardStore", () => {
             } = store.getState();
             expect(newLegalMoves).toEqual(new Map());
             expect(highlightedLegalMoves.length).toBe(0);
-            expect(selectedPieceId).toBeUndefined();
+            expect(selectedPieceId).toBeNull();
         });
     });
 
@@ -177,9 +177,10 @@ describe("ChessboardStore", () => {
                     legalMoves: legalMoves,
                 });
 
-                await store
-                    .getState()
-                    .moveSelectedPieceToMouse(mousePosition.x, mousePosition.y);
+                await store.getState().moveSelectedPieceToMouse({
+                    x: mousePosition.x,
+                    y: mousePosition.y,
+                });
 
                 expectPieces({ id: "0", position: expectedPosition, piece });
             },
@@ -219,7 +220,7 @@ describe("ChessboardStore", () => {
             warnSpy.mockRestore();
         });
 
-        it("should set highlightedLegalMoves and selectedPieceId correctly", () => {
+        it("should set highlightedLegalMoves correctly", () => {
             const piece1 = createFakePiece();
             const piece1Move1 = createFakeMove({
                 from: piece1.position,
@@ -243,7 +244,6 @@ describe("ChessboardStore", () => {
             store.getState().showLegalMoves("0");
 
             const state = store.getState();
-            expect(state.selectedPieceId).toBe("0");
             expect(state.highlightedLegalMoves).toEqual([
                 piece1Move1.to,
                 piece1Move2.to,
