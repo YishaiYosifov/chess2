@@ -1,9 +1,10 @@
-import React, { JSX, useId } from "react";
+import React, { JSX, useId, useRef } from "react";
 
 import { useChessboardStore } from "../hooks/useChessboard";
 import { Point } from "@/types/tempModels";
 import { OverlayItem } from "../stores/overlaySlice";
 import { pointEquals } from "@/lib/utils/pointUtils";
+import useBoardInteraction from "../hooks/useBoardInteraction";
 
 const COLOR = "#5e3b59";
 const OPACITY = 0.7;
@@ -19,6 +20,49 @@ const OverlayRenderer = () => {
     const overlays = useChessboardStore((x) => x.overlays);
     const currentlyDrawing = useChessboardStore((x) => x.currentlyDrawing);
     const headId = useId();
+
+    const commitCurrentlyDrawing = useChessboardStore(
+        (x) => x.commitCurrentlyDrawing,
+    );
+    const setCurrentlyDrawing = useChessboardStore(
+        (x) => x.setCurrentlyDrawing,
+    );
+    const screenToViewPoint = useChessboardStore((x) => x.screenToViewPoint);
+    const clearArrows = useChessboardStore((x) => x.clearOverlays);
+
+    const startPointRef = useRef<Point | null>(null);
+    const lastPointRef = useRef<Point | null>(null);
+    useBoardInteraction({
+        shouldStartDrag(info) {
+            if (info.button === 2) return true;
+
+            clearArrows();
+            return false;
+        },
+
+        onDragStart(point) {
+            const viewPoint = screenToViewPoint(point);
+            if (!viewPoint) return;
+
+            setCurrentlyDrawing(viewPoint, viewPoint);
+            lastPointRef.current = viewPoint;
+            startPointRef.current = viewPoint;
+        },
+        onDragMove(point) {
+            const viewPoint = screenToViewPoint(point);
+            if (
+                !viewPoint ||
+                !startPointRef.current ||
+                !lastPointRef.current ||
+                pointEquals(viewPoint, lastPointRef.current)
+            )
+                return;
+
+            lastPointRef.current = viewPoint;
+            setCurrentlyDrawing(startPointRef.current, viewPoint);
+        },
+        onDragEnd: () => commitCurrentlyDrawing(),
+    });
 
     function getAdjustedStrokeWidth(base: number, isDrawing: boolean): number {
         return isDrawing ? base * (1 - STROKE_DRAWING_REDUCTION / 100) : base;
@@ -89,7 +133,7 @@ const OverlayRenderer = () => {
             </defs>
 
             <g>
-                {overlays.map((item, i) =>
+                {[...overlays.values()].map((item, i) =>
                     drawOverlay({ item, isDrawing: false, key: i }),
                 )}
                 {currentlyDrawing &&
