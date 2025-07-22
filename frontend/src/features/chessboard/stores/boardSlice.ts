@@ -19,8 +19,13 @@ export interface BoardSlice extends BoardSliceProps {
     boardDimensions: BoardDimensions;
     boardRect?: DOMRect;
 
-    screenToPiecePoint(screenPoint: Point): Point | null;
-    screenToBoardPoint(screenPoint: Point): Point | null;
+    screenToLogicalPoint(screenPoint: Point): Point | undefined;
+    screenToViewPoint(screenPoint: Point): Point | undefined;
+    logicalPointToScreenPoint(logicalPoint: Point): Point | undefined;
+
+    viewPointToLogicalPoint(viewPoint: Point): Point;
+    logicalPointToViewPoint(logicalPoint: Point): Point;
+
     setBoardRect: (rect: DOMRect) => void;
 }
 
@@ -35,25 +40,17 @@ export function createBoardSlice(
     return (set, get) => ({
         ...initState,
 
-        screenToPiecePoint(screenPoint: Point): Point | null {
-            const { screenToBoardPoint, viewingFrom, boardDimensions } = get();
+        screenToLogicalPoint(screenPoint: Point): Point | undefined {
+            const { screenToViewPoint, viewPointToLogicalPoint } = get();
 
-            const boardPoint = screenToBoardPoint(screenPoint);
-            if (!boardPoint) return null;
+            const viewPoint = screenToViewPoint(screenPoint);
+            if (!viewPoint) return;
 
-            if (viewingFrom == GameColor.WHITE) {
-                boardPoint.y = boardDimensions.height - boardPoint.y - 1;
-            } else {
-                boardPoint.x = boardDimensions.width - boardPoint.x - 1;
-            }
-            return boardPoint;
+            return viewPointToLogicalPoint(viewPoint);
         },
-        screenToBoardPoint(screenPoint: Point): Point | null {
+        screenToViewPoint(screenPoint: Point): Point | undefined {
             const { boardDimensions, boardRect } = get();
-            if (!boardRect) {
-                console.warn("Cannot move piece, board rect not set yet");
-                return null;
-            }
+            if (!boardRect) return;
 
             const relX = Math.max(screenPoint.x - boardRect.left, 0);
             const relY = Math.max(screenPoint.y - boardRect.top, 0);
@@ -67,10 +64,59 @@ export function createBoardSlice(
 
             return { x, y };
         },
+        logicalPointToScreenPoint(logicalPoint: Point): Point | undefined {
+            const { logicalPointToViewPoint, boardDimensions, boardRect } =
+                get();
+            if (!boardRect) return;
+
+            const viewPoint = logicalPointToViewPoint(logicalPoint);
+            const screenX =
+                boardRect.left +
+                ((viewPoint.x + 0.5) / boardDimensions.width) * boardRect.width;
+            const screenY =
+                boardRect.top +
+                ((viewPoint.y + 0.5) / boardDimensions.height) *
+                    boardRect.height;
+
+            return { x: screenX, y: screenY };
+        },
+
+        // both perform the same coordinate transformation
+        // we have both for clarity
+        viewPointToLogicalPoint(viewPoint: Point): Point {
+            const { viewingFrom, boardDimensions } = get();
+            return flipPointForPerspective(
+                viewPoint,
+                viewingFrom,
+                boardDimensions,
+            );
+        },
+        logicalPointToViewPoint(logicalPoint: Point): Point {
+            const { viewingFrom, boardDimensions } = get();
+            return flipPointForPerspective(
+                logicalPoint,
+                viewingFrom,
+                boardDimensions,
+            );
+        },
 
         setBoardRect: (rect) =>
             set((state) => {
                 state.boardRect = rect;
             }),
     });
+}
+
+function flipPointForPerspective(
+    point: Point,
+    viewingFrom: GameColor,
+    boardDimensions: BoardDimensions,
+) {
+    let { x, y } = point;
+    if (viewingFrom == GameColor.WHITE) {
+        y = boardDimensions.height - y - 1;
+    } else {
+        x = boardDimensions.width - x - 1;
+    }
+    return { x, y };
 }

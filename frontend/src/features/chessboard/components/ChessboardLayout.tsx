@@ -96,8 +96,8 @@ const ChessboardLayout = ({
         <div
             data-testid="chessboard"
             className={twMerge(
-                `grid-template-rows-10 relative grid cursor-pointer grid-cols-10 rounded-md
-                border-2 border-blue-400 bg-[url(/assets/board.svg)] bg-[length:100%]
+                `grid-template-rows-10 relative grid cursor-pointer touch-none grid-cols-10
+                rounded-md border-2 border-blue-400 bg-[url(/assets/board.svg)] bg-[length:100%]
                 bg-no-repeat`,
                 className,
             )}
