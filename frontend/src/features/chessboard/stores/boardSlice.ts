@@ -4,7 +4,7 @@ import type { ChessboardState } from "./chessboardStore";
 import { GameColor } from "@/lib/apiClient";
 import { Point } from "@/types/tempModels";
 
-interface BoardDimensions {
+export interface BoardDimensions {
     width: number;
     height: number;
 }
