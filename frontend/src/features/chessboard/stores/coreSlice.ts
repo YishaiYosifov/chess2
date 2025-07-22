@@ -24,7 +24,7 @@ export const createCoreSlice: StateCreator<
         set((state) => {
             state.pieces = pieces;
             state.legalMoves = legalMoves;
-            state.selectedPieceId = undefined;
+            state.selectedPieceId = null;
             state.highlightedLegalMoves = [];
         });
     },
@@ -33,7 +33,7 @@ export const createCoreSlice: StateCreator<
         set((state) => {
             state.legalMoves = new Map();
             state.highlightedLegalMoves = [];
-            state.selectedPieceId = undefined;
+            state.selectedPieceId = null;
         });
     },
 });
