@@ -26,37 +26,45 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const moveSelectedPieceToMouse = useChessboardStore(
         (x) => x.moveSelectedPieceToMouse,
     );
-    const offset = useRef<Point | null>(null);
 
+    const offset = useRef<Point | null>(null);
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
+            console.log("should start drag", info);
             if (info.button !== 0) return false;
 
             const piece = screenPointToPiece(info.point);
             if (piece !== id) return false;
 
-            const rect = pieceRef.current?.getBoundingClientRect();
-            if (!rect) return false;
-
-            const offsetX = rect.left + rect.width / 2;
-            const offsetY = rect.top + rect.height / 2;
-            offset.current = { x: offsetX, y: offsetY };
-
             return true;
         },
 
-        onDragStart() {
+        onDragStart(point) {
+            console.log("drag start", point);
             selectPiece(id);
+            const rect = pieceRef.current?.getBoundingClientRect();
+            if (!rect) return;
+
+            // make sure the piece snaps to the cursor
+            const offsetX = rect.left + rect.width / 2;
+            const offsetY = rect.top + rect.height / 2;
+            offset.current = { x: offsetX, y: offsetY };
         },
         onDragMove(point) {
+            console.log("drag move", point);
             if (!offset.current) return;
 
             const x = point.x - offset.current.x;
             const y = point.y - offset.current.y;
             pieceRef.current?.updateDraggingOffset(x, y);
         },
-        async onInteractionEnd(info) {
-            console.log(info, isSelected);
+        async onDragEnd(point) {
+            console.log("drag end", point);
+            const didMove = await moveSelectedPieceToMouse(point);
+            if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
+        },
+        async onClick(info) {
+            console.log("click", info);
             if (!isSelected) return;
 
             const didMove = await moveSelectedPieceToMouse(info.point);

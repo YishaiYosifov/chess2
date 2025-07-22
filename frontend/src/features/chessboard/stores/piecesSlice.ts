@@ -11,8 +11,7 @@ export interface PieceSliceProps {
 export interface PiecesSlice {
     pieces: PieceMap;
     animatingPieces: Set<PieceID>;
-    selectedPieceId?: PieceID;
-    draggingPieceId?: PieceID;
+    selectedPieceId: PieceID | null;
 
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
@@ -38,6 +37,7 @@ export function createPiecesSlice(
     return (set, get) => ({
         ...initState,
 
+        selectedPieceId: null,
         animatingPieces: new Set(),
 
         selectPiece(piece: PieceID): void {
@@ -46,7 +46,6 @@ export function createPiecesSlice(
             showLegalMoves(piece);
             set((state) => {
                 state.selectedPieceId = piece;
-                state.draggingPieceId = piece;
             });
         },
 
@@ -140,7 +139,7 @@ export function createPiecesSlice(
             set((state) => {
                 state.legalMoves = new Map();
                 state.highlightedLegalMoves = [];
-                state.selectedPieceId = undefined;
+                state.selectedPieceId = null;
             });
             return true;
         },
@@ -154,15 +153,15 @@ export function createPiecesSlice(
          * @param mouseY - The y-coordinate of the mouse event relative to the viewport.
          */
         async moveSelectedPieceToMouse(mousePoint: Point): Promise<boolean> {
-            const { moveSelectedPiece, screenToPiecePoint } = get();
+            const { moveSelectedPiece, screenToLogicalPoint } = get();
 
-            const piecePoint = screenToPiecePoint({
+            const logicalPoint = screenToLogicalPoint({
                 x: mousePoint.x,
                 y: mousePoint.y,
             });
-            if (!piecePoint) return false;
+            if (!logicalPoint) return false;
 
-            const didMove = await moveSelectedPiece(piecePoint);
+            const didMove = await moveSelectedPiece(logicalPoint);
             return didMove;
         },
 
@@ -201,12 +200,12 @@ export function createPiecesSlice(
         },
 
         screenPointToPiece(point: Point): PieceID | undefined {
-            const { screenToPiecePoint, pointToPiece } = get();
+            const { screenToLogicalPoint, pointToPiece } = get();
 
-            const piecePoint = screenToPiecePoint(point);
-            if (!piecePoint) return;
+            const logicalPoint = screenToLogicalPoint(point);
+            if (!logicalPoint) return;
 
-            return pointToPiece(piecePoint);
+            return pointToPiece(logicalPoint);
         },
     });
 }

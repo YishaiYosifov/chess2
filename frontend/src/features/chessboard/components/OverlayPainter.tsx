@@ -12,7 +12,7 @@ const OverlayPainter = () => {
     const setCurrentlyDrawing = useChessboardStore(
         (x) => x.setCurrentlyDrawing,
     );
-    const screenToBoardPoint = useChessboardStore((x) => x.screenToBoardPoint);
+    const screenToViewPoint = useChessboardStore((x) => x.screenToViewPoint);
     const clearArrows = useChessboardStore((x) => x.clearOverlays);
 
     function handleMouseDown(event: React.MouseEvent) {
@@ -21,7 +21,7 @@ const OverlayPainter = () => {
             return;
         }
 
-        const startPoint = screenToBoardPoint({
+        const startPoint = screenToViewPoint({
             x: event.clientX,
             y: event.clientY,
         });
@@ -31,7 +31,7 @@ const OverlayPainter = () => {
 
         let lastSquare: Point = startPoint;
         function handleMove(event: MouseEvent | ReactMouseEvent) {
-            const movePoint = screenToBoardPoint({
+            const movePoint = screenToViewPoint({
                 x: event.clientX,
                 y: event.clientY,
             });

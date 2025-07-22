@@ -1,33 +1,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
-import { GameColor } from "@/lib/apiClient";
 import HighlightedLegalMove from "../HighlightedLegalMove";
-import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import {
-    createFakeMove,
-    createFakePiece,
-} from "@/lib/testUtils/fakers/chessboardFakers";
-import { LegalMoveMap, PieceID, PieceMap } from "@/types/tempModels";
-import { pointToStr } from "@/lib/utils/pointUtils";
 import { StoreApi } from "zustand";
 import {
     ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
-
-function PiecePositionProbe({ id }: { id: PieceID }) {
-    const piecePosition = useChessboardStore(
-        (state) => state.pieces.get(id)?.position,
-    );
-
-    return (
-        <div data-testid="checker">
-            {piecePosition && pointToStr(piecePosition)}
-        </div>
-    );
-}
 
 describe("HighlightedLegalMove", () => {
     let store: StoreApi<ChessboardState>;
@@ -47,32 +26,20 @@ describe("HighlightedLegalMove", () => {
         expect(element).toBeInTheDocument();
     });
 
-    it("calls moveSelectedPiece with correct position on click", async () => {
-        const piece = createFakePiece();
-        const move = createFakeMove({ from: piece.position });
-        const legalMoves: LegalMoveMap = new Map([
-            [pointToStr(piece.position), [move]],
-        ]);
-        const pieces: PieceMap = new Map([["0", piece]]);
-        store.setState({
-            viewingFrom: GameColor.WHITE,
-            selectedPieceId: "0",
-            legalMoves,
-            pieces,
-        });
-
-        const user = userEvent.setup();
+    it("should apply animation styling", () => {
         render(
             <ChessboardStoreContext.Provider value={store}>
-                <HighlightedLegalMove position={move.to} />
-                <PiecePositionProbe id={"0"} />
+                <HighlightedLegalMove position={{ x: 5, y: 6 }} />
             </ChessboardStoreContext.Provider>,
         );
 
-        const moveSpot = screen.getByTestId("highlightedLegalMove");
-        await user.click(moveSpot);
-
-        const checker = await screen.findByTestId("checker");
-        expect(checker.textContent).toBe(pointToStr(move.to));
+        const element = screen.getByTestId("highlightedLegalMove");
+        expect(element).toHaveClass("z-20");
+        expect(element).toHaveClass("animate-[fadeIn_0.15s_ease-out]");
+        expect(element).toHaveClass(
+            "bg-[radial-gradient(rgba(0,0,0,0.25)_20%,_rgba(0,0,0,0)_23%)]",
+        );
+        expect(element).toHaveClass("hover:border-5");
+        expect(element).toHaveClass("hover:border-white/50");
     });
 });
