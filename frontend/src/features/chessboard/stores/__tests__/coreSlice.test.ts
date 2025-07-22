@@ -39,7 +39,7 @@ describe("CoreSlice", () => {
             expect(state).toMatchObject({
                 pieces,
                 legalMoves,
-                selectedPieceId: undefined,
+                selectedPieceId: null,
                 highlightedLegalMoves: [],
             });
         });
