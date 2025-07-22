@@ -1,6 +1,7 @@
 import { StateCreator } from "zustand";
 import type { ChessboardState } from "./chessboardStore";
 import { Point } from "@/types/tempModels";
+import { pointToStr } from "@/lib/utils/pointUtils";
 
 export interface OverlayItem {
     from: Point;
@@ -9,10 +10,8 @@ export interface OverlayItem {
 }
 
 export interface OverlaySlice {
-    overlays: OverlayItem[];
-    currentlyDrawing?: OverlayItem;
-
-    addOverlay: (from: Point, to: Point) => void;
+    overlays: Map<string, OverlayItem>;
+    currentlyDrawing: OverlayItem | null;
 
     setCurrentlyDrawing: (from: Point, to: Point) => void;
     commitCurrentlyDrawing: () => void;
@@ -26,30 +25,35 @@ export const createOverlaySlice: StateCreator<
     [],
     OverlaySlice
 > = (set, get) => ({
-    overlays: [],
-
-    addOverlay: (from, to) =>
-        set((state) => {
-            state.overlays.push({ from, to });
-        }),
+    overlays: new Map(),
+    currentlyDrawing: null,
 
     setCurrentlyDrawing: (from, to) =>
         set((state) => {
             state.currentlyDrawing = { from, to };
         }),
     commitCurrentlyDrawing() {
-        const { currentlyDrawing } = get();
+        const { currentlyDrawing, overlays } = get();
         if (!currentlyDrawing) return;
 
+        const id = `${pointToStr(currentlyDrawing.from)}-${pointToStr(currentlyDrawing.to)}`;
+        if (overlays.has(id)) {
+            set((state) => {
+                state.currentlyDrawing = null;
+                state.overlays.delete(id);
+            });
+            return;
+        }
+
         set((state) => {
-            state.overlays.push(currentlyDrawing);
-            state.currentlyDrawing = undefined;
+            state.overlays.set(id, currentlyDrawing);
+            state.currentlyDrawing = null;
         });
     },
 
     clearOverlays: () =>
         set((state) => {
-            state.overlays = [];
-            state.currentlyDrawing = undefined;
+            state.overlays = new Map();
+            state.currentlyDrawing = null;
         }),
 });
