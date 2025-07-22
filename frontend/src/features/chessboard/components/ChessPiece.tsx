@@ -30,7 +30,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const offset = useRef<Point | null>(null);
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
-            console.log("should start drag", info);
             if (info.button !== 0) return false;
 
             const piece = screenPointToPiece(info.point);
@@ -39,8 +38,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             return true;
         },
 
-        onDragStart(point) {
-            console.log("drag start", point);
+        onDragStart() {
             selectPiece(id);
             const rect = pieceRef.current?.getBoundingClientRect();
             if (!rect) return;
@@ -51,7 +49,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             offset.current = { x: offsetX, y: offsetY };
         },
         onDragMove(point) {
-            console.log("drag move", point);
             if (!offset.current) return;
 
             const x = point.x - offset.current.x;
@@ -59,12 +56,10 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             pieceRef.current?.updateDraggingOffset(x, y);
         },
         async onDragEnd(point) {
-            console.log("drag end", point);
             const didMove = await moveSelectedPieceToMouse(point);
             if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
         },
         async onClick(info) {
-            console.log("click", info);
             if (!isSelected) return;
 
             const didMove = await moveSelectedPieceToMouse(info.point);
