@@ -36,7 +36,8 @@ public class EnPassantRuleTests
             from: origin,
             to: destination,
             piece: piece,
-            capturedSquares: [enemyDestination]
+            capturedSquares: [enemyDestination],
+            forcedPriority: ForcedMovePriority.EnPassant
         );
 
         result.Should().ContainSingle().Which.Should().BeEquivalentTo(expected);

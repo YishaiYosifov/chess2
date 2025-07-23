@@ -171,7 +171,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
                 .From("e7", movedWhitePawn)
                 .WithPieceAt("d9", movedBlackPawn)
                 .WithPriorMove(new Move(new("d9"), new("d7"), movedBlackPawn))
-                .GoesTo("d8", captures: ["d7"])
+                .GoesTo("d8", captures: ["d7"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("e8")
                 .WithDescription("white pawn can capture en passant")
         );
@@ -181,7 +181,7 @@ public class PawnDefinitionTestData : TheoryData<PieceTestCase>
                 .From("e4", movedBlackPawn)
                 .WithPieceAt("f2", movedWhitePawn)
                 .WithPriorMove(new Move(new("f2"), new("f4"), movedWhitePawn))
-                .GoesTo("f3", captures: ["f4"])
+                .GoesTo("f3", captures: ["f4"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("e3")
                 .WithDescription("black pawn can capture en passant")
         );

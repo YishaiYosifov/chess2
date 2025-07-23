@@ -36,6 +36,7 @@ public class GameStateFaker : RecordFaker<GameState>
                 return new MovePathFaker().Generate(count);
             }
         );
+        RuleFor(x => x.HasForcedMoves, f => f.Random.Bool());
         RuleFor(x => x.MoveHistory, f => new MoveSnapshotFaker().Generate(f.Random.Number(1, 6)));
         RuleFor(x => x.ResultData, (GameResultData?)null);
     }
