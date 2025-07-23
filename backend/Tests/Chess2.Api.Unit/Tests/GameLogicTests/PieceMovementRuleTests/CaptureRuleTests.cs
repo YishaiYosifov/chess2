@@ -15,7 +15,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        var behaviour = new CaptureRule(MockMovement);
+        CaptureRule behaviour = new(MockMovement);
 
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
@@ -32,15 +32,15 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var enemy = PieceFactory.Black();
         board.PlacePiece(new("b2"), enemy); // capture target
 
-        var behaviour = new CaptureRule(MockMovement);
+        CaptureRule behaviour = new(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new Move[]
-        {
+        Move[] expected =
+        [
             new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
             new(Origin, new("c3"), piece),
             new(Origin, new("d4"), piece),
-        };
+        ];
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -48,16 +48,16 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
     [Fact]
     public void Evaluate_ignores_moves_to_friendly_pieces()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
         board.PlacePiece(new("c3"), PieceFactory.White()); // friendly block
 
-        var behaviour = new CaptureRule(MockMovement);
+        CaptureRule behaviour = new(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new Move[] { new(Origin, new("b2"), piece), new(Origin, new("d4"), piece) };
+        Move[] expected = [new(Origin, new("b2"), piece), new(Origin, new("d4"), piece)];
 
         result.Should().BeEquivalentTo(expected);
     }
@@ -65,22 +65,45 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
     [Fact]
     public void Evaluate_handles_mixed_targets_correctly()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
         board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
         board.PlacePiece(new("c3"), PieceFactory.White()); // ally
 
-        var behaviour = new CaptureRule(MockMovement);
+        CaptureRule behaviour = new(MockMovement);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new Move[]
-        {
+        Move[] expected =
+        [
             new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
             new(Origin, new("d4"), piece),
-        };
+        ];
 
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void Evaluate_allows_friendly_fire_only_for_specified_piece()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.White();
+        var friendlyAllowed = PieceFactory.White(PieceType.Horsey);
+        var friendlyBlocked = PieceFactory.White(PieceType.Rook);
+
+        board.PlacePiece(Origin, piece);
+        board.PlacePiece(new("b2"), friendlyAllowed);
+        board.PlacePiece(new("c3"), friendlyBlocked);
+
+        CaptureRule rule = new(MockMovement, (board, piece) => piece.Type == friendlyAllowed.Type);
+        var result = rule.Evaluate(board, Origin, piece).ToList();
+
+        Move[] expected =
+        [
+            new Move(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
+            new Move(Origin, new("d4"), piece),
+        ];
         result.Should().BeEquivalentTo(expected);
     }
 }

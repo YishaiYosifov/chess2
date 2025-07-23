@@ -20,12 +20,12 @@ public static class GameConstants
 
         [new AlgebraicPoint("a2")] = new Piece(PieceType.Pawn, GameColor.White),
         [new AlgebraicPoint("b2")] = new Piece(PieceType.Pawn, GameColor.White),
-        //[new AlgebraicPoint("c2")] = new Piece(PieceType.ChildPawn, GameColor.White),
-        [new AlgebraicPoint("d2")] = new Piece(PieceType.Pawn, GameColor.White),
+        [new AlgebraicPoint("c2")] = new Piece(PieceType.Pawn, GameColor.White),
+        [new AlgebraicPoint("d2")] = new Piece(PieceType.ChildPawn, GameColor.White),
         [new AlgebraicPoint("e2")] = new Piece(PieceType.Pawn, GameColor.White),
         [new AlgebraicPoint("f2")] = new Piece(PieceType.Pawn, GameColor.White),
-        [new AlgebraicPoint("g2")] = new Piece(PieceType.Pawn, GameColor.White),
-        //[new AlgebraicPoint("g2")] = new Piece(PieceType.ChildPawn, GameColor.White),
+        [new AlgebraicPoint("g2")] = new Piece(PieceType.ChildPawn, GameColor.White),
+        [new AlgebraicPoint("h2")] = new Piece(PieceType.Pawn, GameColor.White),
         [new AlgebraicPoint("i2")] = new Piece(PieceType.Pawn, GameColor.White),
         [new AlgebraicPoint("j2")] = new Piece(PieceType.Pawn, GameColor.White),
         #endregion
@@ -33,12 +33,12 @@ public static class GameConstants
         #region Black Pieces
         [new AlgebraicPoint("a9")] = new Piece(PieceType.Pawn, GameColor.Black),
         [new AlgebraicPoint("b9")] = new Piece(PieceType.Pawn, GameColor.Black),
-        //[new AlgebraicPoint("c9")] = new Piece(PieceType.ChildPawn, GameColor.Black),
-        [new AlgebraicPoint("d9")] = new Piece(PieceType.Pawn, GameColor.Black),
+        [new AlgebraicPoint("c9")] = new Piece(PieceType.Pawn, GameColor.Black),
+        [new AlgebraicPoint("d9")] = new Piece(PieceType.ChildPawn, GameColor.Black),
         [new AlgebraicPoint("e9")] = new Piece(PieceType.Pawn, GameColor.Black),
         [new AlgebraicPoint("f9")] = new Piece(PieceType.Pawn, GameColor.Black),
-        [new AlgebraicPoint("g9")] = new Piece(PieceType.Pawn, GameColor.Black),
-        //[new AlgebraicPoint("h9")] = new Piece(PieceType.ChildPawn, GameColor.Black),
+        [new AlgebraicPoint("g9")] = new Piece(PieceType.ChildPawn, GameColor.Black),
+        [new AlgebraicPoint("h9")] = new Piece(PieceType.Pawn, GameColor.Black),
         [new AlgebraicPoint("i9")] = new Piece(PieceType.Pawn, GameColor.Black),
         [new AlgebraicPoint("j9")] = new Piece(PieceType.Pawn, GameColor.Black),
 

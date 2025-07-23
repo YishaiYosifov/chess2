@@ -14,6 +14,7 @@ public class PieceToLetter : IPieceToLetter
         [PieceType.King] = "k",
         [PieceType.Queen] = "q",
         [PieceType.Pawn] = "p",
+        [PieceType.ChildPawn] = "d",
         [PieceType.Rook] = "r",
         [PieceType.Bishop] = "b",
         [PieceType.Horsey] = "h",
