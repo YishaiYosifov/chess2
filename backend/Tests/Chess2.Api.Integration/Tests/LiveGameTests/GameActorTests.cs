@@ -355,7 +355,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     }
 
     private Move GetLegalMoveFor(GamePlayer player) =>
-        _gameCore.GetLegalMovesFor(player.Color).Moves.First().Value;
+        _gameCore.GetLegalMovesFor(player.Color).MovesMap.First().Value;
 
     private async Task<Move> MakeLegalMoveAsync(GamePlayer player, Move? move = null)
     {

@@ -190,6 +190,7 @@ public class GameActor : ReceiveActor, IWithTimers
         if (moveResult.EndStatus is not null)
             await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
 
+        var legalMoves = _core.GetLegalMovesFor(_core.SideToMove);
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
         await _gameNotifier.NotifyMoveMadeAsync(
             gameToken: _token,
@@ -198,7 +199,8 @@ public class GameActor : ReceiveActor, IWithTimers
             clocks: _clock.Value,
             sideToMove: _core.SideToMove,
             sideToMoveUserId: nextPlayer.UserId,
-            encodedLegalMoves: _core.GetLegalMovesFor(_core.SideToMove).EncodedMoves
+            encodedLegalMoves: legalMoves.EncodedMoves,
+            hasForcedMoves: legalMoves.HasForcedMoves
         );
         Sender.Tell(new GameEvents.PieceMoved());
     }
@@ -248,6 +250,7 @@ public class GameActor : ReceiveActor, IWithTimers
             SideToMove: _core.SideToMove,
             Fen: _core.Fen,
             LegalMoves: legalMoves.MovePaths,
+            HasForcedMoves: legalMoves.HasForcedMoves,
             MoveHistory: _historyTracker.MoveHistory,
             ResultData: _result
         );
