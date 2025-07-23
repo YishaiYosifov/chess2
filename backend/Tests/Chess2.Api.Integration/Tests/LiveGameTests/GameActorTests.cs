@@ -27,7 +27,6 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
     private readonly IGameResultDescriber _gameResultDescriber;
     private readonly ISanCalculator _sanCalculator;
-    private readonly IMoveEncoder _moveEncoder;
     private readonly IGameCore _gameCore;
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
@@ -45,7 +44,6 @@ public class GameActorTests : BaseAkkaIntegrationTest
         : base(factory)
     {
         _sanCalculator = ApiTestBase.Scope.ServiceProvider.GetRequiredService<ISanCalculator>();
-        _moveEncoder = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IMoveEncoder>();
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
