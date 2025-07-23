@@ -157,7 +157,7 @@ export function createPiecesSlice(
          */
         async handleMousePieceDrop({ mousePoint, isDrag }): Promise<boolean> {
             const {
-                tryApplySelectedMove: moveSelectedPiece,
+                tryApplySelectedMove,
                 screenToLogicalPoint,
                 hasForcedMoves,
                 flashLegalMoves,
@@ -169,7 +169,7 @@ export function createPiecesSlice(
             });
             if (!logicalPoint) return false;
 
-            const didMove = await moveSelectedPiece(logicalPoint);
+            const didMove = await tryApplySelectedMove(logicalPoint);
             if (isDrag && !didMove && hasForcedMoves) flashLegalMoves();
 
             return didMove;

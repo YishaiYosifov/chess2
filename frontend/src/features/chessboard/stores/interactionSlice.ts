@@ -1,9 +1,10 @@
 import { StateCreator } from "zustand";
+import { enableMapSet } from "immer";
+import React from "react";
 
 import type { ChessboardState } from "./chessboardStore";
 import { Point } from "@/types/tempModels";
-import React from "react";
-import { enableMapSet } from "immer";
+import { EventBus } from "@/lib/eventBus";
 
 export interface InteractionInfo {
     point: Point;
@@ -13,16 +14,14 @@ export interface InteractionInfo {
 export interface InteractionSlice {
     interaction: InteractionInfo | null;
 
-    onPointerDownListeners: Set<(info: InteractionInfo) => void>;
-    subscribePointerDown(handler: (info: InteractionInfo) => void): void;
-    unsubscribePointerDown(handler: (info: InteractionInfo) => void): void;
+    pointerDownEvent: EventBus<[InteractionInfo], void>;
+    dragStartQuery: EventBus<[InteractionInfo], boolean>;
+    pointerUpEvent: EventBus<[InteractionInfo], void>;
 
-    onPointerUpListeners: Set<(info: InteractionInfo) => void>;
-    subscribePointerUp(handler: (info: InteractionInfo) => void): void;
-    unsubscribePointerUp(handler: (info: InteractionInfo) => void): void;
+    onPointerDown(event: React.MouseEvent): Promise<void>;
+    onPointerUp(event: React.MouseEvent): Promise<void>;
 
-    onPointerDown(event: React.MouseEvent): void;
-    onPointerUp(event: React.MouseEvent): void;
+    evaluateDragStart(info: InteractionInfo): Promise<void>;
 }
 
 enableMapSet();
@@ -34,31 +33,11 @@ export const createInteractionSlice: StateCreator<
 > = (set, get) => ({
     interaction: null,
 
-    onPointerDownListeners: new Set(),
-    subscribePointerDown(handler) {
-        set((state) => {
-            state.onPointerDownListeners.add(handler);
-        });
-    },
-    unsubscribePointerDown(handler) {
-        set((state) => {
-            state.onPointerDownListeners.delete(handler);
-        });
-    },
+    pointerDownEvent: new EventBus(),
+    dragStartQuery: new EventBus(),
+    pointerUpEvent: new EventBus(),
 
-    onPointerUpListeners: new Set(),
-    subscribePointerUp(handler) {
-        set((state) => {
-            state.onPointerUpListeners.add(handler);
-        });
-    },
-    unsubscribePointerUp(handler) {
-        set((state) => {
-            state.onPointerUpListeners.delete(handler);
-        });
-    },
-
-    onPointerDown(event: React.MouseEvent): void {
+    async onPointerDown(event: React.MouseEvent): Promise<void> {
         const info: InteractionInfo = {
             point: {
                 x: event.clientX,
@@ -70,13 +49,12 @@ export const createInteractionSlice: StateCreator<
             store.interaction = info;
         });
 
-        const { onPointerDownListeners } = get();
-        for (const listener of onPointerDownListeners) {
-            listener(info);
-        }
+        const { pointerDownEvent, evaluateDragStart } = get();
+        await pointerDownEvent.emit(info);
+        await evaluateDragStart(info);
     },
 
-    onPointerUp(event: React.MouseEvent) {
+    async onPointerUp(event: React.MouseEvent) {
         set((store) => {
             store.interaction = null;
         });
@@ -89,9 +67,12 @@ export const createInteractionSlice: StateCreator<
             button: event.button,
         };
 
-        const { onPointerUpListeners } = get();
-        for (const listener of onPointerUpListeners) {
-            listener(info);
-        }
+        const { pointerUpEvent } = get();
+        pointerUpEvent.emit(info);
+    },
+
+    async evaluateDragStart(info) {
+        const { dragStartQuery } = get();
+        await dragStartQuery.emitUntilTruthy(info);
     },
 });

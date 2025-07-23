@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { InteractionInfo } from "../stores/interactionSlice";
-import { Point } from "@/types/tempModels";
+import { MaybePromise, Point } from "@/types/tempModels";
 import { useChessboardStore } from "./useChessboard";
 
 export default function useBoardInteraction({
@@ -13,16 +13,17 @@ export default function useBoardInteraction({
     onPress,
     onClick,
 }: {
-    shouldStartDrag: (info: InteractionInfo) => boolean;
+    shouldStartDrag: (info: InteractionInfo) => MaybePromise<boolean>;
 
-    onDragStart?: (point: Point) => void;
-    onDragMove?: (point: Point) => void;
-    onDragEnd?: (point: Point) => void;
+    onDragStart?: (point: Point) => MaybePromise<void>;
+    onDragMove?: (point: Point) => MaybePromise<void>;
+    onDragEnd?: (point: Point) => MaybePromise<void>;
 
-    onPress?: (info: InteractionInfo) => void;
-    onClick?: (info: InteractionInfo) => void;
+    onPress?: (info: InteractionInfo) => MaybePromise<void>;
+    onClick?: (info: InteractionInfo) => MaybePromise<void>;
 }): boolean {
     const callbacksRef = useRef({
+        shouldStartDrag,
         onDragStart,
         onDragMove,
         onDragEnd,
@@ -32,43 +33,37 @@ export default function useBoardInteraction({
 
     useEffect(() => {
         callbacksRef.current = {
+            shouldStartDrag,
             onDragStart,
             onDragMove,
             onDragEnd,
             onPress,
             onClick,
         };
-    }, [onDragStart, onDragMove, onDragEnd, onPress, onClick]);
+    }, [shouldStartDrag, onDragStart, onDragMove, onDragEnd, onPress, onClick]);
 
     const [isDragging, setIsDragging] = useState(false);
 
     const isDraggingRef = useRef(false);
     const hasHandledPointerUpRef = useRef(false);
 
-    const subscribePointerDown = useChessboardStore(
-        (x) => x.subscribePointerDown,
-    );
-    const unsubscribePointerDown = useChessboardStore(
-        (x) => x.unsubscribePointerDown,
-    );
-    const subscribePointerUp = useChessboardStore((x) => x.subscribePointerUp);
-    const unsubscribePointerUp = useChessboardStore(
-        (x) => x.unsubscribePointerUp,
-    );
+    const pointerDownEvent = useChessboardStore((x) => x.pointerDownEvent);
+    const dragStartQuery = useChessboardStore((x) => x.dragStartQuery);
+    const pointerUpEvent = useChessboardStore((x) => x.pointerUpEvent);
 
-    const startDragging = useCallback((startFrom: Point) => {
+    const startDragging = useCallback(async (startFrom: Point) => {
         setIsDragging(true);
-        callbacksRef?.current.onDragStart?.(startFrom);
+        await callbacksRef.current.onDragStart?.(startFrom);
         isDraggingRef.current = true;
 
         let animationFrameId: number | null = null;
         let lastMouseX = startFrom.x;
         let lastMouseY = startFrom.y;
 
-        function emitDrag(): void {
+        async function emitDrag(): Promise<void> {
             if (!isDraggingRef.current) return;
 
-            callbacksRef?.current.onDragMove?.({
+            await callbacksRef.current.onDragMove?.({
                 x: lastMouseX,
                 y: lastMouseY,
             });
@@ -87,7 +82,7 @@ export default function useBoardInteraction({
         async function stopDragging(event: PointerEvent) {
             if (hasHandledPointerUpRef.current) return;
 
-            callbacksRef?.current.onDragEnd?.({
+            await callbacksRef.current.onDragEnd?.({
                 x: event.clientX,
                 y: event.clientY,
             });
@@ -101,37 +96,44 @@ export default function useBoardInteraction({
 
         window.addEventListener("pointermove", handleMove);
         window.addEventListener("pointerup", stopDragging);
-        emitDrag();
+        await emitDrag();
     }, []);
 
     useEffect(() => {
-        function handler(info: InteractionInfo) {
+        async function pointerDownHandler(
+            info: InteractionInfo,
+        ): Promise<void> {
             hasHandledPointerUpRef.current = false;
-
-            if (shouldStartDrag(info)) startDragging(info.point);
-            callbacksRef?.current.onPress?.(info);
+            await callbacksRef.current.onPress?.(info);
         }
 
-        subscribePointerDown(handler);
-        return () => unsubscribePointerDown(handler);
-    }, [
-        subscribePointerDown,
-        unsubscribePointerDown,
-        shouldStartDrag,
-        startDragging,
-    ]);
+        async function shouldStartDragHandler(
+            info: InteractionInfo,
+        ): Promise<boolean> {
+            const shouldStart =
+                await callbacksRef.current?.shouldStartDrag(info);
+            if (shouldStart) await startDragging(info.point);
 
-    useEffect(() => {
-        async function handler(info: InteractionInfo): Promise<void> {
+            return shouldStart;
+        }
+
+        async function pointerUpHandler(info: InteractionInfo): Promise<void> {
             if (isDraggingRef.current || hasHandledPointerUpRef.current) return;
 
-            callbacksRef?.current.onClick?.(info);
+            await callbacksRef.current.onClick?.(info);
             hasHandledPointerUpRef.current = true;
         }
 
-        subscribePointerUp(handler);
-        return () => unsubscribePointerUp(handler);
-    }, [subscribePointerUp, unsubscribePointerUp]);
+        pointerDownEvent.subscribe(pointerDownHandler);
+        dragStartQuery.subscribe(shouldStartDragHandler);
+        pointerUpEvent.subscribe(pointerUpHandler);
+
+        return () => {
+            pointerDownEvent.unsubscribe(pointerDownHandler);
+            dragStartQuery.unsubscribe(shouldStartDragHandler);
+            pointerUpEvent.unsubscribe(pointerUpHandler);
+        };
+    }, [pointerUpEvent, dragStartQuery, pointerDownEvent, startDragging]);
 
     return isDragging;
 }
