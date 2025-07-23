@@ -10,7 +10,6 @@ using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
-using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using ErrorOr;
@@ -184,7 +183,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync();
         _stopwatchMock.Elapsed.Returns(TimeSpan.FromSeconds(2));
 
-        var move = GetLegalMoveFor(_whitePlayer);
+        var move = await MakeLegalMoveAsync(_whitePlayer);
+
         var expectedTimeLeft =
             _timeControl.BaseSeconds * 1000
             + _timeControl.IncrementSeconds * 1000 // add increment
@@ -203,9 +203,6 @@ public class GameActorTests : BaseAkkaIntegrationTest
             BlackClock: _timeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
-
-        await MakeLegalMoveAsync(_whitePlayer, move);
-
         var legalMoves = _gameCore.GetLegalMovesFor(GameColor.Black);
         await _gameNotifierMock
             .Received(1)
@@ -249,21 +246,59 @@ public class GameActorTests : BaseAkkaIntegrationTest
     public async Task MovePiece_that_results_in_draw_ends_the_game()
     {
         await StartGameAsync();
-        var whiteMove1 = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var whiteMove2 = new Move(new("c3"), new("b1"), PieceFactory.White(PieceType.Horsey));
-        var blackMove1 = new Move(new("b10"), new("c8"), PieceFactory.Black(PieceType.Horsey));
-        var blackMove2 = new Move(new("c8"), new("b10"), PieceFactory.Black(PieceType.Horsey));
+        var whiteMove1 = (from: new AlgebraicPoint("b1"), to: new AlgebraicPoint("c3"));
+        var whiteMove2 = (from: new AlgebraicPoint("c3"), to: new AlgebraicPoint("b1"));
+        var blackMove1 = (from: new AlgebraicPoint("b10"), to: new AlgebraicPoint("c8"));
+        var blackMove2 = (from: new AlgebraicPoint("c8"), to: new AlgebraicPoint("b10"));
 
         for (int i = 0; i < 4; i++)
         {
-            var whiteMove = i % 2 == 0 ? whiteMove1 : whiteMove2;
-            var blackMove = i % 2 == 0 ? blackMove1 : blackMove2;
+            var (whiteFrom, whiteTo) = i % 2 == 0 ? whiteMove1 : whiteMove2;
+            var (blackFrom, blackTo) = i % 2 == 0 ? blackMove1 : blackMove2;
 
-            await MakeLegalMoveAsync(_whitePlayer, whiteMove);
-            await MakeLegalMoveAsync(_blackPlayer, blackMove);
+            await MakeLegalMoveAsync(_whitePlayer, whiteFrom, whiteTo);
+            await MakeLegalMoveAsync(_blackPlayer, blackFrom, blackTo);
         }
 
         await TestGameEndedAsync(_gameResultDescriber.ThreeFold());
+    }
+
+    [Fact]
+    public async Task MovePiece_handles_forced_moves()
+    {
+        await StartGameAsync();
+
+        // move the f pawn to e6, and then move the e pawn to e6
+        // which creates a position with en passant
+        await MakeLegalMoveAsync(_whitePlayer, new("f2"), new("f5"));
+        await MakeLegalMoveAsync(_blackPlayer, new("f9"), new("f8"));
+        await MakeLegalMoveAsync(_whitePlayer, new("f5"), new("f6"));
+
+        _gameNotifierMock.ClearReceivedCalls();
+        await MakeLegalMoveAsync(_blackPlayer, new("e9"), new("e6"));
+
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyMoveMadeAsync(
+                Arg.Any<string>(),
+                Arg.Any<MoveSnapshot>(),
+                Arg.Any<int>(),
+                Arg.Any<ClockSnapshot>(),
+                Arg.Any<GameColor>(),
+                Arg.Any<string>(),
+                Arg.Any<byte[]>(),
+                hasForcedMoves: true
+            );
+
+        _gameActor.Tell(
+            new GameQueries.GetGameState(TestGameToken, ForUserId: _whitePlayer.UserId),
+            _probe
+        );
+        var stateEvent = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
+            cancellationToken: ApiTestBase.CT
+        );
+        stateEvent.State.HasForcedMoves.Should().BeTrue();
+        stateEvent.State.LegalMoves.Should().HaveCount(1);
     }
 
     [Fact]
@@ -359,20 +394,21 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private Move GetLegalMoveFor(GamePlayer player) =>
         _gameCore.GetLegalMovesFor(player.Color).MovesMap.First().Value;
 
-    private async Task<Move> MakeLegalMoveAsync(GamePlayer player, Move? move = null)
+    private async Task<Move> MakeLegalMoveAsync(GamePlayer player)
     {
-        move ??= GetLegalMoveFor(player);
-        _gameActor.Tell(
-            new GameCommands.MovePiece(TestGameToken, player.UserId, move.From, move.To),
-            _probe
-        );
+        var move = GetLegalMoveFor(player);
+        await MakeLegalMoveAsync(player, move.From, move.To);
+        return move;
+    }
+
+    private async Task MakeLegalMoveAsync(GamePlayer player, AlgebraicPoint from, AlgebraicPoint to)
+    {
+        _gameActor.Tell(new GameCommands.MovePiece(TestGameToken, player.UserId, from, to), _probe);
 
         await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
             cancellationToken: ApiTestBase.CT,
             duration: TimeSpan.FromHours(10)
         );
-
-        return move;
     }
 
     private async Task StartGameAsync(
