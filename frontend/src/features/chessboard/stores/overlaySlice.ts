@@ -14,6 +14,7 @@ export interface OverlayItem {
 export interface OverlaySlice {
     overlays: Map<OverlayItemId, OverlayItem>;
     currentlyDrawing: OverlayItem | null;
+    flashing: Set<OverlayItemId>;
 
     toggleOverlay(overlay: OverlayItem): void;
     addOverlay(overlay: OverlayItem): void;
@@ -24,6 +25,8 @@ export interface OverlaySlice {
 
     getOverlayId(from: Point, to: Point): OverlayItemId;
     clearOverlays(): void;
+
+    flashOverlay(overlay: OverlayItem, amount?: number): void;
 }
 
 export const createOverlaySlice: StateCreator<
@@ -34,6 +37,7 @@ export const createOverlaySlice: StateCreator<
 > = (set, get) => ({
     overlays: new Map(),
     currentlyDrawing: null,
+    flashing: new Set(),
 
     toggleOverlay(overlay) {
         const { getOverlayId, overlays, addOverlay, removeOverlay } = get();
@@ -77,4 +81,24 @@ export const createOverlaySlice: StateCreator<
             state.overlays = new Map();
             state.currentlyDrawing = null;
         }),
+
+    flashOverlay(overlay) {
+        const { addOverlay, removeOverlay, getOverlayId, flashing } = get();
+
+        const id = getOverlayId(overlay.from, overlay.to);
+        if (flashing.has(id)) return;
+
+        set((state) => {
+            state.flashing.add(id);
+        });
+
+        addOverlay(overlay);
+        setTimeout(() => {
+            removeOverlay(id);
+
+            set((state) => {
+                state.flashing.delete(id);
+            });
+        }, 300);
+    },
 });

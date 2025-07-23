@@ -24,7 +24,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
     const screenPointToPiece = useChessboardStore((x) => x.screenPointToPiece);
     const selectPiece = useChessboardStore((x) => x.selectPiece);
     const moveSelectedPieceToMouse = useChessboardStore(
-        (x) => x.moveSelectedPieceToMouse,
+        (x) => x.handleMousePieceDrop,
     );
 
     const offset = useRef<Point | null>(null);
@@ -56,13 +56,19 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             pieceRef.current?.updateDraggingOffset(x, y);
         },
         async onDragEnd(point) {
-            const didMove = await moveSelectedPieceToMouse(point);
+            const didMove = await moveSelectedPieceToMouse({
+                mousePoint: point,
+                isDrag: true,
+            });
             if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
         },
         async onClick(info) {
             if (!isSelected) return;
 
-            const didMove = await moveSelectedPieceToMouse(info.point);
+            const didMove = await moveSelectedPieceToMouse({
+                mousePoint: info.point,
+                isDrag: false,
+            });
             if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
         },
     });
