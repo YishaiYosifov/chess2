@@ -14,6 +14,8 @@ export interface LegalMovesSlice {
     hasForcedMoves: boolean;
 
     showLegalMoves(pieceId: PieceID): void;
+    flashLegalMoves(): void;
+
     setLegalMoves(legalMoves: LegalMoveMap, hasForcedMoves: boolean): void;
 }
 
@@ -31,7 +33,7 @@ export function createLegalMovesSlice(
 
         /**
          * Highlights the legal moves available for the specified piece.
-         * Updates the state to reflect these highlighted moves and sets the selected piece.
+         * Updates the state to reflect these highlighted moves
          *
          * @param pieceId - The ID of the piece for which to show legal moves.
          */
@@ -58,6 +60,22 @@ export function createLegalMovesSlice(
             set((state) => {
                 state.highlightedLegalMoves = toHighlightPoints;
             });
+        },
+
+        flashLegalMoves(): void {
+            const { legalMoves, logicalPointToViewPoint, flashOverlay } = get();
+
+            for (const movesPerPoint of legalMoves.values()) {
+                for (const move of movesPerPoint) {
+                    const from = logicalPointToViewPoint(move.from);
+                    const to = logicalPointToViewPoint(move.to);
+                    flashOverlay({
+                        from: from,
+                        to: to,
+                        color: "red",
+                    });
+                }
+            }
         },
 
         setLegalMoves(legalMoves: LegalMoveMap, hasForcedMoves: boolean): void {

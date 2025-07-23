@@ -16,8 +16,14 @@ export interface PiecesSlice {
     onPieceMovement?: (from: Point, to: Point) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
-    moveSelectedPiece(to: Point): Promise<boolean>;
-    moveSelectedPieceToMouse(mousePoint: Point): Promise<boolean>;
+    tryApplySelectedMove(to: Point): Promise<boolean>;
+    handleMousePieceDrop({
+        mousePoint,
+        isDrag,
+    }: {
+        mousePoint: Point;
+        isDrag: boolean;
+    }): Promise<boolean>;
     applyMove(move: Move): void;
     updatePiecePosition(from: Point, to: Point): void;
 
@@ -99,13 +105,13 @@ export function createPiecesSlice(
          *
          * @param to - The target position to move the selected piece to.
          */
-        async moveSelectedPiece(to: Point): Promise<boolean> {
+        async tryApplySelectedMove(to: Point): Promise<boolean> {
             const strTo = pointToStr(to);
 
             const {
                 selectedPieceId,
                 onPieceMovement,
-                applyMove: playMove,
+                applyMove,
                 legalMoves,
                 pieces,
             } = get();
@@ -134,7 +140,7 @@ export function createPiecesSlice(
             if (!move) return false;
 
             await onPieceMovement?.(from, move.to);
-            playMove(move);
+            applyMove(move);
 
             set((state) => {
                 state.legalMoves = new Map();
@@ -148,12 +154,14 @@ export function createPiecesSlice(
          * Handles a piece drop event based on mouse coordinates relative to the board.
          * Converts pixel coordinates to board position, accounting for viewing orientation,
          * then attempts to move the selected piece to that position.
-         *
-         * @param mouseX - The x-coordinate of the mouse event relative to the viewport.
-         * @param mouseY - The y-coordinate of the mouse event relative to the viewport.
          */
-        async moveSelectedPieceToMouse(mousePoint: Point): Promise<boolean> {
-            const { moveSelectedPiece, screenToLogicalPoint } = get();
+        async handleMousePieceDrop({ mousePoint, isDrag }): Promise<boolean> {
+            const {
+                tryApplySelectedMove: moveSelectedPiece,
+                screenToLogicalPoint,
+                hasForcedMoves,
+                flashLegalMoves,
+            } = get();
 
             const logicalPoint = screenToLogicalPoint({
                 x: mousePoint.x,
@@ -162,6 +170,8 @@ export function createPiecesSlice(
             if (!logicalPoint) return false;
 
             const didMove = await moveSelectedPiece(logicalPoint);
+            if (isDrag && !didMove && hasForcedMoves) flashLegalMoves();
+
             return didMove;
         },
 
