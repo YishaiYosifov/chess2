@@ -86,12 +86,12 @@ describe("PiecesSlice", () => {
         });
     });
 
-    describe("moveSelectedPiece", () => {
+    describe("tryApplySelectedMove", () => {
         it("should not move if no piece is selected", async () => {
             const pieces = createFakePieceMap();
             store.setState({ pieces });
 
-            store.getState().moveSelectedPiece({ x: 6, y: 9 });
+            store.getState().tryApplySelectedMove({ x: 6, y: 9 });
 
             const newPieces = store.getState().pieces;
             expect(newPieces).toEqual(pieces);
@@ -108,7 +108,7 @@ describe("PiecesSlice", () => {
                 legalMoves,
             });
 
-            await store.getState().moveSelectedPiece(createUniquePoint());
+            await store.getState().tryApplySelectedMove(createUniquePoint());
 
             const newPieces = store.getState().pieces;
             expect(newPieces).toEqual(pieces);
@@ -127,7 +127,7 @@ describe("PiecesSlice", () => {
                 legalMoves,
             });
 
-            await store.getState().moveSelectedPiece(move.to);
+            await store.getState().tryApplySelectedMove(move.to);
 
             expectPieces({ id: "0", position: move.to, piece });
             const {
@@ -141,7 +141,7 @@ describe("PiecesSlice", () => {
         });
     });
 
-    describe("handlePieceDrop", () => {
+    describe("handleMousePieceDrop", () => {
         it.each([
             [GameColor.WHITE, { x: 2, y: 7 }, { x: 20, y: 20 }],
             [GameColor.BLACK, { x: 7, y: 2 }, { x: 20, y: 20 }],
@@ -177,9 +177,12 @@ describe("PiecesSlice", () => {
                     legalMoves: legalMoves,
                 });
 
-                await store.getState().moveSelectedPieceToMouse({
-                    x: mousePosition.x,
-                    y: mousePosition.y,
+                await store.getState().handleMousePieceDrop({
+                    mousePoint: {
+                        x: mousePosition.x,
+                        y: mousePosition.y,
+                    },
+                    isDrag: false,
                 });
 
                 expectPieces({ id: "0", position: expectedPosition, piece });

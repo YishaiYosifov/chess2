@@ -128,7 +128,7 @@ const OverlayRenderer = () => {
                     refY="1.75"
                     markerUnits="strokeWidth"
                 >
-                    <path d="M0,0 V3.5 L2.8,1.75 Z" fill={COLOR} />
+                    <path d="M0,0 V3.5 L2.8,1.75 Z" fill="context-stroke" />
                 </marker>
             </defs>
 
