@@ -206,6 +206,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await MakeLegalMoveAsync(_whitePlayer, move);
 
+        var legalMoves = _gameCore.GetLegalMovesFor(GameColor.Black);
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
@@ -217,7 +218,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
                 ),
                 sideToMove: GameColor.Black,
                 sideToMoveUserId: _blackPlayer.UserId,
-                encodedLegalMoves: _gameCore.GetLegalMovesFor(GameColor.Black).EncodedMoves
+                encodedLegalMoves: legalMoves.EncodedMoves,
+                hasForcedMoves: legalMoves.HasForcedMoves
             );
     }
 
