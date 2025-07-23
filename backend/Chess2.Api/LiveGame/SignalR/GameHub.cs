@@ -18,7 +18,7 @@ public interface IGameHubClient : IChess2HubClient
         ClockSnapshot clock
     );
 
-    Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves);
+    Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves, bool hasForcedMoves);
 
     Task GameEndedAsync(GameResultData result);
 }

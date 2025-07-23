@@ -15,7 +15,8 @@ public interface IGameNotifier
         ClockSnapshot clocks,
         GameColor sideToMove,
         string sideToMoveUserId,
-        IEnumerable<byte> encodedLegalMoves
+        IEnumerable<byte> encodedLegalMoves,
+        bool hasForcedMoves
     );
 }
 
@@ -30,11 +31,14 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
         ClockSnapshot clocks,
         GameColor sideToMove,
         string sideToMoveUserId,
-        IEnumerable<byte> legalMoves
+        IEnumerable<byte> legalMoves,
+        bool hasForcedMoves
     )
     {
         await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber, clocks);
-        await _hub.Clients.User(sideToMoveUserId).LegalMovesChangedAsync(legalMoves);
+        await _hub
+            .Clients.User(sideToMoveUserId)
+            .LegalMovesChangedAsync(legalMoves, hasForcedMoves);
     }
 
     public Task NotifyGameEndedAsync(string gameToken, GameResultData result) =>

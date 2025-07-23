@@ -9,6 +9,7 @@ public record Move
     public IReadOnlyList<AlgebraicPoint> CapturedSquares { get; }
     public IReadOnlyList<MoveSideEffect> SideEffects { get; }
     public SpecialMoveType SpecialMoveType { get; }
+    public ForcedMovePriority ForcedPriority { get; set; }
 
     public Move(
         AlgebraicPoint from,
@@ -17,7 +18,8 @@ public record Move
         IEnumerable<AlgebraicPoint>? triggerSquares = null,
         IEnumerable<AlgebraicPoint>? capturedSquares = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
-        SpecialMoveType specialMoveType = SpecialMoveType.None
+        SpecialMoveType specialMoveType = SpecialMoveType.None,
+        ForcedMovePriority forcedPriority = ForcedMovePriority.None
     )
     {
         From = from;
@@ -27,6 +29,7 @@ public record Move
         CapturedSquares = capturedSquares?.ToList() ?? [];
         SideEffects = sideEffects?.ToList() ?? [];
         SpecialMoveType = specialMoveType;
+        ForcedPriority = forcedPriority;
     }
 
     public IEnumerable<(AlgebraicPoint From, AlgebraicPoint To)> Flatten()
