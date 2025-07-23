@@ -27,7 +27,8 @@ public class PieceTestCase
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
-        SpecialMoveType specialMoveType = SpecialMoveType.None
+        SpecialMoveType specialMoveType = SpecialMoveType.None,
+        ForcedMovePriority forcedPriority = ForcedMovePriority.None
     )
     {
         ExpectedMoves.Add(
@@ -38,7 +39,8 @@ public class PieceTestCase
                 triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
                 capturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
                 sideEffects: sideEffects,
-                specialMoveType: specialMoveType
+                specialMoveType: specialMoveType,
+                forcedPriority: forcedPriority
             )
         );
         return this;
