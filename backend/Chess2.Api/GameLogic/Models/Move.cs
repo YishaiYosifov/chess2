@@ -2,14 +2,14 @@
 
 public record Move
 {
-    public AlgebraicPoint From { get; }
-    public AlgebraicPoint To { get; }
-    public Piece Piece { get; }
-    public IReadOnlyList<AlgebraicPoint> TriggerSquares { get; }
-    public IReadOnlyList<AlgebraicPoint> CapturedSquares { get; }
-    public IReadOnlyList<MoveSideEffect> SideEffects { get; }
-    public SpecialMoveType SpecialMoveType { get; }
-    public ForcedMovePriority ForcedPriority { get; set; }
+    public AlgebraicPoint From { get; init; }
+    public AlgebraicPoint To { get; init; }
+    public Piece Piece { get; init; }
+    public IReadOnlyList<AlgebraicPoint> TriggerSquares { get; init; }
+    public IReadOnlyList<AlgebraicPoint> CapturedSquares { get; init; }
+    public IReadOnlyList<MoveSideEffect> SideEffects { get; init; }
+    public SpecialMoveType SpecialMoveType { get; init; }
+    public ForcedMovePriority ForcedPriority { get; init; }
 
     public Move(
         AlgebraicPoint from,

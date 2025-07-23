@@ -74,10 +74,12 @@ public class SanCalculatorTests
         san.Should().Be("Re4");
     }
 
-    [Fact]
-    public void CalculateSan_doesnt_add_the_piece_letter_for_pawns()
+    [Theory]
+    [InlineData(PieceType.Pawn)]
+    [InlineData(PieceType.ChildPawn)]
+    public void CalculateSan_doesnt_add_the_piece_letter_for_pawns(PieceType pawnType)
     {
-        var move = new Move(new("e2"), new("e4"), PieceFactory.White(PieceType.Pawn));
+        var move = new Move(new("e2"), new("e4"), PieceFactory.White(pawnType));
 
         var san = _calculator.CalculateSan(move, [move]);
 
@@ -114,13 +116,15 @@ public class SanCalculatorTests
         san.Should().Be("Rxd5xc4");
     }
 
-    [Fact]
-    public void CalculateSan_handles_pawn_multi_capture_and_adds_file_letter()
+    [Theory]
+    [InlineData(PieceType.Pawn)]
+    [InlineData(PieceType.ChildPawn)]
+    public void CalculateSan_handles_pawn_multi_capture_and_adds_file_letter(PieceType pawnType)
     {
         var move = new Move(
             new("e5"),
             new("f6"),
-            PieceFactory.White(PieceType.Pawn),
+            PieceFactory.White(pawnType),
             capturedSquares: [new("f5"), new("f6")]
         );
 

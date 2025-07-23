@@ -160,5 +160,55 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                     "Bishop surrounded by enemy pieces on all diagonals (can capture all"
                 )
         );
+
+        var friendyChildPawn = PieceFactory.White(PieceType.ChildPawn);
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("c7", friendyChildPawn)
+                .WithPieceAt("h8", friendyChildPawn)
+                .WithPieceAt("a1", friendyChildPawn)
+                .WithPieceAt("f4", friendyChildPawn)
+                // diagonal up-left
+                .GoesTo("d6")
+                .GoesTo("c7", captures: ["c7"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal up-right
+                .GoesTo("f6")
+                .GoesTo("g7")
+                .GoesTo("h8", captures: ["h8"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal down-left
+                .GoesTo("d4")
+                .GoesTo("c3")
+                .GoesTo("b2")
+                .GoesTo("a1", captures: ["a1"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal down-right
+                .GoesTo("f4", captures: ["f4"], forcedPriority: ForcedMovePriority.ChildPawn)
+                .WithDescription("Forced friendly child pawn capture")
+        );
+
+        var enemyChildPawn = PieceFactory.Black(PieceType.ChildPawn);
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("a9", enemyChildPawn)
+                .WithPieceAt("f6", enemyChildPawn)
+                .WithPieceAt("b2", enemyChildPawn)
+                .WithPieceAt("g3", enemyChildPawn)
+                // diagonal up-left
+                .GoesTo("d6")
+                .GoesTo("c7")
+                .GoesTo("b8")
+                .GoesTo("a9", captures: ["a9"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal up-right
+                .GoesTo("f6", captures: ["f6"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal down-left
+                .GoesTo("d4")
+                .GoesTo("c3")
+                .GoesTo("b2", captures: ["b2"], forcedPriority: ForcedMovePriority.ChildPawn)
+                // diagonal down-right
+                .GoesTo("f4")
+                .GoesTo("g3", captures: ["g3"], forcedPriority: ForcedMovePriority.ChildPawn)
+                .WithDescription("Forced enemy child pawn capture")
+        );
     }
 }

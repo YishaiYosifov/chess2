@@ -14,7 +14,7 @@ public class EnPassantRule(Offset direction) : IPieceMovementRule
         if (!board.IsWithinBoundaries(targetPos))
             yield break;
 
-        var lastMove = board.Moves.LastOrDefault();
+        var lastMove = board.Moves.Count > 0 ? board.Moves[^1] : null;
         if (
             lastMove is null
             || lastMove.Piece.Type != EnPassantType
