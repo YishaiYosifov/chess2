@@ -10,10 +10,10 @@ public class BishopDefinition : IPieceDefinition
 
     private readonly List<IPieceMovementRule> _behaviours =
     [
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: -1))),
+        CreateForcedCaptureRuleFor(new Offset(X: 1, Y: 1)),
+        CreateForcedCaptureRuleFor(new Offset(X: 1, Y: -1)),
+        CreateForcedCaptureRuleFor(new Offset(X: -1, Y: 1)),
+        CreateForcedCaptureRuleFor(new Offset(X: -1, Y: -1)),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
@@ -21,4 +21,17 @@ public class BishopDefinition : IPieceDefinition
         AlgebraicPoint position,
         Piece movingPiece
     ) => _behaviours;
+
+    private static ForcedMoveRule CreateForcedCaptureRuleFor(Offset offset) =>
+        new(
+            new CaptureRule(
+                new SlideBehaviour(offset),
+                allowFriendlyFire: (board, piece) => piece.Type == PieceType.ChildPawn
+            ),
+            priority: ForcedMovePriority.ChildPawn,
+            predicate: (board, move) =>
+                move.CapturedSquares.Any(c =>
+                    board.TryGetPieceAt(c, out var capture) && capture.Type == PieceType.ChildPawn
+                )
+        );
 }

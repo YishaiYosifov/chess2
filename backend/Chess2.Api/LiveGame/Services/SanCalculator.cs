@@ -24,7 +24,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
     {
         StringBuilder sb = new();
 
-        var isPawn = move.Piece.Type == PieceType.Pawn;
+        var isPawn = move.Piece.Type == PieceType.Pawn || move.Piece.Type == PieceType.ChildPawn;
         var isCapture = move.CapturedSquares.Any();
 
         // add the piece letter if this is not a pawn move

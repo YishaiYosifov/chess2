@@ -46,6 +46,15 @@ public class PieceTestCase
         return this;
     }
 
+    public PieceTestCase GoesTo(params string[] to)
+    {
+        foreach (var position in to)
+        {
+            GoesTo(position);
+        }
+        return this;
+    }
+
     public PieceTestCase WithPieceAt(string position, Piece piece)
     {
         BlockedBy.Add((new AlgebraicPoint(position), piece));

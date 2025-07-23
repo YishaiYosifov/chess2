@@ -1,0 +1,191 @@
+﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.TestInfrastructure.Utils;
+
+namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
+
+public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
+{
+    protected void AddTestCases(PieceType pawnType, int maxInitialMoveDistance)
+    {
+        var movedWhitePawn = PieceFactory.White(pawnType, timesMoved: 1);
+        var movedBlackPawn = PieceFactory.Black(pawnType, timesMoved: 1);
+
+        var whitePiece = PieceFactory.White();
+        var blackPiece = PieceFactory.Black();
+
+        #region regular moves
+        Add(
+            PieceTestCase
+                .From("e4", movedWhitePawn)
+                .GoesTo("e5")
+                .WithDescription("white pawn moves one step forward from e4")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e7", movedBlackPawn)
+                .GoesTo("e6")
+                .WithDescription("black pawn moves one step forward from e7")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e4", movedWhitePawn)
+                .WithPieceAt("d5", blackPiece)
+                .WithPieceAt("f5", blackPiece)
+                .GoesTo("e5")
+                .GoesTo("d5", captures: ["d5"])
+                .GoesTo("f5", captures: ["f5"])
+                .WithDescription("white pawn captures diagonally both left and right")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e6", movedBlackPawn)
+                .WithPieceAt("d5", whitePiece)
+                .WithPieceAt("f5", whitePiece)
+                .GoesTo("e5")
+                .GoesTo("d5", captures: ["d5"])
+                .GoesTo("f5", captures: ["f5"])
+                .WithDescription("black pawn captures diagonally both left and right")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e4", movedWhitePawn)
+                .WithPieceAt("e5", movedBlackPawn)
+                .WithDescription("white pawn blocked directly forward by enemy")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e4", movedWhitePawn)
+                .WithPieceAt("d5", whitePiece)
+                .WithPieceAt("f5", whitePiece)
+                .GoesTo("e5")
+                .WithDescription("white pawn cannot capture friendly pieces diagonally")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e10", movedWhitePawn)
+                .WithDescription("white pawn at top of board has no forward moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e1", movedBlackPawn)
+                .WithDescription("black pawn at bottom of board has no forward moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e4", movedWhitePawn)
+                .WithPieceAt("f5", blackPiece)
+                .GoesTo("e5")
+                .GoesTo("f5", captures: ["f5"])
+                .WithDescription("white pawn can only capture diagonally to the right")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e6", movedBlackPawn)
+                .WithPieceAt("d5", whitePiece)
+                .GoesTo("e5")
+                .GoesTo("d5", captures: ["d5"])
+                .WithDescription("black pawn can only capture diagonally to the left")
+        );
+        #endregion
+
+        #region first move
+        var forwardSquaresWhite = Enumerable
+            .Range(1, maxInitialMoveDistance)
+            .Select(i => $"e{2 + i}")
+            .ToArray();
+
+        var forwardSquaresBlack = Enumerable
+            .Range(1, maxInitialMoveDistance)
+            .Select(i => $"e{9 - i}")
+            .ToArray();
+
+        Add(
+            PieceTestCase
+                .From("e2", PieceFactory.White(PieceType.Pawn, timesMoved: 0))
+                .GoesTo(forwardSquaresWhite)
+                .WithDescription("white pawn can move multiple square on the first move")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e9", PieceFactory.Black(PieceType.Pawn, timesMoved: 0))
+                .GoesTo(forwardSquaresBlack)
+                .WithDescription("black pawn can move multiple square on the first move")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e2", PieceFactory.White(PieceType.Pawn, timesMoved: 0))
+                .WithPieceAt("e4", whitePiece)
+                .GoesTo("e3")
+                .WithDescription("white pawn is blocked on the first move")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e9", PieceFactory.Black(PieceType.Pawn, timesMoved: 0))
+                .WithPieceAt("e7", whitePiece)
+                .GoesTo("e8")
+                .WithDescription("black pawn is blocked on the first move")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e2", PieceFactory.White(PieceType.Pawn, timesMoved: 0))
+                .WithPieceAt("e3", blackPiece)
+                .WithPieceAt("d3", blackPiece)
+                .WithPieceAt("f3", blackPiece)
+                .GoesTo("d3", captures: ["d3"])
+                .GoesTo("f3", captures: ["f3"])
+                .WithDescription(
+                    "white pawn captures diagonally on first move with forward blocked"
+                )
+        );
+        #endregion
+
+        #region en passant
+        Add(
+            PieceTestCase
+                .From("e9", PieceFactory.Black(PieceType.Pawn, timesMoved: 0))
+                .WithPieceAt("e8", whitePiece)
+                .WithPieceAt("d8", whitePiece)
+                .WithPieceAt("f8", whitePiece)
+                .GoesTo("d8", captures: ["d8"])
+                .GoesTo("f8", captures: ["f8"])
+                .WithDescription(
+                    "black pawn captures diagonally on first move with forward blocked"
+                )
+        );
+
+        Add(
+            PieceTestCase
+                .From("e7", movedWhitePawn)
+                .WithPieceAt("d9", movedBlackPawn)
+                .WithPriorMove(new Move(new("d9"), new("d7"), movedBlackPawn))
+                .GoesTo("d8", captures: ["d7"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo("e8")
+                .WithDescription("white pawn can capture en passant")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e4", movedBlackPawn)
+                .WithPieceAt("f2", movedWhitePawn)
+                .WithPriorMove(new Move(new("f2"), new("f4"), movedWhitePawn))
+                .GoesTo("f3", captures: ["f4"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo("e3")
+                .WithDescription("black pawn can capture en passant")
+        );
+        #endregion
+    }
+}
