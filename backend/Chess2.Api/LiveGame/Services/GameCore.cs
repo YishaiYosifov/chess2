@@ -33,15 +33,16 @@ public interface IGameCore
 }
 
 public record LegalMoveSet(
-    IReadonlyLegalMoveMap Moves,
+    IReadonlyLegalMoveMap MovesMap,
     IReadOnlyCollection<MovePath> MovePaths,
-    IReadOnlyCollection<byte> EncodedMoves
+    IReadOnlyCollection<byte> EncodedMoves,
+    bool HasForcedMoves = false
 )
 {
-    public IEnumerable<Move> AllMoves => Moves.Values;
+    public IEnumerable<Move> AllMoves => MovesMap.Values;
 
     public LegalMoveSet()
-        : this(new LegalMoveMap(), [], []) { }
+        : this(MovesMap: new LegalMoveMap(), MovePaths: [], EncodedMoves: []) { }
 }
 
 public readonly record struct MoveResult(
@@ -86,7 +87,7 @@ public class GameCore(
 
     public ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
     {
-        if (!LegalMoves.Moves.TryGetValue((from, to), out var move))
+        if (!LegalMoves.MovesMap.TryGetValue((from, to), out var move))
         {
             _logger.LogWarning("Could not find move from {From} to {To}", from, to);
             return GameErrors.MoveInvalid;
@@ -116,12 +117,16 @@ public class GameCore(
 
     private void CalculateAllLegalMoves(GameColor forColor)
     {
-        var moves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
-        var movePaths = moves.Select(move => MovePath.FromMove(move, _board.Width)).ToList();
+        var allMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
+        var maxPriority =
+            allMoves.Count != 0 ? allMoves.Max(m => m.ForcedPriority) : ForcedMovePriority.None;
+        var legalMoves = allMoves.Where(m => m.ForcedPriority == maxPriority).ToList();
+
+        var movePaths = legalMoves.Select(move => MovePath.FromMove(move, _board.Width)).ToList();
         var encodedMoves = _moveEncoder.EncodeMoves(movePaths);
 
         LegalMoveMap groupedMoves = [];
-        foreach (var move in moves)
+        foreach (var move in legalMoves)
         {
             var key = (move.From, move.To);
             if (!groupedMoves.TryAdd(key, move))
@@ -134,6 +139,11 @@ public class GameCore(
                 continue;
             }
         }
-        LegalMoves = new(Moves: groupedMoves, MovePaths: movePaths, EncodedMoves: encodedMoves);
+        LegalMoves = new(
+            MovesMap: groupedMoves,
+            MovePaths: movePaths,
+            EncodedMoves: encodedMoves,
+            HasForcedMoves: maxPriority > ForcedMovePriority.None
+        );
     }
 }

@@ -10,7 +10,8 @@ public record GameState(
     ClockSnapshot Clocks,
     GameColor SideToMove,
     string Fen,
-    IReadOnlyCollection<MovePath> LegalMoves,
     IReadOnlyList<MoveSnapshot> MoveHistory,
+    IReadOnlyCollection<MovePath> LegalMoves,
+    bool HasForcedMoves = false,
     GameResultData? ResultData = null
 );
