@@ -27,15 +27,19 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         (x) => x.handleMousePieceDrop,
     );
 
-    const offset = useRef<Point | null>(null);
+    const offsetRef = useRef<Point | null>(null);
+    const moveOccurredOnPressRef = useRef<boolean>(false);
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
+            if (moveOccurredOnPressRef.current) {
+                moveOccurredOnPressRef.current = false;
+                return false;
+            }
+
             if (info.button !== 0) return false;
 
             const piece = screenPointToPiece(info.point);
-            if (piece !== id) return false;
-
-            return true;
+            return piece === id;
         },
 
         onDragStart() {
@@ -46,15 +50,16 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             // make sure the piece snaps to the cursor
             const offsetX = rect.left + rect.width / 2;
             const offsetY = rect.top + rect.height / 2;
-            offset.current = { x: offsetX, y: offsetY };
+            offsetRef.current = { x: offsetX, y: offsetY };
         },
         onDragMove(point) {
-            if (!offset.current) return;
+            if (!offsetRef.current) return;
 
-            const x = point.x - offset.current.x;
-            const y = point.y - offset.current.y;
+            const x = point.x - offsetRef.current.x;
+            const y = point.y - offsetRef.current.y;
             pieceRef.current?.updateDraggingOffset(x, y);
         },
+
         async onDragEnd(point) {
             const didMove = await moveSelectedPieceToMouse({
                 mousePoint: point,
@@ -62,14 +67,15 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             });
             if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
         },
-        async onClick(info) {
+        async onPress(info) {
             if (!isSelected) return;
 
             const didMove = await moveSelectedPieceToMouse({
                 mousePoint: info.point,
                 isDrag: false,
             });
-            if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
+            if (didMove) moveOccurredOnPressRef.current = true;
+            else pieceRef.current?.updateDraggingOffset(0, 0);
         },
     });
 

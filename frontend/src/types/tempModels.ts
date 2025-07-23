@@ -44,3 +44,5 @@ export interface MoveSideEffect {
     from: Point;
     to: Point;
 }
+
+export type MaybePromise<T> = Promise<T> | T;

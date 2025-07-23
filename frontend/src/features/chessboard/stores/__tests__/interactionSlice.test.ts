@@ -5,111 +5,102 @@ import { InteractionInfo } from "../interactionSlice";
 describe("InteractionSlice", () => {
     let store: StoreApi<ChessboardState>;
 
-    const fakeEvent = (
-        x: number,
-        y: number,
-        button: number,
-    ): React.MouseEvent =>
-        ({
-            clientX: x,
-            clientY: y,
-            button,
-        }) as unknown as React.MouseEvent;
-
     beforeEach(() => {
+        vi.useFakeTimers();
         store = createChessboardStore();
     });
 
-    describe("subscribePointerDown / unsubscribePointerDown", () => {
-        it("should add and remove pointerDown listeners", () => {
-            const handler = vi.fn();
-            const { subscribePointerDown, unsubscribePointerDown } =
-                store.getState();
-
-            subscribePointerDown(handler);
-            expect(store.getState().onPointerDownListeners.has(handler)).toBe(
-                true,
-            );
-
-            unsubscribePointerDown(handler);
-            expect(store.getState().onPointerDownListeners.has(handler)).toBe(
-                false,
-            );
-        });
-    });
-
-    describe("subscribePointerUp / unsubscribePointerUp", () => {
-        it("should add and remove pointerUp listeners", () => {
-            const handler = vi.fn();
-            const { subscribePointerUp, unsubscribePointerUp } =
-                store.getState();
-
-            subscribePointerUp(handler);
-            expect(store.getState().onPointerUpListeners.has(handler)).toBe(
-                true,
-            );
-
-            unsubscribePointerUp(handler);
-            expect(store.getState().onPointerUpListeners.has(handler)).toBe(
-                false,
-            );
-        });
-    });
+    function mockMouseEvent(
+        x = 0,
+        y = 0,
+        button = 0,
+    ): React.MouseEvent<HTMLElement, MouseEvent> {
+        return {
+            clientX: x,
+            clientY: y,
+            button,
+        } as unknown as React.MouseEvent<HTMLElement, MouseEvent>;
+    }
 
     describe("onPointerDown", () => {
-        it("should set interaction state", () => {
-            const slice = store.getState();
-            const event = fakeEvent(50, 100, 1);
+        it("should set interaction state and emit pointerDown/dragStart events in order", async () => {
+            const pointerDownSpy = vi.fn();
+            const dragStartSpy = vi.fn().mockResolvedValue(true);
 
-            slice.onPointerDown(event);
+            store.getState().pointerDownEvent.subscribe(pointerDownSpy);
+            store.getState().dragStartQuery.subscribe(dragStartSpy);
 
-            expect(store.getState().interaction).toEqual<InteractionInfo>({
-                point: { x: 50, y: 100 },
-                button: 1,
-            });
-        });
+            const evt = mockMouseEvent(50, 60, 2);
 
-        it("should notify subscribed pointerDown listeners", () => {
-            const handler = vi.fn();
-            const slice = store.getState();
-            const event = fakeEvent(10, 20, 0);
+            await store.getState().onPointerDown(evt);
 
-            slice.subscribePointerDown(handler);
-            slice.onPointerDown(event);
+            const expectedInfo: InteractionInfo = {
+                point: { x: 50, y: 60 },
+                button: 2,
+            };
 
-            expect(handler).toHaveBeenCalledWith({
-                point: { x: 10, y: 20 },
-                button: 0,
-            });
+            // state updated
+            expect(store.getState().interaction).toEqual(expectedInfo);
+
+            // events emitted with the same payload
+            expect(pointerDownSpy).toHaveBeenCalledTimes(1);
+            expect(pointerDownSpy).toHaveBeenCalledWith(expectedInfo);
+
+            expect(dragStartSpy).toHaveBeenNthCalledWith(1, expectedInfo);
+
+            // make sure pointerDown fires before dragStart
+            const pointerDownOrder = pointerDownSpy.mock.invocationCallOrder[0];
+            const dragStartOrder = dragStartSpy.mock.invocationCallOrder[0];
+            expect(pointerDownOrder).toBeLessThan(dragStartOrder);
         });
     });
 
     describe("onPointerUp", () => {
-        it("should clear interaction state", () => {
-            const slice = store.getState();
-            const downEvent = fakeEvent(0, 0, 0);
-            const upEvent = fakeEvent(100, 200, 2);
-
-            // simulate setting interaction first
-            slice.onPointerDown(downEvent);
-            expect(store.getState().interaction).not.toBe(null);
-
-            slice.onPointerUp(upEvent);
-            expect(store.getState().interaction).toBe(null);
-        });
-
-        it("should notify subscribed pointerUp listeners", () => {
-            const handler = vi.fn();
-            const slice = store.getState();
-            const event = fakeEvent(75, 125, 2);
-
-            slice.subscribePointerUp(handler);
-            slice.onPointerUp(event);
-
-            expect(handler).toHaveBeenCalledWith({
-                point: { x: 75, y: 125 },
-                button: 2,
+        it("should clear interaction state and emit pointerUp event", async () => {
+            store.setState({
+                ...store.getState(),
+                interaction: { point: { x: 1, y: 1 }, button: 1 },
             });
+
+            const pointerUpSpy = vi.fn();
+            store.getState().pointerUpEvent.subscribe(pointerUpSpy);
+
+            const evt = mockMouseEvent(100, 200, 0);
+
+            await store.getState().onPointerUp(evt);
+
+            const expectedInfo: InteractionInfo = {
+                point: { x: 100, y: 200 },
+                button: 0,
+            };
+
+            expect(store.getState().interaction).toBeNull();
+            expect(pointerUpSpy).toHaveBeenCalledTimes(1);
+            expect(pointerUpSpy).toHaveBeenCalledWith(expectedInfo);
+        });
+    });
+
+    describe("evaluateDragStart", () => {
+        it("should stop at the first listener that returns truthy", async () => {
+            const first = vi.fn().mockResolvedValue(false);
+            const second = vi.fn().mockResolvedValue(true);
+            const third = vi.fn().mockResolvedValue(true);
+
+            const { dragStartQuery } = store.getState();
+            dragStartQuery.subscribe(first);
+            dragStartQuery.subscribe(second);
+            dragStartQuery.subscribe(third);
+
+            const info: InteractionInfo = {
+                point: { x: 0, y: 0 },
+                button: 0,
+            };
+
+            await store.getState().evaluateDragStart(info);
+
+            expect(first).toHaveBeenCalledTimes(1);
+            expect(second).toHaveBeenCalledTimes(1);
+            expect(third).not.toHaveBeenCalled();
         });
     });
 });
