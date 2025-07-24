@@ -43,6 +43,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         await DbContext.GameArchives.AddAsync(gameArchive, CT);
         await DbContext.GameArchives.AddAsync(otherGameArchive, CT);
         await DbContext.SaveChangesAsync(CT);
+        DbContext.ChangeTracker.Clear();
 
         var result = await _gameArchiveRepository.GetGameArchiveByTokenAsync(
             gameArchive.GameToken,
