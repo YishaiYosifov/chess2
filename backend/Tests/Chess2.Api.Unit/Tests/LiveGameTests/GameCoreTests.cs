@@ -71,7 +71,6 @@ public class GameCoreTests
         blackMoves.MovePaths.Should().BeEmpty();
         blackMoves.EncodedMoves.Should().BeEmpty();
 
-        _gameCore.Fen.Should().Be("fen");
         _gameCore.InitialFen.Should().Be("fen");
         _drawEvaluatorMock.Received(1).RegisterInitialPosition("fen");
     }
@@ -117,7 +116,6 @@ public class GameCoreTests
             .Be(new MoveResult(Move: move, MovePath: path, San: san, EndStatus: null));
 
         _gameCore.InitialFen.Should().Be("fen");
-        _gameCore.Fen.Should().Be("updated-fen");
         _gameCore.SideToMove.Should().Be(GameColor.Black);
     }
 

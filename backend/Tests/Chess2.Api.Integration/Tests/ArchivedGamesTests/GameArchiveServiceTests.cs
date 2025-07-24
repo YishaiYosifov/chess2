@@ -51,7 +51,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             Result = endStatus.Result,
             ResultDescription = endStatus.ResultDescription,
             InitialFen = gameState.InitialFen,
-            FinalFen = gameState.Fen,
             WhitePlayer = CreateExpectedPlayerArchive(
                 gameState.WhitePlayer,
                 ratingChange.WhiteChange,
