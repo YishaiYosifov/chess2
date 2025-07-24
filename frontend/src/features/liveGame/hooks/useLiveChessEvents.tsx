@@ -32,9 +32,7 @@ export function useLiveChessEvents(
             data.legalMoves,
             boardDimensions.width,
         );
-        chessboardStore
-            .getState()
-            .resetState(pieces, legalMoves, data.sideToMove);
+        chessboardStore.getState().resetState(pieces, legalMoves);
 
         const { setMoveHistory } = liveChessStore.getState();
         setMoveHistory(data.moveHistory);
