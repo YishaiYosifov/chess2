@@ -4,8 +4,8 @@ import {
     PieceMap,
     Point,
     LegalMoveMap,
-    PieceID,
     Move,
+    LogicalPoint,
 } from "@/types/tempModels";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import userEvent from "@testing-library/user-event";
@@ -16,7 +16,7 @@ import {
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardLayout from "../ChessboardLayout";
 import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockWindow";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 
 describe("ChessPiece", () => {
@@ -78,8 +78,8 @@ describe("ChessPiece", () => {
     function renderPiece({
         logicalPosition,
         legalMoves,
-    }: { logicalPosition?: Point; legalMoves?: LegalMoveMap } = {}) {
-        logicalPosition ??= { x: 0, y: 9 };
+    }: { logicalPosition?: LogicalPoint; legalMoves?: LegalMoveMap } = {}) {
+        logicalPosition ??= logicalPoint({ x: 0, y: 9 });
         legalMoves ??= new Map();
 
         const pieceInfo = createFakePiece({ position: logicalPosition });
@@ -103,18 +103,9 @@ describe("ChessPiece", () => {
     }
 
     it.each([
-        [
-            { x: 0, y: 0 },
-            { x: 0, y: 900 },
-        ],
-        [
-            { x: 1, y: 1 },
-            { x: 100, y: 800 },
-        ],
-        [
-            { x: 0, y: 5 },
-            { x: 0, y: 400 },
-        ],
+        [logicalPoint({ x: 0, y: 0 }), { x: 0, y: 900 }],
+        [logicalPoint({ x: 1, y: 1 }), { x: 100, y: 800 }],
+        [logicalPoint({ x: 0, y: 5 }), { x: 0, y: 400 }],
     ])(
         "should be in the correct position",
         (logicalPosition, percentPosition) => {
@@ -204,8 +195,8 @@ describe("ChessPiece", () => {
     it("should move the piece to a legal square when clicked", async () => {
         const { logicalPointToScreenPoint } = store.getState();
 
-        const startPos = { x: 0, y: 9 };
-        const destinationPos = { x: 5, y: 7 };
+        const startPos = logicalPoint({ x: 0, y: 9 });
+        const destinationPos = logicalPoint({ y: 5, x: 7 });
         const move: Move = {
             from: startPos,
             to: destinationPos,
@@ -248,8 +239,8 @@ describe("ChessPiece", () => {
     it("should move the piece when clicked on it, move the mouse and click on the destination", async () => {
         const { logicalPointToScreenPoint } = store.getState();
 
-        const startPos = { x: 0, y: 9 };
-        const destinationPos = { x: 2, y: 3 };
+        const startPos = logicalPoint({ x: 0, y: 9 });
+        const destinationPos = logicalPoint({ x: 2, y: 3 });
         const move: Move = {
             from: startPos,
             to: destinationPos,

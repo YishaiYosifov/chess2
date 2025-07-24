@@ -1,7 +1,7 @@
 import React, { JSX, useId, useRef } from "react";
 
 import { useChessboardStore } from "../hooks/useChessboard";
-import { Point } from "@/types/tempModels";
+import { Point, ViewPoint } from "@/types/tempModels";
 import { OverlayItem } from "../stores/overlaySlice";
 import { pointEquals } from "@/lib/utils/pointUtils";
 import useBoardInteraction from "../hooks/useBoardInteraction";
@@ -30,8 +30,8 @@ const OverlayRenderer = () => {
     const screenToViewPoint = useChessboardStore((x) => x.screenToViewPoint);
     const clearArrows = useChessboardStore((x) => x.clearOverlays);
 
-    const startPointRef = useRef<Point | null>(null);
-    const lastPointRef = useRef<Point | null>(null);
+    const startPointRef = useRef<ViewPoint | null>(null);
+    const lastPointRef = useRef<ViewPoint | null>(null);
     useBoardInteraction({
         shouldStartDrag(info) {
             if (info.button === 2) return true;
@@ -154,7 +154,7 @@ const CircleRenderer = ({
     opacity,
     padding,
 }: {
-    position: Point;
+    position: ViewPoint;
     color: string;
     strokeWidth: number;
     opacity: number;
@@ -187,8 +187,8 @@ const LineRenderer = ({
     strokeWidth: number;
     opacity: number;
     headId: string;
-    from: Point;
-    to: Point;
+    from: ViewPoint;
+    to: ViewPoint;
 }) => {
     const centerPoint = ({ x, y }: Point): Point => ({
         x: x + 0.5,

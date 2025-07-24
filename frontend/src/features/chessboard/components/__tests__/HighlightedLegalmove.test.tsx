@@ -7,6 +7,7 @@ import {
     ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
+import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("HighlightedLegalMove", () => {
     let store: StoreApi<ChessboardState>;
@@ -18,7 +19,7 @@ describe("HighlightedLegalMove", () => {
     it("renders without crashing", () => {
         render(
             <ChessboardStoreContext.Provider value={store}>
-                <HighlightedLegalMove position={{ x: 1, y: 2 }} />
+                <HighlightedLegalMove position={logicalPoint({ x: 1, y: 2 })} />
             </ChessboardStoreContext.Provider>,
         );
 
@@ -29,7 +30,7 @@ describe("HighlightedLegalMove", () => {
     it("should apply animation styling", () => {
         render(
             <ChessboardStoreContext.Provider value={store}>
-                <HighlightedLegalMove position={{ x: 5, y: 6 }} />
+                <HighlightedLegalMove position={logicalPoint({ x: 5, y: 6 })} />
             </ChessboardStoreContext.Provider>,
         );
 

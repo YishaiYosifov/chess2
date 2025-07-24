@@ -2,6 +2,7 @@ import { PieceMap, PieceType } from "@/types/tempModels";
 import constants from "@/lib/constants";
 import { GameColor } from "@/lib/apiClient";
 import { decodeFen } from "../fenDecoder";
+import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("decodeFen", () => {
     it("should parse a standard starting position correctly", () => {
@@ -18,7 +19,7 @@ describe("decodeFen", () => {
             [
                 "0",
                 {
-                    position: { x: 4, y: 0 },
+                    position: logicalPoint({ x: 4, y: 0 }),
                     type: PieceType.KING,
                     color: GameColor.WHITE,
                 },
@@ -26,7 +27,7 @@ describe("decodeFen", () => {
             [
                 "1",
                 {
-                    position: { x: 4, y: 3 },
+                    position: logicalPoint({ x: 4, y: 3 }),
                     type: PieceType.ROOK,
                     color: GameColor.WHITE,
                 },
@@ -34,7 +35,7 @@ describe("decodeFen", () => {
             [
                 "2",
                 {
-                    position: { x: 3, y: 4 },
+                    position: logicalPoint({ x: 3, y: 4 }),
                     type: PieceType.BISHOP,
                     color: GameColor.WHITE,
                 },
@@ -42,7 +43,7 @@ describe("decodeFen", () => {
             [
                 "3",
                 {
-                    position: { x: 4, y: 7 },
+                    position: logicalPoint({ x: 4, y: 7 }),
                     type: PieceType.KING,
                     color: GameColor.BLACK,
                 },

@@ -16,33 +16,47 @@ export enum PieceType {
 
 export type PieceID = `${number}`;
 
+type Brand<T, B extends symbol> = T & { readonly [brand in B]: true };
+
 export interface Point {
     x: number;
     y: number;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare const logicalPointBrand: unique symbol;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare const viewPointBrand: unique symbol;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+declare const screenPointBrand: unique symbol;
+
+export type ScreenPoint = Brand<Point, typeof screenPointBrand>;
+export type ViewPoint = Brand<Point, typeof viewPointBrand>;
+export type LogicalPoint = Brand<Point, typeof logicalPointBrand>;
+
 export type StrPoint = `${number},${number}`;
 
 export interface Piece {
     type: PieceType;
     color: GameColor;
-    position: Point;
+    position: LogicalPoint;
 }
 
 export type PieceMap = Map<PieceID, Piece>;
 export type LegalMoveMap = Map<StrPoint, Move[]>;
 
 export interface Move {
-    from: Point;
-    to: Point;
+    from: LogicalPoint;
+    to: LogicalPoint;
 
-    triggers: Point[];
-    captures: Point[];
+    triggers: LogicalPoint[];
+    captures: LogicalPoint[];
     sideEffects: MoveSideEffect[];
 }
 
 export interface MoveSideEffect {
-    from: Point;
-    to: Point;
+    from: LogicalPoint;
+    to: LogicalPoint;
 }
 
 export type MaybePromise<T> = Promise<T> | T;

@@ -1,4 +1,3 @@
-import GamesTable from "@/features/profile/components/GamesTable";
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
 import { getGameResults, getRatingArchives, getUser } from "@/lib/apiClient";
