@@ -11,7 +11,7 @@ import {
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 
-export interface RequiredLiveChessData {
+export interface LiveChessStoreProps {
     gameToken: string;
     moveHistory: MoveSnapshot[];
 
@@ -24,7 +24,7 @@ export interface RequiredLiveChessData {
     resultData: GameResultData | null;
 }
 
-export interface LiveChessStore extends RequiredLiveChessData {
+export interface LiveChessStore extends LiveChessStoreProps {
     receiveMove(
         move: MoveSnapshot,
         clocks: Clocks,
@@ -35,7 +35,7 @@ export interface LiveChessStore extends RequiredLiveChessData {
 }
 
 enableMapSet();
-export default function createLiveChessStore(initState: RequiredLiveChessData) {
+export default function createLiveChessStore(initState: LiveChessStoreProps) {
     return createWithEqualityFn<LiveChessStore>()(
         immer((set) => ({
             ...initState,
