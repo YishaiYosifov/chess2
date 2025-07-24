@@ -32,6 +32,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
             .GameArchives.Include(archive => archive.WhitePlayer)
             .Include(archive => archive.BlackPlayer)
             .Include(archive => archive.Moves)
+            .ThenInclude(moves => moves.SideEffects)
             .Where(archive => archive.GameToken == gameToken)
             .FirstOrDefaultAsync(token);
 
