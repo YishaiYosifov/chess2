@@ -9,7 +9,6 @@ public record GameState(
     GamePlayer BlackPlayer,
     ClockSnapshot Clocks,
     GameColor SideToMove,
-    string Fen,
     string InitialFen,
     IReadOnlyList<MoveSnapshot> MoveHistory,
     IReadOnlyCollection<MovePath> LegalMoves,

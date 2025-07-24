@@ -24,7 +24,6 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IGameCore
 {
     string InitialFen { get; }
-    string Fen { get; }
     LegalMoveSet LegalMoves { get; }
     GameColor SideToMove { get; }
 
@@ -76,15 +75,14 @@ public class GameCore(
     private readonly IDrawEvaulator _drawEvaulator = drawEvaulator;
 
     public string InitialFen { get; private set; } = "";
-    public string Fen { get; private set; } = "";
     public LegalMoveSet LegalMoves { get; private set; } = new();
     public GameColor SideToMove { get; private set; } = GameColor.White;
 
     public void InitializeGame()
     {
-        Fen = _fenCalculator.CalculateFen(_board);
-        InitialFen = Fen;
-        _drawEvaulator.RegisterInitialPosition(Fen);
+        var fen = _fenCalculator.CalculateFen(_board);
+        InitialFen = fen;
+        _drawEvaulator.RegisterInitialPosition(fen);
         CalculateAllLegalMoves(GameColor.White);
     }
 
@@ -101,11 +99,11 @@ public class GameCore(
         var san = _sanCalculator.CalculateSan(move, LegalMoves.AllMoves);
 
         CalculateAllLegalMoves(forColor.Invert());
-        Fen = _fenCalculator.CalculateFen(_board);
+        var fen = _fenCalculator.CalculateFen(_board);
         SideToMove = SideToMove.Invert();
 
         GameEndStatus? endStatus = null;
-        if (_drawEvaulator.TryEvaluateDraw(move, Fen, out var drawReason))
+        if (_drawEvaulator.TryEvaluateDraw(move, fen, out var drawReason))
             endStatus = drawReason;
 
         return new MoveResult(move, path, san, endStatus);

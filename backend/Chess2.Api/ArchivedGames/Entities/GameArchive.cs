@@ -10,7 +10,6 @@ public class GameArchive
     public required GameResult Result { get; set; }
     public required string ResultDescription { get; set; }
     public required string InitialFen { get; set; }
-    public required string FinalFen { get; set; }
     public required ICollection<MoveArchive> Moves { get; set; } = [];
     public required bool IsRated { get; set; }
 

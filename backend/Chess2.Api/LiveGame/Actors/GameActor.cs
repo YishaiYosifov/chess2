@@ -248,7 +248,6 @@ public class GameActor : ReceiveActor, IWithTimers
             BlackPlayer: _players.BlackPlayer,
             Clocks: _clock.Value,
             SideToMove: _core.SideToMove,
-            Fen: _core.Fen,
             InitialFen: _core.InitialFen,
             LegalMoves: legalMoves.MovePaths,
             HasForcedMoves: legalMoves.HasForcedMoves,
