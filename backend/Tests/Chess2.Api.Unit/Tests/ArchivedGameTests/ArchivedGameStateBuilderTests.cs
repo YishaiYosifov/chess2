@@ -53,6 +53,7 @@ public class ArchivedGameStateBuilderTests
             ),
             Clocks: expectedClocks,
             SideToMove: GameColor.Black,
+            InitialFen: archive.InitialFen,
             Fen: archive.FinalFen,
             LegalMoves: [],
             MoveHistory: expectedMoveHistory,

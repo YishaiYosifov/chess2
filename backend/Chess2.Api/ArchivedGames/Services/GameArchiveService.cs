@@ -71,6 +71,7 @@ public class GameArchiveService(
             WhitePlayer = whiteArchive,
             BlackPlayerId = blackArchive.Id,
             BlackPlayer = blackArchive,
+            InitialFen = state.InitialFen,
             FinalFen = state.Fen,
             Moves = moves,
             IsRated = state.IsRated,
