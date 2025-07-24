@@ -40,7 +40,6 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
             Clocks: clocks,
             SideToMove: sideToMove,
             InitialFen: archive.InitialFen,
-            Fen: archive.FinalFen,
             LegalMoves: [],
             MoveHistory: moveHistory,
             ResultData: result

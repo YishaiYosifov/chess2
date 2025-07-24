@@ -27,8 +27,7 @@ public class GameStateFaker : RecordFaker<GameState>
             )
         );
         RuleFor(x => x.SideToMove, f => f.PickRandom<GameColor>());
-        RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10 initial");
-        RuleFor(x => x.Fen, "10/10/10/10/10/10/10/10/10/10 current");
+        RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(
             x => x.LegalMoves,
             f =>

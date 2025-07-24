@@ -72,7 +72,6 @@ public class GameArchiveService(
             BlackPlayerId = blackArchive.Id,
             BlackPlayer = blackArchive,
             InitialFen = state.InitialFen,
-            FinalFen = state.Fen,
             Moves = moves,
             IsRated = state.IsRated,
             BaseSeconds = state.TimeControl.BaseSeconds,
