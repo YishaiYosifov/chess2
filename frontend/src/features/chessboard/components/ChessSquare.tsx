@@ -10,11 +10,10 @@ import {
 import { twMerge } from "tailwind-merge";
 
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import { Point } from "@/types/tempModels";
-import { GameColor } from "@/lib/apiClient";
+import { LogicalPoint } from "@/types/tempModels";
 
 type ChessSquareProps = {
-    position: Point;
+    position: LogicalPoint;
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
@@ -34,18 +33,12 @@ const ChessSquare: ForwardRefRenderFunction<
         (store) => store.boardDimensions,
     );
 
-    const viewingFrom = useChessboardStore((state) => state.viewingFrom);
+    const logicalPointToViewPoint = useChessboardStore(
+        (state) => state.logicalPointToViewPoint,
+    );
     const squareDivRef = useRef<HTMLDivElement>(null);
 
-    let { x, y } = position;
-
-    // flip the coordinates because white is starts at y 0,
-    // but we want to the playing side on the bottom
-    if (viewingFrom == GameColor.WHITE) {
-        y = boardHeight - y - 1;
-    } else {
-        x = boardWidth - x - 1;
-    }
+    const { x, y } = logicalPointToViewPoint(position);
 
     const tileWidth = 100 / boardWidth;
     const tileHeight = 100 / boardHeight;

@@ -1,6 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardState, createChessboardStore } from "../chessboardStore";
 import { OverlayItem } from "../overlaySlice";
+import { viewPoint } from "@/lib/utils/pointUtils";
 
 describe("OverlaySlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -12,8 +13,8 @@ describe("OverlaySlice", () => {
     describe("setCurrentlyDrawing", () => {
         it("should set the currentlyDrawing overlay", () => {
             const slice = store.getState();
-            const from = { x: 0, y: 0 };
-            const to = { x: 1, y: 1 };
+            const from = viewPoint({ x: 0, y: 0 });
+            const to = viewPoint({ x: 1, y: 1 });
 
             slice.setCurrentlyDrawing(from, to);
 
@@ -27,8 +28,8 @@ describe("OverlaySlice", () => {
     describe("getOverlayId", () => {
         it("should return a consistent string id from two points", () => {
             const slice = store.getState();
-            const from = { x: 2, y: 2 };
-            const to = { x: 3, y: 3 };
+            const from = viewPoint({ x: 2, y: 2 });
+            const to = viewPoint({ x: 3, y: 3 });
 
             const id = slice.getOverlayId(from, to);
             expect(id).toBe("2,2-3,3");
@@ -38,8 +39,8 @@ describe("OverlaySlice", () => {
     describe("addOverlay", () => {
         it("should add an overlay to the map", () => {
             const slice = store.getState();
-            const from = { x: 4, y: 4 };
-            const to = { x: 5, y: 5 };
+            const from = viewPoint({ x: 4, y: 4 });
+            const to = viewPoint({ x: 5, y: 5 });
             const overlay: OverlayItem = { from, to };
 
             const id = slice.getOverlayId(from, to);
@@ -53,8 +54,8 @@ describe("OverlaySlice", () => {
     describe("removeOverlay", () => {
         it("should remove an overlay by id", () => {
             const slice = store.getState();
-            const from = { x: 6, y: 6 };
-            const to = { x: 7, y: 7 };
+            const from = viewPoint({ x: 6, y: 6 });
+            const to = viewPoint({ x: 7, y: 7 });
             const overlay: OverlayItem = { from, to };
             const id = slice.getOverlayId(from, to);
 
@@ -69,8 +70,8 @@ describe("OverlaySlice", () => {
     describe("toggleOverlay", () => {
         it("should add overlay if it does not exist", () => {
             const slice = store.getState();
-            const from = { x: 8, y: 8 };
-            const to = { x: 9, y: 9 };
+            const from = viewPoint({ x: 8, y: 8 });
+            const to = viewPoint({ x: 9, y: 9 });
             const overlay: OverlayItem = { from, to };
             const id = slice.getOverlayId(from, to);
 
@@ -80,8 +81,8 @@ describe("OverlaySlice", () => {
 
         it("should remove overlay if it already exists", () => {
             const slice = store.getState();
-            const from = { x: 10, y: 10 };
-            const to = { x: 11, y: 11 };
+            const from = viewPoint({ x: 10, y: 10 });
+            const to = viewPoint({ x: 11, y: 11 });
             const overlay: OverlayItem = { from, to };
             const id = slice.getOverlayId(from, to);
 
@@ -105,8 +106,8 @@ describe("OverlaySlice", () => {
 
         it("should toggle the currentlyDrawing overlay and clear it", () => {
             const slice = store.getState();
-            const from = { x: 12, y: 12 };
-            const to = { x: 13, y: 13 };
+            const from = viewPoint({ x: 12, y: 12 });
+            const to = viewPoint({ x: 13, y: 13 });
             const id = slice.getOverlayId(from, to);
 
             slice.setCurrentlyDrawing(from, to);
@@ -127,8 +128,8 @@ describe("OverlaySlice", () => {
     describe("clearOverlays", () => {
         it("should clear overlays and currentlyDrawing", () => {
             const slice = store.getState();
-            const from = { x: 14, y: 14 };
-            const to = { x: 15, y: 15 };
+            const from = viewPoint({ x: 14, y: 14 });
+            const to = viewPoint({ x: 15, y: 15 });
 
             slice.setCurrentlyDrawing(from, to);
             slice.commitCurrentlyDrawing();

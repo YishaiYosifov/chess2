@@ -2,7 +2,7 @@ import brotliDecompress from "brotli/decompress";
 
 import { LegalMoveMap, Move, MoveSideEffect } from "@/types/tempModels";
 import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
-import { idxToPoint, pointToStr } from "@/lib/utils/pointUtils";
+import { idxToLogicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 
 export function decodePathIntoMap(
     paths: MovePath[],
@@ -21,12 +21,14 @@ export function decodePathIntoMap(
 }
 
 export function decodePath(path: MovePath, boardWidth: number): Move {
-    const from = idxToPoint(path.fromIdx, boardWidth);
-    const to = idxToPoint(path.toIdx, boardWidth);
+    const from = idxToLogicalPoint(path.fromIdx, boardWidth);
+    const to = idxToLogicalPoint(path.toIdx, boardWidth);
     const triggers =
-        path.triggerIdxs?.map((idx) => idxToPoint(idx, boardWidth)) ?? [];
+        path.triggerIdxs?.map((idx) => idxToLogicalPoint(idx, boardWidth)) ??
+        [];
     const captures =
-        path.capturedIdxs?.map((idx) => idxToPoint(idx, boardWidth)) ?? [];
+        path.capturedIdxs?.map((idx) => idxToLogicalPoint(idx, boardWidth)) ??
+        [];
     const sideEffects =
         path.sideEffects?.map((m) => sideEffectToMove(m, boardWidth)) ?? [];
 
@@ -43,8 +45,8 @@ function sideEffectToMove(
     path: MoveSideEffectPath,
     boardWidth: number,
 ): MoveSideEffect {
-    const from = idxToPoint(path.fromIdx, boardWidth);
-    const to = idxToPoint(path.toIdx, boardWidth);
+    const from = idxToLogicalPoint(path.fromIdx, boardWidth);
+    const to = idxToLogicalPoint(path.toIdx, boardWidth);
     return {
         from,
         to,

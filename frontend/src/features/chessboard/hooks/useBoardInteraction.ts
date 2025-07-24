@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { InteractionInfo } from "../stores/interactionSlice";
-import { MaybePromise, Point } from "@/types/tempModels";
+import { MaybePromise, ScreenPoint } from "@/types/tempModels";
 import { useChessboardStore } from "./useChessboard";
+import { screenPoint } from "@/lib/utils/pointUtils";
 
 export default function useBoardInteraction({
     shouldStartDrag,
@@ -15,9 +16,9 @@ export default function useBoardInteraction({
 }: {
     shouldStartDrag: (info: InteractionInfo) => MaybePromise<boolean>;
 
-    onDragStart?: (point: Point) => MaybePromise<void>;
-    onDragMove?: (point: Point) => MaybePromise<void>;
-    onDragEnd?: (point: Point) => MaybePromise<void>;
+    onDragStart?: (point: ScreenPoint) => MaybePromise<void>;
+    onDragMove?: (point: ScreenPoint) => MaybePromise<void>;
+    onDragEnd?: (point: ScreenPoint) => MaybePromise<void>;
 
     onPress?: (info: InteractionInfo) => MaybePromise<void>;
     onClick?: (info: InteractionInfo) => MaybePromise<void>;
@@ -51,7 +52,7 @@ export default function useBoardInteraction({
     const dragStartQuery = useChessboardStore((x) => x.dragStartQuery);
     const pointerUpEvent = useChessboardStore((x) => x.pointerUpEvent);
 
-    const startDragging = useCallback(async (startFrom: Point) => {
+    const startDragging = useCallback(async (startFrom: ScreenPoint) => {
         setIsDragging(true);
         await callbacksRef.current.onDragStart?.(startFrom);
         isDraggingRef.current = true;
@@ -63,10 +64,12 @@ export default function useBoardInteraction({
         async function emitDrag(): Promise<void> {
             if (!isDraggingRef.current) return;
 
-            await callbacksRef.current.onDragMove?.({
-                x: lastMouseX,
-                y: lastMouseY,
-            });
+            await callbacksRef.current.onDragMove?.(
+                screenPoint({
+                    x: lastMouseX,
+                    y: lastMouseY,
+                }),
+            );
             animationFrameId = null;
         }
 
@@ -82,10 +85,12 @@ export default function useBoardInteraction({
         async function stopDragging(event: PointerEvent) {
             if (hasHandledPointerUpRef.current) return;
 
-            await callbacksRef.current.onDragEnd?.({
-                x: event.clientX,
-                y: event.clientY,
-            });
+            await callbacksRef.current.onDragEnd?.(
+                screenPoint({
+                    x: event.clientX,
+                    y: event.clientY,
+                }),
+            );
             window.removeEventListener("pointermove", handleMove);
             window.removeEventListener("pointerup", stopDragging);
 

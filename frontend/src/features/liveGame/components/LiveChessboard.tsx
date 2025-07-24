@@ -1,6 +1,6 @@
 "use client";
 
-import { Point } from "@/types/tempModels";
+import { LogicalPoint } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useMemo, useCallback, useRef } from "react";
 import { GameState } from "@/lib/apiClient";
@@ -39,7 +39,7 @@ const LiveChessboard = ({
 
     const sendGameEvent = useGameEmitter(gameToken);
     const sendMove = useCallback(
-        async (from: Point, to: Point) => {
+        async (from: LogicalPoint, to: LogicalPoint) => {
             await sendGameEvent("MovePieceAsync", gameToken, from, to);
         },
         [sendGameEvent, gameToken],
