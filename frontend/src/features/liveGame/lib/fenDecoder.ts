@@ -1,5 +1,6 @@
 import { PieceID, PieceMap, PieceType } from "@/types/tempModels";
 import { GameColor } from "@/lib/apiClient";
+import { logicalPoint } from "@/lib/utils/pointUtils";
 
 /**
  * Parse a fen into a PieceMap
@@ -34,7 +35,7 @@ export function decodeFen(fen: string): PieceMap {
             const pieceType = square.toLowerCase() as PieceType;
 
             board.set(pieceId, {
-                position: { x, y },
+                position: logicalPoint({ x, y }),
                 type: pieceType,
                 color,
             });

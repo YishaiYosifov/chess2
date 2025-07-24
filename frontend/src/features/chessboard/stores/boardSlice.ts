@@ -2,7 +2,13 @@ import { StateCreator } from "zustand";
 
 import type { ChessboardState } from "./chessboardStore";
 import { GameColor } from "@/lib/apiClient";
-import { Point } from "@/types/tempModels";
+import {
+    LogicalPoint,
+    Point,
+    ScreenPoint,
+    ViewPoint,
+} from "@/types/tempModels";
+import { logicalPoint, viewPoint } from "@/lib/utils/pointUtils";
 
 export interface BoardDimensions {
     width: number;
@@ -19,12 +25,14 @@ export interface BoardSlice extends BoardSliceProps {
     boardDimensions: BoardDimensions;
     boardRect?: DOMRect;
 
-    screenToLogicalPoint(screenPoint: Point): Point | undefined;
-    screenToViewPoint(screenPoint: Point): Point | undefined;
-    logicalPointToScreenPoint(logicalPoint: Point): Point | undefined;
+    screenToLogicalPoint(screenPoint: ScreenPoint): LogicalPoint | undefined;
+    screenToViewPoint(screenPoint: ScreenPoint): ViewPoint | undefined;
+    logicalPointToScreenPoint(
+        logicalPoint: LogicalPoint,
+    ): ScreenPoint | undefined;
 
-    viewPointToLogicalPoint(viewPoint: Point): Point;
-    logicalPointToViewPoint(logicalPoint: Point): Point;
+    viewPointToLogicalPoint(viewPoint: ViewPoint): LogicalPoint;
+    logicalPointToViewPoint(logicalPoint: LogicalPoint): ViewPoint;
 
     setBoardRect: (rect: DOMRect) => void;
 }
@@ -40,7 +48,7 @@ export function createBoardSlice(
     return (set, get) => ({
         ...initState,
 
-        screenToLogicalPoint(screenPoint: Point): Point | undefined {
+        screenToLogicalPoint(screenPoint) {
             const { screenToViewPoint, viewPointToLogicalPoint } = get();
 
             const viewPoint = screenToViewPoint(screenPoint);
@@ -48,7 +56,7 @@ export function createBoardSlice(
 
             return viewPointToLogicalPoint(viewPoint);
         },
-        screenToViewPoint(screenPoint: Point): Point | undefined {
+        screenToViewPoint(screenPoint) {
             const { boardDimensions, boardRect } = get();
             if (!boardRect) return;
 
@@ -62,9 +70,9 @@ export function createBoardSlice(
                 (relY / boardRect.height) * boardDimensions.height,
             );
 
-            return { x, y };
+            return viewPoint({ x, y });
         },
-        logicalPointToScreenPoint(logicalPoint: Point): Point | undefined {
+        logicalPointToScreenPoint(logicalPoint) {
             const { logicalPointToViewPoint, boardDimensions, boardRect } =
                 get();
             if (!boardRect) return;
@@ -78,25 +86,29 @@ export function createBoardSlice(
                 ((viewPoint.y + 0.5) / boardDimensions.height) *
                     boardRect.height;
 
-            return { x: screenX, y: screenY };
+            return { x: screenX, y: screenY } as ScreenPoint;
         },
 
         // both perform the same coordinate transformation
         // we have both for clarity
-        viewPointToLogicalPoint(viewPoint: Point): Point {
+        viewPointToLogicalPoint(viewPoint) {
             const { viewingFrom, boardDimensions } = get();
-            return flipPointForPerspective(
-                viewPoint,
-                viewingFrom,
-                boardDimensions,
+            return logicalPoint(
+                flipPointForPerspective(
+                    viewPoint,
+                    viewingFrom,
+                    boardDimensions,
+                ),
             );
         },
-        logicalPointToViewPoint(logicalPoint: Point): Point {
+        logicalPointToViewPoint(logicalPoint) {
             const { viewingFrom, boardDimensions } = get();
-            return flipPointForPerspective(
-                logicalPoint,
-                viewingFrom,
-                boardDimensions,
+            return viewPoint(
+                flipPointForPerspective(
+                    logicalPoint,
+                    viewingFrom,
+                    boardDimensions,
+                ),
             );
         },
 

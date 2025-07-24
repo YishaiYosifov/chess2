@@ -3,11 +3,12 @@ import { enableMapSet } from "immer";
 import React from "react";
 
 import type { ChessboardState } from "./chessboardStore";
-import { Point } from "@/types/tempModels";
+import { ScreenPoint } from "@/types/tempModels";
 import { EventBus } from "@/lib/eventBus";
+import { screenPoint } from "@/lib/utils/pointUtils";
 
 export interface InteractionInfo {
-    point: Point;
+    point: ScreenPoint;
     button: number;
 }
 
@@ -39,10 +40,10 @@ export const createInteractionSlice: StateCreator<
 
     async onPointerDown(event: React.MouseEvent): Promise<void> {
         const info: InteractionInfo = {
-            point: {
+            point: screenPoint({
                 x: event.clientX,
                 y: event.clientY,
-            },
+            }),
             button: event.button,
         };
         set((store) => {
@@ -60,10 +61,10 @@ export const createInteractionSlice: StateCreator<
         });
 
         const info: InteractionInfo = {
-            point: {
+            point: screenPoint({
                 x: event.clientX,
                 y: event.clientY,
-            },
+            }),
             button: event.button,
         };
 

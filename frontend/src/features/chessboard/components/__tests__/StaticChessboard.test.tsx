@@ -3,12 +3,13 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PieceMap, PieceType } from "@/types/tempModels";
 import StaticChessboard from "../StaticChessboard";
 import { GameColor } from "@/lib/apiClient";
+import { logicalPoint } from "@/lib/utils/pointUtils";
 
 const mockBoard: PieceMap = new Map([
     [
         "1",
         {
-            position: { x: 0, y: 0 },
+            position: logicalPoint({ x: 0, y: 0 }),
             type: PieceType.ROOK,
             color: GameColor.WHITE,
         },
@@ -16,7 +17,7 @@ const mockBoard: PieceMap = new Map([
     [
         "2",
         {
-            position: { x: 1, y: 0 },
+            position: logicalPoint({ x: 1, y: 0 }),
             type: PieceType.HORSEY,
             color: GameColor.WHITE,
         },
@@ -24,7 +25,7 @@ const mockBoard: PieceMap = new Map([
     [
         "3",
         {
-            position: { x: 5, y: 0 },
+            position: logicalPoint({ x: 5, y: 0 }),
             type: PieceType.ROOK,
             color: GameColor.BLACK,
         },

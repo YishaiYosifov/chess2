@@ -1,10 +1,10 @@
 "use client";
 
-import { Point } from "@/types/tempModels";
+import { LogicalPoint } from "@/types/tempModels";
 
 import ChessSquare from "./ChessSquare";
 
-const HighlightedLegalMove = ({ position }: { position: Point }) => {
+const HighlightedLegalMove = ({ position }: { position: LogicalPoint }) => {
     return (
         <ChessSquare
             data-testid="highlightedLegalMove"

@@ -1,13 +1,13 @@
 import { StateCreator } from "zustand";
 import type { ChessboardState } from "./chessboardStore";
-import { Point, StrPoint } from "@/types/tempModels";
+import { StrPoint, ViewPoint } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
 
 type OverlayItemId = `${StrPoint}-${StrPoint}`;
 
 export interface OverlayItem {
-    from: Point;
-    to: Point;
+    from: ViewPoint;
+    to: ViewPoint;
     color?: string;
 }
 
@@ -20,10 +20,10 @@ export interface OverlaySlice {
     addOverlay(overlay: OverlayItem): void;
     removeOverlay(id: OverlayItemId): void;
 
-    setCurrentlyDrawing(from: Point, to: Point): void;
+    setCurrentlyDrawing(from: ViewPoint, to: ViewPoint): void;
     commitCurrentlyDrawing(): void;
 
-    getOverlayId(from: Point, to: Point): OverlayItemId;
+    getOverlayId(from: ViewPoint, to: ViewPoint): OverlayItemId;
     clearOverlays(): void;
 
     flashOverlay(overlay: OverlayItem, amount?: number): void;

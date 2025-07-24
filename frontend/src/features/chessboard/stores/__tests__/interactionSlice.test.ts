@@ -1,6 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardState, createChessboardStore } from "../chessboardStore";
 import { InteractionInfo } from "../interactionSlice";
+import { screenPoint } from "@/lib/utils/pointUtils";
 
 describe("InteractionSlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -35,7 +36,7 @@ describe("InteractionSlice", () => {
             await store.getState().onPointerDown(evt);
 
             const expectedInfo: InteractionInfo = {
-                point: { x: 50, y: 60 },
+                point: screenPoint({ x: 50, y: 60 }),
                 button: 2,
             };
 
@@ -59,7 +60,7 @@ describe("InteractionSlice", () => {
         it("should clear interaction state and emit pointerUp event", async () => {
             store.setState({
                 ...store.getState(),
-                interaction: { point: { x: 1, y: 1 }, button: 1 },
+                interaction: { point: screenPoint({ x: 1, y: 1 }), button: 1 },
             });
 
             const pointerUpSpy = vi.fn();
@@ -70,7 +71,7 @@ describe("InteractionSlice", () => {
             await store.getState().onPointerUp(evt);
 
             const expectedInfo: InteractionInfo = {
-                point: { x: 100, y: 200 },
+                point: screenPoint({ x: 100, y: 200 }),
                 button: 0,
             };
 
@@ -92,7 +93,7 @@ describe("InteractionSlice", () => {
             dragStartQuery.subscribe(third);
 
             const info: InteractionInfo = {
-                point: { x: 0, y: 0 },
+                point: screenPoint({ x: 0, y: 0 }),
                 button: 0,
             };
 

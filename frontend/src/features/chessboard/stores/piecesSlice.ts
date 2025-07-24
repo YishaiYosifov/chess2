@@ -1,35 +1,42 @@
-import { Move, PieceID, PieceMap, Point } from "@/types/tempModels";
+import {
+    LogicalPoint,
+    Move,
+    PieceID,
+    PieceMap,
+    ScreenPoint,
+} from "@/types/tempModels";
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
-    onPieceMovement?: (from: Point, to: Point) => Promise<void>;
+    onPieceMovement?: (from: LogicalPoint, to: LogicalPoint) => Promise<void>;
 }
 
 export interface PiecesSlice {
     pieces: PieceMap;
+    piecesCache: Map<number, PieceMap>;
     animatingPieces: Set<PieceID>;
     selectedPieceId: PieceID | null;
 
-    onPieceMovement?: (from: Point, to: Point) => Promise<void>;
+    onPieceMovement?: (from: LogicalPoint, to: LogicalPoint) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
-    tryApplySelectedMove(to: Point): Promise<boolean>;
+    tryApplySelectedMove(to: LogicalPoint): Promise<boolean>;
     handleMousePieceDrop({
         mousePoint,
         isDrag,
     }: {
-        mousePoint: Point;
+        mousePoint: ScreenPoint;
         isDrag: boolean;
     }): Promise<boolean>;
     applyMove(move: Move): void;
-    updatePiecePosition(from: Point, to: Point): void;
+    updatePiecePosition(from: LogicalPoint, to: LogicalPoint): void;
 
     addAnimatingPiece(pieceId: PieceID): void;
-    pointToPiece(position: Point): PieceID | undefined;
-    screenPointToPiece(position: Point): PieceID | undefined;
+    pointToPiece(position: LogicalPoint): PieceID | undefined;
+    screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
 
 export function createPiecesSlice(
@@ -43,10 +50,11 @@ export function createPiecesSlice(
     return (set, get) => ({
         ...initState,
 
+        piecesCache: new Map([[0, initState.pieces]]),
         selectedPieceId: null,
         animatingPieces: new Set(),
 
-        selectPiece(piece: PieceID): void {
+        selectPiece(piece) {
             const { showLegalMoves } = get();
 
             showLegalMoves(piece);
@@ -61,7 +69,7 @@ export function createPiecesSlice(
          *
          * @param move - The move to apply on the board.
          */
-        applyMove(move: Move): void {
+        applyMove(move) {
             const { pointToPiece, updatePiecePosition } = get();
 
             const captureIds = [pointToPiece(move.to)];
@@ -80,7 +88,7 @@ export function createPiecesSlice(
             }
         },
 
-        updatePiecePosition(from: Point, to: Point) {
+        updatePiecePosition(from, to) {
             const { pointToPiece, addAnimatingPiece } = get();
 
             const pieceId = pointToPiece(from);
@@ -105,7 +113,7 @@ export function createPiecesSlice(
          *
          * @param to - The target position to move the selected piece to.
          */
-        async tryApplySelectedMove(to: Point): Promise<boolean> {
+        async tryApplySelectedMove(to) {
             const strTo = pointToStr(to);
 
             const {
@@ -155,7 +163,7 @@ export function createPiecesSlice(
          * Converts pixel coordinates to board position, accounting for viewing orientation,
          * then attempts to move the selected piece to that position.
          */
-        async handleMousePieceDrop({ mousePoint, isDrag }): Promise<boolean> {
+        async handleMousePieceDrop({ mousePoint, isDrag }) {
             const {
                 tryApplySelectedMove,
                 screenToLogicalPoint,
@@ -163,10 +171,7 @@ export function createPiecesSlice(
                 flashLegalMoves,
             } = get();
 
-            const logicalPoint = screenToLogicalPoint({
-                x: mousePoint.x,
-                y: mousePoint.y,
-            });
+            const logicalPoint = screenToLogicalPoint(mousePoint);
             if (!logicalPoint) return false;
 
             const didMove = await tryApplySelectedMove(logicalPoint);
@@ -181,7 +186,7 @@ export function createPiecesSlice(
          *
          * @param pieceId - The ID of the piece to animate.
          */
-        addAnimatingPiece(pieceId: PieceID): void {
+        addAnimatingPiece(pieceId) {
             set((state) => {
                 if (!state.animatingPieces.has(pieceId))
                     state.animatingPieces.add(pieceId);
@@ -202,14 +207,14 @@ export function createPiecesSlice(
          * @param position - The board coordinate to check for a piece.
          * @returns The ID of the piece at the position, or undefined if no piece is present.
          */
-        pointToPiece(position: Point): PieceID | undefined {
+        pointToPiece(position) {
             const pieces = get().pieces;
             for (const [id, piece] of pieces) {
                 if (pointEquals(piece.position, position)) return id;
             }
         },
 
-        screenPointToPiece(point: Point): PieceID | undefined {
+        screenPointToPiece(point) {
             const { screenToLogicalPoint, pointToPiece } = get();
 
             const logicalPoint = screenToLogicalPoint(point);

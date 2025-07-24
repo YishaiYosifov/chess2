@@ -1,21 +1,20 @@
 import { GameColor } from "@/lib/apiClient";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import {
     LegalMoveMap,
+    LogicalPoint,
     Move,
     Piece,
     PieceMap,
     PieceType,
-    Point,
 } from "@/types/tempModels";
 import { faker } from "@faker-js/faker";
 
-const allPoints = Array.from({ length: 100 }, (_, i) => ({
-    x: i % 10,
-    y: Math.floor(i / 10),
-}));
+const allPoints: LogicalPoint[] = Array.from({ length: 100 }, (_, i) =>
+    logicalPoint({ x: i % 10, y: Math.floor(i / 10) }),
+);
 
-export function createUniquePoint(): Point {
+export function createUniquePoint(): LogicalPoint {
     if (allPoints.length === 0)
         throw new Error("No more unique points available");
 

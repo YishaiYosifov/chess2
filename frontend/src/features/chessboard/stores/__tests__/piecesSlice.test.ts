@@ -10,12 +10,13 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import {
     LegalMoveMap,
+    LogicalPoint,
     Piece,
     PieceID,
     PieceMap,
-    Point,
+    ScreenPoint,
 } from "@/types/tempModels";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { logicalPoint, pointToStr, screenPoint } from "@/lib/utils/pointUtils";
 import { GameColor } from "@/lib/apiClient";
 
 describe("PiecesSlice", () => {
@@ -27,7 +28,7 @@ describe("PiecesSlice", () => {
     });
 
     function expectPieces(
-        ...pieces: { id: PieceID; position: Point; piece: Piece }[]
+        ...pieces: { id: PieceID; position: LogicalPoint; piece: Piece }[]
     ) {
         const expectedPieces: PieceMap = new Map();
         for (const { id, position, piece } of pieces) {
@@ -43,7 +44,9 @@ describe("PiecesSlice", () => {
             const pieces = createFakePieceMap();
             store.setState({ pieces });
 
-            const move = createFakeMove({ from: { x: 69, y: 420 } });
+            const move = createFakeMove({
+                from: logicalPoint({ x: 69, y: 420 }),
+            });
             store.getState().applyMove(move);
 
             const newPieces = store.getState().pieces;
@@ -91,7 +94,7 @@ describe("PiecesSlice", () => {
             const pieces = createFakePieceMap();
             store.setState({ pieces });
 
-            store.getState().tryApplySelectedMove({ x: 6, y: 9 });
+            store.getState().tryApplySelectedMove(logicalPoint({ x: 6, y: 9 }));
 
             const newPieces = store.getState().pieces;
             expect(newPieces).toEqual(pieces);
@@ -143,14 +146,22 @@ describe("PiecesSlice", () => {
 
     describe("handleMousePieceDrop", () => {
         it.each([
-            [GameColor.WHITE, { x: 2, y: 7 }, { x: 20, y: 20 }],
-            [GameColor.BLACK, { x: 7, y: 2 }, { x: 20, y: 20 }],
+            [
+                GameColor.WHITE,
+                logicalPoint({ x: 2, y: 7 }),
+                screenPoint({ x: 20, y: 20 }),
+            ],
+            [
+                GameColor.BLACK,
+                logicalPoint({ x: 7, y: 2 }),
+                screenPoint({ x: 20, y: 20 }),
+            ],
         ])(
             "should move the selected piece based on drop coordinates depending on viewingFrom",
             async (
                 viewingFrom: GameColor,
-                expectedPosition: Point,
-                mousePosition: Point,
+                expectedPosition: LogicalPoint,
+                mousePosition: ScreenPoint,
             ) => {
                 const piece = createFakePiece();
                 const move = createFakeMove({
@@ -178,10 +189,7 @@ describe("PiecesSlice", () => {
                 });
 
                 await store.getState().handleMousePieceDrop({
-                    mousePoint: {
-                        x: mousePosition.x,
-                        y: mousePosition.y,
-                    },
+                    mousePoint: mousePosition,
                     isDrag: false,
                 });
 
@@ -205,7 +213,9 @@ describe("PiecesSlice", () => {
             store.setState({
                 pieces: new Map([["0", createFakePiece()]]),
             });
-            const id = store.getState().pointToPiece({ x: 69, y: 420 });
+            const id = store
+                .getState()
+                .pointToPiece(logicalPoint({ x: 69, y: 420 }));
             expect(id).toBeUndefined();
         });
     });

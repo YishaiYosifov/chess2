@@ -1,4 +1,4 @@
-import { LegalMoveMap, PieceID, Point } from "@/types/tempModels";
+import { LegalMoveMap, LogicalPoint, PieceID } from "@/types/tempModels";
 import { StateCreator } from "zustand";
 import { ChessboardState } from "./chessboardStore";
 import { pointToStr } from "@/lib/utils/pointUtils";
@@ -10,7 +10,7 @@ export interface LegalMovesSliceProps {
 
 export interface LegalMovesSlice {
     legalMoves: LegalMoveMap;
-    highlightedLegalMoves: Point[];
+    highlightedLegalMoves: LogicalPoint[];
     hasForcedMoves: boolean;
 
     showLegalMoves(pieceId: PieceID): void;
