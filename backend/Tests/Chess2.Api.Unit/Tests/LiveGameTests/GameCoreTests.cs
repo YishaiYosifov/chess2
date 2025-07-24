@@ -72,6 +72,7 @@ public class GameCoreTests
         blackMoves.EncodedMoves.Should().BeEmpty();
 
         _gameCore.Fen.Should().Be("fen");
+        _gameCore.InitialFen.Should().Be("fen");
         _drawEvaluatorMock.Received(1).RegisterInitialPosition("fen");
     }
 
@@ -103,10 +104,11 @@ public class GameCoreTests
         string san = "e4";
 
         SetupLegalMove(move, encoded, san);
-        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
+        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("fen");
 
         _gameCore.InitializeGame();
 
+        _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
         var result = _gameCore.MakeMove(move.From, move.To, GameColor.White);
 
         result.IsError.Should().BeFalse();
@@ -114,6 +116,7 @@ public class GameCoreTests
             .Value.Should()
             .Be(new MoveResult(Move: move, MovePath: path, San: san, EndStatus: null));
 
+        _gameCore.InitialFen.Should().Be("fen");
         _gameCore.Fen.Should().Be("updated-fen");
         _gameCore.SideToMove.Should().Be(GameColor.Black);
     }

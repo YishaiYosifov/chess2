@@ -145,6 +145,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             SideToMove: GameColor.White,
             Clocks: expectedClock,
             Fen: _gameCore.Fen,
+            InitialFen: _gameCore.InitialFen,
             MoveHistory: [],
             LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).MovePaths,
             TimeControl: _timeControl,

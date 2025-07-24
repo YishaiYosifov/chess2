@@ -10,6 +10,7 @@ public record GameState(
     ClockSnapshot Clocks,
     GameColor SideToMove,
     string Fen,
+    string InitialFen,
     IReadOnlyList<MoveSnapshot> MoveHistory,
     IReadOnlyCollection<MovePath> LegalMoves,
     bool HasForcedMoves = false,

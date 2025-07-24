@@ -23,6 +23,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameCore
 {
+    string InitialFen { get; }
     string Fen { get; }
     LegalMoveSet LegalMoves { get; }
     GameColor SideToMove { get; }
@@ -74,6 +75,7 @@ public class GameCore(
     private readonly ISanCalculator _sanCalculator = sanCalculator;
     private readonly IDrawEvaulator _drawEvaulator = drawEvaulator;
 
+    public string InitialFen { get; private set; } = "";
     public string Fen { get; private set; } = "";
     public LegalMoveSet LegalMoves { get; private set; } = new();
     public GameColor SideToMove { get; private set; } = GameColor.White;
@@ -81,6 +83,7 @@ public class GameCore(
     public void InitializeGame()
     {
         Fen = _fenCalculator.CalculateFen(_board);
+        InitialFen = Fen;
         _drawEvaulator.RegisterInitialPosition(Fen);
         CalculateAllLegalMoves(GameColor.White);
     }
