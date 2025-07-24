@@ -1,6 +1,6 @@
 import createLiveChessStore, {
     LiveChessStore,
-    RequiredLiveChessData,
+    LiveChessStoreProps,
 } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
@@ -8,7 +8,7 @@ import { createFakePlayer } from "./playerFaker";
 import { StoreApi } from "zustand";
 
 export function createFakeLiveChessStore(
-    override?: Partial<RequiredLiveChessData>,
+    override?: Partial<LiveChessStoreProps>,
 ): StoreApi<LiveChessStore> {
     return createLiveChessStore({
         gameToken: faker.string.alpha(16),
