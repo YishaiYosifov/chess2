@@ -1,10 +1,9 @@
-import { LegalMoveMap, PieceMap } from "@/types/tempModels";
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardProps, ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { createMoveOptions } from "../lib/moveOptions";
 
 export interface CoreSlice {
-    resetState(pieces: PieceMap, legalMoves: LegalMoveMap): void;
+    resetState(initState: ChessboardProps): void;
     disableMovement(): void;
 }
 
@@ -13,7 +12,7 @@ export const createCoreSlice: StateCreator<
     [["zustand/immer", never], never],
     [],
     CoreSlice
-> = (set) => ({
+> = (set, _, store) => ({
     /**
      * Resets the entire chessboard state to defaults, then sets
      * the provided pieces and legal moves
@@ -21,13 +20,11 @@ export const createCoreSlice: StateCreator<
      * @param pieces - The new piece map for the board.
      * @param legalMoves - The new legal moves map.
      */
-    resetState(pieces: PieceMap, legalMoves: LegalMoveMap) {
-        set((state) => {
-            state.pieces = pieces;
-            state.legalMoves = legalMoves;
-            state.selectedPieceId = null;
-            state.highlightedLegalMoves = [];
-        });
+    resetState(initState) {
+        set(() => ({
+            ...store.getInitialState(),
+            ...initState,
+        }));
     },
 
     disableMovement(): void {

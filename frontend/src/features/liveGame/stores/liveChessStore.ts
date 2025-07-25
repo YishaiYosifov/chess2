@@ -1,13 +1,7 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 
-import {
-    Clocks,
-    GameColor,
-    GamePlayer,
-    GameResultData,
-    MoveSnapshot,
-} from "@/lib/apiClient";
+import { Clocks, GameColor, GamePlayer, GameResultData } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 import { BoardState, Position, ProcessedMoveOptions } from "@/types/tempModels";
@@ -16,6 +10,7 @@ import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 export interface LiveChessStoreProps {
     gameToken: string;
     positionHistory: Position[];
+    viewingMoveNumber: number;
     latestMoveOptions: ProcessedMoveOptions;
 
     sideToMove: GameColor;
@@ -28,8 +23,6 @@ export interface LiveChessStoreProps {
 }
 
 export interface LiveChessStore extends LiveChessStoreProps {
-    viewingMoveNumber: number;
-
     receiveMove(
         position: Position,
         clocks: Clocks,
@@ -37,21 +30,19 @@ export interface LiveChessStore extends LiveChessStoreProps {
     ): void;
     receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
 
-    setMoveHistory(moveHistory: MoveSnapshot[]): void;
-
     teleportToMove(number: number): BoardState | undefined;
     shiftMoveViewBy(amount: number): BoardState | undefined;
     teleportToLastMove(): BoardState;
 
     endGame(resultData: GameResultData): void;
+    resetState(initState: LiveChessStoreProps): void;
 }
 
 enableMapSet();
 export default function createLiveChessStore(initState: LiveChessStoreProps) {
     return createWithEqualityFn<LiveChessStore>()(
-        immer((set, get) => ({
+        immer((set, get, store) => ({
             ...initState,
-            viewingMoveNumber: initState.positionHistory.length - 1,
 
             receiveMove(position, clocks, sideToMove) {
                 const { viewingMoveNumber, positionHistory } = get();
@@ -67,31 +58,6 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
             receiveLegalMoves(moveOptions) {
                 set((state) => {
                     state.latestMoveOptions = moveOptions;
-                });
-            },
-
-            setMoveHistory: (moveHistory) =>
-                set((state) => {
-                    state.moveHistory = moveHistory;
-                }),
-
-            endGame(resultData) {
-                set((state) => {
-                    if (
-                        state.whitePlayer.rating &&
-                        resultData.whiteRatingChange
-                    )
-                        state.whitePlayer.rating +=
-                            resultData.whiteRatingChange;
-                    if (
-                        state.blackPlayer.rating &&
-                        resultData.blackRatingChange
-                    )
-                        state.blackPlayer.rating +=
-                            resultData.blackRatingChange;
-
-                    state.latestMoveOptions = createMoveOptions();
-                    state.resultData = resultData;
                 });
             },
 
@@ -123,6 +89,29 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
                 const lastIndex = positionHistory.length - 1;
                 if (lastIndex < 0) throw new Error("positionHistory is empty");
                 return teleportToMove(lastIndex)!;
+            },
+
+            endGame(resultData) {
+                set((state) => {
+                    if (
+                        state.whitePlayer.rating &&
+                        resultData.whiteRatingChange
+                    )
+                        state.whitePlayer.rating +=
+                            resultData.whiteRatingChange;
+                    if (
+                        state.blackPlayer.rating &&
+                        resultData.blackRatingChange
+                    )
+                        state.blackPlayer.rating +=
+                            resultData.blackRatingChange;
+
+                    state.latestMoveOptions = createMoveOptions();
+                    state.resultData = resultData;
+                });
+            },
+            resetState(initState) {
+                set(() => ({ ...store.getInitialState(), ...initState }));
             },
         })),
         shallow,

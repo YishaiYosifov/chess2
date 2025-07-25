@@ -1,20 +1,16 @@
 import { ChessboardState } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
-import { decodeFen } from "../lib/fenDecoder";
 import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
 import { GameOverPopupRef } from "../components/GameOverPopup";
-import {
-    decodePath,
-    decodePathIntoMap,
-    decodeEncodedMovesIntoMap,
-} from "../lib/moveDecoder";
+import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position, ProcessedMoveOptions } from "@/types/tempModels";
+import { createStoreProps } from "../lib/gameStateProcessor";
 
 export function useLiveChessEvents(
     gameToken: string,
-    playerColor: GameColor,
+    userId: string,
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardState>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
@@ -22,21 +18,17 @@ export function useLiveChessEvents(
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
 
     async function refetchGame() {
-        const { error, data } = await getGame({ path: { gameToken } });
-        if (error || !data) {
+        const { error, data: gameState } = await getGame({
+            path: { gameToken },
+        });
+        if (error || !gameState) {
             console.error(error);
             return;
         }
 
-        const pieces = decodeFen(data.fen);
-        const legalMoves = decodePathIntoMap(
-            data.legalMoves,
-            boardDimensions.width,
-        );
-        chessboardStore.getState().resetState(pieces, legalMoves);
-
-        const { setMoveHistory } = liveChessStore.getState();
-        setMoveHistory(data.moveHistory);
+        const { live, board } = createStoreProps(gameToken, userId, gameState);
+        liveChessStore.getState().resetState(live);
+        chessboardStore.getState().resetState(board);
     }
 
     function jumpForwards() {
@@ -77,7 +69,7 @@ export function useLiveChessEvents(
             moveNumber: number,
             clocks: Clocks,
         ) => {
-            const { positionHistory } = liveChessStore.getState();
+            const { positionHistory, playerColor } = liveChessStore.getState();
             const { applyMove } = chessboardStore.getState();
 
             // we missed a move... we need to refetch the state

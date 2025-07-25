@@ -25,6 +25,10 @@ describe("GameControls", () => {
     });
 
     it("should first render LiveGameControls with Abort", () => {
+        store.setState({
+            positionHistory: [createFakePosition()],
+        });
+
         render(
             <LiveChessStoreContext.Provider value={store}>
                 <GameControls />
@@ -35,13 +39,9 @@ describe("GameControls", () => {
         expect(screen.getByText(/Draw/i)).toBeInTheDocument();
     });
 
-    it("should render Resign if moveHistory has 3+ moves", () => {
+    it("should render Resign if moveHistory has 2+ moves", () => {
         store.setState({
-            positionHistory: [
-                createFakePosition(),
-                createFakePosition(),
-                createFakePosition(),
-            ],
+            positionHistory: [createFakePosition(), createFakePosition()],
         });
 
         render(
@@ -73,6 +73,8 @@ describe("GameControls", () => {
 
     it("should call sendGameEvent when clicking Abort", async () => {
         const user = userEvent.setup();
+
+        store.setState({ positionHistory: [] });
 
         render(
             <LiveChessStoreContext.Provider value={store}>
