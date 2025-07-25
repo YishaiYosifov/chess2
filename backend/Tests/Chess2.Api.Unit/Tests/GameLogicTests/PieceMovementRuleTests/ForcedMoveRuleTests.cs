@@ -56,7 +56,7 @@ public class ForcedMoveRuleTests
     {
         var rule = new ForcedMoveRule(
             _baseRuleMock,
-            ForcedMovePriority.ChildPawn,
+            ForcedMovePriority.UnderagePawn,
             (b, move) => false
         );
 
@@ -97,7 +97,7 @@ public class ForcedMoveRuleTests
         var baseRule = Substitute.For<IPieceMovementRule>();
         baseRule.Evaluate(_board, _origin, _piece).Returns([]);
 
-        var rule = new ForcedMoveRule(baseRule, ForcedMovePriority.ChildPawn, (b, move) => true);
+        var rule = new ForcedMoveRule(baseRule, ForcedMovePriority.UnderagePawn, (b, move) => true);
 
         var result = rule.Evaluate(_board, _origin, _piece).ToList();
 

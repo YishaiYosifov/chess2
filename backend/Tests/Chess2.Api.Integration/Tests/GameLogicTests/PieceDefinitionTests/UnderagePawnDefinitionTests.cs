@@ -4,19 +4,19 @@ using Chess2.Api.TestInfrastructure.Utils;
 
 namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
 
-public class ChildPawnDefinitionTests(Chess2WebApplicationFactory factory)
+public class UnderagePawnDefinitionTests(Chess2WebApplicationFactory factory)
     : PieceDefinitionTestBase(factory)
 {
     [Theory]
     [ClassData(typeof(PawnDefinitionTestData))]
-    public void ChildPawnDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
+    public void UnderagePawnDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
         TestMoves(testCase);
 }
 
-public class ChildPawnDefinitionTestData : BasePawnDefinitionTestData
+public class UnderagePawnDefinitionTestData : BasePawnDefinitionTestData
 {
-    public ChildPawnDefinitionTestData()
+    public UnderagePawnDefinitionTestData()
     {
-        AddTestCases(PieceType.ChildPawn, 2);
+        AddTestCases(PieceType.UnderagePawn, 2);
     }
 }

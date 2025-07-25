@@ -12,6 +12,6 @@ public enum PieceType
 
     //Xook,
     //AntiQueen,
-    ChildPawn,
+    UnderagePawn,
     //Archbishop,
 }
