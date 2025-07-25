@@ -1,21 +1,18 @@
 "use client";
 
-import {
-    LogicalPoint,
-    Position,
-    ProcessedMoveOptions,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useCallback, useRef } from "react";
-import { GameColor, GameState } from "@/lib/apiClient";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
 import createLiveChessStore, {
     LiveChessStore,
+    LiveChessStoreProps,
 } from "@/features/liveGame/stores/liveChessStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import {
+    ChessboardProps,
     ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
@@ -27,22 +24,17 @@ import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
 import { StoreApi } from "zustand";
-import { BoardDimensions } from "@/features/chessboard/stores/boardSlice";
 
 const LiveChessboard = ({
     gameToken,
-    playerColor,
-    positionHistory,
-    moveOptions,
-    boardDimensions,
-    gameState,
+    userId,
+    liveProps,
+    boardProps,
 }: {
     gameToken: string;
-    playerColor: GameColor;
-    positionHistory: Position[];
-    moveOptions: ProcessedMoveOptions;
-    boardDimensions: BoardDimensions;
-    gameState: GameState;
+    userId: string;
+    liveProps: LiveChessStoreProps;
+    boardProps: ChessboardProps;
 }) => {
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
@@ -55,38 +47,19 @@ const LiveChessboard = ({
     );
 
     const chessboardStoreRef = useRef<StoreApi<ChessboardState> | null>(null);
-    if (!chessboardStoreRef.current) {
+    if (!chessboardStoreRef.current)
         chessboardStoreRef.current = createChessboardStore({
-            pieces: positionHistory.at(-1)?.pieces ?? new Map(),
-            moveOptions: moveOptions,
-
-            boardDimensions,
-            viewingFrom: playerColor,
-
+            ...boardProps,
             onPieceMovement: sendMove,
         });
-    }
 
     const liveChessStoreRef = useRef<StoreApi<LiveChessStore> | null>(null);
-    if (!liveChessStoreRef.current) {
-        liveChessStoreRef.current = createLiveChessStore({
-            gameToken,
-
-            whitePlayer: gameState.whitePlayer,
-            blackPlayer: gameState.blackPlayer,
-            playerColor,
-            sideToMove: gameState.sideToMove,
-
-            positionHistory,
-            latestMoveOptions: moveOptions,
-            clocks: gameState.clocks,
-            resultData: gameState.resultData ?? null,
-        });
-    }
+    if (!liveChessStoreRef.current)
+        liveChessStoreRef.current = createLiveChessStore(liveProps);
 
     useLiveChessEvents(
         gameToken,
-        playerColor,
+        userId,
         liveChessStoreRef.current,
         chessboardStoreRef.current,
         gameOverPopupRef,

@@ -200,7 +200,7 @@ describe("ChessPiece", () => {
         const { logicalPointToScreenPoint } = store.getState();
 
         const startPos = logicalPoint({ x: 0, y: 9 });
-        const destinationPos = logicalPoint({ y: 5, x: 7 });
+        const destinationPos = logicalPoint({ x: 7, y: 5 });
         const move: Move = {
             from: startPos,
             to: destinationPos,
@@ -227,7 +227,7 @@ describe("ChessPiece", () => {
             {
                 target: chessboard,
                 coords: logicalPointToScreenPoint(move.to),
-                keys: "[MouseLeft/]",
+                keys: "[/MouseLeft]",
             },
         ]);
         vi.advanceTimersToNextFrame();

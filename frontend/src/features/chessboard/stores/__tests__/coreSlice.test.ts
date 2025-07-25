@@ -1,10 +1,17 @@
 import { StoreApi } from "zustand";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
 import {
-    createFakeLegalMoveMapFromPieces,
-    createFakePiece,
+    ChessboardProps,
+    ChessboardState,
+    createChessboardStore,
+} from "../chessboardStore";
+import {
+    createFakeLegalMoveMap,
+    createFakePieceMap,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { PieceMap } from "@/types/tempModels";
+import { GameColor } from "@/lib/apiClient";
+import { createMoveOptions } from "../../lib/moveOptions";
+import { LogicalPoint, PieceID } from "@/types/tempModels";
+import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("CoreSlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -14,34 +21,56 @@ describe("CoreSlice", () => {
         store = createChessboardStore();
     });
 
-    describe("setBoardRect", () => {
-        it("should set boardRect state", () => {
-            const rect = {
-                left: 10,
-                top: 20,
-                width: 100,
-                height: 200,
-            } as DOMRect;
-            store.getState().setBoardRect(rect);
-            expect(store.getState().boardRect).toBe(rect);
+    describe("resetState", () => {
+        it("should reset the state to props", () => {
+            const newChessboardState: ChessboardProps = {
+                viewingFrom: GameColor.BLACK,
+                boardDimensions: {
+                    width: 6,
+                    height: 9,
+                },
+                pieces: createFakePieceMap(),
+                moveOptions: createMoveOptions({
+                    legalMoves: createFakeLegalMoveMap(),
+                    hasForcedMoves: true,
+                }),
+            };
+
+            store.getState().resetState(newChessboardState);
+
+            const state = store.getState();
+            expect(state).toEqual({
+                ...store.getInitialState(),
+                ...newChessboardState,
+            });
         });
     });
 
-    describe("resetState", () => {
-        it("should reset the state to a playable position", () => {
-            const piece = createFakePiece();
-            const pieces: PieceMap = new Map([["0", piece]]);
-            const legalMoves = createFakeLegalMoveMapFromPieces(piece);
+    describe("disableMovement", () => {
+        it("should clear moveOptions, highlightedLegalMoves, and selectedPieceId", () => {
+            const selectedPieceId: PieceID = "0";
+            const moveOptions = createMoveOptions({
+                legalMoves: createFakeLegalMoveMap(),
+                hasForcedMoves: true,
+            });
+            const highlightedLegalMoves: LogicalPoint[] = [
+                logicalPoint({ x: 1, y: 2 }),
+                logicalPoint({ x: 2, y: 3 }),
+            ];
 
-            store.getState().resetState(pieces, legalMoves);
+            store.setState({
+                moveOptions,
+                highlightedLegalMoves,
+                selectedPieceId,
+            });
+
+            store.getState().disableMovement();
 
             const state = store.getState();
-            expect(state).toMatchObject({
-                pieces,
-                legalMoves,
-                selectedPieceId: null,
-                highlightedLegalMoves: [],
-            });
+
+            expect(state.moveOptions).toEqual(createMoveOptions()); // assuming this resets to empty
+            expect(state.highlightedLegalMoves).toEqual([]);
+            expect(state.selectedPieceId).toBeNull();
         });
     });
 });

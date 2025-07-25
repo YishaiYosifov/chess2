@@ -153,4 +153,18 @@ describe("LiveChessStore", () => {
             expect(() => store.getState().teleportToLastMove()).toThrow();
         });
     });
+
+    describe("resetState", () => {
+        it("should reset the state to props", () => {
+            const newChessboardState = createFakeLiveChessStoreProps();
+
+            store.getState().resetState(newChessboardState);
+
+            const state = store.getState();
+            expect(state).toEqual({
+                ...store.getInitialState(),
+                ...newChessboardState,
+            });
+        });
+    });
 });
