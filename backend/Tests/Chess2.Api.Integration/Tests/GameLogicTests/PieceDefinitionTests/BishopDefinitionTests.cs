@@ -183,7 +183,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("a1", captures: ["a1"], forcedPriority: ForcedMovePriority.UnderagePawn)
                 // diagonal down-right
                 .GoesTo("f4", captures: ["f4"], forcedPriority: ForcedMovePriority.UnderagePawn)
-                .WithDescription("Forced friendly child pawn capture")
+                .WithDescription("Forced friendly underage pawn capture")
         );
 
         var enemyUnderagePawn = PieceFactory.Black(PieceType.UnderagePawn);
@@ -208,7 +208,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 // diagonal down-right
                 .GoesTo("f4")
                 .GoesTo("g3", captures: ["g3"], forcedPriority: ForcedMovePriority.UnderagePawn)
-                .WithDescription("Forced enemy child pawn capture")
+                .WithDescription("Forced enemy underage pawn capture")
         );
     }
 }
