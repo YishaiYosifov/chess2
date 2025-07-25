@@ -361,7 +361,7 @@ builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, PawnDefinition>();
-builder.Services.AddSingleton<IPieceDefinition, ChildPawnDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, UnderagePawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();

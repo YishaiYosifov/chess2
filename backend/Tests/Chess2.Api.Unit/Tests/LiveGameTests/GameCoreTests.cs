@@ -177,7 +177,7 @@ public class GameCoreTests
                 new("b1"),
                 new("b2"),
                 PieceFactory.White(),
-                forcedPriority: ForcedMovePriority.ChildPawn
+                forcedPriority: ForcedMovePriority.UnderagePawn
             ),
         ];
         Move[] maxPriority =

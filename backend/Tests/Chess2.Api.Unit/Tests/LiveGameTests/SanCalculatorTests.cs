@@ -76,7 +76,7 @@ public class SanCalculatorTests
 
     [Theory]
     [InlineData(PieceType.Pawn)]
-    [InlineData(PieceType.ChildPawn)]
+    [InlineData(PieceType.UnderagePawn)]
     public void CalculateSan_doesnt_add_the_piece_letter_for_pawns(PieceType pawnType)
     {
         var move = new Move(new("e2"), new("e4"), PieceFactory.White(pawnType));
@@ -118,7 +118,7 @@ public class SanCalculatorTests
 
     [Theory]
     [InlineData(PieceType.Pawn)]
-    [InlineData(PieceType.ChildPawn)]
+    [InlineData(PieceType.UnderagePawn)]
     public void CalculateSan_handles_pawn_multi_capture_and_adds_file_letter(PieceType pawnType)
     {
         var move = new Move(

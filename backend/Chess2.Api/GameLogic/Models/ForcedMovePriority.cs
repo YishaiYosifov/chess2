@@ -7,6 +7,6 @@
 public enum ForcedMovePriority
 {
     None = 0,
-    ChildPawn = 1,
+    UnderagePawn = 1,
     EnPassant = 2,
 }
