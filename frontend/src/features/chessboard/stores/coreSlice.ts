@@ -1,6 +1,7 @@
 import { LegalMoveMap, PieceMap } from "@/types/tempModels";
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
+import { createMoveOptions } from "../lib/moveOptions";
 
 export interface CoreSlice {
     resetState(pieces: PieceMap, legalMoves: LegalMoveMap): void;
@@ -31,7 +32,7 @@ export const createCoreSlice: StateCreator<
 
     disableMovement(): void {
         set((state) => {
-            state.legalMoves = new Map();
+            state.moveOptions = createMoveOptions();
             state.highlightedLegalMoves = [];
             state.selectedPieceId = null;
         });

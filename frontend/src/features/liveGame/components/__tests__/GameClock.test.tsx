@@ -1,6 +1,8 @@
-import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
+import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { StoreApi } from "zustand";
-import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
+import createLiveChessStore, {
+    LiveChessStore,
+} from "@/features/liveGame/stores/liveChessStore";
 import { GameColor, GameResult } from "@/lib/apiClient";
 import { act, render, screen } from "@testing-library/react";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
@@ -12,14 +14,16 @@ describe("GameClock", () => {
     beforeEach(() => {
         vi.useFakeTimers();
         vi.setSystemTime(1000);
-        store = createFakeLiveChessStore({
-            clocks: {
-                whiteClock: 300000,
-                blackClock: 300000,
-                lastUpdated: Date.now().valueOf(),
-            },
-            sideToMove: GameColor.WHITE,
-        });
+        store = createLiveChessStore(
+            createFakeLiveChessStoreProps({
+                clocks: {
+                    whiteClock: 300000,
+                    blackClock: 300000,
+                    lastUpdated: Date.now().valueOf(),
+                },
+                sideToMove: GameColor.WHITE,
+            }),
+        );
     });
 
     it("should render initial time correctly", () => {

@@ -10,33 +10,28 @@ import {
 } from "@/types/tempModels";
 import { faker } from "@faker-js/faker";
 
-const allPoints: LogicalPoint[] = Array.from({ length: 100 }, (_, i) =>
-    logicalPoint({ x: i % 10, y: Math.floor(i / 10) }),
-);
-
-export function createUniquePoint(): LogicalPoint {
-    if (allPoints.length === 0)
-        throw new Error("No more unique points available");
-
-    const index = faker.number.int({ min: 0, max: allPoints.length - 1 });
-    return allPoints.splice(index, 1)[0];
+export function createRandomPoint(): LogicalPoint {
+    return logicalPoint({
+        x: faker.number.int({ min: 0, max: 99 }),
+        y: faker.number.int({ min: 0, max: 99 }),
+    });
 }
 
 export function createFakePiece(override?: Partial<Piece>): Piece {
     return {
         type: faker.helpers.enumValue(PieceType),
         color: faker.helpers.enumValue(GameColor),
-        position: createUniquePoint(),
+        position: createRandomPoint(),
         ...override,
     };
 }
 
 export function createFakeMove(override?: Partial<Move>): Move {
     return {
-        from: createUniquePoint(),
-        to: createUniquePoint(),
-        triggers: [createUniquePoint(), createUniquePoint()],
-        captures: [createUniquePoint()],
+        from: createRandomPoint(),
+        to: createRandomPoint(),
+        triggers: [createRandomPoint(), createRandomPoint()],
+        captures: [createRandomPoint()],
         sideEffects: [],
         ...override,
     };
@@ -68,7 +63,16 @@ export function createFakePieceMapFromPieces(...pieces: Piece[]): PieceMap {
     return map;
 }
 
-export function createFakeLegalMoveMap(...pieces: Piece[]): LegalMoveMap {
+export function createFakeLegalMoveMap(count = 5): LegalMoveMap {
+    const pieces: Piece[] = [];
+    for (let i = 0; i < count; i++) pieces.push(createFakePiece());
+
+    return createFakeLegalMoveMapFromPieces(...pieces);
+}
+
+export function createFakeLegalMoveMapFromPieces(
+    ...pieces: Piece[]
+): LegalMoveMap {
     const map: LegalMoveMap = new Map();
     for (const piece of pieces) {
         map.set(pointToStr(piece.position), [

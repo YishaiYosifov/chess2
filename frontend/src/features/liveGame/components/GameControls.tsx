@@ -22,11 +22,11 @@ const GameControls = () => {
 export default GameControls;
 
 const LiveGameControls = () => {
-    const moveHistory = useLiveChessStore((state) => state.moveHistory);
+    const positionHistory = useLiveChessStore((state) => state.positionHistory);
     const gameToken = useLiveChessStore((state) => state.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
 
-    const endGameText = moveHistory.length < 2 ? "Abort" : "Resign";
+    const endGameText = positionHistory.length < 2 ? "Abort" : "Resign";
 
     return (
         <>

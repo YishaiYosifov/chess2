@@ -1,11 +1,13 @@
 import { act, render, screen } from "@testing-library/react";
 import React from "react";
 
-import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
+import createLiveChessStore, {
+    LiveChessStore,
+} from "@/features/liveGame/stores/liveChessStore";
 import { GameColor, GameResult } from "@/lib/apiClient";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
-import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
+import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
 
@@ -14,7 +16,9 @@ describe("GameOverPopup", () => {
     let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {
-        store = createFakeLiveChessStore({ playerColor: GameColor.WHITE });
+        store = createLiveChessStore(
+            createFakeLiveChessStoreProps({ playerColor: GameColor.WHITE }),
+        );
     });
 
     it("should not render popup content by default", () => {
