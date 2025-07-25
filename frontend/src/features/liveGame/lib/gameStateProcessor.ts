@@ -61,26 +61,27 @@ export function createStoreProps(
     return { live, board };
 }
 
-function getPositionHistory(gameState: GameState) {
+function getPositionHistory(gameState: GameState): Position[] {
     let pieces = decodeFen(gameState.initialFen);
 
     const baseClock = gameState.timeControl.baseSeconds * 1000;
-    const clockSnapshot: ClockSnapshot = {
+    let clockSnapshot: ClockSnapshot = {
         whiteClock: baseClock,
         blackClock: baseClock,
     };
     const positionHistory: Position[] = [
         {
             pieces,
-            clocks: clockSnapshot,
+            clocks: { ...clockSnapshot },
         },
     ];
     for (const [i, moveSnapshot] of gameState.moveHistory.entries()) {
-        if (i % 2 == 0) {
-            clockSnapshot.whiteClock = moveSnapshot.timeLeft;
-        } else {
-            clockSnapshot.blackClock = moveSnapshot.timeLeft;
-        }
+        clockSnapshot = {
+            whiteClock:
+                i % 2 === 0 ? moveSnapshot.timeLeft : clockSnapshot.whiteClock,
+            blackClock:
+                i % 2 !== 0 ? moveSnapshot.timeLeft : clockSnapshot.blackClock,
+        };
 
         const move = decodePath(moveSnapshot.path, constants.BOARD_WIDTH);
         const { newPieces } = simulateMove(pieces, move);

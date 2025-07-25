@@ -15,7 +15,7 @@ describe("GamesTable", () => {
 
     beforeEach(() => {
         userMock = createFakeUser();
-        gamesMock = Array.from({ length: 3 }, () =>
+        gamesMock = Array(3).map(() =>
             createFakeGameSummary({
                 whitePlayer: createFakePlayerSummaryFromUser(userMock),
                 blackPlayer: createFakePlayerSummary(),
