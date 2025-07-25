@@ -249,8 +249,10 @@ public class GameActor : ReceiveActor, IWithTimers
             Clocks: _clock.Value,
             SideToMove: _core.SideToMove,
             InitialFen: _core.InitialFen,
-            LegalMoves: legalMoves.MovePaths,
-            HasForcedMoves: legalMoves.HasForcedMoves,
+            MoveOptions: new(
+                LegalMoves: legalMoves.MovePaths,
+                HasForcedMoves: legalMoves.HasForcedMoves
+            ),
             MoveHistory: _historyTracker.MoveHistory,
             ResultData: _result
         );

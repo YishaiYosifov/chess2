@@ -139,16 +139,20 @@ public class GameActorTests : BaseAkkaIntegrationTest
             BlackClock: _timeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
+        var legalMoves = _gameCore.GetLegalMovesFor(GameColor.White);
         var expectedGameState = new GameState(
+            TimeControl: _timeControl,
+            IsRated: true,
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
-            SideToMove: GameColor.White,
             Clocks: expectedClock,
+            SideToMove: GameColor.White,
             InitialFen: _gameCore.InitialFen,
             MoveHistory: [],
-            LegalMoves: _gameCore.GetLegalMovesFor(GameColor.White).MovePaths,
-            TimeControl: _timeControl,
-            IsRated: true
+            MoveOptions: new(
+                LegalMoves: legalMoves.MovePaths,
+                HasForcedMoves: legalMoves.HasForcedMoves
+            )
         );
         result.State.Should().BeEquivalentTo(expectedGameState);
     }
@@ -295,8 +299,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
         var stateEvent = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
             cancellationToken: ApiTestBase.CT
         );
-        stateEvent.State.HasForcedMoves.Should().BeTrue();
-        stateEvent.State.LegalMoves.Should().HaveCount(1);
+        stateEvent.State.MoveOptions.HasForcedMoves.Should().BeTrue();
+        stateEvent.State.MoveOptions.LegalMoves.Should().HaveCount(1);
     }
 
     [Fact]
