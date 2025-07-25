@@ -28,15 +28,7 @@ public class GameStateFaker : RecordFaker<GameState>
         );
         RuleFor(x => x.SideToMove, f => f.PickRandom<GameColor>());
         RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
-        RuleFor(
-            x => x.LegalMoves,
-            f =>
-            {
-                var count = f.Random.Number(1, 10);
-                return new MovePathFaker().Generate(count);
-            }
-        );
-        RuleFor(x => x.HasForcedMoves, f => f.Random.Bool());
+        RuleFor(x => x.MoveOptions, f => new MoveOptionsFaker().Generate());
         RuleFor(x => x.MoveHistory, f => new MoveSnapshotFaker().Generate(f.Random.Number(1, 6)));
         RuleFor(x => x.ResultData, (GameResultData?)null);
     }

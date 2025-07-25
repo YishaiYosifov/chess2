@@ -11,7 +11,6 @@ public record GameState(
     GameColor SideToMove,
     string InitialFen,
     IReadOnlyList<MoveSnapshot> MoveHistory,
-    IReadOnlyCollection<MovePath> LegalMoves,
-    bool HasForcedMoves = false,
+    MoveOptions MoveOptions,
     GameResultData? ResultData = null
 );

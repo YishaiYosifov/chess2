@@ -54,8 +54,8 @@ public class ArchivedGameStateBuilderTests
             Clocks: expectedClocks,
             SideToMove: GameColor.Black,
             InitialFen: archive.InitialFen,
-            LegalMoves: [],
             MoveHistory: expectedMoveHistory,
+            MoveOptions: new(),
             ResultData: new GameResultData(
                 Result: archive.Result,
                 ResultDescription: archive.ResultDescription,

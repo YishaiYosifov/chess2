@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -8,6 +7,7 @@ using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
@@ -123,7 +123,9 @@ public class GameControllerTests : BaseFunctionalTest
         gameState.Should().NotBeNull();
 
         gameState.ResultData.Should().NotBeNull();
-        gameState.LegalMoves.Should().BeEmpty();
+        gameState
+            .MoveOptions.Should()
+            .BeEquivalentTo(new MoveOptions(LegalMoves: [], HasForcedMoves: false));
         AssertAuthedPlayersMatch(user1, user1Rating, user2, user2Rating, gameState);
     }
 
@@ -147,7 +149,9 @@ public class GameControllerTests : BaseFunctionalTest
         gameState.Should().NotBeNull();
 
         gameState.ResultData.Should().NotBeNull();
-        gameState.LegalMoves.Should().BeEmpty();
+        gameState
+            .MoveOptions.Should()
+            .BeEquivalentTo(new MoveOptions(LegalMoves: [], HasForcedMoves: false));
         AssertGuestPlayersMatch("guest1", "guest2", gameState);
     }
 
