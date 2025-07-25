@@ -6,7 +6,7 @@ public class EnPassantRule(Offset direction) : IPieceMovementRule
 {
     private readonly Offset _direction = direction;
 
-    private const PieceType EnPassantType = PieceType.Pawn;
+    private readonly HashSet<PieceType> EnPassantType = [PieceType.Pawn, PieceType.UnderagePawn];
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
@@ -17,7 +17,7 @@ public class EnPassantRule(Offset direction) : IPieceMovementRule
         var lastMove = board.Moves.Count > 0 ? board.Moves[^1] : null;
         if (
             lastMove is null
-            || lastMove.Piece.Type != EnPassantType
+            || !EnPassantType.Contains(lastMove.Piece.Type)
             || lastMove.Piece.Color == movingPiece.Color
         )
             yield break;

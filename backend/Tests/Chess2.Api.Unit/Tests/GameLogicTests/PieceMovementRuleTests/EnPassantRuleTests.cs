@@ -20,26 +20,25 @@ public class EnPassantRuleTests
         GameColor capturingColor
     )
     {
-        var board = new ChessBoard();
-        var piece = new Piece(PieceType.Pawn, capturingColor);
-        var enemyPiece = new Piece(PieceType.Pawn, capturingColor.Invert());
+        ChessBoard board = new();
+        Piece piece = new(PieceType.Pawn, capturingColor);
+        Piece enemyPiece = new(PieceType.Pawn, capturingColor.Invert());
 
         board.PlacePiece(origin, piece);
         board.PlacePiece(enemyOrigin, enemyPiece);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemyPiece));
 
-        var behaviour = new EnPassantRule(direction);
+        EnPassantRule behaviour = new(direction);
 
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
-        var expected = new Move(
+        Move expected = new(
             from: origin,
             to: destination,
             piece: piece,
             capturedSquares: [enemyDestination],
             forcedPriority: ForcedMovePriority.EnPassant
         );
-
         result.Should().ContainSingle().Which.Should().BeEquivalentTo(expected);
     }
 
@@ -52,7 +51,7 @@ public class EnPassantRuleTests
         Offset direction
     )
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White(PieceType.Pawn);
         var enemy = PieceFactory.Black(PieceType.Pawn);
 
@@ -69,16 +68,46 @@ public class EnPassantRuleTests
     [Fact]
     public void Evaluate_returns_nothing_if_no_last_move_exists()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var pawn = PieceFactory.White(PieceType.Pawn);
-        var origin = new AlgebraicPoint("e5");
+        AlgebraicPoint origin = new("e5");
 
         board.PlacePiece(origin, pawn);
 
-        var behaviour = new EnPassantRule(direction: new(X: -1, Y: 1));
+        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1));
         var result = behaviour.Evaluate(board, origin, pawn).ToList();
 
         result.Should().BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(PieceType.UnderagePawn, true)]
+    [InlineData(PieceType.Pawn, true)]
+    [InlineData(PieceType.Rook, false)]
+    public void Evaluate_only_allows_en_passant_for_the_correct_piece_type(
+        PieceType enemyType,
+        bool shouldWork
+    )
+    {
+        ChessBoard board = new();
+        var pawn = PieceFactory.White(PieceType.Pawn);
+        var enemy = PieceFactory.Black(enemyType);
+
+        AlgebraicPoint origin = new("e6");
+        AlgebraicPoint enemyOrigin = new("d9");
+        AlgebraicPoint enemyDestination = new("d6");
+
+        board.PlacePiece(origin, pawn);
+        board.PlacePiece(enemyOrigin, enemy);
+        board.PlayMove(new Move(enemyOrigin, enemyDestination, enemy));
+        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1));
+
+        var result = behaviour.Evaluate(board, origin, pawn).ToList();
+
+        if (shouldWork)
+            result.Should().NotBeEmpty();
+        else
+            result.Should().BeEmpty();
     }
 }
 
