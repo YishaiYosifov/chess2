@@ -59,7 +59,6 @@ describe("InteractionSlice", () => {
     describe("onPointerUp", () => {
         it("should clear interaction state and emit pointerUp event", async () => {
             store.setState({
-                ...store.getState(),
                 interaction: { point: screenPoint({ x: 1, y: 1 }), button: 1 },
             });
 

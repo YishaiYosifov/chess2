@@ -10,9 +10,15 @@ import { createFakeLegalMoveMap } from "./chessboardFakers";
 export function createFakeLiveChessStoreProps(
     override?: Partial<LiveChessStoreProps>,
 ): LiveChessStoreProps {
+    const positionHistory = override?.positionHistory ?? [
+        createFakePosition(),
+        createFakePosition(),
+    ];
+
     return {
         gameToken: faker.string.alpha(16),
-        positionHistory: [createFakePosition(), createFakePosition()],
+        positionHistory,
+        viewingMoveNumber: positionHistory.length - 1,
         latestMoveOptions: createMoveOptions({
             legalMoves: createFakeLegalMoveMap(),
         }),
