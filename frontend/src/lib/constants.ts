@@ -92,6 +92,8 @@ const DISPLAY_TIME_CONTROLS: TimeControl[] = [
     TimeControl.CLASSICAL,
 ];
 
+const INITIAL_FEN =
+    "rhn1qkb1hr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKB1HR";
 // prettier-ignore
 const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["0", { position: logicalPoint({ x: 0, y: 0 }), type: PieceType.ROOK, color: GameColor.WHITE }],
@@ -155,6 +157,7 @@ const constants = {
     COOKIES,
     PATHS,
     HEADERS,
+    INITIAL_FEN,
     DEFAULT_CHESS_BOARD,
     SIGNALR_PATHS,
     PAGINATION_PAGE_SIZE,

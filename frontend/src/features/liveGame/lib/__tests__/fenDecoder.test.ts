@@ -6,10 +6,7 @@ import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("decodeFen", () => {
     it("should parse a standard starting position correctly", () => {
-        const fen =
-            "rhn1qkb1hr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKB1HR";
-
-        const board = decodeFen(fen);
+        const board = decodeFen(constants.INITIAL_FEN);
         expect(board).toEqual(constants.DEFAULT_CHESS_BOARD);
     });
 

@@ -1,0 +1,176 @@
+import { GameColor, GameState } from "@/lib/apiClient";
+import { createStoreProps } from "../gameStateProcessor";
+import { createFakeGameState } from "@/lib/testUtils/fakers/gameStateFaker";
+import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
+import { LiveChessStoreProps } from "../../stores/liveChessStore";
+import {
+    LogicalPoint,
+    Position,
+    ProcessedMoveOptions,
+} from "@/types/tempModels";
+import constants from "@/lib/constants";
+import { simulateMove } from "@/features/chessboard/lib/simulateMove";
+import { logicalPoint } from "@/lib/utils/pointUtils";
+import { decodePathIntoMap } from "../moveDecoder";
+
+describe("createStoreProps", () => {
+    let gameState: GameState;
+
+    beforeEach(() => {
+        gameState = createFakeGameState({
+            initialFen: constants.INITIAL_FEN,
+            timeControl: {
+                baseSeconds: 150,
+                incrementSeconds: 3,
+            },
+            // f5 f6 Nh3 Nc8
+            moveHistory: [
+                {
+                    path: {
+                        fromIdx: 15,
+                        toIdx: 45,
+                    },
+                    san: "f5",
+                    timeLeft: 100,
+                },
+                {
+                    path: {
+                        fromIdx: 85,
+                        toIdx: 55,
+                    },
+                    san: "f6",
+                    timeLeft: 100,
+                },
+                {
+                    path: {
+                        fromIdx: 8,
+                        toIdx: 27,
+                    },
+                    san: "Hh3",
+                    timeLeft: 50,
+                },
+                {
+                    path: {
+                        fromIdx: 91,
+                        toIdx: 72,
+                    },
+                    san: "Hc8",
+                    timeLeft: 50,
+                },
+            ],
+            moveOptions: {
+                legalMoves: [
+                    { fromIdx: 0, toIdx: 1 },
+                    { fromIdx: 2, toIdx: 3 },
+                ],
+                hasForcedMoves: true,
+            },
+        });
+    });
+
+    it("should return the complete and correct store props object", () => {
+        const result = createStoreProps(
+            "game-token",
+            gameState.blackPlayer.userId,
+            gameState,
+        );
+
+        const baseMs = gameState.timeControl.baseSeconds * 1000;
+        let pieces = new Map(constants.DEFAULT_CHESS_BOARD);
+
+        function applyMove(from: LogicalPoint, to: LogicalPoint) {
+            const { newPieces } = simulateMove(pieces, {
+                from,
+                to,
+                captures: [],
+                triggers: [],
+                sideEffects: [],
+            });
+            pieces = newPieces;
+        }
+
+        // starting with initial position
+        const positionHistory: Position[] = [
+            {
+                pieces: new Map(pieces),
+                clocks: {
+                    whiteClock: baseMs,
+                    blackClock: baseMs,
+                },
+            },
+        ];
+
+        // moves and clocks from the test setup
+        const moves = [
+            {
+                from: logicalPoint({ x: 5, y: 1 }),
+                to: logicalPoint({ x: 5, y: 4 }),
+                clocks: { whiteClock: 100, blackClock: baseMs },
+                san: "f5",
+            },
+            {
+                from: logicalPoint({ x: 5, y: 8 }),
+                to: logicalPoint({ x: 5, y: 5 }),
+                clocks: { whiteClock: 100, blackClock: 100 },
+                san: "f6",
+            },
+            {
+                from: logicalPoint({ x: 8, y: 0 }),
+                to: logicalPoint({ x: 7, y: 2 }),
+                clocks: { whiteClock: 50, blackClock: 100 },
+                san: "Hh3",
+            },
+            {
+                from: logicalPoint({ x: 1, y: 9 }),
+                to: logicalPoint({ x: 2, y: 7 }),
+                clocks: { whiteClock: 50, blackClock: 50 },
+                san: "Hc8",
+            },
+        ];
+
+        for (const move of moves) {
+            applyMove(move.from, move.to);
+            positionHistory.push({
+                pieces,
+                clocks: move.clocks,
+                san: move.san,
+            });
+        }
+
+        const legalMoves = decodePathIntoMap(
+            gameState.moveOptions.legalMoves,
+            constants.BOARD_WIDTH,
+        );
+        const latestMoveOptions: ProcessedMoveOptions = {
+            legalMoves,
+            hasForcedMoves: true,
+        };
+
+        expect(result).toEqual<{
+            live: LiveChessStoreProps;
+            board: ChessboardProps;
+        }>({
+            live: {
+                gameToken: "game-token",
+                whitePlayer: gameState.whitePlayer,
+                blackPlayer: gameState.blackPlayer,
+                playerColor: GameColor.BLACK,
+                sideToMove: gameState.sideToMove,
+                positionHistory,
+                viewingMoveNumber: 4,
+                latestMoveOptions,
+                clocks: gameState.clocks,
+                resultData: null,
+            },
+            board: {
+                pieces,
+                moveOptions: latestMoveOptions,
+                boardDimensions: {
+                    width: constants.BOARD_WIDTH,
+                    height: constants.BOARD_HEIGHT,
+                },
+                viewingFrom: GameColor.BLACK,
+            },
+        });
+    });
+});
