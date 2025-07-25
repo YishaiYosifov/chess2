@@ -26,12 +26,13 @@ public class BishopDefinition : IPieceDefinition
         new(
             new CaptureRule(
                 new SlideBehaviour(offset),
-                allowFriendlyFire: (board, piece) => piece.Type == PieceType.ChildPawn
+                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn
             ),
-            priority: ForcedMovePriority.ChildPawn,
+            priority: ForcedMovePriority.UnderagePawn,
             predicate: (board, move) =>
                 move.CapturedSquares.Any(c =>
-                    board.TryGetPieceAt(c, out var capture) && capture.Type == PieceType.ChildPawn
+                    board.TryGetPieceAt(c, out var capture)
+                    && capture.Type == PieceType.UnderagePawn
                 )
         );
 }

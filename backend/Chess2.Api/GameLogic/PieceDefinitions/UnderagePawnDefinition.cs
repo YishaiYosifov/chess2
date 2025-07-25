@@ -3,9 +3,9 @@ using Chess2.Api.GameLogic.PieceMovementRules;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
-public class ChildPawnDefinition : BasePawnDefinition
+public class UnderagePawnDefinition : BasePawnDefinition
 {
-    public override PieceType Type => PieceType.ChildPawn;
+    public override PieceType Type => PieceType.UnderagePawn;
 
     public override IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
