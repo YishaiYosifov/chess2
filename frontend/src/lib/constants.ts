@@ -1,4 +1,4 @@
-import { PieceMap, PieceType, ProcessedMoveOptions } from "@/types/tempModels";
+import { PieceMap, PieceType } from "@/types/tempModels";
 import {
     GameColor,
     TimeControl,
