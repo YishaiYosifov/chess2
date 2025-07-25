@@ -11,7 +11,7 @@ export enum PieceType {
     BISHOP = "b",
     HORSEY = "h",
     PAWN = "p",
-    CHILDPAWN = "d",
+    UNDERAGEPAWN = "d",
 }
 
 export type PieceID = `${number}`;
