@@ -22,9 +22,20 @@ describe("MoveHistoryTable", () => {
     let liveStore: StoreApi<LiveChessStore>;
     let chessboardStore: StoreApi<ChessboardState>;
 
+    const emptyMoveOptions = createMoveOptions();
+    let latestMoveOptions: ProcessedMoveOptions;
+
     beforeEach(() => {
+        latestMoveOptions = {
+            legalMoves: createFakeLegalMoveMap(),
+            hasForcedMoves: false,
+        };
+
         liveStore = createLiveChessStore(
-            createFakeLiveChessStoreProps({ positionHistory: [] }),
+            createFakeLiveChessStoreProps({
+                positionHistory: [],
+                latestMoveOptions,
+            }),
         );
         chessboardStore = createChessboardStore();
     });
@@ -37,6 +48,14 @@ describe("MoveHistoryTable", () => {
                 </ChessboardStoreContext.Provider>
             </LiveChessStoreContext.Provider>,
         );
+    }
+
+    function expectPosition(
+        position: Position,
+        moveOptions: ProcessedMoveOptions,
+    ) {
+        expect(chessboardStore.getState().pieces).toEqual(position.pieces);
+        expect(chessboardStore.getState().moveOptions).toEqual(moveOptions);
     }
 
     it("should render an empty table when there are no moves", () => {
@@ -105,11 +124,6 @@ describe("MoveHistoryTable", () => {
         const move2 = createFakePosition();
         const move3 = createFakePosition();
 
-        const emptyMoveOptions = createMoveOptions();
-        const latestMoveOptions: ProcessedMoveOptions = {
-            legalMoves: createFakeLegalMoveMap(),
-            hasForcedMoves: true,
-        };
         liveStore.setState({
             latestMoveOptions: latestMoveOptions,
             viewingMoveNumber: 0,
@@ -140,11 +154,26 @@ describe("MoveHistoryTable", () => {
         expectPosition(move1, emptyMoveOptions);
     });
 
-    function expectPosition(
-        position: Position,
-        moveOptions: ProcessedMoveOptions,
-    ) {
-        expect(chessboardStore.getState().pieces).toEqual(position.pieces);
-        expect(chessboardStore.getState().moveOptions).toEqual(moveOptions);
-    }
+    it("should update position when clicking on a move", async () => {
+        const move1 = createFakePosition({ san: undefined });
+        const move2 = createFakePosition({ san: "e4" });
+        const move3 = createFakePosition({ san: "e5" });
+        const move4 = createFakePosition({ san: "e6" });
+
+        liveStore.setState({
+            positionHistory: [move1, move2, move3, move4],
+        });
+
+        const user = userEvent.setup();
+        renderWithCtx();
+
+        await user.click(screen.getByText("e4"));
+        expectPosition(move2, emptyMoveOptions);
+
+        await user.click(screen.getByText("e5"));
+        expectPosition(move3, emptyMoveOptions);
+
+        await user.click(screen.getByText("e6"));
+        expectPosition(move4, latestMoveOptions);
+    });
 });
