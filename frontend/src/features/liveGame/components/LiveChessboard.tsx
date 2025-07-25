@@ -73,7 +73,7 @@ const LiveChessboard = ({
             gameToken,
 
             whitePlayer: gameState.whitePlayer,
-            blackPlayer: gameState.whitePlayer,
+            blackPlayer: gameState.blackPlayer,
             playerColor,
             sideToMove: gameState.sideToMove,
 
