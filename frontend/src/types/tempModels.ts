@@ -45,6 +45,11 @@ export interface Piece {
 export type PieceMap = Map<PieceID, Piece>;
 export type LegalMoveMap = Map<StrPoint, Move[]>;
 
+export interface ProcessedMoveOptions {
+    legalMoves: LegalMoveMap;
+    hasForcedMoves: boolean;
+}
+
 export interface Move {
     from: LogicalPoint;
     to: LogicalPoint;
@@ -57,6 +62,22 @@ export interface Move {
 export interface MoveSideEffect {
     from: LogicalPoint;
     to: LogicalPoint;
+}
+
+export interface Position {
+    san?: string;
+    pieces: PieceMap;
+    clocks: ClockSnapshot;
+}
+
+export interface BoardState {
+    pieces: PieceMap;
+    moveOptions: ProcessedMoveOptions;
+}
+
+export interface ClockSnapshot {
+    whiteClock: number;
+    blackClock: number;
 }
 
 export type MaybePromise<T> = Promise<T> | T;

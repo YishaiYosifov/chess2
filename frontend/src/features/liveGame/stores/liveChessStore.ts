@@ -10,10 +10,13 @@ import {
 } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
+import { BoardState, Position, ProcessedMoveOptions } from "@/types/tempModels";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 export interface LiveChessStoreProps {
     gameToken: string;
-    moveHistory: MoveSnapshot[];
+    positionHistory: Position[];
+    latestMoveOptions: ProcessedMoveOptions;
 
     sideToMove: GameColor;
     playerColor: GameColor;
@@ -25,38 +28,54 @@ export interface LiveChessStoreProps {
 }
 
 export interface LiveChessStore extends LiveChessStoreProps {
+    viewingMoveNumber: number;
+
     receiveMove(
-        move: MoveSnapshot,
+        position: Position,
         clocks: Clocks,
         sideToMove: GameColor,
     ): void;
+    receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
+
     setMoveHistory(moveHistory: MoveSnapshot[]): void;
+
+    teleportToMove(number: number): BoardState | undefined;
+    shiftMoveViewBy(amount: number): BoardState | undefined;
+    teleportToLastMove(): BoardState;
+
     endGame(resultData: GameResultData): void;
 }
 
 enableMapSet();
 export default function createLiveChessStore(initState: LiveChessStoreProps) {
     return createWithEqualityFn<LiveChessStore>()(
-        immer((set) => ({
+        immer((set, get) => ({
             ...initState,
+            viewingMoveNumber: initState.positionHistory.length - 1,
 
-            receiveMove: (
-                move: MoveSnapshot,
-                clocks: Clocks,
-                sideToMove: GameColor,
-            ) =>
+            receiveMove(position, clocks, sideToMove) {
+                const { viewingMoveNumber, positionHistory } = get();
                 set((state) => {
-                    state.moveHistory.push(move);
+                    if (viewingMoveNumber === positionHistory.length - 1)
+                        state.viewingMoveNumber++;
+
+                    state.positionHistory.push(position);
                     state.clocks = clocks;
                     state.sideToMove = sideToMove;
-                }),
+                });
+            },
+            receiveLegalMoves(moveOptions) {
+                set((state) => {
+                    state.latestMoveOptions = moveOptions;
+                });
+            },
 
-            setMoveHistory: (moveHistory: MoveSnapshot[]) =>
+            setMoveHistory: (moveHistory) =>
                 set((state) => {
                     state.moveHistory = moveHistory;
                 }),
 
-            endGame(resultData: GameResultData) {
+            endGame(resultData) {
                 set((state) => {
                     if (
                         state.whitePlayer.rating &&
@@ -71,8 +90,39 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
                         state.blackPlayer.rating +=
                             resultData.blackRatingChange;
 
+                    state.latestMoveOptions = createMoveOptions();
                     state.resultData = resultData;
                 });
+            },
+
+            teleportToMove(number) {
+                const { positionHistory, latestMoveOptions: latestLegalMoves } =
+                    get();
+                if (number < 0 || number >= positionHistory.length) return;
+
+                set((state) => {
+                    state.viewingMoveNumber = number;
+                });
+
+                const isLatestPosition = number === positionHistory.length - 1;
+                return {
+                    pieces: positionHistory[number].pieces,
+                    moveOptions: isLatestPosition
+                        ? latestLegalMoves
+                        : createMoveOptions(),
+                };
+            },
+
+            shiftMoveViewBy(amount) {
+                const { teleportToMove, viewingMoveNumber } = get();
+                return teleportToMove(viewingMoveNumber + amount);
+            },
+
+            teleportToLastMove() {
+                const { positionHistory, teleportToMove } = get();
+                const lastIndex = positionHistory.length - 1;
+                if (lastIndex < 0) throw new Error("positionHistory is empty");
+                return teleportToMove(lastIndex)!;
             },
         })),
         shallow,

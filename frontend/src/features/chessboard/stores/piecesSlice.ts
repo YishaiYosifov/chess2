@@ -1,4 +1,5 @@
 import {
+    BoardState,
     LogicalPoint,
     Move,
     PieceID,
@@ -8,6 +9,8 @@ import {
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
+import { pointToPiece, simulateMove } from "../lib/simulateMove";
+import { createMoveOptions } from "../lib/moveOptions";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
@@ -32,10 +35,9 @@ export interface PiecesSlice {
         isDrag: boolean;
     }): Promise<boolean>;
     applyMove(move: Move): void;
-    updatePiecePosition(from: LogicalPoint, to: LogicalPoint): void;
+    setPosition(boardSnapshot: BoardState): void;
 
     addAnimatingPiece(pieceId: PieceID): void;
-    pointToPiece(position: LogicalPoint): PieceID | undefined;
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
 
@@ -70,40 +72,12 @@ export function createPiecesSlice(
          * @param move - The move to apply on the board.
          */
         applyMove(move) {
-            const { pointToPiece, updatePiecePosition } = get();
+            const { addAnimatingPiece, pieces } = get();
+            const { newPieces, movedPieceIds } = simulateMove(pieces, move);
 
-            const captureIds = [pointToPiece(move.to)];
-            for (const capture of move.captures)
-                captureIds.push(pointToPiece(capture));
-
+            movedPieceIds.forEach(addAnimatingPiece);
             set((state) => {
-                for (const captureId of captureIds) {
-                    if (captureId) state.pieces.delete(captureId);
-                }
-            });
-
-            updatePiecePosition(move.from, move.to);
-            for (const sideEffect of move.sideEffects) {
-                updatePiecePosition(sideEffect.from, sideEffect.to);
-            }
-        },
-
-        updatePiecePosition(from, to) {
-            const { pointToPiece, addAnimatingPiece } = get();
-
-            const pieceId = pointToPiece(from);
-            if (!pieceId) {
-                console.warn(
-                    `Could not move piece from ${pointToStr(from)} to ${pointToStr(to)} ` +
-                        `because no piece was found at ${pointToStr(from)}`,
-                );
-
-                return;
-            }
-            addAnimatingPiece(pieceId);
-
-            set((state) => {
-                state.pieces.get(pieceId)!.position = to;
+                state.pieces = newPieces;
             });
         },
 
@@ -120,7 +94,7 @@ export function createPiecesSlice(
                 selectedPieceId,
                 onPieceMovement,
                 applyMove,
-                legalMoves,
+                moveOptions,
                 pieces,
             } = get();
             if (!selectedPieceId) {
@@ -135,7 +109,7 @@ export function createPiecesSlice(
             const from = selectedPiece.position;
             const strFrom = pointToStr(from);
 
-            const moves = legalMoves.get(strFrom);
+            const moves = moveOptions.legalMoves.get(strFrom);
             if (!moves) return false;
 
             const move = moves?.find(
@@ -147,11 +121,11 @@ export function createPiecesSlice(
             );
             if (!move) return false;
 
-            await onPieceMovement?.(from, move.to);
             applyMove(move);
+            await onPieceMovement?.(from, move.to);
 
             set((state) => {
-                state.legalMoves = new Map();
+                state.moveOptions = createMoveOptions();
                 state.highlightedLegalMoves = [];
                 state.selectedPieceId = null;
             });
@@ -167,17 +141,37 @@ export function createPiecesSlice(
             const {
                 tryApplySelectedMove,
                 screenToLogicalPoint,
-                hasForcedMoves,
                 flashLegalMoves,
+                moveOptions,
             } = get();
 
             const logicalPoint = screenToLogicalPoint(mousePoint);
             if (!logicalPoint) return false;
 
             const didMove = await tryApplySelectedMove(logicalPoint);
-            if (isDrag && !didMove && hasForcedMoves) flashLegalMoves();
+            if (isDrag && !didMove && moveOptions.hasForcedMoves)
+                flashLegalMoves();
 
             return didMove;
+        },
+
+        setPosition(boardState) {
+            const { addAnimatingPiece, pieces } = get();
+            const movedPieces: PieceID[] = [];
+            for (const [id, newPiece] of boardState.pieces) {
+                const piece = pieces.get(id);
+                if (!piece) continue;
+                if (!pointEquals(piece.position, newPiece.position))
+                    movedPieces.push(id);
+            }
+
+            movedPieces.forEach(addAnimatingPiece);
+            set((state) => {
+                state.pieces = boardState.pieces;
+                state.moveOptions = boardState.moveOptions;
+                state.highlightedLegalMoves = [];
+                state.selectedPieceId = null;
+            });
         },
 
         /**
@@ -201,26 +195,13 @@ export function createPiecesSlice(
             );
         },
 
-        /**
-         * Returns the ID of the piece located at a given board position.
-         *
-         * @param position - The board coordinate to check for a piece.
-         * @returns The ID of the piece at the position, or undefined if no piece is present.
-         */
-        pointToPiece(position) {
-            const pieces = get().pieces;
-            for (const [id, piece] of pieces) {
-                if (pointEquals(piece.position, position)) return id;
-            }
-        },
-
         screenPointToPiece(point) {
-            const { screenToLogicalPoint, pointToPiece } = get();
+            const { screenToLogicalPoint, pieces } = get();
 
             const logicalPoint = screenToLogicalPoint(point);
             if (!logicalPoint) return;
 
-            return pointToPiece(logicalPoint);
+            return pointToPiece(pieces, logicalPoint);
         },
     });
 }

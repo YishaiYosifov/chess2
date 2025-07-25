@@ -1,17 +1,22 @@
 "use client";
 
-import { useMemo } from "react";
+import { useRef } from "react";
+import { StoreApi } from "zustand";
 
 import constants from "@/lib/constants";
-import { LegalMoveMap, type PieceMap } from "@/types/tempModels";
+import { type PieceMap } from "@/types/tempModels";
 
 import { GameColor } from "@/lib/apiClient";
-import { createChessboardStore } from "@/features/chessboard/stores/chessboardStore";
+import {
+    ChessboardState,
+    createChessboardStore,
+} from "@/features/chessboard/stores/chessboardStore";
 import ChessboardLayout, {
     ChessboardBreakpoint,
     PaddingOffset,
 } from "./ChessboardLayout";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
+import { createMoveOptions } from "../lib/moveOptions";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
@@ -20,20 +25,11 @@ export interface ChessboardProps {
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
-    legalMoves?: LegalMoveMap;
     viewingFrom?: GameColor;
 
     className?: string;
 }
 
-/**
- * Display a chessboard
- *
- * @param breakpoints - the offset for each dimention of the screen.
- *  for example, if the screen is 1920x1080 and the current breakpoint width offset is 500,
- *  it will parse the width as 1420 before choosing the board size.
- *  The largest width breakpoint will be used for any screen size larger than it.
- */
 const StaticChessboard = ({
     breakpoints = [],
     defaultOffset,
@@ -41,26 +37,22 @@ const StaticChessboard = ({
     startingPieces = constants.DEFAULT_CHESS_BOARD,
     boardHeight = constants.BOARD_HEIGHT,
     boardWidth = constants.BOARD_WIDTH,
-    legalMoves = new Map(),
 
     viewingFrom = GameColor.WHITE,
 
     className,
 }: ChessboardProps) => {
-    const chessStore = useMemo(
-        () =>
-            createChessboardStore({
-                pieces: startingPieces,
-                boardDimensions: { width: boardWidth, height: boardHeight },
-                hasForcedMoves: false,
-                legalMoves,
-                viewingFrom,
-            }),
-        [startingPieces, boardWidth, boardHeight, legalMoves, viewingFrom],
-    );
+    const chessboardStoreRef = useRef<StoreApi<ChessboardState> | null>(null);
+    if (!chessboardStoreRef.current)
+        chessboardStoreRef.current = createChessboardStore({
+            pieces: startingPieces,
+            boardDimensions: { width: boardWidth, height: boardHeight },
+            moveOptions: createMoveOptions(),
+            viewingFrom,
+        });
 
     return (
-        <ChessboardStoreContext.Provider value={chessStore}>
+        <ChessboardStoreContext.Provider value={chessboardStoreRef.current}>
             <ChessboardLayout
                 breakpoints={breakpoints}
                 defaultOffset={defaultOffset}

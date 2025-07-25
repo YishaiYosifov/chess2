@@ -16,6 +16,7 @@ import { CoreSlice, createCoreSlice } from "./coreSlice";
 import { GameColor } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { createInteractionSlice, InteractionSlice } from "./interactionSlice";
+import { createMoveOptions } from "../lib/moveOptions";
 
 export type ChessboardState = BoardSlice &
     PiecesSlice &
@@ -34,8 +35,7 @@ const defaultChessboardState: ChessboardProps = {
         height: constants.BOARD_HEIGHT,
     },
     pieces: new Map(),
-    legalMoves: new Map(),
-    hasForcedMoves: false,
+    moveOptions: createMoveOptions(),
 };
 
 enableMapSet();
