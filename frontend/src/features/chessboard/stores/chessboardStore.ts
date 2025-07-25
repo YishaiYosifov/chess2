@@ -52,6 +52,7 @@ export function createChessboardStore(
                 ...createInteractionSlice(...a),
                 ...createCoreSlice(...a),
             })),
+            { name: "chessboardStore" },
         ),
         shallow,
     );

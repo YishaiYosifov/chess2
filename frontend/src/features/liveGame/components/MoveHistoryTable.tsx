@@ -4,6 +4,7 @@ import { useLiveChessStore } from "../hooks/useLiveChessStore";
 import Card from "@/components/ui/Card";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { BoardState } from "@/types/tempModels";
+import clsx from "clsx";
 
 const MoveHistoryTable = () => {
     const positionHistory = useLiveChessStore((x) => x.positionHistory);
@@ -43,7 +44,7 @@ const MoveHistoryTable = () => {
             else if (event.key === "ArrowDown")
                 newPosition = teleportToLastMove();
 
-            if (newPosition) setPosition(newPosition);
+            setPosition(newPosition);
         }
 
         window.addEventListener("keydown", onKeyDown);
@@ -69,12 +70,42 @@ const MoveRow = ({
     moveBlack?: string;
     index: number;
 }) => {
+    const teleportToMove = useLiveChessStore((x) => x.teleportToMove);
+    const setPosition = useChessboardStore((x) => x.setPosition);
+
+    const whiteMoveIdx = index * 2 - 1;
+    const blackMoveIdx = whiteMoveIdx + 1;
+
+    const isViewingWhite = useLiveChessStore(
+        (x) => x.viewingMoveNumber === whiteMoveIdx,
+    );
+    const isViewingBlack = useLiveChessStore(
+        (x) => x.viewingMoveNumber === blackMoveIdx,
+    );
+
     const color = index % 2 === 0 ? "bg-white/10" : "";
+    const selectedClass = "bg-blue-300/30";
     return (
         <tr className={color}>
             <td className="w-10 bg-zinc-900 p-3">{index}.</td>
-            <td className="p-3">{moveWhite}</td>
-            <td className="p-3"> {moveBlack}</td>
+            <td
+                className={clsx(
+                    "cursor-pointer p-3",
+                    isViewingWhite && selectedClass,
+                )}
+                onClick={() => setPosition(teleportToMove(whiteMoveIdx))}
+            >
+                {moveWhite}
+            </td>
+            <td
+                className={clsx(
+                    "cursor-pointer p-3",
+                    isViewingBlack && selectedClass,
+                )}
+                onClick={() => setPosition(teleportToMove(blackMoveIdx))}
+            >
+                {moveBlack}
+            </td>
         </tr>
     );
 };

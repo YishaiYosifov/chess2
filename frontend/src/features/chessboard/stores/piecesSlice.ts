@@ -35,7 +35,7 @@ export interface PiecesSlice {
         isDrag: boolean;
     }): Promise<boolean>;
     applyMove(move: Move): void;
-    setPosition(boardSnapshot: BoardState): void;
+    setPosition(boardSnapshot?: BoardState): void;
 
     addAnimatingPiece(pieceId: PieceID): void;
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
@@ -156,6 +156,8 @@ export function createPiecesSlice(
         },
 
         setPosition(boardState) {
+            if (!boardState) return;
+
             const { addAnimatingPiece, pieces } = get();
             const movedPieces: PieceID[] = [];
             for (const [id, newPiece] of boardState.pieces) {
