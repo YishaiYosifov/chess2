@@ -235,7 +235,7 @@ describe("ChessPiece", () => {
         const pieces = store.getState().pieces;
         expect(pieces.get("0")?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
-            percentPosition: { x: 500, y: 200 },
+            percentPosition: { x: 700, y: 400 },
         });
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
