@@ -1,22 +1,24 @@
-import { LegalMoveMap, LogicalPoint, PieceID } from "@/types/tempModels";
+import {
+    LogicalPoint,
+    PieceID,
+    ProcessedMoveOptions,
+} from "@/types/tempModels";
 import { StateCreator } from "zustand";
 import { ChessboardState } from "./chessboardStore";
 import { pointToStr } from "@/lib/utils/pointUtils";
 
 export interface LegalMovesSliceProps {
-    legalMoves: LegalMoveMap;
-    hasForcedMoves: boolean;
+    moveOptions: ProcessedMoveOptions;
 }
 
 export interface LegalMovesSlice {
-    legalMoves: LegalMoveMap;
+    moveOptions: ProcessedMoveOptions;
     highlightedLegalMoves: LogicalPoint[];
-    hasForcedMoves: boolean;
 
     showLegalMoves(pieceId: PieceID): void;
     flashLegalMoves(): void;
 
-    setLegalMoves(legalMoves: LegalMoveMap, hasForcedMoves: boolean): void;
+    setLegalMoves(moveOptions: ProcessedMoveOptions): void;
 }
 
 export function createLegalMovesSlice(
@@ -38,7 +40,7 @@ export function createLegalMovesSlice(
          * @param pieceId - The ID of the piece for which to show legal moves.
          */
         showLegalMoves(pieceId: PieceID): void {
-            const { legalMoves, pieces } = get();
+            const { moveOptions, pieces } = get();
             const piece = pieces.get(pieceId);
             if (!piece) {
                 console.warn(
@@ -48,7 +50,7 @@ export function createLegalMovesSlice(
             }
 
             const positionStr = pointToStr(piece.position);
-            const moves = legalMoves.get(positionStr);
+            const moves = moveOptions.legalMoves.get(positionStr);
 
             const toHighlightPoints = moves
                 ? [
@@ -63,9 +65,10 @@ export function createLegalMovesSlice(
         },
 
         flashLegalMoves(): void {
-            const { legalMoves, logicalPointToViewPoint, flashOverlay } = get();
+            const { moveOptions, logicalPointToViewPoint, flashOverlay } =
+                get();
 
-            for (const movesPerPoint of legalMoves.values()) {
+            for (const movesPerPoint of moveOptions.legalMoves.values()) {
                 for (const move of movesPerPoint) {
                     const from = logicalPointToViewPoint(move.from);
                     const to = logicalPointToViewPoint(move.to);
@@ -78,10 +81,9 @@ export function createLegalMovesSlice(
             }
         },
 
-        setLegalMoves(legalMoves: LegalMoveMap, hasForcedMoves: boolean): void {
+        setLegalMoves(moveOptions): void {
             set((state) => {
-                state.legalMoves = legalMoves;
-                state.hasForcedMoves = hasForcedMoves;
+                state.moveOptions = moveOptions;
             });
         },
     });

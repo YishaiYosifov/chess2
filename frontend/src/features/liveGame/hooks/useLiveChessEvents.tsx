@@ -10,6 +10,7 @@ import {
     decodePathIntoMap,
     decodeEncodedMovesIntoMap,
 } from "../lib/moveDecoder";
+import { Position, ProcessedMoveOptions } from "@/types/tempModels";
 
 export function useLiveChessEvents(
     gameToken: string,
@@ -38,6 +39,35 @@ export function useLiveChessEvents(
         setMoveHistory(data.moveHistory);
     }
 
+    function jumpForwards() {
+        const { positionHistory, viewingMoveNumber, teleportToLastMove } =
+            liveChessStore.getState();
+        const { setPosition } = chessboardStore.getState();
+        if (viewingMoveNumber !== positionHistory.length - 1) {
+            const position = teleportToLastMove();
+            setPosition(position);
+        }
+    }
+
+    function addCurrentPosition(
+        move: MoveSnapshot,
+        clocks: Clocks,
+        sideToMove: GameColor,
+    ) {
+        const { receiveMove } = liveChessStore.getState();
+
+        const pieces = chessboardStore.getState().pieces;
+        const position: Position = {
+            san: move.san,
+            pieces,
+            clocks: {
+                whiteClock: clocks.whiteClock,
+                blackClock: clocks.blackClock,
+            },
+        };
+        receiveMove(position, clocks, sideToMove);
+    }
+
     useGameEvent(
         gameToken,
         "MoveMadeAsync",
@@ -47,18 +77,22 @@ export function useLiveChessEvents(
             moveNumber: number,
             clocks: Clocks,
         ) => {
-            const { moveHistory, receiveMove } = liveChessStore.getState();
+            const { positionHistory } = liveChessStore.getState();
+            const { applyMove } = chessboardStore.getState();
+
             // we missed a move... we need to refetch the state
-            if (moveNumber != moveHistory.length + 1) {
+            if (moveNumber != positionHistory.length) {
                 await refetchGame();
                 return;
             }
 
-            receiveMove(move, clocks, sideToMove);
-
             if (sideToMove === playerColor) {
+                jumpForwards();
                 const decoded = decodePath(move.path, boardDimensions.width);
-                chessboardStore.getState().applyMove(decoded);
+                applyMove(decoded);
+                addCurrentPosition(move, clocks, sideToMove);
+            } else {
+                addCurrentPosition(move, clocks, sideToMove);
             }
         },
     );
@@ -72,9 +106,12 @@ export function useLiveChessEvents(
                 boardDimensions.width,
             );
 
-            chessboardStore
-                .getState()
-                .setLegalMoves(decodedLegalMoves, hasForcedMoves);
+            const moveOptions: ProcessedMoveOptions = {
+                legalMoves: decodedLegalMoves,
+                hasForcedMoves,
+            };
+            liveChessStore.getState().receiveLegalMoves(moveOptions);
+            chessboardStore.getState().setLegalMoves(moveOptions);
         },
     );
 

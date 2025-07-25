@@ -1,7 +1,7 @@
-import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
 import withAuthedSession from "@/features/auth/hocs/withAuthedSession";
 import { notFound, redirect } from "next/navigation";
 import { getGame } from "@/lib/apiClient";
+import GameStatePreprocessor from "@/features/liveGame/components/GameStatePreprocessor";
 
 export const metadata = { title: "Live Game - Chess 2" };
 
@@ -36,7 +36,7 @@ const GamePage = withAuthedSession(
             redirect("/");
 
         return (
-            <LiveChessboard
+            <GameStatePreprocessor
                 gameToken={gameToken}
                 gameState={game}
                 userId={userId}

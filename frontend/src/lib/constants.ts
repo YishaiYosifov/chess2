@@ -1,4 +1,4 @@
-import { PieceMap, PieceType } from "@/types/tempModels";
+import { PieceMap, PieceType, ProcessedMoveOptions } from "@/types/tempModels";
 import {
     GameColor,
     TimeControl,
@@ -11,8 +11,6 @@ const USERNAME_EDIT_EVERY = 2419200;
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 const MIN_BOARD_SIZE_PX = 264;
-
-const GENERIC_ERROR = "Something went wrong.";
 
 export enum OAuthProvider {
     GOOGLE = "google",
@@ -95,7 +93,7 @@ const DISPLAY_TIME_CONTROLS: TimeControl[] = [
 ];
 
 // prettier-ignore
-export const DEFAULT_CHESS_BOARD: PieceMap = new Map([
+const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["0", { position: logicalPoint({ x: 0, y: 0 }), type: PieceType.ROOK, color: GameColor.WHITE }],
     ["1", { position: logicalPoint({ x: 1, y: 0 }), type: PieceType.HORSEY, color: GameColor.WHITE }],
     ["2", { position: logicalPoint({ x: 2, y: 0 }), type: PieceType.KNOOK, color: GameColor.WHITE }],
@@ -150,7 +148,6 @@ const constants = {
     BOARD_WIDTH,
     BOARD_HEIGHT,
     MIN_BOARD_SIZE_PX,
-    GENERIC_ERROR,
     SETTING_PAGES,
     STANDARD_TIME_CONTROLS,
     TIME_CONTROL_LABELS,

@@ -1,60 +1,76 @@
 import { render, screen } from "@testing-library/react";
 import { StoreApi } from "zustand";
 
-import { createFakeLiveChessStore } from "@/lib/testUtils/fakers/liveChessStoreFaker";
+import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
-import { LiveChessStore } from "@/features/liveGame/stores/liveChessStore";
+import createLiveChessStore, {
+    LiveChessStore,
+} from "@/features/liveGame/stores/liveChessStore";
 import MoveHistoryTable from "../MoveHistoryTable";
-import { createFakeMoveSnapshot } from "@/lib/testUtils/fakers/moveSnapshotFaker";
+import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
+import {
+    ChessboardState,
+    createChessboardStore,
+} from "@/features/chessboard/stores/chessboardStore";
+import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
+import userEvent from "@testing-library/user-event";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
+import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
+import { Position, ProcessedMoveOptions } from "@/types/tempModels";
 
 describe("MoveHistoryTable", () => {
-    let store: StoreApi<LiveChessStore>;
+    let liveStore: StoreApi<LiveChessStore>;
+    let chessboardStore: StoreApi<ChessboardState>;
 
     beforeEach(() => {
-        store = createFakeLiveChessStore({ moveHistory: [] });
+        liveStore = createLiveChessStore(
+            createFakeLiveChessStoreProps({ positionHistory: [] }),
+        );
+        chessboardStore = createChessboardStore();
     });
 
-    it("should render an empty table when there are no moves", () => {
-        render(
-            <LiveChessStoreContext.Provider value={store}>
-                <MoveHistoryTable />
+    function renderWithCtx() {
+        return render(
+            <LiveChessStoreContext.Provider value={liveStore}>
+                <ChessboardStoreContext.Provider value={chessboardStore}>
+                    <MoveHistoryTable />
+                </ChessboardStoreContext.Provider>
             </LiveChessStoreContext.Provider>,
         );
+    }
 
+    it("should render an empty table when there are no moves", () => {
+        renderWithCtx();
         const rows = screen.queryAllByRole("row");
         expect(rows.length).toBe(0);
     });
 
     it("should render a single row when there is one move", () => {
-        store.setState({
-            moveHistory: [createFakeMoveSnapshot({ san: "e4" })],
+        liveStore.setState({
+            positionHistory: [
+                createFakePosition({ san: undefined }),
+                createFakePosition({ san: "e4" }),
+            ],
         });
 
-        render(
-            <LiveChessStoreContext.Provider value={store}>
-                <MoveHistoryTable />
-            </LiveChessStoreContext.Provider>,
-        );
+        renderWithCtx();
 
         expect(screen.getByText("1.")).toBeInTheDocument();
         expect(screen.getByText("e4")).toBeInTheDocument();
     });
 
     it("should render multiple rows for multiple moves", () => {
-        store.setState({
-            moveHistory: [
-                createFakeMoveSnapshot({ san: "e4" }),
-                createFakeMoveSnapshot({ san: "e5" }),
-                createFakeMoveSnapshot({ san: "Nf3" }),
-                createFakeMoveSnapshot({ san: "Nc6" }),
+        liveStore.setState({
+            positionHistory: [
+                createFakePosition({ san: undefined }),
+                createFakePosition({ san: "e4" }),
+                createFakePosition({ san: "e5" }),
+                createFakePosition({ san: "Nf3" }),
+                createFakePosition({ san: "Nc6" }),
             ],
         });
 
-        render(
-            <LiveChessStoreContext.Provider value={store}>
-                <MoveHistoryTable />
-            </LiveChessStoreContext.Provider>,
-        );
+        renderWithCtx();
 
         expect(screen.getByText("1.")).toBeInTheDocument();
         expect(screen.getByText("2.")).toBeInTheDocument();
@@ -65,20 +81,17 @@ describe("MoveHistoryTable", () => {
     });
 
     it("should apply alternating background color class for odd rows", () => {
-        store.setState({
-            moveHistory: [
-                createFakeMoveSnapshot({ san: "e4" }),
-                createFakeMoveSnapshot({ san: "e5" }),
-                createFakeMoveSnapshot({ san: "Nf3" }),
-                createFakeMoveSnapshot({ san: "Nf6" }),
+        liveStore.setState({
+            positionHistory: [
+                createFakePosition({ san: undefined }),
+                createFakePosition({ san: "e4" }),
+                createFakePosition({ san: "e5" }),
+                createFakePosition({ san: "Nf3" }),
+                createFakePosition({ san: "Nf6" }),
             ],
         });
 
-        render(
-            <LiveChessStoreContext.Provider value={store}>
-                <MoveHistoryTable />
-            </LiveChessStoreContext.Provider>,
-        );
+        renderWithCtx();
 
         const rows = screen.getAllByRole("row");
         expect(rows.length).toBe(2);
@@ -86,4 +99,52 @@ describe("MoveHistoryTable", () => {
         expect(rows[0].className).not.toContain("bg-white/10");
         expect(rows[1].className).toContain("bg-white/10");
     });
+
+    it("should update position using arrow keys", async () => {
+        const move1 = createFakePosition({ san: undefined });
+        const move2 = createFakePosition();
+        const move3 = createFakePosition();
+
+        const emptyMoveOptions = createMoveOptions();
+        const latestMoveOptions: ProcessedMoveOptions = {
+            legalMoves: createFakeLegalMoveMap(),
+            hasForcedMoves: true,
+        };
+        liveStore.setState({
+            latestMoveOptions: latestMoveOptions,
+            viewingMoveNumber: 0,
+            positionHistory: [move1, move2, move3],
+        });
+
+        const user = userEvent.setup();
+        renderWithCtx();
+
+        // go to move 2
+        await user.keyboard("{ArrowRight}");
+        expectPosition(move2, emptyMoveOptions);
+
+        // go to move 3
+        await user.keyboard("{ArrowRight}");
+        expectPosition(move3, latestMoveOptions);
+
+        // go back to move2
+        await user.keyboard("{ArrowLeft}");
+        expectPosition(move2, emptyMoveOptions);
+
+        // jump to end
+        await user.keyboard("{ArrowDown}");
+        expectPosition(move3, latestMoveOptions);
+
+        // jump to start
+        await user.keyboard("{ArrowUp}");
+        expectPosition(move1, emptyMoveOptions);
+    });
+
+    function expectPosition(
+        position: Position,
+        moveOptions: ProcessedMoveOptions,
+    ) {
+        expect(chessboardStore.getState().pieces).toEqual(position.pieces);
+        expect(chessboardStore.getState().moveOptions).toEqual(moveOptions);
+    }
 });

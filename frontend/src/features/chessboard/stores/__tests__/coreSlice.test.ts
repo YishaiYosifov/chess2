@@ -1,7 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardState, createChessboardStore } from "../chessboardStore";
 import {
-    createFakeLegalMoveMap,
+    createFakeLegalMoveMapFromPieces,
     createFakePiece,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { PieceMap } from "@/types/tempModels";
@@ -31,7 +31,7 @@ describe("CoreSlice", () => {
         it("should reset the state to a playable position", () => {
             const piece = createFakePiece();
             const pieces: PieceMap = new Map([["0", piece]]);
-            const legalMoves = createFakeLegalMoveMap(piece);
+            const legalMoves = createFakeLegalMoveMapFromPieces(piece);
 
             store.getState().resetState(pieces, legalMoves);
 

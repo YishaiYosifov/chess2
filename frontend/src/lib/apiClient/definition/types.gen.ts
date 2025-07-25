@@ -141,10 +141,9 @@ export type GameState = {
     blackPlayer: GamePlayer;
     clocks: Clocks;
     sideToMove: GameColor;
-    fen: string;
+    initialFen: string;
     moveHistory: Array<MoveSnapshot>;
-    legalMoves: Array<MovePath>;
-    hasForcedMoves: boolean;
+    moveOptions: MoveOptions;
     resultData?: GameResultData | null;
 };
 
@@ -195,6 +194,11 @@ export type MovePath = {
 export type MoveSideEffectPath = {
     fromIdx: number;
     toIdx: number;
+};
+
+export type MoveOptions = {
+    legalMoves: Array<MovePath>;
+    hasForcedMoves: boolean;
 };
 
 export type GameResultData = {

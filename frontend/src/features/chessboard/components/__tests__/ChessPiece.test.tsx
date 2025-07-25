@@ -18,6 +18,7 @@ import ChessboardLayout from "../ChessboardLayout";
 import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockWindow";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
+import { createMoveOptions } from "../../lib/moveOptions";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
@@ -84,7 +85,10 @@ describe("ChessPiece", () => {
 
         const pieceInfo = createFakePiece({ position: logicalPosition });
         const pieces: PieceMap = new Map([["0", pieceInfo]]);
-        store.setState({ pieces, legalMoves });
+        store.setState({
+            pieces,
+            moveOptions: createMoveOptions({ legalMoves }),
+        });
 
         const renderResults = render(
             <ChessboardStoreContext.Provider value={store}>

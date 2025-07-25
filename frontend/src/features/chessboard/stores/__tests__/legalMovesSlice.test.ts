@@ -7,6 +7,7 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, PieceID } from "@/types/tempModels";
 import { pointToStr } from "@/lib/utils/pointUtils";
+import { createMoveOptions } from "../../lib/moveOptions";
 
 describe("LegalMoveSlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -46,7 +47,7 @@ describe("LegalMoveSlice", () => {
             ]);
             store.setState({
                 pieces: createFakePieceMapFromPieces(piece1, piece2),
-                legalMoves,
+                moveOptions: createMoveOptions({ legalMoves }),
             });
 
             store.getState().showLegalMoves("0");

@@ -1,31 +1,30 @@
-import createLiveChessStore, {
-    LiveChessStore,
-    LiveChessStoreProps,
-} from "@/features/liveGame/stores/liveChessStore";
+import { LiveChessStoreProps } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { createFakePlayer } from "./playerFaker";
-import { StoreApi } from "zustand";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
+import { createFakePosition } from "./positionFaker";
+import { createFakeClock } from "./clockFaker";
+import { createFakeLegalMoveMap } from "./chessboardFakers";
 
-export function createFakeLiveChessStore(
+export function createFakeLiveChessStoreProps(
     override?: Partial<LiveChessStoreProps>,
-): StoreApi<LiveChessStore> {
-    return createLiveChessStore({
+): LiveChessStoreProps {
+    return {
         gameToken: faker.string.alpha(16),
-        moveHistory: [],
+        positionHistory: [createFakePosition(), createFakePosition()],
+        latestMoveOptions: createMoveOptions({
+            legalMoves: createFakeLegalMoveMap(),
+        }),
 
         sideToMove: faker.helpers.enumValue(GameColor),
         playerColor: faker.helpers.enumValue(GameColor),
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
 
-        clocks: {
-            whiteClock: faker.number.int({ min: 10000, max: 100000 }),
-            blackClock: faker.number.int({ min: 10000, max: 100000 }),
-            lastUpdated: Date.now().valueOf(),
-        },
+        clocks: createFakeClock(),
         resultData: null,
 
         ...override,
-    });
+    };
 }
