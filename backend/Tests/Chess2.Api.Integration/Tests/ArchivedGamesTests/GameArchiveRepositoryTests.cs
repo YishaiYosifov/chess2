@@ -85,6 +85,7 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
         );
 
         result.Should().BeEquivalentTo(archives.Skip(1).Take(2));
+        result.Should().BeInDescendingOrder(a => a.CreatedAt);
     }
 
     [Fact]
