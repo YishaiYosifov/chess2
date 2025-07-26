@@ -68,7 +68,7 @@ public class GameChatActor : ReceiveActor
                 joinGame.UserName,
                 isPlaying
             );
-            await _gameChatNotifier.JoinChat(_gameToken, joinGame.ConnectionId, isPlaying);
+            await _gameChatNotifier.JoinChatAsync(_gameToken, joinGame.ConnectionId, isPlaying);
 
             _logger.Info("User {0} joined chat for game {1}", joinGame.UserId, _gameToken);
 
@@ -91,7 +91,11 @@ public class GameChatActor : ReceiveActor
 
         RunTask(async () =>
         {
-            await _gameChatNotifier.LeaveChat(_gameToken, chatter.ConnectionId, chatter.IsPlaying);
+            await _gameChatNotifier.LeaveChatAsync(
+                _gameToken,
+                chatter.ConnectionId,
+                chatter.IsPlaying
+            );
 
             _logger.Info("User {0} left chat for game {1}", leaveChat.UserId, _gameToken);
             Sender.Tell(new GameChatEvents.UserLeft());
@@ -100,6 +104,28 @@ public class GameChatActor : ReceiveActor
 
     private void HandleSendMessage(GameChatCommands.SendMessage sendMessage)
     {
+        if (string.IsNullOrWhiteSpace(sendMessage.Message))
+        {
+            _logger.Warning(
+                "Empty message from user {0} for game {1}",
+                sendMessage.UserId,
+                _gameToken
+            );
+            Sender.ReplyWithError(GameChatErrors.InvalidMessage);
+            return;
+        }
+
+        if (sendMessage.Message.Length > _settings.MaxMessageLength)
+        {
+            _logger.Warning(
+                "Message from user {0} exceeds max length for game {1}",
+                sendMessage.UserId,
+                _gameToken
+            );
+            Sender.ReplyWithError(GameChatErrors.InvalidMessage);
+            return;
+        }
+
         if (!_chatters.TryGetValue(sendMessage.UserId, out var chatter))
         {
             _logger.Warning(
@@ -113,7 +139,7 @@ public class GameChatActor : ReceiveActor
 
         RunTask(
             () =>
-                _gameChatNotifier.SendMessage(
+                _gameChatNotifier.SendMessageAsync(
                     _gameToken,
                     chatter.UserName,
                     sendMessage.Message,
