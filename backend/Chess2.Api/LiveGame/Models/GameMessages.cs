@@ -32,6 +32,8 @@ public class GameQueries
 {
     public record GetGameState(string GameToken, string ForUserId) : IGameMessage;
 
+    public record GetGamePlayers(string GameToken) : IGameMessage;
+
     public record IsGameOngoing(string GameToken) : IGameMessage;
 }
 
@@ -40,6 +42,8 @@ public class GameEvents
     public record GameStartedEvent;
 
     public record GameStateEvent(GameState State);
+
+    public record GamePlayersEvent(GamePlayer WhitePlayer, GamePlayer BlackPlayer);
 
     public record PieceMoved;
 

@@ -323,7 +323,8 @@ builder.Services.AddAkka(
                 runtimeAppSettings.Akka.MatchmakingShardCount
             )
             .WithPlayerShard(runtimeAppSettings.Akka.PlayerSessionShardCount)
-            .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
+            .WithGameShard(runtimeAppSettings.Akka.GameShardCount)
+            .WithGameChatShard(runtimeAppSettings.Akka.GameChatShardCount);
     }
 );
 #endregion
@@ -366,6 +367,11 @@ builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
+#endregion
+
+#region Game Chat
+builder.Services.AddScoped<IGameChatService, GameChatService>();
+builder.Services.AddSingleton<IGameChatNotifier, GameChatNotifier>();
 #endregion
 
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();

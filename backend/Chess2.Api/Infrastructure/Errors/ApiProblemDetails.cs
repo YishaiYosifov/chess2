@@ -31,4 +31,7 @@ public static class ErrorCodes
     public const string GameAlreadyEnded = "Game.AlreadyEnded";
     public const string GamePlayerInvalid = "Game.PlayerInvalid";
     public const string GameMoveInvalid = "Game.MoveInvalid";
+
+    public const string GameChatUserAlreadyJoined = "GameChat.UserAlreadyJoined";
+    public const string GameChatUserNotInChat = "GameChat.UserNotInChat";
 }

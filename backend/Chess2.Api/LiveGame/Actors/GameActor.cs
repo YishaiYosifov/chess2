@@ -91,6 +91,9 @@ public class GameActor : ReceiveActor, IWithTimers
     {
         Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(true));
         Receive<GameQueries.GetGameState>(HandleGetGameState);
+        Receive<GameQueries.GetGamePlayers>(_ =>
+            Sender.Tell(new GameEvents.GamePlayersEvent(_players.WhitePlayer, _players.BlackPlayer))
+        );
 
         ReceiveAsync<GameCommands.TickClock>(_ => HandleClockTickAsync());
 

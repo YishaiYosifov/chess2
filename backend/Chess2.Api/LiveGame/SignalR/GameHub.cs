@@ -21,16 +21,22 @@ public interface IGameHubClient : IChess2HubClient
     Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves, bool hasForcedMoves);
 
     Task GameEndedAsync(GameResultData result);
+
+    Task ChatMessageAsync(string sender, string message);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
-public class GameHub(ILogger<GameHub> logger, ILiveGameService gameService)
-    : Chess2Hub<IGameHubClient>
+public class GameHub(
+    ILogger<GameHub> logger,
+    ILiveGameService gameService,
+    IGameChatService gameChatService
+) : Chess2Hub<IGameHubClient>
 {
     private const string GameTokenQueryParam = "gameToken";
 
     private readonly ILogger<GameHub> _logger = logger;
     private readonly ILiveGameService _gameService = gameService;
+    private readonly IGameChatService _gameChatService = gameChatService;
 
     public async Task MovePieceAsync(string gameToken, AlgebraicPoint from, AlgebraicPoint to)
     {
@@ -64,33 +70,54 @@ public class GameHub(ILogger<GameHub> logger, ILiveGameService gameService)
         }
     }
 
+    public async Task SendChatAsync(string gameToken, string message)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var sendChatResult = await _gameChatService.SendMessage(gameToken, userId, message);
+        if (sendChatResult.IsError)
+        {
+            await HandleErrors(sendChatResult.Errors);
+            return;
+        }
+    }
+
     public override async Task OnConnectedAsync()
     {
         string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
         if (gameToken is null)
         {
-            _logger.LogWarning(
-                "User {UserId} connected to game hub without a game token",
-                Context.UserIdentifier
+            await HandleErrors(
+                Error.Validation($"Missing required query parameter: {GameTokenQueryParam}")
             );
-            Context.Abort();
             await base.OnConnectedAsync();
             return;
         }
 
-        var isGameOngoing = await _gameService.IsGameOngoingAsync(gameToken);
-        if (!isGameOngoing)
-        {
-            _logger.LogWarning(
-                "User {UserId} connected to game hub for a game that is not ongoing",
-                Context.UserIdentifier
-            );
-            Context.Abort();
-            await base.OnConnectedAsync();
-            return;
-        }
-
+        await _gameChatService.JoinChat(gameToken, Context.ConnectionId, Context.User);
         await Groups.AddToGroupAsync(Context.ConnectionId, gameToken);
         await base.OnConnectedAsync();
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
+        if (gameToken is null)
+        {
+            await base.OnDisconnectedAsync(exception);
+            return;
+        }
+
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        await _gameChatService.LeaveChat(gameToken, userId);
     }
 }
