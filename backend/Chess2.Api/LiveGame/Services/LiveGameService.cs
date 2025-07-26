@@ -20,6 +20,10 @@ public interface ILiveGameService
         string userId,
         CancellationToken token = default
     );
+    Task<ErrorOr<GameEvents.GamePlayersEvent>> GetGamePlayersAsync(
+        string gameToken,
+        CancellationToken token = default
+    );
     Task<ErrorOr<GameState>> GetGameStateAsync(
         string gameToken,
         string userId,
@@ -94,6 +98,18 @@ public class LiveGameService(
         if (response.IsError)
             return response.Errors;
         return response.Value.State;
+    }
+
+    public async Task<ErrorOr<GameEvents.GamePlayersEvent>> GetGamePlayersAsync(
+        string gameToken,
+        CancellationToken token = default
+    )
+    {
+        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GamePlayersEvent>(
+            new GameQueries.GetGamePlayers(gameToken),
+            token
+        );
+        return response;
     }
 
     public async Task<ErrorOr<Success>> MakeMoveAsync(
