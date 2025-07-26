@@ -44,17 +44,23 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_game_state_for_authed_player()
     {
-        var (user1, user1Rating, user2, user2Rating, gameToken) = await CreateRatedGameAsync();
+        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
 
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user1);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
 
-        var response = await ApiClient.Api.GetGameAsync(gameToken);
+        var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var gameState = response.Content;
         gameState.Should().NotBeNull();
-        AssertAuthedPlayersMatch(user1, user1Rating, user2, user2Rating, gameState);
+        AssertAuthedPlayersMatch(
+            startGame.User1,
+            startGame.User1Rating,
+            startGame.User2,
+            startGame.User2Rating,
+            gameState
+        );
     }
 
     [Fact]
@@ -110,12 +116,12 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_correct_game_after_it_is_over_when_rated()
     {
-        var (user1, user1Rating, user2, user2Rating, gameToken) = await CreateRatedGameAsync();
+        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
 
-        await _gameService.EndGameAsync(gameToken, user2.Id, CT);
+        await _gameService.EndGameAsync(startGame.GameToken, startGame.User2.Id, CT);
 
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user1);
-        var response = await ApiClient.Api.GetGameAsync(gameToken);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
+        var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -126,7 +132,13 @@ public class GameControllerTests : BaseFunctionalTest
         gameState
             .MoveOptions.Should()
             .BeEquivalentTo(new MoveOptions(LegalMoves: [], HasForcedMoves: false));
-        AssertAuthedPlayersMatch(user1, user1Rating, user2, user2Rating, gameState);
+        AssertAuthedPlayersMatch(
+            startGame.User1,
+            startGame.User1Rating,
+            startGame.User2,
+            startGame.User2Rating,
+            gameState
+        );
     }
 
     [Fact]
@@ -243,37 +255,6 @@ public class GameControllerTests : BaseFunctionalTest
         guestPlayer.UserName.Should().Be("Guest");
         guestPlayer.CountryCode.Should().BeNull();
         guestPlayer.Rating.Should().BeNull();
-    }
-
-    private async Task<(
-        AuthedUser user1,
-        CurrentRating user1Rating,
-        AuthedUser user2,
-        CurrentRating user2Rating,
-        string gameToken
-    )> CreateRatedGameAsync()
-    {
-        var timeControl = new TimeControlSettings(30, 0);
-        var user1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var user2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-
-        var user1Rating = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(user1, 1200).RuleFor(x => x.TimeControl, TimeControl.Bullet)
-        );
-        var user2Rating = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
-        );
-
-        var gameToken = await _gameService.StartGameAsync(
-            user1.Id,
-            user2.Id,
-            timeControl,
-            isRated: true
-        );
-
-        return (user1, user1Rating, user2, user2Rating, gameToken);
     }
 
     private static void AssertAuthedPlayersMatch(
