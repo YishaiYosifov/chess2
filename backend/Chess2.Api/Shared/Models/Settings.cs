@@ -26,6 +26,16 @@ public class GameSettings
 
     public int DefaultRating { get; set; }
     public int KFactor { get; set; }
+
+    public required ChatSettings Chat { get; set; }
+}
+
+public class ChatSettings
+{
+    public TimeSpan FloodWindow { get; set; }
+    public int FloodMessageCount { get; set; }
+    public TimeSpan OffenseCooldown { get; set; }
+    public required int MaxMessageLength { get; set; }
 }
 
 public class JwtSettings
@@ -51,4 +61,5 @@ public class AkkaSettings
     public int MatchmakingShardCount { get; set; }
     public int PlayerSessionShardCount { get; set; }
     public int GameShardCount { get; set; }
+    public int GameChatShardCount { get; set; }
 }
