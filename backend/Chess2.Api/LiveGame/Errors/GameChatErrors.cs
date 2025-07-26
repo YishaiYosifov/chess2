@@ -10,4 +10,7 @@ public static class GameChatErrors
 
     public static Error UserNotInChat =>
         Error.NotFound(ErrorCodes.GameChatUserNotInChat, "User is not in the game chat");
+
+    public static Error InvalidMessage =>
+        Error.Validation(ErrorCodes.GameChatInvalidMessage, "Message is invalid");
 }
