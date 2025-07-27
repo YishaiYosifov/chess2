@@ -32,9 +32,10 @@ public class GameSettings
 
 public class ChatSettings
 {
-    public TimeSpan FloodWindow { get; set; }
-    public int FloodMessageCount { get; set; }
-    public TimeSpan OffenseCooldown { get; set; }
+    public TimeSpan RateLimitWindow { get; set; }
+    public int MaxMessagesPerWindow { get; set; }
+    public TimeSpan OffenseCooldownDuration { get; set; }
+
     public required int MaxMessageLength { get; set; }
 }
 

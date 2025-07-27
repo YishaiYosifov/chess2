@@ -35,4 +35,5 @@ public static class ErrorCodes
     public const string GameChatUserAlreadyJoined = "GameChat.UserAlreadyJoined";
     public const string GameChatUserNotInChat = "GameChat.UserNotInChat";
     public const string GameChatInvalidMessage = "GameChat.InvalidMessage";
+    public const string GameChatOnCooldown = "GameChat.OnCooldown";
 }

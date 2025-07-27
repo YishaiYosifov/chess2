@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System.Collections.Concurrent;
+using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.LiveGame.Errors;
@@ -17,21 +18,24 @@ public class GameChatActor : ReceiveActor
     private readonly string _gameToken;
     private readonly IServiceProvider _sp;
     private readonly IGameChatNotifier _gameChatNotifier;
+    private readonly IChatRateLimiter _chatRateLimiter;
     private readonly ChatSettings _settings;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
-    private readonly Dictionary<string, Chatter> _chatters = [];
+    private readonly ConcurrentDictionary<string, Chatter> _chatters = [];
 
     public GameChatActor(
         string gameToken,
         IServiceProvider sp,
         IOptions<AppSettings> settings,
-        IGameChatNotifier gameChatNotifier
+        IGameChatNotifier gameChatNotifier,
+        IChatRateLimiter chatRateLimiter
     )
     {
         _gameToken = gameToken;
         _sp = sp;
         _gameChatNotifier = gameChatNotifier;
+        _chatRateLimiter = chatRateLimiter;
         _settings = settings.Value.Game.Chat;
 
         Receive<GameChatCommands.JoinChat>(HandleJoinChat);
@@ -63,13 +67,12 @@ public class GameChatActor : ReceiveActor
             var isPlaying =
                 joinGame.UserId == playersResult.Value.WhitePlayer.UserId
                 || joinGame.UserId == playersResult.Value.BlackPlayer.UserId;
-            _chatters[joinGame.UserId] = new Chatter(
-                joinGame.ConnectionId,
-                joinGame.UserName,
-                isPlaying
+            _chatters.TryAdd(
+                joinGame.UserId,
+                new Chatter(joinGame.ConnectionId, joinGame.UserName, isPlaying)
             );
-            await _gameChatNotifier.JoinChatAsync(_gameToken, joinGame.ConnectionId, isPlaying);
 
+            await _gameChatNotifier.JoinChatAsync(_gameToken, joinGame.ConnectionId, isPlaying);
             _logger.Info("User {0} joined chat for game {1}", joinGame.UserId, _gameToken);
 
             Sender.Tell(new GameChatEvents.UserJoined());
@@ -78,7 +81,7 @@ public class GameChatActor : ReceiveActor
 
     private void HandleLeaveChat(GameChatCommands.LeaveChat leaveChat)
     {
-        if (!_chatters.Remove(leaveChat.UserId, out var chatter))
+        if (!_chatters.TryRemove(leaveChat.UserId, out var chatter))
         {
             _logger.Warning(
                 "User {0} not found in chat for game {1} when trying to leave",
@@ -136,6 +139,13 @@ public class GameChatActor : ReceiveActor
             Sender.ReplyWithError(GameChatErrors.UserNotInChat);
             return;
         }
+
+        if (_chatRateLimiter.IsOnCooldown(sendMessage.UserId))
+        {
+            Sender.ReplyWithError(GameChatErrors.OnCooldown);
+            return;
+        }
+        _chatRateLimiter.RegisterMessage(sendMessage.UserId);
 
         RunTask(
             () =>

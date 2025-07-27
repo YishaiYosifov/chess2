@@ -372,6 +372,7 @@ builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 #region Game Chat
 builder.Services.AddScoped<IGameChatService, GameChatService>();
 builder.Services.AddSingleton<IGameChatNotifier, GameChatNotifier>();
+builder.Services.AddTransient<IChatRateLimiter, ChatRateLimiter>();
 #endregion
 
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
