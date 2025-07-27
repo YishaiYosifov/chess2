@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Serilog.Sinks.XUnit.Injectable.Abstract;
 
 namespace Chess2.Api.TestInfrastructure;
 
@@ -35,6 +36,9 @@ public class ApiTestBase : IAsyncLifetime
     {
         Factory = factory;
         Factory.Server.PreserveExecutionContext = true;
+        var outputSink = Factory.Services.GetRequiredService<IInjectableTestOutputSink>();
+        outputSink.Inject(TestContext.Current.TestOutputHelper!);
+
         Scope = Factory.Services.CreateScope();
         ApiClient = Factory.CreateApiClient();
 
@@ -108,7 +112,7 @@ public class ApiTestBase : IAsyncLifetime
 
         foreach (var actorId in existingActors)
         {
-            shardActor.ActorRef.Tell(new ShardingEnvelope(actorId, PoisonPill.Instance));
+            shardActor.ActorRef.Tell(new ShardingEnvelope(actorId, Kill.Instance));
         }
     }
 
@@ -119,6 +123,7 @@ public class ApiTestBase : IAsyncLifetime
         await ResetShardActors<PlayerSessionActor>();
         await ResetShardActors<RatedMatchmakingActor>();
         await ResetShardActors<CasualMatchmakingActor>();
+        await ResetShardActors<GameChatActor>();
         await ResetShardActors<GameActor>();
 
         await Factory.ResetDatabaseAsync();

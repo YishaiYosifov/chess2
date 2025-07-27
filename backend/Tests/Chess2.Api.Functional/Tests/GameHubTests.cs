@@ -14,7 +14,6 @@ using ChatTcs = TaskCompletionSource<(string sender, string message)>;
 public class GameHubTests : BaseFunctionalTest
 {
     private readonly ILiveGameService _gameService;
-
     private const string SendChatMethod = "SendChatAsync";
 
     public GameHubTests(Chess2WebApplicationFactory factory)
