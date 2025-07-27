@@ -23,6 +23,7 @@ public interface IGameHubClient : IChess2HubClient
     Task GameEndedAsync(GameResultData result);
 
     Task ChatMessageAsync(string sender, string message);
+    Task ChatConnectedAsync();
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
@@ -99,6 +100,8 @@ public class GameHub(
         }
 
         await _gameChatService.JoinChat(gameToken, Context.ConnectionId, Context.User);
+        await Clients.Caller.ChatConnectedAsync();
+
         await Groups.AddToGroupAsync(Context.ConnectionId, gameToken);
         await base.OnConnectedAsync();
     }

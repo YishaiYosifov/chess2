@@ -108,11 +108,17 @@ public class GameHubTests : BaseFunctionalTest
         foreach (var receiver in receivers)
         {
             ChatTcs tcs = new();
+            TaskCompletionSource connectedTcs = new();
+
             var conn = await ConnectSignalRAuthedAsync(GameHubPath(gameToken), receiver);
+
+            conn.On("ChatConnectedAsync", connectedTcs.TrySetResult);
             conn.On<string, string>(
                 "ChatMessageAsync",
                 (sender, message) => tcs.TrySetResult((sender, message))
             );
+
+            await connectedTcs.Task.WaitAsync(TimeSpan.FromSeconds(5), CT);
 
             tcsList.Add(tcs);
             connections.Add(conn);
