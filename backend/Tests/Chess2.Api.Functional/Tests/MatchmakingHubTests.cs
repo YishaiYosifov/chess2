@@ -74,53 +74,35 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
     {
         var timeControl = new TimeControlSettings(600, 5);
 
-        var user1Match1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var user2Match1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authed1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authed2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authed3 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authed4 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        var user1Match2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var user2Match2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        await using var authedConn1 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, authed1);
+        await using var authedConn2 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, authed2);
+        await using var authedConn3 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, authed3);
+        await using var authedConn4 = await ConnectSignalRAuthedAsync(MatchmakingHubPath, authed4);
 
-        await using var conn1Match1 = await ConnectSignalRAuthedAsync(
-            MatchmakingHubPath,
-            user1Match1
-        );
-        await using var conn2Match1 = await ConnectSignalRAuthedAsync(
-            MatchmakingHubPath,
-            user2Match1
-        );
+        await using var guestConn1 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
+        await using var guestConn2 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
 
-        await using var conn1Match2 = await ConnectSignalRAuthedAsync(
-            MatchmakingHubPath,
-            user1Match2
-        );
-        await using var conn2Match2 = await ConnectSignalRAuthedAsync(
-            MatchmakingHubPath,
-            user2Match2
-        );
-
-        await using var conn1Match3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest1");
-        await using var conn2Match3 = await ConnectSignalRGuestAsync(MatchmakingHubPath, "guest2");
-
-        var match1AssertTask = AssertPlayersMatchAsync(
-            conn1Match1,
-            conn2Match1,
+        var concurrentRatedMatchTask = AssertConcurrentMatchesAsync(
             timeControl,
-            SeekRatedMethod
+            SeekRatedMethod,
+            authedConn1,
+            authedConn2,
+            authedConn3,
+            authedConn4
         );
-        var match2AssertTask = AssertPlayersMatchAsync(
-            conn1Match2,
-            conn2Match2,
-            timeControl,
-            SeekRatedMethod
-        );
-        var match3AssertTask = AssertPlayersMatchAsync(
-            conn1Match3,
-            conn2Match3,
+        var guestMatchTask = AssertPlayersMatchAsync(
+            guestConn1,
+            guestConn2,
             timeControl,
             SeekCasualMethod
         );
 
-        await Task.WhenAll(match1AssertTask, match2AssertTask, match3AssertTask);
+        await Task.WhenAll(concurrentRatedMatchTask, guestMatchTask);
     }
 
     [Fact]
@@ -173,6 +155,32 @@ public class MatchmakingHubTests(Chess2WebApplicationFactory factory) : BaseFunc
         await guest2Conn.InvokeAsync(SeekCasualMethod, timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
+    }
+
+    private async Task AssertConcurrentMatchesAsync(
+        TimeControlSettings timeControl,
+        string methodName,
+        params List<HubConnection> conns
+    )
+    {
+        List<TaskCompletionSource<string>> tcsList = [];
+        foreach (var conn in conns)
+        {
+            tcsList.Add(ListenForMatch(conn));
+            await conn.InvokeAsync(methodName, timeControl);
+        }
+
+        var tokens = await Task.WhenAll(
+            tcsList.Select(tcs => tcs.Task.WaitAsync(TimeSpan.FromSeconds(10), CT))
+        );
+        var tokenCounts = tokens.GroupBy(token => token).ToDictionary(g => g.Key, g => g.Count());
+
+        tokenCounts.Should().HaveCount(conns.Count / 2);
+        foreach (var kvp in tokenCounts)
+        {
+            kvp.Value.Should().Be(2);
+            kvp.Key.Should().NotBeNullOrEmpty().And.HaveLength(16);
+        }
     }
 
     private async Task<string> AssertPlayersMatchAsync(
