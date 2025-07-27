@@ -12,6 +12,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Refit;
 using Respawn;
+using Serilog;
+using Serilog.Sinks.XUnit.Injectable;
+using Serilog.Sinks.XUnit.Injectable.Abstract;
+using Serilog.Sinks.XUnit.Injectable.Extensions;
 using StackExchange.Redis;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
@@ -51,6 +55,15 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                 services.RemoveAll<IConnectionMultiplexer>();
                 services.AddSingleton<IConnectionMultiplexer>(
                     ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
+                );
+
+                var injectableTestOutputSink = new InjectableTestOutputSink();
+                services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
+                services.AddSerilog(
+                    (_, loggerConfiguration) =>
+                    {
+                        loggerConfiguration.WriteTo.InjectableTestOutput(injectableTestOutputSink);
+                    }
                 );
             })
             .ConfigureAppConfiguration(
