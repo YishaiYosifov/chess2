@@ -22,6 +22,7 @@ public class GameChatActorTests : BaseActorTest
     private readonly ILiveGameService _liveGameServiceMock = Substitute.For<ILiveGameService>();
     private readonly IServiceProvider _serviceProviderMock = Substitute.For<IServiceProvider>();
     private readonly IGameChatNotifier _gameChatNotifierMock = Substitute.For<IGameChatNotifier>();
+    private readonly IChatRateLimiter _chatRateLimiterMock = Substitute.For<IChatRateLimiter>();
     private readonly ChatSettings _settings;
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).RuleFor(
@@ -68,7 +69,8 @@ public class GameChatActorTests : BaseActorTest
                         TestGameToken,
                         _serviceProviderMock,
                         settingOptions,
-                        _gameChatNotifierMock
+                        _gameChatNotifierMock,
+                        _chatRateLimiterMock
                     )
             )
         );
