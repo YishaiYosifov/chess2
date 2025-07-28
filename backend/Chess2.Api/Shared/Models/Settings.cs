@@ -32,9 +32,8 @@ public class GameSettings
 
 public class ChatSettings
 {
-    public TimeSpan RateLimitWindow { get; set; }
-    public int MaxMessagesPerWindow { get; set; }
-    public TimeSpan OffenseCooldownDuration { get; set; }
+    public int BucketCapacity { get; set; }
+    public TimeSpan BucketRefillRate { get; set; }
 
     public required int MaxMessageLength { get; set; }
 }
