@@ -31,20 +31,24 @@ public class ChatRateLimiterTests
 
         for (int i = 0; i < _settings.BucketCapacity; i++)
         {
-            bool allowed = _limiter.ShouldAllowRequest("user1", out cooldown);
+            var allowed = _limiter.ShouldAllowRequest("user1", out cooldown);
             allowed.Should().BeTrue();
             cooldown.Should().Be(TimeSpan.Zero);
         }
 
-        bool denied = _limiter.ShouldAllowRequest("user1", out cooldown);
-        denied.Should().BeFalse();
+        // cooldown started, allow last message
+        _limiter.ShouldAllowRequest("user1", out cooldown).Should().BeTrue();
+        cooldown.Should().Be(_settings.BucketRefillRate);
+
+        // cooldown already notified, so disallow message
+        _limiter.ShouldAllowRequest("user1", out cooldown).Should().BeFalse();
         cooldown.Should().Be(_settings.BucketRefillRate);
     }
 
     [Fact]
     public void ShouldAllowRequest_allows_requests_once_the_bucket_refills()
     {
-        for (int i = 0; i < _settings.BucketCapacity; i++)
+        for (int i = 0; i < _settings.BucketCapacity + 1; i++)
         {
             _limiter.ShouldAllowRequest("user1", out _).Should().BeTrue();
         }
@@ -57,15 +61,18 @@ public class ChatRateLimiterTests
         cooldown.Should().Be(halfRefillRate);
         AdvanceTime(halfRefillRate);
 
-        bool allowed = _limiter.ShouldAllowRequest("user1", out cooldown);
-        allowed.Should().BeTrue();
+        _limiter.ShouldAllowRequest("user1", out cooldown).Should().BeTrue();
+        cooldown.Should().Be(_settings.BucketRefillRate);
+
+        AdvanceTime(_settings.BucketRefillRate * 2);
+        _limiter.ShouldAllowRequest("user1", out cooldown).Should().BeTrue();
         cooldown.Should().Be(TimeSpan.Zero);
     }
 
     [Fact]
     public void ShouldAllowRequest_can_handle_multiple_users()
     {
-        for (int i = 0; i < _settings.BucketCapacity; i++)
+        for (int i = 0; i < _settings.BucketCapacity + 1; i++)
             _limiter.ShouldAllowRequest("user1", out _).Should().BeTrue();
         _limiter.ShouldAllowRequest("user1", out _).Should().BeFalse();
 
