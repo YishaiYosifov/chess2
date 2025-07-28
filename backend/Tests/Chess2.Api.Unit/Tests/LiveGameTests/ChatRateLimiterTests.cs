@@ -25,36 +25,52 @@ public class ChatRateLimiterTests
     }
 
     [Fact]
-    public void ShouldDenyRequest_WhenBucketIsFull()
+    public void ShouldAllowRequest_denies_request_when_the_bucket_is_full()
+    {
+        TimeSpan cooldown;
+
+        for (int i = 0; i < _settings.BucketCapacity; i++)
+        {
+            bool allowed = _limiter.ShouldAllowRequest("user1", out cooldown);
+            allowed.Should().BeTrue();
+            cooldown.Should().Be(TimeSpan.Zero);
+        }
+
+        bool denied = _limiter.ShouldAllowRequest("user1", out cooldown);
+        denied.Should().BeFalse();
+        cooldown.Should().Be(_settings.BucketRefillRate);
+    }
+
+    [Fact]
+    public void ShouldAllowRequest_allows_requests_once_the_bucket_refills()
     {
         for (int i = 0; i < _settings.BucketCapacity; i++)
         {
-            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
+            _limiter.ShouldAllowRequest("user1", out _).Should().BeTrue();
         }
+        _limiter.ShouldAllowRequest("user1", out var cooldown).Should().BeFalse();
+        cooldown.Should().Be(_settings.BucketRefillRate);
 
-        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
+        var halfRefillRate = _settings.BucketRefillRate / 2;
+        AdvanceTime(halfRefillRate);
+        _limiter.ShouldAllowRequest("user1", out cooldown).Should().BeFalse();
+        cooldown.Should().Be(halfRefillRate);
+        AdvanceTime(halfRefillRate);
+
+        bool allowed = _limiter.ShouldAllowRequest("user1", out cooldown);
+        allowed.Should().BeTrue();
+        cooldown.Should().Be(TimeSpan.Zero);
     }
 
     [Fact]
-    public void ShouldAllowRequest_AfterRefill()
+    public void ShouldAllowRequest_can_handle_multiple_users()
     {
         for (int i = 0; i < _settings.BucketCapacity; i++)
-            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
-        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
+            _limiter.ShouldAllowRequest("user1", out _).Should().BeTrue();
+        _limiter.ShouldAllowRequest("user1", out _).Should().BeFalse();
 
-        AdvanceTime(_settings.BucketRefillRate);
-
-        _limiter.ShouldAllowRequest("user1").Should().BeTrue();
-    }
-
-    [Fact]
-    public void ShouldResetBucketForNewUser()
-    {
-        for (int i = 0; i < _settings.BucketCapacity; i++)
-            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
-        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
-
-        _limiter.ShouldAllowRequest("user2").Should().BeTrue();
+        _limiter.ShouldAllowRequest("user2", out var cooldown).Should().BeTrue();
+        cooldown.Should().Be(TimeSpan.Zero);
     }
 
     private void AdvanceTime(TimeSpan duration)

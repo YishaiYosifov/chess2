@@ -140,7 +140,7 @@ public class GameChatActor : ReceiveActor
             return;
         }
 
-        if (!_chatRateLimiter.ShouldAllowRequest(sendMessage.UserId))
+        if (!_chatRateLimiter.ShouldAllowRequest(sendMessage.UserId, out var cooldownLeft))
         {
             Sender.ReplyWithError(GameChatErrors.OnCooldown);
             return;
@@ -151,6 +151,8 @@ public class GameChatActor : ReceiveActor
                 _gameChatNotifier.SendMessageAsync(
                     _gameToken,
                     chatter.UserName,
+                    chatter.ConnectionId,
+                    cooldownLeft,
                     sendMessage.Message,
                     chatter.IsPlaying
                 )

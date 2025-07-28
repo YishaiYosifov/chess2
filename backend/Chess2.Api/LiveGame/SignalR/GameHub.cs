@@ -24,6 +24,7 @@ public interface IGameHubClient : IChess2HubClient
 
     Task ChatMessageAsync(string sender, string message);
     Task ChatConnectedAsync();
+    Task ChatMessageDeliveredAsync(double cooldownLeftMs);
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
