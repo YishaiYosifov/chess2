@@ -19,13 +19,13 @@ export function createFakeGameState(
         clocks: createFakeClock(),
         sideToMove: GameColor.WHITE,
         initialFen: "10/10/10/10/10/10/10/10/10/10",
-        moveHistory: Array(faker.number.int({ min: 1, max: 5 })).map(() =>
-            createFakeMoveSnapshot(),
-        ),
+        moveHistory: Array.from({
+            length: faker.number.int({ min: 1, max: 5 }),
+        }).map(() => createFakeMoveSnapshot()),
         moveOptions: {
-            legalMoves: Array(faker.number.int({ min: 1, max: 5 })).map(() =>
-                createFakeMovePath(),
-            ),
+            legalMoves: Array.from({
+                length: faker.number.int({ min: 1, max: 5 }),
+            }).map(() => createFakeMovePath()),
             hasForcedMoves: faker.datatype.boolean(),
         },
         ...overrides,
