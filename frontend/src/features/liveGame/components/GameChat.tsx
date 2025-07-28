@@ -64,6 +64,7 @@ const GameChat = () => {
                 {chatMessages.map((chatMessage, i) => (
                     <p key={i}>
                         <span
+                            data-testid="gameChatUser"
                             className="cursor-pointer"
                             onClick={() =>
                                 router.push(`/profile/${chatMessage.sender}`)
@@ -71,7 +72,10 @@ const GameChat = () => {
                         >
                             {chatMessage.sender}:
                         </span>{" "}
-                        <span className="text-gray-400">
+                        <span
+                            data-testid="gameChatMessage"
+                            className="text-gray-400"
+                        >
                             {chatMessage.message}
                         </span>
                     </p>
@@ -79,6 +83,7 @@ const GameChat = () => {
             </div>
             <form onSubmit={onChatSend}>
                 <Input
+                    data-testid="gameChatInput"
                     className="bg-white/5 text-white"
                     placeholder={
                         isOnCooldown
