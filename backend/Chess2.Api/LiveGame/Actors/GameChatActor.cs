@@ -157,7 +157,16 @@ public class GameChatActor : ReceiveActor
                     chatter.IsPlaying
                 )
         );
+        RunTask(() => LogMessageAsync(sendMessage.UserId, sendMessage.Message));
         Sender.Tell(new GameChatEvents.MessageSent());
+    }
+
+    private async Task LogMessageAsync(string userId, string message)
+    {
+        await using var scope = _sp.CreateAsyncScope();
+        var chatMessageService = scope.ServiceProvider.GetRequiredService<IChatMessageLogger>();
+
+        await chatMessageService.LogMessageAsync(_gameToken, userId, message);
     }
 
     private void HandleTimeout()

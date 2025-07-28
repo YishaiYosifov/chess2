@@ -17,6 +17,7 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Infrastructure.OpenAPI;
+using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Matchmaking.Actors;
@@ -373,6 +374,8 @@ builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 builder.Services.AddScoped<IGameChatService, GameChatService>();
 builder.Services.AddSingleton<IGameChatNotifier, GameChatNotifier>();
 builder.Services.AddTransient<IChatRateLimiter, ChatRateLimiter>();
+builder.Services.AddScoped<IChatMessageLogger, ChatMessageLogger>();
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #endregion
 
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
