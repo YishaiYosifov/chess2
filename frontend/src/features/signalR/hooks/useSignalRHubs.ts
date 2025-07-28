@@ -34,7 +34,7 @@ export const useMatchmakingEmitter =
         constants.SIGNALR_PATHS.MATCHMAKING,
     );
 
-type GameClientEvents = {
+export type GameClientEvents = {
     MoveMadeAsync: [
         move: MoveSnapshot,
         sideToMove: GameColor,
