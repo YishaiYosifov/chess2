@@ -20,6 +20,8 @@ namespace Chess2.Api.Unit.Tests.LiveGameTests;
 public class GameChatActorTests : BaseActorTest
 {
     private readonly ILiveGameService _liveGameServiceMock = Substitute.For<ILiveGameService>();
+    private readonly IChatMessageLogger _chatMessageLoggerMock =
+        Substitute.For<IChatMessageLogger>();
     private readonly IServiceProvider _serviceProviderMock = Substitute.For<IServiceProvider>();
     private readonly IGameChatNotifier _gameChatNotifierMock = Substitute.For<IGameChatNotifier>();
     private readonly IChatRateLimiter _chatRateLimiterMock = Substitute.For<IChatRateLimiter>();
@@ -53,6 +55,7 @@ public class GameChatActorTests : BaseActorTest
             .GetService(typeof(IServiceScopeFactory))
             .Returns(serviceScopeFactoryMock);
         _serviceProviderMock.GetService(typeof(ILiveGameService)).Returns(_liveGameServiceMock);
+        _serviceProviderMock.GetService(typeof(IChatMessageLogger)).Returns(_chatMessageLoggerMock);
 
         var settingOptions = Fixture.Create<IOptions<AppSettings>>();
         _settings = settingOptions.Value.Game.Chat;
@@ -194,6 +197,9 @@ public class GameChatActorTests : BaseActorTest
         await _gameChatNotifierMock
             .Received(1)
             .SendMessageAsync(TestGameToken, username, connId, newCooldown, message, isPlaying);
+        await _chatMessageLoggerMock
+            .Received(1)
+            .LogMessageAsync(TestGameToken, userId, message, Arg.Any<CancellationToken>());
     }
 
     [Fact]
