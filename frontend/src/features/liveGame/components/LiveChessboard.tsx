@@ -1,8 +1,9 @@
 "use client";
 
+import { useCallback, useRef } from "react";
+
 import { LogicalPoint } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
-import { useCallback, useRef } from "react";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";

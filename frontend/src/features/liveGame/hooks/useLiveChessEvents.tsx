@@ -7,6 +7,8 @@ import { GameOverPopupRef } from "../components/GameOverPopup";
 import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position, ProcessedMoveOptions } from "@/types/tempModels";
 import { createStoreProps } from "../lib/gameStateProcessor";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
 
 export function useLiveChessEvents(
     gameToken: string,
@@ -17,7 +19,7 @@ export function useLiveChessEvents(
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
 
-    async function refetchGame() {
+    const refetchGame = useCallback(async () => {
         const { error, data: gameState } = await getGame({
             path: { gameToken },
         });
@@ -29,7 +31,20 @@ export function useLiveChessEvents(
         const { live, board } = createStoreProps(gameToken, userId, gameState);
         liveChessStore.getState().resetState(live);
         chessboardStore.getState().resetState(board);
-    }
+    }, [liveChessStore, chessboardStore, gameToken, userId]);
+
+    const pathname = usePathname();
+    const lastPathname = useRef<string | null>(null);
+
+    useEffect(() => {
+        // Back navigation
+        if (pathname === lastPathname.current) {
+            lastPathname.current = null;
+            refetchGame();
+        } else {
+            lastPathname.current = pathname;
+        }
+    }, [pathname, refetchGame]);
 
     function jumpForwards() {
         const { positionHistory, viewingMoveNumber, teleportToLastMove } =
