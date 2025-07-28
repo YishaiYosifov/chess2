@@ -46,11 +46,14 @@ type GameClientEvents = {
         hasForcedMoves: boolean,
     ];
     GameEndedAsync: [result: GameResultData];
+    ChatMessageAsync: [sender: string, message: string];
+    ChatConnectedAsync: [];
 };
 
 type GameHubEvents = {
     MovePieceAsync: [gameToken: string, from: LogicalPoint, to: LogicalPoint];
     EndGameAsync: [gameToken: string];
+    SendChatAsync: [gameToken: string, message: string];
 };
 
 export function useGameEvent<
