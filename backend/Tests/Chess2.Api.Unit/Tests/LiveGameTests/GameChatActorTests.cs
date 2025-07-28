@@ -62,8 +62,12 @@ public class GameChatActorTests : BaseActorTest
             .Returns(new GameEvents.GamePlayersEvent(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
-            .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan?>())
-            .Returns(true);
+            .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
+            .Returns(x =>
+            {
+                x[1] = TimeSpan.Zero;
+                return true;
+            });
 
         _probe = CreateTestProbe();
         _gameChatActor = Sys.ActorOf(
@@ -162,9 +166,19 @@ public class GameChatActorTests : BaseActorTest
     {
         const string username = "username";
         const string message = "hello world";
+        const string connId = "conn";
 
-        await JoinChat(userId, username: username);
+        await JoinChat(userId, connId: connId, username: username);
         await JoinChat("some-random-id", username: "some random guy");
+
+        var newCooldown = TimeSpan.FromSeconds(5);
+        _chatRateLimiterMock
+            .ShouldAllowRequest(userId, out Arg.Any<TimeSpan>())
+            .Returns(x =>
+            {
+                x[1] = newCooldown;
+                return true;
+            });
 
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(
@@ -179,7 +193,38 @@ public class GameChatActorTests : BaseActorTest
 
         await _gameChatNotifierMock
             .Received(1)
-            .SendMessageAsync(TestGameToken, username, message, isPlaying);
+            .SendMessageAsync(TestGameToken, username, connId, newCooldown, message, isPlaying);
+    }
+
+    [Fact]
+    public async Task SendMessage_with_cooldown_returns_error()
+    {
+        await JoinChat(_whitePlayer.UserId);
+
+        var newCooldown = TimeSpan.FromSeconds(5);
+        _chatRateLimiterMock
+            .ShouldAllowRequest(_whitePlayer.UserId, out Arg.Any<TimeSpan>())
+            .Returns(x =>
+            {
+                x[1] = newCooldown;
+                return false;
+            });
+
+        _gameChatActor.Tell(
+            new GameChatCommands.SendMessage(
+                GameToken: TestGameToken,
+                UserId: _whitePlayer.UserId,
+                Message: "test"
+            ),
+            _probe.Ref
+        );
+
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Single().Should().Be(GameChatErrors.OnCooldown);
+
+        _gameChatNotifierMock.Received(0);
     }
 
     [Fact]
