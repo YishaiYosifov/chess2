@@ -24,28 +24,31 @@ public class ChatRateLimiter(IOptions<AppSettings> settings, TimeProvider timePr
 
         var ellapsed = now - bucket.LastRefill;
         var tokensToAdd = (int)(ellapsed / _settings.BucketRefillRate);
-        var newFill = Math.Max(0, bucket.Fill - tokensToAdd);
-        Console.WriteLine(newFill);
+        var availableTokens = Math.Max(0, bucket.Fill - tokensToAdd);
 
-        // haven't reached capacity yet, no cooldown
-        if (newFill < _settings.BucketCapacity)
+        bool isWithinCapacity = availableTokens < _settings.BucketCapacity;
+        bool isAtCapacity = availableTokens == _settings.BucketCapacity;
+
+        if (isWithinCapacity)
         {
-            _userBuckets[userId] = (newFill + 1, now);
+            _userBuckets[userId] = (availableTokens + 1, now);
             cooldownLeft = TimeSpan.Zero;
             return true;
         }
-        // cooldown will start at this message
-        else if (newFill == _settings.BucketCapacity)
+        else if (isAtCapacity)
         {
-            _userBuckets[userId] = (newFill + 1, now);
+            // this message fills the bucket completely, cooldown starts now
+            _userBuckets[userId] = (availableTokens + 1, now);
             cooldownLeft = _settings.BucketRefillRate;
             return true;
         }
-
-        // cooldown is active
-        _userBuckets[userId] = (newFill, bucket.LastRefill);
-        var nextTokenAvailableAt = bucket.LastRefill + _settings.BucketRefillRate;
-        cooldownLeft = nextTokenAvailableAt - now;
-        return false;
+        else
+        {
+            // cooldown is not fully active, disallow the request
+            _userBuckets[userId] = (availableTokens, bucket.LastRefill);
+            var nextTokenAvailableAt = bucket.LastRefill + _settings.BucketRefillRate;
+            cooldownLeft = nextTokenAvailableAt - now;
+            return false;
+        }
     }
 }
