@@ -61,6 +61,8 @@ public class GameChatActorTests : BaseActorTest
             .GetGamePlayersAsync(TestGameToken)
             .Returns(new GameEvents.GamePlayersEvent(_whitePlayer, _blackPlayer));
 
+        _chatRateLimiterMock.ShouldAllowRequest(Arg.Any<string>()).Returns(true);
+
         _probe = CreateTestProbe();
         _gameChatActor = Sys.ActorOf(
             Props.Create(

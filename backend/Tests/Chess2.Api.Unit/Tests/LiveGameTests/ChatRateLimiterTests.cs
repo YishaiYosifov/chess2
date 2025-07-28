@@ -25,70 +25,36 @@ public class ChatRateLimiterTests
     }
 
     [Fact]
-    public void RegisterMessage_up_to_limit_does_not_trigger_cooldown()
+    public void ShouldDenyRequest_WhenBucketIsFull()
     {
-        var userId = "user1";
+        for (int i = 0; i < _settings.BucketCapacity; i++)
+        {
+            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
+        }
 
-        RegisterMessages(userId, _settings.MaxMessagesPerWindow);
-
-        _limiter.IsOnCooldown(userId).Should().BeFalse();
+        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
     }
 
     [Fact]
-    public void RegisterMessage_exceeding_limit_triggers_cooldown()
+    public void ShouldAllowRequest_AfterRefill()
     {
-        var userId = "user1";
+        for (int i = 0; i < _settings.BucketCapacity; i++)
+            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
+        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
 
-        RegisterMessages(userId, _settings.MaxMessagesPerWindow + 1);
+        AdvanceTime(_settings.BucketRefillRate);
 
-        _limiter.IsOnCooldown(userId).Should().BeTrue();
+        _limiter.ShouldAllowRequest("user1").Should().BeTrue();
     }
 
     [Fact]
-    public void IsOnCooldown_returns_false_after_cooldown_is_over()
+    public void ShouldResetBucketForNewUser()
     {
-        var userId = "user1";
+        for (int i = 0; i < _settings.BucketCapacity; i++)
+            _limiter.ShouldAllowRequest("user1").Should().BeTrue();
+        _limiter.ShouldAllowRequest("user1").Should().BeFalse();
 
-        RegisterMessages(userId, _settings.MaxMessagesPerWindow + 1);
-        AdvanceTime(_settings.OffenseCooldownDuration + TimeSpan.FromSeconds(1));
-
-        _limiter.IsOnCooldown(userId).Should().BeFalse();
-    }
-
-    [Fact]
-    public void RegisterMessage_cleans_up_old_messages_outside_of_window()
-    {
-        var userId = "user1";
-
-        RegisterMessages(userId, _settings.MaxMessagesPerWindow);
-        AdvanceTime(_settings.RateLimitWindow + TimeSpan.FromSeconds(1));
-        RegisterMessages(userId, _settings.MaxMessagesPerWindow);
-
-        _limiter.IsOnCooldown(userId).Should().BeFalse();
-    }
-
-    [Fact]
-    public void RegisterMessage_and_IsOnCooldown_with_multiple_users()
-    {
-        var user1 = "user1";
-        var user2 = "user2";
-
-        RegisterMessages(user1, _settings.MaxMessagesPerWindow + 1);
-        RegisterMessages(user2, _settings.MaxMessagesPerWindow - 1);
-
-        _limiter.IsOnCooldown(user1).Should().BeTrue();
-        _limiter.IsOnCooldown(user2).Should().BeFalse();
-
-        AdvanceTime(_settings.OffenseCooldownDuration + TimeSpan.FromSeconds(1));
-
-        _limiter.IsOnCooldown(user1).Should().BeFalse();
-        _limiter.IsOnCooldown(user2).Should().BeFalse();
-    }
-
-    private void RegisterMessages(string userId, int count)
-    {
-        for (var i = 0; i < count; i++)
-            _limiter.RegisterMessage(userId);
+        _limiter.ShouldAllowRequest("user2").Should().BeTrue();
     }
 
     private void AdvanceTime(TimeSpan duration)

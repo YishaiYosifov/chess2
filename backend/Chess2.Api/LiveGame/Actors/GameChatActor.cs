@@ -140,12 +140,11 @@ public class GameChatActor : ReceiveActor
             return;
         }
 
-        if (_chatRateLimiter.IsOnCooldown(sendMessage.UserId))
+        if (!_chatRateLimiter.ShouldAllowRequest(sendMessage.UserId))
         {
             Sender.ReplyWithError(GameChatErrors.OnCooldown);
             return;
         }
-        _chatRateLimiter.RegisterMessage(sendMessage.UserId);
 
         RunTask(
             () =>
@@ -161,6 +160,9 @@ public class GameChatActor : ReceiveActor
 
     private void HandleTimeout()
     {
+        if (!_chatters.IsEmpty)
+            return;
+
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
         _logger.Info("No chat recent chat messages in game {0}, passivating actor", _gameToken);
     }
