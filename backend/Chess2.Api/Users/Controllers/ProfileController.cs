@@ -38,6 +38,7 @@ public class ProfileController(
     }
 
     [HttpGet("my-id", Name = nameof(GetMyId))]
+    [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.AuthedSesssion)]
     public ActionResult<string> GetMyId()
     {
