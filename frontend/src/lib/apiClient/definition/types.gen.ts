@@ -29,6 +29,10 @@ export enum ErrorCode {
     GAME_ALREADY_ENDED = "Game.AlreadyEnded",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
     GAME_MOVE_INVALID = "Game.MoveInvalid",
+    GAME_CHAT_USER_ALREADY_JOINED = "GameChat.UserAlreadyJoined",
+    GAME_CHAT_USER_NOT_IN_CHAT = "GameChat.UserNotInChat",
+    GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
+    GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
 }
 
 export type ApiProblemError = {
@@ -44,7 +48,11 @@ export type ApiProblemError = {
         | "Game.NotFound"
         | "Game.AlreadyEnded"
         | "Game.PlayerInvalid"
-        | "Game.MoveInvalid";
+        | "Game.MoveInvalid"
+        | "GameChat.UserAlreadyJoined"
+        | "GameChat.UserNotInChat"
+        | "GameChat.InvalidMessage"
+        | "GameChat.OnCooldown";
     description: string;
 };
 

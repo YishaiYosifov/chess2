@@ -18,14 +18,23 @@ interface ChatMessage {
 const GameChat = () => {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [message, setMessage] = useState("");
+    const [isOnCooldown, setIsOnCooldown] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     const chatRef = useRef<HTMLDivElement>(null);
     useAutoScroll(chatRef, [chatMessages]);
 
     const router = useRouter();
-
     const gameToken = useLiveChessStore((x) => x.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
+
+    useGameEvent(gameToken, "ChatMessageDeliveredAsync", (cooldownLeftMs) => {
+        setIsSending(false);
+
+        if (!cooldownLeftMs) return;
+        setIsOnCooldown(true);
+        setTimeout(() => setIsOnCooldown(false), cooldownLeftMs);
+    });
 
     useGameEvent(gameToken, "ChatMessageAsync", (sender, message) => {
         const chatMessage: ChatMessage = {
@@ -34,6 +43,7 @@ const GameChat = () => {
         };
         setChatMessages((prev) => [...prev, chatMessage]);
     });
+
     // this event is fired for backend tests, but we don't really care about it
     // this is here to supress the missing event warning
     useGameEvent(gameToken, "ChatConnectedAsync", () => {});
@@ -41,8 +51,9 @@ const GameChat = () => {
     async function onChatSend(event: React.FormEvent) {
         event.preventDefault();
 
-        if (!message || message.trim().length === 0) return;
+        if (isSending || !message.trim()) return;
 
+        setIsSending(true);
         sendGameEvent("SendChatAsync", gameToken, message);
         setMessage("");
     }
@@ -69,9 +80,14 @@ const GameChat = () => {
             <form onSubmit={onChatSend}>
                 <Input
                     className="bg-white/5 text-white"
-                    placeholder="Send a Message..."
+                    placeholder={
+                        isOnCooldown
+                            ? "Too fast, slow down..."
+                            : "Send a Message..."
+                    }
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    disabled={isOnCooldown}
                 />
             </form>
         </Card>

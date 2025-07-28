@@ -46,7 +46,9 @@ type GameClientEvents = {
         hasForcedMoves: boolean,
     ];
     GameEndedAsync: [result: GameResultData];
+
     ChatMessageAsync: [sender: string, message: string];
+    ChatMessageDeliveredAsync: [cooldownLeftMs: number];
     ChatConnectedAsync: [];
 };
 
