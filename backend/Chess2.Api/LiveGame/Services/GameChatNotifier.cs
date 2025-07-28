@@ -7,7 +7,14 @@ public interface IGameChatNotifier
 {
     Task JoinChatAsync(string gameToken, string connectionId, bool isPlaying);
     Task LeaveChatAsync(string gameToken, string connectionId, bool isPlaying);
-    Task SendMessageAsync(string gameToken, string userName, string message, bool isPlaying);
+    Task SendMessageAsync(
+        string gameToken,
+        string userName,
+        string connectionId,
+        TimeSpan cooldownLeft,
+        string message,
+        bool isPlaying
+    );
 }
 
 public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameChatNotifier
@@ -32,11 +39,17 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     public async Task SendMessageAsync(
         string gameToken,
         string userName,
+        string connectionId,
+        TimeSpan cooldownLeft,
         string message,
         bool isPlaying
     )
     {
         var groupName = GetGroupName(gameToken, isPlaying);
         await _hub.Clients.Group(groupName).ChatMessageAsync(userName, message);
+
+        await _hub
+            .Clients.Client(connectionId)
+            .ChatMessageDeliveredAsync(cooldownLeft.TotalMilliseconds);
     }
 }
