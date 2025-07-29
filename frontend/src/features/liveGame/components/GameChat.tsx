@@ -68,7 +68,10 @@ const GameChat = () => {
 
     return (
         <Card className="flex-col gap-3">
-            <div className="h-full w-full overflow-auto" ref={chatRef}>
+            <div
+                className="h-full w-full overflow-auto break-words"
+                ref={chatRef}
+            >
                 {chatMessages.map((chatMessage, i) => (
                     <p key={i}>
                         <span
@@ -97,6 +100,7 @@ const GameChat = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={isGuest || isOnCooldown}
+                    maxLength={200}
                 />
             </form>
         </Card>
