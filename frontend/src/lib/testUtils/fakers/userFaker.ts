@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 
-import { PrivateUser, User } from "@/lib/apiClient";
+import { PrivateUser, PublicUser } from "@/lib/apiClient";
 
-export function createFakeUser(override?: Partial<User>): User {
+export function createFakeUser(override?: Partial<PublicUser>): PublicUser {
     return {
         userId: faker.string.uuid(),
         userName: faker.internet.username(),
@@ -18,6 +18,7 @@ export function createFakePrivateUser(
     return {
         ...createFakeUser(),
         email: faker.internet.username(),
+        type: "authed",
         ...override,
     };
 }

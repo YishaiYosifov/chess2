@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 
 import clsx from "clsx";
-import { GameResult, GameSummary, User } from "@/lib/apiClient";
+import { GameResult, GameSummary, PublicUser } from "@/lib/apiClient";
 
 const GameRow = ({
     game,
@@ -15,7 +15,7 @@ const GameRow = ({
     index,
 }: {
     game: GameSummary;
-    profileViewpoint: User;
+    profileViewpoint: PublicUser;
     index: number;
 }) => {
     const winCondition =

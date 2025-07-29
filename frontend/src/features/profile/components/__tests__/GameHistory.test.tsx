@@ -3,12 +3,11 @@ import {
     GameSummary,
     getGameResults,
     PagedResultOfGameSummaryDto,
-    User,
+    PublicUser,
 } from "@/lib/apiClient";
 import GameHistory from "../GameHistory";
 import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
-import { problemDetailsFactory } from "@/lib/testUtils/formUtils";
 import userEvent from "@testing-library/user-event";
 import constants from "@/lib/constants";
 
@@ -16,7 +15,7 @@ vi.mock("@/lib/apiClient");
 
 describe("GameHistory", () => {
     const getGameResultsMock = vi.mocked(getGameResults);
-    let userMock: User;
+    let userMock: PublicUser;
 
     beforeEach(() => {
         userMock = createFakeUser();
@@ -112,7 +111,7 @@ describe("GameHistory", () => {
 
         getGameResultsMock.mockResolvedValueOnce({
             data: undefined,
-            error: problemDetailsFactory(400),
+            error: { status: 400 },
             response: new Response(),
         });
 

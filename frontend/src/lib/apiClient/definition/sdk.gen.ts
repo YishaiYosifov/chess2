@@ -6,11 +6,9 @@ import type {
     Client,
 } from "@hey-api/client-next";
 import type {
-    GetAuthedUserData,
-    GetAuthedUserResponses,
-    GetAuthedUserErrors,
-    GetMyIdData,
-    GetMyIdErrors,
+    GetSessionUserData,
+    GetSessionUserResponses,
+    GetSessionUserErrors,
     GetUserData,
     GetUserResponses,
     GetUserErrors,
@@ -64,28 +62,15 @@ export type Options<
     meta?: Record<string, unknown>;
 };
 
-export const getAuthedUser = <ThrowOnError extends boolean = false>(
-    options?: Options<GetAuthedUserData, ThrowOnError>,
+export const getSessionUser = <ThrowOnError extends boolean = false>(
+    options?: Options<GetSessionUserData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).get<
-        GetAuthedUserResponses,
-        GetAuthedUserErrors,
+        GetSessionUserResponses,
+        GetSessionUserErrors,
         ThrowOnError
     >({
         url: "/api/Profile/me",
-        ...options,
-    });
-};
-
-export const getMyId = <ThrowOnError extends boolean = false>(
-    options?: Options<GetMyIdData, ThrowOnError>,
-) => {
-    return (options?.client ?? _heyApiClient).get<
-        unknown,
-        GetMyIdErrors,
-        ThrowOnError
-    >({
-        url: "/api/Profile/my-id",
         ...options,
     });
 };

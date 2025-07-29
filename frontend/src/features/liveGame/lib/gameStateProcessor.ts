@@ -11,14 +11,16 @@ import { decodePath, decodePathIntoMap } from "./moveDecoder";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import constants from "@/lib/constants";
 
+export interface ProcessedGameState {
+    live: LiveChessStoreProps;
+    board: ChessboardProps;
+}
+
 export function createStoreProps(
     gameToken: string,
     userId: string,
     gameState: GameState,
-): {
-    live: LiveChessStoreProps;
-    board: ChessboardProps;
-} {
+): ProcessedGameState {
     const positionHistory = getPositionHistory(gameState);
     const boardWidth = constants.BOARD_WIDTH;
     const boardHeight = constants.BOARD_HEIGHT;

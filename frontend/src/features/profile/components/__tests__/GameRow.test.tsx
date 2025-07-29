@@ -4,11 +4,11 @@ import { createFakeGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 
 import GameRow from "../GameRow";
-import { GameResult, GameSummary, User } from "@/lib/apiClient";
+import { GameResult, GameSummary, PublicUser } from "@/lib/apiClient";
 
 describe("GameRow", () => {
     let gameSummaryMock: GameSummary;
-    let userMock: User;
+    let userMock: PublicUser;
 
     beforeEach(() => {
         gameSummaryMock = createFakeGameSummary();
