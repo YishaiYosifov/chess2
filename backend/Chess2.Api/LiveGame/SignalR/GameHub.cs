@@ -80,7 +80,12 @@ public class GameHub(
             return;
         }
 
-        var sendChatResult = await _gameChatService.SendMessage(gameToken, userId, message);
+        var sendChatResult = await _gameChatService.SendMessage(
+            gameToken,
+            userId,
+            Context.ConnectionId,
+            message
+        );
         if (sendChatResult.IsError)
         {
             await HandleErrors(sendChatResult.Errors);
@@ -100,7 +105,18 @@ public class GameHub(
             return;
         }
 
-        await _gameChatService.JoinChat(gameToken, Context.ConnectionId, Context.User);
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            await base.OnConnectedAsync();
+            return;
+        }
+
+        await _gameChatService.JoinChat(
+            gameToken,
+            userId: userId,
+            connectionId: Context.ConnectionId
+        );
         await Clients.Caller.ChatConnectedAsync();
 
         await Groups.AddToGroupAsync(Context.ConnectionId, gameToken);
@@ -122,6 +138,10 @@ public class GameHub(
             return;
         }
 
-        await _gameChatService.LeaveChat(gameToken, userId);
+        await _gameChatService.LeaveChat(
+            gameToken,
+            userId: userId,
+            connectionId: Context.ConnectionId
+        );
     }
 }

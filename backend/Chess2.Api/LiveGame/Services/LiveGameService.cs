@@ -20,7 +20,7 @@ public interface ILiveGameService
         string userId,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameEvents.GamePlayersEvent>> GetGamePlayersAsync(
+    Task<ErrorOr<GameResponses.GamePlayers>> GetGamePlayersAsync(
         string gameToken,
         CancellationToken token = default
     );
@@ -78,7 +78,7 @@ public class LiveGameService(
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
-        await _gameActor.ActorRef.Ask<GameEvents.GameStartedEvent>(
+        await _gameActor.ActorRef.Ask<GameResponses.GameStarted>(
             new GameCommands.StartGame(token, whitePlayer, blackPlayer, timeControl, isRated)
         );
 
@@ -91,7 +91,7 @@ public class LiveGameService(
         CancellationToken token = default
     )
     {
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameStateEvent>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.GameStateResponse>(
             new GameQueries.GetGameState(gameToken, userId),
             token
         );
@@ -100,12 +100,12 @@ public class LiveGameService(
         return response.Value.State;
     }
 
-    public async Task<ErrorOr<GameEvents.GamePlayersEvent>> GetGamePlayersAsync(
+    public async Task<ErrorOr<GameResponses.GamePlayers>> GetGamePlayersAsync(
         string gameToken,
         CancellationToken token = default
     )
     {
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GamePlayersEvent>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.GamePlayers>(
             new GameQueries.GetGamePlayers(gameToken),
             token
         );
@@ -120,7 +120,7 @@ public class LiveGameService(
         CancellationToken token = default
     )
     {
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.PieceMoved>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.PieceMoved>(
             new GameCommands.MovePiece(gameToken, userId, from, to),
             token
         );
@@ -135,7 +135,7 @@ public class LiveGameService(
         CancellationToken token = default
     )
     {
-        var response = await _gameActor.ActorRef.AskExpecting<GameEvents.GameEnded>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.GameEnded>(
             new GameCommands.EndGame(gameToken, userId),
             token
         );

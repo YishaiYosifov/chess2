@@ -32,8 +32,7 @@ public static class ErrorCodes
     public const string GamePlayerInvalid = "Game.PlayerInvalid";
     public const string GameMoveInvalid = "Game.MoveInvalid";
 
-    public const string GameChatUserAlreadyJoined = "GameChat.UserAlreadyJoined";
-    public const string GameChatUserNotInChat = "GameChat.UserNotInChat";
+    public const string GameChatInvalidUser = "GameChat.InvalidUser";
     public const string GameChatInvalidMessage = "GameChat.InvalidMessage";
     public const string GameChatOnCooldown = "GameChat.OnCooldown";
 }

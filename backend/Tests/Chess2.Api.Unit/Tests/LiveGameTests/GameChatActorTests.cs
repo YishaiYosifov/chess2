@@ -9,8 +9,11 @@ using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.Users.Entities;
 using ErrorOr;
 using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -19,6 +22,8 @@ namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
 public class GameChatActorTests : BaseActorTest
 {
+    private readonly UserManager<AuthedUser> _userManagerMock =
+        UserManagerMockUtils.CreateUserManagerMock();
     private readonly ILiveGameService _liveGameServiceMock = Substitute.For<ILiveGameService>();
     private readonly IChatMessageLogger _chatMessageLoggerMock =
         Substitute.For<IChatMessageLogger>();
@@ -43,6 +48,8 @@ public class GameChatActorTests : BaseActorTest
     private const string BlackUserId = "black-user";
     private const string TestGameToken = "test-game";
 
+    private const string ConnectionId = "test-connection-id";
+
     public GameChatActorTests()
     {
         var serviceScopeMock = Substitute.For<IServiceScope>();
@@ -56,13 +63,14 @@ public class GameChatActorTests : BaseActorTest
             .Returns(serviceScopeFactoryMock);
         _serviceProviderMock.GetService(typeof(ILiveGameService)).Returns(_liveGameServiceMock);
         _serviceProviderMock.GetService(typeof(IChatMessageLogger)).Returns(_chatMessageLoggerMock);
+        _serviceProviderMock.GetService(typeof(UserManager<AuthedUser>)).Returns(_userManagerMock);
 
         var settingOptions = Fixture.Create<IOptions<AppSettings>>();
         _settings = settingOptions.Value.Game.Chat;
 
         _liveGameServiceMock
             .GetGamePlayersAsync(TestGameToken)
-            .Returns(new GameEvents.GamePlayersEvent(_whitePlayer, _blackPlayer));
+            .Returns(new GameResponses.GamePlayers(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
             .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
@@ -93,35 +101,19 @@ public class GameChatActorTests : BaseActorTest
     [InlineData("another-user", false)]
     public async Task JoinChat_provides_notifier_correct_information(string userId, bool isPlaying)
     {
-        const string connId = "conn";
-        const string username = "user";
-        await JoinChat(userId, connId: connId, username: username);
-
-        await _gameChatNotifierMock.Received(1).JoinChatAsync(TestGameToken, connId, isPlaying);
-    }
-
-    [Fact]
-    public async Task JoinChat_when_user_already_joined_returns_error()
-    {
-        await JoinChat(WhiteUserId, connId: "conn1", username: "user1");
-
         _gameChatActor.Tell(
             new GameChatCommands.JoinChat(
                 GameToken: TestGameToken,
-                UserId: WhiteUserId,
-                ConnectionId: "conn2",
-                UserName: "user2"
+                ConnectionId: ConnectionId,
+                UserId: userId
             ),
             _probe.Ref
         );
-        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatEvents.UserJoined>(cancellationToken: CT);
 
-        result.IsError.Should().BeTrue();
-        result
-            .Errors.Should()
-            .ContainSingle()
-            .Which.Should()
-            .BeEquivalentTo(GameChatErrors.UserAlreadyJoined);
+        await _gameChatNotifierMock
+            .Received(1)
+            .JoinChatAsync(TestGameToken, ConnectionId, isPlaying);
     }
 
     [Theory]
@@ -130,35 +122,19 @@ public class GameChatActorTests : BaseActorTest
     [InlineData("another-user", false)]
     public async Task LeaveChat_when_user_in_chat_removes_user(string userId, bool isPlaying)
     {
-        const string connId = "conn";
-
-        await JoinChat(userId, connId: connId);
-
         _gameChatActor.Tell(
-            new GameChatCommands.LeaveChat(GameToken: TestGameToken, UserId: userId),
+            new GameChatCommands.LeaveChat(
+                GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
+                UserId: userId
+            ),
             _probe.Ref
         );
 
         await _probe.ExpectMsgAsync<GameChatEvents.UserLeft>(cancellationToken: CT);
-        await _gameChatNotifierMock.Received(1).LeaveChatAsync(TestGameToken, connId, isPlaying);
-    }
-
-    [Fact]
-    public async Task LeaveChat_when_user_not_in_chat_returns_error()
-    {
-        _gameChatActor.Tell(
-            new GameChatCommands.LeaveChat(GameToken: TestGameToken, UserId: WhiteUserId),
-            _probe.Ref
-        );
-
-        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
-
-        result.IsError.Should().BeTrue();
-        result
-            .Errors.Should()
-            .ContainSingle()
-            .Which.Should()
-            .BeEquivalentTo(GameChatErrors.UserNotInChat);
+        await _gameChatNotifierMock
+            .Received(1)
+            .LeaveChatAsync(TestGameToken, ConnectionId, isPlaying);
     }
 
     [Theory]
@@ -167,12 +143,10 @@ public class GameChatActorTests : BaseActorTest
     [InlineData("another-user", false)]
     public async Task SendMessage_when_user_in_chat_sends_message(string userId, bool isPlaying)
     {
-        const string username = "username";
-        const string message = "hello world";
-        const string connId = "conn";
+        const string message = "test message";
 
-        await JoinChat(userId, connId: connId, username: username);
-        await JoinChat("some-random-id", username: "some random guy");
+        var user = new AuthedUserFaker().RuleFor(x => x.Id, userId).Generate();
+        _userManagerMock.FindByIdAsync(userId).Returns(user);
 
         var newCooldown = TimeSpan.FromSeconds(5);
         _chatRateLimiterMock
@@ -186,6 +160,7 @@ public class GameChatActorTests : BaseActorTest
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(
                 GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
                 UserId: userId,
                 Message: message
             ),
@@ -196,16 +171,72 @@ public class GameChatActorTests : BaseActorTest
 
         await _gameChatNotifierMock
             .Received(1)
-            .SendMessageAsync(TestGameToken, username, connId, newCooldown, message, isPlaying);
-        await _chatMessageLoggerMock
-            .Received(1)
-            .LogMessageAsync(TestGameToken, userId, message, Arg.Any<CancellationToken>());
+            .SendMessageAsync(
+                TestGameToken,
+                user.UserName!,
+                ConnectionId,
+                newCooldown,
+                message,
+                isPlaying
+            );
+        await AwaitAssertAsync(
+            () =>
+                _chatMessageLoggerMock
+                    .Received(1)
+                    .LogMessageAsync(TestGameToken, userId, message, Arg.Any<CancellationToken>()),
+            cancellationToken: CT
+        );
+    }
+
+    [Fact]
+    public async Task SendMessage_caches_username()
+    {
+        const string message = "test message 123";
+
+        var user = new AuthedUserFaker().RuleFor(x => x.Id, _whitePlayer.UserId).Generate();
+        _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns(user);
+
+        _gameChatActor.Tell(
+            new GameChatCommands.SendMessage(
+                GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
+                UserId: _whitePlayer.UserId,
+                Message: message
+            ),
+            _probe.Ref
+        );
+        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+
+        _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns((AuthedUser?)null);
+
+        _gameChatActor.Tell(
+            new GameChatCommands.SendMessage(
+                GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
+                UserId: _whitePlayer.UserId,
+                Message: message
+            ),
+            _probe.Ref
+        );
+        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+
+        await _gameChatNotifierMock
+            .Received(2)
+            .SendMessageAsync(
+                TestGameToken,
+                user.UserName!,
+                ConnectionId,
+                TimeSpan.Zero,
+                message,
+                isPlaying: true
+            );
     }
 
     [Fact]
     public async Task SendMessage_with_cooldown_returns_error()
     {
-        await JoinChat(_whitePlayer.UserId);
+        var user = new AuthedUserFaker().RuleFor(x => x.Id, _whitePlayer.UserId).Generate();
+        _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns(user);
 
         var newCooldown = TimeSpan.FromSeconds(5);
         _chatRateLimiterMock
@@ -219,6 +250,7 @@ public class GameChatActorTests : BaseActorTest
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(
                 GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
                 UserId: _whitePlayer.UserId,
                 Message: "test"
             ),
@@ -233,40 +265,15 @@ public class GameChatActorTests : BaseActorTest
         _gameChatNotifierMock.Received(0);
     }
 
-    [Fact]
-    public async Task SendMessage_when_user_not_in_chat_returns_error()
-    {
-        await JoinChat("random guy");
-
-        _gameChatActor.Tell(
-            new GameChatCommands.SendMessage(
-                GameToken: TestGameToken,
-                UserId: WhiteUserId,
-                Message: "hello"
-            ),
-            _probe.Ref
-        );
-
-        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
-
-        result.IsError.Should().BeTrue();
-        result
-            .Errors.Should()
-            .ContainSingle()
-            .Which.Should()
-            .BeEquivalentTo(GameChatErrors.UserNotInChat);
-    }
-
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
     public async Task SendMessage_rejects_empty_messages(string msg)
     {
-        await JoinChat(WhiteUserId);
-
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(
                 GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
                 UserId: WhiteUserId,
                 Message: msg
             ),
@@ -287,10 +294,9 @@ public class GameChatActorTests : BaseActorTest
     public async Task SendMessage_rejects_message_exceeding_max_length()
     {
         var longMsg = new string('a', _settings.MaxMessageLength + 1);
-        await JoinChat(WhiteUserId);
 
         _gameChatActor.Tell(
-            new GameChatCommands.SendMessage(TestGameToken, WhiteUserId, longMsg),
+            new GameChatCommands.SendMessage(TestGameToken, ConnectionId, WhiteUserId, longMsg),
             _probe.Ref
         );
 
@@ -298,19 +304,5 @@ public class GameChatActorTests : BaseActorTest
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidMessage);
-    }
-
-    private async Task JoinChat(string userId, string connId = "conn", string username = "username")
-    {
-        _gameChatActor.Tell(
-            new GameChatCommands.JoinChat(
-                GameToken: TestGameToken,
-                ConnectionId: connId,
-                UserId: userId,
-                UserName: username
-            ),
-            _probe.Ref
-        );
-        await _probe.ExpectMsgAsync<GameChatEvents.UserJoined>(cancellationToken: CT);
     }
 }

@@ -9,6 +9,7 @@ using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.PlayerSession.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
@@ -21,7 +22,8 @@ public class GameFinalizerTests : BaseActorTest
 {
     private readonly GameFinalizer _gameFinalizer;
 
-    private readonly UserManager<AuthedUser> _userManagerMock;
+    private readonly UserManager<AuthedUser> _userManagerMock =
+        UserManagerMockUtils.CreateUserManagerMock();
     private readonly IRatingService _ratingServiceMock = Substitute.For<IRatingService>();
     private readonly IGameArchiveService _gameArchiveServiceMock =
         Substitute.For<IGameArchiveService>();
@@ -34,17 +36,6 @@ public class GameFinalizerTests : BaseActorTest
 
     public GameFinalizerTests()
     {
-        _userManagerMock = Substitute.ForPartsOf<UserManager<AuthedUser>>(
-            Substitute.For<IUserStore<AuthedUser>>(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
         _playerSessionProbe = CreateTestProbe();
 
         var requiredPlayerSessionMock = Substitute.For<IRequiredActor<PlayerSessionActor>>();

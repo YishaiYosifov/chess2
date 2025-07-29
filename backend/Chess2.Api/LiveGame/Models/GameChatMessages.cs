@@ -7,12 +7,13 @@ public interface IGameChatMessage
 
 public class GameChatCommands
 {
-    public record JoinChat(string GameToken, string ConnectionId, string UserId, string UserName)
+    public record JoinChat(string GameToken, string ConnectionId, string UserId) : IGameChatMessage;
+
+    public record LeaveChat(string GameToken, string ConnectionId, string UserId)
         : IGameChatMessage;
 
-    public record LeaveChat(string GameToken, string UserId) : IGameChatMessage;
-
-    public record SendMessage(string GameToken, string UserId, string Message) : IGameChatMessage;
+    public record SendMessage(string GameToken, string ConnectionId, string UserId, string Message)
+        : IGameChatMessage;
 }
 
 public class GameChatEvents
