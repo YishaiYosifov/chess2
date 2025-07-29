@@ -2,11 +2,12 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import React from "react";
 
-import { getMyId } from "@/lib/apiClient";
+import { getSessionUser, type SessionUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import SessionProvider from "../contexts/sessionContext";
 
 interface WithAuthedSessionProps {
-    userId: string;
+    user: SessionUser;
     accessToken: string;
 }
 
@@ -14,7 +15,7 @@ interface WithAuthedSessionProps {
  * HOC to make sure the page is not accessible without the user having a valid access token,
  * whether it be guest or authed.
  */
-const withAuthedSession = <P extends WithAuthedSessionProps>(
+const withSession = <P extends WithAuthedSessionProps>(
     WrappedComponent: React.ComponentType<P>,
 ) => {
     const NewComponent = async (props: P) => {
@@ -24,22 +25,24 @@ const withAuthedSession = <P extends WithAuthedSessionProps>(
         );
         if (!accessTokenCookie) redirect(constants.PATHS.LOGIN);
 
-        const { data: userId, error } = await getMyId({
+        const { data: user, error } = await getSessionUser({
             auth: () => accessTokenCookie.value,
         });
-        if (error || !userId) {
+        if (error || !user) {
             console.error(error);
             redirect(constants.PATHS.LOGOUT);
         }
 
         return (
-            <WrappedComponent
-                {...props}
-                userId={userId}
-                accessToken={accessTokenCookie.value}
-            />
+            <SessionProvider user={user}>
+                <WrappedComponent
+                    {...props}
+                    user={user}
+                    accessToken={accessTokenCookie.value}
+                />
+            </SessionProvider>
         );
     };
     return NewComponent;
 };
-export default withAuthedSession;
+export default withSession;

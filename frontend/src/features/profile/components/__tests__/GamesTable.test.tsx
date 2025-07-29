@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { createFakeGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import GamesTable from "../GamesTable";
-import { GameSummary, User } from "@/lib/apiClient";
+import { GameSummary, PublicUser } from "@/lib/apiClient";
 import {
     createFakePlayerSummary,
     createFakePlayerSummaryFromUser,
@@ -11,7 +11,7 @@ import {
 
 describe("GamesTable", () => {
     let gamesMock: GameSummary[];
-    let userMock: User;
+    let userMock: PublicUser;
 
     beforeEach(() => {
         userMock = createFakeUser();

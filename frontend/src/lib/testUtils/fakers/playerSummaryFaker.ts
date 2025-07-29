@@ -1,4 +1,4 @@
-import { PlayerSummary, User } from "@/lib/apiClient";
+import { PlayerSummary, PublicUser } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 
 export function createFakePlayerSummary(
@@ -12,7 +12,7 @@ export function createFakePlayerSummary(
     };
 }
 
-export const createFakePlayerSummaryFromUser = (user: User) =>
+export const createFakePlayerSummaryFromUser = (user: PublicUser) =>
     createFakePlayerSummary({
         userId: user.userId,
         userName: user.userName ?? "",

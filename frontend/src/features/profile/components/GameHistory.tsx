@@ -5,7 +5,7 @@ import { useState } from "react";
 import {
     getGameResults,
     PagedResultOfGameSummaryDto,
-    User,
+    PublicUser,
 } from "@/lib/apiClient";
 import PaginationStrip from "@/features/pagination/components/PaginationStrip";
 import GamesTable from "./GamesTable";
@@ -15,7 +15,7 @@ const GameHistory = ({
     profileViewpoint,
 }: {
     initialGameResults: PagedResultOfGameSummaryDto;
-    profileViewpoint: User;
+    profileViewpoint: PublicUser;
 }) => {
     const [gameResults, setPagedGames] = useState(initialGameResults);
     const [isFetching, setIsFetching] = useState(false);

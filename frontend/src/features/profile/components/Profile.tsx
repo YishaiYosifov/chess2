@@ -2,10 +2,10 @@
 
 import ProfilePicture from "./ProfilePicture";
 import Card from "@/components/ui/Card";
-import { User } from "@/lib/apiClient";
+import { PublicUser } from "@/lib/apiClient";
 import Flag from "./Flag";
 
-const Profile = ({ profile }: { profile: User }) => {
+const Profile = ({ profile }: { profile: PublicUser }) => {
     return (
         <Card className={"w-full flex-col gap-3 sm:flex-row"}>
             <ProfilePicture className="self-center" userId={profile.userId} />

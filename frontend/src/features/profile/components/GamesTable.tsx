@@ -1,14 +1,14 @@
 "use client";
 
 import GameRow from "./GameRow";
-import { GameSummary, User } from "@/lib/apiClient";
+import { GameSummary, PublicUser } from "@/lib/apiClient";
 
 const GamesTable = ({
     games,
     profileViewpoint,
 }: {
     games: GameSummary[];
-    profileViewpoint: User;
+    profileViewpoint: PublicUser;
 }) => {
     return (
         <table className="h-min w-full table-auto overflow-x-auto">
