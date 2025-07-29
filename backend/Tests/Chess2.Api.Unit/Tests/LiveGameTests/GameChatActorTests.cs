@@ -233,6 +233,24 @@ public class GameChatActorTests : BaseActorTest
     }
 
     [Fact]
+    public async Task SendMessage_returns_error_when_user_is_not_found()
+    {
+        _gameChatActor.Tell(
+            new GameChatCommands.SendMessage(
+                GameToken: TestGameToken,
+                ConnectionId: ConnectionId,
+                UserId: "random id",
+                Message: "message"
+            ),
+            _probe.Ref
+        );
+        var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidUser);
+    }
+
+    [Fact]
     public async Task SendMessage_with_cooldown_returns_error()
     {
         var user = new AuthedUserFaker().RuleFor(x => x.Id, _whitePlayer.UserId).Generate();
