@@ -31,7 +31,7 @@ const Input = ({
                     id={id}
                     aria-label={ariaLabel ?? label}
                     className={twMerge(
-                        "w-full rounded-md bg-white p-1 text-black",
+                        "w-full rounded-md bg-white p-1 text-black disabled:cursor-not-allowed",
                         className,
                     )}
                     {...inputProps}

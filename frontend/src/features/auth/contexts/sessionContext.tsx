@@ -14,10 +14,10 @@ const SessionProvider = ({
     user,
     children,
 }: {
-    user: SessionUser | null;
+    user?: SessionUser;
     children: React.ReactNode;
 }) => {
-    const store = createSessionStore({ user });
+    const store = createSessionStore({ user: user ?? null });
     return (
         <SessionContext.Provider value={store}>
             {children}
