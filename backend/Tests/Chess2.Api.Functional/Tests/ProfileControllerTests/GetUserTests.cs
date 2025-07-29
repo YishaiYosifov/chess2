@@ -1,7 +1,7 @@
-﻿using System.Net;
-using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.Users.DTOs;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
@@ -9,52 +9,38 @@ namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
 public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task Get_authenticated_user()
+    public async Task GetSessionUser_with_an_authed_user()
     {
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
 
-        var response = await ApiClient.Api.GetAuthedUserAsync();
+        var response = await ApiClient.Api.GetSessionUserAuthedAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
-    }
-
-    [Fact]
-    public async Task Get_my_id_with_authed_user()
-    {
-        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
-
-        var response = await ApiClient.Api.GetMyIdAsync();
-
-        response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().Be(user.Id);
-    }
-
-    [Fact]
-    public async Task Get_my_id_with_a_guest_user()
-    {
-        const string guestId = "guestid";
-        AuthUtils.AuthenticateWithTokens(
-            ApiClient,
-            accessToken: TokenProvider.GenerateGuestToken(guestId)
+        PrivateUser expectedUser = new(
+            UserId: user.Id,
+            UserName: user.UserName,
+            Email: user.Email,
+            About: user.About,
+            CountryCode: user.CountryCode
         );
+        response.Content.Should().BeEquivalentTo(expectedUser);
+    }
 
-        var response = await ApiClient.Api.GetMyIdAsync();
+    [Fact]
+    public async Task GetSessionUser_with_a_guest_user()
+    {
+        const string guestId = "guest 123";
+        AuthUtils.AuthenticateGuest(ApiClient, guestId);
+
+        var response = await ApiClient.Api.GetSessionUserGuestAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().Be(guestId);
+        GuestUser expectedUser = new(guestId);
+        response.Content.Should().BeEquivalentTo(expectedUser);
     }
 
     [Fact]
-    public async Task Get_my_id_when_not_authenticated()
-    {
-        var response = await ApiClient.Api.GetMyIdAsync();
-
-        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-    }
-
-    [Fact]
-    public async Task Get_user()
+    public async Task GetUser_with_an_existing_user()
     {
         var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
@@ -65,7 +51,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     }
 
     [Fact]
-    public async Task Get_non_existing_user()
+    public async Task GetUser_with_a_non_existing_user()
     {
         await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
