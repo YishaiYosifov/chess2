@@ -30,20 +30,20 @@ public interface IChess2Api
 
     #region Profile Controller
     [Get("/api/profile/me")]
-    Task<IApiResponse<PrivateUserOut>> GetAuthedUserAsync();
+    Task<IApiResponse<PrivateUser>> GetSessionUserAuthedAsync();
 
-    [Get("/api/profile/my-id")]
-    Task<IApiResponse<string>> GetMyIdAsync();
+    [Get("/api/profile/me")]
+    Task<IApiResponse<GuestUser>> GetSessionUserGuestAsync();
 
     [Get("/api/profile/by-username/{username}")]
-    Task<IApiResponse<UserOut>> GetUserAsync([AliasAs("username")] string username);
+    Task<IApiResponse<PublicUser>> GetUserAsync([AliasAs("username")] string username);
 
     [Patch("/api/profile/edit-profile")]
     Task<IApiResponse> EditProfileAsync([Body] JsonPatchDocument<ProfileEditRequest> profileEdit);
 
     [Put("/api/profile/edit-username")]
     [Headers("Content-Type: application/json; charset=utf-8")]
-    Task<IApiResponse<PrivateUserOut>> EditUsernameAsync([Body] string newUsername);
+    Task<IApiResponse> EditUsernameAsync([Body] string newUsername);
     #endregion
 
     #region Game Controller

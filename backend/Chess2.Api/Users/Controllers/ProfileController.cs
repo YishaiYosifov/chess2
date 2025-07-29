@@ -18,52 +18,57 @@ namespace Chess2.Api.Users.Controllers;
 public class ProfileController(
     IUserService userService,
     IAuthService authService,
+    IGuestService guestService,
     UserManager<AuthedUser> userManager
 ) : ControllerBase
 {
     private readonly IUserService _userService = userService;
     private readonly IAuthService _authService = authService;
+    private readonly IGuestService _guestService = guestService;
+    private readonly UserManager<AuthedUser> _userManager = userManager;
 
-    [HttpGet("me", Name = nameof(GetAuthedUser))]
-    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
-    [Authorize]
-    public async Task<ActionResult<PrivateUserOut>> GetAuthedUser()
+    [HttpGet("me", Name = nameof(GetSessionUser))]
+    [ProducesResponseType<SessionUser>(StatusCodes.Status200OK)]
+    [Authorize(AuthPolicies.AuthedSesssion)]
+    public async Task<ActionResult<SessionUser>> GetSessionUser()
     {
-        var user = await userManager.GetUserAsync(HttpContext.User);
+        var idResult = _authService.GetUserId(User);
+        if (idResult.IsError)
+            return idResult.Errors.ToActionResult();
+        var id = idResult.Value;
+
+        if (_guestService.IsGuest(User))
+            return Ok(new GuestUser(id));
+
+        var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var dto = new PrivateUserOut(user);
+        PrivateUser dto = PrivateUser.FromAuthed(user);
         return Ok(dto);
     }
 
-    [HttpGet("my-id", Name = nameof(GetMyId))]
-    [ProducesResponseType<string>(StatusCodes.Status200OK)]
-    [Authorize(AuthPolicies.AuthedSesssion)]
-    public ActionResult<string> GetMyId()
-    {
-        var idResult = _authService.GetUserId(User);
-        return idResult.Match(Ok, errors => errors.ToActionResult());
-    }
-
     [HttpGet("by-username/{username}", Name = nameof(GetUser))]
-    [ProducesResponseType<UserOut>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserOut>> GetUser(string username)
+    public async Task<ActionResult<PublicUser>> GetUser(string username)
     {
         var result = await _userService.GetUserByUsernameAsync(username);
-        return result.Match((value) => Ok(new UserOut(value)), (errors) => errors.ToActionResult());
+        return result.Match(
+            (value) => Ok(PublicUser.FromAuthed(value)),
+            (errors) => errors.ToActionResult()
+        );
     }
 
     [HttpPatch("edit-profile", Name = nameof(EditProfileSettings))]
-    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PrivateUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
-    public async Task<ActionResult<PrivateUserOut>> EditProfileSettings(
+    public async Task<ActionResult<PrivateUser>> EditProfileSettings(
         JsonPatchDocument<ProfileEditRequest> profileEditRequest
     )
     {
-        var user = await userManager.GetUserAsync(HttpContext.User);
+        var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
@@ -72,11 +77,11 @@ public class ProfileController(
     }
 
     [HttpPut("edit-username", Name = nameof(EditUsername))]
-    [ProducesResponseType<PrivateUserOut>(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
-    public async Task<ActionResult<PrivateUserOut>> EditUsername([FromBody] string username)
+    public async Task<ActionResult> EditUsername([FromBody] string username)
     {
-        var user = await userManager.GetUserAsync(HttpContext.User);
+        var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
