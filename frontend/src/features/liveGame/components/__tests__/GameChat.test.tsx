@@ -15,6 +15,9 @@ import createLiveChessStore, {
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
+import SessionProvider from "@/features/auth/contexts/sessionContext";
+import { GuestUser, PrivateUser } from "@/lib/apiClient";
+import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -24,6 +27,7 @@ describe("GameChat", () => {
 
     const gameToken = "testGameToken";
     let store: StoreApi<LiveChessStore>;
+    let userMock: PrivateUser;
 
     beforeEach(() => {
         Element.prototype.scrollTo = vi.fn();
@@ -32,13 +36,17 @@ describe("GameChat", () => {
 
         store = createLiveChessStore(createFakeLiveChessStoreProps());
         store.setState({ gameToken });
+
+        userMock = createFakePrivateUser();
     });
 
     it("should render the input", () => {
         render(
-            <LiveChessStoreContext.Provider value={store}>
-                <GameChat />
-            </LiveChessStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const input = screen.getByTestId("gameChatInput");
@@ -49,12 +57,29 @@ describe("GameChat", () => {
         expect(screen.queryByTestId("gameChatMessage")).not.toBeInTheDocument();
     });
 
+    it("should disable input when a guest", () => {
+        const guest: GuestUser = { userId: "test", type: "guest" };
+        render(
+            <SessionProvider user={guest}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
+        );
+
+        const input = screen.getByTestId("gameChatInput");
+        expect(input).toHaveAttribute("placeholder", "Sign Up to Chat!");
+    });
+
     it("should send a message and clear the input", async () => {
         const user = userEvent.setup();
+
         render(
-            <LiveChessStoreContext.Provider value={store}>
-                <GameChat />
-            </LiveChessStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const input = screen.getByTestId("gameChatInput");
@@ -73,9 +98,11 @@ describe("GameChat", () => {
     it("should not send empty or whitespace-only messages", async () => {
         const user = userEvent.setup();
         render(
-            <LiveChessStoreContext.Provider value={store}>
-                <GameChat />
-            </LiveChessStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const input = screen.getByTestId("gameChatInput");
@@ -92,9 +119,11 @@ describe("GameChat", () => {
         });
 
         render(
-            <LiveChessStoreContext.Provider value={store}>
-                <GameChat />
-            </LiveChessStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const cooldownLeftMs = 1000;
@@ -120,9 +149,11 @@ describe("GameChat", () => {
         const user = userEvent.setup();
         const { push } = mockRouter();
         render(
-            <LiveChessStoreContext.Provider value={store}>
-                <GameChat />
-            </LiveChessStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const userName = "user123";

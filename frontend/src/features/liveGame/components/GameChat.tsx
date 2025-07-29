@@ -9,6 +9,7 @@ import {
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { useRouter } from "next/navigation";
 import useAutoScroll from "@/hooks/useAutoScroll";
+import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
 
 interface ChatMessage {
     sender: string;
@@ -20,6 +21,7 @@ const GameChat = () => {
     const [message, setMessage] = useState("");
     const [isOnCooldown, setIsOnCooldown] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const isGuest = useAuthedUser() === null;
 
     const chatRef = useRef<HTMLDivElement>(null);
     useAutoScroll(chatRef, [chatMessages]);
@@ -58,6 +60,12 @@ const GameChat = () => {
         setMessage("");
     }
 
+    function getPlaceholderMessage(): string {
+        if (isGuest) return "Sign Up to Chat!";
+        if (isOnCooldown) return "Too fast, slow down...";
+        return "Send a Message...";
+    }
+
     return (
         <Card className="flex-col gap-3">
             <div className="h-full w-full overflow-auto" ref={chatRef}>
@@ -85,14 +93,10 @@ const GameChat = () => {
                 <Input
                     data-testid="gameChatInput"
                     className="bg-white/5 text-white"
-                    placeholder={
-                        isOnCooldown
-                            ? "Too fast, slow down..."
-                            : "Send a Message..."
-                    }
+                    placeholder={getPlaceholderMessage()}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    disabled={isOnCooldown}
+                    disabled={isGuest || isOnCooldown}
                 />
             </form>
         </Card>
