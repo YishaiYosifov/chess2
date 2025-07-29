@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { StoreApi } from "zustand";
 
 import constants from "@/lib/constants";
@@ -17,6 +16,7 @@ import ChessboardLayout, {
 } from "./ChessboardLayout";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import { createMoveOptions } from "../lib/moveOptions";
+import useConst from "@/hooks/useConst";
 
 export interface ChessboardProps {
     breakpoints?: ChessboardBreakpoint[];
@@ -42,17 +42,17 @@ const StaticChessboard = ({
 
     className,
 }: ChessboardProps) => {
-    const chessboardStoreRef = useRef<StoreApi<ChessboardState> | null>(null);
-    if (!chessboardStoreRef.current)
-        chessboardStoreRef.current = createChessboardStore({
+    const chessboardStore = useConst<StoreApi<ChessboardState>>(() =>
+        createChessboardStore({
             pieces: startingPieces,
             boardDimensions: { width: boardWidth, height: boardHeight },
             moveOptions: createMoveOptions(),
             viewingFrom,
-        });
+        }),
+    );
 
     return (
-        <ChessboardStoreContext.Provider value={chessboardStoreRef.current}>
+        <ChessboardStoreContext.Provider value={chessboardStore}>
             <ChessboardLayout
                 breakpoints={breakpoints}
                 defaultOffset={defaultOffset}

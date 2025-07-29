@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 import "../globals.css";
 
 import Navbar from "@/components/layout/navbar/Navbar";
+import SessionProvider from "@/features/auth/contexts/sessionContext";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -21,12 +22,14 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <div className="flex min-h-screen max-w-screen flex-col md:flex-row">
-                    <Navbar />
-                    <main className="flex flex-1 overflow-auto">
-                        {children}
-                    </main>
-                </div>
+                <SessionProvider user={null}>
+                    <div className="flex min-h-screen max-w-screen flex-col md:flex-row">
+                        <Navbar />
+                        <main className="flex flex-1 overflow-auto">
+                            {children}
+                        </main>
+                    </div>
+                </SessionProvider>
             </body>
         </html>
     );

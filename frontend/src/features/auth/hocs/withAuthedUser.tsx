@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import React from "react";
 
-import { getAuthedUser, type PrivateUser } from "@/lib/apiClient";
+import SessionContextProvider from "@/features/auth/contexts/sessionContext";
+import { getSessionUser, type PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
-import AuthContextProvider from "@/features/auth/contexts/authContext";
+import { isAuthed } from "../lib/userGuard";
 
 interface WithAuthedUserProps {
     user: PrivateUser;
@@ -14,7 +15,7 @@ interface WithAuthedUserProps {
  * HOC to make sure the page is not accessible without the user being logged in.
  *
  * This HOC will send a request to check if we are authorized, and if not
- * the user will be redirected to the home page
+ * the user will be redirected to the login page
  */
 const withAuthedUser = <P extends WithAuthedUserProps>(
     WrappedComponent: React.ComponentType<P>,
@@ -24,7 +25,7 @@ const withAuthedUser = <P extends WithAuthedUserProps>(
         if (!cookieStore.has(constants.COOKIES.ACCESS_TOKEN))
             redirect(constants.PATHS.LOGIN);
 
-        const { data: user, error } = await getAuthedUser({
+        const { data: user, error } = await getSessionUser({
             headers: { Cookie: cookieStore.toString() },
         });
         if (error || !user) {
@@ -32,10 +33,12 @@ const withAuthedUser = <P extends WithAuthedUserProps>(
             redirect(constants.PATHS.LOGOUT);
         }
 
+        if (!isAuthed(user)) redirect(constants.PATHS.LOGIN);
+
         return (
-            <AuthContextProvider user={user}>
+            <SessionContextProvider user={user}>
                 <WrappedComponent {...props} user={user} />
-            </AuthContextProvider>
+            </SessionContextProvider>
         );
     };
     return NewComponent;

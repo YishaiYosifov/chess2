@@ -9,11 +9,9 @@ import LiveChessboardProfile, {
 } from "./LiveChessboardProfile";
 import createLiveChessStore, {
     LiveChessStore,
-    LiveChessStoreProps,
 } from "@/features/liveGame/stores/liveChessStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import {
-    ChessboardProps,
     ChessboardState,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
@@ -25,18 +23,22 @@ import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
 import { StoreApi } from "zustand";
+import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
+import { GameState } from "@/lib/apiClient";
+import {
+    createStoreProps,
+    ProcessedGameState,
+} from "../lib/gameStateProcessor";
+import useConst from "@/hooks/useConst";
 
 const LiveChessboard = ({
     gameToken,
-    userId,
-    liveProps,
-    boardProps,
+    gameState,
 }: {
     gameToken: string;
-    userId: string;
-    liveProps: LiveChessStoreProps;
-    boardProps: ChessboardProps;
+    gameState: GameState;
 }) => {
+    const user = useSessionUser();
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
     const sendGameEvent = useGameEmitter(gameToken);
@@ -47,28 +49,32 @@ const LiveChessboard = ({
         [sendGameEvent, gameToken],
     );
 
-    const chessboardStoreRef = useRef<StoreApi<ChessboardState> | null>(null);
-    if (!chessboardStoreRef.current)
-        chessboardStoreRef.current = createChessboardStore({
-            ...boardProps,
-            onPieceMovement: sendMove,
-        });
+    const storeProps = useConst<ProcessedGameState>(() =>
+        createStoreProps(gameToken, user?.userId ?? "", gameState),
+    );
 
-    const liveChessStoreRef = useRef<StoreApi<LiveChessStore> | null>(null);
-    if (!liveChessStoreRef.current)
-        liveChessStoreRef.current = createLiveChessStore(liveProps);
+    const chessboardStore = useConst<StoreApi<ChessboardState>>(() =>
+        createChessboardStore({
+            ...storeProps.board,
+            onPieceMovement: sendMove,
+        }),
+    );
+
+    const liveChessStore = useConst<StoreApi<LiveChessStore>>(() =>
+        createLiveChessStore(storeProps.live),
+    );
 
     useLiveChessEvents(
         gameToken,
-        userId,
-        liveChessStoreRef.current,
-        chessboardStoreRef.current,
+        liveChessStore,
+        chessboardStore,
         gameOverPopupRef,
+        user?.userId,
     );
 
     return (
-        <LiveChessStoreContext.Provider value={liveChessStoreRef.current}>
-            <ChessboardStoreContext.Provider value={chessboardStoreRef.current}>
+        <LiveChessStoreContext.Provider value={liveChessStore}>
+            <ChessboardStoreContext.Provider value={chessboardStore}>
                 <GameOverPopup ref={gameOverPopupRef} />
                 <div
                     className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:max-h-screen

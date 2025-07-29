@@ -12,14 +12,16 @@ import { useCallback, useEffect, useRef } from "react";
 
 export function useLiveChessEvents(
     gameToken: string,
-    userId: string,
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardState>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
+    userId?: string,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
 
     const refetchGame = useCallback(async () => {
+        if (!userId) return;
+
         const { error, data: gameState } = await getGame({
             path: { gameToken },
         });
