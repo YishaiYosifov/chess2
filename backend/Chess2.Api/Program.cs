@@ -82,7 +82,7 @@ builder.Services.AddResponseCompression(options =>
 });
 builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 {
-    options.Level = System.IO.Compression.CompressionLevel.Fastest; // or Optimal
+    options.Level = System.IO.Compression.CompressionLevel.Optimal;
 });
 
 builder.Services.AddEndpointsApiExplorer();
