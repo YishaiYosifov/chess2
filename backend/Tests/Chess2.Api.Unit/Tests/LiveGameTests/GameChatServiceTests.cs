@@ -1,25 +1,22 @@
 ﻿using Akka.Actor;
 using Akka.Hosting;
 using Akka.TestKit;
-using Chess2.Api.Auth.Services;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
-using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
-using ErrorOr;
 using FluentAssertions;
 using NSubstitute;
-using System.Security.Claims;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
 public class GameChatServiceTests : BaseActorTest
 {
-    private readonly IAuthService _authServiceMock = Substitute.For<IAuthService>();
     private readonly TestProbe _gameChatActorProbe;
-
     private readonly GameChatService _gameChatService;
+
+    private const string GameToken = "test game";
+    private const string UserId = "user123";
+    private const string ConnectionId = "conn 123";
 
     public GameChatServiceTests()
     {
@@ -28,43 +25,94 @@ public class GameChatServiceTests : BaseActorTest
         var requiredActorMock = Substitute.For<IRequiredActor<GameChatActor>>();
         requiredActorMock.ActorRef.Returns(_gameChatActorProbe);
 
-        _gameChatService = new(_authServiceMock, requiredActorMock);
+        _gameChatService = new GameChatService(requiredActorMock);
     }
 
     [Fact]
-    public async Task JoinChat_rejects_guest_users()
+    public async Task JoinChat_sends_JoinChat_command_to_actor()
     {
-        var guestClaims = new ClaimsPrincipal(new ClaimsIdentity());
-        _authServiceMock.GetLoggedInUserAsync(guestClaims).Returns(Error.Unauthorized());
+        var joinTask = _gameChatService.JoinChat(
+            gameToken: GameToken,
+            userId: UserId,
+            connectionId: ConnectionId,
+            CT
+        );
 
-        var result = await _gameChatService.JoinChat("some-game", "conn-1", guestClaims, CT);
-
-        result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().BeEquivalentTo(Error.Unauthorized());
-        await _gameChatActorProbe.ExpectNoMsgAsync(CT);
-    }
-
-    [Fact]
-    public async Task JoinChat_allows_authed_users()
-    {
-        var user = new AuthedUserFaker().Generate();
-        var userClaims = ClaimUtils.CreateUserClaims(user.Id);
-        _authServiceMock.GetLoggedInUserAsync(userClaims).Returns(user);
-
-        var joinTask = _gameChatService.JoinChat("some-game", "conn-1", userClaims, CT);
-
-        var joinChatMsg = await _gameChatActorProbe.ExpectMsgAsync<GameChatCommands.JoinChat>(
+        var msg = await _gameChatActorProbe.ExpectMsgAsync<GameChatCommands.JoinChat>(
             cancellationToken: CT
         );
-        joinChatMsg
-            .Should()
+        msg.Should()
             .BeEquivalentTo(
-                new GameChatCommands.JoinChat("some-game", "conn-1", user.Id, user.UserName!)
+                new GameChatCommands.JoinChat(
+                    GameToken: GameToken,
+                    ConnectionId: ConnectionId,
+                    UserId: UserId
+                )
             );
-        _gameChatActorProbe.Sender.Tell(new GameChatEvents.UserJoined());
 
+        _gameChatActorProbe.Sender.Tell(new GameChatEvents.UserJoined());
         var result = await joinTask;
 
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LeaveChat_sends_LeaveChat_command_to_actor()
+    {
+        var resultTask = _gameChatService.LeaveChat(
+            gameToken: GameToken,
+            userId: UserId,
+            connectionId: ConnectionId,
+            CT
+        );
+
+        var msg = await _gameChatActorProbe.ExpectMsgAsync<GameChatCommands.LeaveChat>(
+            cancellationToken: CT
+        );
+        msg.Should()
+            .BeEquivalentTo(
+                new GameChatCommands.LeaveChat(
+                    GameToken: GameToken,
+                    ConnectionId: ConnectionId,
+                    UserId: UserId
+                )
+            );
+
+        _gameChatActorProbe.Sender.Tell(new GameChatEvents.UserLeft());
+
+        var result = await resultTask;
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SendMessage_sends_SendMessage_command_to_actor()
+    {
+        var message = "test message";
+
+        var task = _gameChatService.SendMessage(
+            gameToken: GameToken,
+            userId: UserId,
+            connectionId: ConnectionId,
+            message: message,
+            CT
+        );
+
+        var msg = await _gameChatActorProbe.ExpectMsgAsync<GameChatCommands.SendMessage>(
+            cancellationToken: CT
+        );
+        msg.Should()
+            .BeEquivalentTo(
+                new GameChatCommands.SendMessage(
+                    GameToken: GameToken,
+                    ConnectionId: ConnectionId,
+                    UserId: UserId,
+                    message
+                )
+            );
+
+        _gameChatActorProbe.Sender.Tell(new GameChatEvents.MessageSent());
+
+        var result = await task;
         result.IsError.Should().BeFalse();
     }
 }

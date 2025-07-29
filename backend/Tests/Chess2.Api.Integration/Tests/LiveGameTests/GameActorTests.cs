@@ -130,7 +130,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync(isRated: true);
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
-        var result = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
+        var result = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
             cancellationToken: ApiTestBase.CT
         );
 
@@ -296,7 +296,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             new GameQueries.GetGameState(TestGameToken, ForUserId: _whitePlayer.UserId),
             _probe
         );
-        var stateEvent = await _probe.ExpectMsgAsync<GameEvents.GameStateEvent>(
+        var stateEvent = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
             cancellationToken: ApiTestBase.CT
         );
         stateEvent.State.MoveOptions.HasForcedMoves.Should().BeTrue();
@@ -325,7 +325,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         // No moves or just one move = still abortable
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
 
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+        await _probe.ExpectMsgAsync<GameResponses.GameEnded>(cancellationToken: ApiTestBase.CT);
         await TestGameEndedAsync(_gameResultDescriber.Aborted(GameColor.White));
     }
 
@@ -340,7 +340,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await MakeLegalMoveAsync(_whitePlayer);
 
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+        await _probe.ExpectMsgAsync<GameResponses.GameEnded>(cancellationToken: ApiTestBase.CT);
         await TestGameEndedAsync(_gameResultDescriber.Resignation(GameColor.White));
     }
 
@@ -350,7 +350,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync(timeControl: new(0, 0));
 
         _gameActor.Tell(new GameCommands.TickClock(), _probe);
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+        await _probe.ExpectMsgAsync<GameResponses.GameEnded>(cancellationToken: ApiTestBase.CT);
 
         var expectedEndStatus = _gameResultDescriber.Timeout(GameColor.White);
         await _gameNotifierMock
@@ -379,7 +379,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync();
 
         _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-        await _probe.ExpectMsgAsync<GameEvents.GameEnded>(cancellationToken: ApiTestBase.CT);
+        await _probe.ExpectMsgAsync<GameResponses.GameEnded>(cancellationToken: ApiTestBase.CT);
 
         _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
         var isGameOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
@@ -407,7 +407,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     {
         _gameActor.Tell(new GameCommands.MovePiece(TestGameToken, player.UserId, from, to), _probe);
 
-        await _probe.ExpectMsgAsync<GameEvents.PieceMoved>(
+        await _probe.ExpectMsgAsync<GameResponses.PieceMoved>(
             cancellationToken: ApiTestBase.CT,
             duration: TimeSpan.FromHours(10)
         );
@@ -430,7 +430,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             ),
             _probe.Ref
         );
-        await _probe.ExpectMsgAsync<GameEvents.GameStartedEvent>(
+        await _probe.ExpectMsgAsync<GameResponses.GameStarted>(
             cancellationToken: TestContext.Current.CancellationToken
         );
     }

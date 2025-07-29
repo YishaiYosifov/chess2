@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using Akka.Hosting;
-using Chess2.Api.Auth.Services;
+﻿using Akka.Hosting;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Shared.Extensions;
@@ -12,47 +10,41 @@ public interface IGameChatService
 {
     Task<ErrorOr<Success>> JoinChat(
         string gameToken,
+        string userId,
         string connectionId,
-        ClaimsPrincipal? userClaims,
         CancellationToken token = default
     );
     Task<ErrorOr<Success>> LeaveChat(
         string gameToken,
         string userId,
+        string connectionId,
         CancellationToken token = default
     );
     Task<ErrorOr<Success>> SendMessage(
         string gameToken,
         string userId,
+        string connectionId,
         string message,
         CancellationToken token = default
     );
 }
 
-public class GameChatService(IAuthService authService, IRequiredActor<GameChatActor> gameChatActor)
-    : IGameChatService
+public class GameChatService(IRequiredActor<GameChatActor> gameChatActor) : IGameChatService
 {
-    private readonly IAuthService _authService = authService;
     private readonly IRequiredActor<GameChatActor> _gameChatActor = gameChatActor;
 
     public async Task<ErrorOr<Success>> JoinChat(
         string gameToken,
+        string userId,
         string connectionId,
-        ClaimsPrincipal? userClaims,
         CancellationToken token = default
     )
     {
-        var userResult = await _authService.GetLoggedInUserAsync(userClaims);
-        if (userResult.IsError)
-            return userResult.Errors;
-        var user = userResult.Value;
-
         var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.UserJoined>(
             new GameChatCommands.JoinChat(
-                gameToken,
-                connectionId,
-                user.Id,
-                user.UserName ?? "Unknown"
+                GameToken: gameToken,
+                UserId: userId,
+                ConnectionId: connectionId
             ),
             token
         );
@@ -65,11 +57,12 @@ public class GameChatService(IAuthService authService, IRequiredActor<GameChatAc
     public async Task<ErrorOr<Success>> LeaveChat(
         string gameToken,
         string userId,
+        string connectionId,
         CancellationToken token = default
     )
     {
         var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.UserLeft>(
-            new GameChatCommands.LeaveChat(gameToken, userId),
+            new GameChatCommands.LeaveChat(gameToken, connectionId, userId),
             token
         );
         if (result.IsError)
@@ -80,12 +73,18 @@ public class GameChatService(IAuthService authService, IRequiredActor<GameChatAc
     public async Task<ErrorOr<Success>> SendMessage(
         string gameToken,
         string userId,
+        string connectionId,
         string message,
         CancellationToken token = default
     )
     {
         var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.MessageSent>(
-            new GameChatCommands.SendMessage(gameToken, userId, message),
+            new GameChatCommands.SendMessage(
+                GameToken: gameToken,
+                ConnectionId: connectionId,
+                UserId: userId,
+                Message: message
+            ),
             token
         );
         if (result.IsError)

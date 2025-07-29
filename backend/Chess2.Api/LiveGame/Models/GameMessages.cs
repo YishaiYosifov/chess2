@@ -37,13 +37,13 @@ public class GameQueries
     public record IsGameOngoing(string GameToken) : IGameMessage;
 }
 
-public class GameEvents
+public class GameResponses
 {
-    public record GameStartedEvent;
+    public record GameStarted;
 
-    public record GameStateEvent(GameState State);
+    public record GameStateResponse(GameState State);
 
-    public record GamePlayersEvent(GamePlayer WhitePlayer, GamePlayer BlackPlayer);
+    public record GamePlayers(GamePlayer WhitePlayer, GamePlayer BlackPlayer);
 
     public record PieceMoved;
 

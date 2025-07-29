@@ -7,11 +7,12 @@ using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Extensions;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.Users.Entities;
+using ErrorOr;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.LiveGame.Actors;
-
-public record Chatter(string ConnectionId, string UserName, bool IsPlaying);
 
 public class GameChatActor : ReceiveActor
 {
@@ -22,7 +23,8 @@ public class GameChatActor : ReceiveActor
     private readonly ChatSettings _settings;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
-    private readonly ConcurrentDictionary<string, Chatter> _chatters = [];
+    private GameResponses.GamePlayers? _players;
+    private readonly ConcurrentDictionary<string, string> _usernameCache = [];
 
     public GameChatActor(
         string gameToken,
@@ -46,33 +48,20 @@ public class GameChatActor : ReceiveActor
 
     private void HandleJoinChat(GameChatCommands.JoinChat joinGame)
     {
-        if (_chatters.ContainsKey(joinGame.UserId))
-        {
-            _logger.Warning("User {0} already in chat for game {1}", joinGame.UserId, _gameToken);
-            Sender.ReplyWithError(GameChatErrors.UserAlreadyJoined);
-            return;
-        }
-
         RunTask(async () =>
         {
-            await using var scope = _sp.CreateAsyncScope();
-            var liveGameService = scope.ServiceProvider.GetRequiredService<ILiveGameService>();
-            var playersResult = await liveGameService.GetGamePlayersAsync(_gameToken);
-            if (playersResult.IsError)
+            var isPlayingResult = await IsUserPlayingAsync(joinGame.UserId);
+            if (isPlayingResult.IsError)
             {
-                Sender.ReplyWithError(playersResult.Errors);
+                Sender.ReplyWithError(isPlayingResult.Errors);
                 return;
             }
 
-            var isPlaying =
-                joinGame.UserId == playersResult.Value.WhitePlayer.UserId
-                || joinGame.UserId == playersResult.Value.BlackPlayer.UserId;
-            _chatters.TryAdd(
-                joinGame.UserId,
-                new Chatter(joinGame.ConnectionId, joinGame.UserName, isPlaying)
+            await _gameChatNotifier.JoinChatAsync(
+                _gameToken,
+                joinGame.ConnectionId,
+                isPlayingResult.Value
             );
-
-            await _gameChatNotifier.JoinChatAsync(_gameToken, joinGame.ConnectionId, isPlaying);
             _logger.Info("User {0} joined chat for game {1}", joinGame.UserId, _gameToken);
 
             Sender.Tell(new GameChatEvents.UserJoined());
@@ -81,23 +70,19 @@ public class GameChatActor : ReceiveActor
 
     private void HandleLeaveChat(GameChatCommands.LeaveChat leaveChat)
     {
-        if (!_chatters.TryRemove(leaveChat.UserId, out var chatter))
-        {
-            _logger.Warning(
-                "User {0} not found in chat for game {1} when trying to leave",
-                leaveChat.UserId,
-                _gameToken
-            );
-            Sender.ReplyWithError(GameChatErrors.UserNotInChat);
-            return;
-        }
-
         RunTask(async () =>
         {
+            var isPlayingResult = await IsUserPlayingAsync(leaveChat.UserId);
+            if (isPlayingResult.IsError)
+            {
+                Sender.ReplyWithError(isPlayingResult.Errors);
+                return;
+            }
+
             await _gameChatNotifier.LeaveChatAsync(
                 _gameToken,
-                chatter.ConnectionId,
-                chatter.IsPlaying
+                leaveChat.ConnectionId,
+                isPlayingResult.Value
             );
 
             _logger.Info("User {0} left chat for game {1}", leaveChat.UserId, _gameToken);
@@ -129,36 +114,38 @@ public class GameChatActor : ReceiveActor
             return;
         }
 
-        if (!_chatters.TryGetValue(sendMessage.UserId, out var chatter))
-        {
-            _logger.Warning(
-                "User {0} not found in chat for game {1} when trying to send message",
-                sendMessage.UserId,
-                _gameToken
-            );
-            Sender.ReplyWithError(GameChatErrors.UserNotInChat);
-            return;
-        }
-
         if (!_chatRateLimiter.ShouldAllowRequest(sendMessage.UserId, out var cooldownLeft))
         {
             Sender.ReplyWithError(GameChatErrors.OnCooldown);
             return;
         }
 
-        RunTask(
-            () =>
-                _gameChatNotifier.SendMessageAsync(
-                    _gameToken,
-                    chatter.UserName,
-                    chatter.ConnectionId,
-                    cooldownLeft,
-                    sendMessage.Message,
-                    chatter.IsPlaying
-                )
-        );
+        RunTask(async () =>
+        {
+            var isPlayingResult = await IsUserPlayingAsync(sendMessage.UserId);
+            if (isPlayingResult.IsError)
+            {
+                Sender.ReplyWithError(isPlayingResult.Errors);
+                return;
+            }
+            var usernameResult = await GetUsernameAsync(sendMessage.UserId);
+            if (usernameResult.IsError)
+            {
+                Sender.ReplyWithError(usernameResult.Errors);
+                return;
+            }
+
+            await _gameChatNotifier.SendMessageAsync(
+                _gameToken,
+                usernameResult.Value,
+                sendMessage.ConnectionId,
+                cooldownLeft,
+                sendMessage.Message,
+                isPlayingResult.Value
+            );
+            Sender.Tell(new GameChatEvents.MessageSent());
+        });
         RunTask(() => LogMessageAsync(sendMessage.UserId, sendMessage.Message));
-        Sender.Tell(new GameChatEvents.MessageSent());
     }
 
     private async Task LogMessageAsync(string userId, string message)
@@ -169,11 +156,49 @@ public class GameChatActor : ReceiveActor
         await chatMessageService.LogMessageAsync(_gameToken, userId, message);
     }
 
+    private async Task<ErrorOr<string>> GetUsernameAsync(string userId)
+    {
+        if (_usernameCache.TryGetValue(userId, out var username))
+            return username;
+
+        await using var scope = _sp.CreateAsyncScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null)
+            return GameChatErrors.InvalidUser;
+
+        username = user.UserName ?? "Unknown";
+        _usernameCache.TryAdd(userId, username);
+        return username;
+    }
+
+    private async Task<ErrorOr<bool>> IsUserPlayingAsync(string userId)
+    {
+        var playersResult = await GetPlayersAsync();
+        if (playersResult.IsError)
+            return playersResult.Errors;
+
+        var isPlaying =
+            playersResult.Value.WhitePlayer.UserId == userId
+            || playersResult.Value.BlackPlayer.UserId == userId;
+        return isPlaying;
+    }
+
+    private async Task<ErrorOr<GameResponses.GamePlayers>> GetPlayersAsync()
+    {
+        if (_players is not null)
+            return _players;
+
+        await using var scope = _sp.CreateAsyncScope();
+        var liveGameService = scope.ServiceProvider.GetRequiredService<ILiveGameService>();
+        var playersResult = await liveGameService.GetGamePlayersAsync(_gameToken);
+
+        _players = playersResult.Value;
+        return playersResult;
+    }
+
     private void HandleTimeout()
     {
-        if (!_chatters.IsEmpty)
-            return;
-
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
         _logger.Info("No chat recent chat messages in game {0}, passivating actor", _gameToken);
     }
