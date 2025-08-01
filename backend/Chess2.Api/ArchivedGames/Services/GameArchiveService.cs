@@ -172,6 +172,7 @@ public class GameArchiveService(
             Captures = path.CapturedIdxs?.ToList() ?? [],
             Triggers = path.TriggerIdxs?.ToList() ?? [],
             SideEffects = sideEffects,
+            PromotesTo = path.PromotesTo,
         };
     }
 }

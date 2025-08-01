@@ -10,12 +10,13 @@ public class ForcedMoveRule(
 {
     private readonly IPieceMovementRule _rule = rule;
     private readonly ForcedMovePriority _priority = priority;
+    private readonly Func<ChessBoard, Move, bool> _predicate = predicate;
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
         foreach (var move in _rule.Evaluate(board, position, movingPiece))
         {
-            if (!predicate(board, move))
+            if (!_predicate(board, move))
             {
                 yield return move;
                 continue;
