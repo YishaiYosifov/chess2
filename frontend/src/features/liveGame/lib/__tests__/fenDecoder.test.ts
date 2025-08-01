@@ -1,6 +1,6 @@
-import { PieceMap, PieceType } from "@/types/tempModels";
+import { PieceMap } from "@/types/tempModels";
 import constants from "@/lib/constants";
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, PieceType } from "@/lib/apiClient";
 import { decodeFen } from "../fenDecoder";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 

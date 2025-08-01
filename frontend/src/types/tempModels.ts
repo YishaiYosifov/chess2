@@ -1,18 +1,4 @@
-import { GameColor } from "../lib/apiClient";
-
-export enum PieceType {
-    KING = "k",
-    QUEEN = "q",
-    ROOK = "r",
-    KNOOK = "n",
-    XOOK = "x",
-    ANTIQUEEN = "a",
-    ARCHBISHOP = "c",
-    BISHOP = "b",
-    HORSEY = "h",
-    PAWN = "p",
-    UNDERAGEPAWN = "d",
-}
+import { GameColor, PieceType } from "../lib/apiClient";
 
 export type PieceID = `${number}`;
 

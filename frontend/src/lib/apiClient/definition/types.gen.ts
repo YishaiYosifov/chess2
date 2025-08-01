@@ -39,8 +39,7 @@ export enum ErrorCode {
     GAME_ALREADY_ENDED = "Game.AlreadyEnded",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
     GAME_MOVE_INVALID = "Game.MoveInvalid",
-    GAME_CHAT_USER_ALREADY_JOINED = "GameChat.UserAlreadyJoined",
-    GAME_CHAT_USER_NOT_IN_CHAT = "GameChat.UserNotInChat",
+    GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
     GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
 }
@@ -59,8 +58,7 @@ export type ApiProblemError = {
         | "Game.AlreadyEnded"
         | "Game.PlayerInvalid"
         | "Game.MoveInvalid"
-        | "GameChat.UserAlreadyJoined"
-        | "GameChat.UserNotInChat"
+        | "GameChat.InvalidUser"
         | "GameChat.InvalidMessage"
         | "GameChat.OnCooldown";
     description: string;
@@ -214,12 +212,48 @@ export type MovePath = {
     capturedIdxs?: Array<number> | null;
     triggerIdxs?: Array<number> | null;
     sideEffects?: Array<MoveSideEffectPath> | null;
+    promotesTo?: PieceType | null;
 };
 
 export type MoveSideEffectPath = {
     fromIdx: number;
     toIdx: number;
 };
+
+export enum PieceType {
+    /**
+     * King
+     */
+    KING = 0,
+    /**
+     * Queen
+     */
+    QUEEN = 1,
+    /**
+     * Pawn
+     */
+    PAWN = 2,
+    /**
+     * Rook
+     */
+    ROOK = 3,
+    /**
+     * Bishop
+     */
+    BISHOP = 4,
+    /**
+     * Horsey
+     */
+    HORSEY = 5,
+    /**
+     * Knook
+     */
+    KNOOK = 6,
+    /**
+     * UnderagePawn
+     */
+    UNDERAGE_PAWN = 7,
+}
 
 export type MoveOptions = {
     legalMoves: Array<MovePath>;
