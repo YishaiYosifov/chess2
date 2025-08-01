@@ -1,12 +1,19 @@
 import { renderHook } from "@testing-library/react";
-import { createRef } from "react";
+import { act, createRef } from "react";
 import useAutoScroll from "../useAutoScroll";
+import { Mock } from "vitest";
 
 describe("useAutoScroll", () => {
-    let scrollToMock: ReturnType<typeof vi.fn>;
+    let scrollToMock: Mock;
 
     beforeEach(() => {
-        scrollToMock = vi.fn();
+        scrollToMock = vi.fn().mockImplementation(function (
+            this: HTMLElement,
+            { top }: { top: number },
+        ) {
+            this.scrollTop = top;
+            this.dispatchEvent(new Event("scroll"));
+        });
 
         Object.defineProperty(HTMLElement.prototype, "scrollTo", {
             configurable: true,
@@ -14,16 +21,43 @@ describe("useAutoScroll", () => {
         });
     });
 
-    it("should scroll on initial render if within 50px", () => {
-        const ref = createRef<HTMLElement>();
-        const el = document.createElement("div");
+    function setupElement({
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        el,
+    }: {
+        scrollTop?: number;
+        scrollHeight?: number;
+        clientHeight?: number;
+        el?: HTMLDivElement;
+    } = {}) {
+        scrollTop ??= 300;
+        scrollHeight ??= 250;
+        clientHeight ??= 50;
+
+        el ??= document.createElement("div");
+        el.scrollTop = scrollTop;
 
         Object.defineProperties(el, {
-            scrollTop: { configurable: true, get: () => 151 },
-            scrollHeight: { configurable: true, get: () => 300 },
-            clientHeight: { configurable: true, get: () => 100 },
+            scrollHeight: {
+                configurable: true,
+                get: () => scrollHeight,
+            },
+            clientHeight: {
+                configurable: true,
+                get: () => clientHeight,
+            },
         });
 
+        return el;
+    }
+
+    it("should scroll to bottom on initial render", () => {
+        const ref = createRef<HTMLElement>();
+        const el = setupElement({
+            scrollHeight: 250,
+        });
         ref.current = el;
 
         renderHook(({ deps }) => useAutoScroll(ref, deps), {
@@ -31,21 +65,64 @@ describe("useAutoScroll", () => {
         });
 
         expect(scrollToMock).toHaveBeenCalledWith({
-            top: 300,
+            top: 250,
             behavior: "smooth",
         });
     });
 
-    it("should be able to scroll after the deps change", () => {
+    it("should not scroll if user has scrolled", async () => {
         const ref = createRef<HTMLElement>();
-        const el = document.createElement("div");
+        const el = setupElement();
+        ref.current = el;
 
-        Object.defineProperties(el, {
-            scrollTop: { configurable: true, get: () => 149 },
-            scrollHeight: { configurable: true, get: () => 300 },
-            clientHeight: { configurable: true, get: () => 100 },
+        const { rerender } = renderHook(
+            ({ deps }) => useAutoScroll(ref, deps),
+            {
+                initialProps: { deps: [1] },
+            },
+        );
+        scrollToMock.mockClear();
+
+        setupElement({
+            scrollHeight: 300,
+            scrollTop: 50,
+            clientHeight: 100,
+            el,
         });
+        await act(() => el.dispatchEvent(new Event("scroll")));
 
+        rerender({ deps: [2] });
+        expect(scrollToMock).not.toHaveBeenCalled();
+    });
+
+    it("should scroll to bottom when deps change and still at bottom", () => {
+        const ref = createRef<HTMLElement>();
+        const el = setupElement({
+            scrollTop: 200,
+            scrollHeight: 300,
+            clientHeight: 100,
+        });
+        ref.current = el;
+
+        const { rerender } = renderHook(
+            ({ deps }) => useAutoScroll(ref, deps),
+            { initialProps: { deps: [1] } },
+        );
+
+        expect(scrollToMock).toHaveBeenCalledTimes(1);
+
+        rerender({ deps: [2] });
+
+        expect(scrollToMock).toHaveBeenCalledTimes(2);
+    });
+
+    it("should not auto-scroll if user has manually scrolled up", () => {
+        const ref = createRef<HTMLElement>();
+        const el = setupElement({
+            scrollTop: 200,
+            scrollHeight: 300,
+            clientHeight: 100,
+        });
         ref.current = el;
 
         const { rerender } = renderHook(
@@ -55,30 +132,25 @@ describe("useAutoScroll", () => {
             },
         );
 
-        expect(scrollToMock).not.toHaveBeenCalled();
-
-        Object.defineProperties(el, {
-            scrollTop: { configurable: true, get: () => 151 },
+        act(() => {
+            el.scrollTop = 100;
+            el.dispatchEvent(new Event("scroll"));
         });
+
+        scrollToMock.mockClear();
 
         rerender({ deps: [2] });
 
-        expect(scrollToMock).toHaveBeenCalledWith({
-            top: 300,
-            behavior: "smooth",
-        });
+        expect(scrollToMock).not.toHaveBeenCalled();
     });
 
-    it("should not scroll if more than 50px from bottom", () => {
+    it("should detect scrolling back to bottom and re-enable auto-scroll", () => {
         const ref = createRef<HTMLElement>();
-        const el = document.createElement("div");
-
-        Object.defineProperties(el, {
-            scrollTop: { configurable: true, get: () => 100 },
-            scrollHeight: { configurable: true, get: () => 300 },
-            clientHeight: { configurable: true, get: () => 100 },
+        const el = setupElement({
+            scrollTop: 100,
+            scrollHeight: 300,
+            clientHeight: 100,
         });
-
         ref.current = el;
 
         const { rerender } = renderHook(
@@ -88,22 +160,31 @@ describe("useAutoScroll", () => {
             },
         );
 
-        rerender({ deps: [2] });
+        act(() => {
+            el.scrollTop = 0;
+            el.dispatchEvent(new Event("scroll"));
+        });
 
-        expect(scrollToMock).not.toHaveBeenCalled();
+        act(() => {
+            el.scrollTop = 200;
+            el.dispatchEvent(new Event("scroll"));
+        });
+
+        scrollToMock.mockClear();
+
+        act(() => {
+            rerender({ deps: [2] });
+        });
+
+        expect(scrollToMock).toHaveBeenCalled();
     });
 
     it("should do nothing if ref is null", () => {
         const ref = createRef<HTMLElement>();
 
-        const { rerender } = renderHook(
-            ({ deps }) => useAutoScroll(ref, deps),
-            {
-                initialProps: { deps: [1] },
-            },
-        );
-
-        rerender({ deps: [2] });
+        renderHook(({ deps }) => useAutoScroll(ref, deps), {
+            initialProps: { deps: [1] },
+        });
 
         expect(scrollToMock).not.toHaveBeenCalled();
     });
