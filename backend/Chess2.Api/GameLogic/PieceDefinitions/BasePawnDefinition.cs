@@ -15,18 +15,19 @@ public abstract class BasePawnDefinition : IPieceDefinition
     );
 
     protected IEnumerable<IPieceMovementRule> GetPawnBehaviours(
+        ChessBoard board,
         Piece movingPiece,
         int maxInitialMoveDistance
     )
     {
         var direction = movingPiece.Color == GameColor.White ? 1 : -1;
-
-        IPieceMovementRule[] behaviours =
-        [
+        int promotionY = movingPiece.Color == GameColor.White ? board.Height - 1 : 0;
+        yield return new PromotionRule(
+            (_, move) => move.To.Y == promotionY,
             new NoCaptureRule(
                 new ConditionalBehaviour(
                     (board, pos, piece) => piece.TimesMoved == 0,
-                    // move 3 squares if this piece has not moved before
+                    // move maxInitialMoveDistance squares if this piece has not moved before
                     trueBranch: new SlideBehaviour(
                         new Offset(X: 0, Y: 1 * direction),
                         max: maxInitialMoveDistance
@@ -38,9 +39,7 @@ public abstract class BasePawnDefinition : IPieceDefinition
             new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
             new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
             new EnPassantRule(new Offset(X: 1, Y: 1 * direction)),
-            new EnPassantRule(new Offset(X: -1, Y: 1 * direction)),
-        ];
-
-        return behaviours;
+            new EnPassantRule(new Offset(X: -1, Y: 1 * direction))
+        );
     }
 }

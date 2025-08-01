@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure.TestData;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
@@ -16,5 +17,6 @@ public class MovePathFaker : RecordFaker<MovePath>
             x => x.SideEffects,
             f => new MoveSideEffectPathFaker().Generate(f.Random.Number(1, 5))
         );
+        RuleFor(x => x.PromotesTo, f => f.PickRandom<PieceType>());
     }
 }

@@ -7,7 +7,8 @@ public record MovePath(
     byte ToIdx,
     IReadOnlyList<byte>? CapturedIdxs,
     IReadOnlyList<byte>? TriggerIdxs,
-    IReadOnlyList<MoveSideEffectPath>? SideEffects
+    IReadOnlyList<MoveSideEffectPath>? SideEffects,
+    PieceType? PromotesTo
 )
 {
     public static MovePath FromMove(Move move, int boardWidth)
@@ -29,7 +30,8 @@ public record MovePath(
             ToIdx: move.To.AsIndex(boardWidth),
             CapturedIdxs: captures,
             TriggerIdxs: triggers,
-            SideEffects: sideEffects
+            SideEffects: sideEffects,
+            PromotesTo: move.PromotesTo
         );
     }
 }

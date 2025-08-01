@@ -1,4 +1,6 @@
-﻿namespace Chess2.Api.ArchivedGames.Entities;
+﻿using Chess2.Api.GameLogic.Models;
+
+namespace Chess2.Api.ArchivedGames.Entities;
 
 public class MoveArchive
 {
@@ -13,4 +15,5 @@ public class MoveArchive
     public required ICollection<byte> Captures { get; set; } = [];
     public required ICollection<byte> Triggers { get; set; } = [];
     public required ICollection<MoveSideEffectArchive> SideEffects { get; set; } = [];
+    public required PieceType? PromotesTo { get; set; }
 }
