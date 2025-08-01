@@ -61,11 +61,11 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         async onDragEnd(point) {
-            await moveSelectedPieceToMouse({
+            const didMove = await moveSelectedPieceToMouse({
                 mousePoint: point,
                 isDrag: true,
             });
-            pieceRef.current?.updateDraggingOffset(0, 0);
+            if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
         },
         async onPress(info) {
             if (!isSelected) return;
@@ -75,6 +75,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
                 isDrag: false,
             });
             if (didMove) moveOccurredOnPressRef.current = true;
+
             pieceRef.current?.updateDraggingOffset(0, 0);
         },
     });
