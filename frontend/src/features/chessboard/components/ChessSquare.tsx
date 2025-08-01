@@ -10,13 +10,9 @@ import {
 import { twMerge } from "tailwind-merge";
 
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import { LogicalPoint, PieceType, Point } from "@/types/tempModels";
-import { GameColor } from "@/lib/apiClient";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { LogicalPoint, Point } from "@/types/tempModels";
 
 type ChessSquareProps = {
-    pieceType: PieceType;
-    pieceColor: GameColor;
     position: LogicalPoint;
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
@@ -32,18 +28,7 @@ export interface ChessSquareRef {
 const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
-> = (
-    {
-        pieceType,
-        pieceColor,
-        position,
-        children,
-        className,
-        style,
-        ...divProps
-    },
-    ref,
-) => {
+> = ({ position, children, className, style, ...divProps }, ref) => {
     const { width: boardWidth, height: boardHeight } = useChessboardStore(
         (store) => store.boardDimensions,
     );
