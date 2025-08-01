@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 import useCollapseState from "../useCollapseState";
 import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 import constants from "@/lib/constants";
-import { setWindowInnerWidth } from "@/lib/testUtils/mocks/mockWindow";
+import { setWindowInnerWidth } from "@/lib/testUtils/mocks/mockDom";
 
 vi.mock("js-cookie");
 

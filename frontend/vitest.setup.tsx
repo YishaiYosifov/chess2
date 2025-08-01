@@ -1,4 +1,4 @@
-import { setWindowInnerWidth } from "@/lib/testUtils/mocks/mockWindow";
+import { setWindowInnerWidth } from "@/lib/testUtils/mocks/mockDom";
 import "vitest-dom/extend-expect";
 
 vi.mock("next/navigation", () => ({

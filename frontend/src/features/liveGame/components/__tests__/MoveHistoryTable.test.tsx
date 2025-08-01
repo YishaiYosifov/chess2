@@ -17,6 +17,7 @@ import userEvent from "@testing-library/user-event";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
 import { Position, ProcessedMoveOptions } from "@/types/tempModels";
+import { mockScrollTo } from "@/lib/testUtils/mocks/mockDom";
 
 describe("MoveHistoryTable", () => {
     let liveStore: StoreApi<LiveChessStore>;
@@ -26,6 +27,8 @@ describe("MoveHistoryTable", () => {
     let latestMoveOptions: ProcessedMoveOptions;
 
     beforeEach(() => {
+        mockScrollTo();
+
         latestMoveOptions = {
             legalMoves: createFakeLegalMoveMap(),
             hasForcedMoves: false,
