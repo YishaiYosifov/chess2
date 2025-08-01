@@ -41,6 +41,9 @@ public class GameChatActorTests : BaseActorTest
         BlackUserId
     );
 
+    private readonly AuthedUser _whiteUser;
+    private readonly AuthedUser _blackUser;
+
     private readonly IActorRef _gameChatActor;
     private readonly TestProbe _probe;
 
@@ -52,6 +55,17 @@ public class GameChatActorTests : BaseActorTest
 
     public GameChatActorTests()
     {
+        _whiteUser = new AuthedUserFaker()
+            .RuleFor(x => x.Id, _whitePlayer.UserId)
+            .RuleFor(x => x.UserName, _whitePlayer.UserName)
+            .Generate();
+        _blackUser = new AuthedUserFaker()
+            .RuleFor(x => x.Id, _blackPlayer.UserId)
+            .RuleFor(x => x.UserName, _blackPlayer.UserName)
+            .Generate();
+        _userManagerMock.FindByIdAsync(_whiteUser.Id).Returns(_whiteUser);
+        _userManagerMock.FindByIdAsync(_blackUser.Id).Returns(_blackUser);
+
         var serviceScopeMock = Substitute.For<IServiceScope>();
         serviceScopeMock.ServiceProvider.Returns(_serviceProviderMock);
 
@@ -193,9 +207,6 @@ public class GameChatActorTests : BaseActorTest
     {
         const string message = "test message 123";
 
-        var user = new AuthedUserFaker().RuleFor(x => x.Id, _whitePlayer.UserId).Generate();
-        _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns(user);
-
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(
                 GameToken: TestGameToken,
@@ -224,7 +235,7 @@ public class GameChatActorTests : BaseActorTest
             .Received(2)
             .SendMessageAsync(
                 TestGameToken,
-                user.UserName!,
+                _whiteUser.UserName!,
                 ConnectionId,
                 TimeSpan.Zero,
                 message,
@@ -253,9 +264,6 @@ public class GameChatActorTests : BaseActorTest
     [Fact]
     public async Task SendMessage_with_cooldown_returns_error()
     {
-        var user = new AuthedUserFaker().RuleFor(x => x.Id, _whitePlayer.UserId).Generate();
-        _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns(user);
-
         var newCooldown = TimeSpan.FromSeconds(5);
         _chatRateLimiterMock
             .ShouldAllowRequest(_whitePlayer.UserId, out Arg.Any<TimeSpan>())
@@ -311,7 +319,7 @@ public class GameChatActorTests : BaseActorTest
     [Fact]
     public async Task SendMessage_rejects_message_exceeding_max_length()
     {
-        var longMsg = new string('a', _settings.MaxMessageLength + 1);
+        string longMsg = new('a', _settings.MaxMessageLength + 1);
 
         _gameChatActor.Tell(
             new GameChatCommands.SendMessage(TestGameToken, ConnectionId, WhiteUserId, longMsg),
@@ -322,5 +330,30 @@ public class GameChatActorTests : BaseActorTest
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidMessage);
+    }
+
+    [Fact]
+    public async Task SendMessage_treats_chatters_as_spectators_when_players_are_not_found()
+    {
+        _liveGameServiceMock
+            .GetGamePlayersAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(GameErrors.GameNotFound);
+
+        _gameChatActor.Tell(
+            new GameChatCommands.SendMessage(TestGameToken, ConnectionId, WhiteUserId, "test"),
+            _probe
+        );
+        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+
+        await _gameChatNotifierMock
+            .Received(1)
+            .SendMessageAsync(
+                TestGameToken,
+                _whitePlayer.UserName,
+                ConnectionId,
+                TimeSpan.Zero,
+                "test",
+                isPlaying: false
+            );
     }
 }
