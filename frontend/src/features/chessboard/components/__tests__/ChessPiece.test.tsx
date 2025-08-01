@@ -15,7 +15,7 @@ import {
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardLayout from "../ChessboardLayout";
-import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockWindow";
+import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockDom";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 import { createMoveOptions } from "../../lib/moveOptions";

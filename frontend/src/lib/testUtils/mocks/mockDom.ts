@@ -1,4 +1,6 @@
-export function setWindowInnerWidth(value: number) {
+import { Mock } from "vitest";
+
+export function setWindowInnerWidth(value: number): void {
     Object.defineProperty(window, "innerWidth", {
         writable: true,
         configurable: true,
@@ -27,4 +29,20 @@ export function mockBoundingClientRect(
             return rect ?? DEFAULT_RECT;
         },
     );
+}
+
+export function mockScrollTo(): Mock {
+    const scrollToMock = vi.fn().mockImplementation(function (
+        this: HTMLElement,
+        { top }: { top: number },
+    ) {
+        this.scrollTop = top;
+        this.dispatchEvent(new Event("scroll"));
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+        configurable: true,
+        value: scrollToMock,
+    });
+    return scrollToMock;
 }
