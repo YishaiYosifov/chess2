@@ -2,23 +2,13 @@ import { renderHook } from "@testing-library/react";
 import { act, createRef } from "react";
 import useAutoScroll from "../useAutoScroll";
 import { Mock } from "vitest";
+import { mockScrollTo } from "@/lib/testUtils/mocks/mockDom";
 
 describe("useAutoScroll", () => {
     let scrollToMock: Mock;
 
     beforeEach(() => {
-        scrollToMock = vi.fn().mockImplementation(function (
-            this: HTMLElement,
-            { top }: { top: number },
-        ) {
-            this.scrollTop = top;
-            this.dispatchEvent(new Event("scroll"));
-        });
-
-        Object.defineProperty(HTMLElement.prototype, "scrollTo", {
-            configurable: true,
-            value: scrollToMock,
-        });
+        scrollToMock = mockScrollTo();
     });
 
     function setupElement({
