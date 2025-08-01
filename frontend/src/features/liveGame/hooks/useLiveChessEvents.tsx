@@ -99,10 +99,8 @@ export function useLiveChessEvents(
                 jumpForwards();
                 const decoded = decodePath(move.path, boardDimensions.width);
                 applyMove(decoded);
-                addCurrentPosition(move, clocks, sideToMove);
-            } else {
-                addCurrentPosition(move, clocks, sideToMove);
             }
+            addCurrentPosition(move, clocks, sideToMove);
         },
     );
 

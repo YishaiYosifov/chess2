@@ -10,15 +10,19 @@ import {
 import { twMerge } from "tailwind-merge";
 
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import { LogicalPoint } from "@/types/tempModels";
+import { LogicalPoint, PieceType, Point } from "@/types/tempModels";
+import { GameColor } from "@/lib/apiClient";
+import { pointToStr } from "@/lib/utils/pointUtils";
 
 type ChessSquareProps = {
+    pieceType: PieceType;
+    pieceColor: GameColor;
     position: LogicalPoint;
     children?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
 export interface ChessSquareRef {
-    updateDraggingOffset: (x: number, y: number) => void;
+    updateDraggingOffset: (offset: Point) => void;
     getBoundingClientRect: () => DOMRect | null;
 }
 
@@ -28,7 +32,18 @@ export interface ChessSquareRef {
 const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
-> = ({ position, children, className, style, ...divProps }, ref) => {
+> = (
+    {
+        pieceType,
+        pieceColor,
+        position,
+        children,
+        className,
+        style,
+        ...divProps
+    },
+    ref,
+) => {
     const { width: boardWidth, height: boardHeight } = useChessboardStore(
         (store) => store.boardDimensions,
     );
@@ -49,18 +64,18 @@ const ChessSquare: ForwardRefRenderFunction<
     const maxX = (boardWidth - 1) * 100;
     const maxY = (boardHeight - 1) * 100;
 
-    const calculateTransform = (offsetX: number, offsetY: number): string =>
-        `translate(
-            clamp(0%, calc(${physicalX}% + ${offsetX}px), ${maxX}%),
-            clamp(0%, calc(${physicalY}% + ${offsetY}px), ${maxY}%))`;
+    function calculateTransform(offset: Point): string {
+        return `translate(
+            clamp(0%, calc(${physicalX}% + ${offset.x}px), ${maxX}%),
+            clamp(0%, calc(${physicalY}% + ${offset.y}px), ${maxY}%))`;
+    }
 
     useImperativeHandle(ref, () => ({
-        updateDraggingOffset(offsetX: number, offsetY: number) {
-            if (squareDivRef.current)
-                squareDivRef.current.style.transform = calculateTransform(
-                    offsetX,
-                    offsetY,
-                );
+        updateDraggingOffset(offset: Point) {
+            if (squareDivRef.current) {
+                squareDivRef.current.style.transform =
+                    calculateTransform(offset);
+            }
         },
         getBoundingClientRect: () =>
             squareDivRef.current?.getBoundingClientRect() ?? null,
@@ -76,7 +91,7 @@ const ChessSquare: ForwardRefRenderFunction<
             style={{
                 width: `${tileWidth}%`,
                 height: `${tileHeight}%`,
-                transform: calculateTransform(0, 0),
+                transform: calculateTransform({ x: 0, y: 0 }),
                 ...style,
             }}
             ref={squareDivRef}
