@@ -10,6 +10,7 @@ public record Move
     public IReadOnlyList<MoveSideEffect> SideEffects { get; init; }
     public SpecialMoveType SpecialMoveType { get; init; }
     public ForcedMovePriority ForcedPriority { get; init; }
+    public PieceType? PromotesTo { get; init; }
 
     public Move(
         AlgebraicPoint from,
@@ -19,7 +20,8 @@ public record Move
         IEnumerable<AlgebraicPoint>? capturedSquares = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
-        ForcedMovePriority forcedPriority = ForcedMovePriority.None
+        ForcedMovePriority forcedPriority = ForcedMovePriority.None,
+        PieceType? promotesTo = null
     )
     {
         From = from;
@@ -30,6 +32,7 @@ public record Move
         SideEffects = sideEffects?.ToList() ?? [];
         SpecialMoveType = specialMoveType;
         ForcedPriority = forcedPriority;
+        PromotesTo = promotesTo;
     }
 
     public IEnumerable<(AlgebraicPoint From, AlgebraicPoint To)> Flatten()

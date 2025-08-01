@@ -11,5 +11,5 @@ public class PawnDefinition : BasePawnDefinition
         ChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
-    ) => GetPawnBehaviours(movingPiece, maxInitialMoveDistance: 3);
+    ) => GetPawnBehaviours(board, movingPiece, maxInitialMoveDistance: 3);
 }

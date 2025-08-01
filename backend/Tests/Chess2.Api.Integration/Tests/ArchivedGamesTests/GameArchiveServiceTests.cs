@@ -223,6 +223,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                                 ToIdx = se.ToIdx,
                             })
                             .ToList() ?? [],
+                    PromotesTo = move.Path.PromotesTo,
                 }
         );
 }

@@ -11,5 +11,5 @@ public class UnderagePawnDefinition : BasePawnDefinition
         ChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
-    ) => GetPawnBehaviours(movingPiece, maxInitialMoveDistance: 2);
+    ) => GetPawnBehaviours(board, movingPiece, maxInitialMoveDistance: 2);
 }
