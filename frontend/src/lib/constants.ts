@@ -1,6 +1,7 @@
-import { PieceMap, PieceType } from "@/types/tempModels";
+import { PieceMap } from "@/types/tempModels";
 import {
     GameColor,
+    PieceType,
     TimeControl,
     TimeControlSettings,
 } from "./apiClient/definition/types.gen";
@@ -94,6 +95,18 @@ const DISPLAY_TIME_CONTROLS: TimeControl[] = [
 
 const INITIAL_FEN =
     "rhn1qkb1hr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKB1HR";
+
+const LETTER_TO_PIECE: Record<string, PieceType> = {
+    k: PieceType.KING,
+    q: PieceType.QUEEN,
+    r: PieceType.ROOK,
+    n: PieceType.KNOOK,
+    b: PieceType.BISHOP,
+    h: PieceType.HORSEY,
+    p: PieceType.PAWN,
+    d: PieceType.UNDERAGE_PAWN,
+};
+
 // prettier-ignore
 const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["0", { position: logicalPoint({ x: 0, y: 0 }), type: PieceType.ROOK, color: GameColor.WHITE }],
@@ -110,10 +123,10 @@ const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["8", { position: logicalPoint({ x: 0, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
     ["9", { position: logicalPoint({ x: 1, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
     ["10", { position: logicalPoint({ x: 2, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
-    ["11", { position: logicalPoint({ x: 3, y: 1 }), type: PieceType.UNDERAGEPAWN, color: GameColor.WHITE }],
+    ["11", { position: logicalPoint({ x: 3, y: 1 }), type: PieceType.UNDERAGE_PAWN, color: GameColor.WHITE }],
     ["12", { position: logicalPoint({ x: 4, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
     ["13", { position: logicalPoint({ x: 5, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
-    ["14", { position: logicalPoint({ x: 6, y: 1 }), type: PieceType.UNDERAGEPAWN, color: GameColor.WHITE }],
+    ["14", { position: logicalPoint({ x: 6, y: 1 }), type: PieceType.UNDERAGE_PAWN, color: GameColor.WHITE }],
     ["15", { position: logicalPoint({ x: 7, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
     ["16", { position: logicalPoint({ x: 8, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
     ["17", { position: logicalPoint({ x: 9, y: 1 }), type: PieceType.PAWN, color: GameColor.WHITE }],
@@ -125,10 +138,10 @@ const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["18", { position: logicalPoint({ x: 0, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
     ["19", { position: logicalPoint({ x: 1, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
     ["20", { position: logicalPoint({ x: 2, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
-    ["21", { position: logicalPoint({ x: 3, y: 8 }), type: PieceType.UNDERAGEPAWN, color: GameColor.BLACK }],
+    ["21", { position: logicalPoint({ x: 3, y: 8 }), type: PieceType.UNDERAGE_PAWN, color: GameColor.BLACK }],
     ["22", { position: logicalPoint({ x: 4, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
     ["23", { position: logicalPoint({ x: 5, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
-    ["24", { position: logicalPoint({ x: 6, y: 8 }), type: PieceType.UNDERAGEPAWN, color: GameColor.BLACK }],
+    ["24", { position: logicalPoint({ x: 6, y: 8 }), type: PieceType.UNDERAGE_PAWN, color: GameColor.BLACK }],
     ["25", { position: logicalPoint({ x: 7, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
     ["26", { position: logicalPoint({ x: 8, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
     ["27", { position: logicalPoint({ x: 9, y: 8 }), type: PieceType.PAWN, color: GameColor.BLACK }],
@@ -158,6 +171,7 @@ const constants = {
     PATHS,
     HEADERS,
     INITIAL_FEN,
+    LETTER_TO_PIECE,
     DEFAULT_CHESS_BOARD,
     SIGNALR_PATHS,
     PAGINATION_PAGE_SIZE,

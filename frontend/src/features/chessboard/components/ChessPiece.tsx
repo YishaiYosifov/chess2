@@ -9,6 +9,7 @@ import { PieceID, Point } from "@/types/tempModels";
 
 import ChessSquare, { ChessSquareRef } from "./ChessSquare";
 import useBoardInteraction from "../hooks/useBoardInteraction";
+import { GameColor, PieceType } from "@/lib/apiClient";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
@@ -82,6 +83,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
 
     if (!piece) return;
 
+    const pieceName = PieceType[piece.type].toLowerCase();
+    const pieceColor = GameColor[piece.color].toLowerCase();
     return (
         <ChessSquare
             data-testid="piece"
@@ -94,7 +97,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             )}
             ref={pieceRef}
             style={{
-                backgroundImage: `url("/assets/pieces/${piece.type}${piece.color}.png")`,
+                backgroundImage: `url("/assets/pieces/${pieceName}_${pieceColor}.png")`,
             }}
         />
     );

@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap, PieceType } from "@/types/tempModels";
+import { PieceMap } from "@/types/tempModels";
 import StaticChessboard from "../StaticChessboard";
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, PieceType } from "@/lib/apiClient";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 
 const mockBoard: PieceMap = new Map([

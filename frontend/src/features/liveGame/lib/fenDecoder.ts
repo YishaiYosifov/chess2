@@ -1,6 +1,7 @@
-import { PieceID, PieceMap, PieceType } from "@/types/tempModels";
+import { PieceID, PieceMap } from "@/types/tempModels";
 import { GameColor } from "@/lib/apiClient";
 import { logicalPoint } from "@/lib/utils/pointUtils";
+import constants from "@/lib/constants";
 
 /**
  * Parse a fen into a PieceMap
@@ -32,7 +33,8 @@ export function decodeFen(fen: string): PieceMap {
                 square == square.toUpperCase()
                     ? GameColor.WHITE
                     : GameColor.BLACK;
-            const pieceType = square.toLowerCase() as PieceType;
+            const pieceLetter = square.toLowerCase();
+            const pieceType = constants.LETTER_TO_PIECE[pieceLetter];
 
             board.set(pieceId, {
                 position: logicalPoint({ x, y }),

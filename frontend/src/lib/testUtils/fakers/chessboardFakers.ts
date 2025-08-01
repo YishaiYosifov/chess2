@@ -1,4 +1,4 @@
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, PieceType } from "@/lib/apiClient";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import {
     LegalMoveMap,
@@ -6,7 +6,6 @@ import {
     Move,
     Piece,
     PieceMap,
-    PieceType,
 } from "@/types/tempModels";
 import { faker } from "@faker-js/faker";
 
