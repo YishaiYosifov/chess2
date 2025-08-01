@@ -84,6 +84,7 @@ export default function useBoardInteraction({
 
         async function stopDragging(event: PointerEvent) {
             if (hasHandledPointerUpRef.current) return;
+            isDraggingRef.current = false;
 
             await callbacksRef.current.onDragEnd?.(
                 screenPoint({
@@ -96,7 +97,6 @@ export default function useBoardInteraction({
 
             setIsDragging(false);
             hasHandledPointerUpRef.current = true;
-            isDraggingRef.current = false;
         }
 
         window.addEventListener("pointermove", handleMove);

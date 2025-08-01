@@ -57,15 +57,15 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
 
             const x = point.x - offsetRef.current.x;
             const y = point.y - offsetRef.current.y;
-            pieceRef.current?.updateDraggingOffset(x, y);
+            pieceRef.current?.updateDraggingOffset({ x, y });
         },
 
         async onDragEnd(point) {
-            const didMove = await moveSelectedPieceToMouse({
+            await moveSelectedPieceToMouse({
                 mousePoint: point,
                 isDrag: true,
             });
-            if (!didMove) pieceRef.current?.updateDraggingOffset(0, 0);
+            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
         async onPress(info) {
             if (!isSelected) return;
@@ -76,7 +76,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             });
             if (didMove) moveOccurredOnPressRef.current = true;
 
-            pieceRef.current?.updateDraggingOffset(0, 0);
+            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
     });
 
@@ -96,6 +96,8 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             style={{
                 backgroundImage: `url("/assets/pieces/${piece.type}${piece.color}.png")`,
             }}
+            pieceType={piece.type}
+            pieceColor={piece.color}
         />
     );
 };
