@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
 import { useLiveChessStore } from "../hooks/useLiveChessStore";
 import Card from "@/components/ui/Card";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { BoardState } from "@/types/tempModels";
 import clsx from "clsx";
+import useAutoScroll from "@/hooks/useAutoScroll";
 
 const MoveHistoryTable = () => {
     const positionHistory = useLiveChessStore((x) => x.positionHistory);
@@ -12,6 +13,9 @@ const MoveHistoryTable = () => {
     const teleportToMove = useLiveChessStore((x) => x.teleportToMove);
     const teleportToLastMove = useLiveChessStore((x) => x.teleportToLastMove);
     const setPosition = useChessboardStore((x) => x.setPosition);
+
+    const tableRef = useRef<HTMLDivElement | null>(null);
+    useAutoScroll(tableRef, [positionHistory]);
 
     const moveRows: React.ReactElement[] = useMemo(() => {
         let rowIndex = 1;
@@ -52,7 +56,10 @@ const MoveHistoryTable = () => {
     }, [shiftMoveViewBy, setPosition, teleportToMove, teleportToLastMove]);
 
     return (
-        <Card className="block max-h-96 overflow-x-auto p-0 lg:max-h-full">
+        <Card
+            className="block max-h-96 overflow-x-auto p-0 lg:max-h-full"
+            ref={tableRef}
+        >
             <table className="w-full table-fixed">
                 <tbody>{moveRows}</tbody>
             </table>
