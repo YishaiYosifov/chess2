@@ -176,7 +176,7 @@ public class GameChatActor : ReceiveActor
     {
         var playersResult = await GetPlayersAsync();
         if (playersResult.IsError)
-            return playersResult.Errors;
+            return false;
 
         var isPlaying =
             playersResult.Value.WhitePlayer.UserId == userId
