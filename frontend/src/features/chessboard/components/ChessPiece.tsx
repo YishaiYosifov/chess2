@@ -96,8 +96,6 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             style={{
                 backgroundImage: `url("/assets/pieces/${piece.type}${piece.color}.png")`,
             }}
-            pieceType={piece.type}
-            pieceColor={piece.color}
         />
     );
 };
