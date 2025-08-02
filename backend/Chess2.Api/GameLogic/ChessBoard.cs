@@ -86,6 +86,12 @@ public class ChessBoard
             _board[from.Y, from.X] = null;
         }
 
+        if (move.PromotesTo is PieceType promotesTo)
+        {
+            var promotionPiece = _board[move.To.Y, move.To.X]!;
+            _board[move.To.Y, move.To.X] = promotionPiece with { Type = promotesTo };
+        }
+
         _moves.Add(move);
     }
 

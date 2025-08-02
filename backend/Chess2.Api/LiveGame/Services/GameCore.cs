@@ -3,21 +3,8 @@ using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.LiveGame.Models;
 using ErrorOr;
-using IReadonlyLegalMoveMap = System.Collections.Generic.IReadOnlyDictionary<
-    (
-        Chess2.Api.GameLogic.Models.AlgebraicPoint from,
-        Chess2.Api.GameLogic.Models.AlgebraicPoint to
-    ),
-    Chess2.Api.GameLogic.Models.Move
->;
-using LegalMoveMap = System.Collections.Generic.Dictionary<
-    (
-        Chess2.Api.GameLogic.Models.AlgebraicPoint from,
-        Chess2.Api.GameLogic.Models.AlgebraicPoint to
-    ),
-    Chess2.Api.GameLogic.Models.Move
->;
 
 namespace Chess2.Api.LiveGame.Services;
 
@@ -29,20 +16,7 @@ public interface IGameCore
 
     LegalMoveSet GetLegalMovesFor(GameColor forColor);
     void InitializeGame();
-    ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor);
-}
-
-public record LegalMoveSet(
-    IReadonlyLegalMoveMap MovesMap,
-    IReadOnlyCollection<MovePath> MovePaths,
-    IReadOnlyCollection<byte> EncodedMoves,
-    bool HasForcedMoves = false
-)
-{
-    public IEnumerable<Move> AllMoves => MovesMap.Values;
-
-    public LegalMoveSet()
-        : this(MovesMap: new LegalMoveMap(), MovePaths: [], EncodedMoves: []) { }
+    ErrorOr<MoveResult> MakeMove(MoveKey key, GameColor forColor);
 }
 
 public readonly record struct MoveResult(
@@ -86,11 +60,11 @@ public class GameCore(
         CalculateAllLegalMoves(GameColor.White);
     }
 
-    public ErrorOr<MoveResult> MakeMove(AlgebraicPoint from, AlgebraicPoint to, GameColor forColor)
+    public ErrorOr<MoveResult> MakeMove(MoveKey key, GameColor forColor)
     {
-        if (!LegalMoves.MovesMap.TryGetValue((from, to), out var move))
+        if (!LegalMoves.MovesMap.TryGetValue(key, out var move))
         {
-            _logger.LogWarning("Could not find move from {From} to {To}", from, to);
+            _logger.LogWarning("Could not find move with key {Key}", key);
             return GameErrors.MoveInvalid;
         }
 
@@ -126,10 +100,10 @@ public class GameCore(
         var movePaths = legalMoves.Select(move => MovePath.FromMove(move, _board.Width)).ToList();
         var encodedMoves = _moveEncoder.EncodeMoves(movePaths);
 
-        LegalMoveMap groupedMoves = [];
+        Dictionary<MoveKey, Move> groupedMoves = [];
         foreach (var move in legalMoves)
         {
-            var key = (move.From, move.To);
+            MoveKey key = new(From: move.From, To: move.To, PromotesTo: move.PromotesTo);
             if (!groupedMoves.TryAdd(key, move))
             {
                 _logger.LogWarning(

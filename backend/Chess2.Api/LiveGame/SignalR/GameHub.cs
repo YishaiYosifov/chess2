@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,7 @@ public class GameHub(
     private readonly ILiveGameService _gameService = gameService;
     private readonly IGameChatService _gameChatService = gameChatService;
 
-    public async Task MovePieceAsync(string gameToken, AlgebraicPoint from, AlgebraicPoint to)
+    public async Task MovePieceAsync(string gameToken, MoveKey key)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -48,7 +49,7 @@ public class GameHub(
             return;
         }
 
-        var response = await _gameService.MakeMoveAsync(gameToken, userId, from, to);
+        var response = await _gameService.MakeMoveAsync(gameToken, userId, key);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
