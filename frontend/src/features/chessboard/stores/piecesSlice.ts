@@ -2,6 +2,7 @@ import {
     BoardState,
     LogicalPoint,
     Move,
+    MoveKey,
     PieceID,
     PieceMap,
     ScreenPoint,
@@ -11,10 +12,12 @@ import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { pointToPiece, simulateMove } from "../lib/simulateMove";
 import { createMoveOptions } from "../lib/moveOptions";
+import { moveKeyToStr } from "../lib/moveKey";
+import { PieceType } from "@/lib/apiClient";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
-    onPieceMovement?: (from: LogicalPoint, to: LogicalPoint) => Promise<void>;
+    onPieceMovement?: (key: MoveKey) => Promise<void>;
 }
 
 export interface PiecesSlice {
@@ -24,6 +27,7 @@ export interface PiecesSlice {
     selectedPieceId: PieceID | null;
 
     onPieceMovement?: (from: LogicalPoint, to: LogicalPoint) => Promise<void>;
+    onPieceMovement?: (key: MoveKey) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
     tryApplySelectedMove(to: LogicalPoint): Promise<boolean>;
