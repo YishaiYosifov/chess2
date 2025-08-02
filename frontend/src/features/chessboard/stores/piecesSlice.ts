@@ -12,8 +12,6 @@ import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { pointToPiece, simulateMove } from "../lib/simulateMove";
 import { createMoveOptions } from "../lib/moveOptions";
-import { moveKeyToStr } from "../lib/moveKey";
-import { PieceType } from "@/lib/apiClient";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
@@ -29,7 +27,7 @@ export interface PiecesSlice {
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
-    tryApplySelectedMove(to: LogicalPoint): Promise<boolean>;
+    tryApplySelectedMove(dest: LogicalPoint): Promise<boolean>;
     handleMousePieceDrop({
         mousePoint,
         isDrag,
@@ -84,48 +82,34 @@ export function createPiecesSlice(
             });
         },
 
-        /**
-         * Attempts to move the currently selected piece to a new position, if the move is legal.
-         * Calls the onPieceMovement callback if defined, then applies the move and clears selection.
-         *
-         * @param to - The target position to move the selected piece to.
-         */
-        async tryApplySelectedMove(to) {
-            const strTo = pointToStr(to);
-
+        async tryApplySelectedMove(dest) {
             const {
                 selectedPieceId,
+                getLegalMove,
                 onPieceMovement,
                 applyMove,
-                moveOptions,
                 pieces,
             } = get();
             if (!selectedPieceId) {
                 console.warn(
-                    `Could not execute piece movement to ${strTo} ` +
+                    `Could not execute piece movement to ${pointToStr(dest)} ` +
                         "because no piece was selected",
                 );
                 return false;
             }
 
             const selectedPiece = pieces.get(selectedPieceId)!;
-            const from = selectedPiece.position;
-            const strFrom = pointToStr(from);
-
-            const moves = moveOptions.legalMoves.get(strFrom);
-            if (!moves) return false;
-
-            const move = moves?.find(
-                (candidateMove) =>
-                    pointEquals(candidateMove.to, to) ||
-                    candidateMove.triggers.some((triggerPoint) =>
-                        pointEquals(triggerPoint, to),
-                    ),
-            );
+            const move = await getLegalMove(selectedPiece.position, dest);
             if (!move) return false;
 
             applyMove(move);
-            await onPieceMovement?.(from, move.to);
+
+            const key: MoveKey = {
+                from: move.from,
+                to: move.to,
+                promotesTo: move.promotesTo,
+            };
+            await onPieceMovement?.(key);
 
             set((state) => {
                 state.moveOptions = createMoveOptions();
