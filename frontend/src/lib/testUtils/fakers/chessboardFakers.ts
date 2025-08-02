@@ -1,12 +1,10 @@
 import { GameColor, PieceType } from "@/lib/apiClient";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
-import {
-    LegalMoveMap,
-    LogicalPoint,
-    Move,
-    Piece,
-    PieceMap,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { Move } from "@/features/chessboard/lib/types";
+import { LegalMoveMap } from "@/features/chessboard/lib/types";
+import { PieceMap } from "@/features/chessboard/lib/types";
+import { Piece } from "@/features/chessboard/lib/types";
 import { faker } from "@faker-js/faker";
 
 export function createRandomPoint(): LogicalPoint {

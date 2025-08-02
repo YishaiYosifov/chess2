@@ -16,7 +16,8 @@ import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardSto
 import userEvent from "@testing-library/user-event";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
-import { Position, ProcessedMoveOptions } from "@/types/tempModels";
+import { Position } from "../../lib/types";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { mockScrollTo } from "@/lib/testUtils/mocks/mockDom";
 
 describe("MoveHistoryTable", () => {

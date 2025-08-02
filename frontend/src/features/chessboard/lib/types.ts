@@ -1,0 +1,39 @@
+import { GameColor, PieceType } from "@/lib/apiClient";
+import { LogicalPoint, StrPoint } from "@/features/point/types";
+
+export type PieceMap = Map<PieceID, Piece>;
+export type LegalMoveMap = Map<StrPoint, Move[]>;
+
+export interface MoveKey {
+    from: LogicalPoint;
+    to: LogicalPoint;
+    promotesTo: PieceType | null;
+}
+
+export interface Piece {
+    type: PieceType;
+    color: GameColor;
+    position: LogicalPoint;
+}
+
+export interface ProcessedMoveOptions {
+    legalMoves: LegalMoveMap;
+    hasForcedMoves: boolean;
+}
+
+export interface Move {
+    from: LogicalPoint;
+    to: LogicalPoint;
+
+    triggers: LogicalPoint[];
+    captures: LogicalPoint[];
+    sideEffects: MoveSideEffect[];
+    promotesTo: PieceType | null;
+}
+
+export interface MoveSideEffect {
+    from: LogicalPoint;
+    to: LogicalPoint;
+}
+
+export type PieceID = `${number}`;

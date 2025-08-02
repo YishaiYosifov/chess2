@@ -1,4 +1,4 @@
-import { ProcessedMoveOptions } from "@/types/tempModels";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 
 export function createMoveOptions(
     overrides: Partial<ProcessedMoveOptions> = {},

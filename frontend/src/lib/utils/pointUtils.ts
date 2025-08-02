@@ -1,10 +1,8 @@
-import {
-    LogicalPoint,
-    Point,
-    ScreenPoint,
-    StrPoint,
-    ViewPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { ViewPoint } from "@/features/point/types";
+import { ScreenPoint } from "@/features/point/types";
+import { Point } from "@/features/point/types";
+import { StrPoint } from "@/features/point/types";
 
 export function pointToStr(point: Point): StrPoint {
     return `${point.x},${point.y}`;

@@ -1,5 +1,8 @@
 import { pointEquals } from "@/lib/utils/pointUtils";
-import { LogicalPoint, Move, PieceID, PieceMap } from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { PieceID } from "./types";
+import { Move } from "./types";
+import { PieceMap } from "./types";
 
 export function simulateMove(
     pieces: PieceMap,

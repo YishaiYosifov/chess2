@@ -1,6 +1,6 @@
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 import { pointToPiece } from "../simulateMove";
-import { PieceMap } from "@/types/tempModels";
+import { PieceMap } from "../types";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("pointToPiece", () => {

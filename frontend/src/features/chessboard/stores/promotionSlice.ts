@@ -1,7 +1,8 @@
 import { StateCreator } from "zustand";
 
 import type { ChessboardState } from "./chessboardStore";
-import { LogicalPoint, Piece } from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { Piece } from "../lib/types";
 import { PieceType } from "@/lib/apiClient";
 
 export interface PromotionRequest {

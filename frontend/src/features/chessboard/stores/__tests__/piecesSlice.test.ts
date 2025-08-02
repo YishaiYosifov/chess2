@@ -7,15 +7,13 @@ import {
     createFakePieceMap,
     createFakePieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import {
-    LegalMoveMap,
-    LogicalPoint,
-    Piece,
-    PieceID,
-    PieceMap,
-    ProcessedMoveOptions,
-    ScreenPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { ScreenPoint } from "@/features/point/types";
+import { PieceID } from "../../lib/types";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
+import { LegalMoveMap } from "../../lib/types";
+import { PieceMap } from "../../lib/types";
+import { Piece } from "../../lib/types";
 import { logicalPoint, pointToStr, screenPoint } from "@/lib/utils/pointUtils";
 import { GameColor } from "@/lib/apiClient";
 import { createMoveOptions } from "../../lib/moveOptions";

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogicalPoint } from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
 
 import ChessSquare from "./ChessSquare";
 

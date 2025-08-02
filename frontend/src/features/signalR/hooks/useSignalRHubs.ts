@@ -4,7 +4,7 @@ import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
 import useSignalREmitter, {
     signalREmitterHookFactory,
 } from "./useSignalREmitter";
-import { MoveKey } from "@/types/tempModels";
+import { MoveKey } from "@/features/chessboard/lib/types";
 import {
     Clocks,
     GameColor,

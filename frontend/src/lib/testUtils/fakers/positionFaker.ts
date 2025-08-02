@@ -1,4 +1,4 @@
-import { Position } from "@/types/tempModels";
+import { Position } from "@/features/liveGame/lib/types";
 import { faker } from "@faker-js/faker";
 import { createFakePieceMap } from "./chessboardFakers";
 import { createFakeSan } from "./sanFaker";

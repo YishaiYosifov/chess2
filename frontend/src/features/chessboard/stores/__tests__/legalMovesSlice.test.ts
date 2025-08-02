@@ -5,16 +5,18 @@ import {
     createFakePiece,
     createFakePieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { LegalMoveMap } from "@/types/tempModels";
+import { LegalMoveMap, Piece } from "../../lib/types";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createMoveOptions } from "../../lib/moveOptions";
 import { PieceType } from "@/lib/apiClient";
 
 describe("LegalMoveSlice", () => {
     let store: StoreApi<ChessboardState>;
+    let piece: Piece;
 
     beforeEach(() => {
         store = createChessboardStore();
+        piece = createFakePiece();
     });
 
     describe("getLegalMove", () => {
@@ -26,7 +28,9 @@ describe("LegalMoveSlice", () => {
                 moveOptions: createMoveOptions({ legalMoves: new Map() }),
             });
 
-            const result = await store.getState().getLegalMove(origin, dest);
+            const result = await store
+                .getState()
+                .getLegalMove(origin, dest, piece);
             expect(result).toBeUndefined();
         });
 
@@ -45,7 +49,9 @@ describe("LegalMoveSlice", () => {
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
-            const result = await store.getState().getLegalMove(origin, dest);
+            const result = await store
+                .getState()
+                .getLegalMove(origin, dest, piece);
             expect(result).toBeUndefined();
         });
 
@@ -63,7 +69,9 @@ describe("LegalMoveSlice", () => {
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
-            const result = await store.getState().getLegalMove(origin, dest);
+            const result = await store
+                .getState()
+                .getLegalMove(origin, dest, piece);
             expect(result).toEqual(move);
         });
 
@@ -90,7 +98,9 @@ describe("LegalMoveSlice", () => {
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
-            const result = await store.getState().getLegalMove(origin, trigger);
+            const result = await store
+                .getState()
+                .getLegalMove(origin, trigger, piece);
             expect(result).toEqual(triggerMove);
         });
 
@@ -120,7 +130,7 @@ describe("LegalMoveSlice", () => {
 
             const getLegalMovePromise = store
                 .getState()
-                .getLegalMove(origin, dest);
+                .getLegalMove(origin, dest, piece);
 
             store.getState().resolvePromotion?.(PieceType.ROOK);
 
@@ -156,7 +166,7 @@ describe("LegalMoveSlice", () => {
 
             const getLegalMovePromise = store
                 .getState()
-                .getLegalMove(origin, dest);
+                .getLegalMove(origin, dest, piece);
 
             store.getState().resolvePromotion?.(null);
 

@@ -10,7 +10,8 @@ import {
 import { twMerge } from "tailwind-merge";
 
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import { LogicalPoint, Point } from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { Point } from "@/features/point/types";
 
 type ChessSquareProps = {
     position: LogicalPoint;

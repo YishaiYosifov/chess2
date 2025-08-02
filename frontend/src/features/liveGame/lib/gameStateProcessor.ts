@@ -2,11 +2,9 @@ import type { GameState } from "@/lib/apiClient";
 import { LiveChessStoreProps } from "../stores/liveChessStore";
 import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
 import { decodeFen } from "./fenDecoder";
-import {
-    ClockSnapshot,
-    Position,
-    ProcessedMoveOptions,
-} from "@/types/tempModels";
+import { ClockSnapshot } from "./types";
+import { Position } from "./types";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { decodePath, decodePathIntoMap } from "./moveDecoder";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import constants from "@/lib/constants";

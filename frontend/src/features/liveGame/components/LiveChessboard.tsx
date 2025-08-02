@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 
-import { MoveKey } from "@/types/tempModels";
+import { MoveKey } from "@/features/chessboard/lib/types";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,

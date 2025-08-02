@@ -2,12 +2,10 @@ import { StateCreator } from "zustand";
 
 import type { ChessboardState } from "./chessboardStore";
 import { GameColor } from "@/lib/apiClient";
-import {
-    LogicalPoint,
-    Point,
-    ScreenPoint,
-    ViewPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { ViewPoint } from "@/features/point/types";
+import { ScreenPoint } from "@/features/point/types";
+import { Point } from "@/features/point/types";
 import { logicalPoint, viewPoint } from "@/lib/utils/pointUtils";
 
 export interface BoardDimensions {

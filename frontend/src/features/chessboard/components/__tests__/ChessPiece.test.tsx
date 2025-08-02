@@ -1,12 +1,10 @@
 import { render, screen } from "@testing-library/react";
 
-import {
-    PieceMap,
-    Point,
-    LegalMoveMap,
-    Move,
-    LogicalPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { Point } from "@/features/point/types";
+import { Move } from "../../lib/types";
+import { LegalMoveMap } from "../../lib/types";
+import { PieceMap } from "../../lib/types";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import userEvent from "@testing-library/user-event";
 import { StoreApi } from "zustand";
