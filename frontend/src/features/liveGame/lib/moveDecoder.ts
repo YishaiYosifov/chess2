@@ -2,8 +2,7 @@ import brotliDecompress from "brotli/decompress";
 
 import { LegalMoveMap, Move, MoveSideEffect } from "@/types/tempModels";
 import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
-import { idxToLogicalPoint } from "@/lib/utils/pointUtils";
-import { moveToMoveKeyStr } from "@/features/chessboard/lib/moveKey";
+import { idxToLogicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 
 export function decodePathIntoMap(
     paths: MovePath[],
@@ -12,7 +11,11 @@ export function decodePathIntoMap(
     const moves: LegalMoveMap = new Map();
     for (const path of paths) {
         const move = decodePath(path, boardWidth);
-        moves.set(moveToMoveKeyStr(move), move);
+        const fromString = pointToStr(move.from);
+        const movesFromPoint = moves.get(fromString) ?? [];
+        movesFromPoint.push(move);
+
+        moves.set(pointToStr(move.from), movesFromPoint);
     }
     return moves;
 }
