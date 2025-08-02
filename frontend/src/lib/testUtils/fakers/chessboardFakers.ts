@@ -32,6 +32,7 @@ export function createFakeMove(override?: Partial<Move>): Move {
         triggers: [createRandomPoint(), createRandomPoint()],
         captures: [createRandomPoint()],
         sideEffects: [],
+        promotesTo: faker.helpers.enumValue(PieceType),
         ...override,
     };
 }

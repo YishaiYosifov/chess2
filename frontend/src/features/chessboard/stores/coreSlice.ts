@@ -13,13 +13,6 @@ export const createCoreSlice: StateCreator<
     [],
     CoreSlice
 > = (set, _, store) => ({
-    /**
-     * Resets the entire chessboard state to defaults, then sets
-     * the provided pieces and legal moves
-     *
-     * @param pieces - The new piece map for the board.
-     * @param legalMoves - The new legal moves map.
-     */
     resetState(initState) {
         set(() => ({
             ...store.getInitialState(),
