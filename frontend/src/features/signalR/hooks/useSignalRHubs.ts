@@ -4,7 +4,7 @@ import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
 import useSignalREmitter, {
     signalREmitterHookFactory,
 } from "./useSignalREmitter";
-import { LogicalPoint } from "@/types/tempModels";
+import { MoveKey } from "@/types/tempModels";
 import {
     Clocks,
     GameColor,
@@ -53,7 +53,7 @@ export type GameClientEvents = {
 };
 
 type GameHubEvents = {
-    MovePieceAsync: [gameToken: string, from: LogicalPoint, to: LogicalPoint];
+    MovePieceAsync: [gameToken: string, key: MoveKey];
     EndGameAsync: [gameToken: string];
     SendChatAsync: [gameToken: string, message: string];
 };
