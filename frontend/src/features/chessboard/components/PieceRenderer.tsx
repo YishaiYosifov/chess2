@@ -5,6 +5,7 @@ import {
 import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
 import { pointToStr } from "@/lib/utils/pointUtils";
+import PromotionPrompt from "./PromotionPrompt";
 
 const PieceRenderer = () => {
     const pieces = usePieces();
@@ -22,6 +23,8 @@ const PieceRenderer = () => {
                     key={pointToStr(point)}
                 />
             ))}
+
+            <PromotionPrompt />
         </>
     );
 };

@@ -83,7 +83,8 @@ export default function useBoardInteraction({
         }
 
         async function stopDragging(event: PointerEvent) {
-            if (hasHandledPointerUpRef.current) return;
+            if (hasHandledPointerUpRef.current || !isDraggingRef.current)
+                return;
             isDraggingRef.current = false;
 
             await callbacksRef.current.onDragEnd?.(

@@ -3,6 +3,7 @@ import {
     Move,
     PieceID,
     ProcessedMoveOptions,
+    StrPoint,
 } from "@/types/tempModels";
 import { StateCreator } from "zustand";
 import { ChessboardState } from "./chessboardStore";
@@ -77,7 +78,7 @@ export function createLegalMovesSlice(
          *
          * @param pieceId - The ID of the piece for which to show legal moves.
          */
-        showLegalMoves(pieceId: PieceID): void {
+        showLegalMoves(pieceId) {
             const { moveOptions, pieces } = get();
             const piece = pieces.get(pieceId);
             if (!piece) {
@@ -88,17 +89,20 @@ export function createLegalMovesSlice(
             }
 
             const positionStr = pointToStr(piece.position);
-            const moves = moveOptions.legalMoves.get(positionStr);
+            const moves = moveOptions.legalMoves.get(positionStr) ?? [];
 
-            const toHighlightPoints = moves
-                ? [
-                      ...moves.map((m) => m.to),
-                      ...moves.map((m) => m.triggers).flat(),
-                  ]
-                : [];
+            const toHighlightPoints = new Map<StrPoint, LogicalPoint>();
+            for (const move of moves) {
+                toHighlightPoints.set(pointToStr(move.to), move.to);
+                for (const trigger of move.triggers) {
+                    toHighlightPoints.set(pointToStr(trigger), trigger);
+                }
+            }
 
             set((state) => {
-                state.highlightedLegalMoves = toHighlightPoints;
+                state.highlightedLegalMoves = Array.from(
+                    toHighlightPoints.values(),
+                );
             });
         },
 
