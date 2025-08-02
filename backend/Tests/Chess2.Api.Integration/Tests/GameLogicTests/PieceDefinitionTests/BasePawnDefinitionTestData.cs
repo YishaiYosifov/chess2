@@ -225,5 +225,29 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .WithDescription("black pawn can capture en passant")
         );
         #endregion
+
+        #region promotion
+        Add(
+            PieceTestCase
+                .From("f9", movedWhitePawn)
+                .GoesTo("f10", promotesTo: PieceType.Queen)
+                .GoesTo("f10", promotesTo: PieceType.Rook)
+                .GoesTo("f10", promotesTo: PieceType.Bishop)
+                .GoesTo("f10", promotesTo: PieceType.Horsey)
+                .GoesTo("f10", promotesTo: PieceType.Knook)
+                .WithDescription("white pawn can promote")
+        );
+
+        Add(
+            PieceTestCase
+                .From("f2", movedBlackPawn)
+                .GoesTo("f1", promotesTo: PieceType.Queen)
+                .GoesTo("f1", promotesTo: PieceType.Rook)
+                .GoesTo("f1", promotesTo: PieceType.Bishop)
+                .GoesTo("f1", promotesTo: PieceType.Horsey)
+                .GoesTo("f1", promotesTo: PieceType.Knook)
+                .WithDescription("black pawn can promote")
+        );
+        #endregion
     }
 }
