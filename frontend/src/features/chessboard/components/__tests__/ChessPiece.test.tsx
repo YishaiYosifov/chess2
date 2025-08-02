@@ -211,6 +211,7 @@ describe("ChessPiece", () => {
             triggers: [],
             captures: [],
             sideEffects: [],
+            promotesTo: null,
         };
         const legalMoves: LegalMoveMap = new Map([
             [pointToStr(startPos), [move]],
@@ -255,6 +256,7 @@ describe("ChessPiece", () => {
             triggers: [],
             captures: [],
             sideEffects: [],
+            promotesTo: null,
         };
 
         const legalMoves: LegalMoveMap = new Map([

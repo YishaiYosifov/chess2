@@ -22,6 +22,12 @@ export type LogicalPoint = Brand<Point, typeof logicalPointBrand>;
 
 export type StrPoint = `${number},${number}`;
 
+export interface MoveKey {
+    from: LogicalPoint;
+    to: LogicalPoint;
+    promotesTo: PieceType | null;
+}
+
 export interface Piece {
     type: PieceType;
     color: GameColor;
@@ -43,6 +49,7 @@ export interface Move {
     triggers: LogicalPoint[];
     captures: LogicalPoint[];
     sideEffects: MoveSideEffect[];
+    promotesTo: PieceType | null;
 }
 
 export interface MoveSideEffect {
