@@ -39,6 +39,12 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         sb.Append(NotateDestination(move));
         sb.Append(NotateSideCaptures(move));
 
+        if (move.PromotesTo is PieceType promotesTo)
+        {
+            sb.Append('=');
+            sb.Append(_pieceToLetter.GetLetter(promotesTo).ToUpper());
+        }
+
         return sb.ToString();
     }
 
