@@ -1,6 +1,7 @@
 import {
     LogicalPoint,
     Move,
+    Piece,
     PieceID,
     ProcessedMoveOptions,
     StrPoint,
@@ -21,6 +22,7 @@ export interface LegalMovesSlice {
     getLegalMove(
         origin: LogicalPoint,
         dest: LogicalPoint,
+        piece: Piece,
     ): Promise<Move | undefined>;
 
     showLegalMoves(pieceId: PieceID): void;
@@ -41,7 +43,7 @@ export function createLegalMovesSlice(
         ...initState,
         highlightedLegalMoves: [],
 
-        async getLegalMove(origin, dest) {
+        async getLegalMove(origin, dest, piece) {
             const { moveOptions, promptPromotion } = get();
 
             const movesFromOrigin = moveOptions.legalMoves.get(
@@ -68,6 +70,7 @@ export function createLegalMovesSlice(
             const promoteTo = await promptPromotion({
                 at: dest,
                 pieces: [...availablePromotions.keys()],
+                piece,
             });
             return availablePromotions.get(promoteTo);
         },

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { useChessboardStore } from "../hooks/useChessboard";
 import ChessSquare from "./ChessSquare";
-import { GameColor, PieceType } from "@/lib/apiClient";
+import { PieceType } from "@/lib/apiClient";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 import getPieceImage from "../lib/pieceImage";
 import { PromotionRequest } from "../stores/promotionSlice";
@@ -13,6 +13,7 @@ const PromotionPrompt = () => {
 
     return (
         <div
+            data-testid="promotionPromptOverlay"
             className="absolute inset-0 z-50 flex cursor-auto bg-black/60"
             onMouseDown={() => resolvePromotion?.(null)}
         >
@@ -39,6 +40,7 @@ const PromotionPiece = ({
     piece: PieceType | null;
 }) => {
     const resolvePromotion = useChessboardStore((x) => x.resolvePromotion);
+    const boardDimensions = useChessboardStore((x) => x.boardDimensions);
     if (!piece) return;
 
     function choosePiece(event: React.MouseEvent, piece: PieceType) {
@@ -46,15 +48,21 @@ const PromotionPiece = ({
         resolvePromotion?.(piece);
     }
 
+    const isCloserToBottom =
+        boardDimensions.height - pendingPromotion.at.y >
+        boardDimensions.height / 2;
+    const delta = isCloserToBottom ? index : -index;
+
     const position = logicalPoint({
         x: pendingPromotion.at.x,
-        y: pendingPromotion.at.y - index,
+        y: pendingPromotion.at.y + delta,
     });
 
     const isFirst = index === 0;
     const isLast = index === pendingPromotion.pieces.length - 1;
     return (
         <ChessSquare
+            data-testid="promotionPiece"
             position={position}
             className={clsx(
                 `border-secondary hover:bg-secondary cursor-pointer rounded-md border-3
@@ -64,7 +72,7 @@ const PromotionPiece = ({
                 isLast || "border-b-2",
             )}
             style={{
-                backgroundImage: `url("${getPieceImage(piece, GameColor.WHITE)}")`,
+                backgroundImage: `url("${getPieceImage(piece, pendingPromotion.piece.color)}")`,
             }}
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => choosePiece(e, piece)}
