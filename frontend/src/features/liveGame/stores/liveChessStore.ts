@@ -4,7 +4,9 @@ import { immer } from "zustand/middleware/immer";
 import { Clocks, GameColor, GamePlayer, GameResultData } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
-import { BoardState, Position, ProcessedMoveOptions } from "@/types/tempModels";
+import { BoardState } from "../lib/types";
+import { Position } from "../lib/types";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 export interface LiveChessStoreProps {

@@ -1,4 +1,4 @@
-import { MaybePromise } from "@/types/tempModels";
+import { MaybePromise } from "@/types/types";
 
 export type EventListener<TArgs extends unknown[], TResult = void> = (
     ...args: TArgs

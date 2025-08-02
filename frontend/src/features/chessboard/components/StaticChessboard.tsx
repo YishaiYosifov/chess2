@@ -3,7 +3,7 @@
 import { StoreApi } from "zustand";
 
 import constants from "@/lib/constants";
-import { type PieceMap } from "@/types/tempModels";
+import { type PieceMap } from "../lib/types";
 
 import { GameColor } from "@/lib/apiClient";
 import {

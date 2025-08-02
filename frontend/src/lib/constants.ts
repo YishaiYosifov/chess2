@@ -1,4 +1,4 @@
-import { PieceMap } from "@/types/tempModels";
+import { PieceMap } from "@/features/chessboard/lib/types";
 import {
     GameColor,
     PieceType,

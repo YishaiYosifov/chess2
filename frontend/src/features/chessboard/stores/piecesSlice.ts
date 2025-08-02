@@ -1,12 +1,10 @@
-import {
-    BoardState,
-    LogicalPoint,
-    Move,
-    MoveKey,
-    PieceID,
-    PieceMap,
-    ScreenPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { ScreenPoint } from "@/features/point/types";
+import { PieceID } from "../lib/types";
+import { BoardState } from "@/features/liveGame/lib/types";
+import { Move } from "../lib/types";
+import { PieceMap } from "../lib/types";
+import { MoveKey } from "../lib/types";
 import type { ChessboardState } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";

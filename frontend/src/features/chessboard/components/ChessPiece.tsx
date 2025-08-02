@@ -5,7 +5,8 @@ import {
     useChessboardStore,
     usePiece,
 } from "@/features/chessboard/hooks/useChessboard";
-import { PieceID, Point } from "@/types/tempModels";
+import { Point } from "@/features/point/types";
+import { PieceID } from "../lib/types";
 
 import ChessSquare, { ChessSquareRef } from "./ChessSquare";
 import useBoardInteraction from "../hooks/useBoardInteraction";

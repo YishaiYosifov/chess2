@@ -1,7 +1,8 @@
 import React, { JSX, useId, useRef } from "react";
 
 import { useChessboardStore } from "../hooks/useChessboard";
-import { Point, ViewPoint } from "@/types/tempModels";
+import { ViewPoint } from "@/features/point/types";
+import { Point } from "@/features/point/types";
 import { OverlayItem } from "../stores/overlaySlice";
 import { pointEquals } from "@/lib/utils/pointUtils";
 import useBoardInteraction from "../hooks/useBoardInteraction";

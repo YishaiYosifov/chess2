@@ -3,11 +3,9 @@ import { createStoreProps } from "../gameStateProcessor";
 import { createFakeGameState } from "@/lib/testUtils/fakers/gameStateFaker";
 import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
 import { LiveChessStoreProps } from "../../stores/liveChessStore";
-import {
-    LogicalPoint,
-    Position,
-    ProcessedMoveOptions,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { Position } from "../types";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import { logicalPoint } from "@/lib/utils/pointUtils";

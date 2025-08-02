@@ -3,7 +3,7 @@ import { enableMapSet } from "immer";
 import React from "react";
 
 import type { ChessboardState } from "./chessboardStore";
-import { ScreenPoint } from "@/types/tempModels";
+import { ScreenPoint } from "@/features/point/types";
 import { EventBus } from "@/lib/eventBus";
 import { screenPoint } from "@/lib/utils/pointUtils";
 

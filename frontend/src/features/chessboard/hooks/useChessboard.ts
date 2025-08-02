@@ -3,7 +3,7 @@ import { useStore } from "zustand";
 
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import { type ChessboardState } from "@/features/chessboard/stores/chessboardStore";
-import { PieceID } from "@/types/tempModels";
+import { PieceID } from "../lib/types";
 
 export function useChessboardStore<T>(
     selector: (store: ChessboardState) => T,

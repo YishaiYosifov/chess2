@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap } from "@/types/tempModels";
+import { PieceMap } from "../../lib/types";
 import StaticChessboard from "../StaticChessboard";
 import { GameColor, PieceType } from "@/lib/apiClient";
 import { logicalPoint } from "@/lib/utils/pointUtils";
