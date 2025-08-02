@@ -9,6 +9,8 @@ namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
 public class EnPassantRuleTests
 {
+    private readonly Offset _nullChain = new();
+
     [Theory]
     [ClassData(typeof(EnPassantRuleTestData))]
     public void Evaluate_allows_en_passant_move_when_conditions_are_met(
@@ -28,7 +30,7 @@ public class EnPassantRuleTests
         board.PlacePiece(enemyOrigin, enemyPiece);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemyPiece));
 
-        EnPassantRule behaviour = new(direction);
+        EnPassantRule behaviour = new(direction, _nullChain);
 
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
@@ -59,7 +61,7 @@ public class EnPassantRuleTests
         board.PlacePiece(enemyOrigin, enemy);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemy));
 
-        var behaviour = new EnPassantRule(direction);
+        var behaviour = new EnPassantRule(direction, _nullChain);
         var result = behaviour.Evaluate(board, origin, piece).ToList();
 
         result.Should().BeEmpty();
@@ -74,7 +76,7 @@ public class EnPassantRuleTests
 
         board.PlacePiece(origin, pawn);
 
-        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1));
+        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1), _nullChain);
         var result = behaviour.Evaluate(board, origin, pawn).ToList();
 
         result.Should().BeEmpty();
@@ -100,7 +102,7 @@ public class EnPassantRuleTests
         board.PlacePiece(origin, pawn);
         board.PlacePiece(enemyOrigin, enemy);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemy));
-        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1));
+        EnPassantRule behaviour = new(direction: new(X: -1, Y: 1), _nullChain);
 
         var result = behaviour.Evaluate(board, origin, pawn).ToList();
 
@@ -108,6 +110,117 @@ public class EnPassantRuleTests
             result.Should().NotBeEmpty();
         else
             result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Evaluate_allows_en_passant_chain_capture_with_multiple_captures()
+    {
+        ChessBoard board = new();
+
+        var whitePawn = PieceFactory.White(PieceType.Pawn);
+        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
+        var blackEnemy2 = PieceFactory.Black();
+        var blackEnemy3 = PieceFactory.Black();
+        var friendlyOnChain = PieceFactory.White();
+
+        AlgebraicPoint origin = new("e5");
+        AlgebraicPoint blackPawn1Start = new("d7");
+        AlgebraicPoint blackPawn1End = new("d5");
+        AlgebraicPoint blackEnemy2Pos = new("c6");
+        AlgebraicPoint blackEnemy3Pos = new("b7");
+        AlgebraicPoint whiteFriendlyOnChainPos = new("a8");
+
+        board.PlacePiece(origin, whitePawn);
+        board.PlacePiece(blackPawn1Start, blackPawn1);
+        board.PlacePiece(blackEnemy2Pos, blackEnemy2);
+        board.PlacePiece(blackEnemy3Pos, blackEnemy3);
+        board.PlacePiece(whiteFriendlyOnChainPos, friendlyOnChain);
+
+        board.PlayMove(new Move(blackPawn1Start, blackPawn1End, blackPawn1));
+
+        EnPassantRule behaviour = new(new Offset(-1, 1), new Offset(0, -1));
+
+        var moves = behaviour.Evaluate(board, origin, whitePawn).ToList();
+
+        moves.Should().HaveCount(3);
+
+        List<List<AlgebraicPoint>> expectedCapturesList =
+        [
+            [blackPawn1End],
+            [blackPawn1End, blackEnemy2Pos],
+            [blackPawn1End, blackEnemy2Pos, blackEnemy3Pos],
+        ];
+
+        for (int i = 0; i < moves.Count; i++)
+        {
+            moves[i].From.Should().Be(origin);
+            moves[i].CapturedSquares.Should().BeEquivalentTo(expectedCapturesList[i]);
+            moves[i].ForcedPriority.Should().Be(ForcedMovePriority.EnPassant);
+        }
+
+        moves[0].To.Should().Be(new AlgebraicPoint("d6"));
+        moves[1].To.Should().Be(new AlgebraicPoint("c7"));
+        moves[2].To.Should().Be(new AlgebraicPoint("b8"));
+    }
+
+    [Fact]
+    public void Evaluate_stops_chain_capture_at_board_boundaries()
+    {
+        ChessBoard board = new();
+
+        var whitePawn = PieceFactory.White(PieceType.Pawn);
+        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
+
+        // near left edge of board
+        AlgebraicPoint origin = new("b7");
+        AlgebraicPoint blackPawn1Start = new("a9");
+        AlgebraicPoint blackPawn1End = new("a7");
+
+        board.PlacePiece(origin, whitePawn);
+        board.PlacePiece(blackPawn1Start, blackPawn1);
+
+        board.PlayMove(new Move(blackPawn1Start, blackPawn1End, blackPawn1));
+
+        EnPassantRule behaviour = new(new Offset(-1, 1), new Offset(0, -1));
+
+        var moves = behaviour.Evaluate(board, origin, whitePawn).ToList();
+
+        // Should only have the initial en passant move, chain capture stops at boundary
+        moves.Should().HaveCount(1);
+        moves[0].To.Should().Be(new AlgebraicPoint("a8"));
+    }
+
+    [Fact]
+    public void Evaluate_stops_chain_capture_when_piece_blocks_the_chain()
+    {
+        ChessBoard board = new();
+
+        var whitePawn = PieceFactory.White(PieceType.Pawn);
+        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
+        var blackEnemy1 = PieceFactory.Black();
+        var blackBlocker = PieceFactory.Black();
+
+        AlgebraicPoint origin = new("e5");
+        AlgebraicPoint blackPawn1Start = new("d7");
+        AlgebraicPoint blackPawn1End = new("d5");
+        AlgebraicPoint blackEnemy1Pos = new("c6");
+        AlgebraicPoint blackBlockerPos = new("c7");
+
+        board.PlacePiece(origin, whitePawn);
+        board.PlacePiece(blackPawn1Start, blackPawn1);
+        board.PlacePiece(blackEnemy1Pos, blackEnemy1);
+        board.PlacePiece(blackBlockerPos, blackBlocker);
+
+        board.PlayMove(new Move(blackPawn1Start, blackPawn1End, blackPawn1));
+
+        var behaviour = new EnPassantRule(new Offset(-1, 1), new Offset(0, -1));
+
+        var moves = behaviour.Evaluate(board, origin, whitePawn).ToList();
+
+        // Only initial en passant move possible, chain blocked at c6 by non-capturable square (empty or own piece)
+        moves.Should().HaveCount(1);
+        moves[0].To.Should().Be(new AlgebraicPoint("d6"));
+        moves[0].CapturedSquares.Should().BeEquivalentTo([blackPawn1End]);
     }
 }
 
