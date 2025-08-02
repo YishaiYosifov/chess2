@@ -33,8 +33,7 @@ public interface ILiveGameService
     Task<ErrorOr<Success>> MakeMoveAsync(
         string gameToken,
         string userId,
-        AlgebraicPoint from,
-        AlgebraicPoint to,
+        MoveKey key,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(
@@ -115,13 +114,12 @@ public class LiveGameService(
     public async Task<ErrorOr<Success>> MakeMoveAsync(
         string gameToken,
         string userId,
-        AlgebraicPoint from,
-        AlgebraicPoint to,
+        MoveKey key,
         CancellationToken token = default
     )
     {
         var response = await _gameActor.ActorRef.AskExpecting<GameResponses.PieceMoved>(
-            new GameCommands.MovePiece(gameToken, userId, from, to),
+            new GameCommands.MovePiece(gameToken, userId, key),
             token
         );
         if (response.IsError)

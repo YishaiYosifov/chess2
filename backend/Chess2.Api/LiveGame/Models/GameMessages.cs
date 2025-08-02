@@ -1,5 +1,4 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 
 namespace Chess2.Api.LiveGame.Models;
 
@@ -20,8 +19,7 @@ public class GameCommands
 
     public record TickClock;
 
-    public record MovePiece(string GameToken, string UserId, AlgebraicPoint From, AlgebraicPoint To)
-        : IGameMessage;
+    public record MovePiece(string GameToken, string UserId, MoveKey Key) : IGameMessage;
 
     public record EndGame(string GameToken, string UserId) : IGameMessage;
 

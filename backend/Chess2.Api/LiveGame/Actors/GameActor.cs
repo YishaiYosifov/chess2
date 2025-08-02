@@ -176,7 +176,7 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        var makeMoveResult = _core.MakeMove(movePiece.From, movePiece.To, currentPlayer.Color);
+        var makeMoveResult = _core.MakeMove(movePiece.Key, currentPlayer.Color);
         if (makeMoveResult.IsError)
         {
             Sender.ReplyWithError(makeMoveResult.Errors);

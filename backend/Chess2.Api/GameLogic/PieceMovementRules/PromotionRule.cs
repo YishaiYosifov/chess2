@@ -27,9 +27,11 @@ public class PromotionRule(
         {
             foreach (var move in rule.Evaluate(board, position, movingPiece))
             {
-                yield return move;
                 if (!_predicate(board, move))
+                {
+                    yield return move;
                     continue;
+                }
 
                 foreach (var pieceType in _promotesTo)
                 {
