@@ -166,8 +166,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             new GameCommands.MovePiece(
                 TestGameToken,
                 _blackPlayer.UserId,
-                new AlgebraicPoint("a2"),
-                new AlgebraicPoint("c4")
+                Key: new(From: new AlgebraicPoint("a2"), To: new AlgebraicPoint("c4"))
             ),
             _probe
         );
@@ -231,8 +230,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             new GameCommands.MovePiece(
                 TestGameToken,
                 _whitePlayer.UserId,
-                new AlgebraicPoint("e2"),
-                new AlgebraicPoint("e8")
+                Key: new(From: new AlgebraicPoint("e2"), To: new AlgebraicPoint("e8"))
             ),
             _probe
         );
@@ -405,7 +403,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
     private async Task MakeLegalMoveAsync(GamePlayer player, AlgebraicPoint from, AlgebraicPoint to)
     {
-        _gameActor.Tell(new GameCommands.MovePiece(TestGameToken, player.UserId, from, to), _probe);
+        _gameActor.Tell(
+            new GameCommands.MovePiece(TestGameToken, player.UserId, Key: new(from, to)),
+            _probe
+        );
 
         await _probe.ExpectMsgAsync<GameResponses.PieceMoved>(
             cancellationToken: ApiTestBase.CT,

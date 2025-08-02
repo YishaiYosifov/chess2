@@ -3,6 +3,7 @@ using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
@@ -61,8 +62,16 @@ public class GameCoreTests
         var blackMoves = _gameCore.GetLegalMovesFor(GameColor.Black);
 
         whiteMoves.MovesMap.Should().HaveCount(2);
-        whiteMoves.MovesMap.Should().ContainKey((m1.From, m1.To)).WhoseValue.Should().Be(m1);
-        whiteMoves.MovesMap.Should().ContainKey((m2.From, m2.To)).WhoseValue.Should().Be(m2);
+        whiteMoves
+            .MovesMap.Should()
+            .ContainKey(new MoveKey(m1.From, m1.To))
+            .WhoseValue.Should()
+            .Be(m1);
+        whiteMoves
+            .MovesMap.Should()
+            .ContainKey(new MoveKey(m2.From, m2.To))
+            .WhoseValue.Should()
+            .Be(m2);
         whiteMoves.MovePaths.Should().BeEquivalentTo(movePaths);
         whiteMoves.EncodedMoves.Should().BeEquivalentTo(movesEnc);
         whiteMoves.HasForcedMoves.Should().BeFalse();
@@ -88,7 +97,7 @@ public class GameCoreTests
         AlgebraicPoint from = new("e2");
         AlgebraicPoint to = new("e4");
 
-        var result = _gameCore.MakeMove(from, to, GameColor.White);
+        var result = _gameCore.MakeMove(new(from, to), GameColor.White);
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
@@ -108,7 +117,7 @@ public class GameCoreTests
         _gameCore.InitializeGame();
 
         _fenCalculatorMock.CalculateFen(Arg.Any<ChessBoard>()).Returns("updated-fen");
-        var result = _gameCore.MakeMove(move.From, move.To, GameColor.White);
+        var result = _gameCore.MakeMove(new(move.From, move.To), GameColor.White);
 
         result.IsError.Should().BeFalse();
         result
@@ -129,11 +138,11 @@ public class GameCoreTests
         SetupLegalMove(move2, forColor: GameColor.Black);
         _gameCore.InitializeGame();
 
-        var result1 = _gameCore.MakeMove(move1.From, move1.To, GameColor.White);
+        var result1 = _gameCore.MakeMove(new(move1.From, move1.To), GameColor.White);
         result1.IsError.Should().BeFalse();
         _gameCore.SideToMove.Should().Be(GameColor.Black);
 
-        var result2 = _gameCore.MakeMove(move2.From, move2.To, GameColor.Black);
+        var result2 = _gameCore.MakeMove(new(move2.From, move2.To), GameColor.Black);
         result2.IsError.Should().BeFalse();
         _gameCore.SideToMove.Should().Be(GameColor.White);
     }
@@ -156,7 +165,7 @@ public class GameCoreTests
             });
         _gameCore.InitializeGame();
 
-        var result = _gameCore.MakeMove(move.From, move.To, GameColor.White);
+        var result = _gameCore.MakeMove(new(move.From, move.To), GameColor.White);
 
         result.IsError.Should().BeFalse();
         result.Value.EndStatus.Should().Be(drawStatus);
@@ -212,7 +221,10 @@ public class GameCoreTests
         var result = _gameCore.GetLegalMovesFor(GameColor.White);
         result.MovesMap.Should().HaveCount(maxPriority.Length);
         foreach (var move in maxPriority)
-            result.MovesMap.Should().ContainKey((move.From, move.To)).WhoseValue.Should().Be(move);
+        {
+            MoveKey key = new(move.From, move.To);
+            result.MovesMap.Should().ContainKey(key).WhoseValue.Should().Be(move);
+        }
 
         result.MovePaths.Should().BeEquivalentTo(expectedPaths);
         result.EncodedMoves.Should().BeEquivalentTo([1, 2, 3]);

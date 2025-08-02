@@ -20,8 +20,8 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().HaveCount(3 + _expectedPromotionTargets.Count);
-        result.Should().Contain([Move1, Move2, Move3]);
+        result.Should().HaveCount(2 + _expectedPromotionTargets.Count);
+        result.Should().Contain([Move1, Move3]);
 
         var promotionMoves = result.Where(m => m.To == Move2.To && m.PromotesTo != null).ToList();
         promotionMoves.Select(m => m.PromotesTo).Should().BeEquivalentTo(_expectedPromotionTargets);
