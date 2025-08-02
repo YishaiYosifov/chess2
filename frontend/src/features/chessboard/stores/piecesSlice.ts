@@ -26,7 +26,6 @@ export interface PiecesSlice {
     animatingPieces: Set<PieceID>;
     selectedPieceId: PieceID | null;
 
-    onPieceMovement?: (from: LogicalPoint, to: LogicalPoint) => Promise<void>;
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
