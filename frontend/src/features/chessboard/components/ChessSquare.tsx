@@ -68,6 +68,7 @@ const ChessSquare: ForwardRefRenderFunction<
 
     return (
         <div
+            data-position={position}
             className={twMerge(
                 "absolute transform will-change-transform",
                 className,
