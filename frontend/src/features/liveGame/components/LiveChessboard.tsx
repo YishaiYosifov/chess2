@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 
-import { LogicalPoint } from "@/types/tempModels";
+import { MoveKey } from "@/types/tempModels";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
@@ -43,8 +43,8 @@ const LiveChessboard = ({
 
     const sendGameEvent = useGameEmitter(gameToken);
     const sendMove = useCallback(
-        async (from: LogicalPoint, to: LogicalPoint) => {
-            await sendGameEvent("MovePieceAsync", gameToken, from, to);
+        async (key: MoveKey) => {
+            await sendGameEvent("MovePieceAsync", gameToken, key);
         },
         [sendGameEvent, gameToken],
     );
