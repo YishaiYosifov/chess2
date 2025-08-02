@@ -12,7 +12,7 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_doesnt_disambiguate_when_not_necessary()
     {
-        var move = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move = new(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
 
         var san = _calculator.CalculateSan(move, [move]);
 
@@ -22,8 +22,8 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_disambiguates_by_file()
     {
-        var move1 = new Move(new("b1"), new("d2"), PieceFactory.White(PieceType.Horsey));
-        var move2 = new Move(new("f1"), new("d2"), PieceFactory.White(PieceType.Horsey));
+        Move move1 = new(new("b1"), new("d2"), PieceFactory.White(PieceType.Horsey));
+        Move move2 = new(new("f1"), new("d2"), PieceFactory.White(PieceType.Horsey));
 
         var san = _calculator.CalculateSan(move1, [move1, move2]);
 
@@ -33,8 +33,9 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_disambiguates_by_rank()
     {
-        var move1 = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var move2 = new Move(new("b6"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move1 = new(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move2 = new(new("b6"), new("c3"), PieceFactory.White(PieceType.Horsey));
+
         var san = _calculator.CalculateSan(move1, [move1, move2]);
 
         san.Should().Be("H1c3");
@@ -43,9 +44,9 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_disambiguates_by_both_file_and_rank()
     {
-        var move1 = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var move2 = new Move(new("b4"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var move3 = new Move(new("e1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move1 = new(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move2 = new(new("b4"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move move3 = new(new("e1"), new("c3"), PieceFactory.White(PieceType.Horsey));
 
         var san = _calculator.CalculateSan(move1, [move1, move2, move3]);
 
@@ -55,8 +56,8 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_doesnt_disambiguate_with_the_same_piece_type_on_different_destination()
     {
-        var move = new Move(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
-        var otherMove = new Move(new("d2"), new("d4"), PieceFactory.White(PieceType.Horsey));
+        Move move = new(new("b1"), new("c3"), PieceFactory.White(PieceType.Horsey));
+        Move otherMove = new(new("d2"), new("d4"), PieceFactory.White(PieceType.Horsey));
 
         var san = _calculator.CalculateSan(move, [move, otherMove]);
 
@@ -66,8 +67,8 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_doesnt_disambiguate_with_different_piece_type_to_same_destination()
     {
-        var move = new Move(new("e2"), new("e4"), PieceFactory.White(PieceType.Rook));
-        var otherMove = new Move(new("e7"), new("e4"), PieceFactory.White(PieceType.Horsey));
+        Move move = new(new("e2"), new("e4"), PieceFactory.White(PieceType.Rook));
+        Move otherMove = new(new("e7"), new("e4"), PieceFactory.White(PieceType.Horsey));
 
         var san = _calculator.CalculateSan(move, [move, otherMove]);
 
@@ -79,7 +80,7 @@ public class SanCalculatorTests
     [InlineData(PieceType.UnderagePawn)]
     public void CalculateSan_doesnt_add_the_piece_letter_for_pawns(PieceType pawnType)
     {
-        var move = new Move(new("e2"), new("e4"), PieceFactory.White(pawnType));
+        Move move = new(new("e2"), new("e4"), PieceFactory.White(pawnType));
 
         var san = _calculator.CalculateSan(move, [move]);
 
@@ -89,7 +90,7 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_includes_destination_when_it_is_not_a_capture()
     {
-        var move = new Move(
+        Move move = new(
             new("d4"),
             new("e5"),
             PieceFactory.White(PieceType.Rook),
@@ -104,7 +105,7 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_adds_the_destination_to_the_start_when_multi_capturing()
     {
-        var move = new Move(
+        Move move = new(
             new("d4"),
             new("d5"),
             PieceFactory.White(PieceType.Rook),
@@ -121,7 +122,7 @@ public class SanCalculatorTests
     [InlineData(PieceType.UnderagePawn)]
     public void CalculateSan_handles_pawn_multi_capture_and_adds_file_letter(PieceType pawnType)
     {
-        var move = new Move(
+        Move move = new(
             new("e5"),
             new("f6"),
             PieceFactory.White(pawnType),
@@ -136,7 +137,7 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_handles_single_capture_when_destination_is_capture()
     {
-        var move = new Move(
+        Move move = new(
             new("e5"),
             new("f6"),
             PieceFactory.White(PieceType.Pawn),
@@ -153,7 +154,7 @@ public class SanCalculatorTests
     [InlineData(SpecialMoveType.QueensideCastle, "O-O-O")]
     public void CalculateSan_uses_castle_notation(SpecialMoveType moveType, string expectedNotation)
     {
-        var move = new Move(
+        Move move = new(
             new("a1"),
             new("a2"),
             PieceFactory.White(PieceType.King),
@@ -168,7 +169,7 @@ public class SanCalculatorTests
     [Fact]
     public void CalculateSan_adds_captures_for_castling()
     {
-        var move = new Move(
+        Move move = new(
             new("a1"),
             new("a2"),
             PieceFactory.White(PieceType.King),
@@ -179,5 +180,20 @@ public class SanCalculatorTests
         var san = _calculator.CalculateSan(move, [move]);
 
         san.Should().Be("O-Oxa3");
+    }
+
+    [Fact]
+    public void CalculateSan_includes_promotion_notation()
+    {
+        Move move = new(
+            new("e7"),
+            new("e8"),
+            PieceFactory.White(PieceType.Pawn),
+            promotesTo: PieceType.Queen
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("e8=Q");
     }
 }
