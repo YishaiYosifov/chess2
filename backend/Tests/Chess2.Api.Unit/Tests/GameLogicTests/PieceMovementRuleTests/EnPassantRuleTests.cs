@@ -185,7 +185,7 @@ public class EnPassantRuleTests
 
         var moves = behaviour.Evaluate(board, origin, whitePawn).ToList();
 
-        // Should only have the initial en passant move, chain capture stops at boundary
+        // should only have the initial en passant move, chain capture stops at boundary
         moves.Should().HaveCount(1);
         moves[0].To.Should().Be(new AlgebraicPoint("a8"));
     }
