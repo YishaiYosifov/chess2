@@ -9,7 +9,6 @@ import { PieceID, Point } from "@/types/tempModels";
 
 import ChessSquare, { ChessSquareRef } from "./ChessSquare";
 import useBoardInteraction from "../hooks/useBoardInteraction";
-import { GameColor, PieceType } from "@/lib/apiClient";
 import getPieceImage from "../lib/pieceImage";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
