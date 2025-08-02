@@ -17,9 +17,11 @@ import { GameColor } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { createInteractionSlice, InteractionSlice } from "./interactionSlice";
 import { createMoveOptions } from "../lib/moveOptions";
+import { createPromotionSlice, PromotionSlice } from "./promotionSlice";
 
 export type ChessboardState = BoardSlice &
     PiecesSlice &
+    PromotionSlice &
     LegalMovesSlice &
     OverlaySlice &
     InteractionSlice &
@@ -47,6 +49,7 @@ export function createChessboardStore(
             immer((...a) => ({
                 ...createBoardSlice(initState)(...a),
                 ...createPiecesSlice(initState)(...a),
+                ...createPromotionSlice(...a),
                 ...createLegalMovesSlice(initState)(...a),
                 ...createOverlaySlice(...a),
                 ...createInteractionSlice(...a),
