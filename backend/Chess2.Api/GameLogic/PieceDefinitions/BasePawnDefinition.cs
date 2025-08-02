@@ -38,8 +38,14 @@ public abstract class BasePawnDefinition : IPieceDefinition
             ),
             new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
             new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
-            new EnPassantRule(new Offset(X: 1, Y: 1 * direction)),
-            new EnPassantRule(new Offset(X: -1, Y: 1 * direction))
+            new EnPassantRule(
+                direction: new Offset(X: 1, Y: 1 * direction),
+                chainCaptureDirection: new Offset(X: 0, Y: -direction)
+            ),
+            new EnPassantRule(
+                direction: new Offset(X: -1, Y: 1 * direction),
+                chainCaptureDirection: new Offset(X: 0, Y: -direction)
+            )
         );
     }
 }
