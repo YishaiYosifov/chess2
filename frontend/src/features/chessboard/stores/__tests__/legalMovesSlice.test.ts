@@ -184,36 +184,43 @@ describe("LegalMoveSlice", () => {
             expect(store.getState().highlightedLegalMoves.length).toBe(0);
         });
 
-        it("should set highlightedLegalMoves correctly", () => {
-            const piece1 = createFakePiece();
-            const piece1Move1 = createFakeMove({
-                from: piece1.position,
-            });
-            const piece1Move2 = createFakeMove({
-                from: piece1.position,
+        it("should set highlightedLegalMoves with unique points from 'to' and 'triggers'", () => {
+            const piece = createFakePiece();
+            const move1To = logicalPoint({ x: 3, y: 3 });
+            const move2To = logicalPoint({ x: 4, y: 4 });
+            const trigger1 = logicalPoint({ x: 5, y: 5 });
+            const trigger2 = move1To; // same as move1To to test deduplication
+
+            const move1 = createFakeMove({
+                from: piece.position,
+                to: move1To,
+                triggers: [trigger1, trigger2],
             });
 
-            const piece2 = createFakePiece();
-            const piece2Move = createFakeMove({ from: piece2.position });
+            const move2 = createFakeMove({
+                from: piece.position,
+                to: move2To,
+                triggers: [],
+            });
 
             const legalMoves: LegalMoveMap = new Map([
-                [pointToStr(piece1.position), [piece1Move1, piece1Move2]],
-                [pointToStr(piece2.position), [piece2Move]],
+                [pointToStr(piece.position), [move1, move2]],
             ]);
+
             store.setState({
-                pieces: createFakePieceMapFromPieces(piece1, piece2),
+                pieces: createFakePieceMapFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
             store.getState().showLegalMoves("0");
 
             const state = store.getState();
-            expect(state.highlightedLegalMoves).toEqual([
-                piece1Move1.to,
-                piece1Move2.to,
-                ...piece1Move1.triggers,
-                ...piece1Move2.triggers,
-            ]);
+            const highlighted = state.highlightedLegalMoves;
+
+            expect(highlighted).toHaveLength(3);
+            expect(highlighted).toEqual(
+                expect.arrayContaining([move1To, move2To, trigger1]),
+            );
         });
     });
 });
