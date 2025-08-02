@@ -220,7 +220,7 @@ public class ChessBoardTests : BaseUnitTest
         board.PlayMove(move);
 
         board.PeekPieceAt(from).Should().BeNull();
-        Piece? promotedPiece = board.PeekPieceAt(to);
+        var promotedPiece = board.PeekPieceAt(to);
         promotedPiece
             .Should()
             .BeEquivalentTo(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
