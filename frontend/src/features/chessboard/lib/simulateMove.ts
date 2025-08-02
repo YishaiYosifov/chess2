@@ -20,6 +20,7 @@ export function simulateMove(
         movedPieceIds.add(fromId);
         const piece = { ...newPieces.get(fromId)! };
         piece.position = move.to;
+        piece.type = move.promotesTo ?? piece.type;
         newPieces.set(fromId, piece);
     }
 

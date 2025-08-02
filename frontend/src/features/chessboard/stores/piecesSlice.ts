@@ -99,7 +99,11 @@ export function createPiecesSlice(
             }
 
             const selectedPiece = pieces.get(selectedPieceId)!;
-            const move = await getLegalMove(selectedPiece.position, dest);
+            const move = await getLegalMove(
+                selectedPiece.position,
+                dest,
+                selectedPiece,
+            );
             if (!move) return false;
 
             applyMove(move);
