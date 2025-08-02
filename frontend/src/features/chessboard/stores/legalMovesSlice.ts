@@ -1,11 +1,13 @@
 import {
     LogicalPoint,
+    Move,
     PieceID,
     ProcessedMoveOptions,
 } from "@/types/tempModels";
 import { StateCreator } from "zustand";
 import { ChessboardState } from "./chessboardStore";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
+import { PieceType } from "@/lib/apiClient";
 
 export interface LegalMovesSliceProps {
     moveOptions: ProcessedMoveOptions;
@@ -14,6 +16,11 @@ export interface LegalMovesSliceProps {
 export interface LegalMovesSlice {
     moveOptions: ProcessedMoveOptions;
     highlightedLegalMoves: LogicalPoint[];
+
+    getLegalMove(
+        origin: LogicalPoint,
+        dest: LogicalPoint,
+    ): Promise<Move | undefined>;
 
     showLegalMoves(pieceId: PieceID): void;
     flashLegalMoves(): void;
@@ -32,6 +39,37 @@ export function createLegalMovesSlice(
     return (set, get) => ({
         ...initState,
         highlightedLegalMoves: [],
+
+        async getLegalMove(origin, dest) {
+            const { moveOptions, promptPromotion } = get();
+
+            const movesFromOrigin = moveOptions.legalMoves.get(
+                pointToStr(origin),
+            );
+            if (!movesFromOrigin) return;
+
+            const movesToDest = movesFromOrigin?.filter(
+                (candidateMove) =>
+                    pointEquals(candidateMove.to, dest) ||
+                    candidateMove.triggers.some((triggerPoint) =>
+                        pointEquals(triggerPoint, dest),
+                    ),
+            );
+
+            if (movesToDest.length === 0) return;
+            else if (movesToDest.length === 1) return movesToDest[0];
+
+            const availablePromotions = new Map<PieceType | null, Move>();
+            for (const move of movesToDest) {
+                availablePromotions.set(move.promotesTo, move);
+            }
+
+            const promoteTo = await promptPromotion({
+                at: dest,
+                pieces: [...availablePromotions.keys()],
+            });
+            return availablePromotions.get(promoteTo);
+        },
 
         /**
          * Highlights the legal moves available for the specified piece.

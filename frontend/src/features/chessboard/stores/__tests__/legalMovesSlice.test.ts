@@ -5,9 +5,10 @@ import {
     createFakePiece,
     createFakePieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { LegalMoveMap, PieceID } from "@/types/tempModels";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { LegalMoveMap } from "@/types/tempModels";
+import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createMoveOptions } from "../../lib/moveOptions";
+import { PieceType } from "@/lib/apiClient";
 
 describe("LegalMoveSlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -16,17 +17,161 @@ describe("LegalMoveSlice", () => {
         store = createChessboardStore();
     });
 
+    describe("getLegalMove", () => {
+        it("should return undefined if no legal moves exist for the origin", async () => {
+            const origin = logicalPoint({ x: 1, y: 2 });
+            const dest = logicalPoint({ x: 3, y: 3 });
+
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves: new Map() }),
+            });
+
+            const result = await store.getState().getLegalMove(origin, dest);
+            expect(result).toBeUndefined();
+        });
+
+        it("should return undefined if no move matches the destination", async () => {
+            const origin = logicalPoint({ x: 1, y: 1 });
+            const dest = logicalPoint({ x: 5, y: 5 });
+
+            const move = createFakeMove({
+                from: origin,
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [move]],
+            ]);
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store.getState().getLegalMove(origin, dest);
+            expect(result).toBeUndefined();
+        });
+
+        it("should return the single matching move if only one matches", async () => {
+            const origin = logicalPoint({ x: 2, y: 2 });
+            const dest = logicalPoint({ x: 3, y: 3 });
+
+            const move = createFakeMove({ from: origin, to: dest });
+
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [move]],
+            ]);
+
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store.getState().getLegalMove(origin, dest);
+            expect(result).toEqual(move);
+        });
+
+        it("should return a move that matches via trigger", async () => {
+            const origin = logicalPoint({ x: 4, y: 4 });
+            const trigger = logicalPoint({ x: 6, y: 6 });
+            const dest = logicalPoint({ x: 9, y: 9 });
+
+            const triggerMove = createFakeMove({
+                from: origin,
+                to: dest,
+                triggers: [trigger],
+            });
+            const regularMove = createFakeMove({
+                from: origin,
+                to: dest,
+            });
+
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [triggerMove, regularMove]],
+            ]);
+
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store.getState().getLegalMove(origin, trigger);
+            expect(result).toEqual(triggerMove);
+        });
+
+        it("should prompt for promotion and return the selected move when multiple moves match", async () => {
+            const origin = logicalPoint({ x: 0, y: 1 });
+            const dest = logicalPoint({ x: 0, y: 7 });
+
+            const queenMove = createFakeMove({
+                from: origin,
+                to: dest,
+                promotesTo: PieceType.QUEEN,
+            });
+
+            const rookMove = createFakeMove({
+                from: origin,
+                to: dest,
+                promotesTo: PieceType.ROOK,
+            });
+
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [queenMove, rookMove]],
+            ]);
+
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const getLegalMovePromise = store
+                .getState()
+                .getLegalMove(origin, dest);
+
+            store.getState().resolvePromotion?.(PieceType.ROOK);
+
+            const result = await getLegalMovePromise;
+            expect(result).toEqual(rookMove);
+        });
+
+        it("should return undefined if promotion is cancelled", async () => {
+            const origin = logicalPoint({ x: 0, y: 1 });
+            const dest = logicalPoint({ x: 0, y: 7 });
+
+            const queenMove = createFakeMove({
+                from: origin,
+                to: dest,
+                promotesTo: PieceType.QUEEN,
+            });
+
+            const horseyMove = createFakeMove({
+                from: origin,
+                to: dest,
+                promotesTo: PieceType.HORSEY,
+            });
+
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [queenMove, horseyMove]],
+            ]);
+
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+                pendingPromotion: null,
+                resolvePromotion: null,
+            });
+
+            const getLegalMovePromise = store
+                .getState()
+                .getLegalMove(origin, dest);
+
+            store.getState().resolvePromotion?.(null);
+
+            const result = await getLegalMovePromise;
+            expect(result).toBeUndefined();
+        });
+    });
+
     describe("showLegalMoves", () => {
-        it("should warn and return if no piece found by ID", () => {
-            const warnSpy = vi
-                .spyOn(console, "warn")
-                .mockImplementation(() => {});
-            store.setState({ pieces: new Map() });
+        it("should do nothing if no piece found by ID", () => {
+            store.setState({ pieces: new Map([["123", createFakePiece()]]) });
 
-            store.getState().showLegalMoves("1" as PieceID);
+            store.getState().showLegalMoves("1");
 
-            expect(warnSpy).toHaveBeenCalled();
-            warnSpy.mockRestore();
+            expect(store.getState().highlightedLegalMoves.length).toBe(0);
         });
 
         it("should set highlightedLegalMoves correctly", () => {

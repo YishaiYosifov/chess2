@@ -6,7 +6,7 @@ import { PieceType } from "@/lib/apiClient";
 
 export interface PromotionRequest {
     at: LogicalPoint;
-    pieces: PieceType[];
+    pieces: (PieceType | null)[];
 }
 
 export interface PromotionSlice {
