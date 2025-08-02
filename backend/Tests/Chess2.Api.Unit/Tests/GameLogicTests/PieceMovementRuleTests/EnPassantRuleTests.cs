@@ -217,7 +217,6 @@ public class EnPassantRuleTests
 
         var moves = behaviour.Evaluate(board, origin, whitePawn).ToList();
 
-        // Only initial en passant move possible, chain blocked at c6 by non-capturable square (empty or own piece)
         moves.Should().HaveCount(1);
         moves[0].To.Should().Be(new AlgebraicPoint("d6"));
         moves[0].CapturedSquares.Should().BeEquivalentTo([blackPawn1End]);
