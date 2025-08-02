@@ -163,6 +163,35 @@ describe("PiecesSlice", () => {
             expect(highlightedLegalMoves.length).toBe(0);
             expect(selectedPieceId).toBeNull();
         });
+
+        it("should call onPieceMovement with correct MoveKey after a valid move", async () => {
+            const position = logicalPoint({ x: 3, y: 3 });
+            const moveTo = logicalPoint({ x: 4, y: 4 });
+            const piece = createFakePiece({ position });
+
+            const move = createFakeMove({ from: position, to: moveTo });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(position), [move]],
+            ]);
+
+            const onPieceMovement = vi.fn();
+
+            store.setState({
+                selectedPieceId: "0",
+                pieces: new Map([["0", piece]]),
+                moveOptions: { legalMoves, hasForcedMoves: false },
+                onPieceMovement,
+            });
+
+            await store.getState().tryApplySelectedMove(moveTo);
+
+            expect(onPieceMovement).toHaveBeenCalledTimes(1);
+            expect(onPieceMovement).toHaveBeenCalledWith({
+                from: move.from,
+                to: move.to,
+                promotesTo: move.promotesTo,
+            });
+        });
     });
 
     describe("handleMousePieceDrop", () => {
