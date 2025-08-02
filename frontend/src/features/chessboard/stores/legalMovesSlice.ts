@@ -1,11 +1,8 @@
-import {
-    LogicalPoint,
-    Move,
-    Piece,
-    PieceID,
-    ProcessedMoveOptions,
-    StrPoint,
-} from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { PieceID, ProcessedMoveOptions } from "../lib/types";
+import { Move } from "../lib/types";
+import { StrPoint } from "@/features/point/types";
+import { Piece } from "../lib/types";
 import { StateCreator } from "zustand";
 import { ChessboardState } from "./chessboardStore";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";

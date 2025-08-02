@@ -1,6 +1,8 @@
 import brotliDecompress from "brotli/decompress";
 
-import { LegalMoveMap, Move, MoveSideEffect } from "@/types/tempModels";
+import { MoveSideEffect } from "@/features/chessboard/lib/types";
+import { Move } from "@/features/chessboard/lib/types";
+import { LegalMoveMap } from "@/features/chessboard/lib/types";
 import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
 import { idxToLogicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 

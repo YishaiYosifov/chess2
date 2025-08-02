@@ -10,7 +10,8 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameColor } from "@/lib/apiClient";
 import { createMoveOptions } from "../../lib/moveOptions";
-import { LogicalPoint, PieceID } from "@/types/tempModels";
+import { LogicalPoint } from "@/features/point/types";
+import { PieceID } from "../../lib/types";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("CoreSlice", () => {

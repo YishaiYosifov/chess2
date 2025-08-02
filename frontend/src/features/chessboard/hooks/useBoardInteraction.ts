@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { InteractionInfo } from "../stores/interactionSlice";
-import { MaybePromise, ScreenPoint } from "@/types/tempModels";
 import { useChessboardStore } from "./useChessboard";
 import { screenPoint } from "@/lib/utils/pointUtils";
+import { ScreenPoint } from "@/features/point/types";
+import { MaybePromise } from "@/types/types";
 
 export default function useBoardInteraction({
     shouldStartDrag,

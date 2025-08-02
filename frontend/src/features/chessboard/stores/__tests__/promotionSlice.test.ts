@@ -3,6 +3,7 @@ import { ChessboardState, createChessboardStore } from "../chessboardStore";
 import { StoreApi } from "zustand";
 import { PieceType } from "@/lib/apiClient";
 import { PromotionRequest } from "../promotionSlice";
+import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 
 describe("PromotionSlice", () => {
     let store: StoreApi<ChessboardState>;
@@ -21,6 +22,7 @@ describe("PromotionSlice", () => {
                     PieceType.UNDERAGE_PAWN,
                     PieceType.ROOK,
                 ],
+                piece: createFakePiece({ type: PieceType.PAWN }),
             };
 
             const promotionPromise = store
@@ -48,6 +50,7 @@ describe("PromotionSlice", () => {
             const promotionRequest: PromotionRequest = {
                 at: logicalPoint({ x: 2, y: 1 }),
                 pieces: [PieceType.QUEEN, PieceType.HORSEY],
+                piece: createFakePiece({ type: PieceType.PAWN }),
             };
 
             const promotionPromise = store

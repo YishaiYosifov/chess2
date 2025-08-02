@@ -7,7 +7,8 @@ import { Clocks, GameColor, GameResult, GameResultData } from "@/lib/apiClient";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
 import { createFakeClock } from "@/lib/testUtils/fakers/clockFaker";
-import { LegalMoveMap, ProcessedMoveOptions } from "@/types/tempModels";
+import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
+import { LegalMoveMap } from "@/features/chessboard/lib/types";
 import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
 
 describe("LiveChessStore", () => {

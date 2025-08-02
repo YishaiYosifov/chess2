@@ -1,4 +1,5 @@
-import { PieceID, PieceMap } from "@/types/tempModels";
+import { PieceID } from "@/features/chessboard/lib/types";
+import { PieceMap } from "@/features/chessboard/lib/types";
 import { GameColor } from "@/lib/apiClient";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 import constants from "@/lib/constants";
