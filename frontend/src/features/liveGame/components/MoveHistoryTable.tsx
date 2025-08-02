@@ -97,21 +97,21 @@ const MoveRow = ({
             <td className="w-10 bg-zinc-900 p-3">{index}.</td>
             <td
                 className={clsx(
-                    "cursor-pointer p-3",
+                    "cursor-pointer overflow-x-auto p-3",
                     isViewingWhite && selectedClass,
                 )}
                 onClick={() => setPosition(teleportToMove(whiteMoveIdx))}
             >
-                {moveWhite}
+                <div className="overflow-x-auto">{moveWhite}</div>
             </td>
             <td
                 className={clsx(
-                    "cursor-pointer p-3",
+                    "cursor-pointer overflow-x-auto p-3",
                     isViewingBlack && selectedClass,
                 )}
                 onClick={() => setPosition(teleportToMove(blackMoveIdx))}
             >
-                {moveBlack}
+                <div className="overflow-x-auto">{moveBlack}</div>
             </td>
         </tr>
     );
