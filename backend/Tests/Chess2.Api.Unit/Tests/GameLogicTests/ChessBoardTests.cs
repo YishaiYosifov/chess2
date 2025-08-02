@@ -11,20 +11,20 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void Constructor_initializes_board_correctly()
     {
-        var expectedPt = new AlgebraicPoint("c4");
-        var expectedPiece = PieceFactory.Black();
-        var outOfBoundsPoint = new AlgebraicPoint(2123, 3123);
-        var pieces = new Dictionary<AlgebraicPoint, Piece>
+        AlgebraicPoint expectedPt = new("c4");
+        Piece expectedPiece = PieceFactory.Black();
+        AlgebraicPoint outOfBoundsPoint = new(2123, 3123);
+        Dictionary<AlgebraicPoint, Piece> pieces = new()
         {
             [expectedPt] = expectedPiece,
             [outOfBoundsPoint] = PieceFactory.White(),
         };
 
-        var board = new ChessBoard(pieces);
+        ChessBoard board = new(pieces);
 
         var squares = board.EnumerateSquares();
         squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
-        foreach (var (point, piece) in board.EnumerateSquares())
+        foreach ((AlgebraicPoint point, Piece? piece) in board.EnumerateSquares())
         {
             if (point != expectedPt)
             {
@@ -39,10 +39,10 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void TryGetPieceAt_returns_false_when_the_piece_is_not_found()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         board.PlacePiece(new AlgebraicPoint("e6"), PieceFactory.White());
 
-        var result = board.TryGetPieceAt(new AlgebraicPoint("a1"), out var resultPiece);
+        bool result = board.TryGetPieceAt(new AlgebraicPoint("a1"), out Piece? resultPiece);
 
         result.Should().BeFalse();
         resultPiece.Should().BeNull();
@@ -51,12 +51,12 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void TryGetPieceAt_returns_true_and_the_piece_when_it_is_found()
     {
-        var pt = new AlgebraicPoint("b6");
-        var piece = PieceFactory.Black();
-        var board = new ChessBoard();
+        AlgebraicPoint pt = new("b6");
+        Piece piece = PieceFactory.Black();
+        ChessBoard board = new();
         board.PlacePiece(pt, piece);
 
-        var result = board.TryGetPieceAt(pt, out var resultPiece);
+        bool result = board.TryGetPieceAt(pt, out Piece? resultPiece);
 
         result.Should().BeTrue();
         resultPiece.Should().NotBeNull();
@@ -66,12 +66,12 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PeekPieceAt_returns_the_piece_if_it_exists()
     {
-        var pt = new AlgebraicPoint("e2");
-        var piece = PieceFactory.White();
-        var board = new ChessBoard();
+        AlgebraicPoint pt = new("e2");
+        Piece piece = PieceFactory.White();
+        ChessBoard board = new();
         board.PlacePiece(pt, piece);
 
-        var result = board.PeekPieceAt(pt);
+        Piece? result = board.PeekPieceAt(pt);
 
         result.Should().Be(piece);
     }
@@ -79,9 +79,9 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PeekPieceAt_returns_null_if_it_doesnt_exist()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
 
-        var result = board.PeekPieceAt(new AlgebraicPoint("b3"));
+        Piece? result = board.PeekPieceAt(new AlgebraicPoint("b3"));
 
         result.Should().BeNull();
     }
@@ -89,7 +89,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void IsEmpty_returns_true_when_the_square_is_empty()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         board.PlacePiece(new AlgebraicPoint("f8"), PieceFactory.Black());
         board.IsEmpty(new AlgebraicPoint("e4")).Should().BeTrue();
     }
@@ -97,8 +97,8 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void IsEmpty_returns_false_when_the_square_is_not_empty()
     {
-        var pt = new AlgebraicPoint("e3");
-        var board = new ChessBoard();
+        AlgebraicPoint pt = new("e3");
+        ChessBoard board = new();
         board.PlacePiece(pt, PieceFactory.White());
 
         board.IsEmpty(pt).Should().BeFalse();
@@ -107,16 +107,14 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PlayMove_with_a_regular_moves_correctly_moves_the_piece()
     {
-        var board = new ChessBoard();
-        var piece = PieceFactory.White();
-        board.PlacePiece(new AlgebraicPoint("e2"), piece);
-        var move = new Move(
-            from: new AlgebraicPoint("e2"),
-            to: new AlgebraicPoint("e4"),
-            piece: piece
-        );
+        ChessBoard board = new();
+        Piece piece = PieceFactory.White();
+        AlgebraicPoint from = new("e2");
+        AlgebraicPoint to = new("e4");
+        board.PlacePiece(from, piece);
+        Move move = new(from, to, piece);
 
-        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();
         expectedBoard[move.From] = null;
         expectedBoard[move.To] = piece with { TimesMoved = 1 };
 
@@ -128,20 +126,20 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PlayMove_with_a_capture_removes_captured_pieces_and_moves_piece()
     {
-        var board = new ChessBoard();
-        var pieceToMove = PieceFactory.White(PieceType.Pawn);
-        var pieceToCapture = PieceFactory.Black(PieceType.Rook);
+        ChessBoard board = new();
+        Piece pieceToMove = PieceFactory.White(PieceType.Pawn);
+        Piece pieceToCapture = PieceFactory.Black(PieceType.Rook);
         board.PlacePiece(new AlgebraicPoint("e2"), pieceToMove);
         board.PlacePiece(new AlgebraicPoint("e5"), pieceToCapture);
 
-        var move = new Move(
+        Move move = new(
             from: new AlgebraicPoint("e2"),
             to: new AlgebraicPoint("e4"),
             piece: pieceToMove,
             capturedSquares: [new AlgebraicPoint("e5")]
         );
 
-        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();
         expectedBoard[move.From] = null;
         expectedBoard[move.To] = pieceToMove with { TimesMoved = 1 };
         expectedBoard[new AlgebraicPoint("e5")] = null;
@@ -154,61 +152,78 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void PlayMove_throws_if_a_side_effect_is_invalid()
     {
-        var board = new ChessBoard();
-        var mainPiece = PieceFactory.White(PieceType.Pawn);
-        var sideEffectPiece1 = PieceFactory.White(PieceType.Bishop);
-        var sideEffectPiece2 = PieceFactory.Black(PieceType.Rook);
+        ChessBoard board = new();
+        Piece mainPiece = PieceFactory.White(PieceType.Pawn);
+        Piece sideEffectPiece1 = PieceFactory.White(PieceType.Bishop);
+        Piece sideEffectPiece2 = PieceFactory.Black(PieceType.Rook);
 
         board.PlacePiece(new AlgebraicPoint("e2"), mainPiece);
         board.PlacePiece(new AlgebraicPoint("a1"), sideEffectPiece1);
         board.PlacePiece(new AlgebraicPoint("b1"), sideEffectPiece2);
 
-        var sideEffect1 = new MoveSideEffect(
+        MoveSideEffect sideEffect1 = new(
             From: new AlgebraicPoint("a1"),
             To: new AlgebraicPoint("a2"),
             Piece: sideEffectPiece1
         );
 
-        var sideEffect2 = new MoveSideEffect(
+        MoveSideEffect sideEffect2 = new(
             From: new AlgebraicPoint("b1"),
             To: new AlgebraicPoint(15, 15), // Invalid (out of bounds)
             Piece: sideEffectPiece2
         );
 
-        var mainMove = new Move(
+        Move mainMove = new(
             from: new AlgebraicPoint("e2"),
             to: new AlgebraicPoint("e3"),
             piece: mainPiece,
             sideEffects: [sideEffect1, sideEffect2]
         );
 
-        var expectedBoard = board.EnumerateSquares().ToDictionary();
+        Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();
 
-        var act = () => board.PlayMove(mainMove);
+        Action act = () => board.PlayMove(mainMove);
 
         // Should fail due to sideEffect2 invalid move
         act.Should()
             .Throw<ArgumentOutOfRangeException>()
             .WithMessage("Move is out of board boundaries*")
             .WithParameterName("move");
+
         board.EnumerateSquares().ToDictionary().Should().BeEquivalentTo(expectedBoard);
     }
 
     [Fact]
     public void PlayMove_adds_move_to_move_history_when_successful()
     {
-        var board = new ChessBoard();
-        var piece = PieceFactory.White(PieceType.Pawn);
-        var move = new Move(
-            from: new AlgebraicPoint("e2"),
-            to: new AlgebraicPoint("e4"),
-            piece: piece
-        );
+        ChessBoard board = new();
+        Piece piece = PieceFactory.White(PieceType.Pawn);
+        Move move = new(from: new AlgebraicPoint("e2"), to: new AlgebraicPoint("e4"), piece: piece);
         board.PlacePiece(move.From, piece);
 
         board.PlayMove(move);
 
         board.Moves.Should().ContainSingle().Which.Should().BeEquivalentTo(move);
+    }
+
+    [Fact]
+    public void PlayMove_with_promotion_replaces_piece_type()
+    {
+        ChessBoard board = new();
+        Piece pawn = PieceFactory.White(PieceType.Pawn);
+        AlgebraicPoint from = new("e7");
+        AlgebraicPoint to = new("e8");
+        Move move = new(from, to, pawn, promotesTo: PieceType.Queen);
+
+        board.PlacePiece(from, pawn);
+
+        board.PlayMove(move);
+
+        board.PeekPieceAt(from).Should().BeNull();
+        Piece? promotedPiece = board.PeekPieceAt(to);
+        promotedPiece
+            .Should()
+            .BeEquivalentTo(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
     }
 
     [Theory]
@@ -218,8 +233,8 @@ public class ChessBoardTests : BaseUnitTest
     [InlineData(5, 10, false)]
     public void IsWithinBoundaries_checks_boundaries_correctly(int x, int y, bool expected)
     {
-        var board = new ChessBoard();
-        var point = new AlgebraicPoint(x, y);
+        ChessBoard board = new();
+        AlgebraicPoint point = new(x, y);
 
         board.IsWithinBoundaries(point).Should().Be(expected);
     }
@@ -227,7 +242,7 @@ public class ChessBoardTests : BaseUnitTest
     [Fact]
     public void EnumerateSquares_returns_all_squares()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
 
         var squares = board.EnumerateSquares();
 
