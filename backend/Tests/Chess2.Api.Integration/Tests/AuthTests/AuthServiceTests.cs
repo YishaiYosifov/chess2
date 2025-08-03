@@ -44,7 +44,7 @@ public class AuthServiceTests : BaseIntegrationTest
         var result = _authService.GetUserId(claims);
 
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(Error.Unauthorized());
+        result.FirstError.Should().Be(Error.Unauthorized());
     }
 
     [Fact]

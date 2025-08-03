@@ -125,7 +125,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
+        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
+        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
     }
 
     [Fact]
@@ -244,7 +244,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
+        result.FirstError.Should().Be(GameErrors.MoveInvalid);
     }
 
     [Fact]
@@ -358,7 +358,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     }
 
     [Fact]
-    public async Task EndGame_invalid_user_should_return_PlayerInvalid()
+    public async Task EndGame_returns_PlayerInvalid_error_for_invalid_players()
     {
         await StartGameAsync();
 
@@ -368,11 +368,11 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.PlayerInvalid);
+        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
     }
 
     [Fact]
-    public async Task EndGame_valid_user_should_return_Aborted_if_early_game()
+    public async Task EndGame_aborts_the_game_if_not_enough_moves_have_been_made()
     {
         await StartGameAsync();
 
@@ -444,7 +444,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
         stateResult.IsError.Should().BeTrue();
-        stateResult.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.GameAlreadyEnded);
+        stateResult.FirstError.Should().Be(GameErrors.GameAlreadyEnded);
     }
 
     private Move GetLegalMoveFor(GamePlayer player) =>
