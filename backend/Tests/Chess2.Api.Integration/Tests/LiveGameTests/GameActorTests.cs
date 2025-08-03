@@ -28,6 +28,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private readonly IGameResultDescriber _gameResultDescriber;
     private readonly ISanCalculator _sanCalculator;
     private readonly IGameCore _gameCore;
+    private readonly IDrawRequestHandler _drawRequestHandler;
     private readonly IActorRef _gameActor;
     private readonly TestProbe _probe;
     private readonly TestProbe _parentProbe;
@@ -47,6 +48,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
+        _drawRequestHandler =
+            ApiTestBase.Scope.ServiceProvider.GetRequiredService<IDrawRequestHandler>();
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         var clock = new GameClock(_timeProviderMock, _stopwatchMock);
@@ -62,6 +65,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
                         clock,
                         _gameResultDescriber,
                         _gameNotifierMock,
+                        _drawRequestHandler,
                         _timerMock
                     )
             )
@@ -149,6 +153,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             SideToMove: GameColor.White,
             InitialFen: _gameCore.InitialFen,
             MoveHistory: [],
+            DrawState: _drawRequestHandler.GetDrawState(),
             MoveOptions: new(
                 LegalMoves: legalMoves.MovePaths,
                 HasForcedMoves: legalMoves.HasForcedMoves

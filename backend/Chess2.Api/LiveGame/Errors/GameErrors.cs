@@ -19,4 +19,22 @@ public static class GameErrors
 
     public static Error MoveInvalid =>
         Error.Forbidden(ErrorCodes.GameMoveInvalid, "The provided move is illegal");
+
+    public static Error DrawAlreadyRequested =>
+        Error.Forbidden(
+            ErrorCodes.GameDrawAlreadyRequested,
+            "You already have a pending draw request"
+        );
+
+    public static Error DrawOnCooldown =>
+        Error.Forbidden(
+            ErrorCodes.GameDrawOnCooldown,
+            "You cannot a draw request as you are on cooldown"
+        );
+
+    public static Error DrawNotRequested =>
+        Error.Forbidden(
+            ErrorCodes.GameDrawNotRequested,
+            "You cannot decline a draw that doesn't exist"
+        );
 }

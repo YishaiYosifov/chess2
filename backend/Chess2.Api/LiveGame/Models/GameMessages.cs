@@ -24,6 +24,8 @@ public class GameCommands
     public record EndGame(string GameToken, string UserId) : IGameMessage;
 
     public record RequestDraw(string GameToken, string UserId) : IGameMessage;
+
+    public record DeclineDraw(string GameToken, string UserId) : IGameMessage;
 }
 
 public class GameQueries
@@ -46,4 +48,8 @@ public class GameResponses
     public record PieceMoved;
 
     public record GameEnded;
+
+    public record DrawRequested;
+
+    public record DrawDeclined;
 }
