@@ -54,7 +54,11 @@ export type GameClientEvents = {
 
 type GameHubEvents = {
     MovePieceAsync: [gameToken: string, key: MoveKey];
+
     EndGameAsync: [gameToken: string];
+    RequestDrawAsync: [gameToken: string];
+    DeclineDrawAsync: [gameToken: string];
+
     SendChatAsync: [gameToken: string, message: string];
 };
 
