@@ -1,4 +1,5 @@
-﻿using Akka.Actor;
+﻿using System.Diagnostics.CodeAnalysis;
+using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
 using Chess2.Api.GameSnapshot.Models;
@@ -108,16 +109,8 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private void HandleGetGameState(GameQueries.GetGameState getGameState)
     {
-        if (!_players.TryGetPlayerById(getGameState.ForUserId, out var player))
-        {
-            _logger.Warning(
-                "Could not find player {0} when trying to get state for game {1}",
-                getGameState.ForUserId,
-                _token
-            );
-            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+        if (!TryGetPlayer(getGameState.ForUserId, out var player))
             return;
-        }
 
         var gameState = GetGameStateForPlayer(player);
         Sender.Tell(new GameResponses.GameStateResponse(gameState));
@@ -139,16 +132,8 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task HandleDrawRequestAsync(GameCommands.RequestDraw requestDraw)
     {
-        if (!_players.TryGetPlayerById(requestDraw.UserId, out var player))
-        {
-            _logger.Warning(
-                "Could not find player {0} when trying to request draw for game {1}",
-                requestDraw.UserId,
-                _token
-            );
-            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+        if (!TryGetPlayer(requestDraw.UserId, out var player))
             return;
-        }
 
         if (_drawRequestHandler.HasPendingRequest(player.Color))
         {
@@ -169,16 +154,8 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task HandleDrawDeclineAsync(GameCommands.DeclineDraw declineDraw)
     {
-        if (!_players.TryGetPlayerById(declineDraw.UserId, out var _))
-        {
-            _logger.Warning(
-                "Could not find player {0} when trying to decline draw for game {1}",
-                declineDraw.UserId,
-                _token
-            );
-            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+        if (!TryGetPlayer(declineDraw.UserId, out var _))
             return;
-        }
 
         if (!_drawRequestHandler.TryDeclineDraw())
         {
@@ -192,16 +169,8 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
     {
-        if (!_players.TryGetPlayerById(endGame.UserId, out var player))
-        {
-            _logger.Warning(
-                "Could not find player {0} when trying to end game {1}",
-                endGame.UserId,
-                _token
-            );
-            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+        if (!TryGetPlayer(endGame.UserId, out var player))
             return;
-        }
 
         GameEndStatus endStatus;
         var isAbort = _historyTracker.MoveNumber < 2;
@@ -323,5 +292,16 @@ public class GameActor : ReceiveActor, IWithTimers
             ResultData: _result
         );
         return gameState;
+    }
+
+    private bool TryGetPlayer(string userId, [NotNullWhen(true)] out GamePlayer? player)
+    {
+        if (!_players.TryGetPlayerById(userId, out player))
+        {
+            _logger.Warning("Could not find player {0} in game {1}", userId, _token);
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+            return false;
+        }
+        return true;
     }
 }
