@@ -237,7 +237,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_valid_should_send_PieceMoved()
+    public async Task MovePiece_with_a_valid_move_creates_a_correct_move_made_notification()
     {
         await StartGameAsync();
         _stopwatchMock.Elapsed.Returns(TimeSpan.FromSeconds(2));
