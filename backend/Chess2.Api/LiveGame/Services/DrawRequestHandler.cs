@@ -61,5 +61,5 @@ public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHa
         _activeRequester is not null && _activeRequester != player;
 
     public DrawState GetDrawState() =>
-        new(ActiveRequester: _activeRequester, DrawCooldown: _drawCooldown.AsReadOnly());
+        new(ActiveRequester: _activeRequester, Cooldown: _drawCooldown.AsReadOnly());
 }
