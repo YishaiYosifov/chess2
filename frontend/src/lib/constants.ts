@@ -93,6 +93,8 @@ const DISPLAY_TIME_CONTROLS: TimeControl[] = [
     TimeControl.CLASSICAL,
 ];
 
+const ALLOW_ABORTION_UNTIL_MOVE = 2;
+
 const INITIAL_FEN =
     "rhn1qkb1hr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKB1HR";
 
@@ -170,6 +172,7 @@ const constants = {
     COOKIES,
     PATHS,
     HEADERS,
+    ALLOW_ABORTION_UNTIL_MOVE,
     INITIAL_FEN,
     LETTER_TO_PIECE,
     DEFAULT_CHESS_BOARD,
