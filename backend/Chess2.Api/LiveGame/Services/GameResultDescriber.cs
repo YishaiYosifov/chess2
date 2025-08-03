@@ -7,6 +7,7 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IGameResultDescriber
 {
     GameEndStatus Aborted(GameColor by);
+    GameEndStatus DrawByAgreement();
     GameEndStatus FiftyMoves();
     GameEndStatus Resignation(GameColor loser);
     GameEndStatus ThreeFold();
@@ -26,6 +27,8 @@ public class GameResultDescriber : IGameResultDescriber
     public GameEndStatus ThreeFold() => new(GameResult.Draw, "Draw by 3 Fold Repetition");
 
     public GameEndStatus FiftyMoves() => new(GameResult.Draw, "Draw by 50 Moves Rule");
+
+    public GameEndStatus DrawByAgreement() => new(GameResult.Draw, "Draw by Agreement");
 
     private static GameResult GetWinnerByLoser(GameColor loser) =>
         loser.Match(whenWhite: GameResult.BlackWin, whenBlack: GameResult.WhiteWin);

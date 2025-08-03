@@ -42,6 +42,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
             InitialFen: archive.InitialFen,
             MoveOptions: new(),
             MoveHistory: moveHistory,
+            DrawState: new(),
             ResultData: result
         );
     }

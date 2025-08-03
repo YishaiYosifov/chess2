@@ -347,16 +347,16 @@ builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
 builder.Services.AddSingleton<IGameResultDescriber, GameResultDescriber>();
 builder.Services.AddSingleton<IGameNotifier, GameNotifier>();
 builder.Services.AddSingleton<IArchivedGameStateBuilder, ArchivedGameStateBuilder>();
+builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddTransient<IGameClock, GameClock>();
+builder.Services.AddTransient<IDrawRequestHandler, DrawRequestHandler>();
 builder.Services.AddTransient<IDrawEvaulator, DrawEvaulator>();
 builder.Services.AddSingleton<ISanCalculator, SanCalculator>();
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
-builder.Services.AddScoped<IRatingService, RatingService>();
-
 builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
 builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 

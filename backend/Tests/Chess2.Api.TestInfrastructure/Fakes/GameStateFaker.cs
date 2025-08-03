@@ -30,6 +30,7 @@ public class GameStateFaker : RecordFaker<GameState>
         RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(x => x.MoveOptions, f => new MoveOptionsFaker().Generate());
         RuleFor(x => x.MoveHistory, f => new MoveSnapshotFaker().Generate(f.Random.Number(1, 6)));
+        RuleFor(x => x.DrawState, new DrawState());
         RuleFor(x => x.ResultData, (GameResultData?)null);
     }
 }

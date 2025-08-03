@@ -18,6 +18,7 @@ public class GameActor : ReceiveActor, IWithTimers
     private readonly IGameCore _core;
     private readonly IGameResultDescriber _resultDescriber;
     private readonly IGameNotifier _gameNotifier;
+    private readonly IDrawRequestHandler _drawRequestHandler;
     private readonly IGameClock _clock;
 
     private readonly PlayerRoster _players = new();
@@ -37,6 +38,7 @@ public class GameActor : ReceiveActor, IWithTimers
         IGameClock clock,
         IGameResultDescriber resultDescriber,
         IGameNotifier gameNotifier,
+        IDrawRequestHandler drawRequestHandler,
         ITimerScheduler? timerScheduler = null
     )
     {
@@ -50,6 +52,7 @@ public class GameActor : ReceiveActor, IWithTimers
         _clock = clock;
         _resultDescriber = resultDescriber;
         _gameNotifier = gameNotifier;
+        _drawRequestHandler = drawRequestHandler;
         Become(WaitingForStart);
     }
 
@@ -98,6 +101,8 @@ public class GameActor : ReceiveActor, IWithTimers
         ReceiveAsync<GameCommands.TickClock>(_ => HandleClockTickAsync());
 
         ReceiveAsync<GameCommands.EndGame>(HandleEndGameAsync);
+        ReceiveAsync<GameCommands.RequestDraw>(HandleDrawRequestAsync);
+        ReceiveAsync<GameCommands.DeclineDraw>(HandleDrawDeclineAsync);
         ReceiveAsync<GameCommands.MovePiece>(HandleMovePieceAsync);
     }
 
@@ -130,6 +135,59 @@ public class GameActor : ReceiveActor, IWithTimers
         await FinalizeGameAsync(player, _resultDescriber.Timeout(_core.SideToMove));
         if (!Sender.IsNobody())
             Sender.Tell(new GameResponses.GameEnded());
+    }
+
+    private async Task HandleDrawRequestAsync(GameCommands.RequestDraw requestDraw)
+    {
+        if (!_players.TryGetPlayerById(requestDraw.UserId, out var player))
+        {
+            _logger.Warning(
+                "Could not find player {0} when trying to request draw for game {1}",
+                requestDraw.UserId,
+                _token
+            );
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+            return;
+        }
+
+        if (_drawRequestHandler.HasPendingRequest(player.Color))
+        {
+            await FinalizeGameAsync(player, _resultDescriber.DrawByAgreement());
+            Sender.Tell(new GameResponses.DrawRequested());
+            return;
+        }
+
+        var requestResult = _drawRequestHandler.RequestDraw(player.Color);
+        if (requestResult.IsError)
+        {
+            Sender.ReplyWithError(requestResult.Errors);
+            return;
+        }
+        await _gameNotifier.NotifyDrawRequestAsync(_token);
+        Sender.Tell(new GameResponses.DrawRequested());
+    }
+
+    private async Task HandleDrawDeclineAsync(GameCommands.DeclineDraw declineDraw)
+    {
+        if (!_players.TryGetPlayerById(declineDraw.UserId, out var _))
+        {
+            _logger.Warning(
+                "Could not find player {0} when trying to decline draw for game {1}",
+                declineDraw.UserId,
+                _token
+            );
+            Sender.ReplyWithError(GameErrors.PlayerInvalid);
+            return;
+        }
+
+        if (!_drawRequestHandler.TryDeclineDraw())
+        {
+            Sender.ReplyWithError(GameErrors.DrawNotRequested);
+            return;
+        }
+
+        await _gameNotifier.NotifyDrawDeclinedAsync(_token);
+        Sender.Tell(new GameResponses.DrawDeclined());
     }
 
     private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
@@ -183,15 +241,20 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
         var moveResult = makeMoveResult.Value;
+
+        if (moveResult.EndStatus is not null)
+            await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
+
+        _drawRequestHandler.DecrementCooldown();
+        if (_drawRequestHandler.TryDeclineDraw())
+            await _gameNotifier.NotifyDrawDeclinedAsync(_token);
+
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
         var moveSnapshot = _historyTracker.RecordMove(
             moveResult.MovePath,
             moveResult.San,
             timeLeft
         );
-
-        if (moveResult.EndStatus is not null)
-            await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
 
         var legalMoves = _core.GetLegalMovesFor(_core.SideToMove);
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
@@ -256,6 +319,7 @@ public class GameActor : ReceiveActor, IWithTimers
                 HasForcedMoves: legalMoves.HasForcedMoves
             ),
             MoveHistory: _historyTracker.MoveHistory,
+            DrawState: _drawRequestHandler.GetDrawState(),
             ResultData: _result
         );
         return gameState;

@@ -27,6 +27,8 @@ public class GameSettings
     public int DefaultRating { get; set; }
     public int KFactor { get; set; }
 
+    public int DrawRequestCooldownMoves { get; set; }
+
     public required ChatSettings Chat { get; set; }
 }
 
