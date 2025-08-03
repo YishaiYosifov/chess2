@@ -251,9 +251,11 @@ public class GameActorTests : BaseAkkaIntegrationTest
     public async Task MovePiece_that_results_in_draw_ends_the_game()
     {
         await StartGameAsync();
+
         var whiteMove1 = (from: new AlgebraicPoint("b1"), to: new AlgebraicPoint("c3"));
-        var whiteMove2 = (from: new AlgebraicPoint("c3"), to: new AlgebraicPoint("b1"));
         var blackMove1 = (from: new AlgebraicPoint("b10"), to: new AlgebraicPoint("c8"));
+
+        var whiteMove2 = (from: new AlgebraicPoint("c3"), to: new AlgebraicPoint("b1"));
         var blackMove2 = (from: new AlgebraicPoint("c8"), to: new AlgebraicPoint("b10"));
 
         for (int i = 0; i < 4; i++)
@@ -304,6 +306,55 @@ public class GameActorTests : BaseAkkaIntegrationTest
         );
         stateEvent.State.MoveOptions.HasForcedMoves.Should().BeTrue();
         stateEvent.State.MoveOptions.LegalMoves.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task MovePiece_decrements_draw_cooldown()
+    {
+        await StartGameAsync();
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+        _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawDeclined>(cancellationToken: ApiTestBase.CT);
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var initialCooldown = (
+            await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+                cancellationToken: ApiTestBase.CT
+            )
+        )
+            .State
+            .DrawState
+            .Cooldown[GameColor.White];
+        _gameNotifierMock.ClearReceivedCalls();
+
+        await MakeLegalMoveAsync(_whitePlayer);
+
+        await _gameNotifierMock.DidNotReceive().NotifyDrawDeclinedAsync(Arg.Any<string>());
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+            cancellationToken: ApiTestBase.CT
+        );
+
+        state.State.DrawState.Cooldown[GameColor.White].Should().Be(initialCooldown - 1);
+        state.State.DrawState.Cooldown.GetValueOrDefault(GameColor.Black).Should().Be(0);
+    }
+
+    [Fact]
+    public async Task MovePiece_declines_pending_draw_request()
+    {
+        await StartGameAsync();
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+
+        await MakeLegalMoveAsync(_whitePlayer);
+
+        await _gameNotifierMock.Received(1).NotifyDrawDeclinedAsync(TestGameToken);
+
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+            cancellationToken: ApiTestBase.CT
+        );
+        state.State.DrawState.ActiveRequester.Should().BeNull();
     }
 
     [Fact]
