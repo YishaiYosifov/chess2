@@ -163,6 +163,59 @@ public class GameActorTests : BaseAkkaIntegrationTest
     }
 
     [Fact]
+    public async Task RequestDraw_sends_notification_if_no_pending_request()
+    {
+        await StartGameAsync();
+
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
+
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+
+        await _gameNotifierMock.Received(1).NotifyDrawRequestAsync(TestGameToken);
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+            cancellationToken: ApiTestBase.CT
+        );
+
+        state.State.DrawState.ActiveRequester.Should().Be(GameColor.White);
+    }
+
+    [Fact]
+    public async Task RequestDraw_ends_the_game_if_there_is_a_pending_request()
+    {
+        await StartGameAsync();
+
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _blackPlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+
+        await TestGameEndedAsync(_gameResultDescriber.DrawByAgreement());
+    }
+
+    [Fact]
+    public async Task DeclineDraw_declines_the_draw_correctly()
+    {
+        await StartGameAsync();
+
+        _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
+
+        _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _blackPlayer.UserId), _probe);
+        await _probe.ExpectMsgAsync<GameResponses.DrawDeclined>(cancellationToken: ApiTestBase.CT);
+
+        await _gameNotifierMock.Received(1).NotifyDrawDeclinedAsync(TestGameToken);
+
+        _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
+        var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+            cancellationToken: ApiTestBase.CT
+        );
+
+        state.State.DrawState.ActiveRequester.Should().BeNull();
+    }
+
+    [Fact]
     public async Task MovePiece_wrong_player_should_return_PlayerInvalid_error()
     {
         await StartGameAsync();
