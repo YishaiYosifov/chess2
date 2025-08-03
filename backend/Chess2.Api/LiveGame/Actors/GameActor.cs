@@ -225,7 +225,6 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameEndStatus endStatus)
     {
-        // TODO: remember to uncomment when done testing
         Context.Parent.Tell(new Passivate(PoisonPill.Instance));
 
         _clock.CommitTurn(_core.SideToMove);
