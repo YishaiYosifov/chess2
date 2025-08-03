@@ -12,5 +12,6 @@ public record GameState(
     string InitialFen,
     IReadOnlyList<MoveSnapshot> MoveHistory,
     MoveOptions MoveOptions,
+    DrawState DrawState,
     GameResultData? ResultData = null
 );

@@ -18,9 +18,10 @@ public interface IGameHubClient : IChess2HubClient
         int moveNumber,
         ClockSnapshot clock
     );
-
     Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves, bool hasForcedMoves);
 
+    Task DrawRequestedAsync();
+    Task DrawDeclinedAsync();
     Task GameEndedAsync(GameResultData result);
 
     Task ChatMessageAsync(string sender, string message);
@@ -66,6 +67,38 @@ public class GameHub(
         }
 
         var response = await _gameService.EndGameAsync(gameToken, userId);
+        if (response.IsError)
+        {
+            await HandleErrors(response.Errors);
+            return;
+        }
+    }
+
+    public async Task RequestDrawAsync(string gameToken)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var response = await _gameService.RequestDrawAsync(gameToken, userId);
+        if (response.IsError)
+        {
+            await HandleErrors(response.Errors);
+            return;
+        }
+    }
+
+    public async Task DeclineDrawAsync(string gameToken)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var response = await _gameService.DeclineDrawAsync(gameToken, userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);

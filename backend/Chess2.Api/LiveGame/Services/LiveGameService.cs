@@ -15,6 +15,11 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface ILiveGameService
 {
+    Task<ErrorOr<Success>> DeclineDrawAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    );
     Task<ErrorOr<Success>> EndGameAsync(
         string gameToken,
         string userId,
@@ -34,6 +39,11 @@ public interface ILiveGameService
         string gameToken,
         string userId,
         MoveKey key,
+        CancellationToken token = default
+    );
+    Task<ErrorOr<Success>> RequestDrawAsync(
+        string gameToken,
+        string userId,
         CancellationToken token = default
     );
     Task<string> StartGameAsync(
@@ -120,6 +130,36 @@ public class LiveGameService(
     {
         var response = await _gameActor.ActorRef.AskExpecting<GameResponses.PieceMoved>(
             new GameCommands.MovePiece(gameToken, userId, key),
+            token
+        );
+        if (response.IsError)
+            return response.Errors;
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> RequestDrawAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    )
+    {
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.DrawRequested>(
+            new GameCommands.RequestDraw(gameToken, userId),
+            token
+        );
+        if (response.IsError)
+            return response.Errors;
+        return Result.Success;
+    }
+
+    public async Task<ErrorOr<Success>> DeclineDrawAsync(
+        string gameToken,
+        string userId,
+        CancellationToken token = default
+    )
+    {
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.DrawRequested>(
+            new GameCommands.DeclineDraw(gameToken, userId),
             token
         );
         if (response.IsError)

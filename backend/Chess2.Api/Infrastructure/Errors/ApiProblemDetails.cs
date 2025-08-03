@@ -31,6 +31,9 @@ public static class ErrorCodes
     public const string GameAlreadyEnded = "Game.AlreadyEnded";
     public const string GamePlayerInvalid = "Game.PlayerInvalid";
     public const string GameMoveInvalid = "Game.MoveInvalid";
+    public const string GameDrawAlreadyRequested = "Game.DrawAlreadyRequested";
+    public const string GameDrawOnCooldown = "Game.DrawOnCooldown";
+    public const string GameDrawNotRequested = "Game.DrawNotRequested";
 
     public const string GameChatInvalidUser = "GameChat.InvalidUser";
     public const string GameChatInvalidMessage = "GameChat.InvalidMessage";

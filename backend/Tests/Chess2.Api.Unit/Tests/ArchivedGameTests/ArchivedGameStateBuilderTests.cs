@@ -56,6 +56,7 @@ public class ArchivedGameStateBuilderTests
             InitialFen: archive.InitialFen,
             MoveHistory: expectedMoveHistory,
             MoveOptions: new(),
+            DrawState: new(),
             ResultData: new GameResultData(
                 Result: archive.Result,
                 ResultDescription: archive.ResultDescription,
