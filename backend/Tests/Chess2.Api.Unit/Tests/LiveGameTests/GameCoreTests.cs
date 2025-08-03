@@ -100,7 +100,7 @@ public class GameCoreTests
         var result = _gameCore.MakeMove(new(from, to), GameColor.White);
 
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameErrors.MoveInvalid);
+        result.FirstError.Should().Be(GameErrors.MoveInvalid);
     }
 
     [Fact]

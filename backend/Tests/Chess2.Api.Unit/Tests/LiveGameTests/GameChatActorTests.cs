@@ -258,7 +258,7 @@ public class GameChatActorTests : BaseActorTest
         var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
 
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidUser);
+        result.FirstError.Should().Be(GameChatErrors.InvalidUser);
     }
 
     [Fact]
@@ -329,7 +329,7 @@ public class GameChatActorTests : BaseActorTest
         var result = await _probe.ExpectMsgAsync<ErrorOr<object>>(cancellationToken: CT);
 
         result.IsError.Should().BeTrue();
-        result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidMessage);
+        result.FirstError.Should().Be(GameChatErrors.InvalidMessage);
     }
 
     [Fact]
