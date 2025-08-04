@@ -20,10 +20,10 @@ using Chess2.Api.Infrastructure.OpenAPI;
 using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
+using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.Matchmaking.SignalR;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
@@ -410,7 +410,7 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-app.MapHub<MatchmakingHub>("/api/hub/matchmaking");
+app.MapHub<LobbyHub>("/api/hub/lobby");
 app.MapHub<GameHub>("/api/hub/game");
 
 app.UseResponseCompression();
