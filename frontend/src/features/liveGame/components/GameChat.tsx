@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { useLiveChessStore } from "../hooks/useLiveChessStore";
+import useLiveChessStore from "../hooks/useLiveChessStore";
 import {
     useGameEmitter,
     useGameEvent,
