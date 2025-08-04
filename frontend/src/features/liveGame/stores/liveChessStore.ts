@@ -1,7 +1,13 @@
 import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 
-import { Clocks, GameColor, GamePlayer, GameResultData } from "@/lib/apiClient";
+import {
+    Clocks,
+    DrawState,
+    GameColor,
+    GamePlayer,
+    GameResultData,
+} from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 import { BoardState } from "../lib/types";
@@ -21,6 +27,7 @@ export interface LiveChessStoreProps {
     blackPlayer: GamePlayer;
 
     clocks: Clocks;
+    drawState: DrawState;
     resultData: GameResultData | null;
 }
 
