@@ -5,7 +5,7 @@ import { BoardState } from "@/features/liveGame/lib/types";
 import { Move } from "../lib/types";
 import { PieceMap } from "../lib/types";
 import { MoveKey } from "../lib/types";
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { pointToPiece, simulateMove } from "../lib/simulateMove";
@@ -43,7 +43,7 @@ export interface PiecesSlice {
 export function createPiecesSlice(
     initState: PieceSliceProps,
 ): StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     PiecesSlice

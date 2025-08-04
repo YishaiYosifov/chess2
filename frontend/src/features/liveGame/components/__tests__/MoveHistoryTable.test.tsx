@@ -9,7 +9,7 @@ import createLiveChessStore, {
 import MoveHistoryTable from "../MoveHistoryTable";
 import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
@@ -22,7 +22,7 @@ import { mockScrollTo } from "@/lib/testUtils/mocks/mockDom";
 
 describe("MoveHistoryTable", () => {
     let liveStore: StoreApi<LiveChessStore>;
-    let chessboardStore: StoreApi<ChessboardState>;
+    let chessboardStore: StoreApi<ChessboardStore>;
 
     const emptyMoveOptions = createMoveOptions();
     let latestMoveOptions: ProcessedMoveOptions;

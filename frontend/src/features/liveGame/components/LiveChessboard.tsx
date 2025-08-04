@@ -12,7 +12,7 @@ import createLiveChessStore, {
 } from "@/features/liveGame/stores/liveChessStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
@@ -53,7 +53,7 @@ const LiveChessboard = ({
         createStoreProps(gameToken, user?.userId ?? "", gameState),
     );
 
-    const chessboardStore = useConst<StoreApi<ChessboardState>>(() =>
+    const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
         createChessboardStore({
             ...storeProps.board,
             onPieceMovement: sendMove,

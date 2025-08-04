@@ -1,5 +1,5 @@
 import { StoreApi } from "zustand";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import {
     createFakeMove,
     createFakePiece,
@@ -11,7 +11,7 @@ import { createMoveOptions } from "../../lib/moveOptions";
 import { PieceType } from "@/lib/apiClient";
 
 describe("LegalMoveSlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
     let piece: Piece;
 
     beforeEach(() => {

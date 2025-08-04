@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardStore } from "./chessboardStore";
 import { LogicalPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
 import { PieceType } from "@/lib/apiClient";
@@ -19,7 +19,7 @@ export interface PromotionSlice {
 }
 
 export const createPromotionSlice: StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     PromotionSlice

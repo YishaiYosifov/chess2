@@ -1,10 +1,7 @@
 import { memo, useRef } from "react";
 import clsx from "clsx";
 
-import {
-    useChessboardStore,
-    usePiece,
-} from "@/features/chessboard/hooks/useChessboard";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { Point } from "@/features/point/types";
 import { PieceID } from "../lib/types";
 
@@ -14,7 +11,7 @@ import getPieceImage from "../lib/pieceImage";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
-    const piece = usePiece(id);
+    const piece = useChessboardStore((state) => state.pieces.get(id));
 
     const isSelected = useChessboardStore(
         (state) => state.selectedPieceId === id,

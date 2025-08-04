@@ -7,7 +7,7 @@ import { type PieceMap } from "../lib/types";
 
 import { GameColor } from "@/lib/apiClient";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardLayout, {
@@ -42,7 +42,7 @@ const StaticChessboard = ({
 
     className,
 }: ChessboardProps) => {
-    const chessboardStore = useConst<StoreApi<ChessboardState>>(() =>
+    const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
         createChessboardStore({
             pieces: startingPieces,
             boardDimensions: { width: boardWidth, height: boardHeight },

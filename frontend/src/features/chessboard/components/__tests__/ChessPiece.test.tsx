@@ -9,7 +9,7 @@ import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardSto
 import userEvent from "@testing-library/user-event";
 import { StoreApi } from "zustand";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardLayout from "../ChessboardLayout";
@@ -47,7 +47,7 @@ describe("ChessPiece", () => {
         y: pieceRect.top + pieceRect.height / 2,
     };
 
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();

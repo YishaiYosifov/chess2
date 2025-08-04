@@ -3,9 +3,9 @@
 import { type StoreApi } from "zustand";
 import { createContext } from "react";
 
-import { type ChessboardState } from "@/features/chessboard/stores/chessboardStore";
+import { type ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 
-const ChessboardStoreContext = createContext<StoreApi<ChessboardState> | null>(
+const ChessboardStoreContext = createContext<StoreApi<ChessboardStore> | null>(
     null,
 );
 export default ChessboardStoreContext;

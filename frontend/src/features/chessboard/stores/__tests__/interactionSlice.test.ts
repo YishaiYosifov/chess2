@@ -1,10 +1,10 @@
 import { StoreApi } from "zustand";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { InteractionInfo } from "../interactionSlice";
 import { screenPoint } from "@/lib/utils/pointUtils";
 
 describe("InteractionSlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         vi.useFakeTimers();

@@ -1,15 +1,14 @@
-import {
-    useHighlightedLegalMoves,
-    usePieces,
-} from "@/features/chessboard/hooks/useChessboard";
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
 import { pointToStr } from "@/lib/utils/pointUtils";
 import PromotionPrompt from "./PromotionPrompt";
 
 const PieceRenderer = () => {
-    const pieces = usePieces();
-    const highlightedLegalMoves = useHighlightedLegalMoves();
+    const pieces = useChessboardStore((state) => state.pieces);
+    const highlightedLegalMoves = useChessboardStore(
+        (x) => x.highlightedLegalMoves,
+    );
 
     return (
         <>

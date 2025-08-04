@@ -4,13 +4,13 @@ import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardSto
 import HighlightedLegalMove from "../HighlightedLegalMove";
 import { StoreApi } from "zustand";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("HighlightedLegalMove", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();

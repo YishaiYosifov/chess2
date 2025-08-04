@@ -1,12 +1,12 @@
 import { logicalPoint } from "@/lib/utils/pointUtils";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { StoreApi } from "zustand";
 import { PieceType } from "@/lib/apiClient";
 import { PromotionRequest } from "../promotionSlice";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 
 describe("PromotionSlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();
