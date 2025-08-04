@@ -1,6 +1,9 @@
-import type { GameState } from "@/lib/apiClient";
-import { LiveChessStoreProps } from "../stores/liveChessStore";
-import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
+import { getGame, type GameState } from "@/lib/apiClient";
+import { LiveChessStore, LiveChessStoreProps } from "../stores/liveChessStore";
+import {
+    ChessboardProps,
+    ChessboardStore,
+} from "@/features/chessboard/stores/chessboardStore";
 import { decodeFen } from "./fenDecoder";
 import { ClockSnapshot } from "./types";
 import { Position } from "./types";
@@ -8,6 +11,7 @@ import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { decodePath, decodePathIntoMap } from "./moveDecoder";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import constants from "@/lib/constants";
+import { StoreApi } from "zustand";
 
 export interface ProcessedGameState {
     live: LiveChessStoreProps;
@@ -41,8 +45,10 @@ export function createStoreProps(
 
         whitePlayer: gameState.whitePlayer,
         blackPlayer: gameState.blackPlayer,
-        playerColor,
         sideToMove: gameState.sideToMove,
+
+        userId,
+        playerColor,
 
         positionHistory,
         viewingMoveNumber: positionHistory.length - 1,
@@ -97,4 +103,23 @@ function getPositionHistory(gameState: GameState): Position[] {
         pieces = newPieces;
     }
     return positionHistory;
+}
+
+export async function refetchGame(
+    liveChessStore: StoreApi<LiveChessStore>,
+    chessboardStore: StoreApi<ChessboardStore>,
+) {
+    const { gameToken, userId } = liveChessStore.getState();
+
+    const { error, data: gameState } = await getGame({
+        path: { gameToken },
+    });
+    if (error || !gameState) {
+        console.error(error);
+        return;
+    }
+
+    const { live, board } = createStoreProps(gameToken, userId, gameState);
+    liveChessStore.getState().resetState(live);
+    chessboardStore.getState().resetState(board);
 }
