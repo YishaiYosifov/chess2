@@ -15,7 +15,7 @@ public class DrawRequestHandlerTests
     public DrawRequestHandlerTests()
     {
         var settings = AppSettingsLoader.LoadAppSettings();
-        _drawRequestCooldownMoves = settings.Game.DrawRequestCooldownMoves;
+        _drawRequestCooldownMoves = settings.Game.DrawCooldown;
 
         _handler = new(Options.Create(settings));
     }
@@ -68,7 +68,7 @@ public class DrawRequestHandlerTests
 
         success.Should().BeTrue();
 
-        var state = _handler.GetDrawState();
+        var state = _handler.GetState();
         state.ActiveRequester.Should().BeNull();
         state.BlackCooldown.Should().Be(_drawRequestCooldownMoves);
         state.WhiteCooldown.Should().Be(0);
@@ -88,7 +88,7 @@ public class DrawRequestHandlerTests
     {
         _handler.RequestDraw(GameColor.Black);
 
-        var state = _handler.GetDrawState();
+        var state = _handler.GetState();
 
         state.ActiveRequester.Should().Be(GameColor.Black);
         state.WhiteCooldown.Should().Be(0);
@@ -108,8 +108,8 @@ public class DrawRequestHandlerTests
         }
 
         _handler.DecrementCooldown();
-        _handler.GetDrawState().WhiteCooldown.Should().Be(0);
-        _handler.GetDrawState().BlackCooldown.Should().Be(0);
+        _handler.GetState().WhiteCooldown.Should().Be(0);
+        _handler.GetState().BlackCooldown.Should().Be(0);
         _handler.RequestDraw(GameColor.White).IsError.Should().BeFalse();
     }
 }

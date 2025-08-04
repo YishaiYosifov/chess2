@@ -148,7 +148,7 @@ public class GameActor : ReceiveActor, IWithTimers
             Sender.ReplyWithError(requestResult.Errors);
             return;
         }
-        await _gameNotifier.NotifyDrawRequestAsync(_token);
+        await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
         Sender.Tell(new GameResponses.DrawRequested());
     }
 
@@ -163,7 +163,7 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
 
-        await _gameNotifier.NotifyDrawDeclinedAsync(_token);
+        await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
         Sender.Tell(new GameResponses.DrawDeclined());
     }
 
@@ -216,7 +216,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         _drawRequestHandler.DecrementCooldown();
         if (_drawRequestHandler.TryDeclineDraw())
-            await _gameNotifier.NotifyDrawDeclinedAsync(_token);
+            await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
 
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
         var moveSnapshot = _historyTracker.RecordMove(
@@ -288,7 +288,7 @@ public class GameActor : ReceiveActor, IWithTimers
                 HasForcedMoves: legalMoves.HasForcedMoves
             ),
             MoveHistory: _historyTracker.MoveHistory,
-            DrawState: _drawRequestHandler.GetDrawState(),
+            DrawState: _drawRequestHandler.GetState(),
             ResultData: _result
         );
         return gameState;
