@@ -37,8 +37,8 @@ const GameControlButton = ({
             <button
                 data-testid="gameControlButton"
                 className={clsx(
-                    `text-md flex w-full cursor-pointer items-center justify-center gap-1 rounded-md
-                    p-2 text-nowrap lg:text-sm`,
+                    `text-md lg:text-md flex w-full cursor-pointer items-center justify-center gap-1
+                    rounded-md p-2 text-nowrap`,
                     isConfirming
                         ? "border-b-4 border-orange-800 bg-orange-600 p-1 hover:brightness-75"
                         : `enabled:hover:bg-secondary enabled:hover:text-neutral-900
