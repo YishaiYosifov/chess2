@@ -7,12 +7,12 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { FlagIcon } from "@heroicons/react/24/solid";
 
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
-import { useLiveChessStore } from "../hooks/useLiveChessStore";
+import { useLiveChessStore } from "../../hooks/useLiveChessStore";
 import GameControlButton from "./GameControlButton";
 import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
 
-const GameControls = () => {
+const GameControlsCard = () => {
     const resultData = useLiveChessStore((state) => state.resultData);
 
     return (
@@ -21,7 +21,7 @@ const GameControls = () => {
         </Card>
     );
 };
-export default GameControls;
+export default GameControlsCard;
 
 const LiveGameControls = () => {
     const positionHistory = useLiveChessStore((state) => state.positionHistory);

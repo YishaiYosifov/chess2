@@ -16,12 +16,15 @@ export function createFakeGameState(
         isRated: faker.datatype.boolean(),
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
-        clocks: createFakeClock(),
         sideToMove: GameColor.WHITE,
+
         initialFen: "10/10/10/10/10/10/10/10/10/10",
         moveHistory: Array.from({
             length: faker.number.int({ min: 1, max: 5 }),
         }).map(() => createFakeMoveSnapshot()),
+
+        clocks: createFakeClock(),
+        drawState: { activeRequester: null, cooldown: {} },
         moveOptions: {
             legalMoves: Array.from({
                 length: faker.number.int({ min: 1, max: 5 }),

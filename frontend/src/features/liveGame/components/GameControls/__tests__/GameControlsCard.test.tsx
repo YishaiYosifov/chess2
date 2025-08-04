@@ -4,7 +4,7 @@ import createLiveChessStore, {
     LiveChessStore,
 } from "@/features/liveGame/stores/liveChessStore";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
-import GameControls from "../GameControls";
+import GameControlsCard from "../GameControlsCard";
 import userEvent from "@testing-library/user-event";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
@@ -14,7 +14,7 @@ import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
-describe("GameControls", () => {
+describe("GameControlsCard", () => {
     const useGameEmitterMock = vi.mocked(useGameEmitter);
     const sendGameEventMock = vi.fn();
     let store: StoreApi<LiveChessStore>;
@@ -31,12 +31,12 @@ describe("GameControls", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameControls />
+                <GameControlsCard />
             </LiveChessStoreContext.Provider>,
         );
 
-        expect(screen.getByText(/Abort/i)).toBeInTheDocument();
-        expect(screen.getByText(/Draw/i)).toBeInTheDocument();
+        expect(screen.getByTitle(/Abort/i)).toBeInTheDocument();
+        expect(screen.getByTitle(/Draw/i)).toBeInTheDocument();
     });
 
     it("should render Resign if moveHistory has 2+ moves", () => {
@@ -46,12 +46,12 @@ describe("GameControls", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameControls />
+                <GameControlsCard />
             </LiveChessStoreContext.Provider>,
         );
 
-        expect(screen.getByText(/Resign/i)).toBeInTheDocument();
-        expect(screen.getByText(/Draw/i)).toBeInTheDocument();
+        expect(screen.getByTitle(/Resign/i)).toBeInTheDocument();
+        expect(screen.getByTitle(/Draw/i)).toBeInTheDocument();
     });
 
     it("should render GameOverControls when resultData exists", () => {
@@ -63,7 +63,7 @@ describe("GameControls", () => {
         });
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameControls />
+                <GameControlsCard />
             </LiveChessStoreContext.Provider>,
         );
 
@@ -78,11 +78,11 @@ describe("GameControls", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameControls />
+                <GameControlsCard />
             </LiveChessStoreContext.Provider>,
         );
 
-        await user.click(screen.getByText(/Abort/i));
+        await user.click(screen.getByTitle(/Abort/i));
         expect(sendGameEventMock).toHaveBeenCalledWith(
             "EndGameAsync",
             store.getState().gameToken,

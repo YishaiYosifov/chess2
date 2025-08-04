@@ -47,6 +47,8 @@ export function createStoreProps(
         positionHistory,
         viewingMoveNumber: positionHistory.length - 1,
         latestMoveOptions,
+
+        drawState: gameState.drawState,
         clocks: gameState.clocks,
         resultData: gameState.resultData ?? null,
     };

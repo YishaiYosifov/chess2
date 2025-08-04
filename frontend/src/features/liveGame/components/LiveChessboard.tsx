@@ -17,7 +17,7 @@ import {
 } from "@/features/chessboard/stores/chessboardStore";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import MoveHistoryTable from "./MoveHistoryTable";
-import GameControls from "./GameControls";
+import GameControlsCard from "./GameControls/GameControlsCard";
 import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
@@ -108,7 +108,7 @@ const LiveChessboard = ({
                             overflow-auto lg:max-w-sm"
                     >
                         <MoveHistoryTable />
-                        <GameControls />
+                        <GameControlsCard />
                         <GameChat />
                     </aside>
                 </div>
