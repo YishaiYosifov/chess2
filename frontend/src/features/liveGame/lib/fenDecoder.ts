@@ -31,7 +31,7 @@ export function decodeFen(fen: string): PieceMap {
 
             const pieceId = pieceIdx.toString() as PieceID;
             const color =
-                square == square.toUpperCase()
+                square === square.toUpperCase()
                     ? GameColor.WHITE
                     : GameColor.BLACK;
             const pieceLetter = square.toLowerCase();
