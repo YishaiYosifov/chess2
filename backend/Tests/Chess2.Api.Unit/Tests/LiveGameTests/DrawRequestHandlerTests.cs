@@ -43,7 +43,7 @@ public class DrawRequestHandlerTests
     public void RequestDraw_fails_when_requester_is_on_cooldown()
     {
         _handler.RequestDraw(GameColor.White);
-        _handler.TryDeclineDraw();
+        _handler.TryDeclineDraw(GameColor.Black);
 
         var result = _handler.RequestDraw(GameColor.White);
 
@@ -54,17 +54,30 @@ public class DrawRequestHandlerTests
     [Fact]
     public void TryDeclineDraw_returns_false_when_no_active_request()
     {
-        var result = _handler.TryDeclineDraw();
+        var result = _handler.TryDeclineDraw(GameColor.White);
 
         result.Should().BeFalse();
     }
 
     [Fact]
-    public void TryDeclineDraw_clears_request_and_sets_cooldown()
+    public void TryDeclineDraw_returns_false_when_decliner_is_the_requester()
+    {
+        _handler.RequestDraw(GameColor.White);
+
+        var result = _handler.TryDeclineDraw(GameColor.White);
+
+        result.Should().BeFalse();
+
+        var state = _handler.GetState();
+        state.ActiveRequester.Should().Be(GameColor.White);
+    }
+
+    [Fact]
+    public void TryDeclineDraw_clears_request_and_sets_cooldown_on_requester()
     {
         _handler.RequestDraw(GameColor.Black);
 
-        var success = _handler.TryDeclineDraw();
+        var success = _handler.TryDeclineDraw(GameColor.White);
 
         success.Should().BeTrue();
 
@@ -99,7 +112,7 @@ public class DrawRequestHandlerTests
     public void DecrementCooldown_decreases_each_cooldown_and_removes_expired_entries()
     {
         _handler.RequestDraw(GameColor.White);
-        _handler.TryDeclineDraw();
+        _handler.TryDeclineDraw(GameColor.Black);
 
         for (var i = 0; i < _drawRequestCooldownMoves - 1; i++)
         {

@@ -393,6 +393,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameNotifierMock.ClearReceivedCalls();
 
         await MakeLegalMoveAsync(_whitePlayer);
+        await MakeLegalMoveAsync(_blackPlayer);
 
         await _gameNotifierMock
             .DidNotReceive()
@@ -416,6 +417,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
 
         await MakeLegalMoveAsync(_whitePlayer);
+        await MakeLegalMoveAsync(_blackPlayer);
 
         await _gameNotifierMock
             .Received(1)

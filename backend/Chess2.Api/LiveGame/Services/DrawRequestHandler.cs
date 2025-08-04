@@ -13,7 +13,7 @@ public interface IDrawRequestHandler
     DrawState GetState();
     bool HasPendingRequest(GameColor requester);
     ErrorOr<Success> RequestDraw(GameColor requester);
-    bool TryDeclineDraw();
+    bool TryDeclineDraw(GameColor by);
 }
 
 public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHandler
@@ -35,9 +35,9 @@ public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHa
         return Result.Success;
     }
 
-    public bool TryDeclineDraw()
+    public bool TryDeclineDraw(GameColor by)
     {
-        if (_activeRequester is null)
+        if (_activeRequester is null || _activeRequester == by)
             return false;
 
         var activeRequester = _activeRequester.Value;
