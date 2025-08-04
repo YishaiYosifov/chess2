@@ -154,10 +154,10 @@ public class GameActor : ReceiveActor, IWithTimers
 
     private async Task HandleDrawDeclineAsync(GameCommands.DeclineDraw declineDraw)
     {
-        if (!TryGetPlayer(declineDraw.UserId, out var _))
+        if (!TryGetPlayer(declineDraw.UserId, out var player))
             return;
 
-        if (!_drawRequestHandler.TryDeclineDraw())
+        if (!_drawRequestHandler.TryDeclineDraw(player.Color))
         {
             Sender.ReplyWithError(GameErrors.DrawNotRequested);
             return;
@@ -215,7 +215,7 @@ public class GameActor : ReceiveActor, IWithTimers
             await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
 
         _drawRequestHandler.DecrementCooldown();
-        if (_drawRequestHandler.TryDeclineDraw())
+        if (_drawRequestHandler.TryDeclineDraw(currentPlayer.Color))
             await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
 
         var timeLeft = _clock.CommitTurn(currentPlayer.Color);
