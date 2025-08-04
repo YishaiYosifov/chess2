@@ -19,7 +19,7 @@ import { createInteractionSlice, InteractionSlice } from "./interactionSlice";
 import { createMoveOptions } from "../lib/moveOptions";
 import { createPromotionSlice, PromotionSlice } from "./promotionSlice";
 
-export type ChessboardState = BoardSlice &
+export type ChessboardStore = BoardSlice &
     PiecesSlice &
     PromotionSlice &
     LegalMovesSlice &
@@ -44,7 +44,7 @@ enableMapSet();
 export function createChessboardStore(
     initState: ChessboardProps = defaultChessboardState,
 ) {
-    return createWithEqualityFn<ChessboardState>()(
+    return createWithEqualityFn<ChessboardStore>()(
         devtools(
             immer((...a) => ({
                 ...createBoardSlice(initState)(...a),

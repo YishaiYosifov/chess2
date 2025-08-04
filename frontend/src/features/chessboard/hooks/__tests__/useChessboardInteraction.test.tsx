@@ -1,6 +1,6 @@
 import { StoreApi } from "zustand";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "../../stores/chessboardStore";
 import useBoardInteraction from "../useBoardInteraction";
@@ -20,7 +20,7 @@ function createMouseEvent(
 }
 
 describe("useBoardInteraction", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         vi.useFakeTimers();

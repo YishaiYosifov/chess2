@@ -1,6 +1,6 @@
 import { StateCreator } from "zustand";
 
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardStore } from "./chessboardStore";
 import { GameColor } from "@/lib/apiClient";
 import { LogicalPoint } from "@/features/point/types";
 import { ViewPoint } from "@/features/point/types";
@@ -38,7 +38,7 @@ export interface BoardSlice extends BoardSliceProps {
 export function createBoardSlice(
     initState: BoardSliceProps,
 ): StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     BoardSlice

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import ChessboardStoreContext from "../../contexts/chessboardStoreContext";
 import PromotionPrompt from "../PromotionPrompt";
 import {
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "../../stores/chessboardStore";
 import { StoreApi } from "zustand";
@@ -11,7 +11,7 @@ import { GameColor, PieceType } from "@/lib/apiClient";
 import userEvent from "@testing-library/user-event";
 
 describe("PromotionPrompt", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();

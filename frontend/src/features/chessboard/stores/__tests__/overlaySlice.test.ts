@@ -1,10 +1,10 @@
 import { StoreApi } from "zustand";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { OverlayItem } from "../overlaySlice";
 import { viewPoint } from "@/lib/utils/pointUtils";
 
 describe("OverlaySlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();
