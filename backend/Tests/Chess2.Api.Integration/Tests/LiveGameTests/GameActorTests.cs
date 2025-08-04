@@ -383,7 +383,8 @@ public class GameActorTests : BaseAkkaIntegrationTest
         await StartGameAsync();
         _gameActor.Tell(new GameCommands.RequestDraw(TestGameToken, _whitePlayer.UserId), _probe);
         await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
-        _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _whitePlayer.UserId), _probe);
+        _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _blackPlayer.UserId), _probe);
+
         await _probe.ExpectMsgAsync<GameResponses.DrawDeclined>(cancellationToken: ApiTestBase.CT);
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var initialState = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
