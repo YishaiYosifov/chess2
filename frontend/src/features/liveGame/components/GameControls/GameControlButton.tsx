@@ -6,6 +6,7 @@ const GameControlButton = ({
     icon,
     needsConfirmation,
     onClick,
+    className,
     children,
     ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -43,6 +44,7 @@ const GameControlButton = ({
                         ? "border-b-4 border-orange-800 bg-orange-600 hover:brightness-75"
                         : `enabled:hover:bg-secondary enabled:hover:text-neutral-900
                             disabled:cursor-not-allowed disabled:brightness-75`,
+                    className,
                 )}
                 onClick={confirmClick}
                 {...props}

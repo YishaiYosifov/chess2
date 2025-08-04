@@ -29,6 +29,11 @@ export function createFakeLiveChessStoreProps(
         blackPlayer: createFakePlayer(GameColor.BLACK),
 
         clocks: createFakeClock(),
+        drawState: {
+            activeRequester: null,
+            whiteCooldown: 0,
+            blackCooldown: 0,
+        },
         resultData: null,
 
         ...override,

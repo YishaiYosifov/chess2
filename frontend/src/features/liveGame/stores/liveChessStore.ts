@@ -40,6 +40,7 @@ export interface LiveChessStore extends LiveChessStoreProps {
         sideToMove: GameColor,
     ): void;
     receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
+    drawStateChange(drawState: DrawState): void;
 
     teleportToMove(number: number): BoardState | undefined;
     shiftMoveViewBy(amount: number): BoardState | undefined;
@@ -61,6 +62,15 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
                     if (viewingMoveNumber === positionHistory.length - 1)
                         state.viewingMoveNumber++;
 
+                    state.drawState.whiteCooldown = Math.max(
+                        0,
+                        state.drawState.whiteCooldown - 1,
+                    );
+                    state.drawState.blackCooldown = Math.max(
+                        0,
+                        state.drawState.blackCooldown - 1,
+                    );
+
                     state.positionHistory.push(position);
                     state.clocks = clocks;
                     state.sideToMove = sideToMove;
@@ -69,6 +79,11 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
             receiveLegalMoves(moveOptions) {
                 set((state) => {
                     state.latestMoveOptions = moveOptions;
+                });
+            },
+            drawStateChange(drawState) {
+                set((state) => {
+                    state.drawState = drawState;
                 });
             },
 
