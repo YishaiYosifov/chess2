@@ -6,7 +6,7 @@ using Chess2.Api.Matchmaking.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Chess2.Api.Matchmaking.SignalR;
+namespace Chess2.Api.Lobby.SignalR;
 
 public interface IMatchmakingHubClient : IChess2HubClient
 {
@@ -15,14 +15,14 @@ public interface IMatchmakingHubClient : IChess2HubClient
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
-public class MatchmakingHub(
-    ILogger<MatchmakingHub> logger,
+public class LobbyHub(
+    ILogger<LobbyHub> logger,
     IMatchmakingService matchmakingService,
     IAuthService authService
 ) : Chess2Hub<IMatchmakingHubClient>
 {
     private readonly IMatchmakingService _matchmakingService = matchmakingService;
-    private readonly ILogger<MatchmakingHub> _logger = logger;
+    private readonly ILogger<LobbyHub> _logger = logger;
     private readonly IAuthService _authService = authService;
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)

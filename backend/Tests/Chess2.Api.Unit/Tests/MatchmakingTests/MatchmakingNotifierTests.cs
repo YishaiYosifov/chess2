@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.Matchmaking.SignalR;
+﻿using Chess2.Api.Lobby.SignalR;
+using Chess2.Api.Matchmaking.Services;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
@@ -9,8 +9,9 @@ public class MatchmakingNotifierTests
 {
     private const string UserId = "testuser";
 
-    private readonly IHubContext<MatchmakingHub, IMatchmakingHubClient> _hubContextMock =
-        Substitute.For<IHubContext<MatchmakingHub, IMatchmakingHubClient>>();
+    private readonly IHubContext<LobbyHub, IMatchmakingHubClient> _hubContextMock = Substitute.For<
+        IHubContext<LobbyHub, IMatchmakingHubClient>
+    >();
     private readonly IHubClients<IMatchmakingHubClient> _clientsMock = Substitute.For<
         IHubClients<IMatchmakingHubClient>
     >();
