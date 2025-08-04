@@ -2,11 +2,10 @@ import { useContext } from "react";
 import { useStore } from "zustand";
 
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
-import { type ChessboardState } from "@/features/chessboard/stores/chessboardStore";
-import { PieceID } from "../lib/types";
+import { type ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 
 export function useChessboardStore<T>(
-    selector: (store: ChessboardState) => T,
+    selector: (store: ChessboardStore) => T,
 ): T {
     const chessStoreContext = useContext(ChessboardStoreContext);
 
@@ -15,10 +14,3 @@ export function useChessboardStore<T>(
 
     return useStore(chessStoreContext, selector);
 }
-
-export const usePieces = () => useChessboardStore((state) => state.pieces);
-export const useHighlightedLegalMoves = () =>
-    useChessboardStore((state) => state.highlightedLegalMoves);
-
-export const usePiece = (pieceId: PieceID) =>
-    useChessboardStore((state) => state.pieces.get(pieceId));

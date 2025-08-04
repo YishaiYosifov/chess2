@@ -1,11 +1,11 @@
 import { StoreApi } from "zustand";
-import { ChessboardState, createChessboardStore } from "../chessboardStore";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { GameColor } from "@/lib/apiClient";
 import { BoardDimensions } from "../boardSlice";
 import { logicalPoint, screenPoint, viewPoint } from "@/lib/utils/pointUtils";
 
 describe("BoardSlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     const rect = {
         left: 100,

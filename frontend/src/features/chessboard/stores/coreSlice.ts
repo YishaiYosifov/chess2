@@ -1,4 +1,4 @@
-import type { ChessboardProps, ChessboardState } from "./chessboardStore";
+import type { ChessboardProps, ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { createMoveOptions } from "../lib/moveOptions";
 
@@ -8,7 +8,7 @@ export interface CoreSlice {
 }
 
 export const createCoreSlice: StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     CoreSlice

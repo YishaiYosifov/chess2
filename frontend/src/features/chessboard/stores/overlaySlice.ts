@@ -1,5 +1,5 @@
 import { StateCreator } from "zustand";
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardStore } from "./chessboardStore";
 import { ViewPoint } from "@/features/point/types";
 import { StrPoint } from "@/features/point/types";
 import { pointToStr } from "@/lib/utils/pointUtils";
@@ -31,7 +31,7 @@ export interface OverlaySlice {
 }
 
 export const createOverlaySlice: StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     OverlaySlice

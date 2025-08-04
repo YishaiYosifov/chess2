@@ -4,7 +4,7 @@ import { Move } from "../lib/types";
 import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
 import { StateCreator } from "zustand";
-import { ChessboardState } from "./chessboardStore";
+import { ChessboardStore } from "./chessboardStore";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { PieceType } from "@/lib/apiClient";
 
@@ -31,7 +31,7 @@ export interface LegalMovesSlice {
 export function createLegalMovesSlice(
     initState: LegalMovesSliceProps,
 ): StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     LegalMovesSlice

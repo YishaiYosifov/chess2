@@ -2,7 +2,7 @@ import { StateCreator } from "zustand";
 import { enableMapSet } from "immer";
 import React from "react";
 
-import type { ChessboardState } from "./chessboardStore";
+import type { ChessboardStore } from "./chessboardStore";
 import { ScreenPoint } from "@/features/point/types";
 import { EventBus } from "@/lib/eventBus";
 import { screenPoint } from "@/lib/utils/pointUtils";
@@ -27,7 +27,7 @@ export interface InteractionSlice {
 
 enableMapSet();
 export const createInteractionSlice: StateCreator<
-    ChessboardState,
+    ChessboardStore,
     [["zustand/immer", never], never],
     [],
     InteractionSlice

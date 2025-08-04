@@ -1,7 +1,7 @@
 import { StoreApi } from "zustand";
 import {
     ChessboardProps,
-    ChessboardState,
+    ChessboardStore,
     createChessboardStore,
 } from "../chessboardStore";
 import {
@@ -15,7 +15,7 @@ import { PieceID } from "../../lib/types";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 
 describe("CoreSlice", () => {
-    let store: StoreApi<ChessboardState>;
+    let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         vi.useFakeTimers();
