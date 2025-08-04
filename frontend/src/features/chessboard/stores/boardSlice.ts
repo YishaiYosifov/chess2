@@ -123,7 +123,7 @@ function flipPointForPerspective(
     boardDimensions: BoardDimensions,
 ) {
     let { x, y } = point;
-    if (viewingFrom == GameColor.WHITE) {
+    if (viewingFrom === GameColor.WHITE) {
         y = boardDimensions.height - y - 1;
     } else {
         x = boardDimensions.width - x - 1;

@@ -7,6 +7,7 @@ import useSignalREmitter, {
 import { MoveKey } from "@/features/chessboard/lib/types";
 import {
     Clocks,
+    DrawState,
     GameColor,
     GameResultData,
     MoveSnapshot,
@@ -46,6 +47,8 @@ export type GameClientEvents = {
         hasForcedMoves: boolean,
     ];
     GameEndedAsync: [result: GameResultData];
+
+    DrawStateChangeAsync: [drawState: DrawState];
 
     ChatMessageAsync: [sender: string, message: string];
     ChatMessageDeliveredAsync: [cooldownLeftMs: number];

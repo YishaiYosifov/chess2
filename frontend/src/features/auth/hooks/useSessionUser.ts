@@ -24,7 +24,6 @@ export function useSessionUser(): SessionUser | null {
         if (user) return;
 
         async function loadUser() {
-            console.log("loadUser");
             const { error, data: loadedUser } = await getSessionUser();
             if (error || !loadedUser) {
                 console.error(error);
