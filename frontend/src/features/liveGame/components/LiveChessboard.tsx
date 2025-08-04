@@ -21,7 +21,7 @@ import GameControlsCard from "./GameControls/GameControlsCard";
 import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
-import { useLiveChessEvents } from "../hooks/useLiveChessEvents";
+import useLiveChessEvents from "../hooks/useLiveChessEvents";
 import { StoreApi } from "zustand";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import { GameState } from "@/lib/apiClient";

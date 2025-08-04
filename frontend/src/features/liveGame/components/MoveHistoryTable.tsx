@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 
-import { useLiveChessStore } from "../hooks/useLiveChessStore";
+import useLiveChessStore from "../hooks/useLiveChessStore";
 import Card from "@/components/ui/Card";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { BoardState } from "../lib/types";

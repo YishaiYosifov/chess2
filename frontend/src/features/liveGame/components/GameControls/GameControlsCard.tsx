@@ -7,7 +7,7 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { FlagIcon } from "@heroicons/react/24/solid";
 
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
-import { useLiveChessStore } from "../../hooks/useLiveChessStore";
+import useLiveChessStore from "../../hooks/useLiveChessStore";
 import GameControlButton from "./GameControlButton";
 import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
