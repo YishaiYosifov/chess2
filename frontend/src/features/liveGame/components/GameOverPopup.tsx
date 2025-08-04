@@ -19,10 +19,13 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     _,
     ref,
 ) => {
-    const whitePlayer = useLiveChessStore((x) => x.whitePlayer);
-    const blackPlayer = useLiveChessStore((x) => x.blackPlayer);
-    const resultData = useLiveChessStore((x) => x.resultData);
-    const playerColor = useLiveChessStore((x) => x.playerColor);
+    const { whitePlayer, blackPlayer, resultData, playerColor } =
+        useLiveChessStore((x) => ({
+            whitePlayer: x.whitePlayer,
+            blackPlayer: x.blackPlayer,
+            resultData: x.resultData,
+            playerColor: x.playerColor,
+        }));
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);

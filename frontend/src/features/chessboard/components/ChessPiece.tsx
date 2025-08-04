@@ -11,20 +11,21 @@ import getPieceImage from "../lib/pieceImage";
 
 export const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
-    const piece = useChessboardStore((state) => state.pieces.get(id));
-
-    const isSelected = useChessboardStore(
-        (state) => state.selectedPieceId === id,
-    );
-    const isAnimating = useChessboardStore((state) =>
-        state.animatingPieces.has(id),
-    );
-
-    const screenPointToPiece = useChessboardStore((x) => x.screenPointToPiece);
-    const selectPiece = useChessboardStore((x) => x.selectPiece);
-    const moveSelectedPieceToMouse = useChessboardStore(
-        (x) => x.handleMousePieceDrop,
-    );
+    const {
+        piece,
+        isSelected,
+        isAnimating,
+        screenPointToPiece,
+        selectPiece,
+        handleMousePieceDrop,
+    } = useChessboardStore((x) => ({
+        piece: x.pieces.get(id),
+        isSelected: x.selectedPieceId === id,
+        isAnimating: x.animatingPieces.has(id),
+        screenPointToPiece: x.screenPointToPiece,
+        selectPiece: x.selectPiece,
+        handleMousePieceDrop: x.handleMousePieceDrop,
+    }));
 
     const offsetRef = useRef<Point | null>(null);
     const moveOccurredOnPressRef = useRef<boolean>(false);
@@ -60,7 +61,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         async onDragEnd(point) {
-            await moveSelectedPieceToMouse({
+            await handleMousePieceDrop({
                 mousePoint: point,
                 isDrag: true,
             });
@@ -69,7 +70,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         async onPress(info) {
             if (!isSelected) return;
 
-            const didMove = await moveSelectedPieceToMouse({
+            const didMove = await handleMousePieceDrop({
                 mousePoint: info.point,
                 isDrag: false,
             });

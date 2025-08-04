@@ -27,14 +27,18 @@ const GameControlsCard = () => {
 export default GameControlsCard;
 
 const LiveGameControls = () => {
-    const gameToken = useLiveChessStore((state) => state.gameToken);
-    const playerColor = useLiveChessStore((state) => state.playerColor);
-    const sendGameEvent = useGameEmitter(gameToken);
-    const canAbort = useLiveChessStore(
-        (state) =>
-            state.positionHistory.length <= constants.ALLOW_ABORTION_UNTIL_MOVE,
+    const { gameToken, playerColor, canAbort, drawState } = useLiveChessStore(
+        (state) => ({
+            gameToken: state.gameToken,
+            playerColor: state.playerColor,
+            canAbort:
+                state.positionHistory.length <=
+                constants.ALLOW_ABORTION_UNTIL_MOVE,
+            drawState: state.drawState,
+        }),
     );
-    const drawState = useLiveChessStore((x) => x.drawState);
+
+    const sendGameEvent = useGameEmitter(gameToken);
     const cooldown =
         playerColor === GameColor.WHITE
             ? drawState.whiteCooldown

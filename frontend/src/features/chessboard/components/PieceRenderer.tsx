@@ -5,10 +5,10 @@ import { pointToStr } from "@/lib/utils/pointUtils";
 import PromotionPrompt from "./PromotionPrompt";
 
 const PieceRenderer = () => {
-    const pieces = useChessboardStore((state) => state.pieces);
-    const highlightedLegalMoves = useChessboardStore(
-        (x) => x.highlightedLegalMoves,
-    );
+    const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
+        pieces: x.pieces,
+        highlightedLegalMoves: x.highlightedLegalMoves,
+    }));
 
     return (
         <>
