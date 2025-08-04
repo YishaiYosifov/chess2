@@ -69,7 +69,6 @@ const LiveChessboard = ({
         liveChessStore,
         chessboardStore,
         gameOverPopupRef,
-        user?.userId,
     );
 
     return (

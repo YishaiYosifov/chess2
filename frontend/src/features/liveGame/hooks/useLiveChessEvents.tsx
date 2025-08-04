@@ -1,53 +1,21 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
-import { Clocks, GameColor, getGame, MoveSnapshot } from "@/lib/apiClient";
+import { Clocks, GameColor, MoveSnapshot } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
 import { GameOverPopupRef } from "../components/GameOverPopup";
 import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
-import { createStoreProps } from "../lib/gameStateProcessor";
-import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
+import { refetchGame } from "../lib/gameStateProcessor";
 
 export function useLiveChessEvents(
     gameToken: string,
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
-    userId?: string,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
-
-    const refetchGame = useCallback(async () => {
-        if (!userId) return;
-
-        const { error, data: gameState } = await getGame({
-            path: { gameToken },
-        });
-        if (error || !gameState) {
-            console.error(error);
-            return;
-        }
-
-        const { live, board } = createStoreProps(gameToken, userId, gameState);
-        liveChessStore.getState().resetState(live);
-        chessboardStore.getState().resetState(board);
-    }, [liveChessStore, chessboardStore, gameToken, userId]);
-
-    const pathname = usePathname();
-    const lastPathname = useRef<string | null>(null);
-
-    useEffect(() => {
-        // Back navigation
-        if (pathname === lastPathname.current) {
-            lastPathname.current = null;
-            refetchGame();
-        } else {
-            lastPathname.current = pathname;
-        }
-    }, [pathname, refetchGame]);
 
     function jumpForwards() {
         const { positionHistory, viewingMoveNumber, teleportToLastMove } =
@@ -92,7 +60,7 @@ export function useLiveChessEvents(
 
             // we missed a move... we need to refetch the state
             if (moveNumber != positionHistory.length) {
-                await refetchGame();
+                await refetchGame(liveChessStore, chessboardStore);
                 return;
             }
 
