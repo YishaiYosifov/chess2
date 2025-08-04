@@ -16,14 +16,14 @@ function useSignalREvent<
     eventName: TEventName,
     onEvent?: (...args: TEventMap[TEventName]) => void,
 ): void {
-    const signalRConnection = useSignalRConnection(hubUrl);
+    const { connection } = useSignalRConnection(hubUrl);
 
     useEffect(() => {
         const handler = onEvent ?? (() => {});
-        signalRConnection?.on(eventName, handler);
+        connection?.on(eventName, handler);
 
-        return () => signalRConnection?.off(eventName, handler);
-    }, [signalRConnection, eventName, onEvent]);
+        return () => connection?.off(eventName, handler);
+    }, [connection, eventName, onEvent]);
 }
 export default useSignalREvent;
 

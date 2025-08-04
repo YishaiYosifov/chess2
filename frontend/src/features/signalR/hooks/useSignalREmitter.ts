@@ -1,23 +1,43 @@
 import { useEffect, useRef } from "react";
 import useSignalRConnection from "./useSignalRConnection";
+import { HubConnectionState } from "@microsoft/signalr";
 
 const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
     hubUrl: string,
 ) => {
-    const connection = useSignalRConnection(hubUrl);
+    const { connection, state } = useSignalRConnection(hubUrl);
     const connectionRef = useRef(connection);
+    const pendingEventsRef = useRef<
+        {
+            eventName: Extract<keyof TEventMap, string>;
+            args: TEventMap[keyof TEventMap];
+        }[]
+    >([]);
+
     useEffect(() => {
         connectionRef.current = connection;
     }, [connection]);
 
+    useEffect(() => {
+        console.log(state);
+        if (state !== HubConnectionState.Connected) return;
+
+        for (const { eventName, args } of pendingEventsRef.current) {
+            connection?.invoke(eventName, ...args);
+        }
+        pendingEventsRef.current = [];
+    }, [state, connection]);
+
     async function sendEvent<
         TEventName extends Extract<keyof TEventMap, string>,
     >(eventName: TEventName, ...args: TEventMap[TEventName]): Promise<void> {
-        if (!connectionRef.current) {
-            console.warn("No connection available yet");
+        const connection = connectionRef.current;
+        if (!connection || connection.state !== HubConnectionState.Connected) {
+            pendingEventsRef.current.push({ eventName, args });
             return;
         }
-        await connectionRef.current.invoke(eventName, ...args);
+
+        await connection.invoke(eventName, ...args);
     }
     return sendEvent;
 };

@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import PlayOptions from "../PlayOptions";
 import constants from "@/lib/constants";
 import {
-    useMatchmakingEmitter,
-    useMatchmakingEvent,
+    useLobbyEmitter,
+    useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import React, { act } from "react";
@@ -15,7 +15,7 @@ vi.mock("js-cookie");
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("PlayOptions", () => {
-    const sendMatchmakingEventMock = vi.fn();
+    const sendLobbyEventMock = vi.fn();
     let matchFoundCallback: ((token: string) => void) | undefined;
     let matchFailedCallback: (() => void) | undefined;
 
@@ -27,18 +27,13 @@ describe("PlayOptions", () => {
     }
 
     beforeEach(() => {
-        vi.mocked(useMatchmakingEvent).mockImplementation(
-            (eventName, callback) => {
-                if (eventName === "MatchFoundAsync")
-                    matchFoundCallback = callback;
-                else if (eventName === "MatchFailedAsync")
-                    matchFailedCallback = callback;
-            },
-        );
+        vi.mocked(useLobbyEvent).mockImplementation((eventName, callback) => {
+            if (eventName === "MatchFoundAsync") matchFoundCallback = callback;
+            else if (eventName === "MatchFailedAsync")
+                matchFailedCallback = callback;
+        });
 
-        vi.mocked(useMatchmakingEmitter).mockReturnValue(
-            sendMatchmakingEventMock,
-        );
+        vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEventMock);
     });
 
     it("should render the heading and main container", () => {
@@ -109,7 +104,7 @@ describe("PlayOptions", () => {
 
         await user.click(playButton);
 
-        expect(sendMatchmakingEventMock).toHaveBeenCalledWith(
+        expect(sendLobbyEventMock).toHaveBeenCalledWith(
             "SeekRatedAsync",
             constants.STANDARD_TIME_CONTROLS[0].settings,
         );
@@ -128,8 +123,6 @@ describe("PlayOptions", () => {
         const cancelSeekButton = screen.getByTestId("cancelSeekButton");
         await user.click(cancelSeekButton);
 
-        expect(sendMatchmakingEventMock).toHaveBeenLastCalledWith(
-            "CancelSeekAsync",
-        );
+        expect(sendLobbyEventMock).toHaveBeenLastCalledWith("CancelSeekAsync");
     });
 });
