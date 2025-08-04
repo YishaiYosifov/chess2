@@ -19,7 +19,7 @@ const GameRow = ({
     index: number;
 }) => {
     const winCondition =
-        game.whitePlayer.userId == profileViewpoint.userId
+        game.whitePlayer.userId === profileViewpoint.userId
             ? GameResult.WHITE_WIN
             : GameResult.BLACK_WIN;
 
@@ -54,7 +54,7 @@ const GameRow = ({
     function getScore(winResult: GameResult): string {
         if (isDraw) return "½";
 
-        return game.result == winResult ? "1" : "0";
+        return game.result === winResult ? "1" : "0";
     }
 
     const whiteUsername = game.whitePlayer.userName;
@@ -64,7 +64,7 @@ const GameRow = ({
         <tr
             data-testid={`gameRow-${game.gameToken}`}
             className={clsx(
-                index % 2 == 0 ? "bg-gray-400/5" : "bg-gray-600/5",
+                index % 2 === 0 ? "bg-gray-400/5" : "bg-gray-600/5",
                 "whitespace-nowrap",
             )}
         >
