@@ -7,8 +7,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameNotifier
 {
-    Task NotifyDrawDeclinedAsync(string gameToken);
-    Task NotifyDrawRequestAsync(string gameToken);
+    Task NotifyDrawStateChangeAsync(string gameToken, DrawState drawState);
     Task NotifyGameEndedAsync(string gameToken, GameResultData result);
     Task NotifyMoveMadeAsync(
         string gameToken,
@@ -43,11 +42,8 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
             .LegalMovesChangedAsync(legalMoves, hasForcedMoves);
     }
 
-    public Task NotifyDrawRequestAsync(string gameToken) =>
-        _hub.Clients.Group(gameToken).DrawRequestedAsync();
-
-    public Task NotifyDrawDeclinedAsync(string gameToken) =>
-        _hub.Clients.Group(gameToken).DrawDeclinedAsync();
+    public Task NotifyDrawStateChangeAsync(string gameToken, DrawState drawState) =>
+        _hub.Clients.Group(gameToken).DrawStateChangeAsync(drawState);
 
     public Task NotifyGameEndedAsync(string gameToken, GameResultData result) =>
         _hub.Clients.Group(gameToken).GameEndedAsync(result);

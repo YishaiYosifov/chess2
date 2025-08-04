@@ -10,7 +10,7 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IDrawRequestHandler
 {
     void DecrementCooldown();
-    DrawState GetDrawState();
+    DrawState GetState();
     bool HasPendingRequest(GameColor requester);
     ErrorOr<Success> RequestDraw(GameColor requester);
     bool TryDeclineDraw();
@@ -18,9 +18,9 @@ public interface IDrawRequestHandler
 
 public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHandler
 {
-    private readonly int _drawRequestCooldownMoves = settings.Value.Game.DrawRequestCooldownMoves;
+    private readonly int _drawCooldown = settings.Value.Game.DrawCooldown;
 
-    private readonly Dictionary<GameColor, int> _drawCooldown = [];
+    private readonly Dictionary<GameColor, int> _activeCooldowns = [];
     private GameColor? _activeRequester;
 
     public ErrorOr<Success> RequestDraw(GameColor requester)
@@ -28,7 +28,7 @@ public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHa
         if (_activeRequester is not null)
             return GameErrors.DrawAlreadyRequested;
 
-        if (_drawCooldown.GetValueOrDefault(requester) > 0)
+        if (_activeCooldowns.GetValueOrDefault(requester) > 0)
             return GameErrors.DrawOnCooldown;
 
         _activeRequester = requester;
@@ -41,29 +41,29 @@ public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHa
             return false;
 
         var activeRequester = _activeRequester.Value;
-        _drawCooldown[activeRequester] = _drawRequestCooldownMoves;
+        _activeCooldowns[activeRequester] = _drawCooldown;
         _activeRequester = null;
         return true;
     }
 
     public void DecrementCooldown()
     {
-        foreach (var color in _drawCooldown.Keys.ToList())
+        foreach (var color in _activeCooldowns.Keys.ToList())
         {
-            _drawCooldown[color]--;
+            _activeCooldowns[color]--;
 
-            if (_drawCooldown[color] <= 0)
-                _drawCooldown.Remove(color);
+            if (_activeCooldowns[color] <= 0)
+                _activeCooldowns.Remove(color);
         }
     }
 
     public bool HasPendingRequest(GameColor player) =>
         _activeRequester is not null && _activeRequester != player;
 
-    public DrawState GetDrawState() =>
+    public DrawState GetState() =>
         new(
             ActiveRequester: _activeRequester,
-            WhiteCooldown: _drawCooldown.GetValueOrDefault(GameColor.White),
-            BlackCooldown: _drawCooldown.GetValueOrDefault(GameColor.Black)
+            WhiteCooldown: _activeCooldowns.GetValueOrDefault(GameColor.White),
+            BlackCooldown: _activeCooldowns.GetValueOrDefault(GameColor.Black)
         );
 }
