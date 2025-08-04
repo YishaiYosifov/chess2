@@ -3,7 +3,7 @@ import LiveChessStoreContext from "../contexts/liveChessContext";
 import { LiveChessStore } from "../stores/liveChessStore";
 import { useStore } from "zustand";
 
-export function useLiveChessStore<T>(
+export default function useLiveChessStore<T>(
     selector: (store: LiveChessStore) => T,
 ): T {
     const chessStoreContext = useContext(LiveChessStoreContext);

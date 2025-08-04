@@ -9,7 +9,7 @@ import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
 
-export function useLiveChessEvents(
+export default function useLiveChessEvents(
     gameToken: string,
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
