@@ -30,13 +30,12 @@ const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
 > = ({ position, children, className, style, ...divProps }, ref) => {
-    const { width: boardWidth, height: boardHeight } = useChessboardStore(
-        (store) => store.boardDimensions,
-    );
-
-    const logicalPointToViewPoint = useChessboardStore(
-        (state) => state.logicalPointToViewPoint,
-    );
+    const { logicalPointToViewPoint, boardWidth, boardHeight } =
+        useChessboardStore((x) => ({
+            logicalPointToViewPoint: x.logicalPointToViewPoint,
+            boardWidth: x.boardDimensions.width,
+            boardHeight: x.boardDimensions.height,
+        }));
     const squareDivRef = useRef<HTMLDivElement>(null);
 
     const { x, y } = logicalPointToViewPoint(position);

@@ -4,9 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
 
 const GameClock = ({ color }: { color: GameColor }) => {
-    const clocks = useLiveChessStore((x) => x.clocks);
-    const sideToMove = useLiveChessStore((x) => x.sideToMove);
-    const result = useLiveChessStore((x) => x.resultData);
+    const { clocks, sideToMove, result } = useLiveChessStore((x) => ({
+        clocks: x.clocks,
+        sideToMove: x.sideToMove,
+        result: x.resultData,
+    }));
 
     const baseTimeLeft =
         color === GameColor.WHITE ? clocks.whiteClock : clocks.blackClock;

@@ -33,9 +33,13 @@ const ChessboardLayout = ({
     className,
 }: ChessboardLayoutProps) => {
     const [boardSize, setBoardSize] = useState<number>(0);
-    const setBoardRect = useChessboardStore((state) => state.setBoardRect);
-    const onPointerDown = useChessboardStore((state) => state.onPointerDown);
-    const onPointerUp = useChessboardStore((state) => state.onPointerUp);
+    const { setBoardRect, onPointerDown, onPointerUp } = useChessboardStore(
+        (x) => ({
+            setBoardRect: x.setBoardRect,
+            onPointerDown: x.onPointerDown,
+            onPointerUp: x.onPointerUp,
+        }),
+    );
 
     const ref = useRef<HTMLDivElement>(null);
 

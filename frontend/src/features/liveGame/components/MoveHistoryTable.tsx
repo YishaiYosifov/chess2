@@ -8,10 +8,17 @@ import clsx from "clsx";
 import useAutoScroll from "@/hooks/useAutoScroll";
 
 const MoveHistoryTable = () => {
-    const positionHistory = useLiveChessStore((x) => x.positionHistory);
-    const shiftMoveViewBy = useLiveChessStore((x) => x.shiftMoveViewBy);
-    const teleportToMove = useLiveChessStore((x) => x.teleportToMove);
-    const teleportToLastMove = useLiveChessStore((x) => x.teleportToLastMove);
+    const {
+        positionHistory,
+        shiftMoveViewBy,
+        teleportToMove,
+        teleportToLastMove,
+    } = useLiveChessStore((x) => ({
+        positionHistory: x.positionHistory,
+        shiftMoveViewBy: x.shiftMoveViewBy,
+        teleportToMove: x.teleportToMove,
+        teleportToLastMove: x.teleportToLastMove,
+    }));
     const setPosition = useChessboardStore((x) => x.setPosition);
 
     const tableRef = useRef<HTMLDivElement | null>(null);
@@ -77,18 +84,17 @@ const MoveRow = ({
     moveBlack?: string;
     index: number;
 }) => {
-    const teleportToMove = useLiveChessStore((x) => x.teleportToMove);
-    const setPosition = useChessboardStore((x) => x.setPosition);
-
     const whiteMoveIdx = index * 2 - 1;
     const blackMoveIdx = whiteMoveIdx + 1;
 
-    const isViewingWhite = useLiveChessStore(
-        (x) => x.viewingMoveNumber === whiteMoveIdx,
-    );
-    const isViewingBlack = useLiveChessStore(
-        (x) => x.viewingMoveNumber === blackMoveIdx,
-    );
+    const { teleportToMove, isViewingWhite, isViewingBlack } =
+        useLiveChessStore((x) => ({
+            teleportToMove: x.teleportToMove,
+            isViewingWhite: x.viewingMoveNumber === whiteMoveIdx,
+            isViewingBlack: x.viewingMoveNumber === blackMoveIdx,
+        }));
+
+    const setPosition = useChessboardStore((x) => x.setPosition);
 
     const color = index % 2 === 0 ? "bg-white/10" : "";
     const selectedClass = "bg-blue-300/30";
