@@ -22,9 +22,11 @@ export interface LiveChessStoreProps {
     latestMoveOptions: ProcessedMoveOptions;
 
     sideToMove: GameColor;
-    playerColor: GameColor;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
+
+    userId: string;
+    playerColor: GameColor;
 
     clocks: Clocks;
     drawState: DrawState;

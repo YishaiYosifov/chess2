@@ -157,11 +157,15 @@ describe("createStoreProps", () => {
                 gameToken: "game-token",
                 whitePlayer: gameState.whitePlayer,
                 blackPlayer: gameState.blackPlayer,
-                playerColor: GameColor.BLACK,
                 sideToMove: gameState.sideToMove,
                 positionHistory,
+
+                userId: gameState.blackPlayer.userId,
+                playerColor: GameColor.BLACK,
+
                 viewingMoveNumber: 4,
                 latestMoveOptions,
+
                 drawState: gameState.drawState,
                 clocks: gameState.clocks,
                 resultData: null,
