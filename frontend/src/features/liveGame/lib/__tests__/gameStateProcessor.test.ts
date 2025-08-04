@@ -63,6 +63,10 @@ describe("createStoreProps", () => {
                 ],
                 hasForcedMoves: true,
             },
+            drawState: {
+                activeRequester: GameColor.WHITE,
+                cooldown: { [GameColor.WHITE]: 6, [GameColor.BLACK]: 9 },
+            },
         });
     });
 
@@ -158,6 +162,7 @@ describe("createStoreProps", () => {
                 positionHistory,
                 viewingMoveNumber: 4,
                 latestMoveOptions,
+                drawState: gameState.drawState,
                 clocks: gameState.clocks,
                 resultData: null,
             },

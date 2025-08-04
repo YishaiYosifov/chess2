@@ -39,6 +39,9 @@ export enum ErrorCode {
     GAME_ALREADY_ENDED = "Game.AlreadyEnded",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
     GAME_MOVE_INVALID = "Game.MoveInvalid",
+    GAME_DRAW_ALREADY_REQUESTED = "Game.DrawAlreadyRequested",
+    GAME_DRAW_ON_COOLDOWN = "Game.DrawOnCooldown",
+    GAME_DRAW_NOT_REQUESTED = "Game.DrawNotRequested",
     GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
     GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
@@ -58,6 +61,9 @@ export type ApiProblemError = {
         | "Game.AlreadyEnded"
         | "Game.PlayerInvalid"
         | "Game.MoveInvalid"
+        | "Game.DrawAlreadyRequested"
+        | "Game.DrawOnCooldown"
+        | "Game.DrawNotRequested"
         | "GameChat.InvalidUser"
         | "GameChat.InvalidMessage"
         | "GameChat.OnCooldown";
@@ -167,6 +173,7 @@ export type GameState = {
     initialFen: string;
     moveHistory: Array<MoveSnapshot>;
     moveOptions: MoveOptions;
+    drawState: DrawState;
     resultData?: GameResultData | null;
 };
 
@@ -258,6 +265,13 @@ export enum PieceType {
 export type MoveOptions = {
     legalMoves: Array<MovePath>;
     hasForcedMoves: boolean;
+};
+
+export type DrawState = {
+    activeRequester?: GameColor | null;
+    cooldown: {
+        [key: string]: number;
+    };
 };
 
 export type GameResultData = {
