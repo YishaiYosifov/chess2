@@ -78,7 +78,7 @@ export default function useBoardInteraction({
             lastMouseX = event.clientX;
             lastMouseY = event.clientY;
 
-            if (animationFrameId == null) {
+            if (animationFrameId === null) {
                 animationFrameId = requestAnimationFrame(emitDrag);
             }
         }

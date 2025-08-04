@@ -32,7 +32,7 @@ export function createStoreProps(
     };
 
     const playerColor =
-        userId == gameState.whitePlayer.userId
+        userId === gameState.whitePlayer.userId
             ? gameState.whitePlayer.color
             : gameState.blackPlayer.color;
 
