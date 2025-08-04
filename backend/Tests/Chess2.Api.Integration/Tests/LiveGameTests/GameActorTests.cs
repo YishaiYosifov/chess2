@@ -8,6 +8,7 @@ using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -15,6 +16,7 @@ using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.LiveGameTests;
@@ -30,6 +32,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
     private readonly IGameCore _gameCore;
     private readonly IDrawRequestHandler _drawRequestHandler;
     private readonly IActorRef _gameActor;
+    private readonly GameSettings _settings;
     private readonly TestProbe _probe;
     private readonly TestProbe _parentProbe;
 
@@ -50,6 +53,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
         _drawRequestHandler =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IDrawRequestHandler>();
+        _settings = ApiTestBase
+            .Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>()
+            .Value.Game;
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         var clock = new GameClock(_timeProviderMock, _stopwatchMock);
@@ -153,7 +159,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             SideToMove: GameColor.White,
             InitialFen: _gameCore.InitialFen,
             MoveHistory: [],
-            DrawState: _drawRequestHandler.GetDrawState(),
+            DrawState: _drawRequestHandler.GetState(),
             MoveOptions: new(
                 LegalMoves: legalMoves.MovePaths,
                 HasForcedMoves: legalMoves.HasForcedMoves
@@ -171,7 +177,12 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await _probe.ExpectMsgAsync<GameResponses.DrawRequested>(cancellationToken: ApiTestBase.CT);
 
-        await _gameNotifierMock.Received(1).NotifyDrawRequestAsync(TestGameToken);
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyDrawStateChangeAsync(
+                TestGameToken,
+                new DrawState(ActiveRequester: GameColor.White)
+            );
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
             cancellationToken: ApiTestBase.CT
@@ -205,7 +216,12 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _blackPlayer.UserId), _probe);
         await _probe.ExpectMsgAsync<GameResponses.DrawDeclined>(cancellationToken: ApiTestBase.CT);
 
-        await _gameNotifierMock.Received(1).NotifyDrawDeclinedAsync(TestGameToken);
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyDrawStateChangeAsync(
+                TestGameToken,
+                new DrawState(WhiteCooldown: _settings.DrawCooldown)
+            );
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
@@ -378,7 +394,9 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await MakeLegalMoveAsync(_whitePlayer);
 
-        await _gameNotifierMock.DidNotReceive().NotifyDrawDeclinedAsync(Arg.Any<string>());
+        await _gameNotifierMock
+            .DidNotReceive()
+            .NotifyDrawStateChangeAsync(Arg.Any<string>(), Arg.Any<DrawState>());
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
             cancellationToken: ApiTestBase.CT
@@ -399,7 +417,12 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
         await MakeLegalMoveAsync(_whitePlayer);
 
-        await _gameNotifierMock.Received(1).NotifyDrawDeclinedAsync(TestGameToken);
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyDrawStateChangeAsync(
+                TestGameToken,
+                new DrawState(WhiteCooldown: _settings.DrawCooldown)
+            );
 
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
         var state = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(

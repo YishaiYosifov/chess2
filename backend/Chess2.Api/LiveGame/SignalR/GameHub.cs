@@ -20,8 +20,7 @@ public interface IGameHubClient : IChess2HubClient
     );
     Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves, bool hasForcedMoves);
 
-    Task DrawRequestedAsync();
-    Task DrawDeclinedAsync();
+    Task DrawStateChangeAsync(DrawState drawState);
     Task GameEndedAsync(GameResultData result);
 
     Task ChatMessageAsync(string sender, string message);

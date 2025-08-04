@@ -158,7 +158,7 @@ public class LiveGameService(
         CancellationToken token = default
     )
     {
-        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.DrawRequested>(
+        var response = await _gameActor.ActorRef.AskExpecting<GameResponses.DrawDeclined>(
             new GameCommands.DeclineDraw(gameToken, userId),
             token
         );
