@@ -49,9 +49,12 @@ export default function useBoardInteraction({
     const isDraggingRef = useRef(false);
     const hasHandledPointerUpRef = useRef(false);
 
-    const pointerDownEvent = useChessboardStore((x) => x.pointerDownEvent);
-    const dragStartQuery = useChessboardStore((x) => x.dragStartQuery);
-    const pointerUpEvent = useChessboardStore((x) => x.pointerUpEvent);
+    const { pointerDownEvent, dragStartQuery, pointerUpEvent } =
+        useChessboardStore((x) => ({
+            pointerDownEvent: x.pointerDownEvent,
+            dragStartQuery: x.dragStartQuery,
+            pointerUpEvent: x.pointerUpEvent,
+        }));
 
     const startDragging = useCallback(async (startFrom: ScreenPoint) => {
         setIsDragging(true);

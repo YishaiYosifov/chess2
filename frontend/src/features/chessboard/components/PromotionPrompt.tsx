@@ -7,8 +7,10 @@ import getPieceImage from "../lib/pieceImage";
 import { PromotionRequest } from "../stores/promotionSlice";
 
 const PromotionPrompt = () => {
-    const pendingPromotion = useChessboardStore((x) => x.pendingPromotion);
-    const resolvePromotion = useChessboardStore((x) => x.resolvePromotion);
+    const { pendingPromotion, resolvePromotion } = useChessboardStore((x) => ({
+        pendingPromotion: x.pendingPromotion,
+        resolvePromotion: x.resolvePromotion,
+    }));
     if (!pendingPromotion) return;
 
     return (
@@ -39,8 +41,11 @@ const PromotionPiece = ({
     pendingPromotion: PromotionRequest;
     piece: PieceType | null;
 }) => {
-    const resolvePromotion = useChessboardStore((x) => x.resolvePromotion);
-    const boardDimensions = useChessboardStore((x) => x.boardDimensions);
+    const { resolvePromotion, boardDimensions } = useChessboardStore((x) => ({
+        resolvePromotion: x.resolvePromotion,
+        boardDimensions: x.boardDimensions,
+    }));
+
     if (!piece) return;
 
     function choosePiece(event: React.MouseEvent, piece: PieceType) {

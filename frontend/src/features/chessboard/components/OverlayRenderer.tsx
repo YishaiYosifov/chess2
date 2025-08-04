@@ -17,19 +17,24 @@ const CIRCLE_STROKE_WIDTH = 0.08;
 const CIRCLE_PADDING = 0.05;
 
 const OverlayRenderer = () => {
-    const dimensions = useChessboardStore((x) => x.boardDimensions);
-    const overlays = useChessboardStore((x) => x.overlays);
-    const currentlyDrawing = useChessboardStore((x) => x.currentlyDrawing);
+    const {
+        dimensions,
+        overlays,
+        currentlyDrawing,
+        commitCurrentlyDrawing,
+        setCurrentlyDrawing,
+        screenToViewPoint,
+        clearOverlays,
+    } = useChessboardStore((x) => ({
+        dimensions: x.boardDimensions,
+        overlays: x.overlays,
+        currentlyDrawing: x.currentlyDrawing,
+        commitCurrentlyDrawing: x.commitCurrentlyDrawing,
+        setCurrentlyDrawing: x.setCurrentlyDrawing,
+        clearOverlays: x.clearOverlays,
+        screenToViewPoint: x.screenToViewPoint,
+    }));
     const headId = useId();
-
-    const commitCurrentlyDrawing = useChessboardStore(
-        (x) => x.commitCurrentlyDrawing,
-    );
-    const setCurrentlyDrawing = useChessboardStore(
-        (x) => x.setCurrentlyDrawing,
-    );
-    const screenToViewPoint = useChessboardStore((x) => x.screenToViewPoint);
-    const clearArrows = useChessboardStore((x) => x.clearOverlays);
 
     const startPointRef = useRef<ViewPoint | null>(null);
     const lastPointRef = useRef<ViewPoint | null>(null);
@@ -37,7 +42,7 @@ const OverlayRenderer = () => {
         shouldStartDrag(info) {
             if (info.button === 2) return true;
 
-            clearArrows();
+            clearOverlays();
             return false;
         },
 
