@@ -70,8 +70,8 @@ public class DrawRequestHandlerTests
 
         var state = _handler.GetDrawState();
         state.ActiveRequester.Should().BeNull();
-        state.Cooldown.Should().ContainKey(GameColor.Black);
-        state.Cooldown[GameColor.Black].Should().Be(_drawRequestCooldownMoves);
+        state.BlackCooldown.Should().Be(_drawRequestCooldownMoves);
+        state.WhiteCooldown.Should().Be(0);
     }
 
     [Fact]
@@ -91,7 +91,8 @@ public class DrawRequestHandlerTests
         var state = _handler.GetDrawState();
 
         state.ActiveRequester.Should().Be(GameColor.Black);
-        state.Cooldown.Should().BeEmpty();
+        state.WhiteCooldown.Should().Be(0);
+        state.BlackCooldown.Should().Be(0);
     }
 
     [Fact]
@@ -107,7 +108,8 @@ public class DrawRequestHandlerTests
         }
 
         _handler.DecrementCooldown();
-        _handler.GetDrawState().Cooldown.Should().NotContainKey(GameColor.White);
+        _handler.GetDrawState().WhiteCooldown.Should().Be(0);
+        _handler.GetDrawState().BlackCooldown.Should().Be(0);
         _handler.RequestDraw(GameColor.White).IsError.Should().BeFalse();
     }
 }

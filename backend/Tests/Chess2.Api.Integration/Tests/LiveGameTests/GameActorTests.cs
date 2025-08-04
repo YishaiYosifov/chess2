@@ -370,14 +370,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
         _gameActor.Tell(new GameCommands.DeclineDraw(TestGameToken, _whitePlayer.UserId), _probe);
         await _probe.ExpectMsgAsync<GameResponses.DrawDeclined>(cancellationToken: ApiTestBase.CT);
         _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
-        var initialCooldown = (
-            await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
-                cancellationToken: ApiTestBase.CT
-            )
-        )
-            .State
-            .DrawState
-            .Cooldown[GameColor.White];
+        var initialState = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
+            cancellationToken: ApiTestBase.CT
+        );
+
         _gameNotifierMock.ClearReceivedCalls();
 
         await MakeLegalMoveAsync(_whitePlayer);
@@ -388,8 +384,10 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
 
-        state.State.DrawState.Cooldown[GameColor.White].Should().Be(initialCooldown - 1);
-        state.State.DrawState.Cooldown.GetValueOrDefault(GameColor.Black).Should().Be(0);
+        state
+            .State.DrawState.WhiteCooldown.Should()
+            .Be(initialState.State.DrawState.WhiteCooldown - 1);
+        state.State.DrawState.BlackCooldown.Should().Be(0);
     }
 
     [Fact]
