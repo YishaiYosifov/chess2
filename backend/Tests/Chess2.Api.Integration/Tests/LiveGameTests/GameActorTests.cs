@@ -390,11 +390,11 @@ public class GameActorTests : BaseAkkaIntegrationTest
         var initialState = await _probe.ExpectMsgAsync<GameResponses.GameStateResponse>(
             cancellationToken: ApiTestBase.CT
         );
+        var drawCooldown = initialState.State.DrawState.WhiteCooldown;
 
         _gameNotifierMock.ClearReceivedCalls();
 
         await MakeLegalMoveAsync(_whitePlayer);
-        await MakeLegalMoveAsync(_blackPlayer);
 
         await _gameNotifierMock
             .DidNotReceive()
@@ -404,9 +404,7 @@ public class GameActorTests : BaseAkkaIntegrationTest
             cancellationToken: ApiTestBase.CT
         );
 
-        state
-            .State.DrawState.WhiteCooldown.Should()
-            .Be(initialState.State.DrawState.WhiteCooldown - 1);
+        state.State.DrawState.WhiteCooldown.Should().Be(drawCooldown - 1);
         state.State.DrawState.BlackCooldown.Should().Be(0);
     }
 
