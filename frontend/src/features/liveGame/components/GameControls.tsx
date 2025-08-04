@@ -6,19 +6,17 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { FlagIcon } from "@heroicons/react/24/solid";
 
-import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import { useLiveChessStore } from "../hooks/useLiveChessStore";
+import GameControlButton from "./GameControlButton";
+import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
-import React, { useRef, useState } from "react";
-import clsx from "clsx";
 
 const GameControls = () => {
     const resultData = useLiveChessStore((state) => state.resultData);
 
     return (
-        <Card className="justify-center gap-5">
+        <Card className="justify-center gap-2">
             {resultData ? <GameOverControls /> : <LiveGameControls />}
         </Card>
     );
@@ -42,7 +40,6 @@ const LiveGameControls = () => {
                     icon={XMarkIcon}
                     title="Abort"
                     onClick={endGame}
-                    needsConfirmation={false}
                 />
             )}
             <GameControlButton
@@ -50,11 +47,13 @@ const LiveGameControls = () => {
                 title="Resign"
                 disabled={canAbort}
                 onClick={endGame}
+                needsConfirmation
             />
             <GameControlButton
                 disabled={canAbort}
                 icon={ScaleIcon}
                 title="Offer Draw"
+                needsConfirmation
             />
         </>
     );
@@ -63,71 +62,8 @@ const LiveGameControls = () => {
 const GameOverControls = () => {
     return (
         <>
-            <Button className="flex w-full justify-center gap-2">
-                <PlusIcon className="size-6" /> New Game
-            </Button>
-            <Button className="flex w-full justify-center gap-2">
-                <ArrowPathIcon className="size-6" /> Rematch
-            </Button>
+            <GameControlButton icon={PlusIcon}>New Game</GameControlButton>
+            <GameControlButton icon={ArrowPathIcon}>Rematch</GameControlButton>
         </>
-    );
-};
-
-const GameControlButton = ({
-    icon,
-    needsConfirmation = true,
-    onClick,
-    ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    icon: React.ElementType;
-    needsConfirmation?: boolean;
-}) => {
-    const Component = icon;
-
-    const [isConfirming, setIsConfirming] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout>(null);
-
-    function confirmClick(
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    ) {
-        if (!needsConfirmation || isConfirming) {
-            onClick?.(event);
-            return;
-        }
-
-        setIsConfirming(true);
-
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => setIsConfirming(false), 3000);
-    }
-
-    return (
-        <div className="flex gap-1">
-            <button
-                className={clsx(
-                    "flex w-20 cursor-pointer items-center justify-center rounded-md transition",
-                    isConfirming
-                        ? "border-b-4 border-orange-800 bg-orange-600 p-1 hover:brightness-75"
-                        : `enabled:hover:bg-secondary enabled:hover:text-neutral-900
-                            disabled:cursor-not-allowed disabled:brightness-75`,
-                )}
-                onClick={confirmClick}
-                {...props}
-            >
-                <Component className="h-full max-h-full w-full max-w-full" />
-            </button>
-
-            {isConfirming && (
-                <button
-                    type="button"
-                    onClick={() => setIsConfirming(false)}
-                    className="hover:text-secondary cursor-pointer p-1 transition"
-                    title="Cancel"
-                    aria-label="Cancel confirmation"
-                >
-                    <XMarkIcon className="h-6 w-6" />
-                </button>
-            )}
-        </div>
     );
 };
