@@ -10,12 +10,12 @@ import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
 
 export default function useLiveChessEvents(
-    gameToken: string,
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
     gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
+    const gameToken = useStore(liveChessStore, (x) => x.gameToken);
 
     function jumpForwards() {
         const { positionHistory, viewingMoveNumber, teleportToLastMove } =

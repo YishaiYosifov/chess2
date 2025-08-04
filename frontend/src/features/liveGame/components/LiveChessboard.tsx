@@ -30,6 +30,7 @@ import {
     ProcessedGameState,
 } from "../lib/gameStateProcessor";
 import useConst from "@/hooks/useConst";
+import useBackNavigationRefetch from "../hooks/useBackNavigationRefetch";
 
 const LiveChessboard = ({
     gameToken,
@@ -64,12 +65,8 @@ const LiveChessboard = ({
         createLiveChessStore(storeProps.live),
     );
 
-    useLiveChessEvents(
-        gameToken,
-        liveChessStore,
-        chessboardStore,
-        gameOverPopupRef,
-    );
+    useBackNavigationRefetch(chessboardStore, liveChessStore);
+    useLiveChessEvents(liveChessStore, chessboardStore, gameOverPopupRef);
 
     return (
         <LiveChessStoreContext.Provider value={liveChessStore}>
