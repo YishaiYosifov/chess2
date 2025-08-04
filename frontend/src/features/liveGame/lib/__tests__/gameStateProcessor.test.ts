@@ -65,7 +65,8 @@ describe("createStoreProps", () => {
             },
             drawState: {
                 activeRequester: GameColor.WHITE,
-                cooldown: { [GameColor.WHITE]: 6, [GameColor.BLACK]: 9 },
+                whiteCooldown: 6,
+                blackCooldown: 9,
             },
         });
     });

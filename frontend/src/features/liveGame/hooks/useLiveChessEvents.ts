@@ -91,6 +91,10 @@ export default function useLiveChessEvents(
         },
     );
 
+    useGameEvent(gameToken, "DrawStateChangeAsync", (drawState) =>
+        liveChessStore.getState().drawStateChange(drawState),
+    );
+
     useGameEvent(gameToken, "GameEndedAsync", async (result) => {
         liveChessStore.getState().endGame(result);
         chessboardStore.getState().disableMovement();

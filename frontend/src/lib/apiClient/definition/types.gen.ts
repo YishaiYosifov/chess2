@@ -269,9 +269,8 @@ export type MoveOptions = {
 
 export type DrawState = {
     activeRequester?: GameColor | null;
-    cooldown: {
-        [key: string]: number;
-    };
+    whiteCooldown: number;
+    blackCooldown: number;
 };
 
 export type GameResultData = {
