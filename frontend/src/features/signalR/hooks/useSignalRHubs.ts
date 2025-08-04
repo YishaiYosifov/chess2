@@ -14,26 +14,24 @@ import {
     TimeControlSettings,
 } from "@/lib/apiClient";
 
-type MatchmakingClientEvents = {
+type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
     MatchFailedAsync: [];
 };
 
-type MatchmakingHubEvents = {
+type LobbyHubEvents = {
     SeekRatedAsync: [timeControl: TimeControlSettings];
     SeekCasualAsync: [timeControl: TimeControlSettings];
     CancelSeekAsync: [];
 };
 
-export const useMatchmakingEvent =
-    signalREventHookFactory<MatchmakingClientEvents>(
-        constants.SIGNALR_PATHS.MATCHMAKING,
-    );
+export const useLobbyEvent = signalREventHookFactory<LobbyClientEvents>(
+    constants.SIGNALR_PATHS.LOBBY,
+);
 
-export const useMatchmakingEmitter =
-    signalREmitterHookFactory<MatchmakingHubEvents>(
-        constants.SIGNALR_PATHS.MATCHMAKING,
-    );
+export const useLobbyEmitter = signalREmitterHookFactory<LobbyHubEvents>(
+    constants.SIGNALR_PATHS.LOBBY,
+);
 
 export type GameClientEvents = {
     MoveMadeAsync: [

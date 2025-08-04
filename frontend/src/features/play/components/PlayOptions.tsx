@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 import {
-    useMatchmakingEmitter,
-    useMatchmakingEvent,
+    useLobbyEmitter,
+    useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
 
 import PoolToggle, { PoolToggleRef } from "./PoolToggle";
@@ -26,11 +26,11 @@ const PlayOptions = () => {
     const poolToggleRef = useRef<PoolToggleRef>(null);
     const router = useRouter();
 
-    const sendMatchmakingEvent = useMatchmakingEmitter();
-    useMatchmakingEvent("MatchFoundAsync", (token) =>
+    const sendLobbyEvent = useLobbyEmitter();
+    useLobbyEvent("MatchFoundAsync", (token) =>
         router.push(`${constants.PATHS.GAME}/${token}`),
     );
-    useMatchmakingEvent("MatchFailedAsync", () => setIsSeeking(false));
+    useLobbyEvent("MatchFailedAsync", () => setIsSeeking(false));
 
     useEffect(() => {
         const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
@@ -41,13 +41,13 @@ const PlayOptions = () => {
         setIsSeeking(true);
 
         const isRated = poolToggleRef.current?.isRated ?? false;
-        if (isRated) await sendMatchmakingEvent("SeekRatedAsync", timeControl);
-        else await sendMatchmakingEvent("SeekCasualAsync", timeControl);
+        if (isRated) await sendLobbyEvent("SeekRatedAsync", timeControl);
+        else await sendLobbyEvent("SeekCasualAsync", timeControl);
     }
 
     async function cancelSeek() {
         setIsSeeking(false);
-        await sendMatchmakingEvent("CancelSeekAsync");
+        await sendLobbyEvent("CancelSeekAsync");
     }
 
     return (

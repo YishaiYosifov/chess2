@@ -35,7 +35,7 @@ const PATHS = {
 };
 
 const SIGNALR_PATHS = {
-    MATCHMAKING: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/matchmaking`,
+    LOBBY: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/lobby`,
     GAME: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/game`,
 };
 
