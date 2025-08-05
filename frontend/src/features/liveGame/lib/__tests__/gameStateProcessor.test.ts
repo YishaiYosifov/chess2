@@ -161,6 +161,8 @@ describe("createStoreProps", () => {
                 sideToMove: gameState.sideToMove,
                 positionHistory,
 
+                isRated: gameState.isRated,
+                timeControl: gameState.timeControl,
                 userId: gameState.blackPlayer.userId,
                 playerColor: GameColor.BLACK,
 
