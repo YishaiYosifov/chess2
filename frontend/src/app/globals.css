@@ -53,7 +53,8 @@
     --animate-blink: blink 1s infinite;
     --animate-wiggle: wiggle 1s ease-in-out infinite;
     --animate-freakout: blink 0.5s infinite, wiggle 0.1s ease-in-out infinite;
-    --animate-flash-once: flash-once 0.5s ease-in-out;
+    --animate-flash-once: flash 0.5s ease-in-out;
+    --animate-subtle-ping: subtle-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 
     @keyframes blink {
         0%,
@@ -84,7 +85,7 @@
         }
     }
 
-    @keyframes flash-once {
+    @keyframes flash {
         0%,
         100% {
             opacity: 1;
@@ -93,8 +94,19 @@
         }
         50% {
             background-color: #b8abce80;
-
             transform: scale(1.05);
+        }
+    }
+
+    @keyframes subtle-ping {
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.3;
         }
     }
 }
