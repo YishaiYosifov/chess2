@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-
-import {
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 
 import PoolToggle, { PoolToggleRef } from "./PoolToggle";
 import TimeControlButton from "./TimeControlButton";
@@ -15,6 +9,7 @@ import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
 import SeekingOverlay from "./SeekingOverlay";
 import { TimeControlSettings } from "@/lib/apiClient";
+import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
 /**
  * Card containing the variant and time control options.
@@ -22,32 +17,17 @@ import { TimeControlSettings } from "@/lib/apiClient";
  */
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
-    const [isSeeking, setIsSeeking] = useState(false);
     const poolToggleRef = useRef<PoolToggleRef>(null);
-    const router = useRouter();
 
-    const sendLobbyEvent = useLobbyEmitter();
-    useLobbyEvent("MatchFoundAsync", (token) =>
-        router.push(`${constants.PATHS.GAME}/${token}`),
-    );
-    useLobbyEvent("MatchFailedAsync", () => setIsSeeking(false));
-
+    const { createSeek, cancelSeek, isSeeking } = useMatchmaking();
     useEffect(() => {
         const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
         setShowPoolToggle(isAuthed !== undefined);
     }, []);
 
     async function handleSeekMatch(timeControl: TimeControlSettings) {
-        setIsSeeking(true);
-
         const isRated = poolToggleRef.current?.isRated ?? false;
-        if (isRated) await sendLobbyEvent("SeekRatedAsync", timeControl);
-        else await sendLobbyEvent("SeekCasualAsync", timeControl);
-    }
-
-    async function cancelSeek() {
-        setIsSeeking(false);
-        await sendLobbyEvent("CancelSeekAsync");
+        await createSeek(isRated, timeControl);
     }
 
     return (
