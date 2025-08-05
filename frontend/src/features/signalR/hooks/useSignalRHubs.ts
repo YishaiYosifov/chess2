@@ -14,7 +14,7 @@ import {
     TimeControlSettings,
 } from "@/lib/apiClient";
 
-type LobbyClientEvents = {
+export type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
     MatchFailedAsync: [];
 };
