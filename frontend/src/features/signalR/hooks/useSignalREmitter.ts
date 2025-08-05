@@ -1,6 +1,8 @@
-import { useEffect, useRef } from "react";
-import useSignalRConnection, { useHubState } from "./useSignalRConnection";
 import { HubConnectionState } from "@microsoft/signalr";
+import { useEffect, useRef } from "react";
+
+import useSignalRConnection from "./useSignalRConnection";
+import useHubState from "./useHubState";
 
 const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
     hubUrl: string,
