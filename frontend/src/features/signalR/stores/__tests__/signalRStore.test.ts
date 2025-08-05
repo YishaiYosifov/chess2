@@ -1,20 +1,24 @@
 import { renderHook } from "@testing-library/react";
-import * as signalR from "@microsoft/signalr";
 import { mock, MockProxy } from "vitest-mock-extended";
 import { Mock } from "vitest";
 import { act } from "react";
 
-import useSignalRStore, { initialSignalRStoreState } from "../signalRStore";
+import useSignalRStore from "../signalRStore";
 import { mockHubBuilder } from "@/lib/testUtils/mocks/mockSignalR";
+import {
+    HubConnection,
+    HubConnectionBuilder,
+    LogLevel,
+} from "@microsoft/signalr";
 
 vi.mock("@microsoft/signalr");
 
 describe("signalRStore", () => {
-    const hubBuilderMock = signalR.HubConnectionBuilder as Mock;
+    const hubBuilderMock = HubConnectionBuilder as Mock;
     let hubBuilderInstanceMock: MockProxy<signalR.HubConnectionBuilder>;
 
     beforeEach(() => {
-        useSignalRStore.setState(initialSignalRStoreState);
+        useSignalRStore.setState(useSignalRStore.getInitialState());
         hubBuilderInstanceMock = mockHubBuilder();
     });
 
@@ -33,26 +37,26 @@ describe("signalRStore", () => {
             // Create the hub first
             act(() => joinHub(url));
 
-            expect(useSignalRStore.getState().hubs[url]).toBe(mockHub);
+            expect(useSignalRStore.getState().hubs.get(url)).toBe(mockHub);
 
             // Now leave the hub
             await act(() => leaveHub(url));
 
             expect(mockHub.stop).toHaveBeenCalledOnce();
-            expect(useSignalRStore.getState().hubs[url]).toBeUndefined();
+            expect(useSignalRStore.getState().hubs.get(url)).toBeUndefined();
         });
     });
 
     describe("joinHub", () => {
         it("should create a hub if it doesn't exist", async () => {
             const url = "test-url";
-            const mockHub = mock<signalR.HubConnection>();
+            const mockHub = mock<HubConnection>();
             hubBuilderInstanceMock.build.mockReturnValue(mockHub);
 
             const { joinHub } = renderSignalRStore();
 
             act(() => joinHub(url));
-            expect(useSignalRStore.getState().hubs[url]).toBe(mockHub);
+            expect(useSignalRStore.getState().hubs.get(url)).toBe(mockHub);
 
             expect(
                 hubBuilderInstanceMock.withUrl,
@@ -62,7 +66,7 @@ describe("signalRStore", () => {
             ).toHaveBeenCalledOnce();
             expect(
                 hubBuilderInstanceMock.configureLogging,
-            ).toHaveBeenCalledExactlyOnceWith(signalR.LogLevel.Information);
+            ).toHaveBeenCalledExactlyOnceWith(LogLevel.Information);
 
             expect(hubBuilderInstanceMock.build).toHaveBeenCalledOnce();
             expect(hubBuilderInstanceMock.build).toHaveBeenCalledAfter(
@@ -79,8 +83,8 @@ describe("signalRStore", () => {
         });
 
         it("should return the existing hub if it exists", async () => {
-            const expectedHub = mock<signalR.HubConnection>();
-            const otherHub = mock<signalR.HubConnection>();
+            const expectedHub = mock<HubConnection>();
+            const otherHub = mock<HubConnection>();
 
             hubBuilderInstanceMock.build.mockReturnValue(expectedHub);
 
@@ -88,7 +92,7 @@ describe("signalRStore", () => {
 
             // First call creates the hub
             act(() => joinHub("test-url"));
-            expect(useSignalRStore.getState().hubs["test-url"]).toBe(
+            expect(useSignalRStore.getState().hubs.get("test-url")).toBe(
                 expectedHub,
             );
 
@@ -96,10 +100,10 @@ describe("signalRStore", () => {
 
             // Second call should not create a new hub, so the stored one stays the same
             act(() => joinHub("test-url"));
-            expect(useSignalRStore.getState().hubs["test-url"]).toBe(
+            expect(useSignalRStore.getState().hubs.get("test-url")).toBe(
                 expectedHub,
             );
-            expect(useSignalRStore.getState().hubs["test-url"]).not.toBe(
+            expect(useSignalRStore.getState().hubs.get("test-url")).not.toBe(
                 otherHub,
             );
         });

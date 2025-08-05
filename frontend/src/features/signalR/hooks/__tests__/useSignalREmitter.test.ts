@@ -3,13 +3,12 @@ import {
     mockHubBuilder,
     mockHubConnection,
 } from "@/lib/testUtils/mocks/mockSignalR";
-import useSignalRStore, {
-    initialSignalRStoreState,
-} from "@/features/signalR/stores/signalRStore";
+import useSignalRStore from "@/features/signalR/stores/signalRStore";
 import { act, renderHook } from "@testing-library/react";
 import useSignalREmitter from "../useSignalREmitter";
 import { MockProxy } from "vitest-mock-extended";
 import { HubConnectionState } from "@microsoft/signalr";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 vi.mock("@microsoft/signalr");
 
@@ -18,15 +17,18 @@ describe("useSignalREvent", () => {
     const hubUrl = "https://test.com/hub";
 
     beforeEach(() => {
-        useSignalRStore.setState(initialSignalRStoreState);
+        useSignalRStore.setState(useSignalRStore.getInitialState());
         hubBuilderInstanceMock = mockHubBuilder();
     });
 
     it("should return a sendEvent function that calls invoke on the connection", async () => {
-        const { mockConnection } = mockHubConnection();
+        const { mockConnection } = mockHubConnection(
+            HubConnectionState.Connected,
+        );
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
+        await flushMicrotasks();
 
         await act(async () => {
             result.current("myEvent", "testArg", 42);
@@ -51,7 +53,9 @@ describe("useSignalREvent", () => {
         );
 
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
-        mockConnection.start.mockRejectedValue(new Error("nuh uh"));
+        mockConnection.start.mockRejectedValue(
+            new Error("intentional mock start failure"),
+        );
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
 
@@ -78,7 +82,9 @@ describe("useSignalREvent", () => {
         const { mockConnection, handlers } = mockHubConnection(
             HubConnectionState.Disconnected,
         );
-        mockConnection.start.mockRejectedValue(new Error("nuh uh"));
+        mockConnection.start.mockRejectedValue(
+            new Error("intentional mock start failure"),
+        );
 
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 

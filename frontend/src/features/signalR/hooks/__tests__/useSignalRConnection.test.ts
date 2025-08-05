@@ -3,14 +3,13 @@ import { act, renderHook } from "@testing-library/react";
 import { MockProxy } from "vitest-mock-extended";
 
 import useSignalRConnection from "../useSignalRConnection";
-import useSignalRStore, {
-    initialSignalRStoreState,
-} from "@/features/signalR/stores/signalRStore";
+import useSignalRStore from "@/features/signalR/stores/signalRStore";
 import {
     addMockHubConnection,
     mockHubBuilder,
     mockHubConnection,
 } from "@/lib/testUtils/mocks/mockSignalR";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 vi.mock("@microsoft/signalr");
 
@@ -19,7 +18,7 @@ describe("useSignalRConnection", () => {
     const hubUrl = "https://test.com/hub";
 
     beforeEach(() => {
-        useSignalRStore.setState(initialSignalRStoreState);
+        useSignalRStore.setState(useSignalRStore.getInitialState());
         hubBuilderInstanceMock = mockHubBuilder();
     });
 
@@ -30,25 +29,22 @@ describe("useSignalRConnection", () => {
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalRConnection(hubUrl));
+        await flushMicrotasks();
 
-        // await the connection.start promise resolution
-        await act(() => Promise.resolve());
-
-        expect(result.current.connection).toBe(mockConnection);
-        expect(result.current.state).toBe(HubConnectionState.Connected);
+        expect(result.current).toBe(mockConnection);
         expect(mockConnection.start).toHaveBeenCalled();
     });
 
-    it("should not start connection if already connected", () => {
+    it("should not start connection if already connected", async () => {
         const { mockConnection } = mockHubConnection(
             HubConnectionState.Connected,
         );
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalRConnection(hubUrl));
+        await flushMicrotasks();
 
-        expect(result.current.connection).toBe(mockConnection);
-        expect(result.current.state).toBe(HubConnectionState.Disconnected);
+        expect(result.current).toBe(mockConnection);
         expect(mockConnection.start).not.toHaveBeenCalled();
     });
 
@@ -59,7 +55,7 @@ describe("useSignalRConnection", () => {
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         renderHook(() => useSignalRConnection(hubUrl));
-        await act(() => Promise.resolve());
+        await flushMicrotasks();
 
         expect(mockConnection.on).toHaveBeenCalledWith(
             "ReceiveErrorAsync",
@@ -74,24 +70,28 @@ describe("useSignalRConnection", () => {
 
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
-        const { result } = renderHook(() => useSignalRConnection(hubUrl));
-
-        await act(() => Promise.resolve());
+        renderHook(() => useSignalRConnection(hubUrl));
+        await flushMicrotasks();
 
         act(() => handlers.onReconnectedHandler?.());
-        expect(result.current.state).toBe(HubConnectionState.Connected);
+        expect(useSignalRStore.getState().hubStates.get(hubUrl)).toBe(
+            HubConnectionState.Connected,
+        );
 
         act(() => handlers.onCloseHandler?.());
-        expect(result.current.state).toBe(HubConnectionState.Disconnected);
+        expect(useSignalRStore.getState().hubStates.get(hubUrl)).toBe(
+            HubConnectionState.Disconnected,
+        );
     });
 
-    it("should clean up event handlers on unmount", () => {
+    it("should clean up event handlers on unmount", async () => {
         const { mockConnection } = mockHubConnection(
             HubConnectionState.Disconnected,
         );
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         const { unmount } = renderHook(() => useSignalRConnection(hubUrl));
+        await flushMicrotasks();
         unmount();
 
         expect(mockConnection.off).toHaveBeenCalledWith(

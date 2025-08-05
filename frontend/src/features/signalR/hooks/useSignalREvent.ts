@@ -16,7 +16,7 @@ function useSignalREvent<
     eventName: TEventName,
     onEvent?: (...args: TEventMap[TEventName]) => void,
 ): void {
-    const { connection } = useSignalRConnection(hubUrl);
+    const connection = useSignalRConnection(hubUrl);
 
     useEffect(() => {
         const handler = onEvent ?? (() => {});

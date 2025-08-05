@@ -10,6 +10,9 @@ import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
+
+vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("GameOverPopup", () => {
     const ref = React.createRef<GameOverPopupRef>();
@@ -21,16 +24,17 @@ describe("GameOverPopup", () => {
         );
     });
 
-    it("should not render popup content by default", () => {
+    it("should not render popup content by default", async () => {
         render(
             <LiveChessStoreContext.Provider value={store}>
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
-    it("should show victory title and rating changes for white win", () => {
+    it("should show victory title and rating changes for white win", async () => {
         store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
@@ -45,6 +49,7 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
@@ -54,7 +59,7 @@ describe("GameOverPopup", () => {
         expect(screen.getByText("-10")).toBeInTheDocument();
     });
 
-    it("should show 'YOU LOST' when black wins and player is white", () => {
+    it("should show 'YOU LOST' when black wins and player is white", async () => {
         store.setState({
             resultData: {
                 result: GameResult.BLACK_WIN,
@@ -69,13 +74,14 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("YOU LOST")).toBeInTheDocument();
         expect(screen.getByText("Black Won on Time")).toBeInTheDocument();
     });
 
-    it("should show DRAW title and result description", () => {
+    it("should show DRAW title and result description", async () => {
         store.setState({
             resultData: {
                 result: GameResult.DRAW,
@@ -90,13 +96,14 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("DRAW")).toBeInTheDocument();
         expect(screen.getByText("Draw by Stalemate")).toBeInTheDocument();
     });
 
-    it("should show ABORTED title if game was aborted", () => {
+    it("should show ABORTED title if game was aborted", async () => {
         store.setState({
             resultData: {
                 result: GameResult.ABORTED,
@@ -111,6 +118,7 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("ABORTED")).toBeInTheDocument();
@@ -183,7 +191,7 @@ describe("GameOverPopup", () => {
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
     });
 
-    it("should render NEW GAME and REMATCH buttons", () => {
+    it("should render NEW GAME and REMATCH buttons", async () => {
         store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
@@ -198,6 +206,7 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
+        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("NEW GAME")).toBeInTheDocument();
