@@ -19,7 +19,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
             new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, TimeControl),
             Probe
         );
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(
+        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(
             x => x.UserId == userId,
             cancellationToken: CT
         );
@@ -29,6 +29,9 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
 
     protected override ICreateSeekCommand CreateSeekCommand(string userId) =>
         new RatedMatchmakingCommands.CreateRatedSeek(userId, 1200, TimeControl);
+
+    protected override void VerifySeekWasAdded(string userId, int times) =>
+        PoolMock.Received(times).AddSeek(userId, Arg.Any<int>());
 
     protected override IActorRef CreateActor()
     {

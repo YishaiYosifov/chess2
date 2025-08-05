@@ -30,12 +30,10 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     {
         MatchmakingActor = CreateActor();
         Probe = CreateTestProbe();
-
-        Sys.EventStream.Subscribe(Probe, typeof(MatchmakingBroadcasts.SeekCreated));
-        Sys.EventStream.Subscribe(Probe, typeof(MatchmakingBroadcasts.SeekCanceled));
     }
 
     protected abstract ICreateSeekCommand CreateSeekCommand(string userId);
+    protected abstract void VerifySeekWasAdded(string userId, int times);
 
     [Fact]
     public void StartPeriodicTimer_is_set_for_match_waves()
@@ -69,7 +67,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
             Probe
         );
 
-        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingBroadcasts.SeekCanceled>(
+        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingEvents.SeekCanceled>(
             x => x.UserId == userIdToRemove,
             cancellationToken: CT
         );
@@ -81,19 +79,27 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
     {
         const string userId = "user1";
 
-        PoolMock.RemoveSeek(userId).Returns(true);
-
-        var listenerProbe = CreateTestProbe("listener");
-        Sys.EventStream.Subscribe(listenerProbe, typeof(MatchmakingBroadcasts.SeekCanceled));
-
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(cancellationToken: CT);
+        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
         Sys.Stop(Probe);
 
-        await listenerProbe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCanceled>(
-            x => x.UserId == userId,
-            cancellationToken: CT
-        );
-        PoolMock.Received().RemoveSeek(userId);
+        await AwaitAssertAsync(() => PoolMock.Received().RemoveSeek(userId), cancellationToken: CT);
+    }
+
+    [Fact]
+    public async Task CreateSeek_doesnt_readd_the_seeker_if_it_already_exists()
+    {
+        const string userId = "user1";
+
+        MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
+        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
+
+        VerifySeekWasAdded(userId, times: 1);
+        PoolMock.HasSeek(userId).Returns(true);
+
+        MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
+        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
+
+        VerifySeekWasAdded(userId, times: 1);
     }
 }

@@ -15,7 +15,7 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
         const string userId = "user1";
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingBroadcasts.SeekCreated>(
+        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(
             x => x.UserId == userId,
             cancellationToken: CT
         );
@@ -25,6 +25,9 @@ public class CasualMatchmakingActorTests : BaseMatchmakingActorTests<ICasualMatc
 
     protected override ICreateSeekCommand CreateSeekCommand(string userId) =>
         new CasualMatchmakingCommands.CreateCasualSeek(userId, TimeControl);
+
+    protected override void VerifySeekWasAdded(string userId, int times) =>
+        PoolMock.Received(times).AddSeek(userId);
 
     protected override IActorRef CreateActor()
     {

@@ -50,21 +50,23 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         Receive<ReceiveTimeout>(_ => HandleTimeout());
     }
 
-    protected abstract bool EnterPool(ICreateSeekCommand createSeek);
+    protected abstract bool TryEnterPool(ICreateSeekCommand createSeek);
 
     private void HandleCreateSeek(ICreateSeekCommand createSeek)
     {
-        if (!EnterPool(createSeek))
+        var userId = createSeek.UserId;
+
+        var alreadySeeking = Pool.HasSeek(userId);
+        var successfullyEntered = alreadySeeking || TryEnterPool(createSeek);
+        if (!successfullyEntered)
             return;
 
-        _subscribers.TryAdd(createSeek.UserId, Sender);
+        _subscribers.TryAdd(userId, Sender);
         Context.WatchWith(
             Sender,
-            new MatchmakingCommands.CancelSeek(createSeek.UserId, createSeek.TimeControl)
+            new MatchmakingCommands.CancelSeek(userId, createSeek.TimeControl)
         );
-        Context.System.EventStream.Publish(
-            new MatchmakingBroadcasts.SeekCreated(createSeek.UserId)
-        );
+        Sender.Tell(new MatchmakingEvents.SeekCreated(userId));
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
@@ -78,9 +80,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 
         _subscribers.Remove(cancelSeek.UserId);
         Context.Unwatch(Sender);
-        Context.System.EventStream.Publish(
-            new MatchmakingBroadcasts.SeekCanceled(cancelSeek.UserId)
-        );
+        Sender.Tell(new MatchmakingEvents.SeekCanceled(cancelSeek.UserId));
     }
 
     private void HandleMatchWave()
