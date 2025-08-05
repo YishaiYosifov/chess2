@@ -10,10 +10,10 @@ const GameControlButton = ({
     children,
     ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    icon: React.ElementType;
+    icon?: React.ElementType;
     needsConfirmation?: boolean;
 }) => {
-    const Component = icon;
+    const Icon = icon;
 
     const [isConfirming, setIsConfirming] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout>(null);
@@ -49,7 +49,7 @@ const GameControlButton = ({
                 onClick={confirmClick}
                 {...props}
             >
-                <Component className="h-10 w-10" />
+                {Icon && <Icon className="h-10 w-10" />}
                 {children}
             </button>
 
