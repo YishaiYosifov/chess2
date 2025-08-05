@@ -10,6 +10,7 @@ import {
     useState,
 } from "react";
 import useLiveChessStore from "../hooks/useLiveChessStore";
+import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
 export interface GameOverPopupRef {
     open(): void;
@@ -19,17 +20,27 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     _,
     ref,
 ) => {
-    const { whitePlayer, blackPlayer, resultData, playerColor } =
-        useLiveChessStore((x) => ({
-            whitePlayer: x.whitePlayer,
-            blackPlayer: x.blackPlayer,
-            resultData: x.resultData,
-            playerColor: x.playerColor,
-        }));
+    const {
+        whitePlayer,
+        blackPlayer,
+        resultData,
+        playerColor,
+        isRated,
+        timeControl,
+    } = useLiveChessStore((x) => ({
+        whitePlayer: x.whitePlayer,
+        blackPlayer: x.blackPlayer,
+        resultData: x.resultData,
+        playerColor: x.playerColor,
+        isRated: x.isRated,
+        timeControl: x.timeControl,
+    }));
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);
     const openPopup = () => setIsOpen(true);
+
+    const { toggleSeek, isSeeking } = useMatchmaking();
 
     useImperativeHandle(ref, () => ({
         open: openPopup,
@@ -40,14 +51,21 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     function getGameOverTitle(): string {
         if (!resultData) return "GAME OVER";
 
-        if (resultData.result === GameResult.ABORTED) return "ABORTED";
-        else if (resultData.result === GameResult.DRAW) return "DRAW";
-
-        const winColor =
-            resultData.result === GameResult.WHITE_WIN
-                ? GameColor.WHITE
-                : GameColor.BLACK;
-        return playerColor === winColor ? "VICTORY" : "YOU LOST";
+        switch (resultData.result) {
+            case GameResult.ABORTED:
+                return "ABORTED";
+            case GameResult.DRAW:
+                return "DRAW";
+            case GameResult.WHITE_WIN:
+            case GameResult.BLACK_WIN:
+                const winColor =
+                    resultData.result === GameResult.WHITE_WIN
+                        ? GameColor.WHITE
+                        : GameColor.BLACK;
+                return playerColor === winColor ? "VICTORY" : "YOU LOST";
+            default:
+                return "GAME OVER";
+        }
     }
     const gameOverTitle = getGameOverTitle();
 
@@ -91,7 +109,15 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                     />
                 </div>
                 <div className="flex gap-3">
-                    <Button className="w-full">NEW GAME</Button>
+                    <Button
+                        className={clsx(
+                            "w-full",
+                            isSeeking && "animate-subtle-ping",
+                        )}
+                        onClick={() => toggleSeek(isRated, timeControl)}
+                    >
+                        {isSeeking ? "SEARCHING..." : "NEW GAME"}
+                    </Button>
                     <Button className="w-full">REMATCH</Button>
                 </div>
             </div>
