@@ -11,8 +11,6 @@ import {
 } from "@/lib/testUtils/mocks/mockSignalR";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
-vi.mock("@microsoft/signalr");
-
 describe("useSignalRConnection", () => {
     let hubBuilderInstanceMock: MockProxy<signalR.HubConnectionBuilder>;
     const hubUrl = "https://test.com/hub";

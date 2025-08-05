@@ -10,8 +10,6 @@ import { MockProxy } from "vitest-mock-extended";
 import useSignalREvent from "../useSignalREvent";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
-vi.mock("@microsoft/signalr");
-
 describe("useSignalREvent", () => {
     let hubBuilderInstanceMock: MockProxy<signalR.HubConnectionBuilder>;
     const hubUrl = "https://test.com/hub";
