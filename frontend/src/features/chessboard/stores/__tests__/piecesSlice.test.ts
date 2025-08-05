@@ -44,7 +44,7 @@ describe("PiecesSlice", () => {
             store.setState({ pieces });
 
             const move = createFakeMove({
-                from: logicalPoint({ x: 9, y: 9 }), // guaranteed empty point
+                from: logicalPoint({ x: 11, y: 11 }), // guaranteed empty point
             });
 
             store.getState().applyMove(move);
