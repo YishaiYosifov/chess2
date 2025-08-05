@@ -17,7 +17,7 @@ public class CasualMatchmakingActor(
 {
     protected override bool IsRated => false;
 
-    protected override bool EnterPool(ICreateSeekCommand createSeek)
+    protected override bool TryEnterPool(ICreateSeekCommand createSeek)
     {
         if (createSeek is not CasualMatchmakingCommands.CreateCasualSeek createCasualSeek)
         {

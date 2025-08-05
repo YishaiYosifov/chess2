@@ -32,15 +32,12 @@ public static class CasualMatchmakingCommands
         : ICreateSeekCommand;
 }
 
-public static class MatchmakingBroadcasts
+public static class MatchmakingEvents
 {
     public record SeekCreated(string UserId);
 
     public record SeekCanceled(string UserId);
-}
 
-public static class MatchmakingEvents
-{
     public record MatchFound(string GameToken);
 
     public record MatchFailed();
