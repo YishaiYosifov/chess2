@@ -20,16 +20,18 @@ public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchm
     private readonly GameSettings _settings = settings.Value.Game;
     private readonly Dictionary<string, SeekInfo> _seekers = [];
 
-    public IReadOnlyList<string> Seekers => _seekers.Keys.ToList().AsReadOnly();
+    public IEnumerable<string> Seekers => _seekers.Keys;
     public int SeekerCount => _seekers.Count;
 
-    public virtual void AddSeek(string userId, int rating)
+    public void AddSeek(string userId, int rating)
     {
         var seekInfo = new SeekInfo(userId, rating);
         _seekers[userId] = seekInfo;
     }
 
-    public virtual bool RemoveSeek(string userId) => _seekers.Remove(userId);
+    public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
+
+    public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
     public List<(string userId1, string userId2)> CalculateMatches()
     {
@@ -48,33 +50,12 @@ public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchm
 
             var (startIdx, endIdx) = GetSeekerSearchRatingBounds(seeker, seekersByRating);
 
-            SeekInfo? bestMatch = null;
-            int bestRatingDifference = int.MaxValue;
-            for (int i = startIdx; i <= endIdx; i++)
-            {
-                var candidate = seekersByRating[i];
-                if (seeker.UserId == candidate.UserId || alreadyMatched.Contains(candidate.UserId))
-                    continue;
-
-                var ratingDifference = Math.Abs(candidate.Rating - seeker.Rating);
-                if (bestMatch is null)
-                {
-                    bestMatch = candidate;
-                    bestRatingDifference = ratingDifference;
-                    continue;
-                }
-
-                bool isCandidateOlder = candidate.WavesMissed > bestMatch.WavesMissed;
-                bool isCandidateCloser =
-                    candidate.WavesMissed == bestMatch.WavesMissed
-                    && ratingDifference < bestRatingDifference;
-                if (isCandidateOlder || isCandidateCloser)
-                {
-                    bestMatch = candidate;
-                    bestRatingDifference = ratingDifference;
-                }
-            }
-
+            var bestMatch = FindBestMatch(
+                seeker,
+                seekersByRating,
+                alreadyMatched,
+                bounds: (startIdx, endIdx)
+            );
             if (bestMatch is null)
             {
                 seeker.WavesMissed++;
@@ -88,6 +69,45 @@ public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchm
         RemoveSeekBatch(alreadyMatched);
 
         return matches;
+    }
+
+    private static SeekInfo? FindBestMatch(
+        SeekInfo seeker,
+        List<SeekInfo> seekersByRating,
+        HashSet<string> alreadyMatched,
+        (int startIdx, int endIdx) bounds
+    )
+    {
+        SeekInfo? bestMatch = null;
+        int bestRatingDifference = int.MaxValue;
+
+        for (int i = bounds.startIdx; i <= bounds.endIdx; i++)
+        {
+            var candidate = seekersByRating[i];
+            if (seeker.UserId == candidate.UserId || alreadyMatched.Contains(candidate.UserId))
+                continue;
+
+            var ratingDifference = Math.Abs(candidate.Rating - seeker.Rating);
+            if (bestMatch is null)
+            {
+                bestMatch = candidate;
+                bestRatingDifference = ratingDifference;
+                continue;
+            }
+
+            bool isCandidateOlder = candidate.WavesMissed > bestMatch.WavesMissed;
+            bool isCandidateCloser =
+                candidate.WavesMissed == bestMatch.WavesMissed
+                && ratingDifference < bestRatingDifference;
+
+            if (isCandidateOlder || isCandidateCloser)
+            {
+                bestMatch = candidate;
+                bestRatingDifference = ratingDifference;
+            }
+        }
+
+        return bestMatch;
     }
 
     private void RemoveSeekBatch(IEnumerable<string> seeks)
