@@ -1,5 +1,5 @@
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect } from "react";
 
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
 import { shallow } from "zustand/shallow";
@@ -49,18 +49,5 @@ const useSignalRConnection = (hubUrl: string): HubConnection | undefined => {
 
     return connection;
 };
-
-export function useHubState(hubUrl: string): HubConnectionState {
-    const subscribe = (cb: () => void) =>
-        useSignalRStore.getState().subscribeToHubState(hubUrl, cb);
-
-    const getSnapshot = () =>
-        useSignalRStore.getState().hubStates.get(hubUrl) ??
-        HubConnectionState.Disconnected;
-
-    const getServerSnapshot = () => HubConnectionState.Disconnected;
-
-    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-}
 
 export default useSignalRConnection;
