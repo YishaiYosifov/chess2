@@ -10,9 +10,11 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
     private readonly HashSet<string> _seekers = [];
 
     public int SeekerCount => _seekers.Count;
-    public IReadOnlyList<string> Seekers => _seekers.ToList().AsReadOnly();
+    public IEnumerable<string> Seekers => _seekers;
 
     public void AddSeek(string userId) => _seekers.Add(userId);
+
+    public bool HasSeek(string userId) => _seekers.Contains(userId);
 
     public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
