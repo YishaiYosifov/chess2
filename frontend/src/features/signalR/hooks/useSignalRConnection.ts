@@ -1,16 +1,17 @@
 import { HubConnection, HubConnectionState } from "@microsoft/signalr";
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
+import { shallow } from "zustand/shallow";
 
-const useSignalRConnection = (
-    hubUrl: string,
-): { connection: HubConnection | null; state: HubConnectionState } => {
-    const joinHub = useSignalRStore((state) => state.joinHub);
-
-    const connection = useSignalRStore((state) => state.hubs[hubUrl]);
-    const [hubState, setHubState] = useState<HubConnectionState>(
-        HubConnectionState.Disconnected,
+const useSignalRConnection = (hubUrl: string): HubConnection | undefined => {
+    const { connection, joinHub, setHubState } = useSignalRStore(
+        (state) => ({
+            connection: state.hubs.get(hubUrl),
+            joinHub: state.joinHub,
+            setHubState: state.setHubState,
+        }),
+        shallow,
     );
 
     useEffect(() => joinHub(hubUrl), [hubUrl, joinHub]);
@@ -18,8 +19,10 @@ const useSignalRConnection = (
     useEffect(() => {
         if (!connection) return;
 
-        const handleClose = () => setHubState(HubConnectionState.Disconnected);
-        const handleReconnect = () => setHubState(HubConnectionState.Connected);
+        const handleClose = () =>
+            setHubState(hubUrl, HubConnectionState.Disconnected);
+        const handleReconnect = () =>
+            setHubState(hubUrl, HubConnectionState.Connected);
 
         connection.on("ReceiveErrorAsync", console.error);
         connection.onclose(handleClose);
@@ -29,7 +32,7 @@ const useSignalRConnection = (
             connection
                 .start()
                 .then(() => {
-                    setHubState(HubConnectionState.Connected);
+                    setHubState(hubUrl, HubConnectionState.Connected);
                     console.log(`Connection started to ${hubUrl}`);
                 })
                 .catch((err) =>
@@ -42,7 +45,22 @@ const useSignalRConnection = (
             connection.off("close", handleClose);
             connection.off("reconnected", handleReconnect);
         };
-    }, [connection, hubUrl]);
-    return { connection, state: hubState };
+    }, [connection, hubUrl, setHubState]);
+
+    return connection;
 };
+
+export function useHubState(hubUrl: string): HubConnectionState {
+    const subscribe = (cb: () => void) =>
+        useSignalRStore.getState().subscribeToHubState(hubUrl, cb);
+
+    const getSnapshot = () =>
+        useSignalRStore.getState().hubStates.get(hubUrl) ??
+        HubConnectionState.Disconnected;
+
+    const getServerSnapshot = () => HubConnectionState.Disconnected;
+
+    return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+}
+
 export default useSignalRConnection;
