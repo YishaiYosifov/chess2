@@ -24,7 +24,7 @@ describe("useSignalREvent", () => {
     });
 
     it("should register event handler with connection.on", () => {
-        const mockConnection = mockHubConnection();
+        const { mockConnection } = mockHubConnection();
         const mockHandler = vi.fn();
 
         // Inject connection into store
@@ -44,7 +44,7 @@ describe("useSignalREvent", () => {
     });
 
     it("should re-register handler if onEvent changes", () => {
-        const mockConnection = mockHubConnection();
+        const { mockConnection } = mockHubConnection();
         const handler1 = vi.fn();
         const handler2 = vi.fn();
 
