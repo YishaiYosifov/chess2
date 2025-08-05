@@ -3,13 +3,12 @@ import {
     mockHubBuilder,
     mockHubConnection,
 } from "@/lib/testUtils/mocks/mockSignalR";
-import useSignalRStore, {
-    initialSignalRStoreState,
-} from "@/features/signalR/stores/signalRStore";
+import useSignalRStore from "@/features/signalR/stores/signalRStore";
 import * as signalR from "@microsoft/signalr";
 import { renderHook } from "@testing-library/react";
 import { MockProxy } from "vitest-mock-extended";
 import useSignalREvent from "../useSignalREvent";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 vi.mock("@microsoft/signalr");
 
@@ -19,31 +18,32 @@ describe("useSignalREvent", () => {
     const eventName = "messageReceived";
 
     beforeEach(() => {
-        useSignalRStore.setState(initialSignalRStoreState);
+        useSignalRStore.setState(useSignalRStore.getInitialState());
         hubBuilderInstanceMock = mockHubBuilder();
     });
 
-    it("should register event handler with connection.on", () => {
+    it("should register event handler with connection.on", async () => {
         const { mockConnection } = mockHubConnection();
         const mockHandler = vi.fn();
 
-        // Inject connection into store
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         renderHook(() => useSignalREvent(hubUrl, eventName, mockHandler));
+        await flushMicrotasks();
 
         expect(mockConnection.on).toHaveBeenCalledWith(eventName, mockHandler);
     });
 
-    it("should not throw if connection is null", () => {
+    it("should not throw if connection is null", async () => {
         const mockHandler = vi.fn();
 
         expect(() => {
             renderHook(() => useSignalREvent(hubUrl, eventName, mockHandler));
         }).not.toThrow();
+        await flushMicrotasks();
     });
 
-    it("should re-register handler if onEvent changes", () => {
+    it("should re-register handler if onEvent changes", async () => {
         const { mockConnection } = mockHubConnection();
         const handler1 = vi.fn();
         const handler2 = vi.fn();
@@ -54,6 +54,7 @@ describe("useSignalREvent", () => {
             ({ handler }) => useSignalREvent(hubUrl, eventName, handler),
             { initialProps: { handler: handler1 } },
         );
+        await flushMicrotasks();
 
         expect(mockConnection.on).toHaveBeenCalledWith(eventName, handler1);
 

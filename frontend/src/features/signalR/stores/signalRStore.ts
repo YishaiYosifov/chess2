@@ -1,52 +1,87 @@
 import {
     HubConnection,
     HubConnectionBuilder,
+    HubConnectionState,
     LogLevel,
 } from "@microsoft/signalr";
+import { enableMapSet } from "immer";
+import { immer } from "zustand/middleware/immer";
+import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
 
 interface SignalRStore {
-    hubs: Record<string, HubConnection>;
+    hubs: Map<string, HubConnection>;
+    hubStates: Map<string, HubConnectionState>;
+    listeners: Map<string, Set<() => void>>;
+
     joinHub: (url: string) => void;
     leaveHub: (url: string) => Promise<void>;
+    setHubState: (url: string, hubState: HubConnectionState) => void;
+    subscribeToHubState: (url: string, callback: () => void) => () => void;
 }
 
-export const initialSignalRStoreState = {
-    hubs: {},
-};
+enableMapSet();
+const useSignalRStore = createWithEqualityFn<SignalRStore>()(
+    immer((set, get) => ({
+        hubs: new Map(),
+        hubStates: new Map(),
+        listeners: new Map(),
 
-const useSignalRStore = createWithEqualityFn<SignalRStore>((set, get) => ({
-    ...initialSignalRStoreState,
+        joinHub(url: string): void {
+            const existingHub = get().hubs.get(url);
+            if (existingHub) return;
 
-    joinHub(url: string): void {
-        const existingHub = get().hubs[url];
-        if (existingHub) return;
+            const hubConnection = new HubConnectionBuilder()
+                .withUrl(url)
+                .withAutomaticReconnect()
+                .configureLogging(LogLevel.Information)
+                .build();
 
-        const hubConnection = new HubConnectionBuilder()
-            .withUrl(url)
-            .withAutomaticReconnect()
-            .configureLogging(LogLevel.Information)
-            .build();
+            set((state) => {
+                state.hubs.set(url, hubConnection);
+            });
+        },
 
-        set((state) => ({
-            hubs: {
-                ...state.hubs,
-                [url]: hubConnection,
-            },
-        }));
-    },
+        async leaveHub(url: string) {
+            const hubConnection = get().hubs.get(url);
+            if (!hubConnection) return;
 
-    async leaveHub(url: string) {
-        const hubConnection = get().hubs[url];
-        if (!hubConnection) return;
+            await hubConnection.stop();
 
-        await hubConnection.stop();
+            set((state) => {
+                state.hubs.delete(url);
+            });
+        },
 
-        set((state) => {
-            const newHubs = { ...state.hubs };
-            delete newHubs[url];
-            return { hubs: newHubs };
-        });
-    },
-}));
+        setHubState: (url, hubState) => {
+            set((state) => {
+                state.hubStates.set(url, hubState);
+            });
+
+            get()
+                .listeners.get(url)
+                ?.forEach((cb) => cb());
+        },
+        subscribeToHubState: (url, cb) => {
+            set((state) => {
+                const listeners = state.listeners.get(url) ?? new Set();
+                listeners.add(cb);
+                state.listeners.set(url, listeners);
+            });
+
+            return () => {
+                set((state) => {
+                    const listeners = state.listeners.get(url);
+                    if (listeners) {
+                        listeners.delete(cb);
+                        if (listeners.size === 0) {
+                            state.listeners.delete(url);
+                        }
+                    }
+                });
+            };
+        },
+    })),
+    shallow,
+);
 export default useSignalRStore;
