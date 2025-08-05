@@ -1,13 +1,17 @@
 import brotliCompress from "brotli/compress";
 
-import { MovePath } from "@/lib/apiClient";
+import { MovePath, PieceType } from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
-import { gzipSync } from "zlib";
+import { Move } from "@/features/chessboard/lib/types";
+import { logicalPoint } from "@/lib/utils/pointUtils";
+
+vi.mock("brotli/compress");
 
 const emptyMove = {
     triggers: [],
     captures: [],
     sideEffects: [],
+    promotesTo: null,
 };
 
 describe("decodePathIntoMap", () => {
@@ -19,6 +23,7 @@ describe("decodePathIntoMap", () => {
                 triggerIdxs: [2],
                 capturedIdxs: [3],
                 sideEffects: [{ fromIdx: 4, toIdx: 5 }],
+                promotesTo: PieceType.BISHOP,
             },
         ];
 
@@ -30,12 +35,18 @@ describe("decodePathIntoMap", () => {
         expect(moves).toHaveLength(1);
 
         const move = moves![0];
-        expect(move).toEqual({
-            from: { x: 0, y: 0 },
-            to: { x: 1, y: 0 },
-            triggers: [{ x: 2, y: 0 }],
-            captures: [{ x: 3, y: 0 }],
-            sideEffects: [{ from: { x: 4, y: 0 }, to: { x: 5, y: 0 } }],
+        expect(move).toEqual<Move>({
+            from: logicalPoint({ x: 0, y: 0 }),
+            to: logicalPoint({ x: 1, y: 0 }),
+            triggers: [logicalPoint({ x: 2, y: 0 })],
+            captures: [logicalPoint({ x: 3, y: 0 })],
+            sideEffects: [
+                {
+                    from: logicalPoint({ x: 4, y: 0 }),
+                    to: logicalPoint({ x: 5, y: 0 }),
+                },
+            ],
+            promotesTo: PieceType.BISHOP,
         });
     });
 
@@ -79,33 +90,41 @@ describe("decodeEncodedMovesIntoMap", () => {
         ];
 
         const jsonString = JSON.stringify(moves);
-        const gzipped = brotliCompress(Buffer.from(jsonString));
-        const encoded = Buffer.from(gzipped).toString("base64");
+        const compressed = brotliCompress(Buffer.from(jsonString));
+        const encoded = Buffer.from(compressed).toString("base64");
 
         const result = decodeEncodedMovesIntoMap(encoded, 10);
 
         expect(result.size).toBe(2);
-        expect(result.get("0,0")).toEqual([
+        expect(result.get("0,0")).toEqual<Move[]>([
             {
-                from: { x: 0, y: 0 },
-                to: { x: 1, y: 0 },
-                triggers: [{ x: 2, y: 0 }],
-                captures: [{ x: 3, y: 0 }],
-                sideEffects: [{ from: { x: 4, y: 0 }, to: { x: 5, y: 0 } }],
+                from: logicalPoint({ x: 0, y: 0 }),
+                to: logicalPoint({ x: 1, y: 0 }),
+                triggers: [logicalPoint({ x: 2, y: 0 })],
+                captures: [logicalPoint({ x: 3, y: 0 })],
+                sideEffects: [
+                    {
+                        from: logicalPoint({ x: 4, y: 0 }),
+                        to: logicalPoint({ x: 5, y: 0 }),
+                    },
+                ],
+                promotesTo: null,
             },
         ]);
-        expect(result.get("0,1")).toEqual([
+        expect(result.get("0,1")).toEqual<Move[]>([
             {
-                from: { x: 0, y: 1 },
-                to: { x: 1, y: 1 },
+                from: logicalPoint({ x: 0, y: 1 }),
+                to: logicalPoint({ x: 1, y: 1 }),
                 ...emptyMove,
             },
         ]);
     });
 
     it("should return empty map when given encoded empty move list", () => {
-        const emptyEncoded = gzipSync(Buffer.from("[]")).toString("base64");
-        const result = decodeEncodedMovesIntoMap(emptyEncoded, 10);
+        const compressed = brotliCompress(Buffer.from("[]"));
+        const encoded = Buffer.from(compressed).toString("base64");
+
+        const result = decodeEncodedMovesIntoMap(encoded, 10);
         expect(result).toEqual(new Map());
     });
 });
