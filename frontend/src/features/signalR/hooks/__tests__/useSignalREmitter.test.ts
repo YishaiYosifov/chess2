@@ -9,6 +9,7 @@ import useSignalRStore, {
 import { act, renderHook } from "@testing-library/react";
 import useSignalREmitter from "../useSignalREmitter";
 import { MockProxy } from "vitest-mock-extended";
+import { HubConnectionState } from "@microsoft/signalr";
 
 vi.mock("@microsoft/signalr");
 
@@ -22,7 +23,7 @@ describe("useSignalREvent", () => {
     });
 
     it("should return a sendEvent function that calls invoke on the connection", async () => {
-        const mockConnection = mockHubConnection();
+        const { mockConnection } = mockHubConnection();
         addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
@@ -41,9 +42,63 @@ describe("useSignalREvent", () => {
     it("should not crash if connection is null", async () => {
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
 
+        await act(() => result.current("myEvent", "arg"));
+    });
+
+    it("should queue events if connection is not ready and flush them after connection is established", async () => {
+        const { mockConnection, handlers } = mockHubConnection(
+            HubConnectionState.Disconnected,
+        );
+
+        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        mockConnection.start.mockRejectedValue(new Error("nuh uh"));
+
+        const { result } = renderHook(() => useSignalREmitter(hubUrl));
+
         await act(async () => {
-            // This should not throw or call invoke
-            result.current("myEvent", "arg");
+            await result.current("BufferedEvent", "pendingArg", 999);
         });
+
+        expect(mockConnection.invoke).not.toHaveBeenCalled();
+
+        act(() => handlers.onReconnectedHandler?.());
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        expect(mockConnection.invoke).toHaveBeenCalledWith(
+            "BufferedEvent",
+            "pendingArg",
+            999,
+        );
+    });
+
+    it("should flush multiple pending events when connection becomes ready", async () => {
+        const { mockConnection, handlers } = mockHubConnection(
+            HubConnectionState.Disconnected,
+        );
+        mockConnection.start.mockRejectedValue(new Error("nuh uh"));
+
+        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+
+        const { result } = renderHook(() => useSignalREmitter(hubUrl));
+
+        await act(async () => {
+            await result.current("Event1", "arg1");
+            await result.current("Event2", "arg2");
+        });
+
+        expect(mockConnection.invoke).not.toHaveBeenCalled();
+
+        act(() => handlers.onReconnectedHandler?.());
+
+        await act(async () => {
+            await Promise.resolve();
+        });
+
+        expect(mockConnection.invoke).toHaveBeenCalledWith("Event1", "arg1");
+        expect(mockConnection.invoke).toHaveBeenCalledWith("Event2", "arg2");
+        expect(mockConnection.invoke).toHaveBeenCalledTimes(2);
     });
 });

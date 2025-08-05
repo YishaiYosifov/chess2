@@ -19,7 +19,6 @@ const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
     }, [connection]);
 
     useEffect(() => {
-        console.log(state);
         if (state !== HubConnectionState.Connected) return;
 
         for (const { eventName, args } of pendingEventsRef.current) {

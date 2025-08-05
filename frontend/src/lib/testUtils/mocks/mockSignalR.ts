@@ -1,39 +1,54 @@
-import * as signalR from "@microsoft/signalr";
+import {
+    HubConnection,
+    HubConnectionBuilder,
+    HubConnectionState,
+} from "@microsoft/signalr";
+
 import { mock, MockProxy } from "vitest-mock-extended";
-import { Mock } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
 
 export function mockHubBuilder() {
-    const mockHubBuilder = mock<signalR.HubConnectionBuilder>();
-    const defaultHubConnection = mockHubConnection();
+    const mockHubBuilder = mock<HubConnectionBuilder>();
+    const { mockConnection } = mockHubConnection();
 
     mockHubBuilder.withUrl.mockReturnThis();
     mockHubBuilder.withAutomaticReconnect.mockReturnThis();
     mockHubBuilder.configureLogging.mockReturnThis();
-    mockHubBuilder.build.mockReturnValue(defaultHubConnection);
+    mockHubBuilder.build.mockReturnValue(mockConnection);
 
-    (signalR.HubConnectionBuilder as Mock).mockReturnValue(mockHubBuilder);
+    vi.mocked(HubConnectionBuilder).mockReturnValue(mockHubBuilder);
 
     return mockHubBuilder;
 }
 
 export function mockHubConnection(
-    state: signalR.HubConnectionState = signalR.HubConnectionState.Disconnected,
+    state: HubConnectionState = HubConnectionState.Disconnected,
 ) {
-    const mockHubConnection = mock<signalR.HubConnection>({
+    const handlers = {
+        onCloseHandler: undefined as (() => void) | undefined,
+        onReconnectedHandler: undefined as (() => void) | undefined,
+    };
+
+    const mockConnection = mock<HubConnection>({
         start: vi.fn().mockResolvedValue(undefined),
         stop: vi.fn().mockResolvedValue(undefined),
         state,
+        onclose: vi.fn((cb: () => void) => {
+            handlers.onCloseHandler = cb;
+        }),
+        onreconnected: vi.fn((cb: () => void) => {
+            handlers.onReconnectedHandler = cb;
+        }),
     });
 
-    return mockHubConnection;
+    return { mockConnection, handlers };
 }
 
 export function addMockHubConnection(
-    hubBuilderMethodMocks: MockProxy<signalR.HubConnectionBuilder>,
+    hubBuilderMethodMocks: MockProxy<HubConnectionBuilder>,
     hubUrl: string,
-    mockConnection: signalR.HubConnection,
+    mockConnection: HubConnection,
 ) {
     hubBuilderMethodMocks.build.mockReturnValue(mockConnection);
     const { joinHub: getOrJoinHub } = renderHook(() => useSignalRStore()).result
