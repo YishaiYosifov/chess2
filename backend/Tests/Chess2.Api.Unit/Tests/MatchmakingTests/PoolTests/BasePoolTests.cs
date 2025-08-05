@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services.Pools;
+﻿using Chess2.Api.Matchmaking.Services.Pools;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.PoolTests;
@@ -29,5 +28,30 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
 
         result.Should().BeTrue();
         Pool.Seekers.Should().ContainSingle().Which.Should().Be("user2");
+    }
+
+    [Fact]
+    public void HasSeek_returns_true_if_user_has_seek()
+    {
+        AddSeek("user1");
+
+        Pool.HasSeek("user1").Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasSeek_returns_false_if_user_does_not_have_seek()
+    {
+        AddSeek("user1");
+
+        Pool.HasSeek("user2").Should().BeFalse();
+    }
+
+    [Fact]
+    public void HasSeek_returns_false_after_seek_is_removed()
+    {
+        AddSeek("user1");
+        Pool.RemoveSeek("user1");
+
+        Pool.HasSeek("user1").Should().BeFalse();
     }
 }
