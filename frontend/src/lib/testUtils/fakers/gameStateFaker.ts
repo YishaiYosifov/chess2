@@ -24,7 +24,11 @@ export function createFakeGameState(
         }).map(() => createFakeMoveSnapshot()),
 
         clocks: createFakeClock(),
-        drawState: { activeRequester: null, cooldown: {} },
+        drawState: {
+            activeRequester: null,
+            whiteCooldown: 0,
+            blackCooldown: 0,
+        },
         moveOptions: {
             legalMoves: Array.from({
                 length: faker.number.int({ min: 1, max: 5 }),

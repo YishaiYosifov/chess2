@@ -7,6 +7,7 @@ import {
     GameColor,
     GamePlayer,
     GameResultData,
+    TimeControlSettings,
 } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
@@ -25,6 +26,8 @@ export interface LiveChessStoreProps {
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
 
+    timeControl: TimeControlSettings;
+    isRated: boolean;
     userId: string;
     playerColor: GameColor;
 

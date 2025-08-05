@@ -47,6 +47,8 @@ export function createStoreProps(
         blackPlayer: gameState.blackPlayer,
         sideToMove: gameState.sideToMove,
 
+        isRated: gameState.isRated,
+        timeControl: gameState.timeControl,
         userId,
         playerColor,
 
