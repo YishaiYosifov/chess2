@@ -4,6 +4,7 @@ import { createFakePlayer } from "./playerFaker";
 import { createFakeClock } from "./clockFaker";
 import { createFakeMoveSnapshot } from "./moveSnapshotFaker";
 import { createFakeMovePath } from "./movePathFaker";
+import constants from "@/lib/constants";
 
 export function createFakeGameState(
     overrides: Partial<GameState> = {},
@@ -18,7 +19,7 @@ export function createFakeGameState(
         blackPlayer: createFakePlayer(GameColor.BLACK),
         sideToMove: GameColor.WHITE,
 
-        initialFen: "10/10/10/10/10/10/10/10/10/10",
+        initialFen: constants.INITIAL_FEN,
         moveHistory: Array.from({
             length: faker.number.int({ min: 1, max: 5 }),
         }).map(() => createFakeMoveSnapshot()),
