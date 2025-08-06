@@ -16,6 +16,7 @@ public class PlayerSessionActorTests : BaseActorTest
 {
     private readonly TestProbe _ratedPoolProbe;
     private readonly TestProbe _casualPoolProbe;
+    private readonly TestProbe _probe;
     private const string UserId = "test-user-id";
 
     private readonly IActorRef _playerSessionActor;
@@ -25,6 +26,7 @@ public class PlayerSessionActorTests : BaseActorTest
     {
         _ratedPoolProbe = CreateTestProbe();
         _casualPoolProbe = CreateTestProbe();
+        _probe = CreateTestProbe();
 
         var ratedRequired = Substitute.For<IRequiredActor<RatedMatchmakingActor>>();
         ratedRequired.ActorRef.Returns(_ratedPoolProbe.Ref);
@@ -48,121 +50,145 @@ public class PlayerSessionActorTests : BaseActorTest
     }
 
     [Fact]
-    public async Task CreateSeek_sends_command_to_RatedPool()
+    public async Task CreateSeek_sends_seek_to_the_correct_pool()
     {
-        var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
-        var seek = new RatedMatchmakingCommands.CreateRatedSeek(UserId, 1700, timeControl);
-
-        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
-
-        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-            msg =>
-            {
-                msg.UserId.Should().Be(UserId);
-                msg.TimeControl.Should().Be(timeControl);
-            },
-            cancellationToken: CT
+        var seekCommand = new RatedMatchmakingCommands.CreateRatedSeek(
+            "user1",
+            1500,
+            new TimeControlSettings(300, 5)
         );
+        var createSeek = new PlayerSessionCommands.CreateSeek("user1", "conn1", seekCommand);
+
+        _playerSessionActor.Tell(createSeek);
+
+        var received =
+            await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
+                cancellationToken: CT
+            );
+        received.Should().BeEquivalentTo(seekCommand);
     }
 
     [Fact]
-    public async Task CreateSeek_sends_command_to_CasualPool()
+    public async Task CreateSeek_cancels_previous_seek_when_the_connection_id_is_reused()
     {
-        var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
-        var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
-
-        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
-
-        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
-            msg =>
-            {
-                msg.UserId.Should().Be(UserId);
-                msg.TimeControl.Should().Be(timeControl);
-            },
-            cancellationToken: CT
+        var firstCreate = new CasualMatchmakingCommands.CreateCasualSeek(
+            "user1",
+            new TimeControlSettings(60, 0)
         );
-    }
+        var secondCreate = new RatedMatchmakingCommands.CreateRatedSeek(
+            "user1",
+            1800,
+            new TimeControlSettings(300, 5)
+        );
 
-    [Fact]
-    public async Task CancelSeek_send_cancel_to_CurrentPool()
-    {
-        var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
-        var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
-
-        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(
+            new PlayerSessionCommands.CreateSeek("user1", "conn1", firstCreate)
+        );
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             cancellationToken: CT
         );
 
-        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek(UserId, "connid"));
+        _playerSessionActor.Tell(
+            new PlayerSessionCommands.CreateSeek("user1", "conn1", secondCreate)
+        );
 
-        await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
-            msg =>
-            {
-                msg.UserId.Should().Be(UserId);
-                msg.TimeControl.Should().Be(timeControl);
-            },
+        var cancel = await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
             cancellationToken: CT
         );
+        cancel.Key.Should().Be(firstCreate.Key);
+
+        var forwardedSecondCreate =
+            await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
+                cancellationToken: CT
+            );
+        forwardedSecondCreate.Should().BeEquivalentTo(secondCreate);
     }
 
     [Fact]
-    public async Task CreateSeek_with_an_existing_seek_cancels_the_previous_one_first()
+    public async Task MatchFound_notifies_all_connections_listening_to_the_same_pool()
     {
-        var casualTimeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
-        var ratedTimeControl = new TimeControlSettings(BaseSeconds: 600, IncrementSeconds: 0);
-
-        var firstSeek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, casualTimeControl);
-        var secondSeek = new RatedMatchmakingCommands.CreateRatedSeek(
-            UserId,
+        var command = new RatedMatchmakingCommands.CreateRatedSeek(
+            "user1",
             1200,
-            ratedTimeControl
+            new TimeControlSettings(180, 2)
         );
+        var gameToken = "game 123";
 
-        _playerSessionActor.Tell(
-            new PlayerSessionCommands.CreateSeek(UserId, "connid1", firstSeek)
-        );
-        await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
-            cancellationToken: CT
-        );
-
-        _playerSessionActor.Tell(
-            new PlayerSessionCommands.CreateSeek(UserId, "connid2", secondSeek)
-        );
-        await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
-            msg =>
-            {
-                msg.UserId.Should().Be(UserId);
-                msg.TimeControl.Should().Be(casualTimeControl);
-            },
-            cancellationToken: CT
-        );
-
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connA", command));
         await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-            msg =>
+            cancellationToken: CT
+        );
+
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connB", command));
+        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
+            cancellationToken: CT
+        );
+
+        _playerSessionActor.Tell(new MatchmakingEvents.MatchFound(gameToken, command.Key));
+
+        await AwaitAssertAsync(
+            () =>
             {
-                msg.UserId.Should().Be(UserId);
-                msg.TimeControl.Should().Be(ratedTimeControl);
+                _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connA", gameToken);
+                _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connB", gameToken);
             },
             cancellationToken: CT
         );
     }
 
     [Fact]
-    public async Task CancelSeek_without_a_connection_id_cancels_the_seek_anyways()
+    public async Task CancelSeek_cleans_up_seek()
     {
-        var timeControl = new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 5);
-        var seek = new CasualMatchmakingCommands.CreateCasualSeek(UserId, timeControl);
+        var command = new CasualMatchmakingCommands.CreateCasualSeek(
+            "user1",
+            new TimeControlSettings(10, 1)
+        );
 
-        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek(UserId, "connid", seek));
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "conn1", command));
         await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
             cancellationToken: CT
         );
 
-        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek(UserId));
-
+        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek("user1", "conn1"));
         await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
             cancellationToken: CT
         );
+
+        _playerSessionActor.Tell(new MatchmakingEvents.MatchFound("game789", command.Key), _probe);
+        await _probe.ExpectMsgAsync<PlayerSessionReplies.MatchFound>(cancellationToken: CT);
+
+        await _matchmakingNotifierMock
+            .Received(0)
+            .NotifyGameFoundAsync(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task CancelSeek_only_removes_the_correct_seek()
+    {
+        var command = new RatedMatchmakingCommands.CreateRatedSeek(
+            "user1",
+            2000,
+            new TimeControlSettings(600, 10)
+        );
+
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connX", command));
+        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
+            cancellationToken: CT
+        );
+
+        _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connY", command));
+        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
+            cancellationToken: CT
+        );
+
+        _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek("user1", "connX"));
+        var cancel = await _ratedPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
+            cancellationToken: CT
+        );
+        cancel.Key.Should().Be(command.Key);
+
+        _playerSessionActor.Tell(new MatchmakingEvents.MatchFound("gameY", command.Key), _probe);
+        await _probe.ExpectMsgAsync<PlayerSessionReplies.MatchFound>(cancellationToken: CT);
+        await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connY", "gameY");
     }
 }

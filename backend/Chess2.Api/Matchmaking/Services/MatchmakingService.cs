@@ -14,7 +14,7 @@ public interface IMatchmakingService
 {
     Task SeekRatedAsync(AuthedUser user, string connectionId, TimeControlSettings timeControl);
     void SeekCasual(string userId, string connectionId, TimeControlSettings timeControl);
-    void CancelSeek(string userId, string? connectionId = null);
+    void CancelSeek(string userId, string connectionId);
 }
 
 public class MatchmakingService(
@@ -62,7 +62,7 @@ public class MatchmakingService(
         _playerSessionActor.ActorRef.Tell(playerSessionCommand);
     }
 
-    public void CancelSeek(string userId, string? connectionId = null)
+    public void CancelSeek(string userId, string connectionId)
     {
         var command = new PlayerSessionCommands.CancelSeek(userId, connectionId);
         _playerSessionActor.ActorRef.Tell(command);

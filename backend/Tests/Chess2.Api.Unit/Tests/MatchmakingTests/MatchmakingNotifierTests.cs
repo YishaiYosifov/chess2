@@ -7,7 +7,7 @@ namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 
 public class MatchmakingNotifierTests
 {
-    private const string UserId = "testuser";
+    private const string ConnectionId = "testconn";
 
     private readonly IHubContext<LobbyHub, IMatchmakingHubClient> _hubContextMock = Substitute.For<
         IHubContext<LobbyHub, IMatchmakingHubClient>
@@ -22,7 +22,7 @@ public class MatchmakingNotifierTests
 
     public MatchmakingNotifierTests()
     {
-        _clientsMock.User(UserId).Returns(_clientProxyMock);
+        _clientsMock.Client(ConnectionId).Returns(_clientProxyMock);
         _hubContextMock.Clients.Returns(_clientsMock);
         _notifier = new(_hubContextMock);
     }
@@ -32,7 +32,7 @@ public class MatchmakingNotifierTests
     {
         var gameToken = "game456";
 
-        await _notifier.NotifyGameFoundAsync(UserId, gameToken);
+        await _notifier.NotifyGameFoundAsync(ConnectionId, gameToken);
 
         await _clientProxyMock.Received(1).MatchFoundAsync(gameToken);
     }
@@ -40,7 +40,7 @@ public class MatchmakingNotifierTests
     [Fact]
     public async Task NotifyMatchFailedAsync_notifies_correct_method()
     {
-        await _notifier.NotifyMatchFailedAsync(UserId);
+        await _notifier.NotifyMatchFailedAsync(ConnectionId);
 
         await _clientProxyMock.Received(1).MatchFailedAsync();
     }

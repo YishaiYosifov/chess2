@@ -68,7 +68,7 @@ public class LobbyHub(
         }
 
         _logger.LogInformation("User {UserId} cancelled their seek", userId);
-        _matchmakingService.CancelSeek(userId);
+        _matchmakingService.CancelSeek(userId, Context.ConnectionId);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
