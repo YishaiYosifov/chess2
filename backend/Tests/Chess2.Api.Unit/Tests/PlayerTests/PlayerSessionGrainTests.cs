@@ -2,17 +2,16 @@
 using Akka.Hosting;
 using Akka.TestKit;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.PlayerSession.Models;
 using FluentAssertions;
 using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
 
-public class PlayerSessionActorTests : BaseActorTest
+public class PlayerSessionGrainTests : BaseGrainTest
 {
     private readonly TestProbe _ratedPoolProbe;
     private readonly TestProbe _casualPoolProbe;
@@ -22,16 +21,16 @@ public class PlayerSessionActorTests : BaseActorTest
     private readonly IActorRef _playerSessionActor;
     private readonly IMatchmakingNotifier _matchmakingNotifierMock;
 
-    public PlayerSessionActorTests()
+    public PlayerSessionGrainTests()
     {
         _ratedPoolProbe = CreateTestProbe();
         _casualPoolProbe = CreateTestProbe();
         _probe = CreateTestProbe();
 
-        var ratedRequired = Substitute.For<IRequiredActor<RatedMatchmakingActor>>();
+        var ratedRequired = Substitute.For<IRequiredActor<RatedMatchmakingGrain>>();
         ratedRequired.ActorRef.Returns(_ratedPoolProbe.Ref);
 
-        var casualRequired = Substitute.For<IRequiredActor<CasualMatchmakingActor>>();
+        var casualRequired = Substitute.For<IRequiredActor<CasualMatchmakingGrain>>();
         casualRequired.ActorRef.Returns(_casualPoolProbe.Ref);
 
         _matchmakingNotifierMock = Substitute.For<IMatchmakingNotifier>();

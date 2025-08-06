@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Microsoft.Extensions.Options;
@@ -37,7 +37,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
     {
         var props = Props.Create(
             () =>
-                new RatedMatchmakingActor(
+                new RatedMatchmakingGrain(
                     new PoolKey(PoolType.Rated, TimeControl).ToString(),
                     ServiceProviderMock,
                     Options.Create(Settings),

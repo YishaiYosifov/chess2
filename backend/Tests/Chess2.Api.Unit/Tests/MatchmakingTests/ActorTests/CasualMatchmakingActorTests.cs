@@ -1,5 +1,5 @@
 ﻿using Akka.Actor;
-using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Microsoft.Extensions.Options;
