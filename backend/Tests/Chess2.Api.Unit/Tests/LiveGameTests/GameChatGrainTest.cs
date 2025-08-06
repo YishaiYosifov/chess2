@@ -12,11 +12,10 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Orleans.TestKit;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
-public class GameChatGrainTest : TestKitBase
+public class GameChatGrainTest : BaseGrainTest
 {
     private readonly ChatSettings _settings;
 
@@ -45,8 +44,6 @@ public class GameChatGrainTest : TestKitBase
     private const string TestGameToken = "test-game";
 
     private const string ConnectionId = "test-connection-id";
-
-    private readonly CancellationToken CT = TestContext.Current.CancellationToken;
 
     public GameChatGrainTest()
     {

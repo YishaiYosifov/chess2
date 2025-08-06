@@ -28,7 +28,7 @@ public class GameFinalizer(
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
     ITimeControlTranslator timeControlTranslator,
-    IRequiredActor<PlayerSessionActor> playerSessionActor,
+    IRequiredActor<PlayerSessionGrain> playerSessionActor,
     IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
@@ -36,7 +36,7 @@ public class GameFinalizer(
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-    private readonly IRequiredActor<PlayerSessionActor> _playerSessionActor = playerSessionActor;
+    private readonly IRequiredActor<PlayerSessionGrain> _playerSessionActor = playerSessionActor;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameResultData> FinalizeGameAsync(

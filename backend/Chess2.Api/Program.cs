@@ -21,7 +21,6 @@ using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Lobby.SignalR;
-using Chess2.Api.Matchmaking.Actors;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Shared.Models;
@@ -320,15 +319,6 @@ builder.Services.AddAkka(
                     Roles = [ActorSystemConstants.BackendRole],
                 }
             )
-            .WithMatchmakingShard<RatedMatchmakingActor>(
-                "rated-matchmaking",
-                runtimeAppSettings.Akka.MatchmakingShardCount
-            )
-            .WithMatchmakingShard<CasualMatchmakingActor>(
-                "casual-matchmaking",
-                runtimeAppSettings.Akka.MatchmakingShardCount
-            )
-            .WithPlayerShard(runtimeAppSettings.Akka.PlayerSessionShardCount)
             .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
     }
 );

@@ -38,7 +38,7 @@ public class GameFinalizerTests : BaseActorTest
     {
         _playerSessionProbe = CreateTestProbe();
 
-        var requiredPlayerSessionMock = Substitute.For<IRequiredActor<PlayerSessionActor>>();
+        var requiredPlayerSessionMock = Substitute.For<IRequiredActor<PlayerSessionGrain>>();
         requiredPlayerSessionMock.ActorRef.Returns(_playerSessionProbe);
 
         _gameFinalizer = new(

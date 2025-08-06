@@ -56,7 +56,7 @@ public class LobbyHub(
         }
 
         _logger.LogInformation("User {UserId} seeking casual match", userId);
-        _matchmakingService.SeekCasual(userId, Context.ConnectionId, timeControl);
+        await _matchmakingService.SeekCasualAsync(userId, Context.ConnectionId, timeControl);
     }
 
     public async Task CancelSeekAsync()
@@ -68,7 +68,7 @@ public class LobbyHub(
         }
 
         _logger.LogInformation("User {UserId} cancelled their seek", userId);
-        _matchmakingService.CancelSeek(userId, Context.ConnectionId);
+        await _matchmakingService.CancelSeekAsync(userId, Context.ConnectionId);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -88,7 +88,7 @@ public class LobbyHub(
                 userId,
                 Context.ConnectionId
             );
-            _matchmakingService.CancelSeek(userId, Context.ConnectionId);
+            await _matchmakingService.CancelSeekAsync(userId, Context.ConnectionId);
         }
         finally
         {
