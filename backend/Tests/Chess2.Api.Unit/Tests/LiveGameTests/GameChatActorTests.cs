@@ -84,7 +84,7 @@ public class GameChatActorTests : BaseActorTest
 
         _liveGameServiceMock
             .GetGamePlayersAsync(TestGameToken)
-            .Returns(new GameResponses.GamePlayers(_whitePlayer, _blackPlayer));
+            .Returns(new GameReplies.GamePlayers(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
             .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
@@ -123,7 +123,7 @@ public class GameChatActorTests : BaseActorTest
             ),
             _probe.Ref
         );
-        await _probe.ExpectMsgAsync<GameChatEvents.UserJoined>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.UserJoined>(cancellationToken: CT);
 
         await _gameChatNotifierMock
             .Received(1)
@@ -145,7 +145,7 @@ public class GameChatActorTests : BaseActorTest
             _probe.Ref
         );
 
-        await _probe.ExpectMsgAsync<GameChatEvents.UserLeft>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.UserLeft>(cancellationToken: CT);
         await _gameChatNotifierMock
             .Received(1)
             .LeaveChatAsync(TestGameToken, ConnectionId, isPlaying);
@@ -181,7 +181,7 @@ public class GameChatActorTests : BaseActorTest
             _probe.Ref
         );
 
-        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.MessageSent>(cancellationToken: CT);
 
         await _gameChatNotifierMock
             .Received(1)
@@ -216,7 +216,7 @@ public class GameChatActorTests : BaseActorTest
             ),
             _probe.Ref
         );
-        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.MessageSent>(cancellationToken: CT);
 
         _userManagerMock.FindByIdAsync(_whitePlayer.UserId).Returns((AuthedUser?)null);
 
@@ -229,7 +229,7 @@ public class GameChatActorTests : BaseActorTest
             ),
             _probe.Ref
         );
-        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.MessageSent>(cancellationToken: CT);
 
         await _gameChatNotifierMock
             .Received(2)
@@ -343,7 +343,7 @@ public class GameChatActorTests : BaseActorTest
             new GameChatCommands.SendMessage(TestGameToken, ConnectionId, WhiteUserId, "test"),
             _probe
         );
-        await _probe.ExpectMsgAsync<GameChatEvents.MessageSent>(cancellationToken: CT);
+        await _probe.ExpectMsgAsync<GameChatReplies.MessageSent>(cancellationToken: CT);
 
         await _gameChatNotifierMock
             .Received(1)
