@@ -5,12 +5,12 @@ namespace Chess2.Api.Matchmaking.Models;
 
 public interface IMatchmakingCommand
 {
-    public TimeControlSettings TimeControl { get; init; }
+    public PoolKey Key { get; }
 }
 
 public static class MatchmakingCommands
 {
-    public record CancelSeek(string UserId, TimeControlSettings TimeControl) : IMatchmakingCommand;
+    public record CancelSeek(string UserId, PoolKey Key) : IMatchmakingCommand;
 
     public record MatchWave() : INotInfluenceReceiveTimeout;
 }
@@ -23,13 +23,19 @@ public interface ICreateSeekCommand : IMatchmakingCommand
 public static class RatedMatchmakingCommands
 {
     public record CreateRatedSeek(string UserId, int Rating, TimeControlSettings TimeControl)
-        : ICreateSeekCommand;
+        : ICreateSeekCommand
+    {
+        public PoolKey Key { get; } = new(PoolType.Rated, TimeControl);
+    }
 }
 
 public static class CasualMatchmakingCommands
 {
     public record CreateCasualSeek(string UserId, TimeControlSettings TimeControl)
-        : ICreateSeekCommand;
+        : ICreateSeekCommand
+    {
+        public PoolKey Key { get; } = new(PoolType.Casual, TimeControl);
+    }
 }
 
 public static class MatchmakingReplies
@@ -41,7 +47,7 @@ public static class MatchmakingReplies
 
 public static class MatchmakingEvents
 {
-    public record MatchFound(string GameToken);
+    public record MatchFound(string GameToken, PoolKey Key);
 
     public record MatchFailed();
 }

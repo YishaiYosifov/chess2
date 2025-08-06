@@ -32,7 +32,8 @@ public interface IGameHubClient : IChess2HubClient
 public class GameHub(
     ILogger<GameHub> logger,
     ILiveGameService gameService,
-    IGameChatService gameChatService
+    IGameChatService gameChatService,
+    IGameNotifier gameNotifier
 ) : Chess2Hub<IGameHubClient>
 {
     private const string GameTokenQueryParam = "gameToken";
@@ -40,6 +41,7 @@ public class GameHub(
     private readonly ILogger<GameHub> _logger = logger;
     private readonly ILiveGameService _gameService = gameService;
     private readonly IGameChatService _gameChatService = gameChatService;
+    private readonly IGameNotifier _gameNotifier = gameNotifier;
 
     public async Task MovePieceAsync(string gameToken, MoveKey key)
     {
@@ -145,6 +147,7 @@ public class GameHub(
             return;
         }
 
+        await _gameNotifier.JoinGameGroupAsync(gameToken, userId, Context.ConnectionId);
         await _gameChatService.JoinChat(
             gameToken,
             userId: userId,
@@ -152,29 +155,6 @@ public class GameHub(
         );
         await Clients.Caller.ChatConnectedAsync();
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, gameToken);
         await base.OnConnectedAsync();
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
-        if (gameToken is null)
-        {
-            await base.OnDisconnectedAsync(exception);
-            return;
-        }
-
-        if (!TryGetUserId(out var userId))
-        {
-            await HandleErrors(Error.Unauthorized());
-            return;
-        }
-
-        await _gameChatService.LeaveChat(
-            gameToken,
-            userId: userId,
-            connectionId: Context.ConnectionId
-        );
     }
 }

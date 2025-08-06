@@ -56,10 +56,10 @@ public class GameFinalizer(
         );
 
         _playerSessionActor.ActorRef.Tell(
-            new PlayerSessionCommands.GameEnded(state.WhitePlayer.UserId)
+            new PlayerSessionCommands.GameEnded(state.WhitePlayer.UserId, gameToken)
         );
         _playerSessionActor.ActorRef.Tell(
-            new PlayerSessionCommands.GameEnded(state.BlackPlayer.UserId)
+            new PlayerSessionCommands.GameEnded(state.BlackPlayer.UserId, gameToken)
         );
 
         await _unitOfWork.CompleteAsync(token);

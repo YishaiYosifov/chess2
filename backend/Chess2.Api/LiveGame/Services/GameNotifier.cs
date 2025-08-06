@@ -7,6 +7,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameNotifier
 {
+    Task JoinGameGroupAsync(string gameToken, string userId, string connectionId);
     Task NotifyDrawStateChangeAsync(string gameToken, DrawState drawState);
     Task NotifyGameEndedAsync(string gameToken, GameResultData result);
     Task NotifyMoveMadeAsync(
@@ -25,6 +26,8 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
 {
     private readonly IHubContext<GameHub, IGameHubClient> _hub = hub;
 
+    private static string UserGameGroup(string gameToken, string userId) => $"{gameToken}:{userId}";
+
     public async Task NotifyMoveMadeAsync(
         string gameToken,
         MoveSnapshot move,
@@ -38,7 +41,7 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
     {
         await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber, clocks);
         await _hub
-            .Clients.User(sideToMoveUserId)
+            .Clients.Group(UserGameGroup(gameToken, sideToMoveUserId))
             .LegalMovesChangedAsync(legalMoves, hasForcedMoves);
     }
 
@@ -47,4 +50,10 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
 
     public Task NotifyGameEndedAsync(string gameToken, GameResultData result) =>
         _hub.Clients.Group(gameToken).GameEndedAsync(result);
+
+    public async Task JoinGameGroupAsync(string gameToken, string userId, string connectionId)
+    {
+        await _hub.Groups.AddToGroupAsync(connectionId, gameToken);
+        await _hub.Groups.AddToGroupAsync(connectionId, UserGameGroup(gameToken, userId));
+    }
 }
