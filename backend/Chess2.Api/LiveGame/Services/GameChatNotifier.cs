@@ -5,8 +5,18 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameChatNotifier
 {
-    Task JoinChatAsync(string gameToken, string connectionId, bool isPlaying);
-    Task LeaveChatAsync(string gameToken, string connectionId, bool isPlaying);
+    Task JoinChatAsync(
+        string gameToken,
+        string connectionId,
+        bool isPlaying,
+        CancellationToken token = default
+    );
+    Task LeaveChatAsync(
+        string gameToken,
+        string connectionId,
+        bool isPlaying,
+        CancellationToken token = default
+    );
     Task SendMessageAsync(
         string gameToken,
         string userName,
@@ -24,16 +34,26 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     private static string GetGroupName(string gameToken, bool isPlaying) =>
         isPlaying ? $"{gameToken}:chat:playing" : $"{gameToken}:chat:spectators";
 
-    public async Task JoinChatAsync(string gameToken, string connectionId, bool isPlaying)
+    public async Task JoinChatAsync(
+        string gameToken,
+        string connectionId,
+        bool isPlaying,
+        CancellationToken token = default
+    )
     {
         var groupName = GetGroupName(gameToken, isPlaying);
-        await _hub.Groups.AddToGroupAsync(connectionId, groupName);
+        await _hub.Groups.AddToGroupAsync(connectionId, groupName, token);
     }
 
-    public async Task LeaveChatAsync(string gameToken, string connectionId, bool isPlaying)
+    public async Task LeaveChatAsync(
+        string gameToken,
+        string connectionId,
+        bool isPlaying,
+        CancellationToken token = default
+    )
     {
         var groupName = GetGroupName(gameToken, isPlaying);
-        await _hub.Groups.RemoveFromGroupAsync(connectionId, groupName);
+        await _hub.Groups.RemoveFromGroupAsync(connectionId, groupName, token);
     }
 
     public async Task SendMessageAsync(
