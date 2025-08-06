@@ -5,8 +5,13 @@ namespace Chess2.Api.TestInfrastructure.Utils;
 
 public static class AppSettingsLoader
 {
+    private static AppSettings? _appSettings;
+
     public static AppSettings LoadAppSettings()
     {
+        if (_appSettings is not null)
+            return _appSettings;
+
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true)
@@ -15,6 +20,8 @@ public static class AppSettingsLoader
         var appSettings =
             configuration.GetSection("AppSettings").Get<AppSettings>()
             ?? throw new NullReferenceException("Could not get appsettings for the tests");
+        _appSettings = appSettings;
+
         return appSettings;
     }
 }

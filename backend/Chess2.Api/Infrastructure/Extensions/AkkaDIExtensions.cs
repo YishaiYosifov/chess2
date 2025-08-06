@@ -63,21 +63,4 @@ public static class AkkaDIExtensions
             }
         );
     }
-
-    public static AkkaConfigurationBuilder WithGameChatShard(
-        this AkkaConfigurationBuilder builder,
-        int shardCount
-    )
-    {
-        return builder.WithShardRegion<GameChatActor>(
-            "game-chat",
-            (_, _, resolver) => s => resolver.Props<GameChatActor>(s),
-            new GameChatShardExtractor(shardCount),
-            new ShardOptions()
-            {
-                Role = ActorSystemConstants.BackendRole,
-                ShouldPassivateIdleEntities = false,
-            }
-        );
-    }
 }

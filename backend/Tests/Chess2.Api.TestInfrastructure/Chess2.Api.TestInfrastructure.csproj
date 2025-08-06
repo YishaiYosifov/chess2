@@ -11,11 +11,12 @@
   <ItemGroup>
     <PackageReference Include="Akka.TestKit.Xunit" Version="1.5.43" />
     <PackageReference Include="AwesomeAssertions" Version="8.2.0" />
-    <PackageReference Include="Azure.Identity" Version="1.13.2" />
+    <PackageReference Include="Azure.Identity" Version="1.14.2" />
     <PackageReference Include="Bogus" Version="35.6.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Orleans.TestingHost" Version="9.2.1" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="Refit" Version="8.0.0" />
     <PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />

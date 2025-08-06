@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using ErrorOr;
@@ -32,7 +33,7 @@ public interface IGameHubClient : IChess2HubClient
 public class GameHub(
     ILogger<GameHub> logger,
     ILiveGameService gameService,
-    IGameChatService gameChatService,
+    IGrainFactory grains,
     IGameNotifier gameNotifier
 ) : Chess2Hub<IGameHubClient>
 {
@@ -40,7 +41,7 @@ public class GameHub(
 
     private readonly ILogger<GameHub> _logger = logger;
     private readonly ILiveGameService _gameService = gameService;
-    private readonly IGameChatService _gameChatService = gameChatService;
+    private readonly IGrainFactory _grains = grains;
     private readonly IGameNotifier _gameNotifier = gameNotifier;
 
     public async Task MovePieceAsync(string gameToken, MoveKey key)
@@ -115,11 +116,11 @@ public class GameHub(
             return;
         }
 
-        var sendChatResult = await _gameChatService.SendMessage(
-            gameToken,
-            userId,
-            Context.ConnectionId,
-            message
+        var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
+        var sendChatResult = await chatGrain.SendMessageAsync(
+            connectionId: Context.ConnectionId,
+            userId: userId,
+            message: message
         );
         if (sendChatResult.IsError)
         {
@@ -148,11 +149,9 @@ public class GameHub(
         }
 
         await _gameNotifier.JoinGameGroupAsync(gameToken, userId, Context.ConnectionId);
-        await _gameChatService.JoinChat(
-            gameToken,
-            userId: userId,
-            connectionId: Context.ConnectionId
-        );
+
+        var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
+        await chatGrain.JoinChatAsync(connectionId: Context.ConnectionId, userId: userId);
         await Clients.Caller.ChatConnectedAsync();
 
         await base.OnConnectedAsync();
