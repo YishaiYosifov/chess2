@@ -40,7 +40,7 @@ public class GameChatService(IRequiredActor<GameChatActor> gameChatActor) : IGam
         CancellationToken token = default
     )
     {
-        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.UserJoined>(
+        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatReplies.UserJoined>(
             new GameChatCommands.JoinChat(
                 GameToken: gameToken,
                 UserId: userId,
@@ -61,7 +61,7 @@ public class GameChatService(IRequiredActor<GameChatActor> gameChatActor) : IGam
         CancellationToken token = default
     )
     {
-        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.UserLeft>(
+        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatReplies.UserLeft>(
             new GameChatCommands.LeaveChat(gameToken, connectionId, userId),
             token
         );
@@ -78,7 +78,7 @@ public class GameChatService(IRequiredActor<GameChatActor> gameChatActor) : IGam
         CancellationToken token = default
     )
     {
-        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatEvents.MessageSent>(
+        var result = await _gameChatActor.ActorRef.AskExpecting<GameChatReplies.MessageSent>(
             new GameChatCommands.SendMessage(
                 GameToken: gameToken,
                 ConnectionId: connectionId,

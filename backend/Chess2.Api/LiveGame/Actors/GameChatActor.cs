@@ -23,7 +23,7 @@ public class GameChatActor : ReceiveActor
     private readonly ChatSettings _settings;
     private readonly ILoggingAdapter _logger = Context.GetLogger();
 
-    private GameResponses.GamePlayers? _players;
+    private GameReplies.GamePlayers? _players;
     private readonly ConcurrentDictionary<string, string> _usernameCache = [];
 
     public GameChatActor(
@@ -64,7 +64,7 @@ public class GameChatActor : ReceiveActor
             );
             _logger.Info("User {0} joined chat for game {1}", joinGame.UserId, _gameToken);
 
-            Sender.Tell(new GameChatEvents.UserJoined());
+            Sender.Tell(new GameChatReplies.UserJoined());
         });
     }
 
@@ -86,7 +86,7 @@ public class GameChatActor : ReceiveActor
             );
 
             _logger.Info("User {0} left chat for game {1}", leaveChat.UserId, _gameToken);
-            Sender.Tell(new GameChatEvents.UserLeft());
+            Sender.Tell(new GameChatReplies.UserLeft());
         });
     }
 
@@ -143,7 +143,7 @@ public class GameChatActor : ReceiveActor
                 sendMessage.Message,
                 isPlayingResult.Value
             );
-            Sender.Tell(new GameChatEvents.MessageSent());
+            Sender.Tell(new GameChatReplies.MessageSent());
         });
         RunTask(() => LogMessageAsync(sendMessage.UserId, sendMessage.Message));
     }
@@ -184,7 +184,7 @@ public class GameChatActor : ReceiveActor
         return isPlaying;
     }
 
-    private async Task<ErrorOr<GameResponses.GamePlayers>> GetPlayersAsync()
+    private async Task<ErrorOr<GameReplies.GamePlayers>> GetPlayersAsync()
     {
         if (_players is not null)
             return _players;

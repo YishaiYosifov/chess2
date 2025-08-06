@@ -87,7 +87,7 @@ public class GameActor : ReceiveActor, IWithTimers
             TimeSpan.FromSeconds(1)
         );
 
-        Sender.Tell(new GameResponses.GameStarted());
+        Sender.Tell(new GameReplies.GameStarted());
         Become(Playing);
     }
 
@@ -96,7 +96,7 @@ public class GameActor : ReceiveActor, IWithTimers
         Receive<GameQueries.IsGameOngoing>(_ => Sender.Tell(true));
         Receive<GameQueries.GetGameState>(HandleGetGameState);
         Receive<GameQueries.GetGamePlayers>(_ =>
-            Sender.Tell(new GameResponses.GamePlayers(_players.WhitePlayer, _players.BlackPlayer))
+            Sender.Tell(new GameReplies.GamePlayers(_players.WhitePlayer, _players.BlackPlayer))
         );
 
         ReceiveAsync<GameCommands.TickClock>(_ => HandleClockTickAsync());
@@ -113,7 +113,7 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
 
         var gameState = GetGameStateForPlayer(player);
-        Sender.Tell(new GameResponses.GameStateResponse(gameState));
+        Sender.Tell(new GameReplies.GetGameState(gameState));
     }
 
     private async Task HandleClockTickAsync()
@@ -127,7 +127,7 @@ public class GameActor : ReceiveActor, IWithTimers
 
         await FinalizeGameAsync(player, _resultDescriber.Timeout(_core.SideToMove));
         if (!Sender.IsNobody())
-            Sender.Tell(new GameResponses.GameEnded());
+            Sender.Tell(new GameReplies.GameEnded());
     }
 
     private async Task HandleDrawRequestAsync(GameCommands.RequestDraw requestDraw)
@@ -138,7 +138,7 @@ public class GameActor : ReceiveActor, IWithTimers
         if (_drawRequestHandler.HasPendingRequest(player.Color))
         {
             await FinalizeGameAsync(player, _resultDescriber.DrawByAgreement());
-            Sender.Tell(new GameResponses.DrawRequested());
+            Sender.Tell(new GameReplies.DrawRequested());
             return;
         }
 
@@ -149,7 +149,7 @@ public class GameActor : ReceiveActor, IWithTimers
             return;
         }
         await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
-        Sender.Tell(new GameResponses.DrawRequested());
+        Sender.Tell(new GameReplies.DrawRequested());
     }
 
     private async Task HandleDrawDeclineAsync(GameCommands.DeclineDraw declineDraw)
@@ -164,7 +164,7 @@ public class GameActor : ReceiveActor, IWithTimers
         }
 
         await _gameNotifier.NotifyDrawStateChangeAsync(_token, _drawRequestHandler.GetState());
-        Sender.Tell(new GameResponses.DrawDeclined());
+        Sender.Tell(new GameReplies.DrawDeclined());
     }
 
     private async Task HandleEndGameAsync(GameCommands.EndGame endGame)
@@ -186,7 +186,7 @@ public class GameActor : ReceiveActor, IWithTimers
             endStatus.Result
         );
         await FinalizeGameAsync(player, endStatus);
-        Sender.Tell(new GameResponses.GameEnded());
+        Sender.Tell(new GameReplies.GameEnded());
     }
 
     private async Task HandleMovePieceAsync(GameCommands.MovePiece movePiece)
@@ -237,7 +237,7 @@ public class GameActor : ReceiveActor, IWithTimers
             encodedLegalMoves: legalMoves.EncodedMoves,
             hasForcedMoves: legalMoves.HasForcedMoves
         );
-        Sender.Tell(new GameResponses.PieceMoved());
+        Sender.Tell(new GameReplies.PieceMoved());
     }
 
     private void Finished()

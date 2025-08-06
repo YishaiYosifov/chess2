@@ -16,7 +16,7 @@ public class GameChatCommands
         : IGameChatMessage;
 }
 
-public class GameChatEvents
+public class GameChatReplies
 {
     public record UserJoined;
 
