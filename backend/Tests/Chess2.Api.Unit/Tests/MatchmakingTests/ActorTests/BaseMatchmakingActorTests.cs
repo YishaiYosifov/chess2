@@ -63,7 +63,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
         MatchmakingActor.Tell(CreateSeekCommand(userIdToKeep), Probe);
         MatchmakingActor.Tell(CreateSeekCommand(userIdToRemove), Probe);
         MatchmakingActor.Tell(
-            new MatchmakingCommands.CancelSeek(userIdToRemove, TimeControl),
+            new MatchmakingCommands.CancelSeek(userIdToRemove, new(PoolType.Casual, TimeControl)),
             Probe
         );
 

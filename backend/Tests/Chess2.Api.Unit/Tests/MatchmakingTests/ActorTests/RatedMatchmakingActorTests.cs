@@ -38,7 +38,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
         var props = Props.Create(
             () =>
                 new RatedMatchmakingActor(
-                    TimeControl.ToShortString(),
+                    new PoolKey(PoolType.Rated, TimeControl).ToString(),
                     ServiceProviderMock,
                     Options.Create(Settings),
                     PoolMock,

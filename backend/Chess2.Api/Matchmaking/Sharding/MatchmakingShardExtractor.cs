@@ -10,6 +10,6 @@ public class MatchmakingShardExtractor(int shardCount) : HashCodeMessageExtracto
         if (message is not IMatchmakingCommand matchmakingMessage)
             return null;
 
-        return matchmakingMessage.TimeControl.ToShortString();
+        return matchmakingMessage.Key.ToString();
     }
 }

@@ -5,8 +5,8 @@ namespace Chess2.Api.Matchmaking.Services;
 
 public interface IMatchmakingNotifier
 {
-    Task NotifyGameFoundAsync(string userId, string gameToken);
-    Task NotifyMatchFailedAsync(string userId);
+    Task NotifyGameFoundAsync(string connectionId, string gameToken);
+    Task NotifyMatchFailedAsync(string connectionId);
 }
 
 public class MatchmakingNotifier(IHubContext<LobbyHub, IMatchmakingHubClient> hub)
@@ -14,9 +14,9 @@ public class MatchmakingNotifier(IHubContext<LobbyHub, IMatchmakingHubClient> hu
 {
     private readonly IHubContext<LobbyHub, IMatchmakingHubClient> _hub = hub;
 
-    public Task NotifyGameFoundAsync(string userId, string gameToken) =>
-        _hub.Clients.User(userId).MatchFoundAsync(gameToken);
+    public Task NotifyGameFoundAsync(string connectionId, string gameToken) =>
+        _hub.Clients.Client(connectionId).MatchFoundAsync(gameToken);
 
-    public Task NotifyMatchFailedAsync(string userId) =>
-        _hub.Clients.User(userId).MatchFailedAsync();
+    public Task NotifyMatchFailedAsync(string connectionId) =>
+        _hub.Clients.Client(connectionId).MatchFailedAsync();
 }

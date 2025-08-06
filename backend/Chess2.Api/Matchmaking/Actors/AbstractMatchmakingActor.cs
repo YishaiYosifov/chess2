@@ -1,7 +1,6 @@
 using Akka.Actor;
 using Akka.Cluster.Sharding;
 using Akka.Event;
-using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -19,7 +18,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
     protected TPool Pool { get; }
     protected abstract bool IsRated { get; }
 
-    private readonly TimeControlSettings _timeControl;
+    private readonly PoolKey _key;
     private readonly AppSettings _settings;
     private readonly IServiceProvider _sp;
 
@@ -41,7 +40,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
         Pool = pool;
 
         _sp = sp;
-        _timeControl = TimeControlSettings.FromShortString(entityId);
+        _key = PoolKey.Parse(entityId);
         _settings = settings.Value;
         Receive<ICreateSeekCommand>(HandleCreateSeek);
         Receive<MatchmakingCommands.CancelSeek>(HandleCancelSeek);
@@ -62,10 +61,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             return;
 
         _subscribers.TryAdd(userId, Sender);
-        Context.WatchWith(
-            Sender,
-            new MatchmakingCommands.CancelSeek(userId, createSeek.TimeControl)
-        );
+        Context.WatchWith(Sender, new MatchmakingCommands.CancelSeek(userId, createSeek.Key));
         Sender.Tell(new MatchmakingReplies.SeekCreated(userId));
     }
 
@@ -112,12 +108,12 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
                 var gameToken = await gameService.StartGameAsync(
                     seeker1,
                     seeker2,
-                    _timeControl,
+                    _key.TimeControl,
                     IsRated
                 );
 
-                seeker1Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
-                seeker2Ref.Tell(new MatchmakingEvents.MatchFound(gameToken));
+                seeker1Ref.Tell(new MatchmakingEvents.MatchFound(gameToken, _key));
+                seeker2Ref.Tell(new MatchmakingEvents.MatchFound(gameToken, _key));
             });
         }
     }
