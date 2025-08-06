@@ -123,7 +123,6 @@ public class ApiTestBase : IAsyncLifetime
         await ResetShardActors<PlayerSessionActor>();
         await ResetShardActors<RatedMatchmakingActor>();
         await ResetShardActors<CasualMatchmakingActor>();
-        await ResetShardActors<GameChatActor>();
         await ResetShardActors<GameActor>();
 
         await Factory.ResetDatabaseAsync();

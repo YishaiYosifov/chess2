@@ -294,6 +294,11 @@ ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.Res
 builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>();
 #endregion
 
+builder.Host.UseOrleans(siloBuilder =>
+{
+    siloBuilder.UseLocalhostClustering();
+});
+
 #region Akka
 builder.Services.AddAkka(
     resolvedAppSettings.Akka.ActorSystemName,
@@ -324,8 +329,7 @@ builder.Services.AddAkka(
                 runtimeAppSettings.Akka.MatchmakingShardCount
             )
             .WithPlayerShard(runtimeAppSettings.Akka.PlayerSessionShardCount)
-            .WithGameShard(runtimeAppSettings.Akka.GameShardCount)
-            .WithGameChatShard(runtimeAppSettings.Akka.GameChatShardCount);
+            .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
     }
 );
 #endregion
@@ -371,7 +375,6 @@ builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 #endregion
 
 #region Game Chat
-builder.Services.AddScoped<IGameChatService, GameChatService>();
 builder.Services.AddSingleton<IGameChatNotifier, GameChatNotifier>();
 builder.Services.AddTransient<IChatRateLimiter, ChatRateLimiter>();
 builder.Services.AddScoped<IChatMessageLogger, ChatMessageLogger>();

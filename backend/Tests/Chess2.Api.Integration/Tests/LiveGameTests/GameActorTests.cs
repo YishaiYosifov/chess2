@@ -18,10 +18,24 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Orleans.TestingHost;
 
 namespace Chess2.Api.Integration.Tests.LiveGameTests;
 
-public class GameActorTests : BaseAkkaIntegrationTest
+public class GameGrainSiloConfig : ISiloConfigurator
+{
+    public void Configure(ISiloBuilder siloBuilder)
+    {
+        siloBuilder.ConfigureServices(services =>
+        {
+            services.AddSingleton(Substitute.For<IGameNotifier>());
+        });
+    }
+}
+
+public class GameActorTests
+    : BaseAkkaIntegrationTest,
+        IClassFixture<ClusterFixture<GameGrainSiloConfig>>
 {
     private const string TestGameToken = "testtoken";
     private readonly TimeControlSettings _timeControl = new(600, 5);
@@ -43,10 +57,15 @@ public class GameActorTests : BaseAkkaIntegrationTest
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
+    private readonly ClusterFixture<GameGrainSiloConfig> _cluster;
 
-    public GameActorTests(Chess2WebApplicationFactory factory)
+    public GameActorTests(
+        Chess2WebApplicationFactory factory,
+        ClusterFixture<GameGrainSiloConfig> cluster
+    )
         : base(factory)
     {
+        _cluster = cluster;
         _sanCalculator = ApiTestBase.Scope.ServiceProvider.GetRequiredService<ISanCalculator>();
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
