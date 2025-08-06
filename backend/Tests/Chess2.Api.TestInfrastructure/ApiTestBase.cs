@@ -4,7 +4,7 @@ using Akka.Hosting;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Actors;
-using Chess2.Api.Matchmaking.Actors;
+using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.PlayerSession.Actors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -120,9 +120,9 @@ public class ApiTestBase : IAsyncLifetime
 
     public virtual async ValueTask DisposeAsync()
     {
-        await ResetShardActors<PlayerSessionActor>();
-        await ResetShardActors<RatedMatchmakingActor>();
-        await ResetShardActors<CasualMatchmakingActor>();
+        await ResetShardActors<PlayerSessionGrain>();
+        await ResetShardActors<RatedMatchmakingGrain>();
+        await ResetShardActors<CasualMatchmakingGrain>();
         await ResetShardActors<GameActor>();
 
         await Factory.ResetDatabaseAsync();

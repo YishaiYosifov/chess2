@@ -31,9 +31,14 @@ public static class RatedMatchmakingCommands
 
 public static class CasualMatchmakingCommands
 {
-    public record CreateCasualSeek(string UserId, TimeControlSettings TimeControl)
-        : ICreateSeekCommand
+    [GenerateSerializer]
+    [Alias("Chess2.Api.Matchmaking.Models.CasualMatchmakingCommands.CreateCasualSeek")]
+    public sealed partial record CreateCasualSeek(
+        [property: Id(0)] string UserId,
+        [property: Id(1)] TimeControlSettings TimeControl
+    ) : ICreateSeekCommand
     {
+        [Id(2)]
         public PoolKey Key { get; } = new(PoolType.Casual, TimeControl);
     }
 }
