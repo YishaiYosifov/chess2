@@ -67,7 +67,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
             Probe
         );
 
-        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingEvents.SeekCanceled>(
+        var cancelEvent = await Probe.FishForMessageAsync<MatchmakingReplies.SeekCanceled>(
             x => x.UserId == userIdToRemove,
             cancellationToken: CT
         );
@@ -80,7 +80,7 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
         const string userId = "user1";
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
+        await Probe.ExpectMsgAsync<MatchmakingReplies.SeekCreated>(cancellationToken: CT);
         Sys.Stop(Probe);
 
         await AwaitAssertAsync(() => PoolMock.Received().RemoveSeek(userId), cancellationToken: CT);
@@ -92,13 +92,13 @@ public abstract class BaseMatchmakingActorTests<TPool> : BaseActorTest
         const string userId = "user1";
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
+        await Probe.ExpectMsgAsync<MatchmakingReplies.SeekCreated>(cancellationToken: CT);
 
         VerifySeekWasAdded(userId, times: 1);
         PoolMock.HasSeek(userId).Returns(true);
 
         MatchmakingActor.Tell(CreateSeekCommand(userId), Probe);
-        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(cancellationToken: CT);
+        await Probe.ExpectMsgAsync<MatchmakingReplies.SeekCreated>(cancellationToken: CT);
 
         VerifySeekWasAdded(userId, times: 1);
     }

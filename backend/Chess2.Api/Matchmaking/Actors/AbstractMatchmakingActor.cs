@@ -66,7 +66,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
             Sender,
             new MatchmakingCommands.CancelSeek(userId, createSeek.TimeControl)
         );
-        Sender.Tell(new MatchmakingEvents.SeekCreated(userId));
+        Sender.Tell(new MatchmakingReplies.SeekCreated(userId));
     }
 
     private void HandleCancelSeek(MatchmakingCommands.CancelSeek cancelSeek)
@@ -80,7 +80,7 @@ public abstract class AbstractMatchmakingActor<TPool> : MatchmakingActor, IWithT
 
         _subscribers.Remove(cancelSeek.UserId);
         Context.Unwatch(Sender);
-        Sender.Tell(new MatchmakingEvents.SeekCanceled(cancelSeek.UserId));
+        Sender.Tell(new MatchmakingReplies.SeekCanceled(cancelSeek.UserId));
     }
 
     private void HandleMatchWave()

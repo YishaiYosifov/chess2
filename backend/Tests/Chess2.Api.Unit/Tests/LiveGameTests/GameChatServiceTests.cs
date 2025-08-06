@@ -50,7 +50,7 @@ public class GameChatServiceTests : BaseActorTest
                 )
             );
 
-        _gameChatActorProbe.Sender.Tell(new GameChatEvents.UserJoined());
+        _gameChatActorProbe.Sender.Tell(new GameChatReplies.UserJoined());
         var result = await joinTask;
 
         result.IsError.Should().BeFalse();
@@ -78,7 +78,7 @@ public class GameChatServiceTests : BaseActorTest
                 )
             );
 
-        _gameChatActorProbe.Sender.Tell(new GameChatEvents.UserLeft());
+        _gameChatActorProbe.Sender.Tell(new GameChatReplies.UserLeft());
 
         var result = await resultTask;
         result.IsError.Should().BeFalse();
@@ -110,7 +110,7 @@ public class GameChatServiceTests : BaseActorTest
                 )
             );
 
-        _gameChatActorProbe.Sender.Tell(new GameChatEvents.MessageSent());
+        _gameChatActorProbe.Sender.Tell(new GameChatReplies.MessageSent());
 
         var result = await task;
         result.IsError.Should().BeFalse();

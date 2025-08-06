@@ -19,7 +19,7 @@ public class RatedMatchmakingActorTests : BaseMatchmakingActorTests<IRatedMatchm
             new RatedMatchmakingCommands.CreateRatedSeek(userId, rating, TimeControl),
             Probe
         );
-        await Probe.ExpectMsgAsync<MatchmakingEvents.SeekCreated>(
+        await Probe.ExpectMsgAsync<MatchmakingReplies.SeekCreated>(
             x => x.UserId == userId,
             cancellationToken: CT
         );
