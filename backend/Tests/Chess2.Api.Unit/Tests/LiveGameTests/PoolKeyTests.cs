@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using FluentAssertions;
 
@@ -7,31 +6,47 @@ namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
 public class PoolKeyTests
 {
-    [Fact]
-    public void ToString_serializes_correctly()
+    [Theory]
+    [InlineData(PoolType.Casual, 5, 3, "casual:5+3")]
+    [InlineData(PoolType.Rated, 10, 0, "rated:10+0")]
+    [InlineData(PoolType.Casual, 0, 0, "casual:0+0")]
+    [InlineData(PoolType.Rated, 30, 30, "rated:30+30")]
+    public void ToGrainKey_returns_the_correct_format(
+        PoolType poolType,
+        int baseSeconds,
+        int incrementSeconds,
+        string expectedKey
+    )
     {
-        var key = new PoolKey(PoolType.Casual, new TimeControlSettings(300, 5));
-        var result = key.ToString();
+        TimeControlSettings timeControl = new(baseSeconds, incrementSeconds);
+        PoolKey poolKey = new(poolType, timeControl);
 
-        var expectedJson = JsonSerializer.Serialize(key);
-        result.Should().Be(expectedJson);
+        var grainKey = poolKey.ToGrainKey();
+
+        grainKey.Should().Be(expectedKey);
     }
 
-    [Fact]
-    public void Parse_deserializes_correctly()
+    [Theory]
+    [InlineData("casual:5+3", PoolType.Casual, 5, 3)]
+    [InlineData("rated:10+0", PoolType.Rated, 10, 0)]
+    [InlineData("casual:0+0", PoolType.Casual, 0, 0)]
+    [InlineData("rated:30+30", PoolType.Rated, 30, 30)]
+    public void FromGrainKey_parses_correctly(
+        string grainKey,
+        PoolType expectedPoolType,
+        int expectedBaseSeconds,
+        int expectedIncrementSeconds
+    )
     {
-        var original = new PoolKey(PoolType.Rated, new TimeControlSettings(600, 10));
-        var json = original.ToString();
+        var poolKey = PoolKey.FromGrainKey(grainKey);
 
-        var parsed = PoolKey.Parse(json);
-
-        parsed.Should().BeEquivalentTo(original);
-    }
-
-    [Fact]
-    public void Parse_throws_when_provided_with_null_json()
-    {
-        var act = () => PoolKey.Parse("null");
-        act.Should().Throw<FormatException>().WithMessage("Invalid PoolKey JSON");
+        poolKey
+            .Should()
+            .BeEquivalentTo(
+                new PoolKey(
+                    expectedPoolType,
+                    new TimeControlSettings(expectedBaseSeconds, expectedIncrementSeconds)
+                )
+            );
     }
 }

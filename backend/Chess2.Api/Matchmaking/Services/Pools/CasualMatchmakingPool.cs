@@ -1,46 +1,54 @@
-﻿namespace Chess2.Api.Matchmaking.Services.Pools;
+﻿using Chess2.Api.Matchmaking.Models;
 
-public interface ICasualMatchmakingPool : IMatchmakingPool
-{
-    void AddSeek(string userId);
-}
+namespace Chess2.Api.Matchmaking.Services.Pools;
+
+public interface ICasualMatchmakingPool : IMatchmakingPool;
 
 public class CasualMatchmakingPool : ICasualMatchmakingPool
 {
-    private readonly HashSet<string> _seekers = [];
+    private readonly Dictionary<string, Seek> _seekers = [];
 
+    public IEnumerable<string> Seekers => _seekers.Keys;
     public int SeekerCount => _seekers.Count;
-    public IEnumerable<string> Seekers => _seekers;
 
-    public void AddSeek(string userId) => _seekers.Add(userId);
+    public bool TryAddSeek(Seek seek) => _seekers.TryAdd(seek.UserId, seek);
 
-    public bool HasSeek(string userId) => _seekers.Contains(userId);
+    public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
-    public List<(string userId1, string userId2)> CalculateMatches()
+    public List<(Seek seek1, Seek seek2)> CalculateMatches()
     {
-        var matches = new List<(string, string)>();
-        var seekers = _seekers.ToArray();
-        string? unmatchedUser = null;
-        for (int i = 0; i < seekers.Length; i += 2)
+        var matches = new List<(Seek, Seek)>();
+        var unmatchedSeekers = new List<Seek>(_seekers.Values);
+        var matchedIds = new HashSet<string>();
+
+        for (int i = 0; i < unmatchedSeekers.Count; i++)
         {
-            if (i + 1 >= seekers.Length)
+            var seeker = unmatchedSeekers[i];
+            if (matchedIds.Contains(seeker.UserId))
+                continue;
+
+            for (int j = i + 1; j < unmatchedSeekers.Count; j++)
             {
-                // Odd number of seekers, last one remains unmatched
-                unmatchedUser = seekers[i];
+                var candidate = unmatchedSeekers[j];
+                if (matchedIds.Contains(candidate.UserId))
+                    continue;
+
+                if (!seeker.IsCompatibleWith(candidate) || !candidate.IsCompatibleWith(seeker))
+                    continue;
+
+                matches.Add((seeker, candidate));
+                matchedIds.Add(seeker.UserId);
+                matchedIds.Add(candidate.UserId);
                 break;
             }
-
-            var seeker1 = seekers[i];
-            var seeker2 = seekers[i + 1];
-
-            matches.Add((seeker1, seeker2));
         }
 
-        _seekers.Clear();
-        if (unmatchedUser is not null)
-            _seekers.Add(unmatchedUser);
+        foreach (var id in matchedIds)
+        {
+            _seekers.Remove(id);
+        }
 
         return matches;
     }
