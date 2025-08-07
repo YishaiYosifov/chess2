@@ -1,151 +1,143 @@
-﻿using Chess2.Api.Shared.Models;
-using Microsoft.Extensions.Options;
+﻿using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
-public interface IRatedMatchmakingPool : IMatchmakingPool
-{
-    void AddSeek(string userId, int rating);
-}
+public interface IRatedMatchmakingPool : IMatchmakingPool;
 
-public class SeekInfo(string userId, int rating, int wavesMissed = 0)
+public class RatedPoolMember(RatedSeek seek, int wavesMissed = 0)
 {
-    public string UserId { get; } = userId;
-    public int Rating { get; } = rating;
+    public RatedSeek Seek { get; } = seek;
     public int WavesMissed { get; set; } = wavesMissed;
 }
 
-public class RatedMatchmakingPool(IOptions<AppSettings> settings) : IRatedMatchmakingPool
+public class RatedMatchmakingPool : IRatedMatchmakingPool
 {
-    private readonly GameSettings _settings = settings.Value.Game;
-    private readonly Dictionary<string, SeekInfo> _seekers = [];
+    private readonly Dictionary<string, RatedPoolMember> _seekers = [];
 
     public IEnumerable<string> Seekers => _seekers.Keys;
     public int SeekerCount => _seekers.Count;
 
-    public void AddSeek(string userId, int rating)
+    public bool TryAddSeek(Seek seek)
     {
-        var seekInfo = new SeekInfo(userId, rating);
-        _seekers[userId] = seekInfo;
+        if (seek is not RatedSeek ratedSeek)
+            return false;
+
+        var seekInfo = new RatedPoolMember(ratedSeek);
+        return _seekers.TryAdd(seek.UserId, seekInfo);
     }
 
     public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
-    public List<(string userId1, string userId2)> CalculateMatches()
+    public List<(Seek seek1, Seek seek2)> CalculateMatches()
     {
-        var matches = new List<(string, string)>();
+        var matches = new List<(Seek, Seek)>();
         var alreadyMatched = new HashSet<string>();
 
-        var seekersByRating = _seekers.Values.OrderBy(seeker => seeker.Rating).ToList();
-        var seekersByMissedWaves = _seekers
-            .Values.OrderByDescending(seeker => seeker.WavesMissed)
-            .ToList();
+        var seekersByRating = _seekers.Values.OrderBy(x => x.Seek.Rating.Value).ToList();
 
-        foreach (var seeker in seekersByMissedWaves)
+        foreach (var seeker in _seekers.Values)
         {
-            if (alreadyMatched.Contains(seeker.UserId))
+            if (alreadyMatched.Contains(seeker.Seek.UserId))
                 continue;
 
-            var (startIdx, endIdx) = GetSeekerSearchRatingBounds(seeker, seekersByRating);
-
-            var bestMatch = FindBestMatch(
-                seeker,
-                seekersByRating,
-                alreadyMatched,
-                bounds: (startIdx, endIdx)
-            );
+            var startIdx = BinarySearchLow(seekersByRating, seeker.Seek.Rating.MinRating);
+            var bestMatch = FindBestMatch(seeker, seekersByRating, alreadyMatched, startIdx);
             if (bestMatch is null)
             {
                 seeker.WavesMissed++;
                 continue;
             }
 
-            matches.Add((seeker.UserId, bestMatch.UserId));
-            alreadyMatched.Add(seeker.UserId);
-            alreadyMatched.Add(bestMatch.UserId);
+            matches.Add((seeker.Seek, bestMatch.Seek));
+            alreadyMatched.Add(seeker.Seek.UserId);
+            alreadyMatched.Add(bestMatch.Seek.UserId);
         }
         RemoveSeekBatch(alreadyMatched);
 
         return matches;
     }
 
-    private static SeekInfo? FindBestMatch(
-        SeekInfo seeker,
-        List<SeekInfo> seekersByRating,
+    private static RatedPoolMember? FindBestMatch(
+        RatedPoolMember seeker,
+        List<RatedPoolMember> seekersByRating,
         HashSet<string> alreadyMatched,
-        (int startIdx, int endIdx) bounds
+        int startIdx
     )
     {
-        SeekInfo? bestMatch = null;
-        int bestRatingDifference = int.MaxValue;
-
-        for (int i = bounds.startIdx; i <= bounds.endIdx; i++)
+        RatedPoolMember? bestMatch = null;
+        int bestScore = int.MaxValue;
+        for (int i = startIdx; i < seekersByRating.Count; i++)
         {
             var candidate = seekersByRating[i];
-            if (seeker.UserId == candidate.UserId || alreadyMatched.Contains(candidate.UserId))
+            if (
+                seeker.Seek.UserId == candidate.Seek.UserId
+                || alreadyMatched.Contains(candidate.Seek.UserId)
+            )
                 continue;
 
-            var ratingDifference = Math.Abs(candidate.Rating - seeker.Rating);
+            if (!seeker.Seek.IsRatingCompatibleWith(candidate.Seek))
+                break;
+
+            var score = CalculateScore(seeker, candidate);
+            if (score is null)
+                continue;
+            var scoreValue = score.Value;
+
             if (bestMatch is null)
             {
                 bestMatch = candidate;
-                bestRatingDifference = ratingDifference;
+                bestScore = scoreValue;
                 continue;
             }
 
-            bool isCandidateOlder = candidate.WavesMissed > bestMatch.WavesMissed;
-            bool isCandidateCloser =
-                candidate.WavesMissed == bestMatch.WavesMissed
-                && ratingDifference < bestRatingDifference;
-
-            if (isCandidateOlder || isCandidateCloser)
+            if (bestScore > scoreValue)
             {
                 bestMatch = candidate;
-                bestRatingDifference = ratingDifference;
+                bestScore = scoreValue;
             }
         }
 
         return bestMatch;
     }
 
+    private static int? CalculateScore(RatedPoolMember a, RatedPoolMember b)
+    {
+        if (!a.Seek.IsCompatibleWith(b.Seek) || !b.Seek.IsCompatibleWith(a.Seek))
+            return null;
+
+        if (a.Seek.Rating is null || b.Seek.Rating is null)
+            return 0;
+
+        return Math.Abs(a.Seek.Rating.Value - b.Seek.Rating.Value)
+            - Math.Max(MissBonus(a), MissBonus(b));
+    }
+
+    private static int MissBonus(RatedPoolMember seeker) =>
+        Math.Clamp(seeker.WavesMissed * 12, min: 0, max: 400);
+
     private void RemoveSeekBatch(IEnumerable<string> seeks)
     {
         foreach (var seek in seeks)
+        {
             RemoveSeek(seek);
+        }
     }
 
-    private (int startIdx, int endIdx) GetSeekerSearchRatingBounds(
-        SeekInfo seeker,
-        List<SeekInfo> seekersByRating
-    )
+    private static int BinarySearchLow(List<RatedPoolMember> list, int value)
     {
-        var seekerRange = CalculateRatingRange(seeker);
-        var minRating = seeker.Rating - seekerRange;
-        var maxRating = seeker.Rating + seekerRange;
-
-        var (startIdx, _) = BinarySearch(seekersByRating, minRating);
-        var (_, endIdx) = BinarySearch(seekersByRating, maxRating);
-        return (startIdx, endIdx);
-    }
-
-    private static (int low, int high) BinarySearch(List<SeekInfo> list, int value)
-    {
-        int low = 0,
-            high = list.Count - 1;
+        int low = 0;
+        int high = list.Count - 1;
         while (low <= high)
         {
             int mid = low + (high - low) / 2;
-            if (list[mid].Rating <= value)
+            var midRating = list[mid].Seek.Rating;
+            if (midRating.Value <= value)
                 low = mid + 1;
             else
                 high = mid - 1;
         }
-        return (low, high);
+        return low;
     }
-
-    private int CalculateRatingRange(SeekInfo seeker) =>
-        _settings.StartingMatchRatingDifference
-        + seeker.WavesMissed * _settings.MatchRatingDifferenceGrowthPerWave;
 }

@@ -3,8 +3,10 @@ using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;
 
@@ -12,7 +14,12 @@ public interface IMatchmakingService
 {
     Task SeekRatedAsync(AuthedUser user, string connectionId, TimeControlSettings timeControl);
 
-    Task SeekCasualAsync(string userId, string connectionId, TimeControlSettings timeControl);
+    Task SeekCasualAsync(
+        string userId,
+        string connectionId,
+        AuthedUser? user,
+        TimeControlSettings timeControl
+    );
 
     Task CancelSeekAsync(string userId, string connectionId);
 }
@@ -20,12 +27,14 @@ public interface IMatchmakingService
 public class MatchmakingService(
     IGrainFactory grains,
     IRatingService ratingService,
-    ITimeControlTranslator secondsToTimeControl
+    ITimeControlTranslator secondsToTimeControl,
+    IOptions<AppSettings> settings
 ) : IMatchmakingService
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _secondsToTimeControl = secondsToTimeControl;
+    private readonly GameSettings _settings = settings.Value.Game;
 
     public async Task SeekRatedAsync(
         AuthedUser user,
@@ -39,26 +48,37 @@ public class MatchmakingService(
         );
 
         PoolKey poolKey = new(PoolType.Rated, timeControl);
+        RatedSeek seek = new(
+            UserId: user.Id,
+            UserName: user.UserName ?? "unknown",
+            BlockedUserIds: [],
+            Rating: new(Value: rating, AllowedRatingRange: _settings.AllowedMatchRatingDifference)
+        );
 
         var matchmakingGrain = _grains.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey());
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
 
-        await matchmakingGrain.CreateSeekAsync(user.Id, rating, playerSessionGrain);
-        await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
+        var isSuccess = await matchmakingGrain.TryCreateSeekAsync(seek, playerSessionGrain);
+        if (isSuccess)
+            await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
     }
 
     public async Task SeekCasualAsync(
         string userId,
         string connectionId,
+        AuthedUser? user,
         TimeControlSettings timeControl
     )
     {
         PoolKey poolKey = new(PoolType.Casual, timeControl);
+        Seek seek = new(UserId: userId, UserName: user?.UserName ?? "Guest", BlockedUserIds: []);
+
         var matchmakingGrain = _grains.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey());
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
 
-        await matchmakingGrain.CreateSeekAsync(userId, playerSessionGrain);
-        await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
+        var isSuccess = await matchmakingGrain.TryCreateSeekAsync(seek, playerSessionGrain);
+        if (isSuccess)
+            await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
     }
 
     public async Task CancelSeekAsync(string userId, string connectionId)
