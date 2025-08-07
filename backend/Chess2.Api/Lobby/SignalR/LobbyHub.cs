@@ -27,24 +27,16 @@ public class LobbyHub(
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)
     {
-        if (!TryGetUserId(out var userId))
-        {
-            await HandleErrors(Error.Unauthorized());
-            return;
-        }
-
         var userResult = await _authService.GetLoggedInUserAsync(Context.User);
         if (userResult.IsError)
         {
             await HandleErrors(userResult.Errors);
             return;
         }
-        _logger.LogInformation("User {UserId} seeking rated match", userId);
-        await _matchmakingService.SeekRatedAsync(
-            userResult.Value,
-            Context.ConnectionId,
-            timeControl
-        );
+        var user = userResult.Value;
+
+        _logger.LogInformation("User {UserId} seeking rated match", user.Id);
+        await _matchmakingService.SeekRatedAsync(user, Context.ConnectionId, timeControl);
     }
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
@@ -55,8 +47,11 @@ public class LobbyHub(
             return;
         }
 
+        var userResult = await _authService.GetLoggedInUserAsync(Context.User);
+        var user = userResult.IsError ? null : userResult.Value;
+
         _logger.LogInformation("User {UserId} seeking casual match", userId);
-        await _matchmakingService.SeekCasualAsync(userId, Context.ConnectionId, timeControl);
+        await _matchmakingService.SeekCasualAsync(userId, Context.ConnectionId, user, timeControl);
     }
 
     public async Task CancelSeekAsync()

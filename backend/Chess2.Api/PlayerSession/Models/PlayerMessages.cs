@@ -1,6 +1,4 @@
-﻿using Chess2.Api.Matchmaking.Models;
-
-namespace Chess2.Api.PlayerSession.Models;
+﻿namespace Chess2.Api.PlayerSession.Models;
 
 public interface IPlayerSessionCommand
 {
@@ -9,11 +7,7 @@ public interface IPlayerSessionCommand
 
 public class PlayerSessionCommands
 {
-    public record CreateSeek(
-        string UserId,
-        string ConnectionId,
-        ICreateSeekCommand CreateSeekCommand
-    ) : IPlayerSessionCommand;
+    public record CreateSeek(string UserId, string ConnectionId) : IPlayerSessionCommand;
 
     public record CancelSeek(string UserId, string ConnectionId) : IPlayerSessionCommand;
 
