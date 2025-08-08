@@ -14,5 +14,5 @@ public class RatedMatchmakingGrain(
     IOptions<AppSettings> settings,
     IRatedMatchmakingPool pool
 )
-    : AbstractMatchmakinGrain<IRatedMatchmakingPool>(logger, liveGameService, settings, pool),
+    : AbstractMatchmakingGrain<IRatedMatchmakingPool>(logger, liveGameService, settings, pool),
         IRatedMatchmakingGrain;
