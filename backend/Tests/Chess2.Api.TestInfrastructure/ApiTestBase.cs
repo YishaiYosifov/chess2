@@ -12,7 +12,7 @@ using Serilog.Sinks.XUnit.Injectable.Abstract;
 
 namespace Chess2.Api.TestInfrastructure;
 
-public class ApiTestBase
+public class ApiTestBase : IAsyncLifetime
 {
     public Chess2WebApplicationFactory Factory { get; }
     public IServiceScope Scope { get; }
@@ -93,5 +93,16 @@ public class ApiTestBase
         await connection.StartAsync();
 
         return connection;
+    }
+
+    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
+    public virtual async ValueTask DisposeAsync()
+    {
+        await Factory.ResetDatabaseAsync();
+        Scope?.Dispose();
+        DbContext?.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 }
