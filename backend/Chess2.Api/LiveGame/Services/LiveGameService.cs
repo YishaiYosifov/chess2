@@ -1,51 +1,15 @@
-﻿using Akka.Actor;
-using Akka.Hosting;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Actors;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.Shared.Extensions;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
-using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.LiveGame.Services;
 
 public interface ILiveGameService
 {
-    Task<ErrorOr<Success>> DeclineDrawAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    );
-    Task<ErrorOr<Success>> EndGameAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    );
-    Task<ErrorOr<GameReplies.GamePlayers>> GetGamePlayersAsync(
-        string gameToken,
-        CancellationToken token = default
-    );
-    Task<ErrorOr<GameState>> GetGameStateAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    );
-    Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default);
-    Task<ErrorOr<Success>> MakeMoveAsync(
-        string gameToken,
-        string userId,
-        MoveKey key,
-        CancellationToken token = default
-    );
-    Task<ErrorOr<Success>> RequestDrawAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    );
     Task<string> StartGameAsync(
         string userId1,
         string userId2,
@@ -55,27 +19,18 @@ public interface ILiveGameService
 }
 
 public class LiveGameService(
-    IRequiredActor<GameActor> gameActor,
+    IGrainFactory grains,
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator
 ) : ILiveGameService
 {
-    private readonly IRequiredActor<GameActor> _gameActor = gameActor;
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-
-    public async Task<bool> IsGameOngoingAsync(string gameToken, CancellationToken token = default)
-    {
-        var isGameOngoing = await _gameActor.ActorRef.Ask<bool>(
-            new GameQueries.IsGameOngoing(gameToken),
-            token
-        );
-        return isGameOngoing;
-    }
+    private readonly IGrainFactory _grains = grains;
 
     public async Task<string> StartGameAsync(
         string userId1,
@@ -87,99 +42,11 @@ public class LiveGameService(
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
-        await _gameActor.ActorRef.Ask<GameReplies.GameStarted>(
-            new GameCommands.StartGame(token, whitePlayer, blackPlayer, timeControl, isRated)
-        );
+
+        var gameGrain = _grains.GetGrain<IGameGrain>(token);
+        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, timeControl, isRated);
 
         return token;
-    }
-
-    public async Task<ErrorOr<GameState>> GetGameStateAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.GetGameState>(
-            new GameQueries.GetGameState(gameToken, userId),
-            token
-        );
-        if (response.IsError)
-            return response.Errors;
-        return response.Value.State;
-    }
-
-    public async Task<ErrorOr<GameReplies.GamePlayers>> GetGamePlayersAsync(
-        string gameToken,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.GamePlayers>(
-            new GameQueries.GetGamePlayers(gameToken),
-            token
-        );
-        return response;
-    }
-
-    public async Task<ErrorOr<Success>> MakeMoveAsync(
-        string gameToken,
-        string userId,
-        MoveKey key,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.PieceMoved>(
-            new GameCommands.MovePiece(gameToken, userId, key),
-            token
-        );
-        if (response.IsError)
-            return response.Errors;
-        return Result.Success;
-    }
-
-    public async Task<ErrorOr<Success>> RequestDrawAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.DrawRequested>(
-            new GameCommands.RequestDraw(gameToken, userId),
-            token
-        );
-        if (response.IsError)
-            return response.Errors;
-        return Result.Success;
-    }
-
-    public async Task<ErrorOr<Success>> DeclineDrawAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.DrawDeclined>(
-            new GameCommands.DeclineDraw(gameToken, userId),
-            token
-        );
-        if (response.IsError)
-            return response.Errors;
-        return Result.Success;
-    }
-
-    public async Task<ErrorOr<Success>> EndGameAsync(
-        string gameToken,
-        string userId,
-        CancellationToken token = default
-    )
-    {
-        var response = await _gameActor.ActorRef.AskExpecting<GameReplies.GameEnded>(
-            new GameCommands.EndGame(gameToken, userId),
-            token
-        );
-        if (response.IsError)
-            return response.Errors;
-        return Result.Success;
     }
 
     private async Task<GamePlayer> CreatePlayer(

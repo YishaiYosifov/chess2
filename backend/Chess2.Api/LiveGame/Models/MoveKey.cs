@@ -2,6 +2,8 @@
 
 namespace Chess2.Api.LiveGame.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Models.MoveKey")]
 public readonly record struct MoveKey(
     AlgebraicPoint From,
     AlgebraicPoint To,

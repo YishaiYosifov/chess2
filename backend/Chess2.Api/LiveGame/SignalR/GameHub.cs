@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
@@ -30,17 +31,12 @@ public interface IGameHubClient : IChess2HubClient
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
-public class GameHub(
-    ILogger<GameHub> logger,
-    ILiveGameService gameService,
-    IGrainFactory grains,
-    IGameNotifier gameNotifier
-) : Chess2Hub<IGameHubClient>
+public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifier gameNotifier)
+    : Chess2Hub<IGameHubClient>
 {
     private const string GameTokenQueryParam = "gameToken";
 
     private readonly ILogger<GameHub> _logger = logger;
-    private readonly ILiveGameService _gameService = gameService;
     private readonly IGrainFactory _grains = grains;
     private readonly IGameNotifier _gameNotifier = gameNotifier;
 
@@ -52,7 +48,7 @@ public class GameHub(
             return;
         }
 
-        var response = await _gameService.MakeMoveAsync(gameToken, userId, key);
+        var response = await _grains.GetGrain<IGameGrain>(gameToken).MovePieceAsync(userId, key);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
@@ -68,7 +64,7 @@ public class GameHub(
             return;
         }
 
-        var response = await _gameService.EndGameAsync(gameToken, userId);
+        var response = await _grains.GetGrain<IGameGrain>(gameToken).EndGameAsync(userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
@@ -84,7 +80,7 @@ public class GameHub(
             return;
         }
 
-        var response = await _gameService.RequestDrawAsync(gameToken, userId);
+        var response = await _grains.GetGrain<IGameGrain>(gameToken).RequestDrawAsync(userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
@@ -100,7 +96,7 @@ public class GameHub(
             return;
         }
 
-        var response = await _gameService.DeclineDrawAsync(gameToken, userId);
+        var response = await _grains.GetGrain<IGameGrain>(gameToken).DeclineDrawAsync(userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);
