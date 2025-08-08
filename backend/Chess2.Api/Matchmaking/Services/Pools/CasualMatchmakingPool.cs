@@ -6,21 +6,21 @@ public interface ICasualMatchmakingPool : IMatchmakingPool;
 
 public class CasualMatchmakingPool : ICasualMatchmakingPool
 {
-    private readonly Dictionary<string, Seek> _seekers = [];
+    private readonly Dictionary<string, Seeker> _seekers = [];
 
     public IEnumerable<string> Seekers => _seekers.Keys;
     public int SeekerCount => _seekers.Count;
 
-    public bool TryAddSeek(Seek seek) => _seekers.TryAdd(seek.UserId, seek);
+    public bool TryAddSeek(Seeker seeker) => _seekers.TryAdd(seeker.UserId, seeker);
 
     public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
-    public List<(Seek seek1, Seek seek2)> CalculateMatches()
+    public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {
-        var matches = new List<(Seek, Seek)>();
-        var unmatchedSeekers = new List<Seek>(_seekers.Values);
+        var matches = new List<(Seeker, Seeker)>();
+        var unmatchedSeekers = new List<Seeker>(_seekers.Values);
         var matchedIds = new HashSet<string>();
 
         for (int i = 0; i < unmatchedSeekers.Count; i++)

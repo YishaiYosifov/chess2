@@ -4,9 +4,9 @@ namespace Chess2.Api.Matchmaking.Services.Pools;
 
 public interface IRatedMatchmakingPool : IMatchmakingPool;
 
-public class RatedPoolMember(RatedSeek seek, int wavesMissed = 0)
+public class RatedPoolMember(RatedSeeker seek, int wavesMissed = 0)
 {
-    public RatedSeek Seek { get; } = seek;
+    public RatedSeeker Seek { get; } = seek;
     public int WavesMissed { get; set; } = wavesMissed;
 }
 
@@ -17,22 +17,22 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     public IEnumerable<string> Seekers => _seekers.Keys;
     public int SeekerCount => _seekers.Count;
 
-    public bool TryAddSeek(Seek seek)
+    public bool TryAddSeek(Seeker seeker)
     {
-        if (seek is not RatedSeek ratedSeek)
+        if (seeker is not RatedSeeker ratedSeek)
             return false;
 
         var seekInfo = new RatedPoolMember(ratedSeek);
-        return _seekers.TryAdd(seek.UserId, seekInfo);
+        return _seekers.TryAdd(seeker.UserId, seekInfo);
     }
 
     public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(string userId) => _seekers.Remove(userId);
 
-    public List<(Seek seek1, Seek seek2)> CalculateMatches()
+    public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {
-        var matches = new List<(Seek, Seek)>();
+        var matches = new List<(Seeker, Seeker)>();
         var alreadyMatched = new HashSet<string>();
 
         var seekersByRating = _seekers.Values.OrderBy(x => x.Seek.Rating.Value).ToList();

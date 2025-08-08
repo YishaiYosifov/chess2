@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Users.Entities;
 
-public class AuthedUser : IdentityUser, IUser
+public class AuthedUser : IdentityUser
 {
     [MaxLength(300)]
     public string? About { get; set; }

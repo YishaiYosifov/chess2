@@ -14,5 +14,5 @@ public class CasualMatchmakingGrain(
     IOptions<AppSettings> settings,
     ICasualMatchmakingPool pool
 )
-    : AbstractMatchmakinGrain<ICasualMatchmakingPool>(logger, liveGameService, settings, pool),
+    : AbstractMatchmakingGrain<ICasualMatchmakingPool>(logger, liveGameService, settings, pool),
         ICasualMatchmakingGrain;

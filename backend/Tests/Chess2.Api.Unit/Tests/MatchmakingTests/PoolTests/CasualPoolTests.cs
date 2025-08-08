@@ -10,7 +10,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
 
     protected override void AddSeek(string userId)
     {
-        var seek = new Seek(userId, userId, BlockedUserIds: []);
+        Seeker seek = new(userId, userId, BlockedUserIds: []);
         Pool.TryAddSeek(seek);
     }
 
@@ -33,7 +33,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
 
         matches.Should().HaveCount(2);
         var matchedUserIds = matches
-            .SelectMany(m => new[] { m.seek1.UserId, m.seek2.UserId })
+            .SelectMany(m => new[] { m.seeker1.UserId, m.seeker2.UserId })
             .ToList();
         matchedUserIds.Should().Contain(["User1", "User2", "User3", "User4"]);
 
@@ -50,7 +50,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
         var matches = Pool.CalculateMatches();
 
         matches.Should().ContainSingle();
-        var matchedIds = matches.SelectMany(m => new[] { m.seek1.UserId, m.seek2.UserId }).ToList();
+        var matchedIds = matches
+            .SelectMany(m => new[] { m.seeker1.UserId, m.seeker2.UserId })
+            .ToList();
         matchedIds.Should().Contain(["User1", "User2"]);
 
         Pool.Seekers.Should().ContainSingle().Which.Should().Be("User3");
@@ -59,8 +61,8 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_does_not_match_if_seekers_are_blocked()
     {
-        var user1 = new Seek("user1", "User1", ["user2"]);
-        var user2 = new Seek("user2", "User2", []);
+        Seeker user1 = new("user1", "User1", ["user2"]);
+        Seeker user2 = new("user2", "User2", []);
         Pool.TryAddSeek(user1);
         Pool.TryAddSeek(user2);
 
@@ -73,9 +75,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_matches_only_compatible_seekers()
     {
-        var user1 = new Seek("user1", "User1", []);
-        var user2 = new Seek("user2", "User2", []);
-        var user3 = new Seek("user3", "User3", ["user1"]);
+        Seeker user1 = new("user1", "User1", []);
+        Seeker user2 = new("user2", "User2", []);
+        Seeker user3 = new("user3", "User3", ["user1"]);
 
         Pool.TryAddSeek(user1);
         Pool.TryAddSeek(user2);
