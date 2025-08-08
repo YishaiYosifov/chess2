@@ -1,7 +1,4 @@
-﻿using Akka.Hosting;
-using Akka.TestKit;
-using Chess2.Api.LiveGame.Actors;
-using Chess2.Api.LiveGame.Models;
+﻿using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Services;
 using FluentAssertions;
@@ -9,43 +6,38 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
-public class GameTokenGeneratorTests : BaseActorTest
+public class GameTokenGeneratorTests
 {
     private readonly GameTokenGenerator _tokenGenerator;
-    private readonly TestProbe _gameActorProbe;
 
+    private readonly IGrainFactory _grainFactoryMock = Substitute.For<IGrainFactory>();
     private readonly IRandomCodeGenerator _randomCodeGeneratorMock =
         Substitute.For<IRandomCodeGenerator>();
 
     public GameTokenGeneratorTests()
     {
-        _gameActorProbe = CreateTestProbe();
-        var requiredActorMock = Substitute.For<IRequiredActor<GameGrain>>();
-        requiredActorMock.ActorRef.Returns(_gameActorProbe);
-
-        _tokenGenerator = new(requiredActorMock, _randomCodeGeneratorMock);
+        _tokenGenerator = new(_grainFactoryMock, _randomCodeGeneratorMock);
     }
 
     [Fact]
     public async Task GenerateUniqueGameToken_returns_a_unique_token()
     {
-        var existingToken = "existinToken";
+        var existingToken = "existingToken";
         var nonExistingToken = "nonExistingToken";
         _randomCodeGeneratorMock
             .GenerateBase62Code(Arg.Any<int>())
             .ReturnsForAnyArgs(existingToken, nonExistingToken);
 
-        var act = Task.Run(_tokenGenerator.GenerateUniqueGameToken);
+        var existingTokenGrain = Substitute.For<IGameGrain>();
+        var nonExistingTokenGrain = Substitute.For<IGameGrain>();
 
-        // first token taken
-        await _gameActorProbe.ExpectMsgAsync<GameQueries.IsGameOngoing>(cancellationToken: CT);
-        _gameActorProbe.Reply(true);
+        existingTokenGrain.IsGameOngoingAsync().Returns(true);
+        nonExistingTokenGrain.IsGameOngoingAsync().Returns(false);
 
-        // second token doesn't exist
-        await _gameActorProbe.ExpectMsgAsync<GameQueries.IsGameOngoing>(cancellationToken: CT);
-        _gameActorProbe.Reply(false);
+        _grainFactoryMock.GetGrain<IGameGrain>(existingToken).Returns(existingTokenGrain);
+        _grainFactoryMock.GetGrain<IGameGrain>(nonExistingToken).Returns(nonExistingTokenGrain);
 
-        var token = await act;
+        var token = await _tokenGenerator.GenerateUniqueGameToken();
 
         token.Should().Be(nonExistingToken);
     }
