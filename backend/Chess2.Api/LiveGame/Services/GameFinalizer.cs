@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
+using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
@@ -24,6 +25,7 @@ public class GameFinalizer(
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
     ITimeControlTranslator timeControlTranslator,
+    IGrainFactory grainFactory,
     IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
@@ -31,6 +33,7 @@ public class GameFinalizer(
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+    private readonly IGrainFactory _grainFactory = grainFactory;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameResultData> FinalizeGameAsync(
@@ -49,13 +52,12 @@ public class GameFinalizer(
             token
         );
 
-        // TODO!
-        //_playerSessionActor.ActorRef.Tell(
-        //    new PlayerSessionCommands.GameEnded(state.WhitePlayer.UserId, gameToken)
-        //);
-        //_playerSessionActor.ActorRef.Tell(
-        //    new PlayerSessionCommands.GameEnded(state.BlackPlayer.UserId, gameToken)
-        //);
+        await _grainFactory
+            .GetGrain<IPlayerSessionGrain>(state.WhitePlayer.UserId)
+            .GameEndedAsync(gameToken);
+        await _grainFactory
+            .GetGrain<IPlayerSessionGrain>(state.BlackPlayer.UserId)
+            .GameEndedAsync(gameToken);
 
         await _unitOfWork.CompleteAsync(token);
 

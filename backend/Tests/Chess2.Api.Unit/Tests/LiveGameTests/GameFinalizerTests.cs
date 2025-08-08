@@ -1,10 +1,9 @@
-﻿using Akka.TestKit;
-using Chess2.Api.ArchivedGames.Services;
+﻿using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Services;
-using Chess2.Api.PlayerSession.Models;
+using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -16,7 +15,7 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
-public class GameFinalizerTests : BaseActorTest
+public class GameFinalizerTests : BaseUnitTest
 {
     private readonly GameFinalizer _gameFinalizer;
 
@@ -29,22 +28,27 @@ public class GameFinalizerTests : BaseActorTest
     private readonly ITimeControlTranslator _timeControlTranslatorMock =
         Substitute.For<ITimeControlTranslator>();
 
-    private readonly TestProbe _playerSessionProbe;
+    private readonly IPlayerSessionGrain _whitePlayerSessionGrain =
+        Substitute.For<IPlayerSessionGrain>();
+    private readonly IPlayerSessionGrain _blackPlayerSessionGrain =
+        Substitute.For<IPlayerSessionGrain>();
+    private readonly IGrainFactory _grainFactory = Substitute.For<IGrainFactory>();
+
     private const string GameToken = "test game token 123";
 
     public GameFinalizerTests()
     {
-        _playerSessionProbe = CreateTestProbe();
         _gameFinalizer = new(
             _userManagerMock,
             _ratingServiceMock,
             _gameArchiveServiceMock,
             _timeControlTranslatorMock,
+            _grainFactory,
             _unitOfWorkMock
         );
     }
 
-    [Fact(Skip = "grain")]
+    [Fact]
     public async Task FinalizeGame_creates_archive_and_updates_rating_correctly()
     {
         var (whiteUser, whitePlayer, blackUser, blackPlayer) = CreatePlayers();
@@ -57,6 +61,8 @@ public class GameFinalizerTests : BaseActorTest
         _ratingServiceMock
             .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, timeControl, CT)
             .Returns(ratingChange);
+        _grainFactory.GetGrain<IPlayerSessionGrain>(whiteUser.Id).Returns(_whitePlayerSessionGrain);
+        _grainFactory.GetGrain<IPlayerSessionGrain>(blackUser.Id).Returns(_blackPlayerSessionGrain);
 
         await _gameFinalizer.FinalizeGameAsync(GameToken, state, endStatus, CT);
 
@@ -73,14 +79,9 @@ public class GameFinalizerTests : BaseActorTest
                 Arg.Any<CancellationToken>()
             );
         await _unitOfWorkMock.Received(1).CompleteAsync(CT);
-        await _playerSessionProbe.FishForMessageAsync<PlayerSessionCommands.GameEnded>(
-            msg => msg.UserId == whiteUser.Id,
-            cancellationToken: CT
-        );
-        await _playerSessionProbe.FishForMessageAsync<PlayerSessionCommands.GameEnded>(
-            msg => msg.UserId == blackUser.Id,
-            cancellationToken: CT
-        );
+
+        await _whitePlayerSessionGrain.Received(1).GameEndedAsync(GameToken);
+        await _blackPlayerSessionGrain.Received(1).GameEndedAsync(GameToken);
     }
 
     [Fact]
