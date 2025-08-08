@@ -1,5 +1,7 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameLogic.Models.AlgebraicPoint")]
 public readonly record struct AlgebraicPoint(int X, int Y)
 {
     public AlgebraicPoint(string algebraic)

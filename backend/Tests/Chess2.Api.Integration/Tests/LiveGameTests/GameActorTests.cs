@@ -83,7 +83,7 @@ public class GameActorTests
         _gameActor = _parentProbe.ChildActorOf(
             Props.Create(
                 () =>
-                    new GameActor(
+                    new GameGrain(
                         TestGameToken,
                         ApiTestBase.Scope.ServiceProvider,
                         _gameCore,
@@ -130,7 +130,7 @@ public class GameActorTests
         _timerMock
             .Received(1)
             .StartPeriodicTimer(
-                GameActor.ClockTimerKey,
+                GameGrain.ClockTimerKey,
                 new GameCommands.TickClock(),
                 TimeSpan.FromSeconds(1)
             );
@@ -518,7 +518,7 @@ public class GameActorTests
             cancellationToken: ApiTestBase.CT
         );
         passivate.StopMessage.Should().Be(PoisonPill.Instance);
-        _timerMock.Received(1).Cancel(GameActor.ClockTimerKey);
+        _timerMock.Received(1).Cancel(GameGrain.ClockTimerKey);
     }
 
     [Fact]

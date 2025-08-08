@@ -2,6 +2,8 @@
 
 namespace Chess2.Api.GameSnapshot.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameSnapshot.Models.GameState")]
 public record GameState(
     TimeControlSettings TimeControl,
     bool IsRated,

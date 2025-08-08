@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
@@ -31,20 +32,22 @@ public interface IGameChatGrain : IGrainWithStringKey
 public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
 {
     private readonly string _gameToken;
+
+    private readonly ILogger<GameChatGrain> _logger;
     private readonly IGameChatNotifier _gameChatNotifier;
     private readonly IChatRateLimiter _chatRateLimiter;
     private readonly ChatSettings _settings;
-    private readonly ILogger<GameChatGrain> _logger;
     private readonly UserManager<AuthedUser> _userManager;
-    private readonly ILiveGameService _liveGameService;
+    private readonly IGrainFactory _grains;
     private readonly IChatMessageLogger _chatMessageLogger;
-    private GameReplies.GamePlayers? _players;
+
+    private GamePlayers? _players;
     private readonly ConcurrentDictionary<string, string> _usernameCache = [];
 
     public GameChatGrain(
         ILogger<GameChatGrain> logger,
+        IGrainFactory grains,
         UserManager<AuthedUser> userManager,
-        ILiveGameService liveGameService,
         IChatMessageLogger chatMessageLogger,
         IOptions<AppSettings> settings,
         IGameChatNotifier gameChatNotifier,
@@ -52,9 +55,10 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     )
     {
         _gameToken = this.GetPrimaryKeyString();
+
         _logger = logger;
         _userManager = userManager;
-        _liveGameService = liveGameService;
+        _grains = grains;
         _chatMessageLogger = chatMessageLogger;
         _gameChatNotifier = gameChatNotifier;
         _chatRateLimiter = chatRateLimiter;
@@ -67,7 +71,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         CancellationToken token = default
     )
     {
-        var isPlaying = await IsUserPlayingAsync(userId, token);
+        var isPlaying = await IsUserPlayingAsync(userId);
 
         await _gameChatNotifier.JoinChatAsync(_gameToken, connectionId, isPlaying, token);
         _logger.LogInformation(
@@ -83,7 +87,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         CancellationToken token = default
     )
     {
-        var isPlaying = await IsUserPlayingAsync(userId, token);
+        var isPlaying = await IsUserPlayingAsync(userId);
         await _gameChatNotifier.LeaveChatAsync(_gameToken, connectionId, isPlaying, token);
 
         _logger.LogInformation("User {UserId} left chat for game {GameToken}", userId, _gameToken);
@@ -123,7 +127,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         if (usernameResult.IsError)
             return usernameResult.Errors;
 
-        var isPlaying = await IsUserPlayingAsync(userId, token);
+        var isPlaying = await IsUserPlayingAsync(userId);
         await _gameChatNotifier.SendMessageAsync(
             _gameToken,
             usernameResult.Value,
@@ -150,9 +154,9 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         return username;
     }
 
-    private async Task<bool> IsUserPlayingAsync(string userId, CancellationToken token = default)
+    private async Task<bool> IsUserPlayingAsync(string userId)
     {
-        var playersResult = await GetPlayersAsync(token);
+        var playersResult = await GetPlayersAsync();
         if (playersResult.IsError)
             return false;
 
@@ -162,15 +166,16 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         return isPlaying;
     }
 
-    private async Task<ErrorOr<GameReplies.GamePlayers>> GetPlayersAsync(
-        CancellationToken token = default
-    )
+    private async Task<ErrorOr<GamePlayers>> GetPlayersAsync()
     {
         if (_players is not null)
             return _players;
 
-        var playersResult = await _liveGameService.GetGamePlayersAsync(_gameToken, token);
+        var playersResult = await _grains.GetGrain<IGameGrain>(_gameToken).GetPlayersAsync();
+        if (playersResult.IsError)
+            return playersResult.Errors;
+
         _players = playersResult.Value;
-        return playersResult;
+        return _players;
     }
 }
