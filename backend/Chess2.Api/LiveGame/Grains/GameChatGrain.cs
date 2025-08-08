@@ -38,7 +38,6 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     private readonly IChatRateLimiter _chatRateLimiter;
     private readonly ChatSettings _settings;
     private readonly UserManager<AuthedUser> _userManager;
-    private readonly IGrainFactory _grains;
     private readonly IChatMessageLogger _chatMessageLogger;
 
     private GamePlayers? _players;
@@ -46,7 +45,6 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
 
     public GameChatGrain(
         ILogger<GameChatGrain> logger,
-        IGrainFactory grains,
         UserManager<AuthedUser> userManager,
         IChatMessageLogger chatMessageLogger,
         IOptions<AppSettings> settings,
@@ -58,7 +56,6 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
 
         _logger = logger;
         _userManager = userManager;
-        _grains = grains;
         _chatMessageLogger = chatMessageLogger;
         _gameChatNotifier = gameChatNotifier;
         _chatRateLimiter = chatRateLimiter;
@@ -171,7 +168,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         if (_players is not null)
             return _players;
 
-        var playersResult = await _grains.GetGrain<IGameGrain>(_gameToken).GetPlayersAsync();
+        var playersResult = await GrainFactory.GetGrain<IGameGrain>(_gameToken).GetPlayersAsync();
         if (playersResult.IsError)
             return playersResult.Errors;
 

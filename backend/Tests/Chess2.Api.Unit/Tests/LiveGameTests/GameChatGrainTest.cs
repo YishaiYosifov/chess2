@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
@@ -12,6 +13,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Orleans.TestKit;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
@@ -21,11 +23,11 @@ public class GameChatGrainTest : BaseGrainTest
 
     private readonly UserManager<AuthedUser> _userManagerMock =
         UserManagerMockUtils.CreateUserManagerMock();
-    private readonly ILiveGameService _liveGameServiceMock = Substitute.For<ILiveGameService>();
     private readonly IChatMessageLogger _chatMessageLoggerMock =
         Substitute.For<IChatMessageLogger>();
     private readonly IGameChatNotifier _gameChatNotifierMock = Substitute.For<IGameChatNotifier>();
     private readonly IChatRateLimiter _chatRateLimiterMock = Substitute.For<IChatRateLimiter>();
+    private readonly IGameGrain _gameGrainMock = Substitute.For<IGameGrain>();
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).RuleFor(
         x => x.UserId,
@@ -62,9 +64,7 @@ public class GameChatGrainTest : BaseGrainTest
         var settingOptions = AppSettingsLoader.LoadAppSettings();
         _settings = settingOptions.Game.Chat;
 
-        _liveGameServiceMock
-            .GetGamePlayersAsync(TestGameToken, CT)
-            .Returns(new GameReplies.GamePlayers(_whitePlayer, _blackPlayer));
+        _gameGrainMock.GetPlayersAsync().Returns(new GamePlayers(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
             .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
@@ -74,9 +74,9 @@ public class GameChatGrainTest : BaseGrainTest
                 return true;
             });
 
+        Silo.AddProbe(_ => _gameGrainMock);
         Silo.ServiceProvider.AddService(_userManagerMock);
         Silo.ServiceProvider.AddService(Options.Create(settingOptions));
-        Silo.ServiceProvider.AddService(_liveGameServiceMock);
         Silo.ServiceProvider.AddService(_chatRateLimiterMock);
         Silo.ServiceProvider.AddService(_gameChatNotifierMock);
         Silo.ServiceProvider.AddService(_chatMessageLoggerMock);
@@ -248,9 +248,7 @@ public class GameChatGrainTest : BaseGrainTest
     [Fact]
     public async Task SendMessage_treats_chatters_as_spectators_when_players_are_not_found()
     {
-        _liveGameServiceMock
-            .GetGamePlayersAsync(Arg.Any<string>(), CT)
-            .Returns(GameErrors.GameNotFound);
+        _gameGrainMock.GetPlayersAsync().Returns(GameErrors.GameNotFound);
 
         var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
         var result = await grain.SendMessageAsync(ConnectionId, WhiteUserId, "test", CT);
