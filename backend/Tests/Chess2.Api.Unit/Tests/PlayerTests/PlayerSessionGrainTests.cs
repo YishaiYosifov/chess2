@@ -1,182 +1,134 @@
-﻿namespace Chess2.Api.Unit.Tests.PlayerTests;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Grains;
+using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.PlayerSession.Grains;
+using Chess2.Api.TestInfrastructure.Fakes;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
+using Orleans.TestKit;
+
+namespace Chess2.Api.Unit.Tests.PlayerTests;
 
 public class PlayerSessionGrainTests : BaseGrainTest
 {
-    //private readonly TestProbe _ratedPoolProbe;
-    //private readonly TestProbe _casualPoolProbe;
-    //private readonly TestProbe _probe;
-    //private const string UserId = "test-user-id";
+    private readonly IMatchmakingNotifier _matchmakingNotifierMock =
+        Substitute.For<IMatchmakingNotifier>();
 
-    //private readonly IActorRef _playerSessionActor;
-    //private readonly IMatchmakingNotifier _matchmakingNotifierMock;
+    private readonly IRatedMatchmakingGrain _ratedPoolGrainMock =
+        Substitute.For<IRatedMatchmakingGrain>();
+    private readonly ICasualMatchmakingGrain _casualPoolGrainMock =
+        Substitute.For<ICasualMatchmakingGrain>();
 
-    //public PlayerSessionGrainTests()
-    //{
-    //    _ratedPoolProbe = CreateTestProbe();
-    //    _casualPoolProbe = CreateTestProbe();
-    //    _probe = CreateTestProbe();
+    private const string UserId = "test-user-id";
 
-    //    var ratedRequired = Substitute.For<IRequiredActor<RatedMatchmakingGrain>>();
-    //    ratedRequired.ActorRef.Returns(_ratedPoolProbe.Ref);
+    public PlayerSessionGrainTests()
+    {
+        Silo.AddProbe(_ => _ratedPoolGrainMock);
+        Silo.AddProbe(_ => _casualPoolGrainMock);
 
-    //    var casualRequired = Substitute.For<IRequiredActor<CasualMatchmakingGrain>>();
-    //    casualRequired.ActorRef.Returns(_casualPoolProbe.Ref);
+        Silo.ServiceProvider.AddService(Substitute.For<ILogger<PlayerSessionGrain>>());
+        Silo.ServiceProvider.AddService(_matchmakingNotifierMock);
+    }
 
-    //    _matchmakingNotifierMock = Substitute.For<IMatchmakingNotifier>();
+    [Fact]
+    public async Task CreateSeek_sends_seek_to_the_correct_pool()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(300, 5));
+        var seeker = new RatedSeekerFaker().Generate();
 
-    //    _playerSessionActor = Sys.ActorOf(
-    //        Props.Create(
-    //            () =>
-    //                new PlayerSessionActor(
-    //                    UserId,
-    //                    ratedRequired,
-    //                    casualRequired,
-    //                    _matchmakingNotifierMock
-    //                )
-    //        )
-    //    );
-    //}
+        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(true);
 
-    //[Fact]
-    //public async Task CreateSeek_sends_seek_to_the_correct_pool()
-    //{
-    //    var seekCommand = new RatedMatchmakingCommands.CreateRatedSeek(
-    //        "user1",
-    //        1500,
-    //        new TimeControlSettings(300, 5)
-    //    );
-    //    var createSeek = new PlayerSessionCommands.CreateSeek("user1", "conn1", seekCommand);
+        await grain.CreateSeekAsync("conn1", seeker, poolKey);
 
-    //    _playerSessionActor.Tell(createSeek);
+        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(seeker, grain);
+    }
 
-    //    var received =
-    //        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //            cancellationToken: CT
-    //        );
-    //    received.Should().BeEquivalentTo(seekCommand);
-    //}
+    [Fact]
+    public async Task CreateSeek_cancels_previous_seek_when_connection_reused()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        PoolKey casualPoolKey = new(PoolType.Casual, new TimeControlSettings(60, 0));
+        PoolKey ratedPoolKey = new(PoolType.Rated, new TimeControlSettings(300, 5));
 
-    //[Fact]
-    //public async Task CreateSeek_cancels_previous_seek_when_the_connection_id_is_reused()
-    //{
-    //    var firstCreate = new CasualMatchmakingCommands.CreateCasualSeek(
-    //        "user1",
-    //        new TimeControlSettings(60, 0)
-    //    );
-    //    var secondCreate = new RatedMatchmakingCommands.CreateRatedSeek(
-    //        "user1",
-    //        1800,
-    //        new TimeControlSettings(300, 5)
-    //    );
+        var casualSeeker = new SeekerFaker().Generate();
+        var ratedSeeker = new RatedSeekerFaker().Generate();
 
-    //    _playerSessionActor.Tell(
-    //        new PlayerSessionCommands.CreateSeek("user1", "conn1", firstCreate)
-    //    );
-    //    await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
-    //        cancellationToken: CT
-    //    );
+        _casualPoolGrainMock.TryCreateSeekAsync(casualSeeker, grain).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.TryCreateSeekAsync(ratedSeeker, grain).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
-    //    _playerSessionActor.Tell(
-    //        new PlayerSessionCommands.CreateSeek("user1", "conn1", secondCreate)
-    //    );
+        await grain.CreateSeekAsync("conn1", casualSeeker, casualPoolKey);
+        await _casualPoolGrainMock.Received(1).TryCreateSeekAsync(casualSeeker, grain);
 
-    //    var cancel = await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
-    //        cancellationToken: CT
-    //    );
-    //    cancel.Key.Should().Be(firstCreate.Key);
+        await grain.CreateSeekAsync("conn1", ratedSeeker, ratedPoolKey);
+        await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
+        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(ratedSeeker, grain);
+    }
 
-    //    var forwardedSecondCreate =
-    //        await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //            cancellationToken: CT
-    //        );
-    //    forwardedSecondCreate.Should().BeEquivalentTo(secondCreate);
-    //}
+    [Fact]
+    public async Task MatchFound_notifies_all_connections_listening_to_same_pool()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(180, 2));
+        var seeker = new RatedSeekerFaker().Generate();
 
-    //[Fact]
-    //public async Task MatchFound_notifies_all_connections_listening_to_the_same_pool()
-    //{
-    //    var command = new RatedMatchmakingCommands.CreateRatedSeek(
-    //        "user1",
-    //        1200,
-    //        new TimeControlSettings(180, 2)
-    //    );
-    //    var gameToken = "game 123";
+        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connA", command));
-    //    await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //        cancellationToken: CT
-    //    );
+        await grain.CreateSeekAsync("connA", seeker, poolKey);
+        await grain.CreateSeekAsync("connB", seeker, poolKey);
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connB", command));
-    //    await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //        cancellationToken: CT
-    //    );
+        var gameToken = "game 123";
+        await grain.MatchFoundAsync(gameToken, poolKey);
 
-    //    _playerSessionActor.Tell(new MatchmakingEvents.MatchFound(gameToken, command.Key));
+        await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connA", gameToken);
+        await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connB", gameToken);
 
-    //    await AwaitAssertAsync(
-    //        () =>
-    //        {
-    //            _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connA", gameToken);
-    //            _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connB", gameToken);
-    //        },
-    //        cancellationToken: CT
-    //    );
-    //}
+        _matchmakingNotifierMock.ClearReceivedCalls();
 
-    //[Fact]
-    //public async Task CancelSeek_cleans_up_seek()
-    //{
-    //    var command = new CasualMatchmakingCommands.CreateCasualSeek(
-    //        "user1",
-    //        new TimeControlSettings(10, 1)
-    //    );
+        await grain.MatchFoundAsync(gameToken, poolKey);
+        _matchmakingNotifierMock.DidNotReceive();
+    }
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "conn1", command));
-    //    await _casualPoolProbe.ExpectMsgAsync<CasualMatchmakingCommands.CreateCasualSeek>(
-    //        cancellationToken: CT
-    //    );
+    [Fact]
+    public async Task CancelSeek_cleans_up_seek()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        PoolKey poolKey = new(PoolType.Casual, new TimeControlSettings(10, 1));
+        var seeker = new SeekerFaker().Generate();
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek("user1", "conn1"));
-    //    await _casualPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
-    //        cancellationToken: CT
-    //    );
+        _casualPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
-    //    _playerSessionActor.Tell(new MatchmakingEvents.MatchFound("game789", command.Key), _probe);
-    //    await _probe.ExpectMsgAsync<PlayerSessionReplies.MatchFound>(cancellationToken: CT);
+        await grain.CreateSeekAsync("conn1", seeker, poolKey);
+        await grain.CancelSeekAsync("conn1");
 
-    //    await _matchmakingNotifierMock
-    //        .Received(0)
-    //        .NotifyGameFoundAsync(Arg.Any<string>(), Arg.Any<string>());
-    //}
+        await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
 
-    //[Fact]
-    //public async Task CancelSeek_only_removes_the_correct_seek()
-    //{
-    //    var command = new RatedMatchmakingCommands.CreateRatedSeek(
-    //        "user1",
-    //        2000,
-    //        new TimeControlSettings(600, 10)
-    //    );
+        await grain.MatchFoundAsync("game789", poolKey);
+        _matchmakingNotifierMock.DidNotReceive();
+    }
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connX", command));
-    //    await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //        cancellationToken: CT
-    //    );
+    [Fact]
+    public async Task CancelSeek_only_removes_correct_seek()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(600, 10));
+        var seeker = new RatedSeekerFaker().Generate();
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CreateSeek("user1", "connY", command));
-    //    await _ratedPoolProbe.ExpectMsgAsync<RatedMatchmakingCommands.CreateRatedSeek>(
-    //        cancellationToken: CT
-    //    );
+        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
-    //    _playerSessionActor.Tell(new PlayerSessionCommands.CancelSeek("user1", "connX"));
-    //    var cancel = await _ratedPoolProbe.ExpectMsgAsync<MatchmakingCommands.CancelSeek>(
-    //        cancellationToken: CT
-    //    );
-    //    cancel.Key.Should().Be(command.Key);
+        await grain.CreateSeekAsync("connX", seeker, poolKey);
+        await grain.CreateSeekAsync("connY", seeker, poolKey);
 
-    //    _playerSessionActor.Tell(new MatchmakingEvents.MatchFound("gameY", command.Key), _probe);
-    //    await _probe.ExpectMsgAsync<PlayerSessionReplies.MatchFound>(cancellationToken: CT);
-    //    await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connY", "gameY");
-    //}
+        await grain.CancelSeekAsync("connX");
+
+        await _ratedPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
+
+        await grain.MatchFoundAsync("gameY", poolKey);
+
+        await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connY", "gameY");
+    }
 }
