@@ -1,7 +1,6 @@
 ﻿using System.Data.Common;
 using System.Net;
 using Chess2.Api.Infrastructure;
-using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
@@ -77,19 +76,6 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                         { "Authentication:Discord:ClientSecret", "test-discord-client-secret" },
                     };
                     configBuilder.AddInMemoryCollection(secrets);
-
-                    var config = configBuilder.Build();
-                    var akkaPort = PortGenerator.GetAvailablePort();
-                    var actorSystemName = config["AppSettings:Akka:ActorSystemName"];
-                    var seedAddress = $"akka.tcp://{actorSystemName}@localhost:{akkaPort}";
-
-                    var appSettings = new Dictionary<string, string?>
-                    {
-                        { "AppSettings:Game:MatchWaveEvery", "00:00:01" },
-                        { "AppSettings:Akka:Port", akkaPort.ToString() },
-                        { "AppSettings:Akka:SeedNodes:0", seedAddress },
-                    };
-                    configBuilder.AddInMemoryCollection(appSettings);
                 }
             );
     }

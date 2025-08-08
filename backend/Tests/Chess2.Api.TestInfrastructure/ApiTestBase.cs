@@ -1,9 +1,5 @@
-﻿using Akka.Actor;
-using Akka.Cluster.Sharding;
-using Akka.Hosting;
-using Chess2.Api.Auth.Services;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure;
-using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.Entities;
@@ -16,7 +12,7 @@ using Serilog.Sinks.XUnit.Injectable.Abstract;
 
 namespace Chess2.Api.TestInfrastructure;
 
-public class ApiTestBase : IAsyncLifetime
+public class ApiTestBase
 {
     public Chess2WebApplicationFactory Factory { get; }
     public IServiceScope Scope { get; }
@@ -97,33 +93,5 @@ public class ApiTestBase : IAsyncLifetime
         await connection.StartAsync();
 
         return connection;
-    }
-
-    protected async Task ResetShardActors<TActor>()
-        where TActor : ActorBase
-    {
-        var shardActor = Scope.ServiceProvider.GetRequiredService<IRequiredActor<TActor>>();
-        var shardState = await shardActor.ActorRef.Ask<CurrentShardRegionState>(
-            GetShardRegionState.Instance
-        );
-        var existingActors = shardState.Shards.SelectMany(shard => shard.EntityIds);
-
-        foreach (var actorId in existingActors)
-        {
-            shardActor.ActorRef.Tell(new ShardingEnvelope(actorId, Kill.Instance));
-        }
-    }
-
-    public virtual ValueTask InitializeAsync() => ValueTask.CompletedTask;
-
-    public virtual async ValueTask DisposeAsync()
-    {
-        await ResetShardActors<GameActor>();
-
-        await Factory.ResetDatabaseAsync();
-        Scope?.Dispose();
-        DbContext?.Dispose();
-
-        GC.SuppressFinalize(this);
     }
 }
