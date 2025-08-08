@@ -30,10 +30,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private readonly IDrawRequestHandler _drawRequestHandler;
     private readonly GameSettings _settings;
 
-    //private readonly IActorRef _gameActor;
-    //private readonly TestProbe _probe;
-    //private readonly TestProbe _parentProbe;
-
     private readonly IGameNotifier _gameNotifierMock = Substitute.For<IGameNotifier>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly IStopwatchProvider _stopwatchMock = Substitute.For<IStopwatchProvider>();
