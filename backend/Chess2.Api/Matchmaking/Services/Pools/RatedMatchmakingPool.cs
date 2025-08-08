@@ -20,7 +20,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     public bool TryAddSeek(Seeker seeker)
     {
         if (seeker is not RatedSeeker ratedSeek)
-            return false;
+            throw new ArgumentException($"Seeker must be a {nameof(RatedSeeker)}", nameof(seeker));
 
         var seekInfo = new RatedPoolMember(ratedSeek);
         return _seekers.TryAdd(seeker.UserId, seekInfo);

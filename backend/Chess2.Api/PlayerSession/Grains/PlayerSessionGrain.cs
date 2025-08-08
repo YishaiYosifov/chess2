@@ -104,7 +104,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             return;
 
         var poolGrain = ResolvePoolGrain(poolKey);
-        await poolGrain.CancelSeekAsync(_userId);
+        await poolGrain.TryCancelSeekAsync(_userId);
 
         RemoveConnectionMapping(connectionId);
     }
