@@ -1,8 +1,5 @@
 using System.Security.Claims;
 using System.Text;
-using Akka.Cluster.Hosting;
-using Akka.Hosting;
-using Akka.Remote.Hosting;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -297,32 +294,6 @@ builder.Host.UseOrleans(siloBuilder =>
 {
     siloBuilder.UseLocalhostClustering();
 });
-
-#region Akka
-builder.Services.AddAkka(
-    resolvedAppSettings.Akka.ActorSystemName,
-    (akkaBuilder, serviceProvider) =>
-    {
-        var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
-
-        akkaBuilder.ConfigureLoggers(logConfig =>
-        {
-            logConfig.ClearLoggers();
-            logConfig.AddLoggerFactory();
-        });
-        akkaBuilder
-            .WithRemoting(runtimeAppSettings.Akka.Hostname, runtimeAppSettings.Akka.Port)
-            .WithClustering(
-                new()
-                {
-                    SeedNodes = runtimeAppSettings.Akka.SeedNodes,
-                    Roles = [ActorSystemConstants.BackendRole],
-                }
-            )
-            .WithGameShard(runtimeAppSettings.Akka.GameShardCount);
-    }
-);
-#endregion
 
 #region Matchmaking
 builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();

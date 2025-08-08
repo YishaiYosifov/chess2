@@ -20,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka" Version="1.5.46" />
-    <PackageReference Include="Akka.Cluster.Hosting" Version="1.5.42" />
-    <PackageReference Include="Akka.DependencyInjection" Version="1.5.43" />
     <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
     <PackageReference Include="ErrorOr" Version="2.0.1" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
