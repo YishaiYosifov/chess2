@@ -15,12 +15,15 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<bool> TryCreateSeekAsync(Seeker seeker, IMatchObserver seekGrain);
 
     [Alias("CancelSeekAsync")]
-    Task TryCancelSeekAsync(UserId userId);
+    Task<bool> TryCancelSeekAsync(UserId userId);
 }
 
 public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     where TPool : IMatchmakingPool
 {
+    public const int WaveTimer = 0;
+    public const int ActivationTimer = 1;
+
     private readonly TPool _pool;
     private readonly PoolKey _key;
 
@@ -59,7 +62,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         return Task.FromResult(true);
     }
 
-    public Task TryCancelSeekAsync(UserId userId)
+    public Task<bool> TryCancelSeekAsync(UserId userId)
     {
         _logger.LogInformation("Received cancel seek from {UserId}", userId);
         if (!_pool.RemoveSeek(userId))
@@ -72,7 +75,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         return Task.FromResult(true);
     }
 
-    public async Task OnMatchWaveAsync()
+    private async Task ExecuteWaveAsync()
     {
         var matches = _pool.CalculateMatches();
         foreach (var (seeker1, seeker2) in matches)
@@ -104,7 +107,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
         this.RegisterGrainTimer(
-            callback: OnMatchWaveAsync,
+            callback: ExecuteWaveAsync,
             dueTime: TimeSpan.Zero,
             period: _settings.Game.MatchWaveEvery
         );
