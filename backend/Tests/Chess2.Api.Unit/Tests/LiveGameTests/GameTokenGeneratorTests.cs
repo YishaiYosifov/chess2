@@ -20,7 +20,7 @@ public class GameTokenGeneratorTests : BaseActorTest
     public GameTokenGeneratorTests()
     {
         _gameActorProbe = CreateTestProbe();
-        var requiredActorMock = Substitute.For<IRequiredActor<GameActor>>();
+        var requiredActorMock = Substitute.For<IRequiredActor<GameGrain>>();
         requiredActorMock.ActorRef.Returns(_gameActorProbe);
 
         _tokenGenerator = new(requiredActorMock, _randomCodeGeneratorMock);

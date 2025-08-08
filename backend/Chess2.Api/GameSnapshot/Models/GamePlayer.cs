@@ -2,6 +2,8 @@
 
 namespace Chess2.Api.GameSnapshot.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameSnapshot.Models.GamePlayer")]
 public record GamePlayer(
     string UserId,
     GameColor Color,
