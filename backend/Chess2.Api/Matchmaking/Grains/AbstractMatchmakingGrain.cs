@@ -15,7 +15,7 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<bool> TryCreateSeekAsync(Seeker seeker, IMatchObserver seekGrain);
 
     [Alias("CancelSeekAsync")]
-    Task CancelSeekAsync(UserId userId);
+    Task TryCancelSeekAsync(UserId userId);
 }
 
 public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
@@ -48,15 +48,10 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     public Task<bool> TryCreateSeekAsync(Seeker seeker, IMatchObserver seekGrain)
     {
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
-        if (_pool.HasSeek(seeker.UserId))
-        {
-            _logger.LogInformation("{UserId} already has a seek", seeker.UserId);
-            return Task.FromResult(false);
-        }
 
         if (!_pool.TryAddSeek(seeker))
         {
-            _logger.LogWarning("Could not add {UserId} seek", seeker.UserId);
+            _logger.LogInformation("{UserId} already has a seek", seeker.UserId);
             return Task.FromResult(false);
         }
 
@@ -64,17 +59,17 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         return Task.FromResult(true);
     }
 
-    public Task CancelSeekAsync(UserId userId)
+    public Task TryCancelSeekAsync(UserId userId)
     {
         _logger.LogInformation("Received cancel seek from {UserId}", userId);
         if (!_pool.RemoveSeek(userId))
         {
             _logger.LogInformation("No seek found for user {UserId}", userId);
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
         _subsManager.Unsubscribe(userId);
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     public async Task OnMatchWaveAsync()
