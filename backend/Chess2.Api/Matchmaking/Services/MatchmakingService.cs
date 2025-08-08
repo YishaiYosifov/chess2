@@ -1,8 +1,7 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.PlayerSession.Actors;
+using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
@@ -48,19 +47,15 @@ public class MatchmakingService(
         );
 
         PoolKey poolKey = new(PoolType.Rated, timeControl);
-        RatedSeek seek = new(
+        RatedSeeker seeker = new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
             BlockedUserIds: [],
             Rating: new(Value: rating, AllowedRatingRange: _settings.AllowedMatchRatingDifference)
         );
 
-        var matchmakingGrain = _grains.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey());
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
-
-        var isSuccess = await matchmakingGrain.TryCreateSeekAsync(seek, playerSessionGrain);
-        if (isSuccess)
-            await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
+        await playerSessionGrain.CreateSeekAsync(connectionId, seeker, poolKey);
     }
 
     public async Task SeekCasualAsync(
@@ -71,34 +66,19 @@ public class MatchmakingService(
     )
     {
         PoolKey poolKey = new(PoolType.Casual, timeControl);
-        Seek seek = new(UserId: userId, UserName: user?.UserName ?? "Guest", BlockedUserIds: []);
+        Seeker seeker = new(
+            UserId: userId,
+            UserName: user?.UserName ?? "Guest",
+            BlockedUserIds: []
+        );
 
-        var matchmakingGrain = _grains.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey());
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-
-        var isSuccess = await matchmakingGrain.TryCreateSeekAsync(seek, playerSessionGrain);
-        if (isSuccess)
-            await playerSessionGrain.RegisterSeekAsync(connectionId, poolKey);
+        await playerSessionGrain.CreateSeekAsync(connectionId, seeker, poolKey);
     }
 
     public async Task CancelSeekAsync(string userId, string connectionId)
     {
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-        var poolKey = await playerSessionGrain.RemoveSeekForConnectionAsync(connectionId);
-        if (poolKey is null)
-            return;
-
-        var poolGrain = ResolvePoolGrainForSeek(poolKey);
-        await poolGrain.CancelSeekAsync(userId);
-    }
-
-    private IMatchmakingGrain ResolvePoolGrainForSeek(PoolKey poolKey)
-    {
-        return poolKey.PoolType switch
-        {
-            PoolType.Rated => _grains.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey()),
-            PoolType.Casual => _grains.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey()),
-            _ => throw new InvalidOperationException($"Unsupported pool type: {poolKey.PoolType}"),
-        };
+        await playerSessionGrain.CancelSeekAsync(connectionId);
     }
 }
