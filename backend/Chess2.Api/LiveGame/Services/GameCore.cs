@@ -14,7 +14,7 @@ public interface IGameCore
     LegalMoveSet LegalMoves { get; }
     GameColor SideToMove { get; }
 
-    LegalMoveSet GetLegalMovesFor(GameColor forColor);
+    LegalMoveSet GetLegalMoves(GameColor? forColor = null);
     void InitializeGame();
     ErrorOr<MoveResult> MakeMove(MoveKey key, GameColor forColor);
 }
@@ -83,7 +83,7 @@ public class GameCore(
         return new MoveResult(move, path, san, endStatus);
     }
 
-    public LegalMoveSet GetLegalMovesFor(GameColor forColor)
+    public LegalMoveSet GetLegalMoves(GameColor? forColor = null)
     {
         if (forColor != SideToMove)
             return new();

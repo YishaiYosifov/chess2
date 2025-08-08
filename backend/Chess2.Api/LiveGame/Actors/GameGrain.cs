@@ -22,7 +22,7 @@ public interface IGameGrain : IGrainWithStringKey
     Task<bool> IsGameOngoingAsync();
 
     [Alias("GetStateAsync")]
-    Task<ErrorOr<GameState>> GetStateAsync(UserId forUserId);
+    Task<ErrorOr<GameState>> GetStateAsync(UserId? forUserId = null);
 
     [Alias("GetPlayersAsync")]
     Task<ErrorOr<GamePlayers>> GetPlayersAsync();
@@ -40,7 +40,7 @@ public interface IGameGrain : IGrainWithStringKey
     Task<ErrorOr<Success>> MovePieceAsync(UserId byUserId, MoveKey key);
 }
 
-public class GameGrain : Grain, IGameGrain
+public class GameGrain : Grain, IGameGrain, IGrainBase
 {
     public const string ClockTimerKey = "tickClock";
 
@@ -109,14 +109,16 @@ public class GameGrain : Grain, IGameGrain
 
     public Task<bool> IsGameOngoingAsync() => Task.FromResult(_isPlaying);
 
-    public Task<ErrorOr<GameState>> GetStateAsync(UserId forUserId)
+    public Task<ErrorOr<GameState>> GetStateAsync(UserId? forUserId = null)
     {
         if (!_isPlaying)
             return Task.FromResult<ErrorOr<GameState>>(GameErrors.GameNotFound);
-        if (!_players.TryGetPlayerById(forUserId, out var player))
+
+        GamePlayer? player = null;
+        if (forUserId is not null && !_players.TryGetPlayerById(forUserId, out player))
             return Task.FromResult<ErrorOr<GameState>>(GameErrors.PlayerInvalid);
 
-        var gameState = GetGameStateForPlayer(player);
+        var gameState = GetGameState(player);
         return Task.FromResult<ErrorOr<GameState>>(gameState);
     }
 
@@ -150,7 +152,7 @@ public class GameGrain : Grain, IGameGrain
             byUserId,
             endStatus.Result
         );
-        await FinalizeGameAsync(player, endStatus);
+        await FinalizeGameAsync(endStatus);
         return Result.Success;
     }
 
@@ -163,7 +165,7 @@ public class GameGrain : Grain, IGameGrain
 
         if (_drawRequestHandler.HasPendingRequest(player.Color))
         {
-            await FinalizeGameAsync(player, _resultDescriber.DrawByAgreement());
+            await FinalizeGameAsync(_resultDescriber.DrawByAgreement());
             return Result.Success;
         }
 
@@ -211,7 +213,7 @@ public class GameGrain : Grain, IGameGrain
 
         var moveResult = makeMoveResult.Value;
         if (moveResult.EndStatus is not null)
-            await FinalizeGameAsync(currentPlayer, moveResult.EndStatus);
+            await FinalizeGameAsync(moveResult.EndStatus);
 
         _drawRequestHandler.DecrementCooldown();
         if (_drawRequestHandler.TryDeclineDraw(currentPlayer.Color))
@@ -224,7 +226,7 @@ public class GameGrain : Grain, IGameGrain
             timeLeft
         );
 
-        var legalMoves = _core.GetLegalMovesFor(_core.SideToMove);
+        var legalMoves = _core.GetLegalMoves(_core.SideToMove);
         var nextPlayer = _players.GetPlayerByColor(_core.SideToMove);
         await _gameNotifier.NotifyMoveMadeAsync(
             gameToken: _token,
@@ -252,13 +254,13 @@ public class GameGrain : Grain, IGameGrain
             player.UserId
         );
 
-        await FinalizeGameAsync(player, _resultDescriber.Timeout(_core.SideToMove));
+        await FinalizeGameAsync(_resultDescriber.Timeout(_core.SideToMove));
     }
 
-    private async Task FinalizeGameAsync(GamePlayer endingPlayer, GameEndStatus endStatus)
+    private async Task FinalizeGameAsync(GameEndStatus endStatus)
     {
         _clock.CommitTurn(_core.SideToMove);
-        var state = GetGameStateForPlayer(endingPlayer);
+        var state = GetGameState();
 
         _result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus);
         await _gameNotifier.NotifyGameEndedAsync(_token, _result);
@@ -266,9 +268,9 @@ public class GameGrain : Grain, IGameGrain
         _clockTimer?.Dispose();
     }
 
-    private GameState GetGameStateForPlayer(GamePlayer player)
+    private GameState GetGameState(GamePlayer? player = null)
     {
-        var legalMoves = _core.GetLegalMovesFor(player.Color);
+        var legalMoves = _core.GetLegalMoves(player?.Color);
 
         var gameState = new GameState(
             TimeControl: _timeControl,
