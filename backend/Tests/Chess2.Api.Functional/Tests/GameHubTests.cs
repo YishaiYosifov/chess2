@@ -13,13 +13,13 @@ using ChatTcs = TaskCompletionSource<(string sender, string message)>;
 
 public class GameHubTests : BaseFunctionalTest
 {
-    private readonly ILiveGameService _gameService;
+    private readonly IGameStarter _gameStarter;
     private const string SendChatMethod = "SendChatAsync";
 
     public GameHubTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _gameService = Scope.ServiceProvider.GetRequiredService<ILiveGameService>();
+        _gameStarter = Scope.ServiceProvider.GetRequiredService<IGameStarter>();
     }
 
     private static string GameHubPath(string gameToken) => $"/api/hub/game?gameToken={gameToken}";
@@ -27,7 +27,7 @@ public class GameHubTests : BaseFunctionalTest
     [Fact]
     public async Task SendChatAsync_from_a_player_sends_to_players()
     {
-        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
+        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
 
         await SendMessageAndAssertReceptionAsync(
             game.GameToken,
@@ -40,7 +40,7 @@ public class GameHubTests : BaseFunctionalTest
     [Fact]
     public async Task SendChatAsync_from_a_spectator_sends_to_spectators()
     {
-        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
+        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
 
         var spectator1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var spectator2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
@@ -56,7 +56,7 @@ public class GameHubTests : BaseFunctionalTest
     [Fact]
     public async Task SendChatAsync_player_and_spectator_send_simultaneous_messages_to_their_own_groups()
     {
-        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
+        var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
 
         var player = game.User1;
         var otherPlayer = game.User2;

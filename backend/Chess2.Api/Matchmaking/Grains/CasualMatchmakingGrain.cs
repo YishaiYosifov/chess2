@@ -10,9 +10,9 @@ public interface ICasualMatchmakingGrain : IMatchmakingGrain;
 
 public class CasualMatchmakingGrain(
     ILogger<CasualMatchmakingGrain> logger,
-    ILiveGameService liveGameService,
+    IGameStarter gameStarter,
     IOptions<AppSettings> settings,
     ICasualMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<ICasualMatchmakingPool>(logger, liveGameService, settings, pool),
+    : AbstractMatchmakingGrain<ICasualMatchmakingPool>(logger, gameStarter, settings, pool),
         ICasualMatchmakingGrain;

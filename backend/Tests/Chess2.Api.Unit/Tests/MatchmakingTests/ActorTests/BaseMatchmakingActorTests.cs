@@ -18,16 +18,16 @@ namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
 
 public class TestMatchmakingGrain(
     ILogger<TestMatchmakingGrain> logger,
-    ILiveGameService liveGameService,
+    IGameStarter gameStarter,
     IOptions<AppSettings> settings,
     IMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<IMatchmakingPool>(logger, liveGameService, settings, pool),
+    : AbstractMatchmakingGrain<IMatchmakingPool>(logger, gameStarter, settings, pool),
         IRatedMatchmakingGrain;
 
 public class AbstractMatchmakingGrainTests : BaseGrainTest
 {
-    private readonly ILiveGameService _liveGameServiceMock = Substitute.For<ILiveGameService>();
+    private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
     private readonly IMatchmakingPool _poolMock = Substitute.For<IMatchmakingPool>();
 
     private readonly AppSettings _settings = AppSettingsLoader.LoadAppSettings();
@@ -41,7 +41,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         Silo.ServiceProvider.AddService(Substitute.For<ILogger<TestMatchmakingGrain>>());
         Silo.ServiceProvider.AddService(Options.Create(_settings));
-        Silo.ServiceProvider.AddService(_liveGameServiceMock);
+        Silo.ServiceProvider.AddService(_gameStarterMock);
         Silo.ServiceProvider.AddService(_poolMock);
     }
 
@@ -124,7 +124,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         await grain.TryCreateSeekAsync(seeker2, observer2);
 
         var fakeGameToken = Guid.NewGuid().ToString();
-        _liveGameServiceMock
+        _gameStarterMock
             .StartGameAsync(
                 seeker1.UserId,
                 seeker2.UserId,
@@ -157,7 +157,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         await grain.TryCreateSeekAsync(seeker2, observer2);
 
         var fakeGameToken = Guid.NewGuid().ToString();
-        _liveGameServiceMock
+        _gameStarterMock
             .StartGameAsync(seeker1.UserId, seeker2.UserId, _testPoolKey.TimeControl, isRated: true)
             .Returns(Task.FromResult(fakeGameToken));
 
