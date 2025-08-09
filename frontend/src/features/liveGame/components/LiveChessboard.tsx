@@ -42,16 +42,21 @@ const LiveChessboard = ({
     const user = useSessionUser();
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
 
+    const storeProps = useConst<ProcessedGameState>(() =>
+        createStoreProps(gameToken, user?.userId ?? "", gameState),
+    );
+
+    const liveChessStore = useConst<StoreApi<LiveChessStore>>(() =>
+        createLiveChessStore(storeProps.live),
+    );
+
     const sendGameEvent = useGameEmitter(gameToken);
     const sendMove = useCallback(
         async (key: MoveKey) => {
+            liveChessStore.getState().markPendingMoveAck();
             await sendGameEvent("MovePieceAsync", gameToken, key);
         },
-        [sendGameEvent, gameToken],
-    );
-
-    const storeProps = useConst<ProcessedGameState>(() =>
-        createStoreProps(gameToken, user?.userId ?? "", gameState),
+        [sendGameEvent, gameToken, liveChessStore],
     );
 
     const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
@@ -59,10 +64,6 @@ const LiveChessboard = ({
             ...storeProps.board,
             onPieceMovement: sendMove,
         }),
-    );
-
-    const liveChessStore = useConst<StoreApi<LiveChessStore>>(() =>
-        createLiveChessStore(storeProps.live),
     );
 
     useBackNavigationRefetch(chessboardStore, liveChessStore);

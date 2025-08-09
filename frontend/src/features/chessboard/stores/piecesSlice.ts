@@ -87,6 +87,7 @@ export function createPiecesSlice(
                 onPieceMovement,
                 applyMove,
                 pieces,
+                disableMovement,
             } = get();
             if (!selectedPieceId) {
                 console.warn(
@@ -113,11 +114,7 @@ export function createPiecesSlice(
             };
             await onPieceMovement?.(key);
 
-            set((state) => {
-                state.moveOptions = createMoveOptions();
-                state.highlightedLegalMoves = [];
-                state.selectedPieceId = null;
-            });
+            disableMovement();
             return true;
         },
 
