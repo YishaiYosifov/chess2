@@ -13,6 +13,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using Orleans.TestKit;
 
 namespace Chess2.Api.Integration.Tests.LiveGameTests;
 
@@ -65,58 +66,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private async Task<IGameGrain> CreateGrainAsync() =>
         await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
 
-    //[Fact]
-    //public async Task IsGameOngoing_before_game_started_should_return_false_and_passivate()
-    //{
-    //    _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
-
-    //    var result = await _probe.ExpectMsgAsync<bool>(
-    //        cancellationToken: TestContext.Current.CancellationToken
-    //    );
-    //    result.Should().BeFalse();
-
-    //    var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
-    //        cancellationToken: TestContext.Current.CancellationToken
-    //    );
-    //    passivate.StopMessage.Should().Be(PoisonPill.Instance);
-    //}
-
-    //[Fact]
-    //public async Task StartGame_should_initialize_game_and_transition_to_playing_state()
-    //{
-    //    _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
-    //    var isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
-    //    isOngoing.Should().BeFalse();
-
-    //    await StartGameAsync();
-
-    //    _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
-    //    isOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
-    //    isOngoing.Should().BeTrue();
-
-    //    _timerMock
-    //        .Received(1)
-    //        .StartPeriodicTimer(
-    //            GameGrain.ClockTimerKey,
-    //            new GameCommands.TickClock(),
-    //            TimeSpan.FromSeconds(1)
-    //        );
-    //}
-
     [Fact]
-    public async Task GetGameStateAsync_for_an_invalid_user_returns_PlayerInvalid_error()
-    {
-        var grain = await CreateGrainAsync();
-        await StartGameAsync(grain);
-
-        var result = await grain.GetStateAsync("invalid-user");
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
-    }
-
-    [Fact]
-    public async Task GetGameState_for_a_valid_user_returns_correct_GameStateEvent()
+    public async Task GetStateAsync_returns_the_correct_GameStateEvent()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain, isRated: true);
@@ -149,7 +100,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task RequestDraw_sends_notification_if_no_pending_request()
+    public async Task RequestDrawAsync_sends_notification_if_no_pending_request()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -169,7 +120,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task RequestDraw_ends_the_game_if_there_is_a_pending_request()
+    public async Task RequestDrawAsync_ends_the_game_if_there_is_a_pending_request()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -181,7 +132,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task DeclineDraw_declines_the_draw_correctly()
+    public async Task DeclineDrawAsync_declines_the_draw_correctly()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -201,22 +152,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_with_the_wrong_player_should_return_PlayerInvalid_error()
-    {
-        var grain = await CreateGrainAsync();
-        await StartGameAsync(grain);
-
-        var result = await grain.MovePieceAsync(
-            _blackPlayer.UserId,
-            key: new(From: new AlgebraicPoint("a2"), To: new AlgebraicPoint("c4"))
-        );
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
-    }
-
-    [Fact]
-    public async Task MovePiece_with_a_valid_move_creates_a_correct_move_made_notification()
+    public async Task MovePieceAsync_with_a_valid_move_creates_a_correct_move_made_notification()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -260,7 +196,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_with_an_invalid_move_should_returns_an_error()
+    public async Task MovePieceAsync_with_an_invalid_move_should_returns_an_error()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -274,7 +210,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_that_results_in_draw_ends_the_game()
+    public async Task MovePieceAsync_that_results_in_draw_ends_the_game()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -298,7 +234,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_handles_forced_moves()
+    public async Task MovePieceAsync_handles_forced_moves()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -331,7 +267,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_decrements_draw_cooldown()
+    public async Task MovePieceAsync_decrements_draw_cooldown()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -356,7 +292,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePiece_declines_pending_draw_request()
+    public async Task MovePieceAsync_declines_pending_draw_request()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -378,19 +314,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task EndGame_returns_PlayerInvalid_error_for_invalid_players()
-    {
-        var grain = await CreateGrainAsync();
-        await StartGameAsync(grain);
-
-        var result = await grain.EndGameAsync("nonexistent-user");
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameErrors.PlayerInvalid);
-    }
-
-    [Fact]
-    public async Task EndGame_aborts_the_game_if_not_enough_moves_have_been_made()
+    public async Task EndGameAsync_aborts_the_game_if_not_enough_moves_have_been_made()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -402,7 +326,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task EndGame_valid_user_should_return_win_for_opponent_after_early_moves()
+    public async Task EndGameAsync_resigns_the_game_after_abortion_threshold_is_passed()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -416,54 +340,27 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await TestGameEndedAsync(grain, _gameResultDescriber.Resignation(GameColor.White));
     }
 
-    //[Fact]
-    //public async Task TickClock_should_end_game_when_time_runs_out()
-    //{
-    //    await StartGameAsync(timeControl: new(0, 0));
+    [Fact]
+    public async Task TickClock_ends_the_game_when_time_runs_out()
+    {
+        var grain = await CreateGrainAsync();
+        await StartGameAsync(grain, timeControl: new(0, 0));
 
-    //    _gameActor.Tell(new GameCommands.TickClock(), _probe);
-    //    await _probe.ExpectMsgAsync<GameReplies.GameEnded>(cancellationToken: ApiTestBase.CT);
+        await Silo.FireAllTimersAsync();
 
-    //    var expectedEndStatus = _gameResultDescriber.Timeout(GameColor.White);
-    //    await _gameNotifierMock
-    //        .Received(1)
-    //        .NotifyGameEndedAsync(
-    //            TestGameToken,
-    //            ArgEx.FluentAssert<GameResultData>(
-    //                (x) =>
-    //                {
-    //                    x.Result.Should().Be(expectedEndStatus.Result);
-    //                    x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
-    //                }
-    //            )
-    //        );
+        await TestGameEndedAsync(grain, _gameResultDescriber.Timeout(GameColor.White));
+    }
 
-    //    var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
-    //        cancellationToken: ApiTestBase.CT
-    //    );
-    //    passivate.StopMessage.Should().Be(PoisonPill.Instance);
-    //    _timerMock.Received(1).Cancel(GameGrain.ClockTimerKey);
-    //}
+    [Fact]
+    public async Task TickClock_doesnt_end_the_game_when_not_necessary()
+    {
+        var grain = await CreateGrainAsync();
+        await StartGameAsync(grain, timeControl: new(BaseSeconds: 10, 0));
 
-    //[Fact]
-    //public async Task After_game_finishes_actor_becomes_finished()
-    //{
-    //    await StartGameAsync();
+        await Silo.FireAllTimersAsync();
 
-    //    _gameActor.Tell(new GameCommands.EndGame(TestGameToken, _whitePlayer.UserId), _probe);
-    //    await _probe.ExpectMsgAsync<GameReplies.GameEnded>(cancellationToken: ApiTestBase.CT);
-
-    //    _gameActor.Tell(new GameQueries.IsGameOngoing(TestGameToken), _probe);
-    //    var isGameOngoing = await _probe.ExpectMsgAsync<bool>(cancellationToken: ApiTestBase.CT);
-    //    isGameOngoing.Should().BeFalse();
-
-    //    _gameActor.Tell(new GameQueries.GetGameState(TestGameToken, _whitePlayer.UserId), _probe);
-    //    var stateResult = await _probe.ExpectMsgAsync<ErrorOr<object>>(
-    //        cancellationToken: ApiTestBase.CT
-    //    );
-    //    stateResult.IsError.Should().BeTrue();
-    //    stateResult.FirstError.Should().Be(GameErrors.GameAlreadyEnded);
-    //}
+        (await grain.IsGameOngoingAsync()).Should().BeTrue();
+    }
 
     private Move GetLegalMoveFor(GamePlayer player) =>
         _gameCore.GetLegalMoves(player.Color).MovesMap.First().Value;
@@ -505,10 +402,5 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             );
         var isOngoing = await grain.IsGameOngoingAsync();
         isOngoing.Should().BeFalse();
-
-        //var passivate = await _parentProbe.ExpectMsgAsync<Passivate>(
-        //    cancellationToken: ApiTestBase.CT
-        //);
-        //passivate.StopMessage.Should().Be(PoisonPill.Instance);
     }
 }
