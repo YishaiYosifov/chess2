@@ -37,7 +37,6 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/lib/utils/pointUtils";
 import { brotliCompressSync } from "zlib";
-import { createFakeMovePath } from "@/lib/testUtils/fakers/movePathFaker";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 vi.mock("@/features/signalr/hooks/useSignalRHubs");
