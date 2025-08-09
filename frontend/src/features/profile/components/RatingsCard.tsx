@@ -5,8 +5,8 @@ import dynamic from "next/dynamic";
 import Card from "@/components/ui/Card";
 import { RatingOverview } from "@/lib/apiClient";
 import constants from "@/lib/constants";
-import { getTimeControlIcon } from "../utils/timeControlIcons";
 import clsx from "clsx";
+import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -58,7 +58,10 @@ const RatingCard = ({ overview }: { overview: RatingOverview }) => {
             <section className="flex justify-between">
                 <span className="flex gap-2">
                     {constants.TIME_CONTROL_LABELS[timeControl]}
-                    {getTimeControlIcon(timeControl)}
+                    <TimeControlIcon
+                        className="h-6 w-6"
+                        timeControl={timeControl}
+                    />
                 </span>
                 {currentRating}
             </section>
