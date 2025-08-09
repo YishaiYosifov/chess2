@@ -58,8 +58,8 @@ public class GameCoreTests
 
         _gameCore.InitializeGame();
 
-        var whiteMoves = _gameCore.GetLegalMovesFor(GameColor.White);
-        var blackMoves = _gameCore.GetLegalMovesFor(GameColor.Black);
+        var whiteMoves = _gameCore.GetLegalMoves(GameColor.White);
+        var blackMoves = _gameCore.GetLegalMoves(GameColor.Black);
 
         whiteMoves.MovesMap.Should().HaveCount(2);
         whiteMoves
@@ -85,10 +85,10 @@ public class GameCoreTests
     }
 
     [Fact]
-    public void GetLegalMovesFor_returns_empty_when_uninitialized()
+    public void GetLegalMoves_returns_empty_when_uninitialized()
     {
-        _gameCore.GetLegalMovesFor(GameColor.Black).Should().BeEquivalentTo(new LegalMoveSet());
-        _gameCore.GetLegalMovesFor(GameColor.White).Should().BeEquivalentTo(new LegalMoveSet());
+        _gameCore.GetLegalMoves(GameColor.Black).Should().BeEquivalentTo(new LegalMoveSet());
+        _gameCore.GetLegalMoves(GameColor.White).Should().BeEquivalentTo(new LegalMoveSet());
     }
 
     [Fact]
@@ -218,7 +218,7 @@ public class GameCoreTests
 
         _gameCore.InitializeGame();
 
-        var result = _gameCore.GetLegalMovesFor(GameColor.White);
+        var result = _gameCore.GetLegalMoves(GameColor.White);
         result.MovesMap.Should().HaveCount(maxPriority.Length);
         foreach (var move in maxPriority)
         {
