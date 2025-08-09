@@ -44,7 +44,10 @@ public class MatchmakingServiceTests : BaseIntegrationTest
     public async Task SeekRatedAsync_creates_a_rated_seek_with_the_correct_values()
     {
         var user = new AuthedUserFaker().Generate();
-        var rating = new CurrentRatingFaker(user).Generate();
+        var rating = new CurrentRatingFaker(user)
+            .RuleFor(x => x.TimeControl, TimeControl.Rapid)
+            .Generate();
+
         await DbContext.AddRangeAsync(user, rating);
         await DbContext.SaveChangesAsync(CT);
         _grainsMock.GetGrain<IPlayerSessionGrain>(user.Id).Returns(_playerSessionGrainMock);
