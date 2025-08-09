@@ -13,18 +13,18 @@ namespace Chess2.Api.Functional.Tests;
 
 public class GameControllerTests : BaseFunctionalTest
 {
-    private readonly ILiveGameService _gameService;
+    private readonly IGameStarter _gameStarter;
 
     public GameControllerTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _gameService = Scope.ServiceProvider.GetRequiredService<ILiveGameService>();
+        _gameStarter = Scope.ServiceProvider.GetRequiredService<IGameStarter>();
     }
 
     [Fact]
     public async Task GetGame_returns_game_state_for_guest_player()
     {
-        var gameToken = await _gameService.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
             new TimeControlSettings(600, 0),
@@ -44,7 +44,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_game_state_for_authed_player()
     {
-        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
+        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
 
@@ -66,7 +66,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_403_for_guest_not_in_game()
     {
-        var gameToken = await _gameService.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
             new(600, 0),
@@ -82,7 +82,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_403_for_authed_user_not_in_game()
     {
-        var gameToken = await _gameService.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
             new(600, 0),
@@ -179,7 +179,7 @@ public class GameControllerTests : BaseFunctionalTest
             new CurrentRatingFaker(authedUser, 1500).RuleFor(x => x.TimeControl, TimeControl.Blitz)
         );
 
-        var gameToken = await _gameService.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameAsync(
             authedUser.Id,
             guestId,
             new TimeControlSettings(300, 5),

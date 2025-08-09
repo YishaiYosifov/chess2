@@ -304,7 +304,7 @@ builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
 
 #region Game
 builder.Services.AddScoped<IGameStateProvider, GameStateProvider>();
-builder.Services.AddScoped<ILiveGameService, LiveGameService>();
+builder.Services.AddScoped<IGameStarter, GameStarter>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();

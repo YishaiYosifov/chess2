@@ -30,11 +30,11 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private readonly ILogger<AbstractMatchmakingGrain<TPool>> _logger;
     private readonly AppSettings _settings;
     private readonly ObserverManager<UserId, IMatchObserver> _subsManager;
-    private readonly ILiveGameService _liveGameService;
+    private readonly IGameStarter _gameStarter;
 
     public AbstractMatchmakingGrain(
         ILogger<AbstractMatchmakingGrain<TPool>> logger,
-        ILiveGameService liveGameService,
+        IGameStarter gameStarter,
         IOptions<AppSettings> settings,
         TPool pool
     )
@@ -44,7 +44,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _pool = pool;
         _logger = logger;
         _subsManager = new(TimeSpan.FromMinutes(5), _logger);
-        _liveGameService = liveGameService;
+        _gameStarter = gameStarter;
         _settings = settings.Value;
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             _logger.LogInformation("Found match for {User1} with {User2}", seeker1, seeker2);
 
             var isRated = seeker1 is RatedSeeker && seeker2 is RatedSeeker;
-            var gameToken = await _liveGameService.StartGameAsync(
+            var gameToken = await _gameStarter.StartGameAsync(
                 seeker1.UserId,
                 seeker2.UserId,
                 _key.TimeControl,

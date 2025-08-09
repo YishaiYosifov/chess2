@@ -19,7 +19,7 @@ public static class GameUtils
 {
     public static async Task<StartGameResult> CreateRatedGameAsync(
         ApplicationDbContext dbContext,
-        ILiveGameService gameService
+        IGameStarter gameStarter
     )
     {
         var timeControl = new TimeControlSettings(30, 0);
@@ -35,7 +35,7 @@ public static class GameUtils
             new CurrentRatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
         );
 
-        var gameToken = await gameService.StartGameAsync(
+        var gameToken = await gameStarter.StartGameAsync(
             user1.Id,
             user2.Id,
             timeControl,

@@ -10,9 +10,9 @@ public interface IRatedMatchmakingGrain : IMatchmakingGrain;
 
 public class RatedMatchmakingGrain(
     ILogger<RatedMatchmakingGrain> logger,
-    ILiveGameService liveGameService,
+    IGameStarter gameStarter,
     IOptions<AppSettings> settings,
     IRatedMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<IRatedMatchmakingPool>(logger, liveGameService, settings, pool),
+    : AbstractMatchmakingGrain<IRatedMatchmakingPool>(logger, gameStarter, settings, pool),
         IRatedMatchmakingGrain;
