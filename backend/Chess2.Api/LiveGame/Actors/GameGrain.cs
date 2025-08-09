@@ -111,7 +111,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public Task<ErrorOr<GameState>> GetStateAsync(UserId? forUserId = null)
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return Task.FromResult<ErrorOr<GameState>>(GameErrors.GameNotFound);
 
         GamePlayer? player = null;
@@ -124,7 +124,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public Task<ErrorOr<GamePlayers>> GetPlayersAsync()
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return Task.FromResult<ErrorOr<GamePlayers>>(GameErrors.GameNotFound);
 
         return Task.FromResult<ErrorOr<GamePlayers>>(
@@ -134,7 +134,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public async Task<ErrorOr<Success>> EndGameAsync(UserId byUserId)
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return GameErrors.GameNotFound;
         if (!_players.TryGetPlayerById(byUserId, out var player))
             return GameErrors.PlayerInvalid;
@@ -158,7 +158,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public async Task<ErrorOr<Success>> RequestDrawAsync(UserId byUserId)
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return GameErrors.GameNotFound;
         if (!_players.TryGetPlayerById(byUserId, out var player))
             return GameErrors.PlayerInvalid;
@@ -179,7 +179,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public async Task<ErrorOr<Success>> DeclineDrawAsync(UserId byUserId)
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return GameErrors.GameNotFound;
         if (!_players.TryGetPlayerById(byUserId, out var player))
             return GameErrors.PlayerInvalid;
@@ -193,7 +193,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     public async Task<ErrorOr<Success>> MovePieceAsync(UserId byUserId, MoveKey key)
     {
-        if (!_isPlaying)
+        if (!PlayingOrDeactivate())
             return GameErrors.GameNotFound;
 
         var currentPlayer = _players.GetPlayerByColor(_core.SideToMove);
@@ -241,6 +241,24 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         return Result.Success;
     }
 
+    private Task KeepGameAliveAsync()
+    {
+        if (_isPlaying)
+            DelayDeactivation(TimeSpan.FromMinutes(2));
+
+        return Task.CompletedTask;
+    }
+
+    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        this.RegisterGrainTimer(
+            callback: KeepGameAliveAsync,
+            dueTime: TimeSpan.Zero,
+            period: TimeSpan.FromMinutes(1)
+        );
+        return base.OnActivateAsync(cancellationToken);
+    }
+
     private async Task HandleClockTickAsync()
     {
         var timeLeft = _clock.CalculateTimeLeft(_core.SideToMove);
@@ -255,6 +273,13 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         );
 
         await FinalizeGameAsync(_resultDescriber.Timeout(_core.SideToMove));
+    }
+
+    private bool PlayingOrDeactivate()
+    {
+        if (!_isPlaying)
+            DeactivateOnIdle();
+        return _isPlaying;
     }
 
     private async Task FinalizeGameAsync(GameEndStatus endStatus)
