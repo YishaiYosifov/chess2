@@ -2,6 +2,8 @@
 
 namespace Chess2.Api.GameSnapshot.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameSnapshot.Models.MoveSideEffectPath")]
 public record MoveSideEffectPath(byte FromIdx, byte ToIdx)
 {
     public static MoveSideEffectPath FromMoveSideEffect(
