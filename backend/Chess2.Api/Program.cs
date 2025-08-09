@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -41,6 +39,8 @@ using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,8 +48,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File("chess2.log")
+    .WriteTo.Async(a => a.Console())
+    .WriteTo.Async(a => a.File("chess2.log"))
     .CreateLogger();
 builder.Services.AddSerilog();
 
@@ -379,7 +379,14 @@ app.MapHub<GameHub>("/api/hub/game");
 
 app.UseResponseCompression();
 
-app.Run();
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
 
 // expose the program for WebApplicationFactory
 public partial class Program;
