@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -14,11 +15,13 @@ namespace Chess2.Api.Functional.Tests;
 public class GameControllerTests : BaseFunctionalTest
 {
     private readonly IGameStarter _gameStarter;
+    private readonly IGrainFactory _grains;
 
     public GameControllerTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _gameStarter = Scope.ServiceProvider.GetRequiredService<IGameStarter>();
+        _grains = Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
     }
 
     [Fact]
@@ -116,9 +119,8 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_correct_game_after_it_is_over_when_rated()
     {
-        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameService);
-
-        await _gameService.EndGameAsync(startGame.GameToken, startGame.User2.Id, CT);
+        var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
+        await _grains.GetGrain<IGameGrain>(startGame.GameToken).EndGameAsync(startGame.User2.Id);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
         var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
@@ -144,13 +146,13 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_correct_game_after_it_is_over_when_unrated()
     {
-        var gameToken = await _gameService.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
             new TimeControlSettings(600, 0),
             isRated: false
         );
-        await _gameService.EndGameAsync(gameToken, "guest2", CT);
+        await _grains.GetGrain<IGameGrain>(gameToken).EndGameAsync("guest2");
 
         AuthUtils.AuthenticateGuest(ApiClient, "guest1");
         var response = await ApiClient.Api.GetGameAsync(gameToken);
