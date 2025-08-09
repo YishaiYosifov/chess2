@@ -76,21 +76,21 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public Task GameEndedAsync(string gameToken) =>
         Task.FromResult(_activeGameTokens.Remove(gameToken));
 
-    private Task KeepSessionAlive()
+    private Task KeepSessionAliveAsync()
     {
         if (
             _activeGameTokens.Count != 0
             || _connectionToPool.Count != 0
             || _poolToConnections.Count != 0
         )
-            DelayDeactivation(TimeSpan.FromMilliseconds(2));
+            DelayDeactivation(TimeSpan.FromMinutes(2));
         return Task.CompletedTask;
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
         this.RegisterGrainTimer(
-            callback: KeepSessionAlive,
+            callback: KeepSessionAliveAsync,
             dueTime: TimeSpan.Zero,
             period: TimeSpan.FromMinutes(1)
         );
