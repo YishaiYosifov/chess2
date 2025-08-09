@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.LiveGame.Services;
 
-public interface ILiveGameService
+public interface IGameStarter
 {
     Task<string> StartGameAsync(
         string userId1,
@@ -18,13 +18,13 @@ public interface ILiveGameService
     );
 }
 
-public class LiveGameService(
+public class GameStarter(
     IGrainFactory grains,
     IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator
-) : ILiveGameService
+) : IGameStarter
 {
     private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
@@ -40,6 +40,7 @@ public class LiveGameService(
     )
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
+        // TODO: choose white and black based on each player last game
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
 
