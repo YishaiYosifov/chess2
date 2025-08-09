@@ -245,7 +245,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
     {
         if (_isPlaying)
             DelayDeactivation(TimeSpan.FromMinutes(2));
-
         return Task.CompletedTask;
     }
 
