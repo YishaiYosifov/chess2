@@ -15,6 +15,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     private readonly Dictionary<string, RatedPoolMember> _seekers = [];
 
     public IEnumerable<string> Seekers => _seekers.Keys;
+    public IEnumerable<Seeker> Seekers => _seekers.Values.Select(x => x.Seek);
     public int SeekerCount => _seekers.Count;
 
     public bool TryAddSeek(Seeker seeker)
@@ -54,7 +55,10 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
             alreadyMatched.Add(seeker.Seek.UserId);
             alreadyMatched.Add(bestMatch.Seek.UserId);
         }
-        RemoveSeekBatch(alreadyMatched);
+        foreach (var seek in alreadyMatched)
+        {
+            RemoveSeek(seek);
+        }
 
         return matches;
     }
@@ -116,14 +120,6 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
 
     private static int MissBonus(RatedPoolMember seeker) =>
         Math.Clamp(seeker.WavesMissed * 12, min: 0, max: 400);
-
-    private void RemoveSeekBatch(IEnumerable<string> seeks)
-    {
-        foreach (var seek in seeks)
-        {
-            RemoveSeek(seek);
-        }
-    }
 
     private static int BinarySearchLow(List<RatedPoolMember> list, int value)
     {
