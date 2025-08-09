@@ -9,7 +9,6 @@ import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
 import { pointToPiece, simulateMove } from "../lib/simulateMove";
-import { createMoveOptions } from "../lib/moveOptions";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
