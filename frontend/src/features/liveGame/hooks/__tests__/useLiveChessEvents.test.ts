@@ -38,6 +38,7 @@ import {
 import { logicalPoint } from "@/lib/utils/pointUtils";
 import { brotliCompressSync } from "zlib";
 import { createFakeMovePath } from "@/lib/testUtils/fakers/movePathFaker";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 vi.mock("@/features/signalr/hooks/useSignalRHubs");
 vi.mock("@/features/liveGame/lib/gameStateProcessor");
@@ -129,54 +130,82 @@ describe("useLiveChessEvents", () => {
             expect(liveChessStore.getState().positionHistory.length).toBe(1);
         });
 
+        it.each([true, false])(
+            "should only play and store the move if we are not awaiting move ack",
+            async (awaitingAck) => {
+                setupStandardStoresForMove();
+                renderLiveChessEvents();
+
+                const clocks = createFakeClock();
+                const piecesBefore = chessboardStore.getState().pieces;
+                const positionHistoryBefore =
+                    liveChessStore.getState().positionHistory;
+                if (awaitingAck) liveChessStore.getState().markPendingMoveAck();
+
+                const move = await triggerMoveMade(GameColor.WHITE, clocks);
+
+                expect(liveChessStore.getState().viewingMoveNumber).toBe(1);
+                expect(liveChessStore.getState().positionHistory.length).toBe(
+                    positionHistoryBefore.length + 1,
+                );
+
+                const piecesAfter = chessboardStore.getState().pieces;
+                if (!awaitingAck) {
+                    expect(piecesAfter).not.toEqual(piecesBefore);
+                } else {
+                    expect(piecesAfter).toEqual(piecesBefore);
+                }
+
+                expect(
+                    liveChessStore.getState().positionHistory[1],
+                ).toEqual<Position>({
+                    san: move.san,
+                    pieces: piecesAfter,
+                    clocks: {
+                        whiteClock: clocks.whiteClock,
+                        blackClock: clocks.blackClock,
+                    },
+                });
+            },
+        );
+
         it.each([
-            {
-                sideToMove: GameColor.WHITE,
-                description:
-                    "should play and store the move when it's our turn (opponent moved)",
-                expectPiecesChanged: true,
+            [GameColor.WHITE, GameColor.BLACK],
+            [GameColor.WHITE, GameColor.WHITE],
+        ])(
+            "should only disable movement if the side to move !== us",
+            async (ourColor, newSideToMove) => {
+                liveChessStore.setState({
+                    playerColor: ourColor,
+                });
+                chessboardStore.setState({
+                    moveOptions: createMoveOptions({
+                        legalMoves: createFakeLegalMoveMap(),
+                    }),
+                });
+
+                setupStandardStoresForMove();
+                renderLiveChessEvents();
+
+                const move = createFakeMoveSnapshot();
+                const clocks = createFakeClock();
+                await act(async () =>
+                    gameEventHandlers.MoveMadeAsync?.(
+                        move,
+                        newSideToMove,
+                        1,
+                        clocks,
+                    ),
+                );
+
+                const moveOptions = chessboardStore.getState().moveOptions;
+                if (ourColor !== newSideToMove) {
+                    expect(moveOptions.legalMoves.size).toBe(0);
+                } else {
+                    expect(moveOptions.legalMoves.size).not.toBe(0);
+                }
             },
-            {
-                sideToMove: GameColor.BLACK,
-                description:
-                    "should not play the move when the move received is ours",
-                expectPiecesChanged: false,
-            },
-        ])("$description", async ({ sideToMove, expectPiecesChanged }) => {
-            setupStandardStoresForMove();
-            renderLiveChessEvents();
-
-            const clocks = createFakeClock();
-
-            const piecesBefore = chessboardStore.getState().pieces;
-            const positionHistoryBefore =
-                liveChessStore.getState().positionHistory;
-
-            const move = await triggerMoveMade(sideToMove, clocks);
-
-            expect(liveChessStore.getState().viewingMoveNumber).toBe(1);
-            expect(liveChessStore.getState().positionHistory.length).toBe(
-                positionHistoryBefore.length + 1,
-            );
-
-            const piecesAfter = chessboardStore.getState().pieces;
-            if (expectPiecesChanged) {
-                expect(piecesAfter).not.toEqual(piecesBefore);
-            } else {
-                expect(piecesAfter).toEqual(piecesBefore);
-            }
-
-            expect(
-                liveChessStore.getState().positionHistory[1],
-            ).toEqual<Position>({
-                san: move.san,
-                pieces: piecesAfter,
-                clocks: {
-                    whiteClock: clocks.whiteClock,
-                    blackClock: clocks.blackClock,
-                },
-            });
-        });
+        );
 
         it("should jump forward if we are viewing past moves", async () => {
             liveChessStore.setState({

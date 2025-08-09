@@ -37,6 +37,8 @@ export interface LiveChessStoreProps {
 }
 
 export interface LiveChessStore extends LiveChessStoreProps {
+    isPendingMoveAck: boolean;
+
     receiveMove(
         position: Position,
         clocks: Clocks,
@@ -44,6 +46,7 @@ export interface LiveChessStore extends LiveChessStoreProps {
     ): void;
     receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
     drawStateChange(drawState: DrawState): void;
+    markPendingMoveAck(): void;
 
     teleportToMove(number: number): BoardState | undefined;
     shiftMoveViewBy(amount: number): BoardState | undefined;
@@ -58,9 +61,11 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
     return createWithEqualityFn<LiveChessStore>()(
         immer((set, get, store) => ({
             ...initState,
+            isPendingMoveAck: false,
 
             receiveMove(position, clocks, sideToMove) {
                 const { viewingMoveNumber, positionHistory } = get();
+
                 set((state) => {
                     if (viewingMoveNumber === positionHistory.length - 1)
                         state.viewingMoveNumber++;
@@ -77,6 +82,7 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
                     state.positionHistory.push(position);
                     state.clocks = clocks;
                     state.sideToMove = sideToMove;
+                    state.isPendingMoveAck = false;
                 });
             },
             receiveLegalMoves(moveOptions) {
@@ -87,6 +93,11 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
             drawStateChange(drawState) {
                 set((state) => {
                     state.drawState = drawState;
+                });
+            },
+            markPendingMoveAck() {
+                set((state) => {
+                    state.isPendingMoveAck = true;
                 });
             },
 
