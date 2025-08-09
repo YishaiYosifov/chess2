@@ -55,8 +55,9 @@ export default function useLiveChessEvents(
             moveNumber: number,
             clocks: Clocks,
         ) => {
-            const { positionHistory, playerColor } = liveChessStore.getState();
-            const { applyMove } = chessboardStore.getState();
+            const { positionHistory, isPendingMoveAck, playerColor } =
+                liveChessStore.getState();
+            const { applyMove, disableMovement } = chessboardStore.getState();
 
             // we missed a move... we need to refetch the state
             if (moveNumber != positionHistory.length) {
@@ -64,7 +65,10 @@ export default function useLiveChessEvents(
                 return;
             }
 
-            if (sideToMove === playerColor) {
+            if (playerColor !== sideToMove) {
+                disableMovement();
+            }
+            if (!isPendingMoveAck) {
                 jumpForwards();
                 const decoded = decodePath(move.path, boardDimensions.width);
                 applyMove(decoded);
