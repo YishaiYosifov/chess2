@@ -5,22 +5,27 @@ using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
+using Chess2.Api.Users.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;
 
 public interface IMatchmakingService
 {
-    Task SeekRatedAsync(AuthedUser user, string connectionId, TimeControlSettings timeControl);
+    Task SeekRatedAsync(
+        AuthedUser user,
+        ConnectionId connectionId,
+        TimeControlSettings timeControl
+    );
 
     Task SeekCasualAsync(
-        string userId,
-        string connectionId,
+        UserId userId,
+        ConnectionId connectionId,
         AuthedUser? user,
         TimeControlSettings timeControl
     );
 
-    Task CancelSeekAsync(string userId, string connectionId);
+    Task CancelSeekAsync(UserId userId, ConnectionId connectionId);
 }
 
 public class MatchmakingService(
@@ -37,7 +42,7 @@ public class MatchmakingService(
 
     public async Task SeekRatedAsync(
         AuthedUser user,
-        string connectionId,
+        ConnectionId connectionId,
         TimeControlSettings timeControl
     )
     {
@@ -59,8 +64,8 @@ public class MatchmakingService(
     }
 
     public async Task SeekCasualAsync(
-        string userId,
-        string connectionId,
+        UserId userId,
+        ConnectionId connectionId,
         AuthedUser? user,
         TimeControlSettings timeControl
     )
@@ -76,7 +81,7 @@ public class MatchmakingService(
         await playerSessionGrain.CreateSeekAsync(connectionId, seeker, poolKey);
     }
 
-    public async Task CancelSeekAsync(string userId, string connectionId)
+    public async Task CancelSeekAsync(UserId userId, ConnectionId connectionId)
     {
         var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
         await playerSessionGrain.CancelSeekAsync(connectionId);
