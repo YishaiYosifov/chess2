@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -39,8 +41,6 @@ using NSwag.Generation.Processors;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -293,6 +293,7 @@ builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>
 builder.Host.UseOrleans(siloBuilder =>
 {
     siloBuilder.UseLocalhostClustering();
+    siloBuilder.AddMemoryStreams(Streaming.StreamProvider).AddMemoryGrainStorage("PubSubStore");
 });
 
 #region Matchmaking

@@ -1,12 +1,16 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.TestInfrastructure.Fakes;
+using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Orleans.TestKit;
+using Orleans.TestKit.Streams;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
 
@@ -31,18 +35,27 @@ public class PlayerSessionGrainTests : BaseGrainTest
         Silo.ServiceProvider.AddService(_matchmakingNotifierMock);
     }
 
+    private TestStream<SeekMatchedEvent> ProbeMatchedStream(PoolKey pool) =>
+        Silo.AddStreamProbe<SeekMatchedEvent>(
+            MatchmakingStreamKey.MatchedStream(UserId, pool),
+            MatchmakingStreamConstants.SeekMatchedStream,
+            Streaming.StreamProvider
+        );
+
     [Fact]
-    public async Task CreateSeek_sends_seek_to_the_correct_pool()
+    public async Task CreateSeek_sends_seek_to_the_correct_pool_and_subscrives_to_stream()
     {
-        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
-        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(300, 5));
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
         var seeker = new RatedSeekerFaker().Generate();
 
-        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(true);
+        _ratedPoolGrainMock.TryCreateSeekAsync(seeker).Returns(true);
+        var stream = ProbeMatchedStream(pool);
 
-        await grain.CreateSeekAsync("conn1", seeker, poolKey);
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        await grain.CreateSeekAsync("conn1", seeker, pool);
 
-        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(seeker, grain);
+        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(seeker);
+        stream.Subscribed.Should().Be(1);
     }
 
     [Fact]
@@ -55,80 +68,57 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var casualSeeker = new SeekerFaker().Generate();
         var ratedSeeker = new RatedSeekerFaker().Generate();
 
-        _casualPoolGrainMock.TryCreateSeekAsync(casualSeeker, grain).Returns(Task.FromResult(true));
-        _ratedPoolGrainMock.TryCreateSeekAsync(ratedSeeker, grain).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.TryCreateSeekAsync(casualSeeker).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.TryCreateSeekAsync(ratedSeeker).Returns(Task.FromResult(true));
         _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
         await grain.CreateSeekAsync("conn1", casualSeeker, casualPoolKey);
-        await _casualPoolGrainMock.Received(1).TryCreateSeekAsync(casualSeeker, grain);
+        await _casualPoolGrainMock.Received(1).TryCreateSeekAsync(casualSeeker);
 
         await grain.CreateSeekAsync("conn1", ratedSeeker, ratedPoolKey);
         await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
-        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(ratedSeeker, grain);
+        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(ratedSeeker);
     }
 
     [Fact]
     public async Task MatchFound_notifies_all_connections_listening_to_same_pool()
     {
-        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
-        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(180, 2));
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(180, 2));
         var seeker = new RatedSeekerFaker().Generate();
+        var stream = ProbeMatchedStream(pool);
 
-        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.TryCreateSeekAsync(seeker).Returns(Task.FromResult(true));
 
-        await grain.CreateSeekAsync("connA", seeker, poolKey);
-        await grain.CreateSeekAsync("connB", seeker, poolKey);
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        await grain.CreateSeekAsync("connA", seeker, pool);
+        await grain.CreateSeekAsync("connB", seeker, pool);
 
         var gameToken = "game 123";
-        await grain.MatchFoundAsync(gameToken, poolKey);
+        await stream.OnNextAsync(new(gameToken));
 
         await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connA", gameToken);
         await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connB", gameToken);
-
-        _matchmakingNotifierMock.ClearReceivedCalls();
-
-        await grain.MatchFoundAsync(gameToken, poolKey);
-        _matchmakingNotifierMock.DidNotReceive();
+        stream.Subscribed.Should().Be(0);
     }
 
     [Fact]
-    public async Task CancelSeek_cleans_up_seek()
+    public async Task CancelSeek_unsubscribes_and_notifies_others()
     {
-        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
-        PoolKey poolKey = new(PoolType.Casual, new TimeControlSettings(10, 1));
+        PoolKey pool = new(PoolType.Casual, new TimeControlSettings(10, 1));
         var seeker = new SeekerFaker().Generate();
+        var stream = ProbeMatchedStream(pool);
 
-        _casualPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.TryCreateSeekAsync(seeker).Returns(Task.FromResult(true));
         _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
-        await grain.CreateSeekAsync("conn1", seeker, poolKey);
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+        await grain.CreateSeekAsync("conn1", seeker, pool);
+        await grain.CreateSeekAsync("conn2", seeker, pool);
         await grain.CancelSeekAsync("conn1");
 
         await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
-
-        await grain.MatchFoundAsync("game789", poolKey);
-        _matchmakingNotifierMock.DidNotReceive();
-    }
-
-    [Fact]
-    public async Task CancelSeek_only_removes_correct_seek()
-    {
-        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
-        PoolKey poolKey = new(PoolType.Rated, new TimeControlSettings(600, 10));
-        var seeker = new RatedSeekerFaker().Generate();
-
-        _ratedPoolGrainMock.TryCreateSeekAsync(seeker, grain).Returns(Task.FromResult(true));
-        _ratedPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
-
-        await grain.CreateSeekAsync("connX", seeker, poolKey);
-        await grain.CreateSeekAsync("connY", seeker, poolKey);
-
-        await grain.CancelSeekAsync("connX");
-
-        await _ratedPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
-
-        await grain.MatchFoundAsync("gameY", poolKey);
-
-        await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connY", "gameY");
+        await _matchmakingNotifierMock.DidNotReceive().NotifyMatchFailedAsync("conn1");
+        await _matchmakingNotifierMock.Received(1).NotifyMatchFailedAsync("conn2");
+        stream.Subscribed.Should().Be(0);
     }
 }
