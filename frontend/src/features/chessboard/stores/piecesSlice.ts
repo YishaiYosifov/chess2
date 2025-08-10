@@ -104,6 +104,7 @@ export function createPiecesSlice(
             );
             if (!move) return false;
 
+            disableMovement();
             applyMove(move);
 
             const key: MoveKey = {
@@ -113,7 +114,6 @@ export function createPiecesSlice(
             };
             await onPieceMovement?.(key);
 
-            disableMovement();
             return true;
         },
 
