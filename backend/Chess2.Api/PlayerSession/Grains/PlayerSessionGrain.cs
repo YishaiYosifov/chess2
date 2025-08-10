@@ -56,8 +56,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     public async Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool)
     {
-        DelayDeactivation(TimeSpan.FromMinutes(5));
-
         await CancelSeekIfExistsAsync(connectionId);
         if (_seekSessions.TryGetValue(pool, out var existingSeekSession))
         {
