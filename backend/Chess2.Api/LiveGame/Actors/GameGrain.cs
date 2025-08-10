@@ -58,6 +58,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
     private readonly MoveHistoryTracker _historyTracker = new();
 
     private IGrainTimer? _clockTimer;
+    private IGrainTimer? _keepAliveTimer;
     private bool _isPlaying = false;
     private TimeControlSettings _timeControl;
     private GameResultData? _result;
@@ -289,7 +290,12 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         _result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus);
         await _gameNotifier.NotifyGameEndedAsync(_token, _result);
         _isPlaying = false;
+        DeactivateOnIdle();
+
         _clockTimer?.Dispose();
+        _clockTimer = null;
+        _keepAliveTimer?.Dispose();
+        _keepAliveTimer = null;
     }
 
     private GameState GetGameState(GamePlayer? player = null)

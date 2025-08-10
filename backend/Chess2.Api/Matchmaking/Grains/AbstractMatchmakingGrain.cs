@@ -56,6 +56,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
 
     public async Task<bool> TryCreateSeekAsync(Seeker seeker)
     {
+        DelayDeactivation(TimeSpan.FromMinutes(5));
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
         if (!_pool.TryAddSeek(seeker))
@@ -65,7 +66,6 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         }
 
         await _seekCreationStream.OnNextAsync(new(seeker, _key));
-        DelayDeactivation(TimeSpan.FromMinutes(5));
 
         return true;
     }
