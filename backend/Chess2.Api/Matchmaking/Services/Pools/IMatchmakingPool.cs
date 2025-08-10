@@ -5,7 +5,7 @@ namespace Chess2.Api.Matchmaking.Services.Pools;
 public interface IMatchmakingPool
 {
     int SeekerCount { get; }
-    IEnumerable<string> Seekers { get; }
+    IEnumerable<Seeker> Seekers { get; }
 
     bool TryAddSeek(Seeker seeker);
     bool RemoveSeek(string userId);

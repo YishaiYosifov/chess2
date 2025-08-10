@@ -1,9 +1,14 @@
-﻿namespace Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.Users.Models;
+
+namespace Chess2.Api.Matchmaking.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.Seeker")]
-public record Seeker(string UserId, string UserName, HashSet<string> BlockedUserIds)
+public record Seeker(UserId UserId, string UserName, HashSet<string> BlockedUserIds)
 {
+    [Id(0)]
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+
     public virtual bool IsCompatibleWith(Seeker other) => IsBlockStatusCompatibleWith(other);
 
     public bool IsBlockStatusCompatibleWith(Seeker other) => !BlockedUserIds.Contains(other.UserId);
@@ -12,7 +17,7 @@ public record Seeker(string UserId, string UserName, HashSet<string> BlockedUser
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.RatedSeeker")]
 public record RatedSeeker(
-    string UserId,
+    UserId UserId,
     string UserName,
     HashSet<string> BlockedUserIds,
     SeekerRating Rating

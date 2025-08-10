@@ -8,7 +8,7 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
 {
     private readonly Dictionary<string, Seeker> _seekers = [];
 
-    public IEnumerable<string> Seekers => _seekers.Keys;
+    public IEnumerable<Seeker> Seekers => _seekers.Values;
     public int SeekerCount => _seekers.Count;
 
     public bool TryAddSeek(Seeker seeker) => _seekers.TryAdd(seeker.UserId, seeker);
