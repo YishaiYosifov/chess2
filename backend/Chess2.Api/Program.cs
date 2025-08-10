@@ -299,8 +299,8 @@ builder.Host.UseOrleans(siloBuilder =>
 #region Matchmaking
 builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
-builder.Services.AddScoped<IMatchmakingService, MatchmakingService>();
 builder.Services.AddSingleton<IMatchmakingNotifier, MatchmakingNotifier>();
+builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();
 #endregion
 
 #region Game

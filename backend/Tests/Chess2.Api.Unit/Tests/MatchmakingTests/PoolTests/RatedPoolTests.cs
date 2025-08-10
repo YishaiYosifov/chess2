@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Users.Models;
 using FluentAssertions;
 
@@ -16,7 +17,8 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
             userId,
             userId,
             BlockedUserIds: [],
-            Rating: new SeekerRating(rating, AllowedMatchRatingDifference)
+            Rating: new SeekerRating(rating, AllowedMatchRatingDifference),
+            CreatedAt: DateTime.UtcNow
         );
         Pool.TryAddSeek(seeker);
         return seeker;
@@ -47,18 +49,10 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     [Fact]
     public void CalculateMatches_respects_block_lists()
     {
-        RatedSeeker blocked = new(
-            "user1",
-            "user1",
-            ["user2"],
-            new SeekerRating(1200, AllowedMatchRatingDifference)
-        );
-        RatedSeeker normal = new(
-            "user2",
-            "user2",
-            [],
-            new SeekerRating(1200, AllowedMatchRatingDifference)
-        );
+        RatedSeeker blocked = new RatedSeekerFaker(1200).Generate();
+        RatedSeeker normal = new RatedSeekerFaker(1200)
+            .RuleFor(x => x.BlockedUserIds, [blocked.UserId])
+            .Generate();
         Pool.TryAddSeek(blocked);
         Pool.TryAddSeek(normal);
 
