@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.Users.Models;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.PoolTests;
@@ -9,7 +10,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     private const int AllowedMatchRatingDifference = 300;
     protected override RatedMatchmakingPool Pool { get; } = new();
 
-    private void AddSeeker(string userId, int rating)
+    private RatedSeeker AddSeeker(string userId, int rating)
     {
         RatedSeeker seeker = new(
             userId,
@@ -18,21 +19,20 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
             Rating: new SeekerRating(rating, AllowedMatchRatingDifference)
         );
         Pool.TryAddSeek(seeker);
+        return seeker;
     }
 
-    protected override void AddSeek(string userId) => AddSeeker(userId, 1200);
+    protected override Seeker AddSeek(string userId) => AddSeeker(userId, 1200);
 
     [Fact]
     public void CalculateMatches_matches_compatible_seekers_within_range()
     {
-        AddSeeker("user1", 1200);
-        AddSeeker("user2", 1200 + AllowedMatchRatingDifference - 1);
+        var seeker1 = AddSeeker("user1", 1200);
+        var seeker2 = AddSeeker("user2", 1200 + AllowedMatchRatingDifference - 1);
 
         var matches = Pool.CalculateMatches();
 
-        matches.Should().ContainSingle();
-        var (a, b) = matches.Single();
-        (a.UserId, b.UserId).Should().BeEquivalentTo(("user1", "user2"));
+        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker2));
     }
 
     [Fact]
@@ -106,7 +106,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         var usersMatched = matches
             .SelectMany(m => new[] { m.seeker1.UserId, m.seeker2.UserId })
             .ToList();
-        usersMatched.Should().BeEquivalentTo("user1", "user2", "user3", "user4");
+        usersMatched.Should().BeEquivalentTo<UserId>(["user1", "user2", "user3", "user4"]);
     }
 
     [Fact]
@@ -114,11 +114,11 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     {
         AddSeeker("user1", 1200);
         AddSeeker("user2", 1200);
-        AddSeeker("user3", 1300);
+        var seekerLeft = AddSeeker("user3", 1300);
 
         Pool.CalculateMatches();
 
-        Pool.Seekers.Should().ContainSingle().Which.Should().Be("user3");
+        Pool.Seekers.Should().ContainSingle().Which.Should().Be(seekerLeft);
     }
 
     [Fact]
