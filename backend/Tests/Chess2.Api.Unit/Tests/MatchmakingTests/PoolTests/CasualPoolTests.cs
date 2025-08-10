@@ -61,15 +61,15 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_does_not_match_if_seekers_are_blocked()
     {
-        Seeker user1 = new("user1", "User1", ["user2"]);
-        Seeker user2 = new("user2", "User2", []);
-        Pool.TryAddSeek(user1);
-        Pool.TryAddSeek(user2);
+        Seeker seeker1 = new("user1", "User1", ["user2"]);
+        Seeker seeker2 = new("user2", "User2", []);
+        Pool.TryAddSeek(seeker1);
+        Pool.TryAddSeek(seeker2);
 
         var matches = Pool.CalculateMatches();
 
         matches.Should().BeEmpty();
-        Pool.Seekers.Should().Contain(["user1", "user2"]);
+        Pool.Seekers.Should().Contain([seeker1, seeker2]);
     }
 
     [Fact]

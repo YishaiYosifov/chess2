@@ -1,8 +1,8 @@
 ﻿namespace Chess2.Api.Infrastructure;
 
-public static class ActorSystemConstants
+public static class Streaming
 {
-    public const string BackendRole = "backend";
+    public const string StreamProvider = "InMemoryProvider";
 }
 
 public static class AuthPolicies

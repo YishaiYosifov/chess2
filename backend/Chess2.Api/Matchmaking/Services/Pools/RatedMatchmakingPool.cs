@@ -14,7 +14,6 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
 {
     private readonly Dictionary<string, RatedPoolMember> _seekers = [];
 
-    public IEnumerable<string> Seekers => _seekers.Keys;
     public IEnumerable<Seeker> Seekers => _seekers.Values.Select(x => x.Seek);
     public int SeekerCount => _seekers.Count;
 
@@ -96,7 +95,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
                 continue;
             }
 
-            if (bestScore > scoreValue)
+            if (scoreValue < bestScore)
             {
                 bestMatch = candidate;
                 bestScore = scoreValue;

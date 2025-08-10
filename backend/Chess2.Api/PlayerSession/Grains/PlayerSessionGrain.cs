@@ -1,16 +1,19 @@
-﻿using Chess2.Api.Matchmaking.Grains;
+﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
+using Orleans.Streams;
 
 namespace Chess2.Api.PlayerSession.Grains;
 
 [Alias("Chess2.Api.PlayerSession.Grains.IPlayerSessionGrain")]
-public interface IPlayerSessionGrain : IGrainWithStringKey, IMatchObserver
+public interface IPlayerSessionGrain : IGrainWithStringKey
 {
     [Alias("CreateSeekAsync")]
-    Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey poolKey);
+    Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool);
 
     [Alias("CancelSeekAsync")]
     Task CancelSeekAsync(ConnectionId connectionId);
@@ -19,15 +22,24 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, IMatchObserver
     Task GameEndedAsync(string gameToken);
 }
 
+public class SeekNotificationSession
+{
+    public required HashSet<ConnectionId> TargetConnections { get; init; }
+    public required StreamSubscriptionHandle<SeekMatchedEvent> SeekSubscription { get; init; }
+}
+
 public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 {
     private readonly UserId _userId;
     private readonly Dictionary<ConnectionId, PoolKey> _connectionToPool = [];
-    private readonly Dictionary<PoolKey, HashSet<ConnectionId>> _poolToConnections = [];
+    private readonly Dictionary<PoolKey, SeekNotificationSession> _seekSessions = [];
     private readonly HashSet<string> _activeGameTokens = [];
+
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly IGrainFactory _grains;
     private readonly IMatchmakingNotifier _matchmakingNotifier;
+
+    private IStreamProvider _streamProvider = null!;
 
     public PlayerSessionGrain(
         ILogger<PlayerSessionGrain> logger,
@@ -42,96 +54,112 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         _matchmakingNotifier = matchmakingNotifier;
     }
 
-    public async Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey poolKey)
+    public async Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool)
     {
-        await CancelSeekIfExists(connectionId);
+        DelayDeactivation(TimeSpan.FromMinutes(5));
 
-        var matchmakingGrain = ResolvePoolGrain(poolKey);
-        var isSeekSuccess = await matchmakingGrain.TryCreateSeekAsync(seeker, this);
+        await CancelSeekIfExistsAsync(connectionId);
+        if (_seekSessions.TryGetValue(pool, out var existingSeekSession))
+        {
+            _connectionToPool.TryAdd(connectionId, pool);
+            existingSeekSession.TargetConnections.Add(connectionId);
+            return;
+        }
+
+        var matchmakingGrain = ResolvePoolGrain(pool);
+        var isSeekSuccess = await matchmakingGrain.TryCreateSeekAsync(seeker);
         if (!isSeekSuccess)
             return;
 
-        _connectionToPool.Add(connectionId, poolKey);
-
-        var connections = _poolToConnections.GetValueOrDefault(poolKey, []);
-        connections.Add(connectionId);
-        _poolToConnections[poolKey] = connections;
-    }
-
-    public Task CancelSeekAsync(ConnectionId connectionId) => CancelSeekIfExists(connectionId);
-
-    public async Task MatchFoundAsync(string gameToken, PoolKey poolKey)
-    {
-        _activeGameTokens.Add(gameToken);
-
-        var connectionIds = _poolToConnections.GetValueOrDefault(poolKey, []);
-        await Task.WhenAll(
-            connectionIds.Select(connId =>
-                _matchmakingNotifier.NotifyGameFoundAsync(connId, gameToken)
-            )
+        var stream = _streamProvider.GetStream<SeekMatchedEvent>(
+            MatchmakingStreamConstants.SeekMatchedStream,
+            MatchmakingStreamKey.MatchedStream(_userId, pool)
         );
-        RemovePoolMapping(poolKey);
+        var subscription = await stream.SubscribeAsync(
+            (@event, token) => MatchFoundAsync(@event.GameToken, pool)
+        );
+        _connectionToPool.TryAdd(connectionId, pool);
+
+        SeekNotificationSession seekSession = new()
+        {
+            TargetConnections = [connectionId],
+            SeekSubscription = subscription,
+        };
+        _seekSessions.TryAdd(pool, seekSession);
     }
+
+    public Task CancelSeekAsync(ConnectionId connectionId) => CancelSeekIfExistsAsync(connectionId);
 
     public Task GameEndedAsync(string gameToken) =>
         Task.FromResult(_activeGameTokens.Remove(gameToken));
 
-    private Task KeepSessionAliveAsync()
+    private async Task MatchFoundAsync(string gameToken, PoolKey pool)
     {
-        if (
-            _activeGameTokens.Count != 0
-            || _connectionToPool.Count != 0
-            || _poolToConnections.Count != 0
-        )
-            DelayDeactivation(TimeSpan.FromMinutes(2));
-        return Task.CompletedTask;
+        _activeGameTokens.Add(gameToken);
+        await Task.CompletedTask;
+
+        if (!_seekSessions.TryGetValue(pool, out var seekSession))
+            return;
+
+        await Task.WhenAll(
+            seekSession.TargetConnections.Select(connId =>
+                _matchmakingNotifier.NotifyGameFoundAsync(connId, gameToken)
+            )
+        );
+        await RemovePoolMappingAsync(pool);
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
-        this.RegisterGrainTimer(
-            callback: KeepSessionAliveAsync,
-            dueTime: TimeSpan.Zero,
-            period: TimeSpan.FromMinutes(1)
-        );
-
+        _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         return base.OnActivateAsync(cancellationToken);
     }
 
-    private async Task CancelSeekIfExists(ConnectionId connectionId)
+    public override async Task OnDeactivateAsync(
+        DeactivationReason reason,
+        CancellationToken cancellationToken
+    )
     {
-        if (!_connectionToPool.TryGetValue(connectionId, out var poolKey))
+        await Task.WhenAll(
+            _seekSessions.Values.Select(session => session.SeekSubscription.UnsubscribeAsync())
+        );
+        await base.OnDeactivateAsync(reason, cancellationToken);
+    }
+
+    private async Task CancelSeekIfExistsAsync(ConnectionId connectionId)
+    {
+        if (!_connectionToPool.TryGetValue(connectionId, out var pool))
             return;
 
-        var poolGrain = ResolvePoolGrain(poolKey);
+        var poolGrain = ResolvePoolGrain(pool);
         await poolGrain.TryCancelSeekAsync(_userId);
 
-        RemoveConnectionMapping(connectionId);
+        if (_seekSessions.TryGetValue(pool, out var seekSession))
+        {
+            await Task.WhenAll(
+                seekSession.TargetConnections.Select(notifyConnId =>
+                {
+                    if (notifyConnId != connectionId)
+                        return _matchmakingNotifier.NotifyMatchFailedAsync(notifyConnId);
+                    return Task.CompletedTask;
+                })
+            );
+        }
+
+        await RemovePoolMappingAsync(pool);
     }
 
-    private void RemoveConnectionMapping(ConnectionId connectionId)
+    private async Task RemovePoolMappingAsync(PoolKey pool)
     {
-        if (!_connectionToPool.TryGetValue(connectionId, out var poolKey))
+        if (!_seekSessions.TryGetValue(pool, out var seekSession))
             return;
 
-        _connectionToPool.Remove(connectionId);
-        var poolConnections = _poolToConnections.GetValueOrDefault(poolKey, []);
-        poolConnections.Remove(connectionId);
-        if (poolConnections.Count == 0)
-            _poolToConnections.Remove(poolKey);
-        else
-            _poolToConnections[poolKey] = poolConnections;
-    }
-
-    private void RemovePoolMapping(PoolKey poolKey)
-    {
-        var connectionIds = _poolToConnections.GetValueOrDefault(poolKey, []);
-
-        foreach (var connectionId in connectionIds)
+        foreach (var connectionId in seekSession.TargetConnections)
         {
             _connectionToPool.Remove(connectionId);
         }
-        _poolToConnections.Remove(poolKey);
+        await seekSession.SeekSubscription.UnsubscribeAsync();
+        _seekSessions.Remove(pool);
     }
 
     private IMatchmakingGrain ResolvePoolGrain(PoolKey poolKey)
