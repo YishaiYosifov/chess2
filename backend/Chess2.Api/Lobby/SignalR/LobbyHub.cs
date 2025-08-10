@@ -2,7 +2,9 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.PlayerSession.Grains;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 
@@ -17,12 +19,14 @@ public interface IMatchmakingHubClient : IChess2HubClient
 [Authorize(AuthPolicies.AuthedSesssion)]
 public class LobbyHub(
     ILogger<LobbyHub> logger,
-    IMatchmakingService matchmakingService,
+    ISeekerCreator seekerCreator,
+    IGrainFactory grains,
     IAuthService authService
 ) : Chess2Hub<IMatchmakingHubClient>
 {
-    private readonly IMatchmakingService _matchmakingService = matchmakingService;
     private readonly ILogger<LobbyHub> _logger = logger;
+    private readonly ISeekerCreator _seekerCreator = seekerCreator;
+    private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)
@@ -33,10 +37,13 @@ public class LobbyHub(
             await HandleErrors(userResult.Errors);
             return;
         }
-        var user = userResult.Value;
 
+        var user = userResult.Value;
         _logger.LogInformation("User {UserId} seeking rated match", user.Id);
-        await _matchmakingService.SeekRatedAsync(user, Context.ConnectionId, timeControl);
+
+        var seeker = await _seekerCreator.RatedSeekerAsync(user, timeControl);
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
+        await grain.CreateSeekAsync(Context.ConnectionId, seeker, new(PoolType.Rated, timeControl));
     }
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
@@ -51,7 +58,16 @@ public class LobbyHub(
         var user = userResult.IsError ? null : userResult.Value;
 
         _logger.LogInformation("User {UserId} seeking casual match", userId);
-        await _matchmakingService.SeekCasualAsync(userId, Context.ConnectionId, user, timeControl);
+
+        var seeker = user is null
+            ? _seekerCreator.CasualSeeker(userId)
+            : _seekerCreator.CasualSeeker(user);
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        await grain.CreateSeekAsync(
+            Context.ConnectionId,
+            seeker,
+            new(PoolType.Casual, timeControl)
+        );
     }
 
     public async Task CancelSeekAsync()
@@ -63,7 +79,8 @@ public class LobbyHub(
         }
 
         _logger.LogInformation("User {UserId} cancelled their seek", userId);
-        await _matchmakingService.CancelSeekAsync(userId, Context.ConnectionId);
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        await grain.CancelSeekAsync(Context.ConnectionId);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -83,7 +100,8 @@ public class LobbyHub(
                 userId,
                 Context.ConnectionId
             );
-            await _matchmakingService.CancelSeekAsync(userId, Context.ConnectionId);
+            var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+            await grain.CancelSeekAsync(Context.ConnectionId);
         }
         finally
         {
