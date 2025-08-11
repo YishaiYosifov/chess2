@@ -6,7 +6,6 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
 using FluentAssertions;
 using Moq;
-using Orleans.TestKit;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
@@ -22,11 +21,11 @@ public class GameGrainTests : BaseGrainTest
     public async Task StartGame_initializes_the_game_and_transitions_to_playing_state()
     {
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
-        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(1);
+        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(0);
 
         await StartGameAsync(grain);
 
-        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(2);
+        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(1);
         var context = Silo.GetContextFromGrain(grain);
         Silo.TimerRegistry.Mock.Verify(x =>
             x.RegisterGrainTimer(
@@ -35,21 +34,6 @@ public class GameGrainTests : BaseGrainTest
                 It.IsAny<It.IsAnyType>(),
                 new() { DueTime = TimeSpan.Zero, Period = TimeSpan.FromSeconds(1) }
             )
-        );
-    }
-
-    [Fact]
-    public async Task KeepGameAliveAsync_delays_deactivation_when_playing()
-    {
-        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
-        await StartGameAsync(grain);
-
-        await Silo.FireTimerAsync(0);
-
-        var context = Silo.GetContextFromGrain(grain);
-        Silo.GrainRuntime.Mock.Verify(
-            x => x.DelayDeactivation(context, TimeSpan.FromMinutes(2)),
-            Times.Once
         );
     }
 

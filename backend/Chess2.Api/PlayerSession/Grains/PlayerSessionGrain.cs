@@ -69,7 +69,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         }
 
         var seekStream = _streamProvider.GetStream<SeekEndedEvent>(
-            MatchmakingStreamConstants.InvalidatedStream,
+            MatchmakingStreamConstants.EndedStream,
             MatchmakingStreamKey.SeekStream(_userId, pool)
         );
         SeekNotificationSession seekSession = new()
