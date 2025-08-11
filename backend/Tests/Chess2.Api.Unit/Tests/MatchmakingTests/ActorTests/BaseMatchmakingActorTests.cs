@@ -22,9 +22,10 @@ public class TestMatchmakingGrain(
     ILogger<TestMatchmakingGrain> logger,
     IGameStarter gameStarter,
     IOptions<AppSettings> settings,
+    TimeProvider timeProvider,
     IMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<IMatchmakingPool>(logger, gameStarter, settings, pool),
+    : AbstractMatchmakingGrain<IMatchmakingPool>(logger, gameStarter, settings, timeProvider, pool),
         IRatedMatchmakingGrain;
 
 public class AbstractMatchmakingGrainTests : BaseGrainTest
@@ -47,10 +48,10 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         Silo.ServiceProvider.AddService(_poolMock);
     }
 
-    private TestStream<SeekMatchedEvent> ProbeMatchedStream(UserId userId) =>
-        Silo.AddStreamProbe<SeekMatchedEvent>(
+    private TestStream<SeekEndedEvent> ProbeSeekEndedStream(UserId userId) =>
+        Silo.AddStreamProbe<SeekEndedEvent>(
             MatchmakingStreamKey.SeekStream(userId, _testPoolKey),
-            MatchmakingStreamConstants.MatchedStream,
+            MatchmakingStreamConstants.EndedStream,
             Streaming.StreamProvider
         );
 
@@ -62,51 +63,41 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         var seeker = new SeekerFaker().Generate();
         var grain = await CreateGrainAsync();
-        _poolMock.AddSeek(seeker).Returns(true);
 
-        var result = await grain.AddSeekAsync(seeker);
+        await grain.AddSeekAsync(seeker);
 
-        result.Should().BeTrue();
         _poolMock.Received(1).AddSeek(seeker);
     }
 
     [Fact]
-    public async Task TryCreateSeekAsync_returns_false_when_pool_rejects()
+    public async Task TryCancelSeekAsync_removes_seek_and_notifies_when_seek_exists()
     {
-        var grain = await CreateGrainAsync();
-        var seeker = new SeekerFaker().Generate();
-        _poolMock.AddSeek(seeker).Returns(false);
-
-        var result = await grain.AddSeekAsync(seeker);
-
-        result.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task TryCancelSeekAsync_removes_seek_when_seek_exists()
-    {
-        var grain = await CreateGrainAsync();
-
         UserId userId = "user1";
+        var stream = ProbeSeekEndedStream(userId);
+        var grain = await CreateGrainAsync();
+
         _poolMock.RemoveSeek(userId).Returns(true);
 
         var result = await grain.TryCancelSeekAsync(userId);
 
         result.Should().BeTrue();
         _poolMock.Received(1).RemoveSeek(userId);
+        stream.VerifySend(e => e.GameToken == null);
     }
 
     [Fact]
     public async Task TryCancelSeekAsync_returns_false_when_no_seek_exists()
     {
+        UserId userId = "user1";
+        var stream = ProbeSeekEndedStream(userId);
         var grain = await CreateGrainAsync();
 
-        UserId userId = "user1";
         _poolMock.RemoveSeek(userId).Returns(false);
 
         var result = await grain.TryCancelSeekAsync(userId);
 
         result.Should().BeFalse();
+        stream.Sends.Should().Be(0);
     }
 
     [Fact]
@@ -114,11 +105,10 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         var seeker1 = new SeekerFaker().Generate();
         var seeker2 = new RatedSeekerFaker().Generate();
-        var seeker1Stream = ProbeMatchedStream(seeker1.UserId);
-        var seeker2Stream = ProbeMatchedStream(seeker2.UserId);
+        var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
+        var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
 
         _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
-        _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker1);
@@ -145,11 +135,10 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         var seeker1 = new RatedSeekerFaker().Generate();
         var seeker2 = new RatedSeekerFaker().Generate();
-        var seeker1Stream = ProbeMatchedStream(seeker1.UserId);
-        var seeker2Stream = ProbeMatchedStream(seeker2.UserId);
+        var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
+        var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
 
         _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
-        _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker1);

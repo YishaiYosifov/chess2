@@ -135,7 +135,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private Task NotifySeekEnded(UserId userId, string? gameToken = null) =>
         _streamProvider
             .GetStream<SeekEndedEvent>(
-                MatchmakingStreamConstants.InvalidatedStream,
+                MatchmakingStreamConstants.EndedStream,
                 MatchmakingStreamKey.SeekStream(userId, _key)
             )
             .OnNextAsync(new(gameToken));
