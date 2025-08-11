@@ -16,8 +16,7 @@ namespace Chess2.Api.Unit.Tests.PlayerTests;
 
 public class PlayerSessionGrainTests : BaseGrainTest
 {
-    private readonly IMatchmakingNotifier _matchmakingNotifierMock =
-        Substitute.For<IMatchmakingNotifier>();
+    private readonly ILobbyNotifier _matchmakingNotifierMock = Substitute.For<ILobbyNotifier>();
 
     private readonly IRatedMatchmakingGrain _ratedPoolGrainMock =
         Substitute.For<IRatedMatchmakingGrain>();

@@ -5,22 +5,21 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 
-public class MatchmakingNotifierTests
+public class LobbyNotifierTests
 {
     private const string ConnectionId = "testconn";
 
-    private readonly IHubContext<LobbyHub, IMatchmakingHubClient> _hubContextMock = Substitute.For<
-        IHubContext<LobbyHub, IMatchmakingHubClient>
+    private readonly IHubContext<LobbyHub, ILobbyHubClient> _hubContextMock = Substitute.For<
+        IHubContext<LobbyHub, ILobbyHubClient>
     >();
-    private readonly IHubClients<IMatchmakingHubClient> _clientsMock = Substitute.For<
-        IHubClients<IMatchmakingHubClient>
+    private readonly IHubClients<ILobbyHubClient> _clientsMock = Substitute.For<
+        IHubClients<ILobbyHubClient>
     >();
-    private readonly IMatchmakingHubClient _clientProxyMock =
-        Substitute.For<IMatchmakingHubClient>();
+    private readonly ILobbyHubClient _clientProxyMock = Substitute.For<ILobbyHubClient>();
 
-    private readonly MatchmakingNotifier _notifier;
+    private readonly LobbyNotifier _notifier;
 
-    public MatchmakingNotifierTests()
+    public LobbyNotifierTests()
     {
         _clientsMock.Client(ConnectionId).Returns(_clientProxyMock);
         _hubContextMock.Clients.Returns(_clientsMock);

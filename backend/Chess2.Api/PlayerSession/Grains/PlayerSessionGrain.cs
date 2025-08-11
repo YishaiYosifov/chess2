@@ -37,14 +37,14 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly IGrainFactory _grains;
-    private readonly IMatchmakingNotifier _matchmakingNotifier;
+    private readonly ILobbyNotifier _matchmakingNotifier;
 
     private IStreamProvider _streamProvider = null!;
 
     public PlayerSessionGrain(
         ILogger<PlayerSessionGrain> logger,
         IGrainFactory grains,
-        IMatchmakingNotifier matchmakingNotifier
+        ILobbyNotifier matchmakingNotifier
     )
     {
         _userId = this.GetPrimaryKeyString();
