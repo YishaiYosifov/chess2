@@ -2,7 +2,7 @@
 
 public static class MatchmakingStreamConstants
 {
-    public const string SeekCreationBoardcastStream = "SeekCreation";
+    public const string OpenSeekBoardcastStream = "SeekCreation";
 
     public const string EndedStream = "SeekEnded";
 }

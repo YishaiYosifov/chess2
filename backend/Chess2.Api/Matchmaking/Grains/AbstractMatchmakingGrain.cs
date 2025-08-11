@@ -39,7 +39,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private readonly TimeProvider _timeProvider;
 
     private IStreamProvider _streamProvider = null!;
-    private IAsyncStream<SeekCreatedBroadcastEvent> _seekCreationStream = null!;
+    private IAsyncStream<OpenSeekBroadcastEvent> _seekCreationStream = null!;
 
     public AbstractMatchmakingGrain(
         ILogger<AbstractMatchmakingGrain<TPool>> logger,
@@ -156,8 +156,8 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         );
 
         _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        _seekCreationStream = _streamProvider.GetStream<SeekCreatedBroadcastEvent>(
-            MatchmakingStreamConstants.SeekCreationBoardcastStream
+        _seekCreationStream = _streamProvider.GetStream<OpenSeekBroadcastEvent>(
+            MatchmakingStreamConstants.OpenSeekBoardcastStream
         );
 
         return base.OnActivateAsync(cancellationToken);
