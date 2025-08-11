@@ -49,8 +49,8 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     [Fact]
     public void CalculateMatches_respects_block_lists()
     {
-        RatedSeeker blocked = new RatedSeekerFaker(1200).Generate();
-        RatedSeeker normal = new RatedSeekerFaker(1200)
+        RatedSeeker blocked = new RatedSeekerFaker(rating: 1200).Generate();
+        RatedSeeker normal = new RatedSeekerFaker(rating: 1200)
             .RuleFor(x => x.BlockedUserIds, [blocked.UserId])
             .Generate();
         Pool.AddSeek(blocked);

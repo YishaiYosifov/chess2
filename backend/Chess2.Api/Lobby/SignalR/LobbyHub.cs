@@ -43,7 +43,13 @@ public class LobbyHub(
 
         var seeker = await _seekerCreator.RatedSeekerAsync(user, timeControl);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
-        await grain.CreateSeekAsync(Context.ConnectionId, seeker, new(PoolType.Rated, timeControl));
+        var result = await grain.CreateSeekAsync(
+            Context.ConnectionId,
+            seeker,
+            new(PoolType.Rated, timeControl)
+        );
+        if (result.IsError)
+            await HandleErrors(result.Errors);
     }
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
@@ -63,11 +69,13 @@ public class LobbyHub(
             ? _seekerCreator.CasualSeeker(userId)
             : _seekerCreator.CasualSeeker(user);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-        await grain.CreateSeekAsync(
+        var result = await grain.CreateSeekAsync(
             Context.ConnectionId,
             seeker,
             new(PoolType.Casual, timeControl)
         );
+        if (result.IsError)
+            await HandleErrors(result.Errors);
     }
 
     public async Task CancelSeekAsync()

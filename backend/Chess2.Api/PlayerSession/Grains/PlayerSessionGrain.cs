@@ -3,8 +3,11 @@ using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Stream;
+using Chess2.Api.PlayerSession.Errors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
+using ErrorOr;
+using Microsoft.Extensions.Options;
 using Orleans.Streams;
 
 namespace Chess2.Api.PlayerSession.Grains;
@@ -13,7 +16,7 @@ namespace Chess2.Api.PlayerSession.Grains;
 public interface IPlayerSessionGrain : IGrainWithStringKey
 {
     [Alias("CreateSeekAsync")]
-    Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool);
+    Task<ErrorOr<Created>> CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool);
 
     [Alias("CancelSeekAsync")]
     Task CancelSeekAsync(ConnectionId connectionId);
@@ -38,13 +41,15 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly IGrainFactory _grains;
     private readonly ILobbyNotifier _matchmakingNotifier;
+    private readonly GameSettings _settings;
 
     private IStreamProvider _streamProvider = null!;
 
     public PlayerSessionGrain(
         ILogger<PlayerSessionGrain> logger,
         IGrainFactory grains,
-        ILobbyNotifier matchmakingNotifier
+        ILobbyNotifier matchmakingNotifier,
+        IOptions<AppSettings> settings
     )
     {
         _userId = this.GetPrimaryKeyString();
@@ -52,11 +57,23 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         _logger = logger;
         _grains = grains;
         _matchmakingNotifier = matchmakingNotifier;
+        _settings = settings.Value.Game;
     }
 
-    public async Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool)
+    public async Task<ErrorOr<Created>> CreateSeekAsync(
+        ConnectionId connectionId,
+        Seeker seeker,
+        PoolKey pool
+    )
     {
-        await CancelSeekIfExistsAsync(connectionId);
+        if (
+            _connectionToPool.TryGetValue(connectionId, out var existingPool)
+            && existingPool != pool
+        )
+            return PlayerSessionErrors.ConnectionAlreadySeeking;
+
+        if (HasReachedGameLimit())
+            return PlayerSessionErrors.TooManyGames;
 
         var matchmakingGrain = ResolvePoolGrain(pool);
         await matchmakingGrain.AddSeekAsync(seeker);
@@ -65,7 +82,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         if (_seekSessions.TryGetValue(pool, out var existingSeekSession))
         {
             existingSeekSession.TargetConnections.Add(connectionId);
-            return;
+            return Result.Created;
         }
 
         var seekStream = _streamProvider.GetStream<SeekEndedEvent>(
@@ -80,6 +97,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             ),
         };
         _seekSessions.TryAdd(pool, seekSession);
+        return Result.Created;
     }
 
     public Task CancelSeekAsync(ConnectionId connectionId) => CancelSeekIfExistsAsync(connectionId);
@@ -132,6 +150,9 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         var poolGrain = ResolvePoolGrain(pool);
         await poolGrain.TryCancelSeekAsync(_userId);
     }
+
+    private bool HasReachedGameLimit() =>
+        _connectionToPool.Count + _activeGameTokens.Count >= _settings.MaxActiveGames;
 
     private IMatchmakingGrain ResolvePoolGrain(PoolKey poolKey)
     {

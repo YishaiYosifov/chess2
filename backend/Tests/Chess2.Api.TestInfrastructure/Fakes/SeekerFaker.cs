@@ -5,10 +5,10 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class SeekerFaker : RecordFaker<Seeker>
 {
-    public SeekerFaker()
+    public SeekerFaker(UserId? userId = null)
     {
         StrictMode(true);
-        RuleFor(x => x.UserId, f => new UserId(f.Random.Guid().ToString()));
+        RuleFor(x => x.UserId, f => userId ?? new UserId(f.Random.Guid().ToString()));
         RuleFor(x => x.UserName, f => f.Internet.UserName());
         RuleFor(x => x.BlockedUserIds, []);
         RuleFor(x => x.CreatedAt, f => DateTime.UtcNow);
