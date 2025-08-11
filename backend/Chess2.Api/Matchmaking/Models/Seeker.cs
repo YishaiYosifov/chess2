@@ -8,7 +8,7 @@ public record Seeker(
     UserId UserId,
     string UserName,
     HashSet<string> BlockedUserIds,
-    DateTime CreatedAt
+    DateTimeOffset CreatedAt
 )
 {
     public virtual bool IsCompatibleWith(Seeker other) => IsBlockStatusCompatibleWith(other);
@@ -23,7 +23,7 @@ public record RatedSeeker(
     string UserName,
     HashSet<string> BlockedUserIds,
     SeekerRating Rating,
-    DateTime CreatedAt
+    DateTimeOffset CreatedAt
 ) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt)
 {
     public override bool IsCompatibleWith(Seeker other) =>

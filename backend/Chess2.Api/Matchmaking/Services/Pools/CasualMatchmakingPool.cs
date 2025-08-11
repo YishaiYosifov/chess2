@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Users.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
@@ -11,11 +12,11 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
     public IEnumerable<Seeker> Seekers => _seekers.Values;
     public int SeekerCount => _seekers.Count;
 
-    public bool TryAddSeek(Seeker seeker) => _seekers.TryAdd(seeker.UserId, seeker);
+    public bool AddSeek(Seeker seeker) => _seekers.TryAdd(seeker.UserId, seeker);
 
-    public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
+    public bool HasSeek(UserId userId) => _seekers.ContainsKey(userId);
 
-    public bool RemoveSeek(string userId) => _seekers.Remove(userId);
+    public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
 
     public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {

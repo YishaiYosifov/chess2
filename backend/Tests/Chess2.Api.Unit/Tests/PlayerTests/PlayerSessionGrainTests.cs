@@ -37,8 +37,8 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
     private TestStream<SeekMatchedEvent> ProbeMatchedStream(PoolKey pool) =>
         Silo.AddStreamProbe<SeekMatchedEvent>(
-            MatchmakingStreamKey.MatchedStream(UserId, pool),
-            MatchmakingStreamConstants.SeekMatchedStream,
+            MatchmakingStreamKey.SeekStream(UserId, pool),
+            MatchmakingStreamConstants.MatchedStream,
             Streaming.StreamProvider
         );
 
