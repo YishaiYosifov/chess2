@@ -62,7 +62,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     public void CalculateMatches_does_not_match_if_seekers_are_blocked()
     {
         var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]);
+        var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]).Generate();
         Pool.TryAddSeek(seeker1);
         Pool.TryAddSeek(seeker2);
 
