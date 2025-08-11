@@ -3,16 +3,15 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Matchmaking.Services;
 
-public interface IMatchmakingNotifier
+public interface ILobbyNotifier
 {
     Task NotifyGameFoundAsync(string connectionId, string gameToken);
     Task NotifyMatchFailedAsync(string connectionId);
 }
 
-public class MatchmakingNotifier(IHubContext<LobbyHub, IMatchmakingHubClient> hub)
-    : IMatchmakingNotifier
+public class LobbyNotifier(IHubContext<LobbyHub, ILobbyHubClient> hub) : ILobbyNotifier
 {
-    private readonly IHubContext<LobbyHub, IMatchmakingHubClient> _hub = hub;
+    private readonly IHubContext<LobbyHub, ILobbyHubClient> _hub = hub;
 
     public Task NotifyGameFoundAsync(string connectionId, string gameToken) =>
         _hub.Clients.Client(connectionId).MatchFoundAsync(gameToken);
