@@ -17,7 +17,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
             BlockedUserIds: [],
             CreatedAt: DateTime.UtcNow
         );
-        Pool.TryAddSeek(seeker);
+        Pool.AddSeek(seeker);
         return seeker;
     }
 
@@ -63,8 +63,8 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     {
         var seeker1 = new SeekerFaker().Generate();
         var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]).Generate();
-        Pool.TryAddSeek(seeker1);
-        Pool.TryAddSeek(seeker2);
+        Pool.AddSeek(seeker1);
+        Pool.AddSeek(seeker2);
 
         var matches = Pool.CalculateMatches();
 
@@ -79,9 +79,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
         var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]).Generate();
         var seeker3 = new SeekerFaker().Generate();
 
-        Pool.TryAddSeek(seeker1);
-        Pool.TryAddSeek(seeker2);
-        Pool.TryAddSeek(seeker3);
+        Pool.AddSeek(seeker1);
+        Pool.AddSeek(seeker2);
+        Pool.AddSeek(seeker3);
 
         var matches = Pool.CalculateMatches();
 

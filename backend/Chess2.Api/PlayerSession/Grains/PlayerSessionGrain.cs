@@ -58,19 +58,16 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public async Task CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool)
     {
         await CancelSeekIfExistsAsync(connectionId);
+
+        var matchmakingGrain = ResolvePoolGrain(pool);
+        await matchmakingGrain.AddSeekAsync(seeker);
+
+        _connectionToPool.TryAdd(connectionId, pool);
         if (_seekSessions.TryGetValue(pool, out var existingSeekSession))
         {
-            _connectionToPool.TryAdd(connectionId, pool);
             existingSeekSession.TargetConnections.Add(connectionId);
             return;
         }
-
-        var matchmakingGrain = ResolvePoolGrain(pool);
-        var isSeekSuccess = await matchmakingGrain.TryCreateSeekAsync(seeker);
-        if (!isSeekSuccess)
-            return;
-
-        _connectionToPool.TryAdd(connectionId, pool);
 
         var matchStream = _streamProvider.GetStream<SeekMatchedEvent>(
             MatchmakingStreamConstants.MatchedStream,
