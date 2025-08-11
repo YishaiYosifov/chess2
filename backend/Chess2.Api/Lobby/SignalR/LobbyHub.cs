@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Chess2.Api.Lobby.SignalR;
 
-public interface IMatchmakingHubClient : IChess2HubClient
+public interface ILobbyHubClient : IChess2HubClient
 {
     public Task MatchFoundAsync(string token);
     public Task MatchFailedAsync();
@@ -22,7 +22,7 @@ public class LobbyHub(
     ISeekerCreator seekerCreator,
     IGrainFactory grains,
     IAuthService authService
-) : Chess2Hub<IMatchmakingHubClient>
+) : Chess2Hub<ILobbyHubClient>
 {
     private readonly ILogger<LobbyHub> _logger = logger;
     private readonly ISeekerCreator _seekerCreator = seekerCreator;
