@@ -12,7 +12,14 @@ public class CasualMatchmakingGrain(
     ILogger<CasualMatchmakingGrain> logger,
     IGameStarter gameStarter,
     IOptions<AppSettings> settings,
+    TimeProvider timeProvider,
     ICasualMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<ICasualMatchmakingPool>(logger, gameStarter, settings, pool),
+    : AbstractMatchmakingGrain<ICasualMatchmakingPool>(
+        logger,
+        gameStarter,
+        settings,
+        timeProvider,
+        pool
+    ),
         ICasualMatchmakingGrain;

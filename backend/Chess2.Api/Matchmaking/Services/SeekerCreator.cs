@@ -42,7 +42,7 @@ public class SeekerCreator(
             UserName: user.UserName ?? "unknown",
             BlockedUserIds: [],
             Rating: new(Value: rating, AllowedRatingRange: _settings.AllowedMatchRatingDifference),
-            CreatedAt: _timeProvider.GetUtcNow().DateTime
+            CreatedAt: _timeProvider.GetUtcNow()
         );
     }
 
@@ -51,7 +51,7 @@ public class SeekerCreator(
             UserId: user.Id,
             UserName: user?.UserName ?? "unknown",
             BlockedUserIds: [],
-            CreatedAt: _timeProvider.GetUtcNow().DateTime
+            CreatedAt: _timeProvider.GetUtcNow()
         );
 
     public Seeker CasualSeeker(string userId) =>
@@ -59,6 +59,6 @@ public class SeekerCreator(
             UserId: userId,
             UserName: "Guest",
             BlockedUserIds: [],
-            CreatedAt: _timeProvider.GetUtcNow().DateTime
+            CreatedAt: _timeProvider.GetUtcNow()
         );
 }

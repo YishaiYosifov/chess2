@@ -49,8 +49,8 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
 
     private TestStream<SeekMatchedEvent> ProbeMatchedStream(UserId userId) =>
         Silo.AddStreamProbe<SeekMatchedEvent>(
-            MatchmakingStreamKey.MatchedStream(userId, _testPoolKey),
-            MatchmakingStreamConstants.SeekMatchedStream,
+            MatchmakingStreamKey.SeekStream(userId, _testPoolKey),
+            MatchmakingStreamConstants.MatchedStream,
             Streaming.StreamProvider
         );
 
@@ -62,12 +62,12 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         var seeker = new SeekerFaker().Generate();
         var grain = await CreateGrainAsync();
-        _poolMock.TryAddSeek(seeker).Returns(true);
+        _poolMock.AddSeek(seeker).Returns(true);
 
         var result = await grain.TryCreateSeekAsync(seeker);
 
         result.Should().BeTrue();
-        _poolMock.Received(1).TryAddSeek(seeker);
+        _poolMock.Received(1).AddSeek(seeker);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     {
         var grain = await CreateGrainAsync();
         var seeker = new SeekerFaker().Generate();
-        _poolMock.TryAddSeek(seeker).Returns(false);
+        _poolMock.AddSeek(seeker).Returns(false);
 
         var result = await grain.TryCreateSeekAsync(seeker);
 
@@ -118,7 +118,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         var seeker2Stream = ProbeMatchedStream(seeker2.UserId);
 
         _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
-        _poolMock.TryAddSeek(Arg.Any<Seeker>()).Returns(true);
+        _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
         await grain.TryCreateSeekAsync(seeker1);
@@ -149,7 +149,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         var seeker2Stream = ProbeMatchedStream(seeker2.UserId);
 
         _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
-        _poolMock.TryAddSeek(Arg.Any<Seeker>()).Returns(true);
+        _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
         await grain.TryCreateSeekAsync(seeker1);

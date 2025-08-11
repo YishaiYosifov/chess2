@@ -12,7 +12,14 @@ public class RatedMatchmakingGrain(
     ILogger<RatedMatchmakingGrain> logger,
     IGameStarter gameStarter,
     IOptions<AppSettings> settings,
+    TimeProvider timeProvider,
     IRatedMatchmakingPool pool
 )
-    : AbstractMatchmakingGrain<IRatedMatchmakingPool>(logger, gameStarter, settings, pool),
+    : AbstractMatchmakingGrain<IRatedMatchmakingPool>(
+        logger,
+        gameStarter,
+        settings,
+        timeProvider,
+        pool
+    ),
         IRatedMatchmakingGrain;

@@ -40,6 +40,7 @@ public interface IGameGrain : IGrainWithStringKey
     Task<ErrorOr<Success>> MovePieceAsync(UserId byUserId, MoveKey key);
 }
 
+[KeepAlive]
 public class GameGrain : Grain, IGameGrain, IGrainBase
 {
     public const string ClockTimerKey = "tickClock";
@@ -58,7 +59,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
     private readonly MoveHistoryTracker _historyTracker = new();
 
     private IGrainTimer? _clockTimer;
-    private IGrainTimer? _keepAliveTimer;
     private bool _isPlaying = false;
     private TimeControlSettings _timeControl;
     private GameResultData? _result;
@@ -242,23 +242,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         return Result.Success;
     }
 
-    private Task KeepGameAliveAsync()
-    {
-        if (_isPlaying)
-            DelayDeactivation(TimeSpan.FromMinutes(2));
-        return Task.CompletedTask;
-    }
-
-    public override Task OnActivateAsync(CancellationToken cancellationToken)
-    {
-        this.RegisterGrainTimer(
-            callback: KeepGameAliveAsync,
-            dueTime: TimeSpan.Zero,
-            period: TimeSpan.FromMinutes(1)
-        );
-        return base.OnActivateAsync(cancellationToken);
-    }
-
     private async Task HandleClockTickAsync()
     {
         var timeLeft = _clock.CalculateTimeLeft(_core.SideToMove);
@@ -294,8 +277,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         _clockTimer?.Dispose();
         _clockTimer = null;
-        _keepAliveTimer?.Dispose();
-        _keepAliveTimer = null;
     }
 
     private GameState GetGameState(GamePlayer? player = null)
