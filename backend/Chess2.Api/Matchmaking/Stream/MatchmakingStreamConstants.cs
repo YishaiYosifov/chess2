@@ -4,6 +4,6 @@ public static class MatchmakingStreamConstants
 {
     public const string SeekCreationBoardcastStream = "SeekCreation";
 
-    public const string SeekEndedStream = "SeekCanceled";
-    public const string SeekMatchedStream = "SeekMatched";
+    public const string InvalidatedStream = "SeekInvalidated";
+    public const string MatchedStream = "SeekMatched";
 }

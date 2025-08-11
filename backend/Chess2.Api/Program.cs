@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -20,6 +18,7 @@ using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
@@ -38,9 +37,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using NSwag.Generation.Processors;
+using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -294,6 +296,12 @@ builder.Host.UseOrleans(siloBuilder =>
 {
     siloBuilder.UseLocalhostClustering();
     siloBuilder.AddMemoryStreams(Streaming.StreamProvider).AddMemoryGrainStorage("PubSubStore");
+
+    siloBuilder.Configure<GrainCollectionOptions>(options =>
+    {
+        options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
+            TimeSpan.FromMinutes(5);
+    });
 });
 
 #region Matchmaking

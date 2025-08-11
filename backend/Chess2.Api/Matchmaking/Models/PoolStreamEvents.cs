@@ -5,8 +5,8 @@
 public record SeekCreatedBroadcastEvent(Seeker Seeker, PoolKey Pool);
 
 [GenerateSerializer]
-[Alias("Chess2.Api.Matchmaking.Models.SeekEndedEvent")]
-public record SeekEndedEvent();
+[Alias("Chess2.Api.Matchmaking.Models.SeekInvalidatedEvent")]
+public record SeekInvalidatedEvent(bool IsMatched);
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.SeekMatchedEvent")]

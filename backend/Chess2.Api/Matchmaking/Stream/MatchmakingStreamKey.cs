@@ -5,6 +5,7 @@ namespace Chess2.Api.Matchmaking.Stream;
 
 public static class MatchmakingStreamKey
 {
-    public static string MatchedStream(UserId userId, PoolKey pool) =>
-        $"{pool.ToGrainKey()}:{userId}";
+    public static string PoolStream(PoolKey pool) => pool.ToGrainKey();
+
+    public static string SeekStream(UserId userId, PoolKey pool) => $"{pool.ToGrainKey()}:{userId}";
 }
