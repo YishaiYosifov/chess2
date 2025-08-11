@@ -12,6 +12,7 @@ using Chess2.Api.Users.Models;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Streams;
@@ -32,8 +33,10 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
 {
     private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
     private readonly IMatchmakingPool _poolMock = Substitute.For<IMatchmakingPool>();
+    private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
     private readonly AppSettings _settings = AppSettingsLoader.LoadAppSettings();
+    private readonly DateTime _fakeNow = DateTime.UtcNow;
 
     private readonly PoolKey _testPoolKey = new(
         PoolType.Casual,
@@ -42,8 +45,11 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
 
     public AbstractMatchmakingGrainTests()
     {
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
+
         Silo.ServiceProvider.AddService(Substitute.For<ILogger<TestMatchmakingGrain>>());
         Silo.ServiceProvider.AddService(Options.Create(_settings));
+        Silo.ServiceProvider.AddService(_timeProviderMock);
         Silo.ServiceProvider.AddService(_gameStarterMock);
         Silo.ServiceProvider.AddService(_poolMock);
     }
@@ -153,5 +159,45 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
 
         seeker1Stream.VerifySend(e => e.GameToken == testGameToken);
         seeker2Stream.VerifySend(e => e.GameToken == testGameToken);
+    }
+
+    [Fact]
+    public async Task TimeoutSeeksAsync_ends_seeks_that_have_timed_out()
+    {
+        var timedOutSeeker = new SeekerFaker()
+            .RuleFor(x => x.CreatedAt, _fakeNow - TimeSpan.FromMinutes(5))
+            .Generate();
+        var seeker2 = new SeekerFaker().RuleFor(x => x.CreatedAt, _fakeNow).Generate();
+        var timedOutSeekerStream = ProbeSeekEndedStream(timedOutSeeker.UserId);
+        var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
+
+        _poolMock.Seekers.Returns([timedOutSeeker, seeker2]);
+        _poolMock.SeekerCount.Returns(2);
+
+        var grain = await CreateGrainAsync();
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.TimeoutTimer);
+
+        _poolMock.Received(1).RemoveSeek(timedOutSeeker.UserId);
+        timedOutSeekerStream.VerifySend(e => e.GameToken == null);
+        seeker2Stream.Sends.Should().Be(0);
+
+        var context = Silo.GetContextFromGrain(grain);
+        Silo.GrainRuntime.Mock.Verify(
+            x => x.DelayDeactivation(context, TimeSpan.FromMinutes(5)),
+            Times.Once
+        );
+        Silo.GrainRuntime.Mock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task TimeoutSeeksAsync_deactivates_when_no_seeks()
+    {
+        var grain = await CreateGrainAsync();
+
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.TimeoutTimer);
+
+        var context = Silo.GetContextFromGrain(grain);
+        Silo.GrainRuntime.Mock.Verify(x => x.DeactivateOnIdle(context), Times.Once);
+        Silo.GrainRuntime.Mock.VerifyNoOtherCalls();
     }
 }
