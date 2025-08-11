@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Users.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
@@ -17,18 +18,18 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     public IEnumerable<Seeker> Seekers => _seekers.Values.Select(x => x.Seek);
     public int SeekerCount => _seekers.Count;
 
-    public bool TryAddSeek(Seeker seeker)
+    public void AddSeek(Seeker seeker)
     {
         if (seeker is not RatedSeeker ratedSeek)
             throw new ArgumentException($"Seeker must be a {nameof(RatedSeeker)}", nameof(seeker));
 
         var seekInfo = new RatedPoolMember(ratedSeek);
-        return _seekers.TryAdd(seeker.UserId, seekInfo);
+        _seekers[seeker.UserId] = seekInfo;
     }
 
-    public bool HasSeek(string userId) => _seekers.ContainsKey(userId);
+    public bool HasSeek(UserId userId) => _seekers.ContainsKey(userId);
 
-    public bool RemoveSeek(string userId) => _seekers.Remove(userId);
+    public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
 
     public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {

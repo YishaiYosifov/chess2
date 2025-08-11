@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Users.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
@@ -7,8 +8,8 @@ public interface IMatchmakingPool
     int SeekerCount { get; }
     IEnumerable<Seeker> Seekers { get; }
 
-    bool TryAddSeek(Seeker seeker);
-    bool RemoveSeek(string userId);
-    bool HasSeek(string userId);
+    void AddSeek(Seeker seeker);
+    bool RemoveSeek(UserId userId);
+    bool HasSeek(UserId userId);
     List<(Seeker seeker1, Seeker seeker2)> CalculateMatches();
 }

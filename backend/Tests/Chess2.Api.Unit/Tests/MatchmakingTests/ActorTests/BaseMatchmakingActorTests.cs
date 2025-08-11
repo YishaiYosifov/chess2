@@ -64,7 +64,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         var grain = await CreateGrainAsync();
         _poolMock.AddSeek(seeker).Returns(true);
 
-        var result = await grain.TryCreateSeekAsync(seeker);
+        var result = await grain.AddSeekAsync(seeker);
 
         result.Should().BeTrue();
         _poolMock.Received(1).AddSeek(seeker);
@@ -77,7 +77,7 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         var seeker = new SeekerFaker().Generate();
         _poolMock.AddSeek(seeker).Returns(false);
 
-        var result = await grain.TryCreateSeekAsync(seeker);
+        var result = await grain.AddSeekAsync(seeker);
 
         result.Should().BeFalse();
     }
@@ -121,8 +121,8 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
-        await grain.TryCreateSeekAsync(seeker1);
-        await grain.TryCreateSeekAsync(seeker2);
+        await grain.AddSeekAsync(seeker1);
+        await grain.AddSeekAsync(seeker2);
 
         var testGameToken = "test game token 123";
         _gameStarterMock
@@ -152,8 +152,8 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         _poolMock.AddSeek(Arg.Any<Seeker>()).Returns(true);
 
         var grain = await CreateGrainAsync();
-        await grain.TryCreateSeekAsync(seeker1);
-        await grain.TryCreateSeekAsync(seeker2);
+        await grain.AddSeekAsync(seeker1);
+        await grain.AddSeekAsync(seeker2);
 
         var testGameToken = "test game token 123";
         _gameStarterMock
