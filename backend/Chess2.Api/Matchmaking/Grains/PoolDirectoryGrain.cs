@@ -15,6 +15,7 @@ public interface IPoolDirectoryGrain : IGrainWithIntegerKey
     Task UnregisterPoolAsync(PoolKey poolKey);
 }
 
+[KeepAlive]
 public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
 {
     private readonly HashSet<PoolKey> _pools = [];
