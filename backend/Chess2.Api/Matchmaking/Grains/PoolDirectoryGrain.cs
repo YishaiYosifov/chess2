@@ -6,7 +6,7 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IPoolDirectoryGrain : IGrainWithIntegerKey
 {
     [Alias("GetSeekersForAsync")]
-    Task<List<Seeker>> GetSeekersForAsync(Seeker seeker);
+    Task<Dictionary<PoolKey, List<Seeker>>> GetSeekersForAsync(Seeker seeker);
 
     [Alias("RegisterPoolAsync")]
     Task RegisterPoolAsync(PoolKey poolKey);
@@ -20,16 +20,22 @@ public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
 {
     private readonly HashSet<PoolKey> _pools = [];
 
-    public async Task<List<Seeker>> GetSeekersForAsync(Seeker seeker)
+    public async Task<Dictionary<PoolKey, List<Seeker>>> GetSeekersForAsync(Seeker seeker)
     {
-        var matches = await Task.WhenAll(
-            _pools.Select(pool =>
-                GrainFactory
-                    .GetGrain<IMatchmakingGrain>(pool.ToGrainKey())
-                    .GetMatchingSeekersForAsync(seeker)
-            )
+        var seekResults = await Task.WhenAll(
+            _pools.Select(async pool => new
+            {
+                Pool = pool,
+                Seeks = (
+                    await GrainFactory
+                        .GetGrain<IMatchmakingGrain>(pool.ToGrainKey())
+                        .GetMatchingSeekersForAsync(seeker)
+                ).ToList(),
+            })
         );
-        return [.. matches.SelectMany(x => x)];
+
+        var seeksByPool = seekResults.ToDictionary(x => x.Pool, x => x.Seeks);
+        return seeksByPool;
     }
 
     public Task RegisterPoolAsync(PoolKey poolKey)
