@@ -16,7 +16,7 @@ using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Streams;
 
-namespace Chess2.Api.Unit.Tests.MatchmakingTests.ActorTests;
+namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 
 public class TestMatchmakingGrain(
     ILogger<TestMatchmakingGrain> logger,
