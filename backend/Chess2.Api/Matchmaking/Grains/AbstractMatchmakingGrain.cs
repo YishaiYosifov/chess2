@@ -14,7 +14,7 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IMatchmakingGrain : IGrainWithStringKey
 {
     [Alias("TryCreateSeekAsync")]
-    Task<bool> TryCreateSeekAsync(Seeker seeker);
+    Task<bool> AddSeekAsync(Seeker seeker);
 
     [Alias("CancelSeekAsync")]
     Task<bool> TryCancelSeekAsync(UserId userId);
@@ -58,17 +58,12 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _settings = settings.Value;
     }
 
-    public async Task<bool> TryCreateSeekAsync(Seeker seeker)
+    public async Task<bool> AddSeekAsync(Seeker seeker)
     {
         DelayDeactivation(TimeSpan.FromMinutes(5));
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
-        if (!_pool.AddSeek(seeker))
-        {
-            _logger.LogInformation("{UserId} already has a seek", seeker.UserId);
-            return false;
-        }
-
+        _pool.AddSeek(seeker);
         await _seekCreationStream.OnNextAsync(new(seeker, _key));
 
         return true;

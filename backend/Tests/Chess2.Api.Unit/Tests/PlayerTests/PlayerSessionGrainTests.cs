@@ -48,13 +48,13 @@ public class PlayerSessionGrainTests : BaseGrainTest
         PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
         var seeker = new RatedSeekerFaker().Generate();
 
-        _ratedPoolGrainMock.TryCreateSeekAsync(seeker).Returns(true);
+        _ratedPoolGrainMock.AddSeekAsync(seeker).Returns(true);
         var stream = ProbeMatchedStream(pool);
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
         await grain.CreateSeekAsync("conn1", seeker, pool);
 
-        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(seeker);
+        await _ratedPoolGrainMock.Received(1).AddSeekAsync(seeker);
         stream.Subscribed.Should().Be(1);
     }
 
@@ -68,16 +68,16 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var casualSeeker = new SeekerFaker().Generate();
         var ratedSeeker = new RatedSeekerFaker().Generate();
 
-        _casualPoolGrainMock.TryCreateSeekAsync(casualSeeker).Returns(Task.FromResult(true));
-        _ratedPoolGrainMock.TryCreateSeekAsync(ratedSeeker).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.AddSeekAsync(casualSeeker).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.AddSeekAsync(ratedSeeker).Returns(Task.FromResult(true));
         _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
         await grain.CreateSeekAsync("conn1", casualSeeker, casualPoolKey);
-        await _casualPoolGrainMock.Received(1).TryCreateSeekAsync(casualSeeker);
+        await _casualPoolGrainMock.Received(1).AddSeekAsync(casualSeeker);
 
         await grain.CreateSeekAsync("conn1", ratedSeeker, ratedPoolKey);
         await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
-        await _ratedPoolGrainMock.Received(1).TryCreateSeekAsync(ratedSeeker);
+        await _ratedPoolGrainMock.Received(1).AddSeekAsync(ratedSeeker);
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var seeker = new RatedSeekerFaker().Generate();
         var stream = ProbeMatchedStream(pool);
 
-        _ratedPoolGrainMock.TryCreateSeekAsync(seeker).Returns(Task.FromResult(true));
+        _ratedPoolGrainMock.AddSeekAsync(seeker).Returns(Task.FromResult(true));
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
         await grain.CreateSeekAsync("connA", seeker, pool);
@@ -108,7 +108,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var seeker = new SeekerFaker().Generate();
         var stream = ProbeMatchedStream(pool);
 
-        _casualPoolGrainMock.TryCreateSeekAsync(seeker).Returns(Task.FromResult(true));
+        _casualPoolGrainMock.AddSeekAsync(seeker).Returns(Task.FromResult(true));
         _casualPoolGrainMock.TryCancelSeekAsync(UserId).Returns(Task.FromResult(true));
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
