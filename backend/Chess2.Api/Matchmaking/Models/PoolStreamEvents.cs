@@ -2,7 +2,7 @@
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.SeekCreatedBroadcastEvent")]
-public record SeekCreatedBroadcastEvent(Seeker Seeker, PoolKey Pool);
+public record OpenSeekBroadcastEvent(Seeker Seeker, PoolKey Pool);
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.SeekEndedEvent")]
