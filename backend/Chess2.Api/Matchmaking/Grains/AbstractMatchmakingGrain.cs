@@ -27,7 +27,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     where TPool : IMatchmakingPool
 {
     public const int WaveTimer = 0;
-    public const int ActivationTimer = 1;
+    public const int TimeoutTimer = 1;
     private readonly TimeSpan _seekTimeout = TimeSpan.FromMinutes(5);
 
     private readonly TPool _pool;
@@ -112,11 +112,13 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private async Task TimeoutSeeksAsync()
     {
         var now = _timeProvider.GetUtcNow();
-        foreach (var seeker in _pool.Seekers)
-        {
-            if (now - seeker.CreatedAt < _seekTimeout)
-                continue;
 
+        var timedOutSeekers = _pool
+            .Seekers.Where(seeker => now - seeker.CreatedAt >= _seekTimeout)
+            .ToList();
+
+        foreach (var seeker in timedOutSeekers)
+        {
             _logger.LogInformation(
                 "Seek for user {UserId} on pool {Pool} timed out",
                 seeker.UserId,
