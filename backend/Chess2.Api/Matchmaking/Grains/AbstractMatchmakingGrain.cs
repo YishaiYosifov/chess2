@@ -78,7 +78,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             return false;
         }
 
-        await NotifySeekInvalidatedAsync(userId, isMatched: false);
+        await NotifySeekEnded(userId);
         return true;
     }
 
@@ -106,11 +106,8 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
                 isRated
             );
 
-            await NotifySeekMatchedAsync(seeker1.UserId, gameToken);
-            await NotifySeekMatchedAsync(seeker2.UserId, gameToken);
-
-            await NotifySeekInvalidatedAsync(seeker1.UserId, isMatched: true);
-            await NotifySeekInvalidatedAsync(seeker2.UserId, isMatched: true);
+            await NotifySeekEnded(seeker1.UserId, gameToken);
+            await NotifySeekEnded(seeker2.UserId, gameToken);
         }
     }
 
@@ -122,8 +119,13 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             if (now - seeker.CreatedAt < _seekTimeout)
                 continue;
 
+            _logger.LogInformation(
+                "Seek for user {UserId} on pool {Pool} timed out",
+                seeker.UserId,
+                _key
+            );
             _pool.RemoveSeek(seeker.UserId);
-            await NotifySeekInvalidatedAsync(seeker.UserId, isMatched: false);
+            await NotifySeekEnded(seeker.UserId);
         }
 
         if (_pool.SeekerCount > 0)
@@ -132,18 +134,10 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             DeactivateOnIdle();
     }
 
-    private Task NotifySeekInvalidatedAsync(UserId userId, bool isMatched) =>
+    private Task NotifySeekEnded(UserId userId, string? gameToken = null) =>
         _streamProvider
-            .GetStream<SeekInvalidatedEvent>(
+            .GetStream<SeekEndedEvent>(
                 MatchmakingStreamConstants.InvalidatedStream,
-                MatchmakingStreamKey.SeekStream(userId, _key)
-            )
-            .OnNextAsync(new(isMatched));
-
-    private Task NotifySeekMatchedAsync(UserId userId, string gameToken) =>
-        _streamProvider
-            .GetStream<SeekMatchedEvent>(
-                MatchmakingStreamConstants.MatchedStream,
                 MatchmakingStreamKey.SeekStream(userId, _key)
             )
             .OnNextAsync(new(gameToken));

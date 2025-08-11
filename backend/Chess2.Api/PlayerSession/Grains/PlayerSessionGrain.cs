@@ -25,8 +25,7 @@ public interface IPlayerSessionGrain : IGrainWithStringKey
 public class SeekNotificationSession
 {
     public required HashSet<ConnectionId> TargetConnections { get; init; }
-    public required StreamSubscriptionHandle<SeekMatchedEvent> MatchSubscription { get; init; }
-    public required StreamSubscriptionHandle<SeekInvalidatedEvent> InvalidateSubscription { get; init; }
+    public required StreamSubscriptionHandle<SeekEndedEvent> SeekEndedSubscription { get; init; }
 }
 
 public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
@@ -69,22 +68,15 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             return;
         }
 
-        var matchStream = _streamProvider.GetStream<SeekMatchedEvent>(
-            MatchmakingStreamConstants.MatchedStream,
-            MatchmakingStreamKey.SeekStream(_userId, pool)
-        );
-        var invalidStream = _streamProvider.GetStream<SeekInvalidatedEvent>(
+        var seekStream = _streamProvider.GetStream<SeekEndedEvent>(
             MatchmakingStreamConstants.InvalidatedStream,
             MatchmakingStreamKey.SeekStream(_userId, pool)
         );
         SeekNotificationSession seekSession = new()
         {
             TargetConnections = [connectionId],
-            MatchSubscription = await matchStream.SubscribeAsync(
-                (@event, token) => MatchFoundAsync(@event.GameToken, pool)
-            ),
-            InvalidateSubscription = await invalidStream.SubscribeAsync(
-                (@event, token) => SeekInvalidatedAsync(@event.IsMatched, pool)
+            SeekEndedSubscription = await seekStream.SubscribeAsync(
+                (@event, token) => SeekEndedAsync(@event.GameToken, pool)
             ),
         };
         _seekSessions.TryAdd(pool, seekSession);
@@ -95,32 +87,27 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public Task GameEndedAsync(string gameToken) =>
         Task.FromResult(_activeGameTokens.Remove(gameToken));
 
-    private async Task MatchFoundAsync(string gameToken, PoolKey pool)
-    {
-        if (!_seekSessions.TryGetValue(pool, out var seekSession))
-            return;
-
-        await Task.WhenAll(
-            seekSession.TargetConnections.Select(connId =>
-                _matchmakingNotifier.NotifyGameFoundAsync(connId, gameToken)
-            )
-        );
-
-        _activeGameTokens.Add(gameToken);
-    }
-
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
         _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         return base.OnActivateAsync(cancellationToken);
     }
 
-    private async Task SeekInvalidatedAsync(bool sMatched, PoolKey pool)
+    private async Task SeekEndedAsync(string? gameToken, PoolKey pool)
     {
         if (!_seekSessions.TryGetValue(pool, out var seekSession))
             return;
 
-        if (!sMatched)
+        if (gameToken is not null)
+        {
+            await Task.WhenAll(
+                seekSession.TargetConnections.Select(connId =>
+                    _matchmakingNotifier.NotifyGameFoundAsync(connId, gameToken)
+                )
+            );
+            _activeGameTokens.Add(gameToken);
+        }
+        else
         {
             await Task.WhenAll(
                 seekSession.TargetConnections.Select(notifyConnId =>
@@ -133,8 +120,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         {
             _connectionToPool.Remove(connectionId);
         }
-        await seekSession.InvalidateSubscription.UnsubscribeAsync();
-        await seekSession.MatchSubscription.UnsubscribeAsync();
+        await seekSession.SeekEndedSubscription.UnsubscribeAsync();
         _seekSessions.Remove(pool);
     }
 
