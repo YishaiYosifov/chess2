@@ -20,7 +20,7 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<bool> TryCancelSeekAsync(UserId userId);
 
     [Alias("GetMatchingSeekersForAsync")]
-    Task<IEnumerable<Seeker>> GetMatchingSeekersForAsync(Seeker seeker);
+    Task<List<Seeker>> GetSeekersAsync();
 }
 
 public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
@@ -40,6 +40,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
 
     private IStreamProvider _streamProvider = null!;
     private IAsyncStream<OpenSeekBroadcastEvent> _seekCreationStream = null!;
+    private IAsyncStream<OpenSeekEndedBroadcastEvent> _seekEndedStream = null!;
 
     public AbstractMatchmakingGrain(
         ILogger<AbstractMatchmakingGrain<TPool>> logger,
@@ -64,7 +65,9 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
         _pool.AddSeek(seeker);
-        await _seekCreationStream.OnNextAsync(new(seeker, _key));
+        await _seekCreationStream.OnNextAsync(
+            new OpenSeekBroadcastEvent(new SeekKey(seeker.UserId, _key), seeker)
+        );
     }
 
     public async Task<bool> TryCancelSeekAsync(UserId userId)
@@ -80,13 +83,9 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         return true;
     }
 
-    public Task<IEnumerable<Seeker>> GetMatchingSeekersForAsync(Seeker seeker)
+    public Task<List<Seeker>> GetSeekersAsync()
     {
-        return Task.FromResult(
-            _pool.Seekers.Where(match =>
-                match.IsCompatibleWith(seeker) && seeker.IsCompatibleWith(match)
-            )
-        );
+        return Task.FromResult(_pool.Seekers.ToList());
     }
 
     private async Task ExecuteWaveAsync()
@@ -134,15 +133,20 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             DeactivateOnIdle();
     }
 
-    private Task NotifySeekEnded(UserId userId, string? gameToken = null) =>
-        _streamProvider
+    private async Task NotifySeekEnded(UserId userId, string? gameToken = null)
+    {
+        await _streamProvider
             .GetStream<SeekEndedEvent>(
                 MatchmakingStreamConstants.EndedStream,
                 MatchmakingStreamKey.SeekStream(userId, _key)
             )
             .OnNextAsync(new(gameToken));
+        await _seekEndedStream.OnNextAsync(
+            new OpenSeekEndedBroadcastEvent(new SeekKey(userId, _key))
+        );
+    }
 
-    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         this.RegisterGrainTimer(
             callback: ExecuteWaveAsync,
@@ -159,7 +163,24 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _seekCreationStream = _streamProvider.GetStream<OpenSeekBroadcastEvent>(
             MatchmakingStreamConstants.OpenSeekBoardcastStream
         );
+        _seekEndedStream = _streamProvider.GetStream<OpenSeekEndedBroadcastEvent>(
+            MatchmakingStreamConstants.OpenSeekEndedBoardcastStream
+        );
 
-        return base.OnActivateAsync(cancellationToken);
+        var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
+        await poolDirectoryGrain.RegisterPoolAsync(_key);
+
+        await base.OnActivateAsync(cancellationToken);
+    }
+
+    public override async Task OnDeactivateAsync(
+        DeactivationReason reason,
+        CancellationToken cancellationToken
+    )
+    {
+        var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
+        await poolDirectoryGrain.UnregisterPoolAsync(_key);
+
+        await base.OnDeactivateAsync(reason, cancellationToken);
     }
 }

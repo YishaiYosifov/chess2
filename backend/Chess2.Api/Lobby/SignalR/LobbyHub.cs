@@ -14,9 +14,11 @@ public interface ILobbyHubClient : IChess2HubClient
 {
     public Task MatchFoundAsync(string token);
     public Task MatchFailedAsync();
+
+    public Task NewOpenSeekAsync(IEnumerable<OpenSeek> openSeeks);
+    public Task OpenSeekEndedAsync(SeekKey seekKey);
 }
 
-[Authorize(AuthPolicies.AuthedSesssion)]
 [Authorize(AuthPolicies.ActiveSession)]
 public class LobbyHub(
     ILogger<LobbyHub> logger,
@@ -42,7 +44,7 @@ public class LobbyHub(
         var user = userResult.Value;
         _logger.LogInformation("User {UserId} seeking rated match", user.Id);
 
-        var seeker = await _seekerCreator.RatedSeekerAsync(user, timeControl);
+        var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
         var result = await grain.CreateSeekAsync(
             Context.ConnectionId,
@@ -55,21 +57,17 @@ public class LobbyHub(
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
     {
-        if (!TryGetUserId(out var userId))
+        var seekerResult = await _seekerCreator.CreateCasualSeekerAsync(Context.User);
+        if (seekerResult.IsError)
         {
-            await HandleErrors(Error.Unauthorized());
+            await HandleErrors(seekerResult.Errors);
             return;
         }
+        var seeker = seekerResult.Value;
 
-        var userResult = await _authService.GetLoggedInUserAsync(Context.User);
-        var user = userResult.IsError ? null : userResult.Value;
+        _logger.LogInformation("User {UserId} seeking casual match", seeker.UserId);
 
-        _logger.LogInformation("User {UserId} seeking casual match", userId);
-
-        var seeker = user is null
-            ? _seekerCreator.CasualSeeker(userId)
-            : _seekerCreator.CasualSeeker(user);
-        var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(seeker.UserId);
         var result = await grain.CreateSeekAsync(
             Context.ConnectionId,
             seeker,
@@ -92,6 +90,21 @@ public class LobbyHub(
         await grain.CancelSeekAsync(Context.ConnectionId);
     }
 
+    public async Task SubscribeOpenSeeksAsync()
+    {
+        var seekerResult = await _seekerCreator.CreateCasualSeekerAsync(Context.User);
+        if (seekerResult.IsError)
+        {
+            await HandleErrors(seekerResult.Errors);
+            return;
+        }
+        var seeker = seekerResult.Value;
+
+        _logger.LogInformation("User {UserId} subscribing to open seeks", seeker.UserId);
+        var grain = _grains.GetGrain<IOpenSeekWatcherGrain>(seeker.UserId.Value[0] % 5);
+        await grain.SubscribeAsync(Context.ConnectionId, seeker);
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         try
@@ -109,8 +122,12 @@ public class LobbyHub(
                 userId,
                 Context.ConnectionId
             );
-            var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-            await grain.CancelSeekAsync(Context.ConnectionId);
+
+            var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+            await playerSessionGrain.CancelSeekAsync(Context.ConnectionId);
+
+            var seekWatcherGrain = _grains.GetGrain<IOpenSeekWatcherGrain>(userId[0] % 5);
+            await seekWatcherGrain.UnsubscribeAsync(userId, Context.ConnectionId);
         }
         finally
         {
