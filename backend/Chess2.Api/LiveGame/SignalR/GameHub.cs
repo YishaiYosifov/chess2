@@ -30,7 +30,7 @@ public interface IGameHubClient : IChess2HubClient
     Task ChatMessageDeliveredAsync(double cooldownLeftMs);
 }
 
-[Authorize(AuthPolicies.AuthedSesssion)]
+[Authorize(AuthPolicies.ActiveSession)]
 public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifier gameNotifier)
     : Chess2Hub<IGameHubClient>
 {

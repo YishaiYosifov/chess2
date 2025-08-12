@@ -17,6 +17,7 @@ public interface ILobbyHubClient : IChess2HubClient
 }
 
 [Authorize(AuthPolicies.AuthedSesssion)]
+[Authorize(AuthPolicies.ActiveSession)]
 public class LobbyHub(
     ILogger<LobbyHub> logger,
     ISeekerCreator seekerCreator,

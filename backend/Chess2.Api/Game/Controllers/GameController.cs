@@ -27,7 +27,7 @@ public class GameController(
     [HttpGet("{gameToken}", Name = nameof(GetGame))]
     [ProducesResponseType<GameState>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    [Authorize(AuthPolicies.AuthedSesssion)]
+    [Authorize(AuthPolicies.ActiveSession)]
     public async Task<ActionResult<GameState>> GetGame(string gameToken, CancellationToken token)
     {
         var userIdResult = _authService.GetUserId(User);
