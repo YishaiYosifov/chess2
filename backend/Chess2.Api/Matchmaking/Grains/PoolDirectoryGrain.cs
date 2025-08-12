@@ -6,7 +6,7 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IPoolDirectoryGrain : IGrainWithIntegerKey
 {
     [Alias("GetSeekersForAsync")]
-    Task<Dictionary<PoolKey, List<Seeker>>> GetSeekersForAsync(Seeker seeker);
+    Task<Dictionary<PoolKey, List<Seeker>>> GetAllSeekersAsync();
 
     [Alias("RegisterPoolAsync")]
     Task RegisterPoolAsync(PoolKey poolKey);
@@ -20,17 +20,13 @@ public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
 {
     private readonly HashSet<PoolKey> _pools = [];
 
-    public async Task<Dictionary<PoolKey, List<Seeker>>> GetSeekersForAsync(Seeker seeker)
+    public async Task<Dictionary<PoolKey, List<Seeker>>> GetAllSeekersAsync()
     {
         var seekResults = await Task.WhenAll(
             _pools.Select(async pool => new
             {
                 Pool = pool,
-                Seeks = (
-                    await GrainFactory
-                        .GetGrain<IMatchmakingGrain>(pool.ToGrainKey())
-                        .GetMatchingSeekersForAsync(seeker)
-                ).ToList(),
+                Seeks = (await ResolvePoolGrain(pool).GetSeekersAsync()).ToList(),
             })
         );
 
@@ -48,5 +44,15 @@ public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
     {
         _pools.Remove(poolKey);
         return Task.CompletedTask;
+    }
+
+    private IMatchmakingGrain ResolvePoolGrain(PoolKey pool)
+    {
+        return pool.PoolType switch
+        {
+            PoolType.Rated => GrainFactory.GetGrain<IRatedMatchmakingGrain>(pool.ToGrainKey()),
+            PoolType.Casual => GrainFactory.GetGrain<ICasualMatchmakingGrain>(pool.ToGrainKey()),
+            _ => throw new InvalidOperationException($"Unsupported pool type: {pool.PoolType}"),
+        };
     }
 }

@@ -49,7 +49,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
 
         var timeControl = new TimeControlSettings { BaseSeconds = 300 };
 
-        var seeker = await _seekerCreator.RatedSeekerAsync(user, timeControl);
+        var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl);
 
         SeekerRating expectedRating = new(
             Value: rating.Value,
@@ -79,7 +79,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
             CreatedAt: _fakeNow
         );
 
-        var seeker = _seekerCreator.CasualSeeker(user);
+        var seeker = _seekerCreator.CreateAuthedCasualSeeker(user);
 
         seeker.Should().BeEquivalentTo(expectedSeeker);
     }
@@ -96,7 +96,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
             CreatedAt: _fakeNow
         );
 
-        var seeker = _seekerCreator.CasualSeeker(userId);
+        var seeker = _seekerCreator.CreateGuestCasualSeeker(userId);
 
         seeker.Should().BeEquivalentTo(expectedSeeker);
     }

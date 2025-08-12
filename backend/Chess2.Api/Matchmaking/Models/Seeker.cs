@@ -11,7 +11,8 @@ public record Seeker(
     DateTimeOffset CreatedAt
 )
 {
-    public virtual bool IsCompatibleWith(Seeker other) => IsBlockStatusCompatibleWith(other);
+    public virtual bool IsCompatibleWith(Seeker other) =>
+        UserId != other.UserId && IsBlockStatusCompatibleWith(other);
 
     public bool IsBlockStatusCompatibleWith(Seeker other) => !BlockedUserIds.Contains(other.UserId);
 }
