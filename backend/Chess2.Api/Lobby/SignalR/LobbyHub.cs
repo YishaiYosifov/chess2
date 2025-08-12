@@ -1,12 +1,15 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.PlayerSession.Grains;
+using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Lobby.SignalR;
 
@@ -24,13 +27,17 @@ public class LobbyHub(
     ILogger<LobbyHub> logger,
     ISeekerCreator seekerCreator,
     IGrainFactory grains,
-    IAuthService authService
+    IAuthService authService,
+    IShardRouter shardRouter,
+    IOptions<AppSettings> settings
 ) : Chess2Hub<ILobbyHubClient>
 {
     private readonly ILogger<LobbyHub> _logger = logger;
     private readonly ISeekerCreator _seekerCreator = seekerCreator;
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
+    private readonly IShardRouter _shardRouter = shardRouter;
+    private readonly LobbySettings _settings = settings.Value.Lobby;
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)
     {
@@ -101,7 +108,9 @@ public class LobbyHub(
         var seeker = seekerResult.Value;
 
         _logger.LogInformation("User {UserId} subscribing to open seeks", seeker.UserId);
-        var grain = _grains.GetGrain<IOpenSeekWatcherGrain>(seeker.UserId.Value[0] % 5);
+
+        var shard = _shardRouter.GetShardNumber(seeker.UserId, _settings.OpenSeekShardCount);
+        var grain = _grains.GetGrain<IOpenSeekWatcherGrain>(shard);
         await grain.SubscribeAsync(Context.ConnectionId, seeker);
     }
 
@@ -126,7 +135,8 @@ public class LobbyHub(
             var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
             await playerSessionGrain.CancelSeekAsync(Context.ConnectionId);
 
-            var seekWatcherGrain = _grains.GetGrain<IOpenSeekWatcherGrain>(userId[0] % 5);
+            var shard = _shardRouter.GetShardNumber(userId, _settings.OpenSeekShardCount);
+            var seekWatcherGrain = _grains.GetGrain<IOpenSeekWatcherGrain>(shard);
             await seekWatcherGrain.UnsubscribeAsync(userId, Context.ConnectionId);
         }
         finally

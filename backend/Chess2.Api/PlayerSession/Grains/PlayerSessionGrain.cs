@@ -40,7 +40,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly ILobbyNotifier _matchmakingNotifier;
-    private readonly GameSettings _settings;
+    private readonly LobbySettings _settings;
 
     private IStreamProvider _streamProvider = null!;
 
@@ -54,7 +54,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
         _logger = logger;
         _matchmakingNotifier = matchmakingNotifier;
-        _settings = settings.Value.Game;
+        _settings = settings.Value.Lobby;
     }
 
     public async Task<ErrorOr<Created>> CreateSeekAsync(

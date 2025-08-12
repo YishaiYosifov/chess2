@@ -33,7 +33,7 @@ public class SeekerCreator(
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IGuestService _guestService = guestService;
     private readonly IAuthService _authService = authService;
-    private readonly GameSettings _settings = settings.Value.Game;
+    private readonly LobbySettings _settings = settings.Value.Lobby;
 
     public async Task<RatedSeeker> CreateRatedSeekerAsync(
         AuthedUser user,
