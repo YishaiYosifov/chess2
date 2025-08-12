@@ -29,7 +29,7 @@ public class ProfileController(
 
     [HttpGet("me", Name = nameof(GetSessionUser))]
     [ProducesResponseType<SessionUser>(StatusCodes.Status200OK)]
-    [Authorize(AuthPolicies.AuthedSesssion)]
+    [Authorize(AuthPolicies.ActiveSession)]
     public async Task<ActionResult<SessionUser>> GetSessionUser()
     {
         var idResult = _authService.GetUserId(User);

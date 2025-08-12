@@ -151,7 +151,7 @@ builder.Services.AddAuthorization(options =>
     );
 
     options.AddPolicy(
-        AuthPolicies.AuthedSesssion,
+        AuthPolicies.ActiveSession,
         policy => policy.RequireClaim("type", "access").AddAuthenticationSchemes("AccessBearer")
     );
 
