@@ -34,7 +34,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private readonly PoolKey _key;
 
     private readonly ILogger<AbstractMatchmakingGrain<TPool>> _logger;
-    private readonly AppSettings _settings;
+    private readonly LobbySettings _settings;
     private readonly IGameStarter _gameStarter;
     private readonly TimeProvider _timeProvider;
 
@@ -56,7 +56,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _logger = logger;
         _gameStarter = gameStarter;
         _timeProvider = timeProvider;
-        _settings = settings.Value;
+        _settings = settings.Value.Lobby;
     }
 
     public async Task AddSeekAsync(Seeker seeker)
@@ -151,7 +151,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         this.RegisterGrainTimer(
             callback: ExecuteWaveAsync,
             dueTime: TimeSpan.Zero,
-            period: _settings.Game.MatchWaveEvery
+            period: _settings.MatchWaveEvery
         );
         this.RegisterGrainTimer(
             callback: TimeoutSeeksAsync,

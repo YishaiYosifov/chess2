@@ -14,6 +14,7 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.ActionFilters;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Infrastructure.OpenAPI;
+using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
@@ -351,6 +352,7 @@ builder.Services.AddScoped<IChatMessageLogger, ChatMessageLogger>();
 builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #endregion
 
+builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
