@@ -39,7 +39,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     private readonly HashSet<string> _activeGameTokens = [];
 
     private readonly ILogger<PlayerSessionGrain> _logger;
-    private readonly IGrainFactory _grains;
     private readonly ILobbyNotifier _matchmakingNotifier;
     private readonly GameSettings _settings;
 
@@ -47,7 +46,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     public PlayerSessionGrain(
         ILogger<PlayerSessionGrain> logger,
-        IGrainFactory grains,
         ILobbyNotifier matchmakingNotifier,
         IOptions<AppSettings> settings
     )
@@ -55,7 +53,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         _userId = this.GetPrimaryKeyString();
 
         _logger = logger;
-        _grains = grains;
         _matchmakingNotifier = matchmakingNotifier;
         _settings = settings.Value.Game;
     }
@@ -158,8 +155,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         return poolKey.PoolType switch
         {
-            PoolType.Rated => _grains.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey()),
-            PoolType.Casual => _grains.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey()),
+            PoolType.Rated => GrainFactory.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey()),
+            PoolType.Casual => GrainFactory.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey()),
             _ => throw new InvalidOperationException($"Unsupported pool type: {poolKey.PoolType}"),
         };
     }
