@@ -8,6 +8,6 @@ public static class Streaming
 public static class AuthPolicies
 {
     public const string AuthedUser = "AuthedUser";
-    public const string AuthedSesssion = "AuthedSession";
+    public const string ActiveSession = "ActiveSession";
     public const string RefreshAccess = "RefreshAccess";
 }
