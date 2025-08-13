@@ -2,8 +2,8 @@
 
 public static class MatchmakingStreamConstants
 {
-    public const string OpenSeekBoardcastStream = "SeekCreation";
-    public const string OpenSeekEndedBoardcastStream = "SeekEnd";
+    public const string OpenSeekCreatedStream = "OpenSeekCreated";
+    public const string OpenSeekRemovedStream = "OpenSeekRemoved";
 
-    public const string EndedStream = "SeekEnded";
+    public const string PlayerSeekEndedStream = "PlayerSeekEnded";
 }

@@ -28,7 +28,7 @@ public interface IPlayerSessionGrain : IGrainWithStringKey
 public class SeekNotificationSession
 {
     public required HashSet<ConnectionId> TargetConnections { get; init; }
-    public required StreamSubscriptionHandle<SeekEndedEvent> SeekEndedSubscription { get; init; }
+    public required StreamSubscriptionHandle<PlayerSeekEndedEvent> SeekEndedSubscription { get; init; }
 }
 
 public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
@@ -82,8 +82,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             return Result.Created;
         }
 
-        var seekStream = _streamProvider.GetStream<SeekEndedEvent>(
-            MatchmakingStreamConstants.EndedStream,
+        var seekStream = _streamProvider.GetStream<PlayerSeekEndedEvent>(
+            MatchmakingStreamConstants.PlayerSeekEndedStream,
             MatchmakingStreamKey.SeekStream(_userId, pool)
         );
         SeekNotificationSession seekSession = new()
