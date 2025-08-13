@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Users.Models;
@@ -17,14 +18,18 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
             userId,
             userId,
             BlockedUserIds: [],
-            Rating: new SeekerRating(rating, AllowedMatchRatingDifference),
+            Rating: new SeekerRating(
+                rating,
+                AllowedMatchRatingDifference,
+                TimeControl: TimeControl.Blitz
+            ),
             CreatedAt: DateTime.UtcNow
         );
         Pool.AddSeek(seeker);
         return seeker;
     }
 
-    protected override Seeker AddSeek(string userId) => AddSeeker(userId, 1200);
+    protected override Seeker AddSeeker(string userId) => AddSeeker(userId, 1200);
 
     [Fact]
     public void CalculateMatches_matches_compatible_seekers_within_range()
