@@ -13,7 +13,7 @@ namespace Chess2.Api.Lobby.SignalR;
 
 public interface IOpenSeekHubClient : IChess2HubClient
 {
-    public Task NewOpenSeekAsync(IEnumerable<OpenSeek> openSeeks);
+    public Task NewOpenSeeksAsync(IEnumerable<OpenSeek> openSeeks);
     public Task OpenSeekEndedAsync(SeekKey seekKey);
 }
 
@@ -34,7 +34,7 @@ public class OpenSeekHub(
     private readonly IShardRouter _shardRouter = shardRouter;
     private readonly LobbySettings _settings = settings.Value.Lobby;
 
-    public async Task SubscribeOpenSeeksAsync()
+    public async Task SubscribeAsync()
     {
         var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
             Context.User,

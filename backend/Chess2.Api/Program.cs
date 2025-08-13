@@ -387,6 +387,7 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
+app.MapHub<OpenSeekHub>("/api/hub/openseek");
 app.MapHub<LobbyHub>("/api/hub/lobby");
 app.MapHub<GameHub>("/api/hub/game");
 

@@ -58,7 +58,7 @@ public class OpenSeekNotifierTests
 
         await _notifier.NotifyOpenSeekAsync(_userIds, seeks);
 
-        await _clientProxyMock.Received(1).NewOpenSeekAsync(seeks);
+        await _clientProxyMock.Received(1).NewOpenSeeksAsync(seeks);
     }
 
     [Fact]

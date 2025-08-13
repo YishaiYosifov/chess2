@@ -18,10 +18,10 @@ public class OpenSeekNotifier(IHubContext<OpenSeekHub, IOpenSeekHubClient> hub) 
     private readonly IHubContext<OpenSeekHub, IOpenSeekHubClient> _hub = hub;
 
     public Task NotifyOpenSeekAsync(IEnumerable<string> userIds, IEnumerable<OpenSeek> openSeeks) =>
-        _hub.Clients.Users(userIds).NewOpenSeekAsync(openSeeks);
+        _hub.Clients.Users(userIds).NewOpenSeeksAsync(openSeeks);
 
     public Task NotifyOpenSeekAsync(ConnectionId connectionId, IEnumerable<OpenSeek> openSeeks) =>
-        _hub.Clients.Client(connectionId).NewOpenSeekAsync(openSeeks);
+        _hub.Clients.Client(connectionId).NewOpenSeeksAsync(openSeeks);
 
     public Task NotifyOpenSeekEndedAsync(IEnumerable<string> userIds, SeekKey seekKey) =>
         _hub.Clients.Users(userIds).OpenSeekEndedAsync(seekKey);
