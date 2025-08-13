@@ -7,7 +7,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace Chess2.Api.Functional.Tests;
+namespace Chess2.Api.Functional.Tests.LobbyTests;
 
 public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
