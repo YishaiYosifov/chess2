@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Infrastructure.Errors;
 using ErrorOr;
 
-namespace Chess2.Api.PlayerSession.Errors;
+namespace Chess2.Api.Lobby.Errors;
 
 public class PlayerSessionErrors
 {

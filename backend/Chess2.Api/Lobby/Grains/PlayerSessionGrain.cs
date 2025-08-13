@@ -1,18 +1,18 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Lobby.Errors;
+using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Stream;
-using Chess2.Api.PlayerSession.Errors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;
 
-namespace Chess2.Api.PlayerSession.Grains;
+namespace Chess2.Api.Lobby.Grains;
 
-[Alias("Chess2.Api.PlayerSession.Grains.IPlayerSessionGrain")]
+[Alias("Chess2.Api.Lobby.Grains.IPlayerSessionGrain")]
 public interface IPlayerSessionGrain : IGrainWithStringKey
 {
     [Alias("CreateSeekAsync")]
