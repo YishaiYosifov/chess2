@@ -1,11 +1,11 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Lobby.Errors;
+using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Stream;
-using Chess2.Api.PlayerSession.Errors;
-using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;

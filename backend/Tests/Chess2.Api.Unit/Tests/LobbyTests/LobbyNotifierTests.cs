@@ -1,9 +1,9 @@
-﻿using Chess2.Api.Lobby.SignalR;
-using Chess2.Api.Matchmaking.Services;
+﻿using Chess2.Api.Lobby.Services;
+using Chess2.Api.Lobby.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
-namespace Chess2.Api.Unit.Tests.MatchmakingTests;
+namespace Chess2.Api.Unit.Tests.LobbyTests;
 
 public class LobbyNotifierTests
 {

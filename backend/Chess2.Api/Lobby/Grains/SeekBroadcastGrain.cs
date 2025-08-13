@@ -1,17 +1,17 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
 using Orleans.Streams;
 
-namespace Chess2.Api.PlayerSession.Grains;
+namespace Chess2.Api.Lobby.Grains;
 
-[Alias("Chess2.Api.PlayerSession.Grains.IOpenSeekWatcherGrain")]
+[Alias("Chess2.Api.Lobby.Grains.IOpenSeekWatcherGrain")]
 public interface IOpenSeekWatcherGrain : IGrainWithIntegerKey
 {
     [Alias("Subscribe")]
@@ -38,11 +38,11 @@ public class OpenSeekEntry()
 
 [KeepAlive]
 public class SeekBroadcastGrain(
-    ILobbyNotifier lobbyNotifier,
+    IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator
 ) : Grain, IOpenSeekWatcherGrain
 {
-    private readonly ILobbyNotifier _lobbyNotifier = lobbyNotifier;
+    private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
     private readonly Dictionary<UserId, SeekWatcher> _connections = [];
@@ -74,7 +74,7 @@ public class SeekBroadcastGrain(
                 return;
         }
 
-        await _lobbyNotifier.NotifyOpenSeekAsync([seeker.UserId], watchingSeeks);
+        await _openSeekNotifier.NotifyOpenSeekAsync([seeker.UserId], watchingSeeks);
     }
 
     public Task UnsubscribeAsync(UserId userId, ConnectionId connectionId)
@@ -95,14 +95,20 @@ public class SeekBroadcastGrain(
         if (!_openSeeks.TryGetValue(@event.SeekKey, out var openSeek))
             return;
 
-        await _lobbyNotifier.NotifyOpenSeekEndedAsync(openSeek.SubscribedUserIds, @event.SeekKey);
+        await _openSeekNotifier.NotifyOpenSeekEndedAsync(
+            openSeek.SubscribedUserIds,
+            @event.SeekKey
+        );
         _openSeeks.Remove(@event.SeekKey);
     }
 
     private async Task OnSeekCreated(OpenSeekCreatedEvent @event, StreamSequenceToken _)
     {
         var openSeek = RegisterOpenSeeker(@event.Seeker, @event.SeekKey);
-        await _lobbyNotifier.NotifyOpenSeekAsync(openSeek.SubscribedUserIds, [openSeek.OpenSeek]);
+        await _openSeekNotifier.NotifyOpenSeekAsync(
+            openSeek.SubscribedUserIds,
+            [openSeek.OpenSeek]
+        );
     }
 
     private async Task RefetchSeeksAsync()

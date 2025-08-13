@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.PlayerSession.Grains;
+using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;

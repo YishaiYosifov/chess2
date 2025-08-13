@@ -16,10 +16,11 @@ using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
+using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.PlayerSession.Grains;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
@@ -309,6 +310,7 @@ builder.Host.UseOrleans(siloBuilder =>
 builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
 builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddSingleton<ILobbyNotifier, LobbyNotifier>();
+builder.Services.AddSingleton<IOpenSeekNotifier, OpenSeekNotifier>();
 builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();
 #endregion
 
