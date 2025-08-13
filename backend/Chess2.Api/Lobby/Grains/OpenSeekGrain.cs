@@ -39,11 +39,13 @@ public class OpenSeekEntry()
 [KeepAlive]
 public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
-    ITimeControlTranslator timeControlTranslator
+    ITimeControlTranslator timeControlTranslator,
+    TimeProvider timeProvider
 ) : Grain, IOpenSeekWatcherGrain
 {
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     private readonly Dictionary<UserId, SeekWatcher> _connections = [];
     private readonly Dictionary<SeekKey, OpenSeekEntry> _openSeeks = [];
@@ -126,6 +128,21 @@ public class OpenSeekGrain(
         }
     }
 
+    private Task CleanStaleConnectionsAsync()
+    {
+        var cutoff = _timeProvider.GetUtcNow() - TimeSpan.FromMinutes(5);
+        var staleUserIds = _connections
+            .Where(watcher => watcher.Value.Seeker.CreatedAt < cutoff)
+            .Select(watcher => watcher.Key)
+            .ToList();
+        foreach (var userId in staleUserIds)
+        {
+            _connections.Remove(userId);
+        }
+
+        return Task.CompletedTask;
+    }
+
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
@@ -143,6 +160,11 @@ public class OpenSeekGrain(
             callback: RefetchSeeksAsync,
             dueTime: TimeSpan.Zero,
             period: TimeSpan.FromMinutes(10)
+        );
+        this.RegisterGrainTimer(
+            callback: CleanStaleConnectionsAsync,
+            dueTime: TimeSpan.FromMinutes(5),
+            period: TimeSpan.FromMinutes(5)
         );
 
         await base.OnActivateAsync(cancellationToken);
