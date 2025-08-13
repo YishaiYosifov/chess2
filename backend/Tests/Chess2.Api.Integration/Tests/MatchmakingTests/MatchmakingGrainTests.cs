@@ -6,10 +6,11 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.Models;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -17,7 +18,7 @@ using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Streams;
 
-namespace Chess2.Api.Unit.Tests.MatchmakingTests;
+namespace Chess2.Api.Integration.Tests.MatchmakingTests;
 
 public class TestMatchmakingGrain(
     ILogger<TestMatchmakingGrain> logger,
@@ -29,35 +30,53 @@ public class TestMatchmakingGrain(
     : AbstractMatchmakingGrain<IMatchmakingPool>(logger, gameStarter, settings, timeProvider, pool),
         IRatedMatchmakingGrain;
 
-public class AbstractMatchmakingGrainTests : BaseGrainTest
+public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
 {
+    private readonly DateTime _fakeNow = DateTime.UtcNow;
     private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
-    private readonly IMatchmakingPool _poolMock = Substitute.For<IMatchmakingPool>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
-    private readonly AppSettings _settings = AppSettingsLoader.LoadAppSettings();
-    private readonly DateTime _fakeNow = DateTime.UtcNow;
+    private readonly IMatchmakingPool _pool;
 
     private readonly PoolKey _testPoolKey = new(
         PoolType.Casual,
         new TimeControlSettings(BaseSeconds: 600, IncrementSeconds: 10)
     );
 
-    public AbstractMatchmakingGrainTests()
+    public AbstractMatchmakingGrainTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
+        var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
+            IOptions<AppSettings>
+        >();
+        _pool = ApiTestBase.Scope.ServiceProvider.GetRequiredService<ICasualMatchmakingPool>();
 
         Silo.ServiceProvider.AddService(Substitute.For<ILogger<TestMatchmakingGrain>>());
-        Silo.ServiceProvider.AddService(Options.Create(_settings));
+        Silo.ServiceProvider.AddService(settings);
         Silo.ServiceProvider.AddService(_timeProviderMock);
         Silo.ServiceProvider.AddService(_gameStarterMock);
-        Silo.ServiceProvider.AddService(_poolMock);
+        Silo.ServiceProvider.AddService(_pool);
     }
 
-    private TestStream<SeekEndedEvent> ProbeSeekEndedStream(UserId userId) =>
-        Silo.AddStreamProbe<SeekEndedEvent>(
+    private TestStream<PlayerSeekEndedEvent> ProbeSeekEndedStream(UserId userId) =>
+        Silo.AddStreamProbe<PlayerSeekEndedEvent>(
             MatchmakingStreamKey.SeekStream(userId, _testPoolKey),
-            MatchmakingStreamConstants.EndedStream,
+            MatchmakingStreamConstants.PlayerSeekEndedStream,
+            Streaming.StreamProvider
+        );
+
+    private TestStream<OpenSeekCreatedEvent> ProbeOpenSeekCreatedStream() =>
+        Silo.AddStreamProbe<OpenSeekCreatedEvent>(
+            MatchmakingStreamConstants.OpenSeekCreatedStream,
+            streamNamespace: null,
+            Streaming.StreamProvider
+        );
+
+    private TestStream<OpenSeekRemovedEvent> ProbeOpenSeekRemovedStream() =>
+        Silo.AddStreamProbe<OpenSeekRemovedEvent>(
+            MatchmakingStreamConstants.OpenSeekRemovedStream,
+            streamNamespace: null,
             Streaming.StreamProvider
         );
 
@@ -65,56 +84,73 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
         await Silo.CreateGrainAsync<TestMatchmakingGrain>(_testPoolKey.ToGrainKey());
 
     [Fact]
-    public async Task TryCreateSeekAsync_adds_the_seek()
+    public async Task TryCreateSeekAsync_adds_the_seek_and_doesnt_broadcast()
     {
+        var stream = ProbeOpenSeekCreatedStream();
         var seeker = new SeekerFaker().Generate();
         var grain = await CreateGrainAsync();
 
         await grain.AddSeekAsync(seeker);
 
-        _poolMock.Received(1).AddSeek(seeker);
+        _pool.Seekers.Should().ContainSingle().Which.Should().Be(seeker);
+        // we only broadcast after a missed wave
+        stream.Sends.Should().Be(0);
     }
 
     [Fact]
     public async Task TryCancelSeekAsync_removes_seek_and_notifies_when_seek_exists()
     {
-        UserId userId = "user1";
-        var stream = ProbeSeekEndedStream(userId);
+        var seeker = new SeekerFaker().Generate();
+        var seekEndStream = ProbeSeekEndedStream(seeker.UserId);
+        var seekRemovedStream = ProbeOpenSeekRemovedStream();
         var grain = await CreateGrainAsync();
 
-        _poolMock.RemoveSeek(userId).Returns(true);
-
-        var result = await grain.TryCancelSeekAsync(userId);
+        await grain.AddSeekAsync(seeker);
+        var result = await grain.TryCancelSeekAsync(seeker.UserId);
 
         result.Should().BeTrue();
-        _poolMock.Received(1).RemoveSeek(userId);
-        stream.VerifySend(e => e.GameToken == null);
+        _pool.Seekers.Should().BeEmpty();
+        seekEndStream.VerifySend(e => e.GameToken == null);
+        seekRemovedStream.Sends.Should().Be(0);
     }
 
     [Fact]
     public async Task TryCancelSeekAsync_returns_false_when_no_seek_exists()
     {
-        UserId userId = "user1";
-        var stream = ProbeSeekEndedStream(userId);
+        const string userId = "random user id";
+        var seekEndStream = ProbeSeekEndedStream(userId);
         var grain = await CreateGrainAsync();
-
-        _poolMock.RemoveSeek(userId).Returns(false);
 
         var result = await grain.TryCancelSeekAsync(userId);
 
         result.Should().BeFalse();
-        stream.Sends.Should().Be(0);
+        seekEndStream.Sends.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task TryCancelSeekAsync_broadcasts_cancel_event_after_a_missed_wave()
+    {
+        var seeker = new SeekerFaker().Generate();
+        var seekRemovedStream = ProbeOpenSeekRemovedStream();
+        var grain = await CreateGrainAsync();
+
+        await grain.AddSeekAsync(seeker);
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        await grain.TryCancelSeekAsync(seeker.UserId);
+
+        seekRemovedStream.VerifySend(e => e.SeekKey == new SeekKey(seeker.UserId, _testPoolKey));
     }
 
     [Fact]
     public async Task ExecuteWaveAsync_starts_games_and_notify_stream_for_matches()
     {
         var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new RatedSeekerFaker().Generate();
+        var seeker2 = new SeekerFaker().Generate();
         var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
         var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
-
-        _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
+        var removedStream = ProbeOpenSeekRemovedStream();
+        var createdStream = ProbeOpenSeekCreatedStream();
 
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker1);
@@ -134,17 +170,17 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
 
         seeker1Stream.VerifySend(e => e.GameToken == testGameToken);
         seeker2Stream.VerifySend(e => e.GameToken == testGameToken);
+        removedStream.Sends.Should().Be(0);
+        createdStream.Sends.Should().Be(0);
     }
 
     [Fact]
     public async Task ExecuteWaveAsync_starts_rated_games_when_both_seekers_are_rated()
     {
-        var seeker1 = new RatedSeekerFaker().Generate();
-        var seeker2 = new RatedSeekerFaker().Generate();
+        var seeker1 = new RatedSeekerFaker(rating: 1200).Generate();
+        var seeker2 = new RatedSeekerFaker(rating: 1200).Generate();
         var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
         var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
-
-        _poolMock.CalculateMatches().Returns([(seeker1, seeker2)]);
 
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker1);
@@ -162,24 +198,65 @@ public class AbstractMatchmakingGrainTests : BaseGrainTest
     }
 
     [Fact]
+    public async Task ExecuteWaveAsync_broadcasts_seek_creation_when_a_seeker_is_not_matched_once()
+    {
+        var seeker = new SeekerFaker().Generate();
+        var createdStream = ProbeOpenSeekCreatedStream();
+        var grain = await CreateGrainAsync();
+        await grain.AddSeekAsync(seeker);
+
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        createdStream.VerifySend(e =>
+            e.Seeker == seeker && e.SeekKey == new SeekKey(seeker.UserId, _testPoolKey)
+        );
+        createdStream.VerifySendBatch();
+
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        createdStream.Sends.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ExecuteWaveAsync_broadcasts_seek_removed_after_seek_is_broadcasted_as_created()
+    {
+        var seeker1 = new SeekerFaker().Generate();
+        var seeker2 = new SeekerFaker().Generate();
+        var removedStream = ProbeOpenSeekCreatedStream();
+        var grain = await CreateGrainAsync();
+        await grain.AddSeekAsync(seeker1);
+
+        // notify seeker1 created
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        await grain.AddSeekAsync(seeker2);
+
+        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        removedStream.VerifySend(e =>
+            e.Seeker == seeker1 && e.SeekKey == new SeekKey(seeker1.UserId, _testPoolKey)
+        );
+    }
+
+    [Fact]
     public async Task TimeoutSeeksAsync_ends_seeks_that_have_timed_out()
     {
         var timedOutSeeker = new SeekerFaker()
             .RuleFor(x => x.CreatedAt, _fakeNow - TimeSpan.FromMinutes(5))
             .Generate();
-        var seeker2 = new SeekerFaker().RuleFor(x => x.CreatedAt, _fakeNow).Generate();
+        var otherSeeker = new SeekerFaker().RuleFor(x => x.CreatedAt, _fakeNow).Generate();
         var timedOutSeekerStream = ProbeSeekEndedStream(timedOutSeeker.UserId);
-        var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
-
-        _poolMock.Seekers.Returns([timedOutSeeker, seeker2]);
-        _poolMock.SeekerCount.Returns(2);
+        var otherSeekerStream = ProbeSeekEndedStream(otherSeeker.UserId);
 
         var grain = await CreateGrainAsync();
+        await grain.AddSeekAsync(timedOutSeeker);
+        await grain.AddSeekAsync(otherSeeker);
+
         await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.TimeoutTimer);
 
-        _poolMock.Received(1).RemoveSeek(timedOutSeeker.UserId);
         timedOutSeekerStream.VerifySend(e => e.GameToken == null);
-        seeker2Stream.Sends.Should().Be(0);
+        otherSeekerStream.Sends.Should().Be(0);
+        _pool.Seekers.Should().ContainSingle().Which.Should().Be(otherSeeker);
 
         var context = Silo.GetContextFromGrain(grain);
         Silo.GrainRuntime.Mock.Verify(

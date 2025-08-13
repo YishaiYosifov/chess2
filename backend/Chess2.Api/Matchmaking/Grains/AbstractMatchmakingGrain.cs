@@ -139,6 +139,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             );
             _pool.RemoveSeek(seeker.UserId);
             await NotifySeekEndedAsync(seeker.UserId);
+            await BroadcastSeekRemovedIfNeeded(seeker.UserId);
         }
 
         if (_pool.SeekerCount > 0)
