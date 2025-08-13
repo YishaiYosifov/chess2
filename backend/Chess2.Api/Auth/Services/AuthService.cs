@@ -1,13 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Auth.DTOs;
+﻿using Chess2.Api.Auth.DTOs;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Users.Entities;
+using Chess2.Api.Users.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Auth.Services;
 
@@ -25,6 +26,11 @@ public interface IAuthService
         CancellationToken token = default
     );
     ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal);
+    Task<ErrorOr<T>> MatchAuthTypeAsync<T>(
+        ClaimsPrincipal? claimsPrincipal,
+        Func<AuthedUser, Task<T>> whenAuthed,
+        Func<UserId, Task<T>> whenGuest
+    );
 }
 
 public class AuthService(
@@ -32,6 +38,7 @@ public class AuthService(
     ITokenProvider tokenProvider,
     UserManager<AuthedUser> userManager,
     IRefreshTokenService refreshTokenService,
+    IGuestService guestService,
     IUnitOfWork unitOfWork
 ) : IAuthService
 {
@@ -39,6 +46,7 @@ public class AuthService(
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
+    private readonly IGuestService _guestService = guestService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal)
@@ -72,6 +80,26 @@ public class AuthService(
         }
 
         return user;
+    }
+
+    public async Task<ErrorOr<T>> MatchAuthTypeAsync<T>(
+        ClaimsPrincipal? claimsPrincipal,
+        Func<AuthedUser, Task<T>> whenAuthed,
+        Func<UserId, Task<T>> whenGuest
+    )
+    {
+        var userId = GetUserId(claimsPrincipal);
+        if (userId.IsError)
+            return userId.Errors;
+
+        if (_guestService.IsGuest(claimsPrincipal))
+            return await whenGuest(userId.Value);
+
+        var authedUser = await GetLoggedInUserAsync(claimsPrincipal);
+        if (authedUser.IsError)
+            return authedUser.Errors;
+
+        return await whenAuthed(authedUser.Value);
     }
 
     /// <summary>

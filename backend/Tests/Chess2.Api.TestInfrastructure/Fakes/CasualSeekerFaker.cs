@@ -3,9 +3,9 @@ using Chess2.Api.Users.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class SeekerFaker : RecordFaker<Seeker>
+public class CasualSeekerFaker : RecordFaker<CasualSeeker>
 {
-    public SeekerFaker(UserId? userId = null)
+    public CasualSeekerFaker(UserId? userId = null)
     {
         StrictMode(true);
         RuleFor(x => x.UserId, f => userId ?? new UserId(f.Random.Guid().ToString()));

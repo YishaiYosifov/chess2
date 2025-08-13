@@ -1,75 +1,74 @@
-﻿using System.Security.Claims;
-using Chess2.Api.Auth.Services;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
-using ErrorOr;
+using Chess2.Api.Users.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;
 
 public interface ISeekerCreator
 {
-    Seeker CreateAuthedCasualSeeker(AuthedUser user);
-    Seeker CreateGuestCasualSeeker(string userId);
-    Task<ErrorOr<Seeker>> CreateCasualSeekerAsync(ClaimsPrincipal? userClaims);
+    CasualSeeker CreateAuthedCasualSeeker(AuthedUser user);
+    CasualSeeker CreateGuestCasualSeeker(UserId userId);
     Task<RatedSeeker> CreateRatedSeekerAsync(AuthedUser user, TimeControlSettings timeControl);
+    Task<OpenRatedSeeker> CreateRatedOpenSeekerAsync(AuthedUser user);
 }
 
 public class SeekerCreator(
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
     IOptions<AppSettings> settings,
-    TimeProvider timeProvider,
-    IGuestService guestService,
-    IAuthService authService
+    TimeProvider timeProvider
 ) : ISeekerCreator
 {
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly TimeProvider _timeProvider = timeProvider;
-    private readonly IGuestService _guestService = guestService;
-    private readonly IAuthService _authService = authService;
     private readonly LobbySettings _settings = settings.Value.Lobby;
 
     public async Task<RatedSeeker> CreateRatedSeekerAsync(
         AuthedUser user,
-        TimeControlSettings timeControl
+        TimeControlSettings timeControlSettings
     )
     {
-        var rating = await _ratingService.GetRatingAsync(
-            user,
-            _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
-        );
+        var timeControl = _timeControlTranslator.FromSeconds(timeControlSettings.BaseSeconds);
+        var rating = await _ratingService.GetRatingAsync(user, timeControl);
 
         return new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
             BlockedUserIds: [],
-            Rating: new(Value: rating, AllowedRatingRange: _settings.AllowedMatchRatingDifference),
-            CreatedAt: _timeProvider.GetUtcNow()
+            CreatedAt: _timeProvider.GetUtcNow(),
+            Rating: new(
+                Value: rating,
+                AllowedRatingRange: _settings.AllowedMatchRatingDifference,
+                TimeControl: timeControl
+            )
         );
     }
 
-    public async Task<ErrorOr<Seeker>> CreateCasualSeekerAsync(ClaimsPrincipal? userClaims)
+    public async Task<OpenRatedSeeker> CreateRatedOpenSeekerAsync(AuthedUser user)
     {
-        var userIdResult = _authService.GetUserId(userClaims);
-        if (userIdResult.IsError)
-            return userIdResult.Errors;
+        Dictionary<TimeControl, int> ratings = [];
+        foreach (var timeControl in Enum.GetValues<TimeControl>())
+        {
+            var rating = await _ratingService.GetRatingAsync(user, timeControl);
+            ratings[timeControl] = rating;
+        }
 
-        if (_guestService.IsGuest(userClaims))
-            return CreateGuestCasualSeeker(userIdResult.Value);
-
-        var authedUserResult = await _authService.GetLoggedInUserAsync(userClaims);
-        if (authedUserResult.IsError)
-            return authedUserResult.Errors;
-        return CreateAuthedCasualSeeker(authedUserResult.Value);
+        return new(
+            UserId: user.Id,
+            UserName: user.UserName ?? "unknown",
+            BlockedUserIds: [],
+            CreatedAt: _timeProvider.GetUtcNow(),
+            Ratings: ratings
+        );
     }
 
-    public Seeker CreateAuthedCasualSeeker(AuthedUser user) =>
+    public CasualSeeker CreateAuthedCasualSeeker(AuthedUser user) =>
         new(
             UserId: user.Id,
             UserName: user?.UserName ?? "unknown",
@@ -77,7 +76,7 @@ public class SeekerCreator(
             CreatedAt: _timeProvider.GetUtcNow()
         );
 
-    public Seeker CreateGuestCasualSeeker(string userId) =>
+    public CasualSeeker CreateGuestCasualSeeker(UserId userId) =>
         new(
             UserId: userId,
             UserName: "Guest",

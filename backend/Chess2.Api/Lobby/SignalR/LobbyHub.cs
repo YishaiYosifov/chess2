@@ -25,7 +25,7 @@ public interface ILobbyHubClient : IChess2HubClient
 [Authorize(AuthPolicies.ActiveSession)]
 public class LobbyHub(
     ILogger<LobbyHub> logger,
-    ISeekerCreator seekerCreator,
+    ISeekerCreator ISeekerCreator,
     IGrainFactory grains,
     IAuthService authService,
     IShardRouter shardRouter,
@@ -33,7 +33,7 @@ public class LobbyHub(
 ) : Chess2Hub<ILobbyHubClient>
 {
     private readonly ILogger<LobbyHub> _logger = logger;
-    private readonly ISeekerCreator _seekerCreator = seekerCreator;
+    private readonly ISeekerCreator _seekerCreator = ISeekerCreator;
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
     private readonly IShardRouter _shardRouter = shardRouter;
@@ -56,7 +56,7 @@ public class LobbyHub(
         var result = await grain.CreateSeekAsync(
             Context.ConnectionId,
             seeker,
-            new(PoolType.Rated, timeControl)
+            new PoolKey(PoolType.Rated, timeControl)
         );
         if (result.IsError)
             await HandleErrors(result.Errors);
@@ -64,7 +64,13 @@ public class LobbyHub(
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
     {
-        var seekerResult = await _seekerCreator.CreateCasualSeekerAsync(Context.User);
+        var seekerResult = await _authService.MatchAuthTypeAsync(
+            Context.User,
+            whenAuthed: user =>
+                Task.FromResult<Seeker>(_seekerCreator.CreateAuthedCasualSeeker(user)),
+            whenGuest: userId =>
+                Task.FromResult<Seeker>(_seekerCreator.CreateGuestCasualSeeker(userId))
+        );
         if (seekerResult.IsError)
         {
             await HandleErrors(seekerResult.Errors);
@@ -99,14 +105,18 @@ public class LobbyHub(
 
     public async Task SubscribeOpenSeeksAsync()
     {
-        var seekerResult = await _seekerCreator.CreateCasualSeekerAsync(Context.User);
+        var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
+            Context.User,
+            whenAuthed: async user => await _seekerCreator.CreateRatedOpenSeekerAsync(user),
+            whenGuest: userId =>
+                Task.FromResult<Seeker>(_seekerCreator.CreateGuestCasualSeeker(userId))
+        );
         if (seekerResult.IsError)
         {
             await HandleErrors(seekerResult.Errors);
             return;
         }
         var seeker = seekerResult.Value;
-
         _logger.LogInformation("User {UserId} subscribing to open seeks", seeker.UserId);
 
         var shard = _shardRouter.GetShardNumber(seeker.UserId, _settings.OpenSeekShardCount);

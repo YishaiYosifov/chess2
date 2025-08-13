@@ -9,9 +9,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
 {
     protected override CasualMatchmakingPool Pool { get; } = new();
 
-    protected override Seeker AddSeek(string userId)
+    protected override CasualSeeker AddSeeker(string userId)
     {
-        Seeker seeker = new(
+        CasualSeeker seeker = new(
             UserId: userId,
             UserName: userId,
             BlockedUserIds: [],
@@ -31,10 +31,10 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_returns_all_pairs_with_even_number_of_seekers()
     {
-        var seeker1 = AddSeek("User1");
-        var seeker2 = AddSeek("User2");
-        var seeker3 = AddSeek("User3");
-        var seeker4 = AddSeek("User4");
+        var seeker1 = AddSeeker("User1");
+        var seeker2 = AddSeeker("User2");
+        var seeker3 = AddSeeker("User3");
+        var seeker4 = AddSeeker("User4");
 
         var matches = Pool.CalculateMatches();
 
@@ -47,9 +47,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_leaves_last_seeker_unmatched_with_odd_number_of_seekers()
     {
-        var seeker1 = AddSeek("User1");
-        var seeker2 = AddSeek("User2");
-        var seeker3 = AddSeek("User3");
+        var seeker1 = AddSeeker("User1");
+        var seeker2 = AddSeeker("User2");
+        var seeker3 = AddSeeker("User3");
 
         var matches = Pool.CalculateMatches();
 
@@ -61,8 +61,10 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_does_not_match_if_seekers_are_blocked()
     {
-        var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]).Generate();
+        var seeker1 = new CasualSeekerFaker().Generate();
+        var seeker2 = new CasualSeekerFaker()
+            .RuleFor(x => x.BlockedUserIds, [seeker1.UserId])
+            .Generate();
         Pool.AddSeek(seeker1);
         Pool.AddSeek(seeker2);
 
@@ -75,9 +77,11 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
     [Fact]
     public void CalculateMatches_matches_only_compatible_seekers()
     {
-        var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new SeekerFaker().RuleFor(x => x.BlockedUserIds, [seeker1.UserId]).Generate();
-        var seeker3 = new SeekerFaker().Generate();
+        var seeker1 = new CasualSeekerFaker().Generate();
+        var seeker2 = new CasualSeekerFaker()
+            .RuleFor(x => x.BlockedUserIds, [seeker1.UserId])
+            .Generate();
+        var seeker3 = new CasualSeekerFaker().Generate();
 
         Pool.AddSeek(seeker1);
         Pool.AddSeek(seeker2);

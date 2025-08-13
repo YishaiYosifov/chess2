@@ -72,7 +72,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         PoolKey casualPoolKey = new(PoolType.Casual, new TimeControlSettings(60, 0));
         PoolKey ratedPoolKey = new(PoolType.Rated, new TimeControlSettings(300, 5));
 
-        var casualSeeker = new SeekerFaker(UserId).Generate();
+        var casualSeeker = new CasualSeekerFaker(UserId).Generate();
         var ratedSeeker = new RatedSeekerFaker(UserId).Generate();
 
         await grain.CreateSeekAsync("conn1", casualSeeker, casualPoolKey);
@@ -92,7 +92,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
         PoolKey pool = new(PoolType.Casual, new TimeControlSettings(60, 0));
 
-        var seeker = new SeekerFaker(UserId).Generate();
+        var seeker = new CasualSeekerFaker(UserId).Generate();
 
         (await grain.CreateSeekAsync("conn1", seeker, pool)).IsError.Should().BeFalse();
         (await grain.CreateSeekAsync("conn2", seeker, pool)).IsError.Should().BeFalse();
@@ -103,7 +103,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
     [Fact]
     public async Task CreateSeekAsync_rejects_seek_when_too_many_active_games()
     {
-        var seeker = new SeekerFaker(UserId).Generate();
+        var seeker = new CasualSeekerFaker(UserId).Generate();
         PoolKey pool = new(PoolType.Casual, new TimeControlSettings(60, 0));
         var stream = ProbeSeekEndedStream(pool);
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
@@ -170,7 +170,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
     public async Task SeekEndedEvent_with_null_gameToken_notifies_match_failed_and_unsubscribes()
     {
         PoolKey pool = new(PoolType.Casual, new TimeControlSettings(10, 1));
-        var seeker = new SeekerFaker(UserId).Generate();
+        var seeker = new CasualSeekerFaker(UserId).Generate();
         var stream = ProbeSeekEndedStream(pool);
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);

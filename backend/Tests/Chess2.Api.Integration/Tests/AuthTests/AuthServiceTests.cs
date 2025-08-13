@@ -1,14 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Auth.Errors;
+﻿using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
+using Chess2.Api.Users.Models;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Integration.Tests.AuthTests;
 
@@ -45,6 +46,69 @@ public class AuthServiceTests : BaseIntegrationTest
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(Error.Unauthorized());
+    }
+
+    [Fact]
+    public async Task MatchAuthTypeAsync_gets_the_user_id_when_guest()
+    {
+        UserId userId = "test guest id";
+        var claims = ClaimUtils.CreateGuestClaims(userId);
+
+        var result = await _authService.MatchAuthTypeAsync(
+            claims,
+            whenAuthed: x => throw new ArgumentException("wrong user type matched"),
+            whenGuest: x => Task.FromResult(x)
+        );
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().Be(userId);
+    }
+
+    [Fact]
+    public async Task MatchAuthTypeAsync_gets_the_user_when_authed()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+        var claims = ClaimUtils.CreateUserClaims(user.Id);
+
+        var result = await _authService.MatchAuthTypeAsync(
+            claims,
+            whenAuthed: x => Task.FromResult(x),
+            whenGuest: x => throw new ArgumentException("wrong user type matched")
+        );
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeEquivalentTo(user);
+    }
+
+    [Fact]
+    public async Task MatchAuthTypeAsync_returns_error_when_userid_invalid()
+    {
+        ClaimsPrincipal? claims = null;
+        var result = await _authService.MatchAuthTypeAsync(
+            claims,
+            whenAuthed: Task.FromResult<object>,
+            whenGuest: x => Task.FromResult<object>(x)
+        );
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().Be(Error.Unauthorized());
+    }
+
+    [Fact]
+    public async Task MatchAuthTypeAsync_returns_error_when_authed_user_not_found()
+    {
+        var claims = ClaimUtils.CreateUserClaims("nonexistent-user-id");
+
+        var result = await _authService.MatchAuthTypeAsync(
+            claims,
+            whenAuthed: x => Task.FromResult(x),
+            whenGuest: x => throw new ArgumentException("wrong user type matched")
+        );
+
+        result.IsError.Should().BeTrue();
+        result.Errors.Should().ContainSingle().Which.Should().Be(Error.Unauthorized());
     }
 
     [Fact]
