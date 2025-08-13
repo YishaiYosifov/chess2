@@ -1,39 +1,35 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.SignalRClients;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.Functional.Tests.LobbyTests;
 
 public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
-    private const string HubPath = "/api/hub/lobby";
-    private const string SeekCasualMethod = "SeekCasualAsync";
-    private const string SeekRatedMethod = "SeekRatedAsync";
-
     [Fact]
     public async Task Connecting_without_access_token_throws_error()
     {
-        var act = async () => await ConnectSignalRAsync(HubPath);
+        var act = async () => await ConnectSignalRAsync(LobbyHubClient.Path);
         await act.Should().ThrowAsync<HttpRequestException>().WithMessage("*Unauthorized*");
     }
 
     [Fact]
     public async Task SeekCasualAsync_guest_vs_guest_matches()
     {
-        await using var conn1 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest2");
-
-        await AssertPlayersMatchAsync(
-            conn1,
-            conn2,
-            new TimeControlSettings(600, 0),
-            SeekCasualMethod
+        await using LobbyHubClient conn1 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
         );
+        await using LobbyHubClient conn2 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest2")
+        );
+
+        await conn1.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
+        await conn2.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
+
+        await AssertMatchEstablishedAsync(conn1, conn2);
     }
 
     [Fact]
@@ -42,15 +38,17 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
         var user1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
         var user2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await using var conn1 = await ConnectSignalRAuthedAsync(HubPath, user1);
-        await using var conn2 = await ConnectSignalRAuthedAsync(HubPath, user2);
-
-        await AssertPlayersMatchAsync(
-            conn1,
-            conn2,
-            new TimeControlSettings(300, 10),
-            SeekRatedMethod
+        await using LobbyHubClient conn1 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, user1)
         );
+        await using LobbyHubClient conn2 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, user2)
+        );
+
+        await conn1.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
+        await conn2.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
+
+        await AssertMatchEstablishedAsync(conn1, conn2);
     }
 
     [Fact]
@@ -58,115 +56,136 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     {
         var authedUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
 
-        await using var conn1 = await ConnectSignalRAuthedAsync(HubPath, authedUser);
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-
-        await AssertPlayersMatchAsync(
-            conn1,
-            conn2,
-            new TimeControlSettings(900, 3),
-            SeekCasualMethod
+        await using LobbyHubClient conn1 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, authedUser)
         );
+        await using LobbyHubClient conn2 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
+        );
+
+        await conn1.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
+        await conn2.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
+
+        await AssertMatchEstablishedAsync(conn1, conn2);
     }
 
     [Fact]
     public async Task SeekRatedAsync_and_SeekCasualAsync_with_multiple_concurrent_user_pairs()
     {
-        var timeControl = new TimeControlSettings(600, 5);
+        TimeControlSettings timeControl = new(600, 5);
 
-        var authed1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var authed2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var authed3 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var authed4 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authed1 = new AuthedUserFaker().Generate();
+        var authed2 = new AuthedUserFaker().Generate();
+        var authed3 = new AuthedUserFaker().Generate();
+        var authed4 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(authed1, authed2, authed3, authed4);
+        await DbContext.SaveChangesAsync(CT);
 
-        await using var authedConn1 = await ConnectSignalRAuthedAsync(HubPath, authed1);
-        await using var authedConn2 = await ConnectSignalRAuthedAsync(HubPath, authed2);
-        await using var authedConn3 = await ConnectSignalRAuthedAsync(HubPath, authed3);
-        await using var authedConn4 = await ConnectSignalRAuthedAsync(HubPath, authed4);
+        await using LobbyHubClient authedConn1 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, authed1)
+        );
+        await using LobbyHubClient authedConn2 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, authed2)
+        );
+        await using LobbyHubClient authedConn3 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, authed3)
+        );
+        await using LobbyHubClient authedConn4 = new(
+            await ConnectSignalRAuthedAsync(LobbyHubClient.Path, authed4)
+        );
 
-        await using var guestConn1 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var guestConn2 = await ConnectSignalRGuestAsync(HubPath, "guest2");
+        await using LobbyHubClient guestConn1 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
+        );
+        await using LobbyHubClient guestConn2 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest2")
+        );
+
+        List<Task> connTasks =
+        [
+            authedConn1.SeekRatedAsync(timeControl, CT),
+            authedConn2.SeekRatedAsync(timeControl, CT),
+            authedConn3.SeekRatedAsync(timeControl, CT),
+            authedConn4.SeekRatedAsync(timeControl, CT),
+            guestConn1.SeekCasualAsync(timeControl, CT),
+            guestConn2.SeekCasualAsync(timeControl, CT),
+        ];
 
         var concurrentRatedMatchTask = AssertConcurrentMatchesAsync(
-            timeControl,
-            SeekRatedMethod,
             authedConn1,
             authedConn2,
             authedConn3,
             authedConn4
         );
-        var guestMatchTask = AssertPlayersMatchAsync(
-            guestConn1,
-            guestConn2,
-            timeControl,
-            SeekCasualMethod
-        );
+        var guestMatchTask = AssertMatchEstablishedAsync(guestConn1, guestConn2);
 
-        await Task.WhenAll(concurrentRatedMatchTask, guestMatchTask);
+        await Task.WhenAll([.. connTasks, concurrentRatedMatchTask, guestMatchTask]);
     }
 
     [Fact]
     public async Task SeekRated_with_a_guest_should_return_an_error()
     {
-        var conn = await ConnectSignalRGuestAsync(HubPath, "guest1");
+        await using LobbyHubClient conn = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
+        );
 
-        var tsc = new TaskCompletionSource<IEnumerable<SignalRError>>();
-        conn.On<IEnumerable<SignalRError>>("ReceiveErrorAsync", errors => tsc.TrySetResult(errors));
+        await conn.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
 
-        await conn.InvokeAsync(SeekRatedMethod, new TimeControlSettings(300, 10), CT);
+        var result = await conn.WaitForErrorAsync(CT);
 
-        var result = await tsc.Task.WaitAsync(TimeSpan.FromSeconds(10), CT);
         result.Should().ContainSingle().Which.Code.Should().Be("General.Unauthorized");
     }
 
     [Fact]
     public async Task Seek_and_disconnect_cancels_the_seek()
     {
-        var timeControl = new TimeControlSettings(300, 10);
+        TimeControlSettings timeControl = new(300, 10);
 
-        await using var conn1 = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await conn1.InvokeAsync(SeekCasualMethod, timeControl, CT);
-        await conn1.StopAsync(CT);
+        await using LobbyHubClient conn1 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
+        );
+        await conn1.SeekCasualAsync(timeControl, CT);
+        await conn1.DisposeAsync();
 
-        await using var conn2 = await ConnectSignalRGuestAsync(HubPath, "guest2");
-        await using var conn3 = await ConnectSignalRGuestAsync(HubPath, "guest3");
+        await using LobbyHubClient conn2 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest2")
+        );
+        await using LobbyHubClient conn3 = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest3")
+        );
 
-        // users are matched in the order they connected, so if conn1 disconnects, conn2 and conn3 should match
-        await AssertPlayersMatchAsync(conn2, conn3, timeControl, SeekCasualMethod);
+        await conn2.SeekCasualAsync(timeControl, CT);
+        await conn3.SeekCasualAsync(timeControl, CT);
+
+        await AssertMatchEstablishedAsync(conn2, conn3);
     }
 
     [Fact]
     public async Task Seek_and_disconnect_on_another_connection_doesnt_cancel_the_seek()
     {
-        var timeControl = new TimeControlSettings(300, 10);
+        TimeControlSettings timeControl = new(300, 10);
 
-        await using var guest1ActiveConn = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await using var guest1DisconnectedConn = await ConnectSignalRGuestAsync(HubPath, "guest1");
-        await guest1ActiveConn.InvokeAsync(SeekCasualMethod, timeControl, CT);
+        await using LobbyHubClient guest1ActiveConn = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest1")
+        );
+        await using var guest1DisconnectedConn = await ConnectSignalRGuestAsync(
+            LobbyHubClient.Path,
+            "guest1"
+        );
+        await guest1ActiveConn.SeekCasualAsync(timeControl, CT);
         await guest1DisconnectedConn.StopAsync(CT);
 
-        await using var guest2Conn = await ConnectSignalRGuestAsync(HubPath, "guest2");
-        await guest2Conn.InvokeAsync(SeekCasualMethod, timeControl, CT);
+        await using LobbyHubClient guest2Conn = new(
+            await ConnectSignalRGuestAsync(LobbyHubClient.Path, "guest2")
+        );
+        await guest2Conn.SeekCasualAsync(timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
     }
 
-    private async Task AssertConcurrentMatchesAsync(
-        TimeControlSettings timeControl,
-        string methodName,
-        params List<HubConnection> conns
-    )
+    private async Task AssertConcurrentMatchesAsync(params List<LobbyHubClient> conns)
     {
-        List<TaskCompletionSource<string>> tcsList = [];
-        foreach (var conn in conns)
-        {
-            tcsList.Add(ListenForMatch(conn));
-            await conn.InvokeAsync(methodName, timeControl);
-        }
-
-        var tokens = await Task.WhenAll(
-            tcsList.Select(tcs => tcs.Task.WaitAsync(TimeSpan.FromSeconds(10), CT))
-        );
+        var tokens = await Task.WhenAll(conns.Select(conn => conn.WaitForGameAsync(CT)));
         var tokenCounts = tokens.GroupBy(token => token).ToDictionary(g => g.Key, g => g.Count());
 
         tokenCounts.Should().HaveCount(conns.Count / 2);
@@ -177,38 +196,16 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
         }
     }
 
-    private async Task<string> AssertPlayersMatchAsync(
-        HubConnection conn1,
-        HubConnection conn2,
-        TimeControlSettings timeControl,
-        string methodName
+    private async Task<string> AssertMatchEstablishedAsync(
+        LobbyHubClient conn1,
+        LobbyHubClient conn2
     )
     {
-        await conn1.InvokeAsync(methodName, timeControl);
-        await conn2.InvokeAsync(methodName, timeControl);
-
-        var gameToken = await AssertMatchEstablishedAsync(conn1, conn2);
-        return gameToken;
-    }
-
-    private async Task<string> AssertMatchEstablishedAsync(HubConnection conn1, HubConnection conn2)
-    {
-        var tcs1 = ListenForMatch(conn1);
-        var tcs2 = ListenForMatch(conn2);
-
-        var timeout = TimeSpan.FromSeconds(10);
-        var gameToken1 = await tcs1.Task.WaitAsync(timeout, CT);
-        var gameToken2 = await tcs2.Task.WaitAsync(timeout, CT);
+        var gameToken1 = await conn1.WaitForGameAsync(CT);
+        var gameToken2 = await conn2.WaitForGameAsync(CT);
 
         gameToken1.Should().NotBeNullOrEmpty().And.HaveLength(16).And.Be(gameToken2);
 
         return gameToken1;
-    }
-
-    private static TaskCompletionSource<string> ListenForMatch(HubConnection conn)
-    {
-        var tcs = new TaskCompletionSource<string>();
-        conn.On<string>("MatchFoundAsync", gameToken => tcs.TrySetResult(gameToken));
-        return tcs;
     }
 }
