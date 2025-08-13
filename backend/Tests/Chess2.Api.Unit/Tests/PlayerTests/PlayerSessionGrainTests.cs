@@ -21,7 +21,7 @@ namespace Chess2.Api.Unit.Tests.PlayerTests;
 public class PlayerSessionGrainTests : BaseGrainTest
 {
     private readonly ILobbyNotifier _matchmakingNotifierMock = Substitute.For<ILobbyNotifier>();
-    private readonly GameSettings _settings;
+    private readonly LobbySettings _settings;
 
     private readonly IRatedMatchmakingGrain _ratedPoolGrainMock =
         Substitute.For<IRatedMatchmakingGrain>();
@@ -36,17 +36,17 @@ public class PlayerSessionGrainTests : BaseGrainTest
         Silo.AddProbe(_ => _casualPoolGrainMock);
 
         var settings = AppSettingsLoader.LoadAppSettings();
-        _settings = settings.Game;
+        _settings = settings.Lobby;
 
         Silo.ServiceProvider.AddService(Substitute.For<ILogger<PlayerSessionGrain>>());
         Silo.ServiceProvider.AddService(_matchmakingNotifierMock);
         Silo.ServiceProvider.AddService(Options.Create(settings));
     }
 
-    private TestStream<SeekEndedEvent> ProbeSeekEndedStream(PoolKey pool) =>
-        Silo.AddStreamProbe<SeekEndedEvent>(
+    private TestStream<PlayerSeekEndedEvent> ProbeSeekEndedStream(PoolKey pool) =>
+        Silo.AddStreamProbe<PlayerSeekEndedEvent>(
             MatchmakingStreamKey.SeekStream(UserId, pool),
-            MatchmakingStreamConstants.EndedStream,
+            MatchmakingStreamConstants.PlayerSeekEndedStream,
             Streaming.StreamProvider
         );
 
@@ -159,7 +159,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("connB", seeker, pool);
 
         var gameToken = "game 123";
-        await stream.OnNextAsync(new SeekEndedEvent(gameToken));
+        await stream.OnNextAsync(new PlayerSeekEndedEvent(gameToken));
 
         await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connA", gameToken);
         await _matchmakingNotifierMock.Received(1).NotifyGameFoundAsync("connB", gameToken);
@@ -177,7 +177,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn1", seeker, pool);
         await grain.CreateSeekAsync("conn2", seeker, pool);
 
-        await stream.OnNextAsync(new SeekEndedEvent(GameToken: null));
+        await stream.OnNextAsync(new PlayerSeekEndedEvent(GameToken: null));
 
         await _matchmakingNotifierMock.Received(1).NotifyMatchFailedAsync("conn1");
         await _matchmakingNotifierMock.Received(1).NotifyMatchFailedAsync("conn2");
