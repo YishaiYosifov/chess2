@@ -25,7 +25,7 @@ public class OpenSeekNotifierTests
     public OpenSeekNotifierTests()
     {
         _clientsMock
-            .Users(Arg.Is<IEnumerable<string>>(x => x.SequenceEqual(_userIds)))
+            .Users(Arg.Is<IReadOnlyList<string>>(x => x.SequenceEqual(_userIds)))
             .Returns(_clientProxyMock);
         _hubContextMock.Clients.Returns(_clientsMock);
         _notifier = new(_hubContextMock);
