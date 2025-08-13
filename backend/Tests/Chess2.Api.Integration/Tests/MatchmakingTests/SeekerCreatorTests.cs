@@ -126,7 +126,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
             [TimeControl.Classical] = classicalRating.Value,
         };
 
-        var expectedSeeker = new OpenRatedSeeker(
+        var expectedSeeker = new Matchmaking.Models.OpenRatedSeeker(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
             BlockedUserIds: [],

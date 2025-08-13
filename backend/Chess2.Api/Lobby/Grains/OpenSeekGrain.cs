@@ -29,7 +29,7 @@ public class SeekWatcher
 
 public record OpenSeek(SeekKey SeekKey, string UserName, TimeControl TimeControl, int? Rating);
 
-public class OpenSeekEntry()
+public class OpenSeekEntry
 {
     public required OpenSeek OpenSeek { get; init; }
     public required Seeker Seeker { get; init; }
@@ -41,8 +41,11 @@ public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator,
     TimeProvider timeProvider
-) : Grain, IOpenSeekWatcherGrain
+) : Grain, IOpenSeekWatcherGrain, IGrainBase
 {
+    public const int RefetchTimer = 0;
+    public const int StaleTimer = 1;
+
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly TimeProvider _timeProvider = timeProvider;
@@ -68,15 +71,18 @@ public class OpenSeekGrain(
                 !seeker.IsCompatibleWith(openSeek.Seeker)
                 || !openSeek.Seeker.IsCompatibleWith(seeker)
             )
-                return;
+                continue;
 
             watchingSeeks.Add(openSeek.OpenSeek);
             openSeek.SubscribedUserIds.Add(seeker.UserId);
-            if (watchingSeeks.Count > 10)
-                return;
+            if (watchingSeeks.Count >= 10)
+                break;
         }
 
-        await _openSeekNotifier.NotifyOpenSeekAsync([seeker.UserId], watchingSeeks);
+        if (watchingSeeks.Count > 0)
+        {
+            await _openSeekNotifier.NotifyOpenSeekAsync(connectionId, watchingSeeks);
+        }
     }
 
     public Task UnsubscribeAsync(UserId userId, ConnectionId connectionId)
@@ -107,10 +113,13 @@ public class OpenSeekGrain(
     private async Task OnSeekCreated(OpenSeekCreatedEvent @event, StreamSequenceToken _)
     {
         var openSeek = RegisterOpenSeeker(@event.Seeker, @event.SeekKey);
-        await _openSeekNotifier.NotifyOpenSeekAsync(
-            openSeek.SubscribedUserIds,
-            [openSeek.OpenSeek]
-        );
+        if (openSeek.SubscribedUserIds.Count > 0)
+        {
+            await _openSeekNotifier.NotifyOpenSeekAsync(
+                openSeek.SubscribedUserIds,
+                [openSeek.OpenSeek]
+            );
+        }
     }
 
     private async Task RefetchSeeksAsync()
