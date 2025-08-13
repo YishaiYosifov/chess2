@@ -38,11 +38,9 @@ public record RatedSeeker(
 [Alias("Chess2.Api.Matchmaking.Models.SeekerRating")]
 public record SeekerRating(int Value, int AllowedRatingRange)
 {
-    [Id(0)]
-    public int MinRating { get; } = Value - AllowedRatingRange;
+    public int MinRating => Value - AllowedRatingRange;
 
-    [Id(1)]
-    public int MaxRating { get; } = Value + AllowedRatingRange;
+    public int MaxRating => Value + AllowedRatingRange;
 
     public bool IsCompatibleWith(SeekerRating other) =>
         IsWithinRatingRange(other.Value) && other.IsWithinRatingRange(Value);

@@ -27,13 +27,7 @@ public class SeekWatcher
     public required Seeker Seeker { get; init; }
 }
 
-public record OpenSeek(
-    UserId UserId,
-    string UserName,
-    TimeControl TimeControl,
-    PoolKey Pool,
-    int? Rating
-);
+public record OpenSeek(SeekKey SeekKey, string UserName, TimeControl TimeControl, int? Rating);
 
 public class OpenSeekEntry()
 {
@@ -96,7 +90,7 @@ public class SeekBroadcastGrain(
         return Task.CompletedTask;
     }
 
-    private async Task OnSeekEnded(OpenSeekEndedBroadcastEvent @event, StreamSequenceToken _)
+    private async Task OnSeekEnded(OpenSeekRemovedEvent @event, StreamSequenceToken _)
     {
         if (!_openSeeks.TryGetValue(@event.SeekKey, out var openSeek))
             return;
@@ -105,7 +99,7 @@ public class SeekBroadcastGrain(
         _openSeeks.Remove(@event.SeekKey);
     }
 
-    private async Task OnSeekCreated(OpenSeekBroadcastEvent @event, StreamSequenceToken _)
+    private async Task OnSeekCreated(OpenSeekCreatedEvent @event, StreamSequenceToken _)
     {
         var openSeek = RegisterOpenSeeker(@event.Seeker, @event.SeekKey);
         await _lobbyNotifier.NotifyOpenSeekAsync(openSeek.SubscribedUserIds, [openSeek.OpenSeek]);
@@ -129,15 +123,15 @@ public class SeekBroadcastGrain(
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        var seekBroadcast = streamProvider.GetStream<OpenSeekBroadcastEvent>(
-            MatchmakingStreamConstants.OpenSeekBoardcastStream
+        var openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
+            MatchmakingStreamConstants.OpenSeekCreatedStream
         );
-        await seekBroadcast.SubscribeAsync(OnSeekCreated);
+        await openSeekCreatedStream.SubscribeAsync(OnSeekCreated);
 
-        var seekEndedBroadcast = streamProvider.GetStream<OpenSeekEndedBroadcastEvent>(
-            MatchmakingStreamConstants.OpenSeekEndedBoardcastStream
+        var openSeekRemovedStream = streamProvider.GetStream<OpenSeekRemovedEvent>(
+            MatchmakingStreamConstants.OpenSeekRemovedStream
         );
-        await seekEndedBroadcast.SubscribeAsync(OnSeekEnded);
+        await openSeekRemovedStream.SubscribeAsync(OnSeekEnded);
 
         this.RegisterGrainTimer(
             callback: RefetchSeeksAsync,
@@ -162,7 +156,7 @@ public class SeekBroadcastGrain(
             }
         }
 
-        OpenSeek openSeek = new(seeker.UserId, seeker.UserName, timeControl, seekKey.Pool, rating);
+        OpenSeek openSeek = new(seekKey, seeker.UserName, timeControl, rating);
         OpenSeekEntry entry = new()
         {
             OpenSeek = openSeek,

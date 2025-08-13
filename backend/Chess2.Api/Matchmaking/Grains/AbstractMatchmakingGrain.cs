@@ -39,8 +39,10 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private readonly TimeProvider _timeProvider;
 
     private IStreamProvider _streamProvider = null!;
-    private IAsyncStream<OpenSeekBroadcastEvent> _seekCreationStream = null!;
-    private IAsyncStream<OpenSeekEndedBroadcastEvent> _seekEndedStream = null!;
+    private IAsyncStream<OpenSeekCreatedEvent> _openSeekCreatedStream = null!;
+    private IAsyncStream<OpenSeekRemovedEvent> _openSeekRemovedStream = null!;
+
+    private readonly Dictionary<UserId, Seeker> _pendingSeekBroadcast = [];
 
     public AbstractMatchmakingGrain(
         ILogger<AbstractMatchmakingGrain<TPool>> logger,
@@ -59,15 +61,13 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _settings = settings.Value.Lobby;
     }
 
-    public async Task AddSeekAsync(Seeker seeker)
+    public Task AddSeekAsync(Seeker seeker)
     {
-        DelayDeactivation(TimeSpan.FromMinutes(5));
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
         _pool.AddSeek(seeker);
-        await _seekCreationStream.OnNextAsync(
-            new OpenSeekBroadcastEvent(new SeekKey(seeker.UserId, _key), seeker)
-        );
+        _pendingSeekBroadcast.Add(seeker.UserId, seeker);
+        return Task.CompletedTask;
     }
 
     public async Task<bool> TryCancelSeekAsync(UserId userId)
@@ -79,7 +79,8 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             return false;
         }
 
-        await NotifySeekEnded(userId);
+        await NotifySeekEndedAsync(userId);
+        await BroadcastSeekRemovedIfNeeded(userId);
         return true;
     }
 
@@ -91,6 +92,8 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
     private async Task ExecuteWaveAsync()
     {
         var matches = _pool.CalculateMatches();
+
+        List<UserId> removedUserSeeks = [];
         foreach (var (seeker1, seeker2) in matches)
         {
             _logger.LogInformation("Found match for {User1} with {User2}", seeker1, seeker2);
@@ -103,9 +106,20 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
                 isRated
             );
 
-            await NotifySeekEnded(seeker1.UserId, gameToken);
-            await NotifySeekEnded(seeker2.UserId, gameToken);
+            await NotifySeekEndedAsync(seeker1.UserId, gameToken);
+            await NotifySeekEndedAsync(seeker2.UserId, gameToken);
+
+            if (!_pendingSeekBroadcast.Remove(seeker1.UserId))
+                removedUserSeeks.Add(seeker1.UserId);
+            if (!_pendingSeekBroadcast.Remove(seeker2.UserId))
+                removedUserSeeks.Add(seeker2.UserId);
         }
+
+        await BatchBroadcastOpenSeekRemovedAsync(removedUserSeeks);
+
+        // after a wave we can be sure it wasn't matched, so we can notify about a new open seek
+        await BatchBroadcastOpenSeekCreatedAsync(_pendingSeekBroadcast.Values);
+        _pendingSeekBroadcast.Clear();
     }
 
     private async Task TimeoutSeeksAsync()
@@ -124,7 +138,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
                 _key
             );
             _pool.RemoveSeek(seeker.UserId);
-            await NotifySeekEnded(seeker.UserId);
+            await NotifySeekEndedAsync(seeker.UserId);
         }
 
         if (_pool.SeekerCount > 0)
@@ -133,18 +147,38 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             DeactivateOnIdle();
     }
 
-    private async Task NotifySeekEnded(UserId userId, string? gameToken = null)
-    {
-        await _streamProvider
-            .GetStream<SeekEndedEvent>(
-                MatchmakingStreamConstants.EndedStream,
+    private Task NotifySeekEndedAsync(UserId userId, string? gameToken = null) =>
+        _streamProvider
+            .GetStream<PlayerSeekEndedEvent>(
+                MatchmakingStreamConstants.PlayerSeekEndedStream,
                 MatchmakingStreamKey.SeekStream(userId, _key)
             )
             .OnNextAsync(new(gameToken));
-        await _seekEndedStream.OnNextAsync(
-            new OpenSeekEndedBroadcastEvent(new SeekKey(userId, _key))
-        );
+
+    private async Task BroadcastSeekRemovedIfNeeded(UserId userId)
+    {
+        // if the seeker is pending broadcast, it means it hasn't been broadcasted yet
+        // so no point broadcasting it ended
+        if (!_pendingSeekBroadcast.Remove(userId))
+        {
+            await _openSeekRemovedStream.OnNextAsync(
+                new OpenSeekRemovedEvent(new SeekKey(userId, _key))
+            );
+        }
     }
+
+    private Task BatchBroadcastOpenSeekRemovedAsync(IEnumerable<UserId> userIds) =>
+        _openSeekRemovedStream.OnNextBatchAsync(
+            userIds.Select(userId => new OpenSeekRemovedEvent(new SeekKey(userId, _key)))
+        );
+
+    private Task BatchBroadcastOpenSeekCreatedAsync(IEnumerable<Seeker> seekers) =>
+        _openSeekCreatedStream.OnNextBatchAsync(
+            seekers.Select(seeker => new OpenSeekCreatedEvent(
+                SeekKey: new SeekKey(seeker.UserId, _key),
+                Seeker: seeker
+            ))
+        );
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
@@ -160,11 +194,11 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         );
 
         _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        _seekCreationStream = _streamProvider.GetStream<OpenSeekBroadcastEvent>(
-            MatchmakingStreamConstants.OpenSeekBoardcastStream
+        _openSeekCreatedStream = _streamProvider.GetStream<OpenSeekCreatedEvent>(
+            MatchmakingStreamConstants.OpenSeekCreatedStream
         );
-        _seekEndedStream = _streamProvider.GetStream<OpenSeekEndedBroadcastEvent>(
-            MatchmakingStreamConstants.OpenSeekEndedBoardcastStream
+        _openSeekRemovedStream = _streamProvider.GetStream<OpenSeekRemovedEvent>(
+            MatchmakingStreamConstants.OpenSeekRemovedStream
         );
 
         var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
