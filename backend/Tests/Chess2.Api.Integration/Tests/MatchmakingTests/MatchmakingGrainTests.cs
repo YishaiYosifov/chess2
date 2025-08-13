@@ -87,7 +87,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     public async Task TryCreateSeekAsync_adds_the_seek_and_doesnt_broadcast()
     {
         var stream = ProbeOpenSeekCreatedStream();
-        var seeker = new SeekerFaker().Generate();
+        var seeker = new CasualSeekerFaker().Generate();
         var grain = await CreateGrainAsync();
 
         await grain.AddSeekAsync(seeker);
@@ -100,7 +100,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task TryCancelSeekAsync_removes_seek_and_notifies_when_seek_exists()
     {
-        var seeker = new SeekerFaker().Generate();
+        var seeker = new CasualSeekerFaker().Generate();
         var seekEndStream = ProbeSeekEndedStream(seeker.UserId);
         var seekRemovedStream = ProbeOpenSeekRemovedStream();
         var grain = await CreateGrainAsync();
@@ -130,7 +130,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task TryCancelSeekAsync_broadcasts_cancel_event_after_a_missed_wave()
     {
-        var seeker = new SeekerFaker().Generate();
+        var seeker = new CasualSeekerFaker().Generate();
         var seekRemovedStream = ProbeOpenSeekRemovedStream();
         var grain = await CreateGrainAsync();
 
@@ -145,8 +145,8 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task ExecuteWaveAsync_starts_games_and_notify_stream_for_matches()
     {
-        var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new SeekerFaker().Generate();
+        var seeker1 = new CasualSeekerFaker().Generate();
+        var seeker2 = new CasualSeekerFaker().Generate();
         var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
         var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
         var removedStream = ProbeOpenSeekRemovedStream();
@@ -200,7 +200,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task ExecuteWaveAsync_broadcasts_seek_creation_when_a_seeker_is_not_matched_once()
     {
-        var seeker = new SeekerFaker().Generate();
+        var seeker = new CasualSeekerFaker().Generate();
         var createdStream = ProbeOpenSeekCreatedStream();
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker);
@@ -220,8 +220,8 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task ExecuteWaveAsync_broadcasts_seek_removed_after_seek_is_broadcasted_as_created()
     {
-        var seeker1 = new SeekerFaker().Generate();
-        var seeker2 = new SeekerFaker().Generate();
+        var seeker1 = new CasualSeekerFaker().Generate();
+        var seeker2 = new CasualSeekerFaker().Generate();
         var removedStream = ProbeOpenSeekCreatedStream();
         var grain = await CreateGrainAsync();
         await grain.AddSeekAsync(seeker1);
@@ -241,10 +241,10 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task TimeoutSeeksAsync_ends_seeks_that_have_timed_out()
     {
-        var timedOutSeeker = new SeekerFaker()
+        var timedOutSeeker = new CasualSeekerFaker()
             .RuleFor(x => x.CreatedAt, _fakeNow - TimeSpan.FromMinutes(5))
             .Generate();
-        var otherSeeker = new SeekerFaker().RuleFor(x => x.CreatedAt, _fakeNow).Generate();
+        var otherSeeker = new CasualSeekerFaker().RuleFor(x => x.CreatedAt, _fakeNow).Generate();
         var timedOutSeekerStream = ProbeSeekEndedStream(timedOutSeeker.UserId);
         var otherSeekerStream = ProbeSeekEndedStream(otherSeeker.UserId);
 

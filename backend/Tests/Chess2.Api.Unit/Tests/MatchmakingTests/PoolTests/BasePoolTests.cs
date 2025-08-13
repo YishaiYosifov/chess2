@@ -9,12 +9,12 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
 {
     protected abstract TPool Pool { get; }
 
-    protected abstract Seeker AddSeek(string userId);
+    protected abstract Seeker AddSeeker(string userId);
 
     [Fact]
     public void AddSeek_adds_the_seeker()
     {
-        var seeker = AddSeek("user1");
+        var seeker = AddSeeker("user1");
 
         Pool.Seekers.Should().ContainSingle().Which.Should().BeEquivalentTo(seeker);
     }
@@ -22,8 +22,8 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     [Fact]
     public void RemoveSeek_only_removes_the_correct_seeker()
     {
-        AddSeek("user1");
-        var keepSeeker = AddSeek("user2");
+        AddSeeker("user1");
+        var keepSeeker = AddSeeker("user2");
 
         var result = Pool.RemoveSeek("user1");
 
@@ -34,7 +34,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     [Fact]
     public void HasSeek_returns_true_if_user_has_seek()
     {
-        AddSeek("user1");
+        AddSeeker("user1");
 
         Pool.HasSeek("user1").Should().BeTrue();
     }
@@ -42,7 +42,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     [Fact]
     public void HasSeek_returns_false_if_user_does_not_have_seek()
     {
-        AddSeek("user1");
+        AddSeeker("user1");
 
         Pool.HasSeek("user2").Should().BeFalse();
     }
@@ -50,7 +50,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     [Fact]
     public void HasSeek_returns_false_after_seek_is_removed()
     {
-        AddSeek("user1");
+        AddSeeker("user1");
         Pool.RemoveSeek("user1");
 
         Pool.HasSeek("user1").Should().BeFalse();
