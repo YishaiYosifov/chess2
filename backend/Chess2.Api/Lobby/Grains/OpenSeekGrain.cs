@@ -37,7 +37,7 @@ public class OpenSeekEntry()
 }
 
 [KeepAlive]
-public class SeekBroadcastGrain(
+public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator
 ) : Grain, IOpenSeekWatcherGrain
