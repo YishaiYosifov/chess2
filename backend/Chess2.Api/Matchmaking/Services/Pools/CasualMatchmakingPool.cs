@@ -13,6 +13,7 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
     public int SeekerCount => _seekers.Count;
 
     public void AddSeek(Seeker seeker) => _seekers[seeker.UserId] = seeker;
+    public void AddSeeker(Seeker seeker) => _seekers[seeker.UserId] = seeker;
 
     public bool HasSeeker(UserId userId) => _seekers.ContainsKey(userId);
 

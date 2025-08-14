@@ -25,7 +25,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
             ),
             CreatedAt: DateTime.UtcNow
         );
-        Pool.AddSeek(seeker);
+        Pool.AddSeeker(seeker);
         return seeker;
     }
 
@@ -58,8 +58,8 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         RatedSeeker normal = new RatedSeekerFaker(rating: 1200)
             .RuleFor(x => x.BlockedUserIds, [blocked.UserId])
             .Generate();
-        Pool.AddSeek(blocked);
-        Pool.AddSeek(normal);
+        Pool.AddSeeker(blocked);
+        Pool.AddSeeker(normal);
 
         Pool.CalculateMatches().Should().BeEmpty();
     }
