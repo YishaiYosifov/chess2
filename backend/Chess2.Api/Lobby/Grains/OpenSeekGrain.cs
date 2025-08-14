@@ -12,7 +12,7 @@ using Orleans.Streams;
 namespace Chess2.Api.Lobby.Grains;
 
 [Alias("Chess2.Api.Lobby.Grains.IOpenSeekWatcherGrain")]
-public interface IOpenSeekWatcherGrain : IGrainWithIntegerKey
+public interface IOpenSeekGrain : IGrainWithIntegerKey
 {
     [Alias("Subscribe")]
     Task SubscribeAsync(ConnectionId connectionId, Seeker seeker);
@@ -41,7 +41,7 @@ public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator,
     TimeProvider timeProvider
-) : Grain, IOpenSeekWatcherGrain, IGrainBase
+) : Grain, IOpenSeekGrain, IGrainBase
 {
     public const int RefetchTimer = 0;
     public const int StaleTimer = 1;
