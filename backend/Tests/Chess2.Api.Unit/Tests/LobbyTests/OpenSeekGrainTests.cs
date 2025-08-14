@@ -41,6 +41,7 @@ public class OpenSeekGrainTests : BaseGrainTest
         _fakeNow = DateTime.UtcNow;
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
+        _poolDirectoryGrainMock.GetAllSeekersAsync().Returns([]);
         Silo.AddProbe(_ => _poolDirectoryGrainMock);
 
         Silo.ServiceProvider.AddService(_openSeekNotifierMock);
