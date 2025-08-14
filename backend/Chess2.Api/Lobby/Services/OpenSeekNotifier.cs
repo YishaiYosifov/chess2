@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Lobby.Grains;
+﻿using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;

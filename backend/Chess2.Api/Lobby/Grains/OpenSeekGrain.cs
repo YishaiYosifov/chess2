@@ -1,6 +1,6 @@
-﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.GameSnapshot.Services;
+﻿using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
@@ -26,8 +26,6 @@ public class SeekWatcher
     public required HashSet<ConnectionId> ConnectionIds { get; init; }
     public required Seeker Seeker { get; init; }
 }
-
-public record OpenSeek(SeekKey SeekKey, string UserName, TimeControl TimeControl, int? Rating);
 
 public class OpenSeekEntry
 {

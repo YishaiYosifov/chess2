@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
