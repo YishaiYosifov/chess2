@@ -31,7 +31,7 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
         );
         var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
 
-        seeks.Should().ContainSingle().Which.SeekKey.Pool.PoolType.Should().Be(PoolType.Casual);
+        seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Casual);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
 
         seeks.Count.Should().Be(2);
         seeks
-            .Select(x => x.SeekKey.Pool.PoolType)
+            .Select(x => x.Pool.PoolType)
             .Should()
             .BeEquivalentTo([PoolType.Rated, PoolType.Casual]);
     }
