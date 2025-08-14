@@ -5,21 +5,29 @@ import { OpenSeek, PoolType } from "@/features/lobby/lib/types";
 
 const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
     return (
-        <div className="hover:bg-primary flex transform cursor-pointer items-center gap-5 rounded-lg p-3">
+        <div
+            className="hover:bg-primary flex transform cursor-pointer items-center gap-5 rounded-lg p-3"
+            data-testid="openSeek"
+        >
             <div className="flex flex-col items-center">
                 <TimeControlIcon
                     className="h-10 w-10"
                     timeControl={seek.timeControl}
                 />
-                <span className="text-2xl">
+                <span className="text-2xl" data-testid="openSeekTimeControl">
                     {seek.pool.timeControl.baseSeconds / 60}+
                     {seek.pool.timeControl.incrementSeconds}
                 </span>
             </div>
 
             <div className="flex-1">
-                <p className="text-xl">{seek.userName}</p>
-                <p className="text-text/50 text-sm">
+                <p className="text-xl" data-testid="openSeekUsername">
+                    {seek.userName}
+                </p>
+                <p
+                    className="text-text/50 text-sm"
+                    data-testid="openSeekPoolType"
+                >
                     {seek.pool.poolType === PoolType.RATED
                         ? `rated - ${seek.rating}`
                         : "casual"}
