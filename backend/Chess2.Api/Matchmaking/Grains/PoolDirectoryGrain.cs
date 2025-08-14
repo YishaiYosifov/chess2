@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.Matchmaking.Grains;
 
@@ -26,7 +27,7 @@ public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
             _pools.Select(async pool => new
             {
                 Pool = pool,
-                Seeks = (await ResolvePoolGrain(pool).GetSeekersAsync()).ToList(),
+                Seeks = await GrainFactory.GetMatchmakingGrain(pool).GetSeekersAsync(),
             })
         );
 
@@ -44,15 +45,5 @@ public class PoolDirectoryGrain : Grain, IPoolDirectoryGrain
     {
         _pools.Remove(poolKey);
         return Task.CompletedTask;
-    }
-
-    private IMatchmakingGrain ResolvePoolGrain(PoolKey pool)
-    {
-        return pool.PoolType switch
-        {
-            PoolType.Rated => GrainFactory.GetGrain<IRatedMatchmakingGrain>(pool.ToGrainKey()),
-            PoolType.Casual => GrainFactory.GetGrain<ICasualMatchmakingGrain>(pool.ToGrainKey()),
-            _ => throw new InvalidOperationException($"Unsupported pool type: {pool.PoolType}"),
-        };
     }
 }
