@@ -66,6 +66,7 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
         _pool.AddSeek(seeker);
+        _pool.AddSeeker(seeker);
         _pendingSeekBroadcast.Add(seeker.UserId, seeker);
         return Task.CompletedTask;
     }

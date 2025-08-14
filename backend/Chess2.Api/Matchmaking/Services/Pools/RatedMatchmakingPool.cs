@@ -19,6 +19,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     public int SeekerCount => _seekers.Count;
 
     public void AddSeek(Seeker seeker)
+    public void AddSeeker(Seeker seeker)
     {
         if (seeker is not RatedSeeker ratedSeek)
             throw new ArgumentException($"Seeker must be a {nameof(RatedSeeker)}", nameof(seeker));
