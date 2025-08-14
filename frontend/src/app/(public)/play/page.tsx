@@ -1,5 +1,5 @@
 import StaticChessboard from "@/features/chessboard/components/StaticChessboard";
-import OpenChallenges from "@/features/play/components/OpenChallenges";
+import OpenSeekDirectory from "@/features/play/components/OpenSeekDirectory";
 import PlayOptions from "@/features/play/components/PlayOptions";
 
 export const metadata = { title: "Play - Chess 2" };
@@ -29,7 +29,7 @@ const PlayPage = () => {
 
             <aside className="grid h-full w-full max-w-xl min-w-xs grid-rows-[auto_1fr] gap-3 lg:max-w-sm">
                 <PlayOptions />
-                <OpenChallenges />
+                <OpenSeekDirectory />
             </aside>
         </div>
     );
