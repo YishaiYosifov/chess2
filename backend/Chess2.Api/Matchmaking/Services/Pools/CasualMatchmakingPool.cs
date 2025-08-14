@@ -14,7 +14,7 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
 
     public void AddSeek(Seeker seeker) => _seekers[seeker.UserId] = seeker;
 
-    public bool HasSeek(UserId userId) => _seekers.ContainsKey(userId);
+    public bool HasSeeker(UserId userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
 
