@@ -1,28 +1,23 @@
 ﻿using Chess2.Api.LiveGame.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.SignalRClients;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.Entities;
 using FluentAssertions;
-using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Functional.Tests;
 
-using ChatTcs = TaskCompletionSource<(string sender, string message)>;
-
 public class GameHubTests : BaseFunctionalTest
 {
     private readonly IGameStarter _gameStarter;
-    private const string SendChatMethod = "SendChatAsync";
 
     public GameHubTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _gameStarter = Scope.ServiceProvider.GetRequiredService<IGameStarter>();
     }
-
-    private static string GameHubPath(string gameToken) => $"/api/hub/game?gameToken={gameToken}";
 
     [Fact]
     public async Task SendChatAsync_from_a_player_sends_to_players()
@@ -41,9 +36,10 @@ public class GameHubTests : BaseFunctionalTest
     public async Task SendChatAsync_from_a_spectator_sends_to_spectators()
     {
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
-
-        var spectator1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var spectator2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var spectator1 = new AuthedUserFaker().Generate();
+        var spectator2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(spectator1, spectator2);
+        await DbContext.SaveChangesAsync(CT);
 
         await SendMessageAndAssertReceptionAsync(
             game.GameToken,
@@ -57,74 +53,45 @@ public class GameHubTests : BaseFunctionalTest
     public async Task SendChatAsync_player_and_spectator_send_simultaneous_messages_to_their_own_groups()
     {
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
+        var gameToken = game.GameToken;
+        var player1 = game.User1;
+        var player2 = game.User2;
 
-        var player = game.User1;
-        var otherPlayer = game.User2;
-
-        var spectator = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var otherSpectator = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var spectator1 = new AuthedUserFaker().Generate();
+        var spectator2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(spectator1, spectator2);
+        await DbContext.SaveChangesAsync(CT);
 
         string playerMessage = "player message";
         string spectatorMessage = "spectator message";
 
-        var (playerTcs, playerConnections) = await ConnectToChatAsync(
-            game.GameToken,
-            player,
-            otherPlayer
+        await using var playerConn1 = await GameHubClient.ConnectToChatAsync(
+            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), player1),
+            gameToken,
+            CT
         );
-        var playerSenderConn = playerConnections[0];
-
-        var (spectatorTcs, spectatorConnections) = await ConnectToChatAsync(
-            game.GameToken,
-            spectator,
-            otherSpectator
+        await using var playerConn2 = await GameHubClient.ConnectToChatAsync(
+            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), player2),
+            gameToken,
+            CT
         );
-        var spectatorSenderConn = spectatorConnections[0];
 
-        await playerSenderConn.InvokeAsync(SendChatMethod, game.GameToken, playerMessage, CT);
-        await spectatorSenderConn.InvokeAsync(SendChatMethod, game.GameToken, spectatorMessage, CT);
-
-        await AssertAllReceiversGotMessageAsync(
-            player,
-            playerMessage,
-            playerTcs,
-            playerConnections
+        await using var specConn1 = await GameHubClient.ConnectToChatAsync(
+            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), spectator1),
+            gameToken,
+            CT
         );
-        await AssertAllReceiversGotMessageAsync(
-            spectator,
-            spectatorMessage,
-            spectatorTcs,
-            spectatorConnections
+        await using var specConn2 = await GameHubClient.ConnectToChatAsync(
+            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), spectator2),
+            gameToken,
+            CT
         );
-    }
 
-    private async Task<(List<ChatTcs> tcsList, List<HubConnection> connections)> ConnectToChatAsync(
-        string gameToken,
-        params List<AuthedUser> receivers
-    )
-    {
-        List<ChatTcs> tcsList = [];
-        List<HubConnection> connections = [];
-        foreach (var receiver in receivers)
-        {
-            ChatTcs tcs = new();
-            TaskCompletionSource connectedTcs = new();
+        await playerConn1.SendChatAsync(playerMessage, CT);
+        await specConn1.SendChatAsync(spectatorMessage, CT);
 
-            var conn = await ConnectSignalRAuthedAsync(GameHubPath(gameToken), receiver);
-
-            conn.On("ChatConnectedAsync", connectedTcs.TrySetResult);
-            conn.On<string, string>(
-                "ChatMessageAsync",
-                (sender, message) => tcs.TrySetResult((sender, message))
-            );
-
-            await connectedTcs.Task.WaitAsync(TimeSpan.FromSeconds(5), CT);
-
-            tcsList.Add(tcs);
-            connections.Add(conn);
-        }
-
-        return (tcsList, connections);
+        await AssertAllReceiversGotMessageAsync(player1, playerMessage, playerConn1, playerConn2);
+        await AssertAllReceiversGotMessageAsync(spectator1, spectatorMessage, specConn1, specConn2);
     }
 
     private async Task SendMessageAndAssertReceptionAsync(
@@ -135,23 +102,32 @@ public class GameHubTests : BaseFunctionalTest
     )
     {
         var allReceivers = receivers.Append(sender).ToList();
-        var (tcsList, connections) = await ConnectToChatAsync(gameToken, allReceivers);
+        var connections = await Task.WhenAll(
+            allReceivers.Select(async x =>
+                await GameHubClient.ConnectToChatAsync(
+                    await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), x),
+                    gameToken,
+                    CT
+                )
+            )
+        );
 
-        await connections[^1].InvokeAsync(SendChatMethod, gameToken, message, CT);
+        await connections[^1].SendChatAsync(message, CT);
+        await AssertAllReceiversGotMessageAsync(sender, message, connections);
 
-        await AssertAllReceiversGotMessageAsync(sender, message, tcsList, connections);
+        foreach (var conn in connections)
+            await conn.DisposeAsync();
     }
 
     private async Task AssertAllReceiversGotMessageAsync(
         AuthedUser sender,
         string message,
-        List<ChatTcs> tcsList,
-        List<HubConnection> connections
+        params IEnumerable<GameHubClient> connections
     )
     {
-        foreach (var tcs in tcsList)
+        foreach (var conn in connections)
         {
-            var result = await tcs.Task.WaitAsync(TimeSpan.FromSeconds(5), CT);
+            var result = await conn.WaitForMessageAsync(CT);
             result.Should().BeEquivalentTo((sender.UserName, message));
         }
 
