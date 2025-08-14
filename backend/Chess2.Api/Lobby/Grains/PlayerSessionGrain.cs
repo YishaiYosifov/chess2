@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Services;
-using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
@@ -72,7 +72,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         if (HasReachedGameLimit())
             return PlayerSessionErrors.TooManyGames;
 
-        var matchmakingGrain = ResolvePoolGrain(pool);
+        var matchmakingGrain = GrainFactory.GetMatchmakingGrain(pool);
         await matchmakingGrain.AddSeekAsync(seeker);
 
         _connectionToPool.TryAdd(connectionId, pool);
@@ -144,20 +144,10 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         if (!_connectionToPool.TryGetValue(connectionId, out var pool))
             return;
 
-        var poolGrain = ResolvePoolGrain(pool);
+        var poolGrain = GrainFactory.GetMatchmakingGrain(pool);
         await poolGrain.TryCancelSeekAsync(_userId);
     }
 
     private bool HasReachedGameLimit() =>
         _connectionToPool.Count + _activeGameTokens.Count >= _settings.MaxActiveGames;
-
-    private IMatchmakingGrain ResolvePoolGrain(PoolKey poolKey)
-    {
-        return poolKey.PoolType switch
-        {
-            PoolType.Rated => GrainFactory.GetGrain<IRatedMatchmakingGrain>(poolKey.ToGrainKey()),
-            PoolType.Casual => GrainFactory.GetGrain<ICasualMatchmakingGrain>(poolKey.ToGrainKey()),
-            _ => throw new InvalidOperationException($"Unsupported pool type: {poolKey.PoolType}"),
-        };
-    }
 }
