@@ -72,10 +72,7 @@ public class OpenSeekGrainTests : BaseGrainTest
         var unmatchSeeker = new RatedSeekerFaker().Generate();
         var grain = await Silo.CreateGrainAsync<OpenSeekGrain>(0);
         await createStream.OnNextBatchAsync(
-            [
-                new(new(matchSeeker.UserId, _casualPoolKey), matchSeeker),
-                new(new(unmatchSeeker.UserId, _ratedPoolKey), unmatchSeeker),
-            ]
+            [new(matchSeeker, _casualPoolKey), new(unmatchSeeker, _ratedPoolKey)]
         );
         _openSeekNotifierMock.ClearReceivedCalls();
 
@@ -84,8 +81,9 @@ public class OpenSeekGrainTests : BaseGrainTest
         List<OpenSeek> expectedSeeks =
         [
             new OpenSeek(
-                new(matchSeeker.UserId, _casualPoolKey),
+                matchSeeker.UserId,
                 UserName: matchSeeker.UserName,
+                _casualPoolKey,
                 TimeControl: _casualPoolTimeControl,
                 Rating: null
             ),
@@ -110,7 +108,7 @@ public class OpenSeekGrainTests : BaseGrainTest
             .Select(i =>
             {
                 var s = new CasualSeekerFaker().Generate();
-                return new OpenSeekCreatedEvent(new(s.UserId, _casualPoolKey), s);
+                return new OpenSeekCreatedEvent(s, _casualPoolKey);
             })
             .ToList();
         await createStream.OnNextBatchAsync(compatibleSeeks);
@@ -139,9 +137,7 @@ public class OpenSeekGrainTests : BaseGrainTest
         await grain.UnsubscribeAsync(seeker.UserId, "conn1");
 
         // push a compatible seek after unsubscribe
-        await createStream.OnNextAsync(
-            new OpenSeekCreatedEvent(new(matchSeeker.UserId, _casualPoolKey), matchSeeker)
-        );
+        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
 
         await _openSeekNotifierMock
             .Received(0)
@@ -161,9 +157,7 @@ public class OpenSeekGrainTests : BaseGrainTest
 
         await grain.UnsubscribeAsync(seeker.UserId, "conn1");
 
-        await createStream.OnNextAsync(
-            new OpenSeekCreatedEvent(new(matchSeeker.UserId, _casualPoolKey), matchSeeker)
-        );
+        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
 
         List<string> expectedIds = [seeker.UserId];
         await _openSeekNotifierMock
@@ -171,7 +165,7 @@ public class OpenSeekGrainTests : BaseGrainTest
             .NotifyOpenSeekAsync(
                 Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(expectedIds)),
                 Arg.Is<IEnumerable<OpenSeek>>(seeks =>
-                    seeks.Any(s => s.SeekKey.UserId == matchSeeker.UserId)
+                    seeks.Any(s => s.UserId == matchSeeker.UserId)
                 )
             );
     }
@@ -191,16 +185,15 @@ public class OpenSeekGrainTests : BaseGrainTest
         await grain.SubscribeAsync("conn2", seeker2);
         await grain.SubscribeAsync("conn3", incompatibleSeeker);
 
-        await createStream.OnNextAsync(
-            new OpenSeekCreatedEvent(new(matchSeeker.UserId, _casualPoolKey), matchSeeker)
-        );
+        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
 
         List<string> expectedUserIds = [seeker1.UserId, seeker2.UserId];
         List<OpenSeek> expectedSeeks =
         [
             new OpenSeek(
-                new(matchSeeker.UserId, _casualPoolKey),
+                matchSeeker.UserId,
                 matchSeeker.UserName,
+                _casualPoolKey,
                 _casualPoolTimeControl,
                 Rating: null
             ),
@@ -230,11 +223,9 @@ public class OpenSeekGrainTests : BaseGrainTest
         await grain.SubscribeAsync("conn2", seeker2);
         await grain.SubscribeAsync("conn3", incompatibleSeeker);
 
-        await createStream.OnNextAsync(
-            new OpenSeekCreatedEvent(new(matchSeeker.UserId, _casualPoolKey), matchSeeker)
-        );
+        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
         await removeStream.OnNextAsync(
-            new OpenSeekRemovedEvent(new(matchSeeker.UserId, _casualPoolKey))
+            new OpenSeekRemovedEvent(matchSeeker.UserId, _casualPoolKey)
         );
 
         List<string> expectedUserIds = [seeker1.UserId, seeker2.UserId];
@@ -243,7 +234,8 @@ public class OpenSeekGrainTests : BaseGrainTest
             .Received(1)
             .NotifyOpenSeekEndedAsync(
                 Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(expectedUserIds)),
-                Arg.Is<SeekKey>(key => key.Equals(expectedSeekKey))
+                matchSeeker.UserId,
+                _casualPoolKey
             );
     }
 
@@ -273,9 +265,7 @@ public class OpenSeekGrainTests : BaseGrainTest
         await Silo.FireTimerAsync(OpenSeekGrain.StaleTimer);
 
         // add a new compatible seek to make sure only fresh conn receives it
-        await createStream.OnNextAsync(
-            new OpenSeekCreatedEvent(new(matchSeeker.UserId, _casualPoolKey), matchSeeker)
-        );
+        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
 
         List<string> expectedIds = [freshSeeker.UserId];
         await _openSeekNotifierMock
@@ -323,10 +313,11 @@ public class OpenSeekGrainTests : BaseGrainTest
         List<OpenSeek> expectedCasualSeeks =
         [
             new OpenSeek(
-                new(casualSeeker.UserId, _casualPoolKey),
+                casualSeeker.UserId,
                 casualSeeker.UserName,
+                _casualPoolKey,
                 _casualPoolTimeControl,
-                null
+                Rating: null
             ),
         ];
         await _openSeekNotifierMock
@@ -340,8 +331,9 @@ public class OpenSeekGrainTests : BaseGrainTest
         [
             .. expectedCasualSeeks,
             new OpenSeek(
-                new(ratedSeeker.UserId, _ratedPoolKey),
+                ratedSeeker.UserId,
                 ratedSeeker.UserName,
+                _ratedPoolKey,
                 _ratedPoolTimeControl,
                 Rating: ratedSeeker.Rating.Value
             ),

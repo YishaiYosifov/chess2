@@ -139,7 +139,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await grain.TryCancelSeekAsync(seeker.UserId);
 
-        seekRemovedStream.VerifySend(e => e.SeekKey == new SeekKey(seeker.UserId, _testPoolKey));
+        seekRemovedStream.VerifySend(e => e.UserId == seeker.UserId && e.Pool == _testPoolKey);
     }
 
     [Fact]
@@ -207,9 +207,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
 
-        createdStream.VerifySend(e =>
-            e.Seeker == seeker && e.SeekKey == new SeekKey(seeker.UserId, _testPoolKey)
-        );
+        createdStream.VerifySend(e => e.Seeker == seeker && e.Pool == _testPoolKey);
         createdStream.VerifySendBatch();
 
         await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
@@ -233,9 +231,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
 
-        removedStream.VerifySend(e =>
-            e.Seeker == seeker1 && e.SeekKey == new SeekKey(seeker1.UserId, _testPoolKey)
-        );
+        removedStream.VerifySend(e => e.Seeker == seeker1 && e.Pool == _testPoolKey);
     }
 
     [Fact]

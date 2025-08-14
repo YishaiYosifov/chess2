@@ -34,6 +34,8 @@ public class OpenSeekEntry
     public required HashSet<string> SubscribedUserIds { get; init; }
 }
 
+public record SeekKey(UserId UserId, PoolKey Pool);
+
 [KeepAlive]
 public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
@@ -98,19 +100,21 @@ public class OpenSeekGrain(
 
     private async Task OnSeekEnded(OpenSeekRemovedEvent @event, StreamSequenceToken _)
     {
-        if (!_openSeeks.TryGetValue(@event.SeekKey, out var openSeek))
+        SeekKey seekKey = new(@event.UserId, @event.Pool);
+        if (!_openSeeks.TryGetValue(seekKey, out var openSeek))
             return;
 
         await _openSeekNotifier.NotifyOpenSeekEndedAsync(
             openSeek.SubscribedUserIds,
-            @event.SeekKey
+            @event.UserId,
+            @event.Pool
         );
-        _openSeeks.Remove(@event.SeekKey);
+        _openSeeks.Remove(seekKey);
     }
 
     private async Task OnSeekCreated(OpenSeekCreatedEvent @event, StreamSequenceToken _)
     {
-        var openSeek = RegisterOpenSeeker(@event.Seeker, @event.SeekKey);
+        var openSeek = RegisterOpenSeeker(@event.Seeker, @event.Pool);
         if (openSeek.SubscribedUserIds.Count > 0)
         {
             await _openSeekNotifier.NotifyOpenSeekAsync(
@@ -130,7 +134,7 @@ public class OpenSeekGrain(
         {
             foreach (var seeker in seekers)
             {
-                RegisterOpenSeeker(seeker, new(seeker.UserId, pool));
+                RegisterOpenSeeker(seeker, pool);
             }
         }
     }
@@ -179,10 +183,10 @@ public class OpenSeekGrain(
         await base.OnActivateAsync(cancellationToken);
     }
 
-    private OpenSeekEntry RegisterOpenSeeker(Seeker seeker, SeekKey seekKey)
+    private OpenSeekEntry RegisterOpenSeeker(Seeker seeker, PoolKey pool)
     {
         int? rating = seeker is RatedSeeker ratedSeeker ? ratedSeeker.Rating.Value : null;
-        var timeControl = _timeControlTranslator.FromSeconds(seekKey.Pool.TimeControl.BaseSeconds);
+        var timeControl = _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds);
 
         HashSet<string> matchingUserIds = [];
         foreach (var (userId, watcher) in _connections)
@@ -193,7 +197,7 @@ public class OpenSeekGrain(
             }
         }
 
-        OpenSeek openSeek = new(seekKey, seeker.UserName, timeControl, rating);
+        OpenSeek openSeek = new(UserId: seeker.UserId, seeker.UserName, pool, timeControl, rating);
         OpenSeekEntry entry = new()
         {
             OpenSeek = openSeek,
@@ -201,7 +205,7 @@ public class OpenSeekGrain(
             SubscribedUserIds = matchingUserIds,
         };
 
-        _openSeeks.TryAdd(seekKey, entry);
+        _openSeeks.TryAdd(new SeekKey(seeker.UserId, pool), entry);
         return entry;
     }
 }
