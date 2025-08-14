@@ -36,7 +36,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     {
         AddSeeker("user1");
 
-        Pool.HasSeek("user1").Should().BeTrue();
+        Pool.HasSeeker("user1").Should().BeTrue();
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     {
         AddSeeker("user1");
 
-        Pool.HasSeek("user2").Should().BeFalse();
+        Pool.HasSeeker("user2").Should().BeFalse();
     }
 
     [Fact]
@@ -53,6 +53,9 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
         AddSeeker("user1");
         Pool.RemoveSeek("user1");
 
-        Pool.HasSeek("user1").Should().BeFalse();
+        Pool.HasSeeker("user1").Should().BeFalse();
     }
+
+    [Fact]
+    public void GetSeek_returns_the_correct_seeker
 }

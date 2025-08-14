@@ -27,7 +27,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
         _seekers[seeker.UserId] = seekInfo;
     }
 
-    public bool HasSeek(UserId userId) => _seekers.ContainsKey(userId);
+    public bool HasSeeker(UserId userId) => _seekers.ContainsKey(userId);
 
     public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
 
