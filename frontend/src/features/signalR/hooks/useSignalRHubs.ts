@@ -13,6 +13,7 @@ import {
     MoveSnapshot,
     TimeControlSettings,
 } from "@/lib/apiClient";
+import { OpenSeek, PoolKey } from "@/features/lobby/lib/types";
 
 export type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
@@ -31,6 +32,22 @@ export const useLobbyEvent = signalREventHookFactory<LobbyClientEvents>(
 
 export const useLobbyEmitter = signalREmitterHookFactory<LobbyHubEvents>(
     constants.SIGNALR_PATHS.LOBBY,
+);
+
+type OpenSeekClientEvents = {
+    NewOpenSeeksAsync: [seeks: OpenSeek[]];
+    OpenSeekEndedAsync: [userId: string, pool: PoolKey];
+};
+
+type OpenSeekHubEvents = {
+    SubscribeAsync: [];
+};
+
+export const useOpenSeekEvent = signalREventHookFactory<OpenSeekClientEvents>(
+    constants.SIGNALR_PATHS.OPENSEEK,
+);
+export const useOpenSeekEmitter = signalREmitterHookFactory<OpenSeekHubEvents>(
+    constants.SIGNALR_PATHS.OPENSEEK,
 );
 
 export type GameClientEvents = {
