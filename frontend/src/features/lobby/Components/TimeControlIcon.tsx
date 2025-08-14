@@ -23,7 +23,7 @@ const TimeControlIcon = ({
                 <BellAlertIcon className={clsx("text-yellow-600", className)} />
             );
         case TimeControl.RAPID:
-            return <ClockIcon className={clsx("text-green-400", className)} />;
+            return <ClockIcon className={clsx("text-lime-500", className)} />;
         case TimeControl.CLASSICAL:
             return (
                 <AcademicCapIcon
