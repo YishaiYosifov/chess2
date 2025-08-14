@@ -12,12 +12,13 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
     public IEnumerable<Seeker> Seekers => _seekers.Values;
     public int SeekerCount => _seekers.Count;
 
-    public void AddSeek(Seeker seeker) => _seekers[seeker.UserId] = seeker;
     public void AddSeeker(Seeker seeker) => _seekers[seeker.UserId] = seeker;
 
     public bool HasSeeker(UserId userId) => _seekers.ContainsKey(userId);
 
-    public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
+    public bool RemoveSeeker(UserId userId) => _seekers.Remove(userId);
+
+    public Seeker? GetSeeker(UserId userId) => _seekers.GetValueOrDefault(userId);
 
     public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {
