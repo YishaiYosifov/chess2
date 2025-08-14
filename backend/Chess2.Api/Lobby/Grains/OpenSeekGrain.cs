@@ -152,6 +152,8 @@ public class OpenSeekGrain(
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
+        await RefetchSeeksAsync();
+
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         var openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
             MatchmakingStreamConstants.OpenSeekCreatedStream
@@ -165,7 +167,7 @@ public class OpenSeekGrain(
 
         this.RegisterGrainTimer(
             callback: RefetchSeeksAsync,
-            dueTime: TimeSpan.Zero,
+            dueTime: TimeSpan.FromMinutes(10),
             period: TimeSpan.FromMinutes(10)
         );
         this.RegisterGrainTimer(

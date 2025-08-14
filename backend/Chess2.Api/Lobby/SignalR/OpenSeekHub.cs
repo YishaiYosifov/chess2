@@ -3,6 +3,7 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Shared.Models;
@@ -55,14 +56,14 @@ public class OpenSeekHub(
         await grain.SubscribeAsync(Context.ConnectionId, seeker);
     }
 
-    public override async Task OnConnectedAsync()
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         try
         {
             if (!TryGetUserId(out var userId))
             {
                 _logger.LogWarning(
-                    "User disconnected from lobby hub without a user ID, cannot cancel seek"
+                    "User disconnected from open seek hub without a user ID, cannot unsubscribe"
                 );
                 return;
             }
@@ -73,7 +74,7 @@ public class OpenSeekHub(
         }
         finally
         {
-            await base.OnConnectedAsync();
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
