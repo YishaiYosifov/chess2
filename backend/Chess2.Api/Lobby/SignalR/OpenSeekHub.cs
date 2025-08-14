@@ -51,7 +51,7 @@ public class OpenSeekHub(
         _logger.LogInformation("User {UserId} subscribing to open seeks", seeker.UserId);
 
         var shard = _shardRouter.GetShardNumber(seeker.UserId, _settings.OpenSeekShardCount);
-        var grain = _grains.GetGrain<IOpenSeekWatcherGrain>(shard);
+        var grain = _grains.GetGrain<IOpenSeekGrain>(shard);
         await grain.SubscribeAsync(Context.ConnectionId, seeker);
     }
 
@@ -68,7 +68,7 @@ public class OpenSeekHub(
             }
 
             var shard = _shardRouter.GetShardNumber(userId, _settings.OpenSeekShardCount);
-            var seekWatcherGrain = _grains.GetGrain<IOpenSeekWatcherGrain>(shard);
+            var seekWatcherGrain = _grains.GetGrain<IOpenSeekGrain>(shard);
             await seekWatcherGrain.UnsubscribeAsync(userId, Context.ConnectionId);
         }
         finally
