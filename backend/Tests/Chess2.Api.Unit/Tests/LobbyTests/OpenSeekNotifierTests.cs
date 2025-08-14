@@ -3,6 +3,7 @@ using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
@@ -15,20 +16,16 @@ public class OpenSeekNotifierTests
     private readonly List<OpenSeek> _testSeeks =
     [
         new OpenSeek(
-            SeekKey: new SeekKey(
-                "user id",
-                new PoolKey(PoolType.Rated, new TimeControlSettings(600, 3))
-            ),
+            UserId: "user id",
             UserName: "username",
+            Pool: new PoolKey(PoolType.Rated, new TimeControlSettings(600, 3)),
             TimeControl: TimeControl.Rapid,
             Rating: 123
         ),
         new OpenSeek(
-            SeekKey: new SeekKey(
-                "user id",
-                new PoolKey(PoolType.Casual, new TimeControlSettings(6, 35))
-            ),
+            UserId: "user id",
             UserName: "username",
+            Pool: new PoolKey(PoolType.Casual, new TimeControlSettings(6, 35)),
             TimeControl: TimeControl.Blitz,
             Rating: null
         ),
@@ -76,13 +73,11 @@ public class OpenSeekNotifierTests
     [Fact]
     public async Task NotifyOpenSeekEndedAsync_notifies_all_users_of_ended_seeks()
     {
-        SeekKey seekKey = new(
-            "test user id",
-            new PoolKey(PoolType.Rated, new TimeControlSettings(600, 3))
-        );
+        UserId userId = "test user id";
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(600, 3));
 
-        await _notifier.NotifyOpenSeekEndedAsync(_userIds, seekKey);
+        await _notifier.NotifyOpenSeekEndedAsync(_userIds, userId, pool);
 
-        await _clientUsersProxyMock.Received(1).OpenSeekEndedAsync(seekKey);
+        await _clientUsersProxyMock.Received(1).OpenSeekEndedAsync(userId, pool);
     }
 }

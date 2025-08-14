@@ -7,6 +7,7 @@ using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
@@ -15,7 +16,7 @@ namespace Chess2.Api.Lobby.SignalR;
 public interface IOpenSeekHubClient : IChess2HubClient
 {
     public Task NewOpenSeeksAsync(IEnumerable<OpenSeek> openSeeks);
-    public Task OpenSeekEndedAsync(SeekKey seekKey);
+    public Task OpenSeekEndedAsync(UserId seekerId, PoolKey pool);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
@@ -49,7 +50,11 @@ public class OpenSeekHub(
             return;
         }
         var seeker = seekerResult.Value;
-        _logger.LogInformation("User {UserId} subscribing to open seeks", seeker.UserId);
+        _logger.LogInformation(
+            "User {UserId} subscribing to open seeks with connection {ConnectionId}",
+            seeker.UserId,
+            Context.ConnectionId
+        );
 
         var shard = _shardRouter.GetShardNumber(seeker.UserId, _settings.OpenSeekShardCount);
         var grain = _grains.GetGrain<IOpenSeekGrain>(shard);
@@ -67,7 +72,11 @@ public class OpenSeekHub(
                 );
                 return;
             }
-
+            _logger.LogInformation(
+                "User {UserId} with connection {ConnectionId} disconnected from open seeks",
+                userId,
+                Context.ConnectionId
+            );
             var shard = _shardRouter.GetShardNumber(userId, _settings.OpenSeekShardCount);
             var seekWatcherGrain = _grains.GetGrain<IOpenSeekGrain>(shard);
             await seekWatcherGrain.UnsubscribeAsync(userId, Context.ConnectionId);

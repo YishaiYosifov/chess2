@@ -162,23 +162,18 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         // so no point broadcasting it ended
         if (!_pendingSeekBroadcast.Remove(userId))
         {
-            await _openSeekRemovedStream.OnNextAsync(
-                new OpenSeekRemovedEvent(new SeekKey(userId, _key))
-            );
+            await _openSeekRemovedStream.OnNextAsync(new OpenSeekRemovedEvent(userId, _key));
         }
     }
 
     private Task BatchBroadcastOpenSeekRemovedAsync(IEnumerable<UserId> userIds) =>
         _openSeekRemovedStream.OnNextBatchAsync(
-            userIds.Select(userId => new OpenSeekRemovedEvent(new SeekKey(userId, _key)))
+            userIds.Select(userId => new OpenSeekRemovedEvent(userId, _key))
         );
 
     private Task BatchBroadcastOpenSeekCreatedAsync(IEnumerable<Seeker> seekers) =>
         _openSeekCreatedStream.OnNextBatchAsync(
-            seekers.Select(seeker => new OpenSeekCreatedEvent(
-                SeekKey: new SeekKey(seeker.UserId, _key),
-                Seeker: seeker
-            ))
+            seekers.Select(seeker => new OpenSeekCreatedEvent(seeker, _key))
         );
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)

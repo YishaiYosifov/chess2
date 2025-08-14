@@ -1,6 +1,7 @@
 ﻿using System.Threading.Channels;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Users.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
@@ -11,7 +12,8 @@ public class OpenSeekHubClient : BaseHubClient
 
     private readonly Channel<IEnumerable<OpenSeek>> _openSeekCreatedChannel =
         Channel.CreateUnbounded<IEnumerable<OpenSeek>>();
-    private readonly Channel<SeekKey> _openSeekRemovedChannel = Channel.CreateUnbounded<SeekKey>();
+    private readonly Channel<(UserId SeekerId, PoolKey Pool)> _openSeekRemovedChannel =
+        Channel.CreateUnbounded<(UserId SeekerId, PoolKey Pool)>();
 
     public OpenSeekHubClient(HubConnection connection)
         : base(connection)
@@ -21,9 +23,9 @@ public class OpenSeekHubClient : BaseHubClient
             openSeeks => _openSeekCreatedChannel.Writer.TryWrite(openSeeks)
         );
 
-        Connection.On<SeekKey>(
+        Connection.On<UserId, PoolKey>(
             "OpenSeekEndedAsync",
-            seekKey => _openSeekRemovedChannel.Writer.TryWrite(seekKey)
+            (userId, poolKey) => _openSeekRemovedChannel.Writer.TryWrite((userId, poolKey))
         );
     }
 
@@ -62,7 +64,10 @@ public class OpenSeekHubClient : BaseHubClient
         return result;
     }
 
-    public async Task<List<SeekKey>> GetOpenSeekRemovedAsync(int count, CancellationToken token)
+    public async Task<List<(UserId SeekerId, PoolKey Pool)>> GetOpenSeekRemovedAsync(
+        int count,
+        CancellationToken token
+    )
     {
         TimeSpan timeout = TimeSpan.FromSeconds(10);
         using var timeoutCts = new CancellationTokenSource(timeout);
@@ -71,7 +76,7 @@ public class OpenSeekHubClient : BaseHubClient
             timeoutCts.Token
         );
 
-        List<SeekKey> result = new(count);
+        List<(UserId SeekerId, PoolKey Pool)> result = new(count);
         for (int i = 0; i < count; i++)
         {
             var seek = await _openSeekRemovedChannel.Reader.ReadAsync(linkedCts.Token);
