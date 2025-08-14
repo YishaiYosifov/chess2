@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Users.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
@@ -18,7 +19,8 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
 
     public bool RemoveSeeker(UserId userId) => _seekers.Remove(userId);
 
-    public Seeker? GetSeeker(UserId userId) => _seekers.GetValueOrDefault(userId);
+    public bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker) =>
+        _seekers.TryGetValue(userId, out seeker);
 
     public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {
