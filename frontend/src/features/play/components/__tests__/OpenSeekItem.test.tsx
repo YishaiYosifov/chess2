@@ -1,0 +1,62 @@
+import { render, screen } from "@testing-library/react";
+
+import { OpenSeek, PoolType } from "@/features/lobby/lib/types";
+import { TimeControl } from "@/lib/apiClient";
+import OpenSeekItem from "../OpenSeek";
+import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
+
+vi.mock("@/features/lobby/Components/TimeControlIcon", () => ({
+    default: ({ timeControl }: { timeControl: TimeControl }) => (
+        <div data-testid="timeControlIcon">{timeControl}</div>
+    ),
+}));
+
+vi.mock("@heroicons/react/24/outline", () => ({
+    FireIcon: () => <div data-testid="fireIcon" />,
+}));
+
+describe("OpenSeekItem", () => {
+    let seek: OpenSeek;
+
+    beforeEach(() => {
+        seek = createFakeOpenSeek();
+    });
+
+    it("should display the user name", () => {
+        render(<OpenSeekItem seek={seek} />);
+        expect(screen.getByTestId("openSeekUsername")).toHaveTextContent(
+            seek.userName,
+        );
+    });
+
+    it("should display the correct time control", () => {
+        seek.pool.timeControl = { baseSeconds: 300, incrementSeconds: 5 };
+        render(<OpenSeekItem seek={seek} />);
+        expect(screen.getByTestId("openSeekTimeControl")).toHaveTextContent(
+            "5+5",
+        );
+    });
+
+    it("should display 'casual' for casual pool", () => {
+        render(<OpenSeekItem seek={seek} />);
+        expect(screen.getByTestId("openSeekPoolType")).toHaveTextContent(
+            "casual",
+        );
+    });
+
+    it("should display 'rated' and rating for rated pool", () => {
+        seek.rating = 1200;
+        seek.pool.poolType = PoolType.RATED;
+        render(<OpenSeekItem seek={seek} />);
+
+        expect(screen.getByTestId("openSeekPoolType")).toHaveTextContent(
+            "rated - 1200",
+        );
+    });
+
+    it("should render the TimeControlIcon and FireIcon", () => {
+        render(<OpenSeekItem seek={seek} />);
+        expect(screen.getByTestId("timeControlIcon")).toBeInTheDocument();
+        expect(screen.getByTestId("fireIcon")).toBeInTheDocument();
+    });
+});
