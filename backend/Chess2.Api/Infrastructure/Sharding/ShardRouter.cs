@@ -12,7 +12,13 @@ public class ShardRouter : IShardRouter
     public int GetShardNumber(string id, int shardCount)
     {
         var bytes = Encoding.UTF8.GetBytes(id);
-        var hash = BitConverter.ToInt64(bytes, 0);
-        return (int)(hash % 5);
+        long hash = 0;
+
+        foreach (var b in bytes)
+        {
+            hash = (hash * 31) + b;
+        }
+
+        return (int)(Math.Abs(hash) % shardCount);
     }
 }
