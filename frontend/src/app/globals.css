@@ -119,3 +119,22 @@ input:focus {
     outline: none;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
 }
+
+.seek-enter {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+}
+.seek-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 0.2s ease-out;
+}
+.seek-exit {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.seek-exit-active {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition: all 0.2s ease-out;
+}

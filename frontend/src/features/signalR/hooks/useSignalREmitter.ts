@@ -1,5 +1,5 @@
 import { HubConnectionState } from "@microsoft/signalr";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import useSignalRConnection from "./useSignalRConnection";
 import useHubState from "./useHubState";
@@ -31,17 +31,24 @@ const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
         pendingEventsRef.current = [];
     }, [state, connection]);
 
-    async function sendEvent<
-        TEventName extends Extract<keyof TEventMap, string>,
-    >(eventName: TEventName, ...args: TEventMap[TEventName]): Promise<void> {
-        const connection = connectionRef.current;
-        if (!connection || connection.state !== HubConnectionState.Connected) {
-            pendingEventsRef.current.push({ eventName, args });
-            return;
-        }
+    const sendEvent = useCallback(
+        async <TEventName extends Extract<keyof TEventMap, string>>(
+            eventName: TEventName,
+            ...args: TEventMap[TEventName]
+        ): Promise<void> => {
+            const connection = connectionRef.current;
+            if (
+                !connection ||
+                connection.state !== HubConnectionState.Connected
+            ) {
+                pendingEventsRef.current.push({ eventName, args });
+                return;
+            }
 
-        await connection.invoke(eventName, ...args);
-    }
+            await connection.invoke(eventName, ...args);
+        },
+        [],
+    );
     return sendEvent;
 };
 export default useSignalREmitter;
