@@ -66,23 +66,23 @@ public class GameHubTests : BaseFunctionalTest
         string spectatorMessage = "spectator message";
 
         await using var playerConn1 = await GameHubClient.ConnectToChatAsync(
-            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), player1),
+            await AuthedSignalRAsync(GameHubClient.Path(gameToken), player1),
             gameToken,
             CT
         );
         await using var playerConn2 = await GameHubClient.ConnectToChatAsync(
-            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), player2),
+            await AuthedSignalRAsync(GameHubClient.Path(gameToken), player2),
             gameToken,
             CT
         );
 
         await using var specConn1 = await GameHubClient.ConnectToChatAsync(
-            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), spectator1),
+            await AuthedSignalRAsync(GameHubClient.Path(gameToken), spectator1),
             gameToken,
             CT
         );
         await using var specConn2 = await GameHubClient.ConnectToChatAsync(
-            await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), spectator2),
+            await AuthedSignalRAsync(GameHubClient.Path(gameToken), spectator2),
             gameToken,
             CT
         );
@@ -105,7 +105,7 @@ public class GameHubTests : BaseFunctionalTest
         var connections = await Task.WhenAll(
             allReceivers.Select(async x =>
                 await GameHubClient.ConnectToChatAsync(
-                    await ConnectSignalRAuthedAsync(GameHubClient.Path(gameToken), x),
+                    await AuthedSignalRAsync(GameHubClient.Path(gameToken), x),
                     gameToken,
                     CT
                 )
