@@ -34,7 +34,7 @@ export const useLobbyEmitter = signalREmitterHookFactory<LobbyHubEvents>(
     constants.SIGNALR_PATHS.LOBBY,
 );
 
-type OpenSeekClientEvents = {
+export type OpenSeekClientEvents = {
     NewOpenSeeksAsync: [seeks: OpenSeek[]];
     OpenSeekEndedAsync: [userId: string, pool: PoolKey];
 };
