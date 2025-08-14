@@ -57,19 +57,21 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
     }
 
     [Fact]
-    public void GetSeeker_returns_the_correct_seeker()
+    public void TryGetSeeker_returns_the_correct_seeker()
     {
         var seeker = AddSeeker("user1");
         AddSeeker("user2");
 
-        Pool.GetSeeker(seeker.UserId).Should().Be(seeker);
+        Pool.TryGetSeeker(seeker.UserId, out var foundSeeker).Should().BeTrue();
+        foundSeeker.Should().Be(seeker);
     }
 
     [Fact]
-    public void GetSeeker_returns_null_when_the_seeker_doesnt_exist()
+    public void TryGetSeeker_returns_null_when_the_seeker_doesnt_exist()
     {
         AddSeeker("user1");
 
-        Pool.GetSeeker("random user id").Should().BeNull();
+        Pool.TryGetSeeker("random user id", out var foundSeeker).Should().BeFalse();
+        foundSeeker.Should().BeNull();
     }
 }
