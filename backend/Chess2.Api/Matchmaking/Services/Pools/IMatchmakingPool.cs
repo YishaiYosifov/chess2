@@ -8,9 +8,10 @@ public interface IMatchmakingPool
     int SeekerCount { get; }
     IEnumerable<Seeker> Seekers { get; }
 
-    void AddSeek(Seeker seeker);
     void AddSeeker(Seeker seeker);
-    bool RemoveSeek(UserId userId);
+    bool RemoveSeeker(UserId userId);
     bool HasSeeker(UserId userId);
+    Seeker? GetSeeker(UserId userId);
+
     List<(Seeker seeker1, Seeker seeker2)> CalculateMatches();
 }

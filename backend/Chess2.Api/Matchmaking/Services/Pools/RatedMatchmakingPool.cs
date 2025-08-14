@@ -18,7 +18,6 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
     public IEnumerable<Seeker> Seekers => _seekers.Values.Select(x => x.Seek);
     public int SeekerCount => _seekers.Count;
 
-    public void AddSeek(Seeker seeker)
     public void AddSeeker(Seeker seeker)
     {
         if (seeker is not RatedSeeker ratedSeek)
@@ -30,7 +29,9 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
 
     public bool HasSeeker(UserId userId) => _seekers.ContainsKey(userId);
 
-    public bool RemoveSeek(UserId userId) => _seekers.Remove(userId);
+    public bool RemoveSeeker(UserId userId) => _seekers.Remove(userId);
+
+    public Seeker? GetSeeker(UserId userId) => _seekers.GetValueOrDefault(userId)?.Seek;
 
     public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
     {
@@ -58,7 +59,7 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
         }
         foreach (var seek in alreadyMatched)
         {
-            RemoveSeek(seek);
+            RemoveSeeker(seek);
         }
 
         return matches;
