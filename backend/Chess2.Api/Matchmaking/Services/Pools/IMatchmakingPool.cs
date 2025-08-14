@@ -10,6 +10,6 @@ public interface IMatchmakingPool
 
     void AddSeek(Seeker seeker);
     bool RemoveSeek(UserId userId);
-    bool HasSeek(UserId userId);
+    bool HasSeeker(UserId userId);
     List<(Seeker seeker1, Seeker seeker2)> CalculateMatches();
 }
