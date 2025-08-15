@@ -13,7 +13,7 @@ namespace Chess2.Api.Lobby.SignalR;
 public interface ILobbyHubClient : IChess2HubClient
 {
     public Task MatchFoundAsync(string token);
-    public Task MatchFailedAsync();
+    public Task SeekFailedAsync(PoolKey pool);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
