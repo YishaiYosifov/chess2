@@ -1,12 +1,12 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.GameSnapshot.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.GameSnapshot.Models.GameState")]
 public record GameState(
-    TimeControlSettings TimeControl,
-    bool IsRated,
+    PoolKey Pool,
     GamePlayer WhitePlayer,
     GamePlayer BlackPlayer,
     ClockSnapshot Clocks,

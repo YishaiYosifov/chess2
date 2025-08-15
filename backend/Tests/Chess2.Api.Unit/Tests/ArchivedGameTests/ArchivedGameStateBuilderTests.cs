@@ -2,6 +2,7 @@
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -35,8 +36,10 @@ public class ArchivedGameStateBuilderTests
         );
 
         GameState expectedGameState = new(
-            TimeControl: new TimeControlSettings(archive.BaseSeconds, archive.IncrementSeconds),
-            IsRated: archive.IsRated,
+            Pool: new PoolKey(
+                PoolType: archive.PoolType,
+                TimeControl: new(archive.BaseSeconds, archive.IncrementSeconds)
+            ),
             WhitePlayer: new GamePlayer(
                 whitePlayer.UserId,
                 whitePlayer.Color,

@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
@@ -75,7 +76,7 @@ public class GameFinalizer(
         CancellationToken token = default
     )
     {
-        if (!gameState.IsRated || gameResult is GameResult.Aborted)
+        if (gameState.Pool.PoolType is not PoolType.Rated || gameResult is GameResult.Aborted)
             return null;
 
         var whiteUser = await _userManager.FindByIdAsync(gameState.WhitePlayer.UserId);
@@ -87,7 +88,7 @@ public class GameFinalizer(
             whiteUser,
             blackUser,
             gameResult,
-            _timeControlTranslator.FromSeconds(gameState.TimeControl.BaseSeconds),
+            _timeControlTranslator.FromSeconds(gameState.Pool.TimeControl.BaseSeconds),
             token
         );
         return ratingChange;

@@ -2,6 +2,7 @@
 using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
@@ -26,7 +27,7 @@ public class GameArchiveFaker : Faker<GameArchive>
         RuleFor(x => x.ResultDescription, "some description");
         RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
         RuleFor(x => x.Moves, new MoveArchiveFaker().Generate(moveCount));
-        RuleFor(x => x.IsRated, f => f.Random.Bool());
+        RuleFor(x => x.PoolType, f => f.PickRandom<PoolType>());
 
         RuleFor(x => x.BaseSeconds, f => f.Random.Int(60, 6000));
         RuleFor(x => x.IncrementSeconds, f => f.Random.Int(1, 30));
@@ -66,5 +67,6 @@ public class GameArchiveFaker : Faker<GameArchive>
                     .Generate()
                 : null,
             moveCount
-        ) { }
+        )
+    { }
 }

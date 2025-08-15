@@ -51,6 +51,11 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             Result = endStatus.Result,
             ResultDescription = endStatus.ResultDescription,
             InitialFen = gameState.InitialFen,
+
+            PoolType = gameState.Pool.PoolType,
+            BaseSeconds = gameState.Pool.TimeControl.BaseSeconds,
+            IncrementSeconds = gameState.Pool.TimeControl.IncrementSeconds,
+
             WhitePlayer = CreateExpectedPlayerArchive(
                 gameState.WhitePlayer,
                 ratingChange.WhiteChange,
@@ -62,9 +67,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                 gameState.Clocks.BlackClock
             ),
             Moves = [.. CreateExpectedMoveArchives(gameState.MoveHistory)],
-            IsRated = gameState.IsRated,
-            BaseSeconds = gameState.TimeControl.BaseSeconds,
-            IncrementSeconds = gameState.TimeControl.IncrementSeconds,
         };
 
         savedArchive
@@ -218,10 +220,10 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
                     SideEffects =
                         move.Path.SideEffects?.Select(se => new MoveSideEffectArchive
-                            {
-                                FromIdx = se.FromIdx,
-                                ToIdx = se.ToIdx,
-                            })
+                        {
+                            FromIdx = se.FromIdx,
+                            ToIdx = se.ToIdx,
+                        })
                             .ToList() ?? [],
                     PromotesTo = move.Path.PromotesTo,
                 }

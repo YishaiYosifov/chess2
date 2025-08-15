@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Actors;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.UserRating.Services;
 using Chess2.Api.Users.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -10,12 +11,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameStarter
 {
-    Task<string> StartGameAsync(
-        string userId1,
-        string userId2,
-        TimeControlSettings timeControl,
-        bool isRated
-    );
+    Task<string> StartGameAsync(string userId1, string userId2, PoolKey pool);
 }
 
 public class GameStarter(
@@ -32,20 +28,15 @@ public class GameStarter(
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IGrainFactory _grains = grains;
 
-    public async Task<string> StartGameAsync(
-        string userId1,
-        string userId2,
-        TimeControlSettings timeControl,
-        bool isRated
-    )
+    public async Task<string> StartGameAsync(string userId1, string userId2, PoolKey pool)
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         // TODO: choose white and black based on each player last game
-        var whitePlayer = await CreatePlayer(userId1, GameColor.White, timeControl);
-        var blackPlayer = await CreatePlayer(userId2, GameColor.Black, timeControl);
+        var whitePlayer = await CreatePlayer(userId1, GameColor.White, pool.TimeControl);
+        var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
 
         var gameGrain = _grains.GetGrain<IGameGrain>(token);
-        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, timeControl, isRated);
+        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool);
 
         return token;
     }

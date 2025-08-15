@@ -158,12 +158,7 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
 
         var testGameToken = "test game token 123";
         _gameStarterMock
-            .StartGameAsync(
-                seeker1.UserId,
-                seeker2.UserId,
-                _testPoolKey.TimeControl,
-                isRated: false
-            )
+            .StartGameAsync(seeker1.UserId, seeker2.UserId, _testPoolKey)
             .Returns(Task.FromResult(testGameToken));
 
         await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
@@ -172,29 +167,6 @@ public class AbstractMatchmakingGrainTests : BaseOrleansIntegrationTest
         seeker2Stream.VerifySend(e => e.GameToken == testGameToken);
         removedStream.Sends.Should().Be(0);
         createdStream.Sends.Should().Be(0);
-    }
-
-    [Fact]
-    public async Task ExecuteWaveAsync_starts_rated_games_when_both_seekers_are_rated()
-    {
-        var seeker1 = new RatedSeekerFaker(rating: 1200).Generate();
-        var seeker2 = new RatedSeekerFaker(rating: 1200).Generate();
-        var seeker1Stream = ProbeSeekEndedStream(seeker1.UserId);
-        var seeker2Stream = ProbeSeekEndedStream(seeker2.UserId);
-
-        var grain = await CreateGrainAsync();
-        await grain.AddSeekAsync(seeker1);
-        await grain.AddSeekAsync(seeker2);
-
-        var testGameToken = "test game token 123";
-        _gameStarterMock
-            .StartGameAsync(seeker1.UserId, seeker2.UserId, _testPoolKey.TimeControl, isRated: true)
-            .Returns(Task.FromResult(testGameToken));
-
-        await Silo.FireTimerAsync(AbstractMatchmakingGrain<IMatchmakingPool>.WaveTimer);
-
-        seeker1Stream.VerifySend(e => e.GameToken == testGameToken);
-        seeker2Stream.VerifySend(e => e.GameToken == testGameToken);
     }
 
     [Fact]

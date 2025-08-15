@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Entities;
@@ -38,8 +39,7 @@ public static class GameUtils
         var gameToken = await gameStarter.StartGameAsync(
             user1.Id,
             user2.Id,
-            timeControl,
-            isRated: true
+            new PoolKey(PoolType.Rated, timeControl)
         );
 
         return new(user1, user1Rating, user2, user2Rating, gameToken);
