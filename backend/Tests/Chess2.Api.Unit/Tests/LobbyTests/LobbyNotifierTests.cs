@@ -24,7 +24,13 @@ public class LobbyNotifierTests
 
     public LobbyNotifierTests()
     {
-        _clientsMock.Clients(_connectionIds.Select(x => x.Value)).Returns(_clientProxyMock);
+        _clientsMock
+            .Clients(
+                Arg.Is<IReadOnlyList<string>>(x =>
+                    x.SequenceEqual(_connectionIds.Select(x => x.Value))
+                )
+            )
+            .Returns(_clientProxyMock);
         _hubContextMock.Clients.Returns(_clientsMock);
         _notifier = new(_hubContextMock);
     }
