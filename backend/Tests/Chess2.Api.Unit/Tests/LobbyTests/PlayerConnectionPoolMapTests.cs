@@ -10,16 +10,12 @@ public class PlayerConnectionPoolMapTests
 {
     private readonly PlayerConnectionPoolMap _connMap = new();
 
-    private static PoolKey CreatePool(PoolType type, int baseSeconds, int incrementSeconds) =>
-        new(type, new TimeControlSettings(baseSeconds, incrementSeconds));
-
     [Fact]
     public void AddConnectionToPool_adds_connection_and_pool()
     {
         ConnectionId conn = new("conn1");
-        var pool = CreatePool(PoolType.Rated, 300, 5);
 
-        _connMap.AddConnectionToPool(conn, pool);
+        _connMap.AddConnectionToPool(conn, new(PoolType.Rated, new TimeControlSettings(300, 5)));
 
         _connMap.SeekCount.Should().Be(1);
     }
@@ -29,8 +25,8 @@ public class PlayerConnectionPoolMapTests
     {
         ConnectionId conn = new("conn1");
 
-        _connMap.AddConnectionToPool(conn, CreatePool(PoolType.Rated, 300, 5));
-        _connMap.AddConnectionToPool(conn, CreatePool(PoolType.Casual, 600, 0));
+        _connMap.AddConnectionToPool(conn, new(PoolType.Rated, new TimeControlSettings(300, 5)));
+        _connMap.AddConnectionToPool(conn, new(PoolType.Casual, new TimeControlSettings(600, 0)));
 
         _connMap.SeekCount.Should().Be(2);
     }
@@ -38,7 +34,7 @@ public class PlayerConnectionPoolMapTests
     [Fact]
     public void AddConnectionToPool_allows_multiple_connections_for_same_pool()
     {
-        var pool = CreatePool(PoolType.Rated, 300, 5);
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
 
         _connMap.AddConnectionToPool(new ConnectionId("c1"), pool);
         _connMap.AddConnectionToPool(new ConnectionId("c2"), pool);
@@ -51,7 +47,7 @@ public class PlayerConnectionPoolMapTests
     {
         ConnectionId conn1 = new("c1");
         ConnectionId conn2 = new("c2");
-        var pool = CreatePool(PoolType.Rated, 300, 5);
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
 
         _connMap.AddConnectionToPool(conn1, pool);
         _connMap.AddConnectionToPool(conn2, pool);
@@ -66,7 +62,7 @@ public class PlayerConnectionPoolMapTests
     public void RemoveConnection_returns_pool_when_last_connection_removed()
     {
         ConnectionId conn = new("c1");
-        var pool = CreatePool(PoolType.Rated, 300, 5);
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
 
         _connMap.AddConnectionToPool(conn, pool);
         var removedPools = _connMap.RemoveConnection(conn);
@@ -89,7 +85,7 @@ public class PlayerConnectionPoolMapTests
     {
         ConnectionId conn1 = new("c1");
         ConnectionId conn2 = new("c2");
-        var pool = CreatePool(PoolType.Casual, 600, 0);
+        PoolKey pool = new(PoolType.Casual, new TimeControlSettings(600, 0));
 
         _connMap.AddConnectionToPool(conn1, pool);
         _connMap.AddConnectionToPool(conn2, pool);
@@ -103,7 +99,9 @@ public class PlayerConnectionPoolMapTests
     [Fact]
     public void RemovePool_returns_empty_when_pool_not_found()
     {
-        var removedConnections = _connMap.RemovePool(CreatePool(PoolType.Rated, 300, 5));
+        var removedConnections = _connMap.RemovePool(
+            new(PoolType.Rated, new TimeControlSettings(300, 5))
+        );
 
         removedConnections.Should().BeEmpty();
     }
@@ -111,9 +109,18 @@ public class PlayerConnectionPoolMapTests
     [Fact]
     public void SeekCount_reflects_multiple_connections_and_pools()
     {
-        _connMap.AddConnectionToPool(new ConnectionId("c1"), CreatePool(PoolType.Rated, 300, 5));
-        _connMap.AddConnectionToPool(new ConnectionId("c1"), CreatePool(PoolType.Casual, 600, 0));
-        _connMap.AddConnectionToPool(new ConnectionId("c2"), CreatePool(PoolType.Rated, 300, 5));
+        _connMap.AddConnectionToPool(
+            new ConnectionId("c1"),
+            new(PoolType.Rated, new TimeControlSettings(300, 5))
+        );
+        _connMap.AddConnectionToPool(
+            new ConnectionId("c1"),
+            new(PoolType.Casual, new TimeControlSettings(600, 0))
+        );
+        _connMap.AddConnectionToPool(
+            new ConnectionId("c2"),
+            new(PoolType.Rated, new TimeControlSettings(300, 5))
+        );
 
         _connMap.SeekCount.Should().Be(3);
     }
