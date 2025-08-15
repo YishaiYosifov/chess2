@@ -103,7 +103,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
 
         var poolConnectionIds = _connectionMap.RemovePool(pool);
-        await _matchmakingNotifier.NotifyMatchFailedAsync(poolConnectionIds);
+        await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
     }
 
     public Task GameEndedAsync(string gameToken) =>
@@ -125,7 +125,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         }
         else
         {
-            await _matchmakingNotifier.NotifyMatchFailedAsync(poolConnectionIds);
+            await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
         }
 
         foreach (var connectionId in poolConnectionIds)

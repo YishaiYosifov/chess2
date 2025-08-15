@@ -1,5 +1,7 @@
-﻿using Chess2.Api.Lobby.Services;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
@@ -38,10 +40,12 @@ public class LobbyNotifierTests
     }
 
     [Fact]
-    public async Task NotifyMatchFailedAsync_notifies_correct_method()
+    public async Task NotifySeekFailedAsync_notifies_correct_method()
     {
-        await _notifier.NotifyMatchFailedAsync(_connectionIds);
+        PoolKey pool = new(PoolType.Casual, new TimeControlSettings(300, 5));
 
-        await _clientProxyMock.Received(1).MatchFailedAsync();
+        await _notifier.NotifySeekFailedAsync(_connectionIds, pool);
+
+        await _clientProxyMock.Received(1).SeekFailedAsync(pool);
     }
 }

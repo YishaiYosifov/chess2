@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Lobby.SignalR;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -7,7 +8,7 @@ namespace Chess2.Api.Lobby.Services;
 public interface ILobbyNotifier
 {
     Task NotifyGameFoundAsync(IEnumerable<ConnectionId> connectionIds, string gameToken);
-    Task NotifyMatchFailedAsync(IEnumerable<ConnectionId> connectionIds);
+    Task NotifySeekFailedAsync(IEnumerable<ConnectionId> connectionIds, PoolKey pool);
 }
 
 public class LobbyNotifier(IHubContext<LobbyHub, ILobbyHubClient> hub) : ILobbyNotifier
@@ -17,6 +18,6 @@ public class LobbyNotifier(IHubContext<LobbyHub, ILobbyHubClient> hub) : ILobbyN
     public Task NotifyGameFoundAsync(IEnumerable<ConnectionId> connectionIds, string gameToken) =>
         _hub.Clients.Clients(connectionIds.Select(c => c.Value)).MatchFoundAsync(gameToken);
 
-    public Task NotifyMatchFailedAsync(IEnumerable<ConnectionId> connectionIds) =>
-        _hub.Clients.Clients(connectionIds.Select(c => c.Value)).MatchFailedAsync();
+    public Task NotifySeekFailedAsync(IEnumerable<ConnectionId> connectionIds, PoolKey pool) =>
+        _hub.Clients.Clients(connectionIds.Select(c => c.Value)).SeekFailedAsync(pool);
 }
