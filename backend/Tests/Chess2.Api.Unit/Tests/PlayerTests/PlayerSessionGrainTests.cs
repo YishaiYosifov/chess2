@@ -147,8 +147,9 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await _ratedPoolGrainMock.Received(1).TryCancelSeekAsync(UserId);
         await _matchmakingNotifierMock
             .Received(1)
-            .NotifyMatchFailedAsync(
-                Arg.Is<IReadOnlyList<ConnectionId>>(ids => ids.SequenceEqual(expectedConns))
+            .NotifySeekFailedAsync(
+                Arg.Is<IReadOnlyList<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
+                poolToRemove
             );
         removeStream.Subscribed.Should().Be(0);
         activeStream.Subscribed.Should().Be(1);
@@ -191,12 +192,12 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         await stream.OnNextAsync(new PlayerSeekEndedEvent(GameToken: null));
 
+        List<ConnectionId> expectedConns = ["conn1", "conn2"];
         await _matchmakingNotifierMock
             .Received(1)
-            .NotifyMatchFailedAsync(
-                Arg.Is<IReadOnlyList<ConnectionId>>(ids =>
-                    ids.Contains("conn1") && ids.Contains("conn2")
-                )
+            .NotifySeekFailedAsync(
+                Arg.Is<IReadOnlyList<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
+                pool
             );
         stream.Subscribed.Should().Be(0);
     }
