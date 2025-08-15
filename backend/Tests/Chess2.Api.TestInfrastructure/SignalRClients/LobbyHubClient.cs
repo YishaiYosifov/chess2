@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.Matchmaking.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
@@ -27,8 +28,8 @@ public class LobbyHubClient : BaseHubClient
     public Task SeekCasualAsync(TimeControlSettings timeControl, CancellationToken token) =>
         Connection.InvokeAsync("SeekCasualAsync", timeControl, token);
 
-    public Task CancelSeekAsync(CancellationToken token) =>
-        Connection.InvokeAsync("CancelSeekAsync", token);
+    public Task CancelSeekAsync(PoolKey pool, CancellationToken token) =>
+        Connection.InvokeAsync("CancelSeekAsync", pool, token);
 
     public Task<string> WaitForGameAsync(CancellationToken token) =>
         _matchTsc.Task.WaitAsync(TimeSpan.FromSeconds(10), token);
