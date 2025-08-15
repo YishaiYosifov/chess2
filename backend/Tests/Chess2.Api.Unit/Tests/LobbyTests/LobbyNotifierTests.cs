@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
+using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
@@ -7,7 +8,7 @@ namespace Chess2.Api.Unit.Tests.LobbyTests;
 
 public class LobbyNotifierTests
 {
-    private const string ConnectionId = "testconn";
+    private readonly List<ConnectionId> _connectionIds = ["conn1", "conn2", "conn3"];
 
     private readonly IHubContext<LobbyHub, ILobbyHubClient> _hubContextMock = Substitute.For<
         IHubContext<LobbyHub, ILobbyHubClient>
@@ -21,7 +22,7 @@ public class LobbyNotifierTests
 
     public LobbyNotifierTests()
     {
-        _clientsMock.Client(ConnectionId).Returns(_clientProxyMock);
+        _clientsMock.Clients(_connectionIds.Select(x => x.Value)).Returns(_clientProxyMock);
         _hubContextMock.Clients.Returns(_clientsMock);
         _notifier = new(_hubContextMock);
     }
@@ -31,7 +32,7 @@ public class LobbyNotifierTests
     {
         var gameToken = "game456";
 
-        await _notifier.NotifyGameFoundAsync(ConnectionId, gameToken);
+        await _notifier.NotifyGameFoundAsync(_connectionIds, gameToken);
 
         await _clientProxyMock.Received(1).MatchFoundAsync(gameToken);
     }
@@ -39,7 +40,7 @@ public class LobbyNotifierTests
     [Fact]
     public async Task NotifyMatchFailedAsync_notifies_correct_method()
     {
-        await _notifier.NotifyMatchFailedAsync(ConnectionId);
+        await _notifier.NotifyMatchFailedAsync(_connectionIds);
 
         await _clientProxyMock.Received(1).MatchFailedAsync();
     }

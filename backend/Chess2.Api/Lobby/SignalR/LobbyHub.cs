@@ -80,7 +80,7 @@ public class LobbyHub(
             await HandleErrors(result.Errors);
     }
 
-    public async Task CancelSeekAsync()
+    public async Task CancelSeekAsync(PoolKey pool)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -90,7 +90,7 @@ public class LobbyHub(
 
         _logger.LogInformation("User {UserId} cancelled their seek", userId);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-        await grain.CancelSeekAsync(Context.ConnectionId);
+        await grain.CancelSeekAsync(pool);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -112,7 +112,7 @@ public class LobbyHub(
             );
 
             var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-            await playerSessionGrain.CancelSeekAsync(Context.ConnectionId);
+            await playerSessionGrain.CleanupConnectionAsync(Context.ConnectionId);
         }
         finally
         {

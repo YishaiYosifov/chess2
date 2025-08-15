@@ -6,17 +6,17 @@ namespace Chess2.Api.Lobby.Services;
 
 public interface ILobbyNotifier
 {
-    Task NotifyGameFoundAsync(ConnectionId connectionId, string gameToken);
-    Task NotifyMatchFailedAsync(ConnectionId connectionId);
+    Task NotifyGameFoundAsync(IEnumerable<ConnectionId> connectionIds, string gameToken);
+    Task NotifyMatchFailedAsync(IEnumerable<ConnectionId> connectionIds);
 }
 
 public class LobbyNotifier(IHubContext<LobbyHub, ILobbyHubClient> hub) : ILobbyNotifier
 {
     private readonly IHubContext<LobbyHub, ILobbyHubClient> _hub = hub;
 
-    public Task NotifyGameFoundAsync(ConnectionId connectionId, string gameToken) =>
-        _hub.Clients.Client(connectionId).MatchFoundAsync(gameToken);
+    public Task NotifyGameFoundAsync(IEnumerable<ConnectionId> connectionIds, string gameToken) =>
+        _hub.Clients.Clients(connectionIds.Select(c => c.Value)).MatchFoundAsync(gameToken);
 
-    public Task NotifyMatchFailedAsync(ConnectionId connectionId) =>
-        _hub.Clients.Client(connectionId).MatchFailedAsync();
+    public Task NotifyMatchFailedAsync(IEnumerable<ConnectionId> connectionIds) =>
+        _hub.Clients.Clients(connectionIds.Select(c => c.Value)).MatchFailedAsync();
 }
