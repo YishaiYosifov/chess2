@@ -4,6 +4,7 @@ using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
@@ -20,8 +21,10 @@ namespace Chess2.Api.Integration.Tests.LiveGameTests;
 public class GameGrainTests : BaseOrleansIntegrationTest
 {
     private const string TestGameToken = "testtoken";
-
-    private readonly TimeControlSettings _timeControl = new(600, 5);
+    private readonly PoolKey _pool = new(
+        PoolType.Rated,
+        new(BaseSeconds: 600, IncrementSeconds: 5)
+    );
 
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
@@ -70,20 +73,19 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     public async Task GetStateAsync_returns_the_correct_GameStateEvent()
     {
         var grain = await CreateGrainAsync();
-        await StartGameAsync(grain, isRated: true);
+        await StartGameAsync(grain);
 
         var result = await grain.GetStateAsync(_whitePlayer.UserId);
 
         result.IsError.Should().BeFalse();
         var expectedClock = new ClockSnapshot(
-            WhiteClock: _timeControl.BaseSeconds * 1000,
-            BlackClock: _timeControl.BaseSeconds * 1000,
+            WhiteClock: _pool.TimeControl.BaseSeconds * 1000,
+            BlackClock: _pool.TimeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
         var legalMoves = _gameCore.GetLegalMoves(GameColor.White);
         var expectedGameState = new GameState(
-            TimeControl: _timeControl,
-            IsRated: true,
+            Pool: _pool,
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
             Clocks: expectedClock,
@@ -161,8 +163,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var move = await MakeLegalMoveAsync(grain, _whitePlayer);
 
         var expectedTimeLeft =
-            _timeControl.BaseSeconds * 1000
-            + _timeControl.IncrementSeconds * 1000 // add increment
+            _pool.TimeControl.BaseSeconds * 1000
+            + _pool.TimeControl.IncrementSeconds * 1000 // add increment
             - 2 * 1000; // removed elapsed time
 
         MoveSnapshot expectedMoveSnapshot = new(
@@ -175,7 +177,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         );
         ClockSnapshot expectedClock = new(
             WhiteClock: expectedTimeLeft,
-            BlackClock: _timeControl.BaseSeconds * 1000,
+            BlackClock: _pool.TimeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
         var legalMoves = _gameCore.GetLegalMoves(GameColor.Black);
@@ -377,13 +379,15 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         GamePlayer? whitePlayer = null,
         GamePlayer? blackPlayer = null,
         TimeControlSettings? timeControl = null,
-        bool isRated = true
+        PoolType? poolType = null
     ) =>
         grain.StartGameAsync(
             whitePlayer: whitePlayer ?? _whitePlayer,
             blackPlayer: blackPlayer ?? _blackPlayer,
-            timeControl: timeControl ?? _timeControl,
-            isRated: isRated
+            pool: new PoolKey(
+                PoolType: poolType ?? _pool.PoolType,
+                TimeControl: timeControl ?? _pool.TimeControl
+            )
         );
 
     private async Task TestGameEndedAsync(IGameGrain grain, GameEndStatus expectedEndStatus)

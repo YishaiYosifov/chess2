@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
 using FluentAssertions;
@@ -13,7 +14,7 @@ public class GameGrainTests : BaseGrainTest
 {
     private const string TestGameToken = "testtoken";
 
-    private readonly TimeControlSettings _timeControl = new(600, 5);
+    private readonly PoolKey _pool = new(PoolType.Rated, new(600, 5));
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
 
@@ -130,10 +131,5 @@ public class GameGrainTests : BaseGrainTest
     }
 
     private Task StartGameAsync(GameGrain grain) =>
-        grain.StartGameAsync(
-            whitePlayer: _whitePlayer,
-            blackPlayer: _blackPlayer,
-            timeControl: _timeControl,
-            isRated: true
-        );
+        grain.StartGameAsync(whitePlayer: _whitePlayer, blackPlayer: _blackPlayer, pool: _pool);
 }
