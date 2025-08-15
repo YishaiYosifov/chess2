@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
@@ -68,17 +69,18 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
     [Fact]
     public async Task Seek_end_notifies_subscribed_users()
     {
+        TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
         await using var lobby = new LobbyHubClient(
             await GuestSignalRAsync(LobbyHubClient.Path, "guest seeker")
         );
-        await lobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
+        await lobby.SeekCasualAsync(timeControl, CT);
 
         await using var watcher = await OpenSeekHubClient.CreateSubscribedAsync(
             await GuestSignalRAsync(OpenSeekHubClient.Path, "guest watcher"),
             CT
         );
 
-        await lobby.CancelSeekAsync(CT);
+        await lobby.CancelSeekAsync(new(PoolType.Casual, timeControl), CT);
 
         var seeks = await watcher.GetOpenSeekRemovedAsync(1, CT);
         seeks.Should().ContainSingle();
