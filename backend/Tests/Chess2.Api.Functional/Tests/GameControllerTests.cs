@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -30,8 +31,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
-            new TimeControlSettings(600, 0),
-            isRated: false
+            new PoolKey(PoolType.Casual, new(600, 0))
         );
         AuthUtils.AuthenticateGuest(ApiClient, "guest1");
 
@@ -72,8 +72,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
-            new(600, 0),
-            isRated: false
+            new PoolKey(PoolType.Casual, new(600, 0))
         );
         AuthUtils.AuthenticateGuest(ApiClient, "otherGuest");
 
@@ -88,8 +87,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
-            new(600, 0),
-            isRated: false
+            new PoolKey(PoolType.Casual, new(600, 0))
         );
 
         // authenticate with a different user
@@ -149,8 +147,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             "guest1",
             "guest2",
-            new TimeControlSettings(600, 0),
-            isRated: false
+            new PoolKey(PoolType.Casual, new(600, 0))
         );
         await _grains.GetGrain<IGameGrain>(gameToken).EndGameAsync("guest2");
 
@@ -184,8 +181,7 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             authedUser.Id,
             guestId,
-            new TimeControlSettings(300, 5),
-            isRated: false
+            new PoolKey(PoolType.Casual, new(300, 5))
         );
 
         await AssertMixedPlayersGameState(authedUser, rating, guestId, gameToken);

@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.ArchivedGames.Services;
 
@@ -17,7 +18,10 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
         var blackPlayerArchive = archive.BlackPlayer;
         var sortedMoves = archive.Moves.OrderBy(m => m.MoveNumber);
 
-        TimeControlSettings timeControl = new(archive.BaseSeconds, archive.IncrementSeconds);
+        PoolKey pool = new(
+            PoolType: archive.PoolType,
+            TimeControl: new(archive.BaseSeconds, archive.IncrementSeconds)
+        );
         var whitePlayer = CreatePlayerFromArchive(whitePlayerArchive);
         var blackPlayer = CreatePlayerFromArchive(blackPlayerArchive);
         var result = CreateResultDataFromArchive(archive);
@@ -33,8 +37,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
         var sideToMove = moveHistory.Count % 2 == 0 ? GameColor.White : GameColor.Black;
 
         return new(
-            TimeControl: timeControl,
-            IsRated: archive.IsRated,
+            Pool: pool,
             WhitePlayer: whitePlayer,
             BlackPlayer: blackPlayer,
             Clocks: clocks,

@@ -4,6 +4,7 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Lobby.Grains;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -25,8 +26,6 @@ public class GameFinalizerTests : BaseUnitTest
     private readonly IGameArchiveService _gameArchiveServiceMock =
         Substitute.For<IGameArchiveService>();
     private readonly IUnitOfWork _unitOfWorkMock = Substitute.For<IUnitOfWork>();
-    private readonly ITimeControlTranslator _timeControlTranslatorMock =
-        Substitute.For<ITimeControlTranslator>();
 
     private readonly IPlayerSessionGrain _whitePlayerSessionGrain =
         Substitute.For<IPlayerSessionGrain>();
@@ -35,6 +34,11 @@ public class GameFinalizerTests : BaseUnitTest
     private readonly IGrainFactory _grainFactory = Substitute.For<IGrainFactory>();
 
     private const string GameToken = "test game token 123";
+    private readonly TimeControl _timeControl = TimeControl.Rapid;
+    private readonly TimeControlSettings _timeControlSettings = new(
+        BaseSeconds: 600,
+        IncrementSeconds: 5
+    );
 
     public GameFinalizerTests()
     {
@@ -42,7 +46,7 @@ public class GameFinalizerTests : BaseUnitTest
             _userManagerMock,
             _ratingServiceMock,
             _gameArchiveServiceMock,
-            _timeControlTranslatorMock,
+            new TimeControlTranslator(),
             _grainFactory,
             _unitOfWorkMock
         );
@@ -54,12 +58,11 @@ public class GameFinalizerTests : BaseUnitTest
         var (whiteUser, whitePlayer, blackUser, blackPlayer) = CreatePlayers();
 
         var state = CreateRatedGameState(whitePlayer, blackPlayer);
-        var timeControl = TimeControl.Rapid;
         RatingChange ratingChange = new(15, -15);
         GameEndStatus endStatus = new(Result: GameResult.WhiteWin, ResultDescription: "desc");
-        _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
+
         _ratingServiceMock
-            .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, timeControl, CT)
+            .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, _timeControl, CT)
             .Returns(ratingChange);
         _grainFactory.GetGrain<IPlayerSessionGrain>(whiteUser.Id).Returns(_whitePlayerSessionGrain);
         _grainFactory.GetGrain<IPlayerSessionGrain>(blackUser.Id).Returns(_blackPlayerSessionGrain);
@@ -75,7 +78,7 @@ public class GameFinalizerTests : BaseUnitTest
                 whiteUser,
                 blackUser,
                 endStatus.Result,
-                timeControl,
+                _timeControl,
                 Arg.Any<CancellationToken>()
             );
         await _unitOfWorkMock.Received(1).CompleteAsync(CT);
@@ -90,9 +93,6 @@ public class GameFinalizerTests : BaseUnitTest
         var (_, whitePlayer, _, blackPlayer) = CreatePlayers();
 
         var state = CreateRatedGameState(whitePlayer, blackPlayer);
-        var timeControl = TimeControl.Rapid;
-
-        _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
 
         await _gameFinalizer.FinalizeGameAsync(
             GameToken,
@@ -107,11 +107,10 @@ public class GameFinalizerTests : BaseUnitTest
     [Fact]
     public async Task FinalizeGameAsync_unrated_game_does_not_call_rating_service()
     {
-        var state = new GameStateFaker().RuleFor(x => x.IsRated, false).Generate();
+        var state = new GameStateFaker()
+            .RuleFor(x => x.Pool, new PoolKey(PoolType.Casual, _timeControlSettings))
+            .Generate();
         var ratingChange = new RatingChange(15, -15);
-        var timeControl = TimeControl.Rapid;
-
-        _timeControlTranslatorMock.FromSeconds(state.TimeControl.BaseSeconds).Returns(timeControl);
 
         await _gameFinalizer.FinalizeGameAsync(
             GameToken,
@@ -142,12 +141,12 @@ public class GameFinalizerTests : BaseUnitTest
         return (user1, whitePlayer, user2, blackPlayer);
     }
 
-    private static GameState CreateRatedGameState(GamePlayer whitePlayer, GamePlayer blackPlayer)
+    private GameState CreateRatedGameState(GamePlayer whitePlayer, GamePlayer blackPlayer)
     {
         return new GameStateFaker()
             .RuleFor(x => x.WhitePlayer, whitePlayer)
             .RuleFor(x => x.BlackPlayer, blackPlayer)
-            .RuleFor(x => x.IsRated, true)
+            .RuleFor(x => x.Pool, new PoolKey(PoolType.Rated, _timeControlSettings))
             .Generate();
     }
 }

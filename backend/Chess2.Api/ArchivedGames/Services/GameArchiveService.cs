@@ -73,9 +73,9 @@ public class GameArchiveService(
             BlackPlayer = blackArchive,
             InitialFen = state.InitialFen,
             Moves = moves,
-            IsRated = state.IsRated,
-            BaseSeconds = state.TimeControl.BaseSeconds,
-            IncrementSeconds = state.TimeControl.IncrementSeconds,
+            PoolType = state.Pool.PoolType,
+            BaseSeconds = state.Pool.TimeControl.BaseSeconds,
+            IncrementSeconds = state.Pool.TimeControl.IncrementSeconds,
         };
 
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, token);
@@ -156,10 +156,10 @@ public class GameArchiveService(
         var path = moveSnapshot.Path;
         var sideEffects =
             path.SideEffects?.Select(se => new MoveSideEffectArchive
-                {
-                    FromIdx = se.FromIdx,
-                    ToIdx = se.ToIdx,
-                })
+            {
+                FromIdx = se.FromIdx,
+                ToIdx = se.ToIdx,
+            })
                 .ToList() ?? [];
 
         return new()

@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
@@ -9,13 +10,15 @@ public class GameStateFaker : RecordFaker<GameState>
     {
         StrictMode(true);
         RuleFor(
-            x => x.TimeControl,
-            f => new TimeControlSettings(
-                BaseSeconds: f.Random.Number(60, 900),
-                IncrementSeconds: f.Random.Number(0, 30)
+            x => x.Pool,
+            f => new PoolKey(
+                PoolType: f.PickRandom<PoolType>(),
+                TimeControl: new(
+                    BaseSeconds: f.Random.Number(300, 600),
+                    IncrementSeconds: f.Random.Number(3, 10)
+                )
             )
         );
-        RuleFor(x => x.IsRated, f => f.Random.Bool());
         RuleFor(x => x.WhitePlayer, f => new GamePlayerFaker(GameColor.White).Generate());
         RuleFor(x => x.BlackPlayer, f => new GamePlayerFaker(GameColor.Black).Generate());
         RuleFor(

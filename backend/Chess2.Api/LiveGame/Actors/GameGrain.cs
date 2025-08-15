@@ -2,6 +2,7 @@
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Users.Models;
 using ErrorOr;
 
@@ -11,12 +12,7 @@ namespace Chess2.Api.LiveGame.Actors;
 public interface IGameGrain : IGrainWithStringKey
 {
     [Alias("StartGameAsync")]
-    Task StartGameAsync(
-        GamePlayer whitePlayer,
-        GamePlayer blackPlayer,
-        TimeControlSettings timeControl,
-        bool isRated
-    );
+    Task StartGameAsync(GamePlayer whitePlayer, GamePlayer blackPlayer, PoolKey pool);
 
     [Alias("IsGameOngoingAsync")]
     Task<bool> IsGameOngoingAsync();
@@ -60,9 +56,9 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
     private IGrainTimer? _clockTimer;
     private bool _isPlaying = false;
-    private TimeControlSettings _timeControl;
+    private PoolKey? _pool;
+
     private GameResultData? _result;
-    private bool _isRated;
 
     public GameGrain(
         ILogger<GameGrain> logger,
@@ -85,19 +81,13 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         _gameFinalizer = gameFinalizer;
     }
 
-    public Task StartGameAsync(
-        GamePlayer whitePlayer,
-        GamePlayer blackPlayer,
-        TimeControlSettings timeControl,
-        bool isRated
-    )
+    public Task StartGameAsync(GamePlayer whitePlayer, GamePlayer blackPlayer, PoolKey pool)
     {
         _players.InitializePlayers(whitePlayer, blackPlayer);
         _core.InitializeGame();
-        _clock.Reset(timeControl);
+        _clock.Reset(pool.TimeControl);
 
-        _timeControl = timeControl;
-        _isRated = isRated;
+        _pool = pool;
 
         _isPlaying = true;
         _clockTimer = this.RegisterGrainTimer(
@@ -284,8 +274,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         var legalMoves = _core.GetLegalMoves(player?.Color);
 
         var gameState = new GameState(
-            TimeControl: _timeControl,
-            IsRated: _isRated,
+            Pool: _pool!,
             WhitePlayer: _players.WhitePlayer,
             BlackPlayer: _players.BlackPlayer,
             Clocks: _clock.Value,
