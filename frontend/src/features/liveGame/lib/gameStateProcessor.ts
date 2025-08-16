@@ -47,8 +47,7 @@ export function createStoreProps(
         blackPlayer: gameState.blackPlayer,
         sideToMove: gameState.sideToMove,
 
-        isRated: gameState.isRated,
-        timeControl: gameState.timeControl,
+        pool: gameState.pool,
         userId,
         playerColor,
 
@@ -74,7 +73,7 @@ export function createStoreProps(
 function getPositionHistory(gameState: GameState): Position[] {
     let pieces = decodeFen(gameState.initialFen);
 
-    const baseClock = gameState.timeControl.baseSeconds * 1000;
+    const baseClock = gameState.pool.timeControl.baseSeconds * 1000;
     let clockSnapshot: ClockSnapshot = {
         whiteClock: baseClock,
         blackClock: baseClock,

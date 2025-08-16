@@ -11,19 +11,20 @@ import {
     GameColor,
     GameResultData,
     MoveSnapshot,
+    PoolKey,
     TimeControlSettings,
 } from "@/lib/apiClient";
-import { OpenSeek, PoolKey } from "@/features/lobby/lib/types";
+import { OpenSeek } from "@/features/lobby/lib/types";
 
 export type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
-    MatchFailedAsync: [];
+    SeekFailedAsync: [pool: PoolKey];
 };
 
 type LobbyHubEvents = {
     SeekRatedAsync: [timeControl: TimeControlSettings];
     SeekCasualAsync: [timeControl: TimeControlSettings];
-    CancelSeekAsync: [];
+    CancelSeekAsync: [pool: PoolKey];
 };
 
 export const useLobbyEvent = signalREventHookFactory<LobbyClientEvents>(

@@ -7,7 +7,7 @@ import {
     GameColor,
     GamePlayer,
     GameResultData,
-    TimeControlSettings,
+    PoolKey,
 } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
@@ -26,8 +26,7 @@ export interface LiveChessStoreProps {
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
 
-    timeControl: TimeControlSettings;
-    isRated: boolean;
+    pool: PoolKey;
     userId: string;
     playerColor: GameColor;
 

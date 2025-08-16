@@ -2,52 +2,46 @@ import {
     useLobbyEmitter,
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
-import { TimeControlSettings } from "@/lib/apiClient";
-import constants from "@/lib/constants";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PoolKeyToStr } from "../lib/matchmakingKeys";
+import { PoolKey, PoolType } from "@/lib/apiClient";
 
-export default function useMatchmaking(): {
-    createSeek: (
-        isRated: boolean,
-        timeControl: TimeControlSettings,
-    ) => Promise<void>;
+export default function useMatchmaking(pool: PoolKey): {
+    createSeek: () => Promise<void>;
     cancelSeek: () => Promise<void>;
-    toggleSeek: (
-        isRated: boolean,
-        timeControl: TimeControlSettings,
-    ) => Promise<void>;
+    toggleSeek: () => Promise<void>;
     isSeeking: boolean;
 } {
-    const router = useRouter();
     const sendLobbyEvent = useLobbyEmitter();
     const [isSeeking, setIsSeeking] = useState(false);
+    const poolKeyStr = PoolKeyToStr(pool);
 
-    useLobbyEvent("MatchFoundAsync", (token) =>
-        router.push(`${constants.PATHS.GAME}/${token}`),
-    );
-    useLobbyEvent("MatchFailedAsync", () => setIsSeeking(false));
+    useLobbyEvent("SeekFailedAsync", (pool) => {
+        if (PoolKeyToStr(pool) === poolKeyStr) setIsSeeking(false);
+    });
 
-    async function createSeek(
-        isRated: boolean,
-        timeControl: TimeControlSettings,
-    ): Promise<void> {
+    async function createSeek(): Promise<void> {
         setIsSeeking(true);
-        if (isRated) await sendLobbyEvent("SeekRatedAsync", timeControl);
-        else await sendLobbyEvent("SeekCasualAsync", timeControl);
+        switch (pool.poolType) {
+            case PoolType.RATED:
+                await sendLobbyEvent("SeekRatedAsync", pool.timeControl);
+                break;
+            case PoolType.CASUAL:
+                await sendLobbyEvent("SeekCasualAsync", pool.timeControl);
+                break;
+            default:
+                throw new Error(`Unknown pool type ${pool}`);
+        }
     }
 
     async function cancelSeek(): Promise<void> {
         setIsSeeking(false);
-        await sendLobbyEvent("CancelSeekAsync");
+        await sendLobbyEvent("CancelSeekAsync", pool);
     }
 
-    function toggleSeek(
-        isRated: boolean,
-        timeControl: TimeControlSettings,
-    ): Promise<void> {
+    function toggleSeek(): Promise<void> {
         if (isSeeking) return cancelSeek();
-        else return createSeek(isRated, timeControl);
+        else return createSeek();
     }
 
     return { createSeek, cancelSeek, toggleSeek, isSeeking };

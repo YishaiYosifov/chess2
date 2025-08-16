@@ -17,10 +17,6 @@ describe("createStoreProps", () => {
     beforeEach(() => {
         gameState = createFakeGameState({
             initialFen: constants.INITIAL_FEN,
-            timeControl: {
-                baseSeconds: 150,
-                incrementSeconds: 3,
-            },
             // f5 f6 Nh3 Nc8
             moveHistory: [
                 {
@@ -78,7 +74,7 @@ describe("createStoreProps", () => {
             gameState,
         );
 
-        const baseMs = gameState.timeControl.baseSeconds * 1000;
+        const baseMs = gameState.pool.timeControl.baseSeconds * 1000;
         let pieces = new Map(constants.DEFAULT_CHESS_BOARD);
 
         function applyMove(from: LogicalPoint, to: LogicalPoint) {
@@ -161,8 +157,7 @@ describe("createStoreProps", () => {
                 sideToMove: gameState.sideToMove,
                 positionHistory,
 
-                isRated: gameState.isRated,
-                timeControl: gameState.timeControl,
+                pool: gameState.pool,
                 userId: gameState.blackPlayer.userId,
                 playerColor: GameColor.BLACK,
 
