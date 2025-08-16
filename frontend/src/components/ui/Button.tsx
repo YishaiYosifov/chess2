@@ -11,7 +11,7 @@ const Button = ({
         <button
             className={twMerge(
                 `bg-primary disabled:text-text/50 cursor-pointer rounded-md p-2
-                hover:brightness-90 disabled:brightness-70`,
+                hover:brightness-90 disabled:cursor-not-allowed disabled:brightness-70`,
                 className,
             )}
             {...buttonProps}

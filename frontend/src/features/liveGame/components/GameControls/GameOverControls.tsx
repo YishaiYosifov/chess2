@@ -7,19 +7,16 @@ import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 import clsx from "clsx";
 
 const GameOverControls = () => {
-    const { isRated, timeControl } = useLiveChessStore((x) => ({
-        isRated: x.isRated,
-        timeControl: x.timeControl,
-    }));
+    const pool = useLiveChessStore((x) => x.pool);
 
-    const { toggleSeek, isSeeking } = useMatchmaking();
+    const { toggleSeek, isSeeking } = useMatchmaking(pool);
 
     return (
         <>
             <GameControlButton
                 icon={PlusIcon}
                 className={clsx(isSeeking && "animate-subtle-ping")}
-                onClick={() => toggleSeek(isRated, timeControl)}
+                onClick={() => toggleSeek()}
             >
                 {isSeeking ? "Searching..." : "New Game"}
             </GameControlButton>

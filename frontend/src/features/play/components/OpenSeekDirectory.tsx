@@ -10,7 +10,7 @@ import {
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { useEffect, useRef, useState } from "react";
 import { OpenSeek, SeekKeyStr } from "@/features/lobby/lib/types";
-import SeekKeyToStr from "@/features/lobby/lib/seekKeyStr";
+import { SeekKeyToStr } from "@/features/lobby/lib/matchmakingKeys";
 import React from "react";
 
 const OpenSeekDirectory = () => {

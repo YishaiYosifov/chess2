@@ -8,8 +8,7 @@ describe("TimeControlButton", () => {
         render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 300, incrementSeconds: 3 }}
-                formattedTimeControl="5 + 3"
-                type="Rapid"
+                label="Rapid"
             />,
         );
 
@@ -21,8 +20,7 @@ describe("TimeControlButton", () => {
         render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 180, incrementSeconds: 2 }}
-                formattedTimeControl="3 + 2"
-                type="Blitz"
+                label="Blitz"
                 isMostPopular
             />,
         );
@@ -37,8 +35,7 @@ describe("TimeControlButton", () => {
         const { container } = render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 600, incrementSeconds: 5 }}
-                formattedTimeControl="10 + 5"
-                type="Classic"
+                label="Classic"
                 isSeeking
             />,
         );
@@ -58,8 +55,7 @@ describe("TimeControlButton", () => {
         render(
             <TimeControlButton
                 timeControl={timeControl}
-                formattedTimeControl="1 + 0"
-                type="Bullet"
+                label="Bullet"
                 onClick={handleClick}
             />,
         );

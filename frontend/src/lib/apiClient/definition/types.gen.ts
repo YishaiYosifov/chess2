@@ -35,6 +35,10 @@ export enum ErrorCode {
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
     GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
+    MATCHMAKING_SEEK_NOT_FOUND = "Matchmaking.SeekNotFound",
+    MATCHMAKING_SEEKER_NOT_COMPATIBLE = "Matchmaking.SeekerNotCompatible",
+    PLAYER_SESSION_CONNECTION_ALREADY_SEEKING = "PlayerSession.ConnectionAlreadySeeking",
+    PLAYER_SESSION_TOO_MANY_GAMES = "PlayerSession.TooManyGames",
     GAME_NOT_FOUND = "Game.NotFound",
     GAME_ALREADY_ENDED = "Game.AlreadyEnded",
     GAME_PLAYER_INVALID = "Game.PlayerInvalid",
@@ -57,6 +61,10 @@ export type ApiProblemError = {
         | "Auth.OAuth.ProviderNotFound"
         | "GameLogic.PieceNotFound"
         | "GameLogic.PointOutOfBound"
+        | "Matchmaking.SeekNotFound"
+        | "Matchmaking.SeekerNotCompatible"
+        | "PlayerSession.ConnectionAlreadySeeking"
+        | "PlayerSession.TooManyGames"
         | "Game.NotFound"
         | "Game.AlreadyEnded"
         | "Game.PlayerInvalid"
@@ -164,8 +172,7 @@ export type Rating = {
 };
 
 export type GameState = {
-    timeControl: TimeControlSettings;
-    isRated: boolean;
+    pool: PoolKey;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
     clocks: Clocks;
@@ -176,6 +183,22 @@ export type GameState = {
     drawState: DrawState;
     resultData?: GameResultData | null;
 };
+
+export type PoolKey = {
+    poolType: PoolType;
+    timeControl: TimeControlSettings;
+};
+
+export enum PoolType {
+    /**
+     * Rated
+     */
+    RATED = 0,
+    /**
+     * Casual
+     */
+    CASUAL = 1,
+}
 
 export type TimeControlSettings = {
     baseSeconds: number;

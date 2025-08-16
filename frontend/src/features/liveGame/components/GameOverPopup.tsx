@@ -20,27 +20,20 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     _,
     ref,
 ) => {
-    const {
-        whitePlayer,
-        blackPlayer,
-        resultData,
-        playerColor,
-        isRated,
-        timeControl,
-    } = useLiveChessStore((x) => ({
-        whitePlayer: x.whitePlayer,
-        blackPlayer: x.blackPlayer,
-        resultData: x.resultData,
-        playerColor: x.playerColor,
-        isRated: x.isRated,
-        timeControl: x.timeControl,
-    }));
+    const { whitePlayer, blackPlayer, resultData, playerColor, pool } =
+        useLiveChessStore((x) => ({
+            whitePlayer: x.whitePlayer,
+            blackPlayer: x.blackPlayer,
+            resultData: x.resultData,
+            playerColor: x.playerColor,
+            pool: x.pool,
+        }));
     const [isOpen, setIsOpen] = useState(false);
 
     const closePopup = () => setIsOpen(false);
     const openPopup = () => setIsOpen(true);
 
-    const { toggleSeek, isSeeking } = useMatchmaking();
+    const { toggleSeek, isSeeking } = useMatchmaking(pool);
 
     useImperativeHandle(ref, () => ({
         open: openPopup,
@@ -114,7 +107,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                             "w-full",
                             isSeeking && "animate-subtle-ping",
                         )}
-                        onClick={() => toggleSeek(isRated, timeControl)}
+                        onClick={() => toggleSeek()}
                     >
                         {isSeeking ? "SEARCHING..." : "NEW GAME"}
                     </Button>

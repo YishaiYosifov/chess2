@@ -1,14 +1,6 @@
-import { TimeControl, TimeControlSettings } from "@/lib/apiClient";
+import { PoolKey, PoolType, TimeControl } from "@/lib/apiClient";
 
-export enum PoolType {
-    RATED = 0,
-    CASUAL = 1,
-}
-
-export interface PoolKey {
-    poolType: PoolType;
-    timeControl: TimeControlSettings;
-}
+export type PoolKeyStr = `${PoolType}-${number}+${number}`;
 
 export interface OpenSeek {
     userId: string;
@@ -18,7 +10,7 @@ export interface OpenSeek {
     rating?: number;
 }
 
-export type SeekKeyStr = `${PoolType}-${number}+${number}:${string}`;
+export type SeekKeyStr = `${PoolKeyStr}:${string}`;
 
 export interface SeekKey {
     userId: string;

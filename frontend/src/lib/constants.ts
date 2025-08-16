@@ -56,26 +56,26 @@ const PAGINATION_PAGE_SIZE = {
 };
 
 interface TimeControlLabel {
-    type: string;
+    label: string;
     settings: TimeControlSettings;
     isMostPopular?: boolean;
 }
 
 const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
-    { type: "Bullet", settings: { baseSeconds: 60, incrementSeconds: 0 } },
-    { type: "Bullet", settings: { baseSeconds: 120, incrementSeconds: 1 } },
-    { type: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 0 } },
-    { type: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 2 } },
+    { label: "Bullet", settings: { baseSeconds: 60, incrementSeconds: 0 } },
+    { label: "Bullet", settings: { baseSeconds: 120, incrementSeconds: 1 } },
+    { label: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 0 } },
+    { label: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 2 } },
     {
-        type: "Blitz",
+        label: "Blitz",
         settings: { baseSeconds: 300, incrementSeconds: 0 },
         isMostPopular: true,
     },
-    { type: "Rapid", settings: { baseSeconds: 300, incrementSeconds: 3 } },
-    { type: "Rapid", settings: { baseSeconds: 600, incrementSeconds: 0 } },
-    { type: "Rapid", settings: { baseSeconds: 900, incrementSeconds: 10 } },
+    { label: "Rapid", settings: { baseSeconds: 300, incrementSeconds: 3 } },
+    { label: "Rapid", settings: { baseSeconds: 600, incrementSeconds: 0 } },
+    { label: "Rapid", settings: { baseSeconds: 900, incrementSeconds: 10 } },
     {
-        type: "Classical",
+        label: "Classical",
         settings: { baseSeconds: 1800, incrementSeconds: 0 },
     },
 ];

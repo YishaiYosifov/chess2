@@ -1,4 +1,4 @@
-import { GameColor, GameState } from "@/lib/apiClient";
+import { GameColor, GameState, PoolType } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { createFakePlayer } from "./playerFaker";
 import { createFakeClock } from "./clockFaker";
@@ -10,11 +10,13 @@ export function createFakeGameState(
     overrides: Partial<GameState> = {},
 ): GameState {
     return {
-        timeControl: {
-            baseSeconds: faker.number.int({ min: 10, max: 1000 }),
-            incrementSeconds: faker.number.int({ min: 1, max: 10 }),
+        pool: {
+            poolType: faker.helpers.enumValue(PoolType),
+            timeControl: {
+                baseSeconds: faker.number.int({ min: 10, max: 1000 }),
+                incrementSeconds: faker.number.int({ min: 1, max: 10 }),
+            },
         },
-        isRated: faker.datatype.boolean(),
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
         sideToMove: GameColor.WHITE,
