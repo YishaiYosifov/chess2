@@ -1,7 +1,8 @@
 import { FireIcon } from "@heroicons/react/24/outline";
 
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
-import { OpenSeek, PoolType } from "@/features/lobby/lib/types";
+import { OpenSeek } from "@/features/lobby/lib/types";
+import { PoolType } from "@/lib/apiClient";
 
 const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
     return (

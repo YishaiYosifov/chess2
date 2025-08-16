@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
-import PoolToggle, { PoolToggleRef } from "./PoolToggle";
+import PoolToggle from "./PoolToggle";
 import TimeControlButton from "./TimeControlButton";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
-import SeekingOverlay from "./SeekingOverlay";
-import { TimeControlSettings } from "@/lib/apiClient";
-import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
+import clsx from "clsx";
+import { PoolType } from "@/lib/apiClient";
 
 /**
  * Card containing the variant and time control options.
@@ -17,18 +16,25 @@ import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
  */
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
-    const poolToggleRef = useRef<PoolToggleRef>(null);
+    const [isRated, setIsRated] = useState(false);
 
-    const { createSeek, cancelSeek, isSeeking } = useMatchmaking();
     useEffect(() => {
         const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
         setShowPoolToggle(isAuthed !== undefined);
     }, []);
 
-    async function handleSeekMatch(timeControl: TimeControlSettings) {
-        const isRated = poolToggleRef.current?.isRated ?? false;
-        await createSeek(isRated, timeControl);
-    }
+    const renderButtons = (poolType: PoolType) =>
+        constants.STANDARD_TIME_CONTROLS.map((timeControl, i) => {
+            return (
+                <TimeControlButton
+                    key={i}
+                    timeControl={timeControl.settings}
+                    poolType={poolType}
+                    isMostPopular={timeControl.isMostPopular}
+                    label={timeControl.label}
+                />
+            );
+        });
 
     return (
         <Card
@@ -40,24 +46,25 @@ const PlayOptions = () => {
             {/* spacer */}
             <div className="h-10" />
 
-            {showPoolToggle && <PoolToggle ref={poolToggleRef} />}
-            <section className="relative grid w-full grid-cols-3 gap-x-3 gap-y-7">
-                {isSeeking && <SeekingOverlay onClick={cancelSeek} />}
+            {showPoolToggle && (
+                <PoolToggle isRated={isRated} onToggle={setIsRated} />
+            )}
+            <section
+                className={clsx(
+                    "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
+                    isRated && "hidden",
+                )}
+            >
+                {renderButtons(PoolType.CASUAL)}
+            </section>
 
-                {constants.STANDARD_TIME_CONTROLS.map((timeControl) => {
-                    const formattedTimeControl = `${timeControl.settings.baseSeconds / 60} + ${timeControl.settings.incrementSeconds}`;
-                    return (
-                        <TimeControlButton
-                            key={formattedTimeControl}
-                            timeControl={timeControl.settings}
-                            formattedTimeControl={formattedTimeControl}
-                            isMostPopular={timeControl.isMostPopular}
-                            type={timeControl.type}
-                            onClick={handleSeekMatch}
-                            isSeeking={isSeeking}
-                        />
-                    );
-                })}
+            <section
+                className={clsx(
+                    "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
+                    !isRated && "hidden",
+                )}
+            >
+                {renderButtons(PoolType.RATED)}
             </section>
         </Card>
     );

@@ -1,5 +1,5 @@
-import { OpenSeek, PoolType } from "@/features/lobby/lib/types";
-import { TimeControl } from "@/lib/apiClient";
+import { OpenSeek } from "@/features/lobby/lib/types";
+import { PoolType, TimeControl } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 
 export default function createFakeOpenSeek(

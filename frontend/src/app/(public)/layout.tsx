@@ -6,6 +6,7 @@ import "../globals.css";
 
 import Navbar from "@/components/layout/navbar/Navbar";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
+import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -29,6 +30,8 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                             {children}
                         </main>
                     </div>
+
+                    <LobbyHandler />
                 </SessionProvider>
             </body>
         </html>

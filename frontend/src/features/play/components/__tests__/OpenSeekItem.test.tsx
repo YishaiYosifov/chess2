@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
-import { OpenSeek, PoolType } from "@/features/lobby/lib/types";
-import { TimeControl } from "@/lib/apiClient";
+import { OpenSeek } from "@/features/lobby/lib/types";
+import { PoolType, TimeControl } from "@/lib/apiClient";
 import OpenSeekItem from "../OpenSeek";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
 
