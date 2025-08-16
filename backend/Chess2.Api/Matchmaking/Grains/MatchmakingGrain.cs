@@ -7,6 +7,7 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;
+using Orleans.Utilities;
 
 namespace Chess2.Api.Matchmaking.Grains;
 
@@ -14,7 +15,7 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IMatchmakingGrain : IGrainWithStringKey
 {
     [Alias("AddSeekAsync")]
-    Task AddSeekAsync(Seeker seeker);
+    Task AddSeekAsync(Seeker seeker, ISeekObserver handler);
 
     [Alias("CancelSeekAsync")]
     Task<bool> TryCancelSeekAsync(UserId userId);
@@ -23,29 +24,34 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<List<Seeker>> GetSeekersAsync();
 }
 
-public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
+[Alias("Chess2.Api.Matchmaking.Grains.IMatchmakingGrain`1")]
+public interface IMatchmakingGrain<TPool> : IMatchmakingGrain
+    where TPool : IMatchmakingPool;
+
+public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     where TPool : IMatchmakingPool
 {
     public const int WaveTimer = 0;
     public const int TimeoutTimer = 1;
-    private readonly TimeSpan _seekTimeout = TimeSpan.FromMinutes(5);
 
     private readonly TPool _pool;
     private readonly PoolKey _key;
 
-    private readonly ILogger<AbstractMatchmakingGrain<TPool>> _logger;
-    private readonly LobbySettings _settings;
+    private readonly ILogger<MatchmakingGrain<TPool>> _logger;
     private readonly IGameStarter _gameStarter;
     private readonly TimeProvider _timeProvider;
+    private readonly LobbySettings _settings;
 
     private IStreamProvider _streamProvider = null!;
     private IAsyncStream<OpenSeekCreatedEvent> _openSeekCreatedStream = null!;
     private IAsyncStream<OpenSeekRemovedEvent> _openSeekRemovedStream = null!;
 
+    private readonly ObserverManager<UserId, ISeekObserver> _seekObservers;
     private readonly Dictionary<UserId, Seeker> _pendingSeekBroadcast = [];
+    private readonly TimeSpan _seekTimeout = TimeSpan.FromMinutes(5);
 
-    public AbstractMatchmakingGrain(
-        ILogger<AbstractMatchmakingGrain<TPool>> logger,
+    public MatchmakingGrain(
+        ILogger<MatchmakingGrain<TPool>> logger,
         IGameStarter gameStarter,
         IOptions<AppSettings> settings,
         TimeProvider timeProvider,
@@ -59,36 +65,39 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         _gameStarter = gameStarter;
         _timeProvider = timeProvider;
         _settings = settings.Value.Lobby;
+
+        _seekObservers = new(_seekTimeout, _logger);
     }
 
-    public Task AddSeekAsync(Seeker seeker)
+    public Task AddSeekAsync(Seeker seeker, ISeekObserver handler)
     {
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
-        _pool.AddSeek(seeker);
         _pool.AddSeeker(seeker);
-        _pendingSeekBroadcast.Add(seeker.UserId, seeker);
+        _pendingSeekBroadcast[seeker.UserId] = seeker;
+        _seekObservers.Subscribe(seeker.UserId, handler);
+
         return Task.CompletedTask;
     }
 
     public async Task<bool> TryCancelSeekAsync(UserId userId)
     {
         _logger.LogInformation("Received cancel seek from {UserId}", userId);
-        if (!_pool.RemoveSeek(userId))
+        if (!_pool.RemoveSeeker(userId))
         {
             _logger.LogInformation("No seek found for user {UserId}", userId);
             return false;
         }
 
-        await NotifySeekEndedAsync(userId);
+        if (_seekObservers.Observers.TryGetValue(userId, out var seekerObserver))
+            await seekerObserver.SeekRemovedAsync(_key);
+        _seekObservers.Unsubscribe(userId);
+
         await BroadcastSeekRemovedIfNeeded(userId);
         return true;
     }
 
-    public Task<List<Seeker>> GetSeekersAsync()
-    {
-        return Task.FromResult(_pool.Seekers.ToList());
-    }
+    public Task<List<Seeker>> GetSeekersAsync() => Task.FromResult(_pool.Seekers.ToList());
 
     private async Task ExecuteWaveAsync()
     {
@@ -99,34 +108,77 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         {
             _logger.LogInformation("Found match for {User1} with {User2}", seeker1, seeker2);
 
-            var isRated = seeker1 is RatedSeeker && seeker2 is RatedSeeker;
-            var gameToken = await _gameStarter.StartGameAsync(
-                seeker1.UserId,
-                seeker2.UserId,
-                _key.TimeControl,
-                isRated
+            if (
+                !_seekObservers.Observers.TryGetValue(seeker1.UserId, out var seeker1Handler)
+                || !_seekObservers.Observers.TryGetValue(seeker2.UserId, out var seeker2Handler)
+            )
+            {
+                _logger.LogWarning(
+                    "Cannot start game for {User1} and {User2} because one of them has no observer",
+                    seeker1.UserId,
+                    seeker2.UserId
+                );
+                continue;
+            }
+
+            var didGameStart = await StartGameAsync(
+                seeker1,
+                seeker1Handler,
+                seeker2,
+                seeker2Handler
             );
+            if (!didGameStart)
+                continue;
 
-            await NotifySeekEndedAsync(seeker1.UserId, gameToken);
-            await NotifySeekEndedAsync(seeker2.UserId, gameToken);
-
+            _pool.RemoveSeeker(seeker1.UserId);
+            _pool.RemoveSeeker(seeker2.UserId);
             if (!_pendingSeekBroadcast.Remove(seeker1.UserId))
                 removedUserSeeks.Add(seeker1.UserId);
             if (!_pendingSeekBroadcast.Remove(seeker2.UserId))
                 removedUserSeeks.Add(seeker2.UserId);
         }
 
-        await BatchBroadcastOpenSeekRemovedAsync(removedUserSeeks);
+        await _openSeekRemovedStream.OnNextBatchAsync(
+            removedUserSeeks.Select(userId => new OpenSeekRemovedEvent(userId, _key))
+        );
 
-        // after a wave we can be sure it wasn't matched, so we can notify about a new open seek
-        await BatchBroadcastOpenSeekCreatedAsync(_pendingSeekBroadcast.Values);
+        // broadcast new seeks that survived the wave
+        await _openSeekCreatedStream.OnNextBatchAsync(
+            _pendingSeekBroadcast.Values.Select(seeker => new OpenSeekCreatedEvent(seeker, _key))
+        );
         _pendingSeekBroadcast.Clear();
+    }
+
+    private async Task<bool> StartGameAsync(
+        Seeker seeker1,
+        ISeekObserver seeker1Observer,
+        Seeker seeker2,
+        ISeekObserver seeker2Observer
+    )
+    {
+        try
+        {
+            var seeker1Reserved = await seeker1Observer.TryReserveSeekAsync(_key);
+            var seeker2Reserved = await seeker2Observer.TryReserveSeekAsync(_key);
+            if (!seeker1Reserved || !seeker2Reserved)
+                return false;
+
+            var gameToken = await _gameStarter.StartGameAsync(seeker1.UserId, seeker2.UserId, _key);
+
+            await seeker1Observer.SeekMatchedAsync(gameToken, _key);
+            await seeker2Observer.SeekMatchedAsync(gameToken, _key);
+            return true;
+        }
+        finally
+        {
+            await seeker1Observer.ReleaseReservationAsync(_key);
+            await seeker2Observer.ReleaseReservationAsync(_key);
+        }
     }
 
     private async Task TimeoutSeeksAsync()
     {
         var now = _timeProvider.GetUtcNow();
-
         var timedOutSeekers = _pool
             .Seekers.Where(seeker => now - seeker.CreatedAt >= _seekTimeout)
             .ToList();
@@ -138,24 +190,20 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
                 seeker.UserId,
                 _key
             );
-            _pool.RemoveSeek(seeker.UserId);
-            await NotifySeekEndedAsync(seeker.UserId);
+
+            _pool.RemoveSeeker(seeker.UserId);
             await BroadcastSeekRemovedIfNeeded(seeker.UserId);
+
+            if (_seekObservers.Observers.TryGetValue(seeker.UserId, out var seekerObserver))
+                await seekerObserver.SeekRemovedAsync(_key);
         }
+        _seekObservers.ClearExpired();
 
         if (_pool.SeekerCount > 0)
             DelayDeactivation(TimeSpan.FromMinutes(5));
         else
             DeactivateOnIdle();
     }
-
-    private Task NotifySeekEndedAsync(UserId userId, string? gameToken = null) =>
-        _streamProvider
-            .GetStream<PlayerSeekEndedEvent>(
-                MatchmakingStreamConstants.PlayerSeekEndedStream,
-                MatchmakingStreamKey.SeekStream(userId, _key)
-            )
-            .OnNextAsync(new(gameToken));
 
     private async Task BroadcastSeekRemovedIfNeeded(UserId userId)
     {
@@ -167,18 +215,16 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
         }
     }
 
-    private Task BatchBroadcastOpenSeekRemovedAsync(IEnumerable<UserId> userIds) =>
-        _openSeekRemovedStream.OnNextBatchAsync(
-            userIds.Select(userId => new OpenSeekRemovedEvent(userId, _key))
-        );
-
-    private Task BatchBroadcastOpenSeekCreatedAsync(IEnumerable<Seeker> seekers) =>
-        _openSeekCreatedStream.OnNextBatchAsync(
-            seekers.Select(seeker => new OpenSeekCreatedEvent(seeker, _key))
-        );
-
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
+        _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+        _openSeekCreatedStream = _streamProvider.GetStream<OpenSeekCreatedEvent>(
+            MatchmakingStreamConstants.OpenSeekCreatedStream
+        );
+        _openSeekRemovedStream = _streamProvider.GetStream<OpenSeekRemovedEvent>(
+            MatchmakingStreamConstants.OpenSeekRemovedStream
+        );
+
         this.RegisterGrainTimer(
             callback: ExecuteWaveAsync,
             dueTime: TimeSpan.Zero,
@@ -188,14 +234,6 @@ public abstract class AbstractMatchmakingGrain<TPool> : Grain, IMatchmakingGrain
             callback: TimeoutSeeksAsync,
             dueTime: TimeSpan.FromMinutes(1),
             period: TimeSpan.FromMinutes(1)
-        );
-
-        _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        _openSeekCreatedStream = _streamProvider.GetStream<OpenSeekCreatedEvent>(
-            MatchmakingStreamConstants.OpenSeekCreatedStream
-        );
-        _openSeekRemovedStream = _streamProvider.GetStream<OpenSeekRemovedEvent>(
-            MatchmakingStreamConstants.OpenSeekRemovedStream
         );
 
         var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);

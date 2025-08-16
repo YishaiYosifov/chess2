@@ -109,18 +109,6 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     }
 
     [Fact]
-    public void CalculateMatches_removes_matched_users()
-    {
-        AddSeeker("user1", 1200);
-        AddSeeker("user2", 1200);
-        var seekerLeft = AddSeeker("user3", 1300);
-
-        Pool.CalculateMatches();
-
-        Pool.Seekers.Should().ContainSingle().Which.Should().Be(seekerLeft);
-    }
-
-    [Fact]
     public void CalculateMatches_returns_empty_when_no_seekers()
     {
         Pool.CalculateMatches().Should().BeEmpty();
