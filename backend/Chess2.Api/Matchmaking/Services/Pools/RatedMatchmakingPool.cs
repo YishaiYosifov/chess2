@@ -63,10 +63,6 @@ public class RatedMatchmakingPool : IRatedMatchmakingPool
             alreadyMatched.Add(seeker.Seek.UserId);
             alreadyMatched.Add(bestMatch.Seek.UserId);
         }
-        foreach (var seek in alreadyMatched)
-        {
-            RemoveSeeker(seek);
-        }
 
         return matches;
     }

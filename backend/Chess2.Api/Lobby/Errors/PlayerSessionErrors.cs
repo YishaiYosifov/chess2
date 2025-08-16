@@ -5,10 +5,10 @@ namespace Chess2.Api.Lobby.Errors;
 
 public class PlayerSessionErrors
 {
-    public static Error ConnectionAlreadySeeking =>
+    public static Error ConnectionInGame =>
         Error.Conflict(
-            ErrorCodes.PlayerSessionConnectionAlreadySeeking,
-            "Connection already seeking in another pool"
+            ErrorCodes.PlayerSessionConnectionInGame,
+            "Connection already started a game"
         );
 
     public static Error TooManyGames =>

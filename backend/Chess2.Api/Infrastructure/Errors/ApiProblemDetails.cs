@@ -27,8 +27,10 @@ public static class ErrorCodes
     public const string GameLogicPieceNotFound = "GameLogic.PieceNotFound";
     public const string GameLogicPointOutOfBound = "GameLogic.PointOutOfBound";
 
-    public const string PlayerSessionConnectionAlreadySeeking =
-        "PlayerSession.ConnectionAlreadySeeking";
+    public const string MatchmakingSeekNotFound = "Matchmaking.SeekNotFound";
+    public const string MatchmakingSeekerNotCompatible = "Matchmaking.SeekerNotCompatible";
+
+    public const string PlayerSessionConnectionInGame = "PlayerSession.ConnectionInGame";
     public const string PlayerSessionTooManyGames = "PlayerSession.TooManyGames";
 
     public const string GameNotFound = "Game.NotFound";

@@ -50,11 +50,6 @@ public class CasualMatchmakingPool : ICasualMatchmakingPool
             }
         }
 
-        foreach (var id in matchedIds)
-        {
-            _seekers.Remove(id);
-        }
-
         return matches;
     }
 }
