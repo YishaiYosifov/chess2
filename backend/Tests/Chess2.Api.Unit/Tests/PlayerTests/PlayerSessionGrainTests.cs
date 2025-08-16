@@ -176,7 +176,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
                 gameToken
             );
 
-        // After matching, the pool should be removed
+        // after matching the pool should be removed
         (await grain.TryReserveSeekAsync(pool))
             .Should()
             .BeFalse();
@@ -225,7 +225,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn1", seeker, pool);
 
         (await grain.TryReserveSeekAsync(pool)).Should().BeTrue();
-        (await grain.TryReserveSeekAsync(pool)).Should().BeFalse(); // same pool again
+        (await grain.TryReserveSeekAsync(pool)).Should().BeFalse();
     }
 
     [Fact]
@@ -241,7 +241,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn1", seeker, pool2);
 
         (await grain.TryReserveSeekAsync(pool1)).Should().BeTrue();
-        (await grain.TryReserveSeekAsync(pool2)).Should().BeFalse(); // conn1 already claimed
+        (await grain.TryReserveSeekAsync(pool2)).Should().BeFalse();
     }
 
     [Fact]
@@ -256,7 +256,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn2", seeker, pool2);
 
         (await grain.TryReserveSeekAsync(pool1)).Should().BeTrue(); // reserves conn1
-        (await grain.TryReserveSeekAsync(pool2)).Should().BeTrue(); // can still reserve conn2
+        (await grain.TryReserveSeekAsync(pool2)).Should().BeTrue(); // reserves conn2
     }
 
     [Fact]
@@ -270,7 +270,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         (await grain.TryReserveSeekAsync(pool)).Should().BeTrue();
         await grain.ReleaseReservationAsync(pool);
-        (await grain.TryReserveSeekAsync(pool)).Should().BeTrue(); // Can reserve again
+        (await grain.TryReserveSeekAsync(pool)).Should().BeTrue();
     }
 
     private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)
