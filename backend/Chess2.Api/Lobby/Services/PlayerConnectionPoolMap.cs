@@ -7,7 +7,11 @@ public class PlayerConnectionPoolMap
 {
     private readonly Dictionary<ConnectionId, HashSet<PoolKey>> _connectionToPools = [];
     private readonly Dictionary<PoolKey, HashSet<ConnectionId>> _poolToConnections = [];
-    public int SeekCount => _connectionToPools.Values.Sum(pools => pools.Count);
+
+    public IEnumerable<PoolKey> ActivePools => _poolToConnections.Keys;
+
+    public HashSet<ConnectionId> PoolConnections(PoolKey poolKey) =>
+        _poolToConnections.GetValueOrDefault(poolKey, []);
 
     public void AddConnectionToPool(ConnectionId connectionId, PoolKey poolKey)
     {
@@ -30,12 +34,12 @@ public class PlayerConnectionPoolMap
         }
     }
 
-    public IReadOnlyList<PoolKey> RemoveConnection(ConnectionId connectionId)
+    public HashSet<PoolKey> RemoveConnection(ConnectionId connectionId)
     {
         if (!_connectionToPools.TryGetValue(connectionId, out var connectionPools))
             return [];
 
-        List<PoolKey> removedPools = [];
+        HashSet<PoolKey> removedPools = [];
         foreach (var pool in connectionPools)
         {
             if (!_poolToConnections.TryGetValue(pool, out var connections))
@@ -52,7 +56,7 @@ public class PlayerConnectionPoolMap
         return removedPools;
     }
 
-    public IReadOnlyList<ConnectionId> RemovePool(PoolKey poolKey)
+    public HashSet<ConnectionId> RemovePool(PoolKey poolKey)
     {
         if (!_poolToConnections.TryGetValue(poolKey, out var connections))
             return [];
@@ -68,6 +72,14 @@ public class PlayerConnectionPoolMap
         }
         _poolToConnections.Remove(poolKey);
 
-        return [.. connections];
+        return connections;
+    }
+
+    public void RemoveAllPools()
+    {
+        foreach (var pool in _poolToConnections.Keys)
+        {
+            RemovePool(pool);
+        }
     }
 }
