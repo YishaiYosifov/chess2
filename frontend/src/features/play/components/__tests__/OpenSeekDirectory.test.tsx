@@ -9,6 +9,7 @@ import {
     useOpenSeekEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
+import constants from "@/lib/constants";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -108,5 +109,26 @@ describe("OpenSeekDirectory", () => {
 
         await act(() => vi.advanceTimersByTimeAsync(300));
         expect(screen.getByTestId("noOpenChallengesText")).toBeInTheDocument();
+    });
+
+    it("should repeatedly send SubscribeAsync at interval", () => {
+        render(<OpenSeekDirectory />);
+
+        expect(sendOpenSeekEvent).toHaveBeenCalledTimes(1);
+        expect(sendOpenSeekEvent).toHaveBeenCalledWith("SubscribeAsync");
+
+        act(() => {
+            vi.advanceTimersByTime(
+                constants.OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
+            );
+        });
+        expect(sendOpenSeekEvent).toHaveBeenCalledTimes(2);
+
+        act(() => {
+            vi.advanceTimersByTime(
+                2 * constants.OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
+            );
+        });
+        expect(sendOpenSeekEvent).toHaveBeenCalledTimes(4);
     });
 });

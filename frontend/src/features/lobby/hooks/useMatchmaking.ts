@@ -2,9 +2,10 @@ import {
     useLobbyEmitter,
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PoolKeyToStr } from "../lib/matchmakingKeys";
 import { PoolKey, PoolType } from "@/lib/apiClient";
+import constants from "@/lib/constants";
 
 export default function useMatchmaking(pool: PoolKey): {
     createSeek: () => Promise<void>;
@@ -15,13 +16,32 @@ export default function useMatchmaking(pool: PoolKey): {
     const sendLobbyEvent = useLobbyEmitter();
     const [isSeeking, setIsSeeking] = useState(false);
     const poolKeyStr = PoolKeyToStr(pool);
+    const resubscribeIntervalRef = useRef<NodeJS.Timeout>(null);
 
-    useLobbyEvent("SeekFailedAsync", (pool) => {
-        if (PoolKeyToStr(pool) === poolKeyStr) setIsSeeking(false);
+    useLobbyEvent("SeekFailedAsync", async (pool) => {
+        if (PoolKeyToStr(pool) === poolKeyStr) resetSeekState();
     });
 
     async function createSeek(): Promise<void> {
         setIsSeeking(true);
+        await sendSeekRequest();
+
+        if (resubscribeIntervalRef.current)
+            clearInterval(resubscribeIntervalRef.current);
+        resubscribeIntervalRef.current = setInterval(
+            sendSeekRequest,
+            constants.SEEK_RESUBSCRIBE_INTERAVAL_MS,
+        );
+    }
+
+    async function cancelSeek(): Promise<void> {
+        await sendLobbyEvent("CancelSeekAsync", pool);
+        resetSeekState();
+    }
+
+    async function sendSeekRequest() {
+        console.log("test1");
+
         switch (pool.poolType) {
             case PoolType.RATED:
                 await sendLobbyEvent("SeekRatedAsync", pool.timeControl);
@@ -34,9 +54,11 @@ export default function useMatchmaking(pool: PoolKey): {
         }
     }
 
-    async function cancelSeek(): Promise<void> {
+    function resetSeekState() {
+        console.log("test");
         setIsSeeking(false);
-        await sendLobbyEvent("CancelSeekAsync", pool);
+        if (resubscribeIntervalRef.current)
+            clearInterval(resubscribeIntervalRef.current);
     }
 
     function toggleSeek(): Promise<void> {
