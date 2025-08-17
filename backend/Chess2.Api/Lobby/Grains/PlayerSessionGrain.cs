@@ -23,7 +23,7 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
     Task CancelSeekAsync(PoolKey pool);
 
     [Alias("MatchWithOpenSeekAsync")]
-    Task<ErrorOr<Success>> MatchWithOpenSeekAsync(
+    Task<ErrorOr<Created>> MatchWithOpenSeekAsync(
         ConnectionId connectionId,
         Seeker seeker,
         UserId matchWith,
@@ -91,7 +91,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public Task CancelSeekAsync(PoolKey pool) =>
         GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
 
-    public async Task<ErrorOr<Success>> MatchWithOpenSeekAsync(
+    public async Task<ErrorOr<Created>> MatchWithOpenSeekAsync(
         ConnectionId connectionId,
         Seeker seeker,
         UserId matchWith,
@@ -112,7 +112,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         var gameToken = startGameResult.Value;
 
         await OnGameFoundAsync(gameToken, [connectionId], pool);
-        return Result.Success;
+        return Result.Created;
     }
 
     public Task GameEndedAsync(string gameToken) =>
