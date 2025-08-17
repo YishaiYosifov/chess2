@@ -11,7 +11,6 @@ const USERNAME_EDIT_EVERY = 2419200;
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
-const MIN_BOARD_SIZE_PX = 264;
 
 export enum OAuthProvider {
     GOOGLE = "google",
@@ -32,6 +31,10 @@ const PATHS = {
     GUEST: "/guest",
     GAME: "/game",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
+};
+
+const LOCALSTORAGE = {
+    PREFERS_RATED_POOL: "prefersRatedPool",
 };
 
 const SIGNALR_PATHS = {
@@ -165,7 +168,6 @@ const constants = {
     USERNAME_EDIT_EVERY,
     BOARD_WIDTH,
     BOARD_HEIGHT,
-    MIN_BOARD_SIZE_PX,
     SETTING_PAGES,
     STANDARD_TIME_CONTROLS,
     TIME_CONTROL_LABELS,
@@ -173,6 +175,7 @@ const constants = {
     COOKIES,
     PATHS,
     HEADERS,
+    LOCALSTORAGE,
     ALLOW_ABORTION_UNTIL_MOVE,
     INITIAL_FEN,
     LETTER_TO_PIECE,
