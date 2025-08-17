@@ -3,7 +3,7 @@
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import Card from "@/components/ui/Card";
-import OpenSeekItem from "./OpenSeek";
+import OpenSeekItem from "./OpenSeekItem";
 import {
     useOpenSeekEmitter,
     useOpenSeekEvent,
