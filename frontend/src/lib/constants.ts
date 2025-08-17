@@ -21,7 +21,7 @@ export enum OAuthProvider {
 const COOKIES = {
     REFRESH_TOKEN: "refreshToken",
     ACCESS_TOKEN: "accessToken",
-    IS_AUTHED: "isAuthed",
+    IS_LOGGED_IN: "isLoggedIn",
     SIDEBAR_COLLAPSED: "sidebarCollapsed",
 };
 

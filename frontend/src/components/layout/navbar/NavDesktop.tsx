@@ -12,10 +12,10 @@ import NavItem from "./NavItem";
 import useCollapseState from "./useCollapseState";
 
 const NavDesktop = ({
-    hasAccessCookie,
+    isLoggedIn,
     isCollapsedInitialState,
 }: {
-    hasAccessCookie: boolean;
+    isLoggedIn: boolean;
     isCollapsedInitialState: boolean;
 }) => {
     const { isCollapsed, toggleCollapse } = useCollapseState(
@@ -50,7 +50,7 @@ const NavDesktop = ({
                 )}
                 <ul className="flex flex-col gap-6">
                     <UpperNavItems
-                        hasAccessCookie={hasAccessCookie}
+                        hasAccessCookie={isLoggedIn}
                         isCollapsed={isCollapsed}
                     />
                 </ul>
@@ -60,7 +60,7 @@ const NavDesktop = ({
 
                 <ul className="flex flex-col gap-5 justify-self-end opacity-70">
                     <LowerNavItems
-                        hasAccessCookie={hasAccessCookie}
+                        hasAccessCookie={isLoggedIn}
                         isCollapsed={isCollapsed}
                     />
 

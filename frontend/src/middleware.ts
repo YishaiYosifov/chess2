@@ -4,7 +4,7 @@ import constants from "@/lib/constants";
 
 export async function middleware(request: NextRequest) {
     const hasAuthCookie = request.cookies.has(constants.COOKIES.ACCESS_TOKEN);
-    const shouldBeAuthed = request.cookies.has(constants.COOKIES.IS_AUTHED);
+    const shouldBeAuthed = request.cookies.has(constants.COOKIES.IS_LOGGED_IN);
 
     // if the user doesn't have an auth cookie
     // and is not expected to be authenticated, we should create a guest account
