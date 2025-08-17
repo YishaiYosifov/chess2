@@ -2,127 +2,99 @@ import { render, screen } from "@testing-library/react";
 
 import PlayOptions from "../PlayOptions";
 import constants from "@/lib/constants";
-import {
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
-import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
-import React, { act } from "react";
+import React from "react";
 import userEvent from "@testing-library/user-event";
 import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
+import { PoolType } from "@/lib/apiClient";
 
 vi.mock("js-cookie");
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("PlayOptions", () => {
-    const sendLobbyEventMock = vi.fn();
-    let matchFoundCallback: ((token: string) => void) | undefined;
-    let matchFailedCallback: (() => void) | undefined;
-
     function mockIsAuthedCookie(isAuthed: boolean) {
         const cookieValue = isAuthed ? "true" : undefined;
-        mockJsCookie({
-            [constants.COOKIES.IS_LOGGED_IN]: cookieValue,
-        });
+        mockJsCookie({ [constants.COOKIES.IS_LOGGED_IN]: cookieValue });
     }
-
-    beforeEach(() => {
-        vi.mocked(useLobbyEvent).mockImplementation((eventName, callback) => {
-            if (eventName === "MatchFoundAsync") matchFoundCallback = callback;
-            else if (eventName === "MatchFailedAsync")
-                matchFailedCallback = callback;
-        });
-
-        vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEventMock);
-    });
 
     it("should render the heading and main container", () => {
         render(<PlayOptions />);
-
         expect(screen.getByText("Play Chess 2")).toBeInTheDocument();
         expect(screen.getByTestId("playOptions")).toBeInTheDocument();
     });
 
     it("should show PoolToggle when authenticated", () => {
         mockIsAuthedCookie(true);
-
         render(<PlayOptions />);
-
         expect(screen.getByTestId("poolToggle")).toBeInTheDocument();
     });
 
     it("should hide PoolToggle when unauthenticated", () => {
         mockIsAuthedCookie(false);
-
         render(<PlayOptions />);
-
         expect(screen.queryByTestId("poolToggle")).not.toBeInTheDocument();
     });
 
-    it("should navigate to game route when MatchFoundAsync is triggered", () => {
-        const testToken = "test-token";
-        const routerMock = mockRouter();
-
+    it("should render casual PoolButtons when isRated is false", () => {
         render(<PlayOptions />);
 
-        act(() => matchFoundCallback?.(testToken));
-
-        expect(routerMock.push).toHaveBeenCalledWith(
-            `${constants.PATHS.GAME}/${testToken}`,
-        );
+        expect(
+            screen.getByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
+        ).toBeVisible();
+        expect(
+            screen.queryByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).not.toBeVisible();
     });
 
-    it("should stop seeking when MatchFailedAsync is triggered", async () => {
+    it("should render rated PoolButtons when isRated is true", async () => {
         const user = userEvent.setup();
         mockIsAuthedCookie(true);
-
         render(<PlayOptions />);
-
-        const timeBtn = screen.getByText(
-            `${constants.STANDARD_TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.STANDARD_TIME_CONTROLS[0].settings.incrementSeconds}`,
-        );
-        await user.click(timeBtn);
-
-        expect(screen.getByTestId("seekingOverlay")).toBeInTheDocument();
-        act(() => matchFailedCallback?.());
-        expect(screen.queryByTestId("seekingOverlay")).not.toBeInTheDocument();
-    });
-
-    it("should call SeekRatedAsync when isRated is true", async () => {
-        const user = userEvent.setup();
-        mockIsAuthedCookie(true);
-
-        render(<PlayOptions />);
-        const playButton = screen.getByText(
-            `${constants.STANDARD_TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.STANDARD_TIME_CONTROLS[0].settings.incrementSeconds}`,
-        );
-
         const poolToggle = screen.getByTestId("poolToggle");
 
-        // toggle to rated
         await user.click(poolToggle);
 
-        await user.click(playButton);
-
-        expect(sendLobbyEventMock).toHaveBeenCalledWith(
-            "SeekRatedAsync",
-            constants.STANDARD_TIME_CONTROLS[0].settings,
-        );
+        expect(
+            screen.getByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).toBeVisible();
+        expect(
+            screen.queryByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
+        ).not.toBeVisible();
     });
 
-    it("should call CancelSeekAsync when SeekingOverlay is clicked", async () => {
+    it("should persist isRated preference in localStorage", async () => {
         const user = userEvent.setup();
+        mockIsAuthedCookie(true);
+        render(<PlayOptions />);
+        const poolToggle = screen.getByTestId("poolToggle");
 
+        await user.click(poolToggle);
+        expect(
+            JSON.parse(
+                localStorage.getItem(
+                    constants.LOCALSTORAGE.PREFERS_RATED_POOL,
+                )!,
+            ),
+        ).toBe(true);
+
+        await user.click(poolToggle);
+        expect(
+            JSON.parse(
+                localStorage.getItem(
+                    constants.LOCALSTORAGE.PREFERS_RATED_POOL,
+                )!,
+            ),
+        ).toBe(false);
+    });
+
+    it("should initialize isRated from localStorage", () => {
+        localStorage.setItem(constants.LOCALSTORAGE.PREFERS_RATED_POOL, "true");
         render(<PlayOptions />);
 
-        const timeBtn = screen.getByText(
-            `${constants.STANDARD_TIME_CONTROLS[0].settings.baseSeconds / 60} + ${constants.STANDARD_TIME_CONTROLS[0].settings.incrementSeconds}`,
-        );
-        await user.click(timeBtn);
-
-        const cancelSeekButton = screen.getByTestId("cancelSeekButton");
-        await user.click(cancelSeekButton);
-
-        expect(sendLobbyEventMock).toHaveBeenLastCalledWith("CancelSeekAsync");
+        expect(
+            screen.getByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).toBeVisible();
+        expect(
+            screen.queryByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
+        ).not.toBeVisible();
     });
 });
