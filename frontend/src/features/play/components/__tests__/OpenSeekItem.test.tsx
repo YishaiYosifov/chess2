@@ -21,7 +21,7 @@ vi.mock("@heroicons/react/24/outline", () => ({
 
 describe("OpenSeekItem", () => {
     let seek: OpenSeek;
-    let sendLobbyEventsMock = vi.fn();
+    const sendLobbyEventsMock = vi.fn();
 
     beforeEach(() => {
         seek = createFakeOpenSeek();
