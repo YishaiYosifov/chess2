@@ -22,6 +22,14 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
     [Alias("CancelSeekAsync")]
     Task CancelSeekAsync(PoolKey pool);
 
+    [Alias("MatchWithOpenSeekAsync")]
+    Task<ErrorOr<Success>> MatchWithOpenSeekAsync(
+        ConnectionId connectionId,
+        Seeker seeker,
+        UserId matchWith,
+        PoolKey pool
+    );
+
     [Alias("GameEndedAsync")]
     Task GameEndedAsync(string gameToken);
 }
@@ -83,24 +91,37 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public Task CancelSeekAsync(PoolKey pool) =>
         GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
 
+    public async Task<ErrorOr<Success>> MatchWithOpenSeekAsync(
+        ConnectionId connectionId,
+        Seeker seeker,
+        UserId matchWith,
+        PoolKey pool
+    )
+    {
+        if (HasReachedGameLimit())
+            return PlayerSessionErrors.TooManyGames;
+
+        if (IsConnectionTaken(connectionId))
+            return PlayerSessionErrors.ConnectionInGame;
+
+        var startGameResult = await GrainFactory
+            .GetMatchmakingGrain(pool)
+            .MatchWithSeekerAsync(seeker, matchWith);
+        if (startGameResult.IsError)
+            return startGameResult.Errors;
+        var gameToken = startGameResult.Value;
+
+        await OnGameFoundAsync(gameToken, [connectionId], pool);
+        return Result.Success;
+    }
+
     public Task GameEndedAsync(string gameToken) =>
         Task.FromResult(_activeGameTokens.Remove(gameToken));
 
     public async Task SeekMatchedAsync(string gameToken, PoolKey pool)
     {
-        _poolClaims.Remove(pool);
-
         var poolConnectionIds = _connectionMap.RemovePool(pool);
-        await _matchmakingNotifier.NotifyGameFoundAsync(poolConnectionIds, gameToken);
-        _activeGameTokens.Add(gameToken, poolConnectionIds);
-
-        foreach (var connectionId in poolConnectionIds)
-        {
-            await CleanupConnectionAsync(connectionId);
-        }
-
-        if (HasReachedGameLimit())
-            await CancelAllSeeksAsync();
+        await OnGameFoundAsync(gameToken, poolConnectionIds, pool);
     }
 
     public async Task SeekRemovedAsync(PoolKey pool)
@@ -136,6 +157,24 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         _poolClaims.Remove(pool);
         return Task.CompletedTask;
+    }
+
+    private async Task OnGameFoundAsync(
+        string gameToken,
+        IEnumerable<ConnectionId> connectionIds,
+        PoolKey pool
+    )
+    {
+        _poolClaims.Remove(pool);
+
+        await _matchmakingNotifier.NotifyGameFoundAsync(connectionIds, gameToken);
+        _activeGameTokens.Add(gameToken, [.. connectionIds]);
+
+        foreach (var connectionId in connectionIds)
+            await CleanupConnectionAsync(connectionId);
+
+        if (HasReachedGameLimit())
+            await CancelAllSeeksAsync();
     }
 
     private async Task CancelAllSeeksAsync()

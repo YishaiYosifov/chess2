@@ -1,10 +1,12 @@
 ﻿using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Models;
+using ErrorOr;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;
 using Orleans.Utilities;
@@ -15,13 +17,16 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IMatchmakingGrain : IGrainWithStringKey
 {
     [Alias("AddSeekAsync")]
-    Task AddSeekAsync(Seeker seeker, ISeekObserver handler);
+    Task AddSeekAsync(Seeker seeker, ISeekObserver observer);
 
     [Alias("CancelSeekAsync")]
     Task<bool> TryCancelSeekAsync(UserId userId);
 
     [Alias("GetMatchingSeekersForAsync")]
     Task<List<Seeker>> GetSeekersAsync();
+
+    [Alias("MatchWithSeeker")]
+    Task<ErrorOr<string>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith);
 }
 
 [Alias("Chess2.Api.Matchmaking.Grains.IMatchmakingGrain`1")]
@@ -83,21 +88,40 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     public async Task<bool> TryCancelSeekAsync(UserId userId)
     {
         _logger.LogInformation("Received cancel seek from {UserId}", userId);
-        if (!_pool.RemoveSeeker(userId))
-        {
-            _logger.LogInformation("No seek found for user {UserId}", userId);
-            return false;
-        }
-
-        if (_seekObservers.Observers.TryGetValue(userId, out var seekerObserver))
-            await seekerObserver.SeekRemovedAsync(_key);
-        _seekObservers.Unsubscribe(userId);
-
-        await BroadcastSeekRemovedIfNeeded(userId);
-        return true;
+        var result = await TryRemoveSeekerAsync(userId);
+        return result;
     }
 
     public Task<List<Seeker>> GetSeekersAsync() => Task.FromResult(_pool.Seekers.ToList());
+
+    public async Task<ErrorOr<string>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith)
+    {
+        if (
+            !_pool.TryGetSeeker(matchWith, out var matchWithSeeker)
+            || !_seekObservers.Observers.TryGetValue(matchWith, out var matchWithObserver)
+        )
+            return MatchmakingErrors.SeekNotFound;
+
+        if (!seeker.IsCompatibleWith(matchWithSeeker) || !matchWithSeeker.IsCompatibleWith(seeker))
+            return MatchmakingErrors.RequestedSeekerNotCompatible;
+
+        if (!await matchWithObserver.TryReserveSeekAsync(_key))
+            return MatchmakingErrors.SeekNotFound;
+
+        try
+        {
+            var gameToken = await _gameStarter.StartGameAsync(seeker.UserId, matchWith, _key);
+
+            await matchWithObserver.SeekMatchedAsync(gameToken, _key);
+            await BroadcastSeekRemoval(matchWith);
+            _pool.RemoveSeeker(matchWith);
+            return gameToken;
+        }
+        finally
+        {
+            await matchWithObserver.ReleaseReservationAsync(_key);
+        }
+    }
 
     private async Task ExecuteWaveAsync()
     {
@@ -138,15 +162,24 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 removedUserSeeks.Add(seeker2.UserId);
         }
 
-        await _openSeekRemovedStream.OnNextBatchAsync(
-            removedUserSeeks.Select(userId => new OpenSeekRemovedEvent(userId, _key))
-        );
+        if (removedUserSeeks.Count > 0)
+        {
+            await _openSeekRemovedStream.OnNextBatchAsync(
+                removedUserSeeks.Select(userId => new OpenSeekRemovedEvent(userId, _key))
+            );
+        }
 
         // broadcast new seeks that survived the wave
-        await _openSeekCreatedStream.OnNextBatchAsync(
-            _pendingSeekBroadcast.Values.Select(seeker => new OpenSeekCreatedEvent(seeker, _key))
-        );
-        _pendingSeekBroadcast.Clear();
+        if (_pendingSeekBroadcast.Count > 0)
+        {
+            await _openSeekCreatedStream.OnNextBatchAsync(
+                _pendingSeekBroadcast.Values.Select(seeker => new OpenSeekCreatedEvent(
+                    seeker,
+                    _key
+                ))
+            );
+            _pendingSeekBroadcast.Clear();
+        }
     }
 
     private async Task<bool> StartGameAsync(
@@ -190,12 +223,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 seeker.UserId,
                 _key
             );
-
-            _pool.RemoveSeeker(seeker.UserId);
-            await BroadcastSeekRemovedIfNeeded(seeker.UserId);
-
-            if (_seekObservers.Observers.TryGetValue(seeker.UserId, out var seekerObserver))
-                await seekerObserver.SeekRemovedAsync(_key);
+            await TryRemoveSeekerAsync(seeker.UserId);
         }
         _seekObservers.ClearExpired();
 
@@ -205,7 +233,21 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             DeactivateOnIdle();
     }
 
-    private async Task BroadcastSeekRemovedIfNeeded(UserId userId)
+    private async Task<bool> TryRemoveSeekerAsync(UserId userId)
+    {
+        if (!_pool.RemoveSeeker(userId))
+            return false;
+
+        if (_seekObservers.Observers.TryGetValue(userId, out var observer))
+            await observer.SeekRemovedAsync(_key);
+
+        await BroadcastSeekRemoval(userId);
+
+        _seekObservers.Unsubscribe(userId);
+        return true;
+    }
+
+    private async Task BroadcastSeekRemoval(UserId userId)
     {
         // if the seeker is pending broadcast, it means it hasn't been broadcasted yet
         // so no point broadcasting it ended
