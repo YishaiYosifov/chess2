@@ -25,6 +25,7 @@ type LobbyHubEvents = {
     SeekRatedAsync: [timeControl: TimeControlSettings];
     SeekCasualAsync: [timeControl: TimeControlSettings];
     CancelSeekAsync: [pool: PoolKey];
+    MatchWithOpenSeekAsync: [userId: string, pool: PoolKey];
 };
 
 export const useLobbyEvent = signalREventHookFactory<LobbyClientEvents>(
