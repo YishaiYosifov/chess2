@@ -15,11 +15,22 @@ const PlayOptions = () => {
     const [isRated, setIsRated] = useState(false);
 
     useEffect(() => {
-        const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
-        setShowPoolToggle(isAuthed !== undefined);
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
         setShowPoolToggle(isLoggedIn !== undefined);
+
+        const storedPrefersRated = localStorage.getItem(
+            constants.LOCALSTORAGE.PREFERS_RATED_POOL,
+        );
+        setIsRated(storedPrefersRated ? JSON.parse(storedPrefersRated) : false);
     }, []);
+
+    function toggleIsRated(toggleTo: boolean): void {
+        setIsRated(toggleTo);
+        localStorage.setItem(
+            constants.LOCALSTORAGE.PREFERS_RATED_POOL,
+            JSON.stringify(toggleTo),
+        );
+    }
 
     const renderButtons = (poolType: PoolType) =>
         constants.STANDARD_TIME_CONTROLS.map((timeControl, i) => {
@@ -42,7 +53,7 @@ const PlayOptions = () => {
             <div className="h-10" />
 
             {showPoolToggle && (
-                <PoolToggle isRated={isRated} onToggle={setIsRated} />
+                <PoolToggle isRated={isRated} onToggle={toggleIsRated} />
             )}
             <section
                 className={clsx(
