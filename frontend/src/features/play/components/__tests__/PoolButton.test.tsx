@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import TimeControlButton from "../TimeControlButton";
+import PoolButton from "../PoolButton";
 import userEvent from "@testing-library/user-event";
 import { PoolType } from "@/lib/apiClient";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
 vi.mock("@/features/lobby/hooks/useMatchmaking");
 
-describe("TimeControlButton", () => {
+describe("PoolButton", () => {
     const useMatchmakingMock = vi.mocked(useMatchmaking);
 
     function setupUseMatchmakingMock(
@@ -26,7 +26,7 @@ describe("TimeControlButton", () => {
         setupUseMatchmakingMock();
 
         render(
-            <TimeControlButton
+            <PoolButton
                 timeControl={{ baseSeconds: 300, incrementSeconds: 3 }}
                 label="Rapid"
                 poolType={PoolType.RATED}
@@ -41,7 +41,7 @@ describe("TimeControlButton", () => {
         setupUseMatchmakingMock();
 
         render(
-            <TimeControlButton
+            <PoolButton
                 timeControl={{ baseSeconds: 180, incrementSeconds: 2 }}
                 label="Blitz"
                 poolType={PoolType.CASUAL}
@@ -58,7 +58,7 @@ describe("TimeControlButton", () => {
         setupUseMatchmakingMock({ isSeeking: true });
 
         const { container } = render(
-            <TimeControlButton
+            <PoolButton
                 timeControl={{ baseSeconds: 600, incrementSeconds: 5 }}
                 label="Classic"
                 poolType={PoolType.RATED}
@@ -75,7 +75,7 @@ describe("TimeControlButton", () => {
         const { toggleSeek } = setupUseMatchmakingMock();
 
         render(
-            <TimeControlButton
+            <PoolButton
                 timeControl={{ baseSeconds: 60, incrementSeconds: 5 }}
                 label="Bullet"
                 poolType={PoolType.RATED}
@@ -95,7 +95,7 @@ describe("TimeControlButton", () => {
         setupUseMatchmakingMock();
 
         render(
-            <TimeControlButton
+            <PoolButton
                 timeControl={timeControl}
                 label="Blitz"
                 poolType={poolType}

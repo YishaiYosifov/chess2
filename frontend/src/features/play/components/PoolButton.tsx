@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button";
 import { PoolKey, PoolType, TimeControlSettings } from "@/lib/apiClient";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
-const TimeControlButton = ({
+const PoolButton = ({
     timeControl,
     poolType,
     label,
@@ -50,4 +50,4 @@ const TimeControlButton = ({
         </div>
     );
 };
-export default TimeControlButton;
+export default PoolButton;

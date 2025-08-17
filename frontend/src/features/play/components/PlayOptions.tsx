@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 import PoolToggle from "./PoolToggle";
-import TimeControlButton from "./TimeControlButton";
+import PoolButton from "./PoolButton";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
 import clsx from "clsx";
@@ -32,19 +32,6 @@ const PlayOptions = () => {
         );
     }
 
-    const renderButtons = (poolType: PoolType) =>
-        constants.STANDARD_TIME_CONTROLS.map((timeControl, i) => {
-            return (
-                <TimeControlButton
-                    key={i}
-                    timeControl={timeControl.settings}
-                    poolType={poolType}
-                    isMostPopular={timeControl.isMostPopular}
-                    label={timeControl.label}
-                />
-            );
-        });
-
     return (
         <Card data-testid="playOptions" className="flex-col items-center pt-10">
             <h1 className="text-5xl">Play Chess 2</h1>
@@ -55,24 +42,45 @@ const PlayOptions = () => {
             {showPoolToggle && (
                 <PoolToggle isRated={isRated} onToggle={toggleIsRated} />
             )}
-            <section
-                className={clsx(
-                    "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
-                    isRated && "hidden",
-                )}
-            >
-                {renderButtons(PoolType.CASUAL)}
-            </section>
 
-            <section
-                className={clsx(
-                    "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
-                    !isRated && "hidden",
-                )}
-            >
-                {renderButtons(PoolType.RATED)}
-            </section>
+            <PlayButtons
+                data-testid="casualPoolButtons"
+                hidden={isRated}
+                poolType={PoolType.CASUAL}
+            />
+            <PlayButtons
+                data-testid="ratedPoolButtons"
+                hidden={!isRated}
+                poolType={PoolType.RATED}
+            />
         </Card>
     );
 };
 export default PlayOptions;
+
+const PlayButtons = ({
+    hidden,
+    poolType,
+}: {
+    hidden: boolean;
+    poolType: PoolType;
+}) => {
+    return (
+        <section
+            className={clsx(
+                "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
+                hidden && "hidden",
+            )}
+        >
+            {constants.STANDARD_TIME_CONTROLS.map((timeControl, i) => (
+                <PoolButton
+                    key={i}
+                    timeControl={timeControl.settings}
+                    poolType={poolType}
+                    isMostPopular={timeControl.isMostPopular}
+                    label={timeControl.label}
+                />
+            ))}
+        </section>
+    );
+};
