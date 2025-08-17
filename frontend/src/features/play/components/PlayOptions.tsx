@@ -58,7 +58,7 @@ const PoolButtons = ({
 }) => {
     return (
         <section
-            className={"relative grid w-full grid-cols-3 gap-x-3 gap-y-7"}
+            className="relative grid w-full grid-cols-3 gap-x-3 gap-y-7"
             hidden={hidden}
             data-testid={`poolButtonsSection-${poolType}`}
         >
