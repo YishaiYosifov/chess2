@@ -17,10 +17,10 @@ const OpenSeekDirectory = () => {
     const [openSeeks, setOpenSeeks] = useState<Record<SeekKeyStr, OpenSeek>>(
         {},
     );
-    const nodeRefs = useRef<
+    const openSeekRefs = useRef<
         Map<string, React.RefObject<HTMLDivElement | null>>
     >(new Map());
-    const test = useRef<HTMLParagraphElement | null>(null);
+    const noSeeksRef = useRef<HTMLParagraphElement | null>(null);
 
     const sendOpenSeekEvent = useOpenSeekEmitter();
 
@@ -44,7 +44,7 @@ const OpenSeekDirectory = () => {
 
     useOpenSeekEvent("OpenSeekEndedAsync", (userId, pool) => {
         const key = SeekKeyToStr({ userId, pool });
-        nodeRefs.current.delete(key);
+        openSeekRefs.current.delete(key);
         setOpenSeeks((prev) => {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { [key]: _, ...rest } = prev;
@@ -66,11 +66,11 @@ const OpenSeekDirectory = () => {
                                 enterActive: "opacity-100 duration-300",
                                 exitActive: "opacity-0 duration-300",
                             }}
-                            nodeRef={test}
+                            nodeRef={noSeeksRef}
                         >
                             <p
                                 className="mt-4 text-center text-gray-500"
-                                ref={test}
+                                ref={noSeeksRef}
                             >
                                 No open challenges, join a pool to appear here
                                 for others
@@ -78,13 +78,13 @@ const OpenSeekDirectory = () => {
                         </CSSTransition>
                     ) : (
                         Object.entries(openSeeks).map(([key, seek]) => {
-                            if (!nodeRefs.current.has(key)) {
-                                nodeRefs.current.set(
+                            if (!openSeekRefs.current.has(key)) {
+                                openSeekRefs.current.set(
                                     key,
                                     React.createRef<HTMLDivElement | null>(),
                                 );
                             }
-                            const nodeRef = nodeRefs.current.get(key);
+                            const nodeRef = openSeekRefs.current.get(key);
 
                             return (
                                 <CSSTransition
