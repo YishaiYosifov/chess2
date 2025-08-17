@@ -40,7 +40,7 @@ public class AuthCookieSetter(
 
         SetCookie(
             context,
-            _jwtSettings.IsAuthedTokenCookieName,
+            _jwtSettings.IsLoggedInCookieName,
             "true",
             maxAge: _jwtSettings.RefreshMaxAge,
             httpOnly: false
@@ -52,7 +52,7 @@ public class AuthCookieSetter(
         DeleteCookie(_jwtSettings.AccessTokenCookieName, context);
         DeleteCookie(_jwtSettings.RefreshTokenCookieName, context, path: GetRefreshPath(context));
 
-        DeleteCookie(_jwtSettings.IsAuthedTokenCookieName, context);
+        DeleteCookie(_jwtSettings.IsLoggedInCookieName, context);
     }
 
     private void SetCookie(
