@@ -1,4 +1,4 @@
-import { TimeControlSettings } from "@/lib/apiClient";
+import { PoolKey, PoolType, TimeControlSettings } from "@/lib/apiClient";
 import { act, renderHook } from "@testing-library/react";
 import useMatchmaking from "../useMatchmaking";
 import {
@@ -7,17 +7,24 @@ import {
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
-import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 describe("useMatchmaking", () => {
-    const mockTimeControl: TimeControlSettings = {
+    const timeControl: TimeControlSettings = {
         baseSeconds: 300,
         incrementSeconds: 5,
     };
-    const lobbyHandlers: EventHandlers<LobbyClientEvents> = {};
+    const poolRated: PoolKey = {
+        poolType: PoolType.RATED,
+        timeControl: timeControl,
+    };
+    const poolCasual: PoolKey = {
+        poolType: PoolType.CASUAL,
+        timeControl: timeControl,
+    };
 
+    const lobbyHandlers: EventHandlers<LobbyClientEvents> = {};
     const sendLobbyEvent = vi.fn();
     const useLobbyEventMock = vi.mocked(useLobbyEvent);
 
@@ -29,79 +36,90 @@ describe("useMatchmaking", () => {
     });
 
     it("should create a rated seek", async () => {
-        const { result } = renderHook(() => useMatchmaking());
+        const { result } = renderHook(() => useMatchmaking(poolRated));
 
-        await act(() => result.current.createSeek(true, mockTimeControl));
+        await act(() => result.current.createSeek());
 
         expect(result.current.isSeeking).toBe(true);
         expect(sendLobbyEvent).toHaveBeenCalledWith(
             "SeekRatedAsync",
-            mockTimeControl,
+            timeControl,
         );
     });
 
     it("should create a casual seek", async () => {
-        const { result } = renderHook(() => useMatchmaking());
+        const { result } = renderHook(() => useMatchmaking(poolCasual));
 
-        await act(() => result.current.createSeek(false, mockTimeControl));
+        await act(() => result.current.createSeek());
 
         expect(result.current.isSeeking).toBe(true);
         expect(sendLobbyEvent).toHaveBeenCalledWith(
             "SeekCasualAsync",
-            mockTimeControl,
+            timeControl,
         );
     });
 
     it("should cancel a seek", async () => {
-        const { result } = renderHook(() => useMatchmaking());
+        const { result } = renderHook(() => useMatchmaking(poolRated));
 
-        await act(() => result.current.createSeek(true, mockTimeControl));
-
+        await act(() => result.current.createSeek());
         await act(() => result.current.cancelSeek());
 
         expect(result.current.isSeeking).toBe(false);
-        expect(sendLobbyEvent).toHaveBeenCalledWith("CancelSeekAsync");
+        expect(sendLobbyEvent).toHaveBeenCalledWith(
+            "CancelSeekAsync",
+            poolRated,
+        );
     });
 
     it("should toggle seek on when not seeking", async () => {
-        const { result } = renderHook(() => useMatchmaking());
+        const { result } = renderHook(() => useMatchmaking(poolRated));
 
-        await act(() => result.current.toggleSeek(true, mockTimeControl));
+        await act(() => result.current.toggleSeek());
 
         expect(result.current.isSeeking).toBe(true);
         expect(sendLobbyEvent).toHaveBeenCalledWith(
             "SeekRatedAsync",
-            mockTimeControl,
+            timeControl,
         );
     });
 
     it("should toggle seek off when already seeking", async () => {
-        const { result } = renderHook(() => useMatchmaking());
+        const { result } = renderHook(() => useMatchmaking(poolRated));
 
-        await act(() => result.current.toggleSeek(true, mockTimeControl));
-
-        await act(() => result.current.toggleSeek(true, mockTimeControl));
-
-        expect(result.current.isSeeking).toBe(false);
-        expect(sendLobbyEvent).toHaveBeenCalledWith("CancelSeekAsync");
-    });
-
-    it("should navigate to game on MatchFoundAsync event", () => {
-        const { push } = mockRouter();
-        renderHook(() => useMatchmaking());
-
-        act(() => lobbyHandlers["MatchFoundAsync"]?.("abc123"));
-
-        expect(push).toHaveBeenCalledWith("/game/abc123");
-    });
-
-    it("should stop seeking on MatchFailedAsync event", async () => {
-        const { result } = renderHook(() => useMatchmaking());
-
-        await act(() => result.current.createSeek(true, mockTimeControl));
-
-        act(() => lobbyHandlers["MatchFailedAsync"]?.());
+        await act(() => result.current.toggleSeek());
+        await act(() => result.current.toggleSeek());
 
         expect(result.current.isSeeking).toBe(false);
+        expect(sendLobbyEvent).toHaveBeenCalledWith(
+            "CancelSeekAsync",
+            poolRated,
+        );
+    });
+
+    it("should stop seeking when SeekFailedAsync fires for this pool", async () => {
+        const { result } = renderHook(() => useMatchmaking(poolRated));
+
+        await act(() => result.current.createSeek());
+        expect(result.current.isSeeking).toBe(true);
+
+        act(() => lobbyHandlers["SeekFailedAsync"]?.(poolRated));
+
+        expect(result.current.isSeeking).toBe(false);
+    });
+
+    it("should ignore SeekFailedAsync for a different pool", async () => {
+        const { result } = renderHook(() => useMatchmaking(poolRated));
+        const poolOther: PoolKey = {
+            poolType: PoolType.CASUAL,
+            timeControl: timeControl,
+        };
+
+        await act(() => result.current.createSeek());
+        expect(result.current.isSeeking).toBe(true);
+
+        act(() => lobbyHandlers["SeekFailedAsync"]?.(poolOther));
+
+        expect(result.current.isSeeking).toBe(true);
     });
 });
