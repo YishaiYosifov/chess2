@@ -43,12 +43,12 @@ const PlayOptions = () => {
                 <PoolToggle isRated={isRated} onToggle={toggleIsRated} />
             )}
 
-            <PlayButtons
+            <PoolButtons
                 data-testid="casualPoolButtons"
                 hidden={isRated}
                 poolType={PoolType.CASUAL}
             />
-            <PlayButtons
+            <PoolButtons
                 data-testid="ratedPoolButtons"
                 hidden={!isRated}
                 poolType={PoolType.RATED}
@@ -58,7 +58,7 @@ const PlayOptions = () => {
 };
 export default PlayOptions;
 
-const PlayButtons = ({
+const PoolButtons = ({
     hidden,
     poolType,
 }: {
