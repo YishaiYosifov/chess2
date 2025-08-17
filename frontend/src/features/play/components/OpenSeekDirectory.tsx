@@ -18,9 +18,20 @@ const OpenSeekDirectory = () => {
         {},
     );
     const openSeekRefs = useRef<
-        Map<string, React.RefObject<HTMLDivElement | null>>
+        Map<SeekKeyStr, React.RefObject<HTMLDivElement | null>>
     >(new Map());
+
     const noSeeksRef = useRef<HTMLParagraphElement | null>(null);
+    const [showNoSeeks, setShowNoSeeks] = useState(false);
+    useEffect(() => {
+        if (Object.keys(openSeeks).length !== 0) {
+            setShowNoSeeks(false);
+            return;
+        }
+
+        const timer = setTimeout(() => setShowNoSeeks(true), 300);
+        return () => clearTimeout(timer);
+    }, [openSeeks]);
 
     const sendOpenSeekEvent = useOpenSeekEmitter();
 
@@ -52,60 +63,65 @@ const OpenSeekDirectory = () => {
         });
     });
 
+    function getOpenSeekRef(
+        key: SeekKeyStr,
+    ): React.RefObject<HTMLDivElement | null> {
+        let ref = openSeekRefs.current.get(key);
+        if (ref) return ref;
+
+        ref = React.createRef<HTMLDivElement>();
+        openSeekRefs.current.set(key, ref);
+        return ref;
+    }
+
     return (
         <Card className="h-full min-h-60 flex-col gap-2 overflow-auto">
             <h2 className="text-center text-3xl">Open Challenges</h2>
 
             <div className="flex h-full max-h-96 flex-col gap-3 overflow-auto md:max-h-full">
-                <TransitionGroup duration={300}>
-                    {Object.keys(openSeeks).length === 0 ? (
-                        <CSSTransition
-                            timeout={300}
-                            classNames={{
-                                enter: "opacity-0",
-                                enterActive: "opacity-100 duration-300",
-                                exitActive: "opacity-0 duration-300",
-                            }}
-                            nodeRef={noSeeksRef}
-                        >
-                            <p
-                                className="mt-4 text-center text-gray-500"
-                                ref={noSeeksRef}
-                            >
-                                No open challenges, join a pool to appear here
-                                for others
-                            </p>
-                        </CSSTransition>
-                    ) : (
-                        Object.entries(openSeeks).map(([key, seek]) => {
-                            if (!openSeekRefs.current.has(key)) {
-                                openSeekRefs.current.set(
-                                    key,
-                                    React.createRef<HTMLDivElement | null>(),
-                                );
-                            }
-                            const nodeRef = openSeekRefs.current.get(key);
+                <CSSTransition
+                    in={showNoSeeks}
+                    timeout={{ enter: 200, exit: 0 }}
+                    classNames={{
+                        enter: "opacity-0",
+                        enterActive: "opacity-100 transition-all duration-200",
+                    }}
+                    nodeRef={noSeeksRef}
+                    unmountOnExit
+                >
+                    <p
+                        className="mt-4 text-center text-gray-500"
+                        ref={noSeeksRef}
+                    >
+                        No open challenges, join a pool to appear here for
+                        others
+                    </p>
+                </CSSTransition>
 
-                            return (
-                                <CSSTransition
-                                    key={key}
-                                    classNames={{
-                                        enter: "opacity-0 -translate-x-10",
-                                        enterActive:
-                                            "opacity-100 translate-x-0 transition-all duration-300",
-                                        exitActive:
-                                            "opacity-0 -translate-x-10 transition-all duration-300",
-                                    }}
-                                    timeout={300}
-                                    nodeRef={nodeRef}
-                                >
-                                    <div ref={nodeRef}>
-                                        <OpenSeekItem seek={seek} />
-                                    </div>
-                                </CSSTransition>
-                            );
-                        })
-                    )}
+                <TransitionGroup duration={300}>
+                    {Object.entries(openSeeks).map(([key, seek]) => {
+                        const seekKey = key as SeekKeyStr;
+                        const nodeRef = getOpenSeekRef(seekKey);
+
+                        return (
+                            <CSSTransition
+                                key={key}
+                                classNames={{
+                                    enter: "opacity-0 -translate-x-10",
+                                    enterActive:
+                                        "opacity-100 translate-x-0 transition-all duration-300",
+                                    exitActive:
+                                        "opacity-0 -translate-x-10 transition-all duration-300",
+                                }}
+                                timeout={300}
+                                nodeRef={nodeRef}
+                            >
+                                <div ref={nodeRef}>
+                                    <OpenSeekItem seek={seek} />
+                                </div>
+                            </CSSTransition>
+                        );
+                    })}
                 </TransitionGroup>
             </div>
         </Card>
