@@ -54,5 +54,5 @@ public class JwtSettings
 
     public required string AccessTokenCookieName { get; set; }
     public required string RefreshTokenCookieName { get; set; }
-    public required string IsAuthedTokenCookieName { get; set; }
+    public required string IsLoggedInCookieName { get; set; }
 }

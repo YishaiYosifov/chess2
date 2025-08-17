@@ -64,7 +64,7 @@ public class AuthCookieSetterTests : BaseUnitTest
             path: _refreshPath
         );
         var expectedIsAuthedTokenCookie = CreateExpectedCookie(
-            _jwtSettings.IsAuthedTokenCookieName,
+            _jwtSettings.IsLoggedInCookieName,
             "true",
             _jwtSettings.RefreshMaxAge,
             httpOnly: false
@@ -97,7 +97,7 @@ public class AuthCookieSetterTests : BaseUnitTest
             _refreshPath
         );
         var expectedIsAuthedTokenCookie = CreateExpectedDeletedCookie(
-            _jwtSettings.IsAuthedTokenCookieName
+            _jwtSettings.IsLoggedInCookieName
         );
 
         authCookieSetter.RemoveAuthCookies(context);
