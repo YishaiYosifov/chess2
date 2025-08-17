@@ -13,11 +13,11 @@ const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
 
     return (
         <div
-            className="hover:bg-primary flex transform cursor-pointer items-center gap-5 rounded-lg p-3"
+            className="hover:bg-primary flex transform cursor-pointer items-center gap-2 rounded-lg p-3"
             data-testid="openSeek"
             onClick={match}
         >
-            <div className="flex flex-col items-center">
+            <div className="flex w-20 flex-col items-center">
                 <TimeControlIcon
                     className="h-10 w-10"
                     timeControl={seek.timeControl}
@@ -28,8 +28,8 @@ const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
                 </span>
             </div>
 
-            <div className="flex-1">
-                <p className="text-xl" data-testid="openSeekUsername">
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-xl" data-testid="openSeekUsername">
                     {seek.userName}
                 </p>
                 <p
