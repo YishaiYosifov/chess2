@@ -23,10 +23,7 @@ describe("NavDesktop", () => {
     it("should render with collapsed state when isCollapsed is true", () => {
         isCollapsed = true;
         render(
-            <NavDesktop
-                hasAccessCookie={true}
-                isCollapsedInitialState={false}
-            />,
+            <NavDesktop isLoggedIn={true} isCollapsedInitialState={false} />,
         );
 
         const aside = screen.getByTestId("navbarDesktop");
@@ -42,12 +39,7 @@ describe("NavDesktop", () => {
 
     it("should render with expanded state when isCollapsed is false", () => {
         isCollapsed = false;
-        render(
-            <NavDesktop
-                hasAccessCookie={true}
-                isCollapsedInitialState={true}
-            />,
-        );
+        render(<NavDesktop isLoggedIn={true} isCollapsedInitialState={true} />);
 
         const aside = screen.getByTestId("navbarDesktop");
         expect(aside).toHaveAttribute("data-is-collapsed", "false");
@@ -65,12 +57,7 @@ describe("NavDesktop", () => {
         isCollapsed = false;
 
         const user = userEvent.setup();
-        render(
-            <NavDesktop
-                hasAccessCookie={true}
-                isCollapsedInitialState={true}
-            />,
-        );
+        render(<NavDesktop isLoggedIn={true} isCollapsedInitialState={true} />);
         const button = screen.getByTestId("collapseButton");
         await user.click(button);
         expect(toggleCollapse).toHaveBeenCalled();

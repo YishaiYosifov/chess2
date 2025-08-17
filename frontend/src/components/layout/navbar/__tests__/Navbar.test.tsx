@@ -41,7 +41,7 @@ describe("Navbar Component", () => {
     it.each([true, false])(
         "should pass hasAccessCookie from the cookie",
         async (hasCookie) => {
-            if (hasCookie) mockNextCookies(constants.COOKIES.IS_AUTHED);
+            if (hasCookie) mockNextCookies(constants.COOKIES.IS_LOGGED_IN);
 
             const page = await Navbar();
             render(page);

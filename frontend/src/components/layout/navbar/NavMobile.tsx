@@ -7,7 +7,11 @@ import Image from "next/image";
 import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
 
-const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
+const NavMobile = ({
+    isLoggedIn: hasAccessCookie,
+}: {
+    isLoggedIn: boolean;
+}) => {
     const toggleMobileButton = useRef<HTMLButtonElement>(null);
     const mobileNav = useRef<HTMLDivElement>(null);
 
