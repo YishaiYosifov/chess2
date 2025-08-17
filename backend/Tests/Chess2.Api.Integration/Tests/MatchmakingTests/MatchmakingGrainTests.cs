@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -217,7 +218,7 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
 
         _pool.Seekers.Should().ContainSingle().Which.Should().Be(otherSeeker);
         await observerTimedOut.Received(1).SeekRemovedAsync(_testPoolKey);
-        await observerOther.DidNotReceive().SeekRemovedAsync(_testPoolKey);
+        await observerOther.DidNotReceiveWithAnyArgs().SeekRemovedAsync(default!);
 
         var context = Silo.GetContextFromGrain(grain);
         Silo.GrainRuntime.Mock.Verify(
@@ -237,5 +238,121 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         var context = Silo.GetContextFromGrain(grain);
         Silo.GrainRuntime.Mock.Verify(x => x.DeactivateOnIdle(context), Times.Once);
         Silo.GrainRuntime.Mock.VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task MatchWithSeekerAsync_starts_game_and_notifies_matched_seeker()
+    {
+        var removedStream = ProbeOpenSeekRemovedStream();
+        var grain = await CreateGrainAsync();
+
+        var initiatingSeeker = new CasualSeekerFaker().Generate();
+        var matchWithSeeker = new CasualSeekerFaker().Generate();
+        var matchWithObserver = Substitute.For<ISeekObserver>();
+
+        await grain.AddSeekAsync(matchWithSeeker, matchWithObserver);
+        matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
+
+        var gameToken = "direct-game-123";
+        _gameStarterMock
+            .StartGameAsync(initiatingSeeker.UserId, matchWithSeeker.UserId, _testPoolKey)
+            .Returns(Task.FromResult(gameToken));
+
+        var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId);
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().Be(gameToken);
+
+        await matchWithObserver.Received(1).SeekMatchedAsync(gameToken, _testPoolKey);
+        await matchWithObserver.Received(1).ReleaseReservationAsync(_testPoolKey);
+        _pool.Seekers.Should().NotContain(matchWithSeeker);
+        removedStream.Sends.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task MatchWithSeekerAsync_broadcasts_seek_removal_if_seeker_not_pending()
+    {
+        var removedStream = ProbeOpenSeekRemovedStream();
+        var grain = await CreateGrainAsync();
+
+        var initiatingSeeker = new CasualSeekerFaker().Generate();
+        var matchWithSeeker = new CasualSeekerFaker().Generate();
+        var matchWithObserver = Substitute.For<ISeekObserver>();
+
+        await grain.AddSeekAsync(matchWithSeeker, matchWithObserver);
+
+        // simulate a wave so the seeker is no longer pending
+        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+
+        matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
+        _gameStarterMock
+            .StartGameAsync(initiatingSeeker.UserId, matchWithSeeker.UserId, _testPoolKey)
+            .Returns(Task.FromResult("gameToken"));
+
+        var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId);
+
+        removedStream.VerifySend(e => e.UserId == matchWithSeeker.UserId && e.Pool == _testPoolKey);
+    }
+
+    [Fact]
+    public async Task MatchWithSeekerAsync_returns_error_when_reservation_fails()
+    {
+        var grain = await CreateGrainAsync();
+
+        var initiatingSeeker = new CasualSeekerFaker().Generate();
+        var matchWithSeeker = new CasualSeekerFaker().Generate();
+        var matchWithObserver = Substitute.For<ISeekObserver>();
+
+        await grain.AddSeekAsync(matchWithSeeker, matchWithObserver);
+        matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(false);
+
+        var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
+        await _gameStarterMock
+            .DidNotReceiveWithAnyArgs()
+            .StartGameAsync(default!, default!, default!);
+        await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!);
+        await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
+        _pool.Seekers.Should().Contain(matchWithSeeker);
+    }
+
+    [Fact]
+    public async Task MatchWithSeekerAsync_returns_error_when_requested_seeker_not_found()
+    {
+        var grain = await CreateGrainAsync();
+        var initiatingSeeker = new CasualSeekerFaker().Generate();
+
+        var result = await grain.MatchWithSeekerAsync(initiatingSeeker, "nonexistent-user");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
+        await _gameStarterMock
+            .DidNotReceiveWithAnyArgs()
+            .StartGameAsync(default!, default!, default!);
+    }
+
+    [Fact]
+    public async Task MatchWithSeekerAsync_returns_error_when_seekers_are_incompatible()
+    {
+        var grain = await CreateGrainAsync();
+
+        var casualRequester = new CasualSeekerFaker().Generate();
+        var ratedSeeker = new RatedSeekerFaker().Generate();
+        var ratedObserver = Substitute.For<ISeekObserver>();
+
+        await grain.AddSeekAsync(ratedSeeker, ratedObserver);
+
+        var result = await grain.MatchWithSeekerAsync(casualRequester, ratedSeeker.UserId);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(MatchmakingErrors.RequestedSeekerNotCompatible);
+
+        await _gameStarterMock
+            .DidNotReceiveWithAnyArgs()
+            .StartGameAsync(default!, default!, default!);
+        _pool.Seekers.Should().Contain(ratedSeeker);
+        await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!);
     }
 }

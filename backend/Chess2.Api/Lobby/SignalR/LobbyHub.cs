@@ -5,6 +5,7 @@ using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
+using Chess2.Api.Users.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 
@@ -91,6 +92,38 @@ public class LobbyHub(
         _logger.LogInformation("User {UserId} cancelled their seek", userId);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
         await grain.CancelSeekAsync(pool);
+    }
+
+    public async Task MatchWithOpenSeekAsync(UserId matchWith, PoolKey pool)
+    {
+        var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
+            Context.User,
+            whenAuthed: async user => await _seekerCreator.CreateRatedOpenSeekerAsync(user),
+            whenGuest: userId =>
+                Task.FromResult<Seeker>(_seekerCreator.CreateGuestCasualSeeker(userId))
+        );
+        if (seekerResult.IsError)
+        {
+            await HandleErrors(seekerResult.Errors);
+            return;
+        }
+        var seeker = seekerResult.Value;
+
+        _logger.LogInformation(
+            "User {UserId} trying to match with open seek of {MatchWith}",
+            seeker.UserId,
+            matchWith
+        );
+
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(seeker.UserId);
+        var matchResult = await grain.MatchWithOpenSeekAsync(
+            Context.ConnectionId,
+            seeker,
+            matchWith,
+            pool
+        );
+        if (matchResult.IsError)
+            await HandleErrors(matchResult.Errors);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
