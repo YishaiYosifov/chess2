@@ -4,6 +4,10 @@ import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType, TimeControl } from "@/lib/apiClient";
 import OpenSeekItem from "../OpenSeekItem";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
+import userEvent from "@testing-library/user-event";
+import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
+
+vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
 vi.mock("@/features/lobby/Components/TimeControlIcon", () => ({
     default: ({ timeControl }: { timeControl: TimeControl }) => (
@@ -17,9 +21,11 @@ vi.mock("@heroicons/react/24/outline", () => ({
 
 describe("OpenSeekItem", () => {
     let seek: OpenSeek;
+    let sendLobbyEventsMock = vi.fn();
 
     beforeEach(() => {
         seek = createFakeOpenSeek();
+        vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEventsMock);
     });
 
     it("should display the user name", () => {
@@ -58,5 +64,18 @@ describe("OpenSeekItem", () => {
         render(<OpenSeekItem seek={seek} />);
         expect(screen.getByTestId("timeControlIcon")).toBeInTheDocument();
         expect(screen.getByTestId("fireIcon")).toBeInTheDocument();
+    });
+
+    it("should send match request when clicked", async () => {
+        const user = userEvent.setup();
+        render(<OpenSeekItem seek={seek} />);
+
+        await user.click(screen.getByTestId("openSeek"));
+
+        expect(sendLobbyEventsMock).toHaveBeenCalledExactlyOnceWith(
+            "MatchWithOpenSeekAsync",
+            seek.userId,
+            seek.pool,
+        );
     });
 });

@@ -3,12 +3,19 @@ import { FireIcon } from "@heroicons/react/24/outline";
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType } from "@/lib/apiClient";
+import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 
 const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
+    const sendLobbyEvents = useLobbyEmitter();
+
+    const match = () =>
+        sendLobbyEvents("MatchWithOpenSeekAsync", seek.userId, seek.pool);
+
     return (
         <div
             className="hover:bg-primary flex transform cursor-pointer items-center gap-5 rounded-lg p-3"
             data-testid="openSeek"
+            onClick={match}
         >
             <div className="flex flex-col items-center">
                 <TimeControlIcon
