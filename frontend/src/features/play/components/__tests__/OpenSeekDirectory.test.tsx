@@ -32,7 +32,7 @@ describe("OpenSeekDirectory", () => {
         expect(sendOpenSeekEvent).toHaveBeenCalledWith("SubscribeAsync");
     });
 
-    it("should display new open seeks when received", async () => {
+    it("should display new open seeks when received", () => {
         render(<OpenSeekDirectory />);
 
         const newSeek = createFakeOpenSeek({});
@@ -52,12 +52,12 @@ describe("OpenSeekDirectory", () => {
         act(() =>
             openSeekHandlers["OpenSeekEndedAsync"]?.(seek.userId, seek.pool),
         );
-        act(() => vi.advanceTimersByTime(500));
+        await act(() => vi.advanceTimersByTimeAsync(500));
 
         expect(screen.queryByTestId("openSeek")).not.toBeInTheDocument();
     });
 
-    it("should limit open seeks to 10", async () => {
+    it("should limit open seeks to 10", () => {
         render(<OpenSeekDirectory />);
 
         const seeks = Array.from({ length: 15 }, () => createFakeOpenSeek());
@@ -66,5 +66,47 @@ describe("OpenSeekDirectory", () => {
 
         const items = screen.getAllByTestId("openSeek");
         expect(items.length).toBe(10);
+    });
+
+    it("should display 'No open challenges' text", async () => {
+        render(<OpenSeekDirectory />);
+
+        expect(screen.getByTestId("noOpenChallengesText")).toHaveTextContent(
+            "No open challenges, join a pool to appear here for others",
+        );
+    });
+
+    it("should hide no open challenges text when new seeks arrive", async () => {
+        render(<OpenSeekDirectory />);
+
+        const newSeek = createFakeOpenSeek({});
+        act(() => openSeekHandlers["NewOpenSeeksAsync"]?.([newSeek]));
+        await act(() => vi.advanceTimersToNextFrame());
+
+        expect(
+            screen.queryByTestId("noOpenChallengesText"),
+        ).not.toBeInTheDocument();
+    });
+
+    it("should wait before showing no open challenges text after seeks disappear", async () => {
+        render(<OpenSeekDirectory />);
+
+        const newSeek = createFakeOpenSeek({});
+        act(() => openSeekHandlers["NewOpenSeeksAsync"]?.([newSeek]));
+        await act(() => vi.advanceTimersToNextFrame());
+
+        act(() =>
+            openSeekHandlers["OpenSeekEndedAsync"]?.(
+                newSeek.userId,
+                newSeek.pool,
+            ),
+        );
+        await act(() => vi.advanceTimersToNextFrame());
+        expect(
+            screen.queryByTestId("noOpenChallengesText"),
+        ).not.toBeInTheDocument();
+
+        await act(() => vi.advanceTimersByTimeAsync(300));
+        expect(screen.getByTestId("noOpenChallengesText")).toBeInTheDocument();
     });
 });

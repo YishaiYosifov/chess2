@@ -22,7 +22,7 @@ const OpenSeekDirectory = () => {
     >(new Map());
 
     const noSeeksRef = useRef<HTMLParagraphElement | null>(null);
-    const [showNoSeeks, setShowNoSeeks] = useState(false);
+    const [showNoSeeks, setShowNoSeeks] = useState(true);
     useEffect(() => {
         if (Object.keys(openSeeks).length !== 0) {
             setShowNoSeeks(false);
@@ -90,6 +90,7 @@ const OpenSeekDirectory = () => {
                     unmountOnExit
                 >
                     <p
+                        data-testid="noOpenChallengesText"
                         className="mt-4 text-center text-gray-500"
                         ref={noSeeksRef}
                     >
