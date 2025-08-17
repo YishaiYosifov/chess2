@@ -7,7 +7,6 @@ import PoolToggle from "./PoolToggle";
 import PoolButton from "./PoolButton";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
-import clsx from "clsx";
 import { PoolType } from "@/lib/apiClient";
 
 const PlayOptions = () => {
