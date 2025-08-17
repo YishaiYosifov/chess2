@@ -41,7 +41,7 @@ describe("middleware", () => {
     it.each([
         {
             [constants.COOKIES.ACCESS_TOKEN]: "access",
-            [constants.COOKIES.IS_AUTHED]: "true",
+            [constants.COOKIES.IS_LOGGED_IN]: "true",
         },
         {
             [constants.COOKIES.ACCESS_TOKEN]: "access",
@@ -61,7 +61,7 @@ describe("middleware", () => {
     it.each([
         [
             {
-                [constants.COOKIES.IS_AUTHED]: "true",
+                [constants.COOKIES.IS_LOGGED_IN]: "true",
             },
             constants.PATHS.REFRESH,
         ],

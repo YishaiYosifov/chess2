@@ -8,7 +8,6 @@ import React, {
 import PieceRenderer from "./PieceRenderer";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
-import constants from "@/lib/constants";
 import OverlayRenderer from "./OverlayRenderer";
 
 export interface PaddingOffset {
@@ -77,10 +76,7 @@ const ChessboardLayout = ({
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
-            const minSize = Math.max(
-                constants.MIN_BOARD_SIZE_PX,
-                Math.min(width, height),
-            );
+            const minSize = Math.max(264, Math.min(width, height));
             setBoardSize(minSize);
         }
 

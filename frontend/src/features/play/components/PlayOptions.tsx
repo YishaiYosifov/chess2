@@ -10,10 +10,6 @@ import Card from "@/components/ui/Card";
 import clsx from "clsx";
 import { PoolType } from "@/lib/apiClient";
 
-/**
- * Card containing the variant and time control options.
- * When the one of the time control buttons is clicked, a request to enter the pool will be sent.
- */
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
     const [isRated, setIsRated] = useState(false);
@@ -21,6 +17,8 @@ const PlayOptions = () => {
     useEffect(() => {
         const isAuthed = Cookies.get(constants.COOKIES.IS_AUTHED);
         setShowPoolToggle(isAuthed !== undefined);
+        const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
+        setShowPoolToggle(isLoggedIn !== undefined);
     }, []);
 
     const renderButtons = (poolType: PoolType) =>

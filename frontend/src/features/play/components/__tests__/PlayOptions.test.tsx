@@ -22,7 +22,7 @@ describe("PlayOptions", () => {
     function mockIsAuthedCookie(isAuthed: boolean) {
         const cookieValue = isAuthed ? "true" : undefined;
         mockJsCookie({
-            [constants.COOKIES.IS_AUTHED]: cookieValue,
+            [constants.COOKIES.IS_LOGGED_IN]: cookieValue,
         });
     }
 
