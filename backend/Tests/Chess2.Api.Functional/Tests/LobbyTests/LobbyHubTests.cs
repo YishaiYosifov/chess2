@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
@@ -181,6 +182,24 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
         await guest2Conn.SeekCasualAsync(timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
+    }
+
+    [Fact]
+    public async Task MatchWithOpenSeekAsync_matches_authed_user_with_open_seek()
+    {
+        TimeControlSettings timeControl = new(300, 10);
+
+        await using LobbyHubClient conn1 = new(
+            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
+        );
+        await using LobbyHubClient conn2 = new(
+            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
+        );
+
+        await conn1.SeekRatedAsync(timeControl, CT);
+        await conn2.MatchWithOpenSeekAsync("guest1", new PoolKey(PoolType.Rated, timeControl), CT);
+
+        await AssertMatchEstablishedAsync(conn1, conn2);
     }
 
     private async Task AssertConcurrentMatchesAsync(params List<LobbyHubClient> conns)
