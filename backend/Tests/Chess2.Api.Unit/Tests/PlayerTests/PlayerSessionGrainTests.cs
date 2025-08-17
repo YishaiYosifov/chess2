@@ -2,6 +2,7 @@
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;
+using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
@@ -111,8 +112,8 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         await grain.CleanupConnectionAsync("conn1");
 
-        await _casualPoolGrainMock.DidNotReceive().TryCancelSeekAsync(UserId);
-        await _ratedPoolGrainMock.DidNotReceive().TryCancelSeekAsync(UserId);
+        await _casualPoolGrainMock.DidNotReceiveWithAnyArgs().TryCancelSeekAsync(default!);
+        await _ratedPoolGrainMock.DidNotReceiveWithAnyArgs().TryCancelSeekAsync(default!);
     }
 
     [Fact]
@@ -271,6 +272,91 @@ public class PlayerSessionGrainTests : BaseGrainTest
         (await grain.TryReserveSeekAsync(pool)).Should().BeTrue();
         await grain.ReleaseReservationAsync(pool);
         (await grain.TryReserveSeekAsync(pool)).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task MatchWithOpenSeekAsync_starts_game_and_notifies()
+    {
+        var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+
+        var connection = "conn1";
+        var seeker = new CasualSeekerFaker(UserId).Generate();
+        var targetSeekerId = "target-user";
+        var gameToken = "game123";
+
+        _casualPoolGrainMock.MatchWithSeekerAsync(seeker, targetSeekerId).Returns(gameToken);
+
+        var result = await grain.MatchWithOpenSeekAsync(connection, seeker, targetSeekerId, pool);
+
+        result.IsError.Should().BeFalse();
+        List<ConnectionId> expectedConns = [connection];
+        await _casualPoolGrainMock.Received(1).MatchWithSeekerAsync(seeker, targetSeekerId);
+        await _matchmakingNotifierMock
+            .Received(1)
+            .NotifyGameFoundAsync(
+                Arg.Is<IEnumerable<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
+                gameToken
+            );
+    }
+
+    [Fact]
+    public async Task MatchWithOpenSeekAsync_returns_error_if_game_limit_reached()
+    {
+        var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+
+        var seeker = new CasualSeekerFaker(UserId).Generate();
+        await FillGameLimitAsync(grain, seeker, pool);
+
+        var result = await grain.MatchWithOpenSeekAsync("connX", seeker, "any-user", pool);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(PlayerSessionErrors.TooManyGames);
+        await _casualPoolGrainMock
+            .DidNotReceiveWithAnyArgs()
+            .MatchWithSeekerAsync(default!, default!);
+    }
+
+    [Fact]
+    public async Task MatchWithOpenSeekAsync_returns_error_if_connection_taken()
+    {
+        var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+
+        var seeker = new CasualSeekerFaker(UserId).Generate();
+        await grain.CreateSeekAsync("conn1", seeker, pool);
+        await grain.SeekMatchedAsync("game1", pool); // now conn1 is in a game
+
+        var result = await grain.MatchWithOpenSeekAsync("conn1", seeker, "any-user", pool);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(PlayerSessionErrors.ConnectionInGame);
+        await _casualPoolGrainMock
+            .DidNotReceiveWithAnyArgs()
+            .MatchWithSeekerAsync(default!, default!);
+    }
+
+    [Fact]
+    public async Task MatchWithOpenSeekAsync_returns_error_when_matchmaking_grain_returns_error()
+    {
+        var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+
+        var seeker = new CasualSeekerFaker(UserId).Generate();
+        var targetSeekerId = "target-user";
+
+        _casualPoolGrainMock
+            .MatchWithSeekerAsync(seeker, targetSeekerId)
+            .Returns(MatchmakingErrors.RequestedSeekerNotCompatible);
+
+        var result = await grain.MatchWithOpenSeekAsync("conn1", seeker, targetSeekerId, pool);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(MatchmakingErrors.RequestedSeekerNotCompatible);
+        await _matchmakingNotifierMock
+            .DidNotReceiveWithAnyArgs()
+            .NotifyGameFoundAsync(default!, default!);
     }
 
     private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)
