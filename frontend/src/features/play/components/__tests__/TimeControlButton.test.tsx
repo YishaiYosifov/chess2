@@ -1,14 +1,35 @@
 import { render, screen } from "@testing-library/react";
 import TimeControlButton from "../TimeControlButton";
 import userEvent from "@testing-library/user-event";
-import { TimeControlSettings } from "@/lib/apiClient";
+import { PoolType } from "@/lib/apiClient";
+import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
+
+vi.mock("@/features/lobby/hooks/useMatchmaking");
 
 describe("TimeControlButton", () => {
-    it("should render the formatted time control and type", () => {
+    const useMatchmakingMock = vi.mocked(useMatchmaking);
+
+    function setupUseMatchmakingMock(
+        overrides?: Partial<ReturnType<typeof useMatchmaking>>,
+    ) {
+        const defaultMock = {
+            isSeeking: false,
+            toggleSeek: vi.fn().mockResolvedValue(undefined),
+            createSeek: vi.fn().mockResolvedValue(undefined),
+            cancelSeek: vi.fn().mockResolvedValue(undefined),
+        };
+        useMatchmakingMock.mockReturnValue({ ...defaultMock, ...overrides });
+        return defaultMock;
+    }
+
+    it("should render the formatted time control and label", () => {
+        setupUseMatchmakingMock();
+
         render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 300, incrementSeconds: 3 }}
                 label="Rapid"
+                poolType={PoolType.RATED}
             />,
         );
 
@@ -17,52 +38,73 @@ describe("TimeControlButton", () => {
     });
 
     it("should show 'Most Popular' label and apply border if isMostPopular is true", () => {
+        setupUseMatchmakingMock();
+
         render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 180, incrementSeconds: 2 }}
                 label="Blitz"
+                poolType={PoolType.CASUAL}
                 isMostPopular
             />,
         );
 
         expect(screen.getByText("Most Popular")).toBeInTheDocument();
-
         const button = screen.getByRole("button");
         expect(button.className).toMatch(/border-amber-300/);
     });
 
-    it("should blur the component if isSeeking is true", () => {
+    it("should show 'searching...' text and animate ping when isSeeking is true", () => {
+        setupUseMatchmakingMock({ isSeeking: true });
+
         const { container } = render(
             <TimeControlButton
                 timeControl={{ baseSeconds: 600, incrementSeconds: 5 }}
                 label="Classic"
-                isSeeking
+                poolType={PoolType.RATED}
             />,
         );
 
+        expect(screen.getByText("searching...")).toBeInTheDocument();
         const wrapperDiv = container.querySelector("div");
-        expect(wrapperDiv?.className).toMatch(/blur-sm/);
+        expect(wrapperDiv?.className).toMatch(/animate-subtle-ping/);
     });
 
-    it("should call onClick with baseMinutes and increment when clicked", async () => {
+    it("should call toggleSeek when the button is clicked", async () => {
         const user = userEvent.setup();
-        const handleClick = vi.fn();
-        const timeControl: TimeControlSettings = {
-            baseSeconds: 60,
-            incrementSeconds: 5,
-        };
+        const { toggleSeek } = setupUseMatchmakingMock();
 
         render(
             <TimeControlButton
-                timeControl={timeControl}
+                timeControl={{ baseSeconds: 60, incrementSeconds: 5 }}
                 label="Bullet"
-                onClick={handleClick}
+                poolType={PoolType.RATED}
             />,
         );
 
         const button = screen.getByRole("button");
         await user.click(button);
 
-        expect(handleClick).toHaveBeenCalledWith(timeControl);
+        expect(toggleSeek).toHaveBeenCalled();
+    });
+
+    it("should call useMatchmaking with the correct pool object", () => {
+        const timeControl = { baseSeconds: 120, incrementSeconds: 5 };
+        const poolType = PoolType.CASUAL;
+
+        setupUseMatchmakingMock();
+
+        render(
+            <TimeControlButton
+                timeControl={timeControl}
+                label="Blitz"
+                poolType={poolType}
+            />,
+        );
+
+        expect(useMatchmakingMock).toHaveBeenCalledWith({
+            poolType,
+            timeControl,
+        });
     });
 });
