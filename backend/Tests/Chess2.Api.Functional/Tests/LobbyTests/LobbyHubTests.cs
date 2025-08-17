@@ -196,8 +196,8 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
             await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
         );
 
-        await conn1.SeekRatedAsync(timeControl, CT);
-        await conn2.MatchWithOpenSeekAsync("guest1", new PoolKey(PoolType.Rated, timeControl), CT);
+        await conn1.SeekCasualAsync(timeControl, CT);
+        await conn2.MatchWithOpenSeekAsync("guest1", new PoolKey(PoolType.Casual, timeControl), CT);
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }
