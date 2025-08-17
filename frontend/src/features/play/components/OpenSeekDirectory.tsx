@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { OpenSeek, SeekKeyStr } from "@/features/lobby/lib/types";
 import { SeekKeyToStr } from "@/features/lobby/lib/matchmakingKeys";
 import React from "react";
+import constants from "@/lib/constants";
 
 const OpenSeekDirectory = () => {
     const [openSeeks, setOpenSeeks] = useState<Record<SeekKeyStr, OpenSeek>>(
@@ -35,10 +36,14 @@ const OpenSeekDirectory = () => {
 
     const sendOpenSeekEvent = useOpenSeekEmitter();
 
-    useEffect(
-        () => void sendOpenSeekEvent("SubscribeAsync"),
-        [sendOpenSeekEvent],
-    );
+    useEffect(() => {
+        const interval = setInterval(
+            () => sendOpenSeekEvent("SubscribeAsync"),
+            constants.OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
+        );
+        sendOpenSeekEvent("SubscribeAsync");
+        return () => clearInterval(interval);
+    }, [sendOpenSeekEvent]);
 
     useOpenSeekEvent("NewOpenSeeksAsync", (newOpenSeeks) => {
         setOpenSeeks((prev) => {

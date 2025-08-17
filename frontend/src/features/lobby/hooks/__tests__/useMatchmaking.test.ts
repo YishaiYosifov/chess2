@@ -7,6 +7,7 @@ import {
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
+import constants from "@/lib/constants";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -29,6 +30,7 @@ describe("useMatchmaking", () => {
     const useLobbyEventMock = vi.mocked(useLobbyEvent);
 
     beforeEach(() => {
+        vi.useFakeTimers();
         vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEvent);
         useLobbyEventMock.mockImplementation((event, handler) => {
             lobbyHandlers[event] = handler;
@@ -121,5 +123,50 @@ describe("useMatchmaking", () => {
         act(() => lobbyHandlers["SeekFailedAsync"]?.(poolOther));
 
         expect(result.current.isSeeking).toBe(true);
+    });
+
+    it("should repeatedly send seek requests at interval", async () => {
+        const { result } = renderHook(() => useMatchmaking(poolRated));
+
+        await act(() => result.current.createSeek());
+
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(1);
+        expect(sendLobbyEvent).toHaveBeenCalledWith(
+            "SeekRatedAsync",
+            timeControl,
+        );
+
+        act(() => {
+            vi.advanceTimersByTime(constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(2);
+
+        act(() => {
+            vi.advanceTimersByTime(2 * constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(4);
+    });
+
+    it("should stop interval when cancelSeek is called", async () => {
+        const { result } = renderHook(() => useMatchmaking(poolRated));
+
+        await act(() => result.current.createSeek());
+
+        act(() => {
+            vi.advanceTimersByTime(constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(2);
+
+        await act(() => result.current.cancelSeek());
+        expect(result.current.isSeeking).toBe(false);
+
+        act(() => {
+            vi.advanceTimersByTime(5 * constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+
+        // 1 call for cancel, otherwise no new create seek calls
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(3);
     });
 });
