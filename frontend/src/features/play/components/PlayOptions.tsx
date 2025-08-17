@@ -43,16 +43,8 @@ const PlayOptions = () => {
                 <PoolToggle isRated={isRated} onToggle={toggleIsRated} />
             )}
 
-            <PoolButtons
-                data-testid="casualPoolButtons"
-                hidden={isRated}
-                poolType={PoolType.CASUAL}
-            />
-            <PoolButtons
-                data-testid="ratedPoolButtons"
-                hidden={!isRated}
-                poolType={PoolType.RATED}
-            />
+            <PoolButtons hidden={isRated} poolType={PoolType.CASUAL} />
+            <PoolButtons hidden={!isRated} poolType={PoolType.RATED} />
         </Card>
     );
 };
@@ -67,10 +59,9 @@ const PoolButtons = ({
 }) => {
     return (
         <section
-            className={clsx(
-                "relative grid w-full grid-cols-3 gap-x-3 gap-y-7",
-                hidden && "hidden",
-            )}
+            className={"relative grid w-full grid-cols-3 gap-x-3 gap-y-7"}
+            hidden={hidden}
+            data-testid={`poolButtonsSection-${poolType}`}
         >
             {constants.STANDARD_TIME_CONTROLS.map((timeControl, i) => (
                 <PoolButton
