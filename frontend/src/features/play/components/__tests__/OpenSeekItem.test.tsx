@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 
 import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType, TimeControl } from "@/lib/apiClient";
-import OpenSeekItem from "../OpenSeek";
+import OpenSeekItem from "../OpenSeekItem";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
 
 vi.mock("@/features/lobby/Components/TimeControlIcon", () => ({
