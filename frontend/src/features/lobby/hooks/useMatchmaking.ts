@@ -40,8 +40,6 @@ export default function useMatchmaking(pool: PoolKey): {
     }
 
     async function sendSeekRequest() {
-        console.log("test1");
-
         switch (pool.poolType) {
             case PoolType.RATED:
                 await sendLobbyEvent("SeekRatedAsync", pool.timeControl);
@@ -55,7 +53,6 @@ export default function useMatchmaking(pool: PoolKey): {
     }
 
     function resetSeekState() {
-        console.log("test");
         setIsSeeking(false);
         if (resubscribeIntervalRef.current)
             clearInterval(resubscribeIntervalRef.current);
