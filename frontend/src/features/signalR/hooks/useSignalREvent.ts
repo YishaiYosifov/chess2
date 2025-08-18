@@ -1,11 +1,12 @@
 import { useEffect } from "react";
 
 import useSignalRConnection from "./useSignalRConnection";
+import { MaybePromise } from "@/types/types";
 
 type EventMap = Record<string, unknown[]>;
 
 export type EventHandlers<TEventMap extends EventMap> = {
-    [K in keyof TEventMap]?: (...args: TEventMap[K]) => void;
+    [K in keyof TEventMap]?: (...args: TEventMap[K]) => MaybePromise<void>;
 };
 
 function useSignalREvent<

@@ -11,7 +11,7 @@ const LiveGameControls = () => {
     const { gameToken, playerColor, canAbort, drawState } = useLiveChessStore(
         (x) => ({
             gameToken: x.gameToken,
-            playerColor: x.playerColor,
+            playerColor: x.viewer.playerColor,
             canAbort:
                 x.positionHistory.length <= constants.ALLOW_ABORTION_UNTIL_MOVE,
             drawState: x.drawState,

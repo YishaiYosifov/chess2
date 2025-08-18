@@ -8,6 +8,7 @@ import {
 } from "@/features/signalR/hooks/useSignalRHubs";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import constants from "@/lib/constants";
+import useLobbyStore from "../../stores/lobbyStore";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -34,6 +35,8 @@ describe("useMatchmaking", () => {
         vi.mocked(useLobbyEvent).mockImplementation((event, handler) => {
             lobbyHandlers[event] = handler;
         });
+
+        useLobbyStore.setState(useLobbyStore.getInitialState());
     });
 
     it("should create a rated seek", async () => {
@@ -104,7 +107,7 @@ describe("useMatchmaking", () => {
         await act(() => result.current.createSeek());
         expect(result.current.isSeeking).toBe(true);
 
-        act(() => lobbyHandlers["SeekFailedAsync"]?.(poolRated));
+        await act(() => lobbyHandlers["SeekFailedAsync"]?.(poolRated));
 
         expect(result.current.isSeeking).toBe(false);
     });
@@ -119,7 +122,7 @@ describe("useMatchmaking", () => {
         await act(() => result.current.createSeek());
         expect(result.current.isSeeking).toBe(true);
 
-        act(() => lobbyHandlers["SeekFailedAsync"]?.(poolOther));
+        await act(() => lobbyHandlers["SeekFailedAsync"]?.(poolOther));
 
         expect(result.current.isSeeking).toBe(true);
     });
