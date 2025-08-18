@@ -94,6 +94,19 @@ public class LobbyHub(
         await grain.CancelSeekAsync(pool);
     }
 
+    public async Task CleanupConnectionAsync()
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        _logger.LogInformation("User {UserId} cleaning up their seeks", userId);
+        var grain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        await grain.CleanupConnectionAsync(Context.ConnectionId);
+    }
+
     public async Task MatchWithOpenSeekAsync(UserId matchWith, PoolKey pool)
     {
         var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
