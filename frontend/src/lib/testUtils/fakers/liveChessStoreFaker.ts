@@ -28,7 +28,7 @@ export function createFakeLiveChessStoreProps(
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
 
-        userId: faker.string.uuid(),
+        viewerUserId: faker.string.uuid(),
         pool: {
             poolType: faker.helpers.enumValue(PoolType),
             timeControl: {

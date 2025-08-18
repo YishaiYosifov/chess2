@@ -55,7 +55,7 @@ export default function useLiveChessEvents(
             moveNumber: number,
             clocks: Clocks,
         ) => {
-            const { positionHistory, isPendingMoveAck, playerColor } =
+            const { positionHistory, isPendingMoveAck, viewer } =
                 liveChessStore.getState();
             const { applyMove, disableMovement } = chessboardStore.getState();
 
@@ -65,7 +65,7 @@ export default function useLiveChessEvents(
                 return;
             }
 
-            if (playerColor !== sideToMove) {
+            if (viewer.playerColor !== sideToMove) {
                 disableMovement();
             }
             if (!isPendingMoveAck) {
