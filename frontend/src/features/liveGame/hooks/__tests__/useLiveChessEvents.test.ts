@@ -80,7 +80,7 @@ describe("useLiveChessEvents", () => {
         liveChessStore.setState({
             viewingMoveNumber: 0,
             positionHistory: [createFakePosition()],
-            playerColor: GameColor.WHITE,
+            viewer: { userId: "test id", playerColor: GameColor.WHITE },
         });
         return piece;
     }
@@ -175,7 +175,7 @@ describe("useLiveChessEvents", () => {
             "should only disable movement if the side to move !== us",
             async (ourColor, newSideToMove) => {
                 liveChessStore.setState({
-                    playerColor: ourColor,
+                    viewer: { userId: "test id", playerColor: ourColor },
                 });
                 chessboardStore.setState({
                     moveOptions: createMoveOptions({
@@ -210,7 +210,7 @@ describe("useLiveChessEvents", () => {
             liveChessStore.setState({
                 viewingMoveNumber: 0,
                 positionHistory: [createFakePosition(), createFakePosition()],
-                playerColor: GameColor.WHITE,
+                viewer: { userId: "test id", playerColor: GameColor.WHITE },
             });
 
             renderLiveChessEvents();

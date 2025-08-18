@@ -24,7 +24,7 @@ export default function useMatchmaking(pool: PoolKey): {
         removeSeek: x.removeSeek,
     }));
 
-    useLobbyEvent("SeekFailedAsync", async (pool) => {
+    useLobbyEvent("SeekFailedAsync", (pool) => {
         if (PoolKeyToStr(pool) === poolKeyStr) resetSeekState();
     });
 
