@@ -25,6 +25,8 @@ type LobbyHubEvents = {
     SeekRatedAsync: [timeControl: TimeControlSettings];
     SeekCasualAsync: [timeControl: TimeControlSettings];
     CancelSeekAsync: [pool: PoolKey];
+    CleanupConnectionAsync: [];
+
     MatchWithOpenSeekAsync: [userId: string, pool: PoolKey];
 };
 
