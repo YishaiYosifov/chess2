@@ -1,8 +1,11 @@
-import { GameColor, GameState } from "@/lib/apiClient";
+import { GameColor } from "@/lib/apiClient";
 import { createStoreProps } from "../gameStateProcessor";
 import { createFakeGameState } from "@/lib/testUtils/fakers/gameStateFaker";
 import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
-import { LiveChessStoreProps } from "../../stores/liveChessStore";
+import {
+    LiveChessStoreProps,
+    LiveChessViewer,
+} from "../../stores/liveChessStore";
 import { LogicalPoint } from "@/features/point/types";
 import { Position } from "../types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
@@ -12,10 +15,8 @@ import { logicalPoint } from "@/lib/utils/pointUtils";
 import { decodePathIntoMap } from "../moveDecoder";
 
 describe("createStoreProps", () => {
-    let gameState: GameState;
-
-    beforeEach(() => {
-        gameState = createFakeGameState({
+    it("should return the complete and correct store props object", () => {
+        const gameState = createFakeGameState({
             initialFen: constants.INITIAL_FEN,
             // f5 f6 Nh3 Nc8
             moveHistory: [
@@ -65,9 +66,7 @@ describe("createStoreProps", () => {
                 blackCooldown: 9,
             },
         });
-    });
 
-    it("should return the complete and correct store props object", () => {
         const result = createStoreProps(
             "game-token",
             gameState.blackPlayer.userId,
@@ -158,8 +157,10 @@ describe("createStoreProps", () => {
                 positionHistory,
 
                 pool: gameState.pool,
-                userId: gameState.blackPlayer.userId,
-                playerColor: GameColor.BLACK,
+                viewer: {
+                    userId: gameState.blackPlayer.userId,
+                    playerColor: GameColor.BLACK,
+                },
 
                 viewingMoveNumber: 4,
                 latestMoveOptions,
@@ -177,6 +178,18 @@ describe("createStoreProps", () => {
                 },
                 viewingFrom: GameColor.BLACK,
             },
+        });
+    });
+
+    it("should return the right viewer for spectator", () => {
+        const gameState = createFakeGameState();
+        const userId = "random user id";
+
+        const result = createStoreProps("game-token", userId, gameState);
+
+        expect(result.live.viewer).toEqual<LiveChessViewer>({
+            userId,
+            playerColor: null,
         });
     });
 });
