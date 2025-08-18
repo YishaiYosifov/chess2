@@ -134,6 +134,27 @@ public class PlayerSessionGrainTests : BaseGrainTest
     }
 
     [Fact]
+    public async Task CleanupConnectionAsync_removes_connection_from_recently_matched_and_allows_new_seek()
+    {
+        PoolKey pool = new(PoolType.Casual, new TimeControlSettings(60, 0));
+        var seeker = new CasualSeekerFaker(UserId).Generate();
+
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
+
+        await grain.CreateSeekAsync("conn1", seeker, pool);
+        await grain.SeekMatchedAsync("game1", pool);
+
+        // At this point, conn1 should be in _connectionsRecentlyMatched and blocked
+        (await grain.CreateSeekAsync("conn1", seeker, pool))
+            .IsError.Should()
+            .BeTrue();
+
+        await grain.CleanupConnectionAsync("conn1");
+        var result = await grain.CreateSeekAsync("conn1", seeker, pool);
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CancelSeekAsync_removes_pool_and_notifies_match_failed()
     {
         PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));

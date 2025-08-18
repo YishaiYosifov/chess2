@@ -39,8 +39,9 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     private readonly UserId _userId;
 
     private readonly PlayerConnectionPoolMap _connectionMap = new();
-    private readonly Dictionary<string, HashSet<ConnectionId>> _activeGameTokens = [];
-    private readonly Dictionary<PoolKey, ConnectionId> _poolClaims = [];
+    private readonly Dictionary<PoolKey, ConnectionId> _poolConnectionReservations = [];
+    private readonly HashSet<string> _activeGameTokens = [];
+    private readonly HashSet<ConnectionId> _connectionsRecentlyMatched = [];
 
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly ILobbyNotifier _matchmakingNotifier;
@@ -81,11 +82,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     public async Task CleanupConnectionAsync(ConnectionId connectionId)
     {
-        var removedPools = _connectionMap.RemoveConnection(connectionId);
-        foreach (var pool in removedPools)
-        {
-            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
-        }
+        await RemoveConnectionFromPoolsAsync(connectionId);
+        _connectionsRecentlyMatched.Remove(connectionId);
     }
 
     public Task CancelSeekAsync(PoolKey pool) =>
@@ -126,7 +124,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     public async Task SeekRemovedAsync(PoolKey pool)
     {
-        _poolClaims.Remove(pool);
+        _poolConnectionReservations.Remove(pool);
 
         var poolConnectionIds = _connectionMap.RemovePool(pool);
         await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
@@ -136,7 +134,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         if (HasReachedGameLimit())
             return Task.FromResult(false);
-        if (_poolClaims.ContainsKey(pool))
+        if (_poolConnectionReservations.ContainsKey(pool))
             return Task.FromResult(false);
 
         var connectionIds = _connectionMap.PoolConnections(pool);
@@ -145,7 +143,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         {
             if (!IsConnectionTaken(connectionId))
             {
-                _poolClaims[pool] = connectionId;
+                _poolConnectionReservations[pool] = connectionId;
                 return Task.FromResult(true);
             }
         }
@@ -155,7 +153,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     public Task ReleaseReservationAsync(PoolKey pool)
     {
-        _poolClaims.Remove(pool);
+        _poolConnectionReservations.Remove(pool);
         return Task.CompletedTask;
     }
 
@@ -165,13 +163,14 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         PoolKey pool
     )
     {
-        _poolClaims.Remove(pool);
+        _poolConnectionReservations.Remove(pool);
 
         await _matchmakingNotifier.NotifyGameFoundAsync(connectionIds, gameToken);
-        _activeGameTokens.Add(gameToken, [.. connectionIds]);
+        _activeGameTokens.Add(gameToken);
+        _connectionsRecentlyMatched.UnionWith(connectionIds);
 
         foreach (var connectionId in connectionIds)
-            await CleanupConnectionAsync(connectionId);
+            await RemoveConnectionFromPoolsAsync(connectionId);
 
         if (HasReachedGameLimit())
             await CancelAllSeeksAsync();
@@ -186,10 +185,19 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         _connectionMap.RemoveAllPools();
     }
 
+    private async Task RemoveConnectionFromPoolsAsync(ConnectionId connectionId)
+    {
+        var removedPools = _connectionMap.RemoveConnection(connectionId);
+        foreach (var pool in removedPools)
+        {
+            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
+        }
+    }
+
     private bool IsConnectionTaken(ConnectionId connectionId) =>
-        _activeGameTokens.Values.Any(tokens => tokens.Contains(connectionId))
-        || _poolClaims.Values.Any(claimedConn => connectionId == claimedConn);
+        _connectionsRecentlyMatched.Contains(connectionId)
+        || _poolConnectionReservations.Values.Any(claimedConn => connectionId == claimedConn);
 
     private bool HasReachedGameLimit() =>
-        _activeGameTokens.Count + _poolClaims.Count >= _settings.MaxActiveGames;
+        _activeGameTokens.Count + _poolConnectionReservations.Count >= _settings.MaxActiveGames;
 }
