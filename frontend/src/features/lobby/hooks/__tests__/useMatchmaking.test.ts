@@ -27,12 +27,11 @@ describe("useMatchmaking", () => {
 
     const lobbyHandlers: EventHandlers<LobbyClientEvents> = {};
     const sendLobbyEvent = vi.fn();
-    const useLobbyEventMock = vi.mocked(useLobbyEvent);
 
     beforeEach(() => {
         vi.useFakeTimers();
         vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEvent);
-        useLobbyEventMock.mockImplementation((event, handler) => {
+        vi.mocked(useLobbyEvent).mockImplementation((event, handler) => {
             lobbyHandlers[event] = handler;
         });
     });

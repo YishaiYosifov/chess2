@@ -2,10 +2,11 @@ import {
     useLobbyEmitter,
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { PoolKeyToStr } from "../lib/matchmakingKeys";
 import { PoolKey, PoolType } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import useLobbyStore from "../stores/lobbyStore";
 
 export default function useMatchmaking(pool: PoolKey): {
     createSeek: () => Promise<void>;
@@ -14,16 +15,21 @@ export default function useMatchmaking(pool: PoolKey): {
     isSeeking: boolean;
 } {
     const sendLobbyEvent = useLobbyEmitter();
-    const [isSeeking, setIsSeeking] = useState(false);
     const poolKeyStr = PoolKeyToStr(pool);
     const resubscribeIntervalRef = useRef<NodeJS.Timeout>(null);
+
+    const { isSeeking, addSeek, removeSeek } = useLobbyStore((x) => ({
+        isSeeking: x.seeks.has(poolKeyStr),
+        addSeek: x.addSeek,
+        removeSeek: x.removeSeek,
+    }));
 
     useLobbyEvent("SeekFailedAsync", async (pool) => {
         if (PoolKeyToStr(pool) === poolKeyStr) resetSeekState();
     });
 
     async function createSeek(): Promise<void> {
-        setIsSeeking(true);
+        addSeek(poolKeyStr);
         await sendSeekRequest();
 
         if (resubscribeIntervalRef.current)
@@ -53,7 +59,7 @@ export default function useMatchmaking(pool: PoolKey): {
     }
 
     function resetSeekState() {
-        setIsSeeking(false);
+        removeSeek(poolKeyStr);
         if (resubscribeIntervalRef.current)
             clearInterval(resubscribeIntervalRef.current);
     }
