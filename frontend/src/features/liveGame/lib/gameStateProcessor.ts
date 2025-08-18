@@ -1,5 +1,14 @@
-import { getGame, type GameState } from "@/lib/apiClient";
-import { LiveChessStore, LiveChessStoreProps } from "../stores/liveChessStore";
+import {
+    GameColor,
+    GamePlayer,
+    getGame,
+    type GameState,
+} from "@/lib/apiClient";
+import {
+    LiveChessStore,
+    LiveChessStoreProps,
+    LiveChessViewer,
+} from "../stores/liveChessStore";
 import {
     ChessboardProps,
     ChessboardStore,
@@ -20,7 +29,7 @@ export interface ProcessedGameState {
 
 export function createStoreProps(
     gameToken: string,
-    userId: string,
+    viewerUserId: string,
     gameState: GameState,
 ): ProcessedGameState {
     const positionHistory = getPositionHistory(gameState);
@@ -35,10 +44,15 @@ export function createStoreProps(
         hasForcedMoves: gameState.moveOptions.hasForcedMoves,
     };
 
-    const playerColor =
-        userId === gameState.whitePlayer.userId
-            ? gameState.whitePlayer.color
-            : gameState.blackPlayer.color;
+    const viewerColor = getViewerColor(
+        gameState.whitePlayer,
+        gameState.blackPlayer,
+        viewerUserId,
+    );
+    const viewer: LiveChessViewer = {
+        userId: viewerUserId,
+        playerColor: viewerColor,
+    };
 
     const live: LiveChessStoreProps = {
         gameToken,
@@ -48,8 +62,7 @@ export function createStoreProps(
         sideToMove: gameState.sideToMove,
 
         pool: gameState.pool,
-        userId,
-        playerColor,
+        viewer,
 
         positionHistory,
         viewingMoveNumber: positionHistory.length - 1,
@@ -64,10 +77,20 @@ export function createStoreProps(
         moveOptions: latestMoveOptions,
 
         boardDimensions: { width: boardWidth, height: boardHeight },
-        viewingFrom: playerColor,
+        viewingFrom: viewerColor ?? GameColor.WHITE,
     };
 
     return { live, board };
+}
+
+function getViewerColor(
+    whitePlayer: GamePlayer,
+    blackPlayer: GamePlayer,
+    userId: string,
+): GameColor | null {
+    if (userId === whitePlayer.userId) return GameColor.WHITE;
+    else if (userId === blackPlayer.userId) return GameColor.BLACK;
+    return null;
 }
 
 function getPositionHistory(gameState: GameState): Position[] {
@@ -110,7 +133,10 @@ export async function refetchGame(
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
 ) {
-    const { gameToken, userId } = liveChessStore.getState();
+    const {
+        gameToken,
+        viewer: { userId },
+    } = liveChessStore.getState();
 
     const { error, data: gameState } = await getGame({
         path: { gameToken },

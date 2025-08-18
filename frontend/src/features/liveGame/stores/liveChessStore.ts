@@ -16,6 +16,11 @@ import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
+export interface LiveChessViewer {
+    userId: string;
+    playerColor: GameColor | null;
+}
+
 export interface LiveChessStoreProps {
     gameToken: string;
     positionHistory: Position[];
@@ -27,8 +32,7 @@ export interface LiveChessStoreProps {
     blackPlayer: GamePlayer;
 
     pool: PoolKey;
-    userId: string;
-    playerColor: GameColor;
+    viewer: LiveChessViewer;
 
     clocks: Clocks;
     drawState: DrawState;
