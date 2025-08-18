@@ -25,7 +25,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
             whitePlayer: x.whitePlayer,
             blackPlayer: x.blackPlayer,
             resultData: x.resultData,
-            playerColor: x.playerColor,
+            playerColor: x.viewer.playerColor,
             pool: x.pool,
         }));
     const [isOpen, setIsOpen] = useState(false);

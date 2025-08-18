@@ -9,8 +9,8 @@ import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
-import { StoreApi } from "zustand";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
+import { StoreApi } from "zustand";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -20,7 +20,7 @@ describe("GameOverPopup", () => {
 
     beforeEach(() => {
         store = createLiveChessStore(
-            createFakeLiveChessStoreProps({ playerColor: GameColor.WHITE }),
+            createFakeLiveChessStoreProps({ viewerColor: GameColor.WHITE }),
         );
     });
 
