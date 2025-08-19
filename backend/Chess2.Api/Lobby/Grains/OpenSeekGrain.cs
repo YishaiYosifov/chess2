@@ -11,7 +11,7 @@ using Orleans.Streams;
 
 namespace Chess2.Api.Lobby.Grains;
 
-[Alias("Chess2.Api.Lobby.Grains.IOpenSeekWatcherGrain")]
+[Alias("Chess2.Api.Lobby.Grains.IOpenSeekGrain")]
 public interface IOpenSeekGrain : IGrainWithIntegerKey
 {
     [Alias("Subscribe")]
