@@ -9,6 +9,7 @@ import {
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import constants from "@/lib/constants";
 import useLobbyStore from "../../stores/lobbyStore";
+import { PoolKeyToStr } from "../../lib/matchmakingKeys";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -170,5 +171,28 @@ describe("useMatchmaking", () => {
 
         // 1 call for cancel, otherwise no new create seek calls
         expect(sendLobbyEvent).toHaveBeenCalledTimes(3);
+    });
+
+    it("should stop interval if the seek is removed externally from the store", async () => {
+        const { result } = renderHook(() => useMatchmaking(poolRated));
+
+        await act(() => result.current.createSeek());
+        expect(result.current.isSeeking).toBe(true);
+
+        act(() => {
+            vi.advanceTimersByTime(constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(2);
+
+        act(() => {
+            useLobbyStore.getState().removeSeek(PoolKeyToStr(poolRated));
+        });
+        expect(result.current.isSeeking).toBe(false);
+
+        act(() => {
+            vi.advanceTimersByTime(5 * constants.SEEK_RESUBSCRIBE_INTERAVAL_MS);
+        });
+
+        expect(sendLobbyEvent).toHaveBeenCalledTimes(2);
     });
 });

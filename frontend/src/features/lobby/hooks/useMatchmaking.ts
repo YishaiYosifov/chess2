@@ -2,11 +2,12 @@ import {
     useLobbyEmitter,
     useLobbyEvent,
 } from "@/features/signalR/hooks/useSignalRHubs";
-import { useRef } from "react";
+import { useCallback, useEffect } from "react";
+
 import { PoolKeyToStr } from "../lib/matchmakingKeys";
 import { PoolKey, PoolType } from "@/lib/apiClient";
-import constants from "@/lib/constants";
 import useLobbyStore from "../stores/lobbyStore";
+import constants from "@/lib/constants";
 
 export default function useMatchmaking(pool: PoolKey): {
     createSeek: () => Promise<void>;
@@ -16,7 +17,6 @@ export default function useMatchmaking(pool: PoolKey): {
 } {
     const sendLobbyEvent = useLobbyEmitter();
     const poolKeyStr = PoolKeyToStr(pool);
-    const resubscribeIntervalRef = useRef<NodeJS.Timeout>(null);
 
     const { isSeeking, addSeek, removeSeek } = useLobbyStore((x) => ({
         isSeeking: x.seeks.has(poolKeyStr),
@@ -25,27 +25,20 @@ export default function useMatchmaking(pool: PoolKey): {
     }));
 
     useLobbyEvent("SeekFailedAsync", (pool) => {
-        if (PoolKeyToStr(pool) === poolKeyStr) resetSeekState();
+        if (PoolKeyToStr(pool) === poolKeyStr) removeSeek(poolKeyStr);
     });
 
     async function createSeek(): Promise<void> {
         addSeek(poolKeyStr);
         await sendSeekRequest();
-
-        if (resubscribeIntervalRef.current)
-            clearInterval(resubscribeIntervalRef.current);
-        resubscribeIntervalRef.current = setInterval(
-            sendSeekRequest,
-            constants.SEEK_RESUBSCRIBE_INTERAVAL_MS,
-        );
     }
 
     async function cancelSeek(): Promise<void> {
         await sendLobbyEvent("CancelSeekAsync", pool);
-        resetSeekState();
+        removeSeek(poolKeyStr);
     }
 
-    async function sendSeekRequest() {
+    const sendSeekRequest = useCallback(async () => {
         switch (pool.poolType) {
             case PoolType.RATED:
                 await sendLobbyEvent("SeekRatedAsync", pool.timeControl);
@@ -56,13 +49,18 @@ export default function useMatchmaking(pool: PoolKey): {
             default:
                 throw new Error(`Unknown pool type ${pool}`);
         }
-    }
+    }, [pool, sendLobbyEvent]);
 
-    function resetSeekState() {
-        removeSeek(poolKeyStr);
-        if (resubscribeIntervalRef.current)
-            clearInterval(resubscribeIntervalRef.current);
-    }
+    useEffect(() => {
+        if (!isSeeking) return;
+
+        const interval = setInterval(
+            sendSeekRequest,
+            constants.SEEK_RESUBSCRIBE_INTERAVAL_MS,
+        );
+
+        return () => clearInterval(interval);
+    }, [isSeeking, sendSeekRequest]);
 
     function toggleSeek(): Promise<void> {
         if (isSeeking) return cancelSeek();
