@@ -5,25 +5,43 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface ISanCalculator
 {
-    string CalculateSan(Move move, IEnumerable<Move> legalMoves);
+    string CalculateSan(Move move, IEnumerable<Move> legalMoves, bool isKingCapture = false);
 }
 
 public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
 {
     private readonly IPieceToLetter _pieceToLetter = pieceToLetter;
 
-    public string CalculateSan(Move move, IEnumerable<Move> legalMoves) =>
-        move.SpecialMoveType switch
-        {
-            SpecialMoveType.KingsideCastle => NotateCastle(move, isKingside: true),
-            SpecialMoveType.QueensideCastle => NotateCastle(move, isKingside: false),
-            _ => NotateRegularMove(move, legalMoves),
-        };
-
-    private string NotateRegularMove(Move move, IEnumerable<Move> legalMoves)
+    public string CalculateSan(Move move, IEnumerable<Move> legalMoves, bool isKingCapture = false)
     {
         StringBuilder sb = new();
+        switch (move.SpecialMoveType)
+        {
+            case SpecialMoveType.KingsideCastle:
+                NotateCastle(move, isKingside: true, sb);
+                break;
+            case SpecialMoveType.QueensideCastle:
+                NotateCastle(move, isKingside: false, sb);
+                break;
+            default:
+                NotateRegularMove(move, legalMoves, sb);
+                break;
+        }
 
+        if (move.PromotesTo is PieceType promotesTo)
+        {
+            sb.Append('=');
+            sb.Append(_pieceToLetter.GetLetter(promotesTo).ToUpper());
+        }
+
+        if (isKingCapture)
+            sb.Append('#');
+
+        return sb.ToString();
+    }
+
+    private void NotateRegularMove(Move move, IEnumerable<Move> legalMoves, StringBuilder sb)
+    {
         var isPawn = move.Piece.Type == PieceType.Pawn || move.Piece.Type == PieceType.UnderagePawn;
         var isCapture = move.CapturedSquares.Any();
 
@@ -35,35 +53,27 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         if (isPawn && isCapture)
             sb.Append(FileLetter(move.From.X));
 
-        sb.Append(DisambiguatePosition(move, legalMoves));
-        sb.Append(NotateDestination(move));
-        sb.Append(NotateSideCaptures(move));
-
-        if (move.PromotesTo is PieceType promotesTo)
-        {
-            sb.Append('=');
-            sb.Append(_pieceToLetter.GetLetter(promotesTo).ToUpper());
-        }
-
-        return sb.ToString();
+        DisambiguatePosition(move, legalMoves, sb);
+        NotateDestination(move, sb);
+        NotateSideCaptures(move, sb);
     }
 
-    private static string NotateCastle(Move move, bool isKingside)
+    private static void NotateCastle(Move move, bool isKingside, StringBuilder sb)
     {
-        StringBuilder sb = new();
         sb.Append(isKingside ? "O-O" : "O-O-O");
         foreach (var capture in move.CapturedSquares)
         {
             sb.Append('x');
             sb.Append(capture.AsAlgebraic());
         }
-
-        return sb.ToString();
     }
 
-    private static string DisambiguatePosition(Move move, IEnumerable<Move> legalMoves)
+    private static void DisambiguatePosition(
+        Move move,
+        IEnumerable<Move> legalMoves,
+        StringBuilder sb
+    )
     {
-        StringBuilder sb = new();
         var movesWithSameDestination = FindMovesAtSameDestination(move, legalMoves);
 
         var isRankAmbiguous = movesWithSameDestination.Any(x => x.From.Y == move.From.Y);
@@ -73,26 +83,18 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
             sb.Append((char)('a' + move.From.X));
         if (isFileAmbiguous)
             sb.Append(move.From.Y + 1);
-
-        return sb.ToString();
     }
 
-    private static string NotateDestination(Move move)
+    private static void NotateDestination(Move move, StringBuilder sb)
     {
-        StringBuilder sb = new();
-
         var isCapture = move.CapturedSquares.Any(x => x == move.To);
         if (isCapture)
             sb.Append('x');
         sb.Append(move.To.AsAlgebraic());
-
-        return sb.ToString();
     }
 
-    private static string NotateSideCaptures(Move move)
+    private static void NotateSideCaptures(Move move, StringBuilder sb)
     {
-        StringBuilder sb = new();
-
         // captures that are not the destination
         var sideCaptures = move.CapturedSquares.Where(x => x != move.To);
         foreach (var capture in sideCaptures)
@@ -100,8 +102,6 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
             sb.Append('x');
             sb.Append(capture.AsAlgebraic());
         }
-
-        return sb.ToString();
     }
 
     private static IEnumerable<Move> FindMovesAtSameDestination(

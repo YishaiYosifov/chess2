@@ -32,7 +32,8 @@ public class GameCore(
     ILegalMoveCalculator legalMoveCalculator,
     IMoveEncoder legalMoveEncoder,
     ISanCalculator sanCalculator,
-    IDrawEvaulator drawEvaulator
+    IDrawEvaulator drawEvaulator,
+    IGameResultDescriber resultDescriber
 ) : IGameCore
 {
     private readonly ChessBoard _board = new(
@@ -47,6 +48,7 @@ public class GameCore(
     private readonly IMoveEncoder _moveEncoder = legalMoveEncoder;
     private readonly ISanCalculator _sanCalculator = sanCalculator;
     private readonly IDrawEvaulator _drawEvaulator = drawEvaulator;
+    private readonly IGameResultDescriber _resultDescriber = resultDescriber;
 
     public string InitialFen { get; private set; } = "";
     public LegalMoveSet LegalMoves { get; private set; } = new();
@@ -57,7 +59,7 @@ public class GameCore(
         var fen = _fenCalculator.CalculateFen(_board);
         InitialFen = fen;
         _drawEvaulator.RegisterInitialPosition(fen);
-        CalculateAllLegalMoves(GameColor.White);
+        LegalMoves = CalculateAllLegalMoves(GameColor.White);
     }
 
     public ErrorOr<MoveResult> MakeMove(MoveKey key, GameColor forColor)
@@ -67,19 +69,25 @@ public class GameCore(
             _logger.LogWarning("Could not find move with key {Key}", key);
             return GameErrors.MoveInvalid;
         }
+        bool isKingCapture = IsKingCapture(move);
 
         _board.PlayMove(move);
-        var path = MovePath.FromMove(move, _board.Width);
-        var san = _sanCalculator.CalculateSan(move, LegalMoves.AllMoves);
-
-        CalculateAllLegalMoves(forColor.Invert());
+        LegalMoves = CalculateAllLegalMoves(forColor.Invert());
         var fen = _fenCalculator.CalculateFen(_board);
-        SideToMove = SideToMove.Invert();
 
         GameEndStatus? endStatus = null;
-        if (_drawEvaulator.TryEvaluateDraw(move, fen, out var drawReason))
+        if (isKingCapture)
+        {
+            endStatus = _resultDescriber.KingCaptured(by: forColor);
+        }
+        else if (_drawEvaulator.TryEvaluateDraw(move, fen, out var drawReason))
+        {
             endStatus = drawReason;
+        }
 
+        SideToMove = SideToMove.Invert();
+        var path = MovePath.FromMove(move, _board.Width);
+        var san = _sanCalculator.CalculateSan(move, LegalMoves.AllMoves, isKingCapture);
         return new MoveResult(move, path, san, endStatus);
     }
 
@@ -90,7 +98,7 @@ public class GameCore(
         return LegalMoves;
     }
 
-    private void CalculateAllLegalMoves(GameColor forColor)
+    private LegalMoveSet CalculateAllLegalMoves(GameColor forColor)
     {
         var allMoves = _legalMoveCalculator.CalculateAllLegalMoves(_board, forColor).ToList();
         var maxPriority =
@@ -114,11 +122,14 @@ public class GameCore(
                 continue;
             }
         }
-        LegalMoves = new(
+        return new(
             MovesMap: groupedMoves,
             MovePaths: movePaths,
             EncodedMoves: encodedMoves,
             HasForcedMoves: maxPriority > ForcedMovePriority.None
         );
     }
+
+    private bool IsKingCapture(Move move) =>
+        move.CapturedSquares.Any(capture => _board.PeekPieceAt(capture)?.Type is PieceType.King);
 }
