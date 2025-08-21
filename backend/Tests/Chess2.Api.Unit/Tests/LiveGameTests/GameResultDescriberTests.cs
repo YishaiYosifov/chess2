@@ -10,8 +10,8 @@ public class GameResultDescriberTests
     private readonly GameResultDescriber _describer = new();
 
     [Theory]
-    [InlineData(GameColor.White, GameResult.WhiteWin, "White Won by King Capture")]
-    [InlineData(GameColor.Black, GameResult.BlackWin, "Black Won by King Capture")]
+    [InlineData(GameColor.White, GameResult.WhiteWin, "White Captured the King")]
+    [InlineData(GameColor.Black, GameResult.BlackWin, "Black Captured the King")]
     public void KingCaptured_returns_the_correct_status(
         GameColor winner,
         GameResult expectedResult,
