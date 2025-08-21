@@ -19,7 +19,7 @@ public interface IGameResultDescriber
 public class GameResultDescriber : IGameResultDescriber
 {
     public GameEndStatus KingCaptured(GameColor by) =>
-        new(GetResultByWinner(by), $"{by} Won by King Capture");
+        new(GetResultByWinner(by), $"{by} Captured the King");
 
     public GameEndStatus Aborted(GameColor by) => new(GameResult.Aborted, $"Game Aborted by {by}");
 
