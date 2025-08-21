@@ -196,4 +196,34 @@ public class SanCalculatorTests
 
         san.Should().Be("e8=Q");
     }
+
+    [Fact]
+    public void CalculateSan_appends_hash_for_regular_move_with_kind_capture()
+    {
+        Move move = new(new("e4"), new("e5"), PieceFactory.White(PieceType.Rook));
+
+        var san = _calculator.CalculateSan(move, [move], isKingCapture: true);
+
+        san.Should().Be("Re5#");
+    }
+
+    [Theory]
+    [InlineData(SpecialMoveType.KingsideCastle, "O-O#")]
+    [InlineData(SpecialMoveType.QueensideCastle, "O-O-O#")]
+    public void CalculateSan_appends_hash_for_castle_with_king_capture(
+        SpecialMoveType moveType,
+        string expectedSan
+    )
+    {
+        Move move = new(
+            new("e1"),
+            new("g1"),
+            PieceFactory.White(PieceType.King),
+            specialMoveType: moveType
+        );
+
+        var san = _calculator.CalculateSan(move, [move], isKingCapture: true);
+
+        san.Should().Be(expectedSan);
+    }
 }

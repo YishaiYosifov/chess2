@@ -6,23 +6,28 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameResultDescriber
 {
+    GameEndStatus KingCaptured(GameColor by);
+    GameEndStatus Resignation(GameColor by);
+    GameEndStatus Timeout(GameColor by);
     GameEndStatus Aborted(GameColor by);
+
     GameEndStatus DrawByAgreement();
     GameEndStatus FiftyMoves();
-    GameEndStatus Resignation(GameColor loser);
     GameEndStatus ThreeFold();
-    GameEndStatus Timeout(GameColor loser);
 }
 
 public class GameResultDescriber : IGameResultDescriber
 {
+    public GameEndStatus KingCaptured(GameColor by) =>
+        new(GetResultByWinner(by), $"{by} Won by King Capture");
+
     public GameEndStatus Aborted(GameColor by) => new(GameResult.Aborted, $"Game Aborted by {by}");
 
-    public GameEndStatus Resignation(GameColor loser) =>
-        new(GetWinnerByLoser(loser), $"{loser.Invert()} Won by Resignation");
+    public GameEndStatus Resignation(GameColor by) =>
+        new(GetResultByLoser(by), $"{by.Invert()} Won by Resignation");
 
-    public GameEndStatus Timeout(GameColor loser) =>
-        new(GetWinnerByLoser(loser), $"{loser.Invert()} Won by Timeout");
+    public GameEndStatus Timeout(GameColor by) =>
+        new(GetResultByLoser(by), $"{by.Invert()} Won by Timeout");
 
     public GameEndStatus ThreeFold() => new(GameResult.Draw, "Draw by 3 Fold Repetition");
 
@@ -30,6 +35,9 @@ public class GameResultDescriber : IGameResultDescriber
 
     public GameEndStatus DrawByAgreement() => new(GameResult.Draw, "Draw by Agreement");
 
-    private static GameResult GetWinnerByLoser(GameColor loser) =>
+    private static GameResult GetResultByLoser(GameColor loser) =>
         loser.Match(whenWhite: GameResult.BlackWin, whenBlack: GameResult.WhiteWin);
+
+    private static GameResult GetResultByWinner(GameColor winner) =>
+        winner.Match(whenWhite: GameResult.WhiteWin, whenBlack: GameResult.BlackWin);
 }
