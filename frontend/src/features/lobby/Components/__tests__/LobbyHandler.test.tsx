@@ -57,6 +57,21 @@ describe("LobbyHandler", () => {
         );
     });
 
+    it("should clear requestedOpenSeek when pathname changes", () => {
+        useLobbyStore.setState({ requestedOpenSeek: true });
+
+        usePathnameMock.mockReturnValue("/path1");
+        const { rerender } = render(<LobbyHandler />);
+
+        usePathnameMock.mockReturnValue("/path2");
+        rerender(<LobbyHandler />);
+
+        expect(useLobbyStore.getState().requestedOpenSeek).toBe(false);
+        expect(sendLobbyEventMock).toHaveBeenCalledWith(
+            "CleanupConnectionAsync",
+        );
+    });
+
     it("should not send cleanup events if pathname has not changed", () => {
         const seeks = new Set<PoolKeyStr>([`${PoolType.RATED}-10+5`]);
         useLobbyStore.setState({ seeks });
