@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.LiveGame.Grains;
 using ErrorOr;
 
 namespace Chess2.Api.Game.Services;

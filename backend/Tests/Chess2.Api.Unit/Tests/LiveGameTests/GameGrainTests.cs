@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Actors;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using ErrorOr;
