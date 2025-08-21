@@ -6,9 +6,9 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Users.Models;
 using ErrorOr;
 
-namespace Chess2.Api.LiveGame.Actors;
+namespace Chess2.Api.LiveGame.Grains;
 
-[Alias("Chess2.Api.LiveGame.Actors.IGameGrain")]
+[Alias("Chess2.Api.LiveGame.Grains.IGameGrain")]
 public interface IGameGrain : IGrainWithStringKey
 {
     [Alias("StartGameAsync")]
