@@ -6,6 +6,7 @@ import OpenSeekItem from "../OpenSeekItem";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
 import userEvent from "@testing-library/user-event";
 import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
+import useLobbyStore from "@/features/lobby/stores/lobbyStore";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -26,6 +27,7 @@ describe("OpenSeekItem", () => {
     beforeEach(() => {
         seek = createFakeOpenSeek();
         vi.mocked(useLobbyEmitter).mockReturnValue(sendLobbyEventsMock);
+        useLobbyStore.setState(useLobbyStore.getInitialState());
     });
 
     it("should display the user name", () => {
@@ -77,5 +79,15 @@ describe("OpenSeekItem", () => {
             seek.userId,
             seek.pool,
         );
+    });
+
+    it("should mark as requesting open seek when clicked", async () => {
+        const user = userEvent.setup();
+
+        render(<OpenSeekItem seek={seek} />);
+
+        expect(useLobbyStore.getState().requestedOpenSeek).toBe(false);
+        await user.click(screen.getByTestId("openSeek"));
+        expect(useLobbyStore.getState().requestedOpenSeek).toBe(true);
     });
 });

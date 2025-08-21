@@ -4,12 +4,16 @@ import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType } from "@/lib/apiClient";
 import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
+import useLobbyStore from "@/features/lobby/stores/lobbyStore";
 
 const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
     const sendLobbyEvents = useLobbyEmitter();
+    const setRequestedOpenSeek = useLobbyStore((x) => x.setRequestedOpenSeek);
 
-    const match = () =>
-        sendLobbyEvents("MatchWithOpenSeekAsync", seek.userId, seek.pool);
+    async function match() {
+        setRequestedOpenSeek(true);
+        await sendLobbyEvents("MatchWithOpenSeekAsync", seek.userId, seek.pool);
+    }
 
     return (
         <div
