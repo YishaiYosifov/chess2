@@ -1,5 +1,6 @@
-﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Actors;
+﻿using System.Net;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure;
@@ -9,7 +10,6 @@ using Chess2.Api.UserRating.Entities;
 using Chess2.Api.Users.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
