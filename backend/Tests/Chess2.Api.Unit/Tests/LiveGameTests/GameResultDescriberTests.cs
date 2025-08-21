@@ -10,6 +10,19 @@ public class GameResultDescriberTests
     private readonly GameResultDescriber _describer = new();
 
     [Theory]
+    [InlineData(GameColor.White, GameResult.WhiteWin, "White Won by King Capture")]
+    [InlineData(GameColor.Black, GameResult.BlackWin, "Black Won by King Capture")]
+    public void KingCaptured_returns_the_correct_status(
+        GameColor winner,
+        GameResult expectedResult,
+        string expectedDescription
+    )
+    {
+        var result = _describer.KingCaptured(winner);
+        result.Should().Be(new GameEndStatus(expectedResult, expectedDescription));
+    }
+
+    [Theory]
     [InlineData(GameColor.White, GameResult.Aborted, "Game Aborted by White")]
     [InlineData(GameColor.Black, GameResult.Aborted, "Game Aborted by Black")]
     public void Aborted_returns_the_correct_status(
@@ -46,6 +59,13 @@ public class GameResultDescriberTests
     {
         var result = _describer.Timeout(loser);
         result.Should().Be(new GameEndStatus(expectedResult, expectedDescription));
+    }
+
+    [Fact]
+    public void DrawByAgreement_returns_the_correct_status()
+    {
+        var result = _describer.DrawByAgreement();
+        result.Should().Be(new GameEndStatus(GameResult.Draw, "Draw by Agreement"));
     }
 
     [Fact]
