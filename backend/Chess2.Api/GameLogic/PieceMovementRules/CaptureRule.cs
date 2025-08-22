@@ -19,7 +19,8 @@ public class CaptureRule(
 
             // skip if friendly fire and friendly fire is not allowed
             if (
-                occupantPiece?.Color == movingPiece.Color
+                occupantPiece is not null
+                && occupantPiece.Color == movingPiece.Color
                 && (_allowFriendlyFire is null || !_allowFriendlyFire(board, occupantPiece))
             )
                 continue;

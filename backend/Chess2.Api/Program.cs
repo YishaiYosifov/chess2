@@ -346,6 +346,7 @@ builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, AntiqueenDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, TraitorRookDefinition>();
 #endregion
 
 #region Game Chat

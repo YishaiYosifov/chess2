@@ -20,6 +20,7 @@ public class PieceToLetterTests : BaseUnitTest
             { PieceType.Horsey, "h" },
             { PieceType.Knook, "n" },
             { PieceType.Antiqueen, "a" },
+            { PieceType.TraitorRook, "+" },
         };
 
     [Theory]

@@ -30,6 +30,9 @@ public static class GameConstants
         [new AlgebraicPoint("j2")] = new Piece(PieceType.Pawn, GameColor.White),
         #endregion
 
+        [new AlgebraicPoint("a5")] = new Piece(PieceType.TraitorRook, Color: null),
+        [new AlgebraicPoint("j6")] = new Piece(PieceType.TraitorRook, Color: null),
+
         #region Black Pieces
         [new AlgebraicPoint("a9")] = new Piece(PieceType.Pawn, GameColor.Black),
         [new AlgebraicPoint("b9")] = new Piece(PieceType.Pawn, GameColor.Black),

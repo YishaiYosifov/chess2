@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.GameLogic.PieceMovementRules;
 
@@ -20,8 +21,12 @@ public abstract class BasePawnDefinition : IPieceDefinition
         int maxInitialMoveDistance
     )
     {
-        var direction = movingPiece.Color == GameColor.White ? 1 : -1;
-        int promotionY = movingPiece.Color == GameColor.White ? board.Height - 1 : 0;
+        if (movingPiece.Color is null)
+            yield break;
+
+        var color = movingPiece.Color.Value;
+        var direction = color.Match(whenWhite: 1, whenBlack: -1);
+        int promotionY = color.Match(whenWhite: board.Height - 1, whenBlack: 0);
         yield return new PromotionRule(
             (_, move) => move.To.Y == promotionY,
             new NoCaptureRule(
