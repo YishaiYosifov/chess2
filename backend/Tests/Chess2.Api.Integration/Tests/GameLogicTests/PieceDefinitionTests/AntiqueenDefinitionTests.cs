@@ -8,6 +8,6 @@ public class AntiqueenDefinitionTests(Chess2WebApplicationFactory factory)
 {
     [Theory]
     [ClassData(typeof(HorseyDefinitionTestData))]
-    public void ANtiqueenDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
+    public void AntiqueenDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
         TestMoves(testCase);
 }
