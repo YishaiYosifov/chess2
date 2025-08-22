@@ -37,7 +37,7 @@ export enum ErrorCode {
     GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
     MATCHMAKING_SEEK_NOT_FOUND = "Matchmaking.SeekNotFound",
     MATCHMAKING_SEEKER_NOT_COMPATIBLE = "Matchmaking.SeekerNotCompatible",
-    PLAYER_SESSION_CONNECTION_ALREADY_SEEKING = "PlayerSession.ConnectionAlreadySeeking",
+    PLAYER_SESSION_CONNECTION_IN_GAME = "PlayerSession.ConnectionInGame",
     PLAYER_SESSION_TOO_MANY_GAMES = "PlayerSession.TooManyGames",
     GAME_NOT_FOUND = "Game.NotFound",
     GAME_ALREADY_ENDED = "Game.AlreadyEnded",
@@ -63,7 +63,7 @@ export type ApiProblemError = {
         | "GameLogic.PointOutOfBound"
         | "Matchmaking.SeekNotFound"
         | "Matchmaking.SeekerNotCompatible"
-        | "PlayerSession.ConnectionAlreadySeeking"
+        | "PlayerSession.ConnectionInGame"
         | "PlayerSession.TooManyGames"
         | "Game.NotFound"
         | "Game.AlreadyEnded"
@@ -280,9 +280,13 @@ export enum PieceType {
      */
     KNOOK = 6,
     /**
+     * Antiqueen
+     */
+    ANTIQUEEN = 7,
+    /**
      * UnderagePawn
      */
-    UNDERAGE_PAWN = 7,
+    UNDERAGE_PAWN = 8,
 }
 
 export type MoveOptions = {
