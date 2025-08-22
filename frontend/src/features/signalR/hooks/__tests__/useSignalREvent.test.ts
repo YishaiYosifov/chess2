@@ -4,27 +4,23 @@ import {
     mockHubConnection,
 } from "@/lib/testUtils/mocks/mockSignalR";
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
-import * as signalR from "@microsoft/signalr";
 import { renderHook } from "@testing-library/react";
-import { MockProxy } from "vitest-mock-extended";
 import useSignalREvent from "../useSignalREvent";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 describe("useSignalREvent", () => {
-    let hubBuilderInstanceMock: MockProxy<signalR.HubConnectionBuilder>;
     const hubUrl = "https://test.com/hub";
     const eventName = "messageReceived";
 
     beforeEach(() => {
         useSignalRStore.setState(useSignalRStore.getInitialState());
-        hubBuilderInstanceMock = mockHubBuilder();
     });
 
     it("should register event handler with connection.on", async () => {
         const { mockConnection } = mockHubConnection();
         const mockHandler = vi.fn();
 
-        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        await addMockHubConnection(hubUrl, mockConnection);
 
         renderHook(() => useSignalREvent(hubUrl, eventName, mockHandler));
         await flushMicrotasks();
@@ -34,6 +30,7 @@ describe("useSignalREvent", () => {
 
     it("should not throw if connection is null", async () => {
         const mockHandler = vi.fn();
+        mockHubBuilder();
 
         expect(() => {
             renderHook(() => useSignalREvent(hubUrl, eventName, mockHandler));
@@ -46,7 +43,7 @@ describe("useSignalREvent", () => {
         const handler1 = vi.fn();
         const handler2 = vi.fn();
 
-        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        await addMockHubConnection(hubUrl, mockConnection);
 
         const { rerender } = renderHook(
             ({ handler }) => useSignalREvent(hubUrl, eventName, handler),

@@ -2,13 +2,13 @@ import { HubConnectionState } from "@microsoft/signalr";
 import { useCallback, useEffect, useRef } from "react";
 
 import useSignalRConnection from "./useSignalRConnection";
-import useHubState from "./useHubState";
+import useSignalRStore from "../stores/signalRStore";
 
 const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
     hubUrl: string,
 ) => {
     const connection = useSignalRConnection(hubUrl);
-    const state = useHubState(hubUrl);
+    const state = useSignalRStore((x) => x.hubs.get(hubUrl)?.state);
 
     const connectionRef = useRef(connection);
     const pendingEventsRef = useRef<
@@ -20,9 +20,6 @@ const useSignalREmitter = <TEventMap extends Record<string, unknown[]>>(
 
     useEffect(() => {
         connectionRef.current = connection;
-    }, [connection]);
-
-    useEffect(() => {
         if (state !== HubConnectionState.Connected) return;
 
         for (const { eventName, args } of pendingEventsRef.current) {
