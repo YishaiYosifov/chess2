@@ -4,32 +4,41 @@ import {
     HubConnectionState,
     LogLevel,
 } from "@microsoft/signalr";
-import { enableMapSet } from "immer";
+
+import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
-import { createWithEqualityFn } from "zustand/traditional";
+import { enableMapSet, WritableDraft } from "immer";
+
+interface Hub {
+    connection: HubConnection;
+    state: HubConnectionState;
+    referenceCount: number;
+}
 
 interface SignalRStore {
-    hubs: Map<string, HubConnection>;
-    hubStates: Map<string, HubConnectionState>;
-    listeners: Map<string, Set<() => void>>;
+    hubs: Map<string, Hub>;
 
-    joinHub: (url: string) => void;
-    leaveHub: (url: string) => Promise<void>;
-    setHubState: (url: string, hubState: HubConnectionState) => void;
-    subscribeToHubState: (url: string, callback: () => void) => () => void;
+    joinHub(url: string): void;
+    dereferenceHub(url: string): void;
 }
 
 enableMapSet();
 const useSignalRStore = createWithEqualityFn<SignalRStore>()(
     immer((set, get) => ({
         hubs: new Map(),
-        hubStates: new Map(),
-        listeners: new Map(),
 
-        joinHub(url: string): void {
+        joinHub(url) {
+            if (typeof window === "undefined") return;
+
             const existingHub = get().hubs.get(url);
-            if (existingHub) return;
+            if (existingHub) {
+                set((state) => {
+                    const hub = state.hubs.get(url);
+                    if (hub) hub.referenceCount++;
+                });
+                return;
+            }
 
             const hubConnection = new HubConnectionBuilder()
                 .withUrl(url)
@@ -38,50 +47,70 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
                 .build();
 
             set((state) => {
-                state.hubs.set(url, hubConnection);
+                state.hubs.set(url, {
+                    connection: hubConnection,
+                    referenceCount: 1,
+                    state: hubConnection.state,
+                });
             });
+
+            hubConnection.onclose(() => {
+                updateHub(url, (hub) => {
+                    hub.state = HubConnectionState.Disconnected;
+                });
+            });
+
+            hubConnection.onreconnected(() => {
+                updateHub(url, (hub) => {
+                    hub.state = HubConnectionState.Connected;
+                });
+            });
+
+            hubConnection.on("ReceiveErrorAsync", (err) => {
+                console.error(`SignalR error from ${url}`, err);
+            });
+
+            hubConnection
+                .start()
+                .then(() => {
+                    updateHub(url, (hub) => {
+                        hub.state = HubConnectionState.Connected;
+                    });
+                })
+                .catch(console.error);
+
+            return hubConnection;
         },
 
-        async leaveHub(url: string) {
-            const hubConnection = get().hubs.get(url);
-            if (!hubConnection) return;
+        dereferenceHub(url) {
+            const hub = get().hubs.get(url);
+            if (!hub) return;
 
-            await hubConnection.stop();
+            const referenceCount = Math.max(0, hub.referenceCount - 1);
+            if (
+                referenceCount > 0 ||
+                hub.state !== HubConnectionState.Connected
+            ) {
+                updateHub(url, (hub) => {
+                    hub.referenceCount = referenceCount;
+                });
+                return;
+            }
+
+            hub.connection.stop().catch(console.error);
 
             set((state) => {
                 state.hubs.delete(url);
             });
         },
-
-        setHubState: (url, hubState) => {
-            set((state) => {
-                state.hubStates.set(url, hubState);
-            });
-
-            get()
-                .listeners.get(url)
-                ?.forEach((cb) => cb());
-        },
-        subscribeToHubState: (url, cb) => {
-            set((state) => {
-                const listeners = state.listeners.get(url) ?? new Set();
-                listeners.add(cb);
-                state.listeners.set(url, listeners);
-            });
-
-            return () => {
-                set((state) => {
-                    const listeners = state.listeners.get(url);
-                    if (listeners) {
-                        listeners.delete(cb);
-                        if (listeners.size === 0) {
-                            state.listeners.delete(url);
-                        }
-                    }
-                });
-            };
-        },
     })),
     shallow,
 );
 export default useSignalRStore;
+
+function updateHub(url: string, updater: (hub: WritableDraft<Hub>) => void) {
+    useSignalRStore.setState((state) => {
+        const hub = state.hubs.get(url);
+        if (hub) updater(hub);
+    });
+}
