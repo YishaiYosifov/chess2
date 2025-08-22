@@ -115,6 +115,7 @@ const LETTER_TO_PIECE: Record<string, PieceType> = {
     p: PieceType.PAWN,
     d: PieceType.UNDERAGE_PAWN,
     a: PieceType.ANTIQUEEN,
+    "+": PieceType.TRAITOR_ROOK,
 };
 
 // prettier-ignore
