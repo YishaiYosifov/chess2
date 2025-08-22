@@ -19,6 +19,7 @@ public class PieceToLetter : IPieceToLetter
         [PieceType.Bishop] = "b",
         [PieceType.Horsey] = "h",
         [PieceType.Knook] = "n",
+        [PieceType.Antiqueen] = "a",
     };
 
     public string GetLetter(PieceType piece) => _pieceToLetterMap.GetValueOrDefault(piece, "?");
