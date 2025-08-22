@@ -17,7 +17,7 @@ import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockDom";
 import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 import { createMoveOptions } from "../../lib/moveOptions";
-import { GameColor, PieceType } from "@/lib/apiClient";
+import getPieceImage from "../../lib/pieceImage";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
@@ -117,11 +117,8 @@ describe("ChessPiece", () => {
             });
 
             const expectedTransform = getExpectedTransform({ percentPosition });
-            const expectedPieceType = PieceType[pieceInfo.type].toLowerCase();
-            const expectedPieceColor =
-                GameColor[pieceInfo.color].toLocaleLowerCase();
             expect(piece).toHaveStyle(`
-            background-image: url("/assets/pieces/${expectedPieceType}_${expectedPieceColor}.png");
+            background-image: url("${getPieceImage(pieceInfo.type, pieceInfo.color)}");
         `);
             expect(normalize(piece.style.transform)).toBe(expectedTransform);
         },

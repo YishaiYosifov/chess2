@@ -287,6 +287,10 @@ export enum PieceType {
      * UnderagePawn
      */
     UNDERAGE_PAWN = 8,
+    /**
+     * TraitorRook
+     */
+    TRAITOR_ROOK = 9,
 }
 
 export type MoveOptions = {
