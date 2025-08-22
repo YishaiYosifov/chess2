@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -43,8 +45,6 @@ using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -345,6 +345,7 @@ builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, AntiqueenDefinition>();
 #endregion
 
 #region Game Chat
