@@ -20,6 +20,7 @@ public class PieceToLetter : IPieceToLetter
         [PieceType.Horsey] = "h",
         [PieceType.Knook] = "n",
         [PieceType.Antiqueen] = "a",
+        [PieceType.TraitorRook] = "+",
     };
 
     public string GetLetter(PieceType piece) => _pieceToLetterMap.GetValueOrDefault(piece, "?");

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -37,8 +38,11 @@ public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
                 }
 
                 var pieceLetter = _pieceToLetter.GetLetter(piece.Type);
-                pieceLetter =
-                    piece.Color == GameColor.White ? pieceLetter.ToUpper() : pieceLetter.ToLower();
+                pieceLetter = piece.Color.Match(
+                    whenWhite: pieceLetter.ToUpper(),
+                    whenBlack: pieceLetter.ToLower(),
+                    whenNeutral: pieceLetter
+                );
 
                 sb.Append(pieceLetter);
             }
