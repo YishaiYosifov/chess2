@@ -30,10 +30,7 @@ export function decodeFen(fen: string): PieceMap {
             }
 
             const pieceId = pieceIdx.toString() as PieceID;
-            const color =
-                square === square.toUpperCase()
-                    ? GameColor.WHITE
-                    : GameColor.BLACK;
+            const color = getColorFromLetter(square);
             const pieceLetter = square.toLowerCase();
             const pieceType = constants.LETTER_TO_PIECE[pieceLetter];
 
@@ -47,4 +44,14 @@ export function decodeFen(fen: string): PieceMap {
         }
     }
     return board;
+}
+
+function getColorFromLetter(letter: string): GameColor | null {
+    if (!isLetter(letter)) return null;
+    return letter === letter.toUpperCase() ? GameColor.WHITE : GameColor.BLACK;
+}
+
+function isLetter(char: string): boolean {
+    const code = char.charCodeAt(0);
+    return (code >= 65 && code <= 90) || (code >= 97 && code <= 122);
 }

@@ -12,7 +12,7 @@ export interface MoveKey {
 
 export interface Piece {
     type: PieceType;
-    color: GameColor;
+    color: GameColor | null;
     position: LogicalPoint;
 }
 
