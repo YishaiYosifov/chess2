@@ -6,27 +6,23 @@ import {
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
 import { act, renderHook } from "@testing-library/react";
 import useSignalREmitter from "../useSignalREmitter";
-import { MockProxy } from "vitest-mock-extended";
 import { HubConnectionState } from "@microsoft/signalr";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 describe("useSignalREvent", () => {
-    let hubBuilderInstanceMock: MockProxy<signalR.HubConnectionBuilder>;
     const hubUrl = "https://test.com/hub";
 
     beforeEach(() => {
         useSignalRStore.setState(useSignalRStore.getInitialState());
-        hubBuilderInstanceMock = mockHubBuilder();
     });
 
     it("should return a sendEvent function that calls invoke on the connection", async () => {
         const { mockConnection } = mockHubConnection(
             HubConnectionState.Connected,
         );
-        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        await addMockHubConnection(hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
-        await flushMicrotasks();
 
         await act(async () => {
             result.current("myEvent", "testArg", 42);
@@ -40,20 +36,18 @@ describe("useSignalREvent", () => {
     });
 
     it("should not crash if connection is null", async () => {
+        mockHubBuilder();
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
 
         await act(() => result.current("myEvent", "arg"));
     });
 
     it("should queue events if connection is not ready and flush them after connection is established", async () => {
-        const { mockConnection, handlers } = mockHubConnection(
-            HubConnectionState.Disconnected,
-        );
-
-        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        const { mockConnection, handlers } = mockHubConnection();
         mockConnection.start.mockRejectedValue(
             new Error("intentional mock start failure"),
         );
+        await addMockHubConnection(hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
 
@@ -65,9 +59,7 @@ describe("useSignalREvent", () => {
 
         act(() => handlers.onReconnectedHandler?.());
 
-        await act(async () => {
-            await Promise.resolve();
-        });
+        await flushMicrotasks();
 
         expect(mockConnection.invoke).toHaveBeenCalledWith(
             "BufferedEvent",
@@ -84,7 +76,7 @@ describe("useSignalREvent", () => {
             new Error("intentional mock start failure"),
         );
 
-        addMockHubConnection(hubBuilderInstanceMock, hubUrl, mockConnection);
+        await addMockHubConnection(hubUrl, mockConnection);
 
         const { result } = renderHook(() => useSignalREmitter(hubUrl));
 

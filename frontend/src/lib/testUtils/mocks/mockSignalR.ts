@@ -4,18 +4,19 @@ import {
     HubConnectionState,
 } from "@microsoft/signalr";
 
-import { mock, MockProxy } from "vitest-mock-extended";
+import { mock } from "vitest-mock-extended";
 import { act, renderHook } from "@testing-library/react";
 import useSignalRStore from "@/features/signalR/stores/signalRStore";
+import flushMicrotasks from "../flushMicrotasks";
 
-export function mockHubBuilder() {
+export function mockHubBuilder(connection?: HubConnection) {
     const mockHubBuilder = mock<HubConnectionBuilder>();
-    const { mockConnection } = mockHubConnection();
+    connection ??= mockHubConnection().mockConnection;
 
     mockHubBuilder.withUrl.mockReturnThis();
     mockHubBuilder.withAutomaticReconnect.mockReturnThis();
     mockHubBuilder.configureLogging.mockReturnThis();
-    mockHubBuilder.build.mockReturnValue(mockConnection);
+    mockHubBuilder.build.mockReturnValue(connection);
 
     vi.mocked(HubConnectionBuilder).mockReturnValue(mockHubBuilder);
 
@@ -31,8 +32,8 @@ export function mockHubConnection(
     };
 
     const mockConnection = mock<HubConnection>({
-        start: vi.fn().mockResolvedValue(undefined),
-        stop: vi.fn().mockResolvedValue(undefined),
+        start: vi.fn(async () => {}),
+        stop: vi.fn(async () => {}),
         state,
         onclose: vi.fn((cb: () => void) => {
             handlers.onCloseHandler = cb;
@@ -45,13 +46,12 @@ export function mockHubConnection(
     return { mockConnection, handlers };
 }
 
-export function addMockHubConnection(
-    hubBuilderMethodMocks: MockProxy<HubConnectionBuilder>,
+export async function addMockHubConnection(
     hubUrl: string,
     mockConnection: HubConnection,
 ) {
-    hubBuilderMethodMocks.build.mockReturnValue(mockConnection);
-    const { joinHub: getOrJoinHub } = renderHook(() => useSignalRStore()).result
-        .current;
-    act(() => getOrJoinHub(hubUrl));
+    mockHubBuilder(mockConnection);
+    const { joinHub } = renderHook(() => useSignalRStore()).result.current;
+    act(() => joinHub(hubUrl));
+    await flushMicrotasks();
 }
