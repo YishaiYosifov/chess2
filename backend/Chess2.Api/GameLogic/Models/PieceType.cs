@@ -11,7 +11,7 @@ public enum PieceType
     Knook,
 
     //Xook,
-    //AntiQueen,
+    Antiqueen,
     UnderagePawn,
     //Archbishop,
 }

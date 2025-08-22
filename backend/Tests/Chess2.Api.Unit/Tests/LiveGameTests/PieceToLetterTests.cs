@@ -19,6 +19,7 @@ public class PieceToLetterTests : BaseUnitTest
             { PieceType.Bishop, "b" },
             { PieceType.Horsey, "h" },
             { PieceType.Knook, "n" },
+            { PieceType.Antiqueen, "a" },
         };
 
     [Theory]
