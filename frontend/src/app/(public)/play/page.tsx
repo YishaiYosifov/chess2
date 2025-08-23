@@ -7,8 +7,8 @@ export const metadata = { title: "Play - Chess 2" };
 const PlayPage = () => {
     return (
         <div
-            className="jutsify-center flex w-full flex-col items-center justify-center gap-5 p-5
-                lg:h-screen lg:flex-row"
+            className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:h-screen
+                lg:flex-row"
         >
             <div className="flex md:max-h-screen">
                 <StaticChessboard
