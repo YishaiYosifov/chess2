@@ -38,7 +38,8 @@ const TextField = <C extends React.ElementType = "input">({
                     id={id}
                     aria-label={ariaLabel ?? label}
                     className={twMerge(
-                        "w-full rounded-md bg-white p-1 text-black disabled:cursor-not-allowed",
+                        `bg-background/50 autofill:bg-background/50 w-full rounded-md p-1 text-black
+                        disabled:cursor-not-allowed`,
                         className,
                     )}
                     {...props}
