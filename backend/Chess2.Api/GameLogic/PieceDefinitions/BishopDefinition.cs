@@ -10,10 +10,21 @@ public class BishopDefinition : IPieceDefinition
 
     private readonly IPieceMovementRule[] _behaviours =
     [
-        CreateForcedCaptureRuleFor(new Offset(X: 1, Y: 1)),
-        CreateForcedCaptureRuleFor(new Offset(X: 1, Y: -1)),
-        CreateForcedCaptureRuleFor(new Offset(X: -1, Y: 1)),
-        CreateForcedCaptureRuleFor(new Offset(X: -1, Y: -1)),
+        new ForcedMoveRule(
+            priority: ForcedMovePriority.UnderagePawn,
+            predicate: (board, move) =>
+                move.CapturedSquares.Any(c =>
+                    board.TryGetPieceAt(c, out var capture)
+                    && capture.Type == PieceType.UnderagePawn
+                ),
+            CaptureRule.WithFriendlyFire(
+                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn,
+                new SlideBehaviour(new Offset(X: 1, Y: 1)),
+                new SlideBehaviour(new Offset(X: 1, Y: -1)),
+                new SlideBehaviour(new Offset(X: -1, Y: 1)),
+                new SlideBehaviour(new Offset(X: -1, Y: -1))
+            )
+        ),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
@@ -22,18 +33,4 @@ public class BishopDefinition : IPieceDefinition
         Piece movingPiece,
         GameColor movingPlayer
     ) => _behaviours;
-
-    private static ForcedMoveRule CreateForcedCaptureRuleFor(Offset offset) =>
-        new(
-            priority: ForcedMovePriority.UnderagePawn,
-            predicate: (board, move) =>
-                move.CapturedSquares.Any(c =>
-                    board.TryGetPieceAt(c, out var capture)
-                    && capture.Type == PieceType.UnderagePawn
-                ),
-            new CaptureRule(
-                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn,
-                new SlideBehaviour(offset)
-            )
-        );
 }

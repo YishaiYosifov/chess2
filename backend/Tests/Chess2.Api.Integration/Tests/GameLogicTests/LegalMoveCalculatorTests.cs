@@ -56,8 +56,8 @@ public class LegalMoveCalculatorTests : BaseIntegrationTest
     public void CalculateLegalMoves_allows_moves_for_piece_with_neutral_color()
     {
         ChessBoard board = new();
-        var neutralRook = PieceFactory.Neutral(PieceType.TraitorRook);
-        board.PlacePiece(new AlgebraicPoint("d4"), neutralRook);
+        var neutralPiece = PieceFactory.Neutral(PieceType.TraitorRook);
+        board.PlacePiece(new AlgebraicPoint("d4"), neutralPiece);
 
         // surround it with equal white and black pieces to trigger neutral behavior
         board.PlacePiece(new AlgebraicPoint("c3"), PieceFactory.White(PieceType.Pawn));
