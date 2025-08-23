@@ -6,6 +6,7 @@ public class PieceTestCase
 {
     public Piece Piece { get; }
     public AlgebraicPoint Origin { get; }
+    public GameColor MovingPlayer { get; private set; }
 
     public List<Move> ExpectedMoves { get; } = [];
     public List<(AlgebraicPoint Position, Piece Piece)> BlockedBy { get; } = [];
@@ -17,6 +18,7 @@ public class PieceTestCase
     {
         Piece = piece;
         Origin = from;
+        MovingPlayer = piece.Color ?? GameColor.White;
     }
 
     public static PieceTestCase From(string from, Piece piece) =>
@@ -66,6 +68,12 @@ public class PieceTestCase
     public PieceTestCase WithPriorMove(Move move)
     {
         PriorMoves.Add(move);
+        return this;
+    }
+
+    public PieceTestCase WithMovingPlayer(GameColor playerColor)
+    {
+        MovingPlayer = playerColor;
         return this;
     }
 
