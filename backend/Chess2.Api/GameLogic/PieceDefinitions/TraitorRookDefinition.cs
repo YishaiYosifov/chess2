@@ -16,13 +16,13 @@ public class TraitorRookDefinition : IPieceDefinition
         new SlideBehaviour(new Offset(X: -1, Y: 0)),
     ];
 
-    private readonly IPieceMovementRule _blackMajority = new NeutralCaptureRule(
-        takeSide: GameColor.Black,
+    private readonly IPieceMovementRule _blackMajority = CaptureRule.WithNeutralCapture(
+        allowNeutralCapture: (board, piece) => piece.Color != GameColor.Black,
         _rookMoves
     );
 
-    private readonly IPieceMovementRule _whiteMajority = new NeutralCaptureRule(
-        takeSide: GameColor.White,
+    private readonly IPieceMovementRule _whiteMajority = CaptureRule.WithNeutralCapture(
+        allowNeutralCapture: (board, piece) => piece.Color != GameColor.White,
         _rookMoves
     );
 
