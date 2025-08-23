@@ -8,7 +8,7 @@ public class BishopDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Bishop;
 
-    private readonly List<IPieceMovementRule> _behaviours =
+    private readonly IPieceMovementRule[] _behaviours =
     [
         CreateForcedCaptureRuleFor(new Offset(X: 1, Y: 1)),
         CreateForcedCaptureRuleFor(new Offset(X: 1, Y: -1)),
@@ -19,20 +19,21 @@ public class BishopDefinition : IPieceDefinition
     public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     ) => _behaviours;
 
     private static ForcedMoveRule CreateForcedCaptureRuleFor(Offset offset) =>
         new(
-            new CaptureRule(
-                new SlideBehaviour(offset),
-                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn
-            ),
             priority: ForcedMovePriority.UnderagePawn,
             predicate: (board, move) =>
                 move.CapturedSquares.Any(c =>
                     board.TryGetPieceAt(c, out var capture)
                     && capture.Type == PieceType.UnderagePawn
-                )
+                ),
+            new CaptureRule(
+                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn,
+                new SlideBehaviour(offset)
+            )
         );
 }

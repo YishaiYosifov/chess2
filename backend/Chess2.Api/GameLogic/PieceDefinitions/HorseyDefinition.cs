@@ -8,21 +8,24 @@ public class HorseyDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Horsey;
 
-    private readonly List<IPieceMovementRule> _behaviours =
+    private readonly IPieceMovementRule[] _behaviours =
     [
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: -2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: -2))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 2, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -2, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 2, Y: -1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -2, Y: -1))),
+        new CaptureRule(
+            new StepBehaviour(new Offset(X: 1, Y: 2)),
+            new StepBehaviour(new Offset(X: -1, Y: 2)),
+            new StepBehaviour(new Offset(X: 1, Y: -2)),
+            new StepBehaviour(new Offset(X: -1, Y: -2)),
+            new StepBehaviour(new Offset(X: 2, Y: 1)),
+            new StepBehaviour(new Offset(X: -2, Y: 1)),
+            new StepBehaviour(new Offset(X: 2, Y: -1)),
+            new StepBehaviour(new Offset(X: -2, Y: -1))
+        ),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     ) => _behaviours;
 }

@@ -14,27 +14,30 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
     ];
 
     [Fact]
-    public void Evaluate_yields_nonPromotion_moves_unchanged()
+    public void Evaluate_yields_non_promotion_moves_unchanged()
     {
-        var rule = new PromotionRule((board, move) => move == Move2, BaseRuleMock);
+        PromotionRule rule = new((board, move) => move == Moves[1], RuleMocks);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().HaveCount(2 + _expectedPromotionTargets.Count);
-        result.Should().Contain([Move1, Move3]);
+        result.Should().HaveCount(Moves.Length - 1 + _expectedPromotionTargets.Count);
+        result.Should().Contain([Moves[0], .. Moves[2..]]);
 
-        var promotionMoves = result.Where(m => m.To == Move2.To && m.PromotesTo != null).ToList();
+        var promotionMoves = result
+            .Where(m => m.To == Moves[1].To && m.PromotesTo != null)
+            .ToList();
+
         promotionMoves.Select(m => m.PromotesTo).Should().BeEquivalentTo(_expectedPromotionTargets);
     }
 
     [Fact]
     public void Evaluate_yields_moves_unchanged_when_predicate_fails()
     {
-        var rule = new PromotionRule((_, _) => false, BaseRuleMock);
+        var rule = new PromotionRule((_, _) => false, RuleMocks);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().BeEquivalentTo([Move1, Move2, Move3]);
+        result.Should().BeEquivalentTo(Moves);
     }
 
     [Fact]

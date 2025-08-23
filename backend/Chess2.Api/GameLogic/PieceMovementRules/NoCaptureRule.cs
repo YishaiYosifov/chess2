@@ -3,19 +3,22 @@ using Chess2.Api.GameLogic.MovementBehaviours;
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
-public class NoCaptureRule(IMovementBehaviour movementBehaviour) : IPieceMovementRule
+public class NoCaptureRule(params IMovementBehaviour[] movementBehaviours) : IPieceMovementRule
 {
-    private readonly IMovementBehaviour _movementBehaviour = movementBehaviour;
+    private readonly IMovementBehaviour[] _movementBehaviours = movementBehaviours;
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
-        foreach (var destination in _movementBehaviour.Evaluate(board, position, movingPiece))
+        foreach (var behaviour in _movementBehaviours)
         {
-            var isSquareEmpty = board.IsEmpty(destination);
-            if (!isSquareEmpty)
-                continue;
+            foreach (var destination in behaviour.Evaluate(board, position, movingPiece))
+            {
+                var isSquareEmpty = board.IsEmpty(destination);
+                if (!isSquareEmpty)
+                    continue;
 
-            yield return new Move(position, destination, movingPiece);
+                yield return new Move(position, destination, movingPiece);
+            }
         }
     }
 }

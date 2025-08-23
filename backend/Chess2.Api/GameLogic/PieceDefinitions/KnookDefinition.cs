@@ -8,27 +8,32 @@ public class KnookDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Knook;
 
-    private readonly List<IPieceMovementRule> _behaviours =
+    private readonly IPieceMovementRule[] _behaviours =
     [
         // horsey part
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 2))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 2))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: -2))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: -2))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 2, Y: 1))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -2, Y: 1))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: 2, Y: -1))),
-        new CaptureOnlyRule(new StepBehaviour(new Offset(X: -2, Y: -1))),
+        new CaptureOnlyRule(
+            new StepBehaviour(new Offset(X: 1, Y: 2)),
+            new StepBehaviour(new Offset(X: -1, Y: 2)),
+            new StepBehaviour(new Offset(X: 1, Y: -2)),
+            new StepBehaviour(new Offset(X: -1, Y: -2)),
+            new StepBehaviour(new Offset(X: 2, Y: 1)),
+            new StepBehaviour(new Offset(X: -2, Y: 1)),
+            new StepBehaviour(new Offset(X: 2, Y: -1)),
+            new StepBehaviour(new Offset(X: -2, Y: -1))
+        ),
         // rook part
-        new NoCaptureRule(new SlideBehaviour(new Offset(X: 0, Y: 1))),
-        new NoCaptureRule(new SlideBehaviour(new Offset(X: 0, Y: -1))),
-        new NoCaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 0))),
-        new NoCaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 0))),
+        new NoCaptureRule(
+            new SlideBehaviour(new Offset(X: 0, Y: 1)),
+            new SlideBehaviour(new Offset(X: 0, Y: -1)),
+            new SlideBehaviour(new Offset(X: 1, Y: 0)),
+            new SlideBehaviour(new Offset(X: -1, Y: 0))
+        ),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     ) => _behaviours;
 }

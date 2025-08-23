@@ -12,7 +12,8 @@ public abstract class BasePawnDefinition : IPieceDefinition
     public abstract IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     );
 
     protected IEnumerable<IPieceMovementRule> GetPawnBehaviours(
@@ -41,8 +42,10 @@ public abstract class BasePawnDefinition : IPieceDefinition
                     falseBranch: new StepBehaviour(new Offset(X: 0, Y: 1 * direction))
                 )
             ),
-            new CaptureOnlyRule(new StepBehaviour(new Offset(X: 1, Y: 1 * direction))),
-            new CaptureOnlyRule(new StepBehaviour(new Offset(X: -1, Y: 1 * direction))),
+            new CaptureOnlyRule(
+                new StepBehaviour(new Offset(X: 1, Y: 1 * direction)),
+                new StepBehaviour(new Offset(X: -1, Y: 1 * direction))
+            ),
             new EnPassantRule(
                 direction: new Offset(X: 1, Y: 1 * direction),
                 chainCaptureDirection: new Offset(X: 0, Y: -direction)

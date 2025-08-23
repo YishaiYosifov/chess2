@@ -12,15 +12,22 @@ public abstract class RuleBasedPieceRuleTestBase
     protected AlgebraicPoint Origin { get; } = new("a1");
     protected ChessBoard Board { get; } = new();
 
-    protected Move Move1 { get; } = new(new("a1"), new("b2"), PieceFactory.White());
-    protected Move Move2 { get; } = new(new("a1"), new("b3"), PieceFactory.White());
-    protected Move Move3 { get; } = new(new("a1"), new("b4"), PieceFactory.White());
-
-    protected IPieceMovementRule BaseRuleMock = Substitute.For<IPieceMovementRule>();
+    protected IPieceMovementRule[] RuleMocks { get; }
+    protected Move[] Moves { get; }
 
     protected RuleBasedPieceRuleTestBase()
     {
         Board.PlacePiece(Origin, Piece);
-        BaseRuleMock.Evaluate(Board, Origin, Piece).Returns([Move1, Move2, Move3]);
+
+        var ruleMock1 = Substitute.For<IPieceMovementRule>();
+        Move[] rule1Moves = [new(Origin, new("b2"), Piece), new(Origin, new("b3"), Piece)];
+        ruleMock1.Evaluate(Board, Origin, Piece).Returns(rule1Moves);
+
+        var ruleMock2 = Substitute.For<IPieceMovementRule>();
+        Move[] rule2Moves = [new(Origin, new("c2"), Piece), new(Origin, new("c3"), Piece)];
+        ruleMock2.Evaluate(Board, Origin, Piece).Returns(rule2Moves);
+
+        RuleMocks = [ruleMock1, ruleMock2];
+        Moves = [.. rule1Moves, .. rule2Moves];
     }
 }

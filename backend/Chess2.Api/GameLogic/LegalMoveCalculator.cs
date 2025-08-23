@@ -12,8 +12,12 @@ public record PieceRule(
 
 public interface ILegalMoveCalculator
 {
-    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor? forColor = null);
-    IEnumerable<Move> CalculateLegalMoves(ChessBoard board, AlgebraicPoint position);
+    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer);
+    IEnumerable<Move> CalculateLegalMoves(
+        ChessBoard board,
+        AlgebraicPoint position,
+        GameColor movingPlayer
+    );
 }
 
 public class LegalMoveCalculator : ILegalMoveCalculator
@@ -28,46 +32,35 @@ public class LegalMoveCalculator : ILegalMoveCalculator
     {
         _logger = logger;
 
-        foreach (var piece in pieceDefinitions)
-        {
-            if (_pieceDefinitions.ContainsKey(piece.Type))
-                throw new InvalidOperationException($"Duplicate piece definition for {piece.Type}");
-
-            _pieceDefinitions.Add(piece.Type, piece);
-        }
-
+        _pieceDefinitions = pieceDefinitions.ToDictionary(definition => definition.Type);
         if (_pieceDefinitions.Count != Enum.GetNames<PieceType>().Length)
             throw new InvalidOperationException("Could not find definitions for all pieces");
     }
 
-    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor? forColor = null)
+    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer)
     {
         foreach (var (position, piece) in board.EnumerateSquares())
         {
-            var isColorMismatch = forColor is not null && piece?.Color != forColor;
-            if (piece is null || isColorMismatch)
-                continue;
-
-            foreach (var move in CalculateLegalMoves(board, position))
+            foreach (var move in CalculateLegalMoves(board, position, movingPlayer))
                 yield return move;
         }
     }
 
-    public IEnumerable<Move> CalculateLegalMoves(ChessBoard board, AlgebraicPoint position)
+    public IEnumerable<Move> CalculateLegalMoves(
+        ChessBoard board,
+        AlgebraicPoint position,
+        GameColor movingPlayer
+    )
     {
         if (!board.TryGetPieceAt(position, out var piece))
-        {
-            _logger.LogWarning("No piece found at position {Position}", position);
             yield break;
-        }
 
-        if (!_pieceDefinitions.TryGetValue(piece.Type, out var pieceDefinition))
-        {
-            _logger.LogWarning("Could not find definition for piece {PieceType}", piece.Type);
+        var isColorMismatch = piece.Color is not null && piece.Color != movingPlayer;
+        if (isColorMismatch)
             yield break;
-        }
 
-        var pieceBehaviours = pieceDefinition.GetBehaviours(board, position, piece);
+        var pieceBehaviours = _pieceDefinitions[piece.Type]
+            .GetBehaviours(board, position, piece, movingPlayer);
         foreach (var behaviour in pieceBehaviours)
         {
             foreach (var move in behaviour.Evaluate(board, position, piece))

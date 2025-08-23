@@ -8,21 +8,24 @@ public class QueenDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.Queen;
 
-    private readonly List<IPieceMovementRule> _behaviours =
+    private readonly IPieceMovementRule[] _behaviours =
     [
-        new CaptureRule(new SlideBehaviour(new Offset(X: 0, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 0, Y: -1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: 0))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: 0))),
-        new CaptureRule(new SlideBehaviour(new Offset(X: -1, Y: -1))),
+        new CaptureRule(
+            new SlideBehaviour(new Offset(X: 0, Y: 1)),
+            new SlideBehaviour(new Offset(X: 0, Y: -1)),
+            new SlideBehaviour(new Offset(X: 1, Y: 1)),
+            new SlideBehaviour(new Offset(X: 1, Y: 0)),
+            new SlideBehaviour(new Offset(X: 1, Y: -1)),
+            new SlideBehaviour(new Offset(X: -1, Y: 1)),
+            new SlideBehaviour(new Offset(X: -1, Y: 0)),
+            new SlideBehaviour(new Offset(X: -1, Y: -1))
+        ),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     ) => _behaviours;
 }
