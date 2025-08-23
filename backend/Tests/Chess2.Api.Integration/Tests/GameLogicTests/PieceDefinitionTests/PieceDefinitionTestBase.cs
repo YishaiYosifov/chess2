@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.GameLogic;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
@@ -28,9 +27,8 @@ public abstract class PieceDefinitionTestBase : BaseIntegrationTest
         foreach (var priorMove in testCase.PriorMoves)
             board.PlayMove(priorMove);
 
-        // TODO set moving player
         var result = _legalMoveCalculator
-            .CalculateLegalMoves(board, testCase.Origin, testCase.Piece.Color ?? GameColor.White)
+            .CalculateLegalMoves(board, testCase.Origin, testCase.MovingPlayer)
             .ToList();
 
         result.Should().BeEquivalentTo(testCase.ExpectedMoves);

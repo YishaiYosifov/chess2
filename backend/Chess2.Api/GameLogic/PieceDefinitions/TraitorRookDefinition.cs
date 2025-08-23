@@ -17,12 +17,12 @@ public class TraitorRookDefinition : IPieceDefinition
     ];
 
     private readonly IPieceMovementRule _blackMajority = CaptureRule.WithNeutralCapture(
-        allowNeutralCapture: (board, piece) => piece.Color != GameColor.Black,
+        allowCaptureWhen: (board, piece) => piece.Color != GameColor.Black,
         _rookMoves
     );
 
     private readonly IPieceMovementRule _whiteMajority = CaptureRule.WithNeutralCapture(
-        allowNeutralCapture: (board, piece) => piece.Color != GameColor.White,
+        allowCaptureWhen: (board, piece) => piece.Color != GameColor.White,
         _rookMoves
     );
 

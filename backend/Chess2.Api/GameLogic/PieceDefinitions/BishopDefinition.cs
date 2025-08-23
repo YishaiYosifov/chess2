@@ -18,7 +18,7 @@ public class BishopDefinition : IPieceDefinition
                     && capture.Type == PieceType.UnderagePawn
                 ),
             CaptureRule.WithFriendlyFire(
-                allowFriendlyFire: (board, piece) => piece.Type == PieceType.UnderagePawn,
+                allowFriendlyFireWhen: (board, piece) => piece.Type == PieceType.UnderagePawn,
                 new SlideBehaviour(new Offset(X: 1, Y: 1)),
                 new SlideBehaviour(new Offset(X: 1, Y: -1)),
                 new SlideBehaviour(new Offset(X: -1, Y: 1)),

@@ -4,27 +4,27 @@ using Chess2.Api.GameLogic.MovementBehaviours;
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
 public class CaptureRule(
-    Func<ChessBoard, Piece, bool>? allowFriendlyFire = null,
-    Func<ChessBoard, Piece, bool>? allowNeutralCapture = null,
+    Func<ChessBoard, Piece, bool>? allowFriendlyFireWhen = null,
+    Func<ChessBoard, Piece, bool>? allowNeutralCaptureWhen = null,
     params IMovementBehaviour[] movementBehaviours
 ) : IPieceMovementRule
 {
     private readonly IMovementBehaviour[] _movementBehaviour = movementBehaviours;
-    private readonly Func<ChessBoard, Piece, bool>? _allowFriendlyFire = allowFriendlyFire;
-    private readonly Func<ChessBoard, Piece, bool>? _allowNeutralCapture = allowNeutralCapture;
+    private readonly Func<ChessBoard, Piece, bool>? _allowFriendlyFire = allowFriendlyFireWhen;
+    private readonly Func<ChessBoard, Piece, bool>? _allowNeutralCapture = allowNeutralCaptureWhen;
 
     public CaptureRule(params IMovementBehaviour[] movementBehaviours)
         : this(null, null, movementBehaviours) { }
 
     public static CaptureRule WithFriendlyFire(
-        Func<ChessBoard, Piece, bool> allowFriendlyFire,
+        Func<ChessBoard, Piece, bool> allowFriendlyFireWhen,
         params IMovementBehaviour[] movementBehaviours
-    ) => new(allowFriendlyFire, null, movementBehaviours);
+    ) => new(allowFriendlyFireWhen, null, movementBehaviours);
 
     public static CaptureRule WithNeutralCapture(
-        Func<ChessBoard, Piece, bool> allowNeutralCapture,
+        Func<ChessBoard, Piece, bool> allowCaptureWhen,
         params IMovementBehaviour[] movementBehaviours
-    ) => new(null, allowNeutralCapture, movementBehaviours);
+    ) => new(null, allowCaptureWhen, movementBehaviours);
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
