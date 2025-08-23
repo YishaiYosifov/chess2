@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
 import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
+import TextField from "@/components/ui/TextField";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import {
     useGameEmitter,
@@ -93,7 +93,7 @@ const GameChat = () => {
                 ))}
             </div>
             <form onSubmit={onChatSend}>
-                <Input
+                <TextField
                     data-testid="gameChatInput"
                     className="bg-white/5 text-white"
                     placeholder={getPlaceholderMessage()}
