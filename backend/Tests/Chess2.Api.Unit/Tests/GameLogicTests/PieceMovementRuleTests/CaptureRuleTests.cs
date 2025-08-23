@@ -19,7 +19,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
 
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        result.Should().BeEquivalentTo(Destinations.Select(to => new Move(Origin, to, piece)));
+        result.Should().BeEquivalentTo(CreateMoves(piece, Destinations));
     }
 
     [Fact]
@@ -94,7 +94,10 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         board.PlacePiece(Destinations[0], friendlyAllowed);
         board.PlacePiece(Destinations[1], friendlyBlocked);
 
-        CaptureRule rule = new((board, piece) => piece.Type == friendlyAllowed.Type, MovementMocks);
+        CaptureRule rule = CaptureRule.WithFriendlyFire(
+            (board, piece) => piece.Type == friendlyAllowed.Type,
+            MovementMocks
+        );
         var result = rule.Evaluate(board, Origin, piece).ToList();
 
         Move expectedCapture = new(
@@ -104,5 +107,54 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             capturedSquares: [Destinations[0]]
         );
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
+    }
+
+    [Fact]
+    public void Evaluate_allows_neutral_capture_when_specified()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.Neutral();
+        var capturePiece = PieceFactory.White();
+        var noCapturePiece = PieceFactory.Black();
+
+        board.PlacePiece(Origin, piece);
+        board.PlacePiece(Destinations[0], noCapturePiece);
+        board.PlacePiece(Destinations[1], capturePiece);
+
+        CaptureRule rule = CaptureRule.WithNeutralCapture(
+            (board, target) => target == capturePiece,
+            MovementMocks
+        );
+        var result = rule.Evaluate(board, Origin, piece).ToList();
+
+        Move expectedCapture = new(
+            Origin,
+            Destinations[1],
+            piece,
+            capturedSquares: [Destinations[1]]
+        );
+        result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
+    }
+
+    [Fact]
+    public void Evaluate_allows_neutral_capture_by_default()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.Neutral();
+        var capturePiece = PieceFactory.White();
+
+        board.PlacePiece(Origin, piece);
+        board.PlacePiece(Destinations[0], capturePiece);
+
+        CaptureRule rule = new(MovementMocks);
+        var result = rule.Evaluate(board, Origin, piece).ToList();
+
+        Move expectedCapture = new(
+            Origin,
+            Destinations[0],
+            piece,
+            capturedSquares: [Destinations[0]]
+        );
+        result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[1..])]);
     }
 }
