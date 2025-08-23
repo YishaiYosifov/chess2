@@ -18,7 +18,8 @@ export function decodeFen(fen: string): PieceMap {
     for (const [y, rank] of ranks.entries()) {
         // split the rank into numbers and pieces.
         // this regex makes sure multiple digits are grouped together
-        const squares = rank.match(/[a-zA-Z]|\d+/g)!;
+        const squares = rank.match(/\d+|[^0-9]/g);
+        if (!squares) continue;
 
         let x = 0;
         for (const square of squares) {

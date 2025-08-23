@@ -103,7 +103,7 @@ const OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS = 1000 * 60 * 4;
 const ALLOW_ABORTION_UNTIL_MOVE = 2;
 
 const INITIAL_FEN =
-    "rhn1qkbahr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKBAHR";
+    "rhn1qkbahr/pppdppdppp/10/10/9+/+9/10/10/PPPDPPDPPP/RHN1QKBAHR";
 
 const LETTER_TO_PIECE: Record<string, PieceType> = {
     k: PieceType.KING,
