@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.LiveGame;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
 
