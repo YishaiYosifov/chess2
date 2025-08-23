@@ -11,29 +11,28 @@ public class CaptureOnlyRuleTests : MovementBasedPieceRulesTestBase
     [Fact]
     public void Evaluate_returns_only_moves_to_occupied_squares()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
-        board.PlacePiece(new("d4"), PieceFactory.White()); // friend
+        board.PlacePiece(Destinations[0], PieceFactory.Black()); // enemy
+        board.PlacePiece(Destinations[1], PieceFactory.White()); // friend
 
-        var behaviour = new CaptureOnlyRule(MockMovement);
+        CaptureOnlyRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new[] { new Move(Origin, new("b2"), piece, capturedSquares: [new("b2")]) };
-
-        result.Should().BeEquivalentTo(expected);
+        Move expectedMove = new(Origin, Destinations[0], piece, capturedSquares: [Destinations[0]]);
+        result.Should().BeEquivalentTo([expectedMove]);
     }
 
     [Fact]
     public void Evaluate_returns_empty_if_all_targets_are_empty()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        var behaviour = new CaptureOnlyRule(MockMovement);
+        CaptureOnlyRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece);
 
         result.Should().BeEmpty();

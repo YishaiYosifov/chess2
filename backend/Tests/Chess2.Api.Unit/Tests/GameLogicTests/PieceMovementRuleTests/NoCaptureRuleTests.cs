@@ -11,33 +11,36 @@ public class NoCaptureRuleTests : MovementBasedPieceRulesTestBase
     [Fact]
     public void Evaluate_returns_only_moves_to_empty_squares()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("b2"), PieceFactory.Black());
-        board.PlacePiece(new("d4"), PieceFactory.White());
+        board.PlacePiece(Destinations[0], PieceFactory.Black());
+        board.PlacePiece(Destinations[1], PieceFactory.White());
 
-        var behaviour = new NoCaptureRule(MockMovement);
+        var behaviour = new NoCaptureRule(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        var expected = new[] { new Move(Origin, new("c3"), piece) };
-
+        var expected = Destinations[2..].Select(x => new Move(Origin, x, piece));
         result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
     public void Evaluate_returns_empty_if_all_targets_are_occupied()
     {
-        var board = new ChessBoard();
+        ChessBoard board = new();
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("b2"), PieceFactory.Black());
-        board.PlacePiece(new("c3"), PieceFactory.White());
-        board.PlacePiece(new("d4"), PieceFactory.Black());
+        for (var i = 0; i < Destinations.Length; i++)
+        {
+            board.PlacePiece(
+                Destinations[i],
+                i % 2 == 0 ? PieceFactory.White() : PieceFactory.Black()
+            );
+        }
 
-        var behaviour = new NoCaptureRule(MockMovement);
+        NoCaptureRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece);
 
         result.Should().BeEmpty();

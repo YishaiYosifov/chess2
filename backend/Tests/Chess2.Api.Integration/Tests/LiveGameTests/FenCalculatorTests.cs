@@ -35,7 +35,7 @@ public class FenCalculatorTests : BaseIntegrationTest
 
         var result = _fenCalculator.CalculateFen(board);
 
-        var expectedFen = "rhn1qkbahr/pppdppdppp/10/10/10/10/10/10/PPPDPPDPPP/RHN1QKBAHR";
+        var expectedFen = "rhn1qkbahr/pppdppdppp/10/10/9+/+9/10/10/PPPDPPDPPP/RHN1QKBAHR";
         result.Should().Be(expectedFen);
     }
 

@@ -15,7 +15,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        CaptureRule behaviour = new(MockMovement);
+        CaptureRule behaviour = new(MovementMocks);
 
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
@@ -30,19 +30,18 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         board.PlacePiece(Origin, piece);
 
         var enemy = PieceFactory.Black();
-        board.PlacePiece(new("b2"), enemy); // capture target
+        board.PlacePiece(Destinations[0], enemy); // capture target
 
-        CaptureRule behaviour = new(MockMovement);
+        CaptureRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        Move[] expected =
-        [
-            new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
-            new(Origin, new("c3"), piece),
-            new(Origin, new("d4"), piece),
-        ];
-
-        result.Should().BeEquivalentTo(expected);
+        Move expectedCapture = new(
+            Origin,
+            Destinations[0],
+            piece,
+            capturedSquares: [Destinations[0]]
+        );
+        result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[1..])]);
     }
 
     [Fact]
@@ -52,14 +51,12 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("c3"), PieceFactory.White()); // friendly block
+        board.PlacePiece(Destinations[1], PieceFactory.White()); // friendly block
 
-        CaptureRule behaviour = new(MockMovement);
+        CaptureRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        Move[] expected = [new(Origin, new("b2"), piece), new(Origin, new("d4"), piece)];
-
-        result.Should().BeEquivalentTo(expected);
+        result.Should().BeEquivalentTo(CreateMoves(piece, [Destinations[0], .. Destinations[2..]]));
     }
 
     [Fact]
@@ -69,19 +66,20 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var piece = PieceFactory.White();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(new("b2"), PieceFactory.Black()); // enemy
-        board.PlacePiece(new("c3"), PieceFactory.White()); // ally
+        board.PlacePiece(Destinations[0], PieceFactory.Black()); // enemy
+        board.PlacePiece(Destinations[1], PieceFactory.White()); // ally
 
-        CaptureRule behaviour = new(MockMovement);
+        CaptureRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        Move[] expected =
-        [
-            new(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
-            new(Origin, new("d4"), piece),
-        ];
+        Move expectedCapture = new(
+            Origin,
+            Destinations[0],
+            piece,
+            capturedSquares: [Destinations[0]]
+        );
 
-        result.Should().BeEquivalentTo(expected);
+        result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
     }
 
     [Fact]
@@ -93,17 +91,18 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
         var friendlyBlocked = PieceFactory.White(PieceType.Rook);
 
         board.PlacePiece(Origin, piece);
-        board.PlacePiece(new("b2"), friendlyAllowed);
-        board.PlacePiece(new("c3"), friendlyBlocked);
+        board.PlacePiece(Destinations[0], friendlyAllowed);
+        board.PlacePiece(Destinations[1], friendlyBlocked);
 
-        CaptureRule rule = new(MockMovement, (board, piece) => piece.Type == friendlyAllowed.Type);
+        CaptureRule rule = new((board, piece) => piece.Type == friendlyAllowed.Type, MovementMocks);
         var result = rule.Evaluate(board, Origin, piece).ToList();
 
-        Move[] expected =
-        [
-            new Move(Origin, new("b2"), piece, capturedSquares: [new("b2")]),
-            new Move(Origin, new("d4"), piece),
-        ];
-        result.Should().BeEquivalentTo(expected);
+        Move expectedCapture = new(
+            Origin,
+            Destinations[0],
+            piece,
+            capturedSquares: [Destinations[0]]
+        );
+        result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
     }
 }

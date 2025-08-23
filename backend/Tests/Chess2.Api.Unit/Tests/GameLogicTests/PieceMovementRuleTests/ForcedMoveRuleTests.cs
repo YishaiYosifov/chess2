@@ -7,65 +7,68 @@ namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
 public class ForcedMoveRuleTests : RuleBasedPieceRuleTestBase
 {
-    [Fact]
-    public void Evaluate_applies_priority_when_predicate_matches()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(0, 3)]
+    public void Evaluate_applies_priority_correctly(params int[] moveIndices)
     {
-        var rule = new ForcedMoveRule(
-            BaseRuleMock,
+        ForcedMoveRule rule = new(
             ForcedMovePriority.EnPassant,
-            (b, move) => move == Move2
+            (b, m) => moveIndices.Contains(Array.IndexOf(Moves, m)),
+            RuleMocks
         );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        Move[] expected =
-        [
-            Move1,
-            Move2 with
-            {
-                ForcedPriority = ForcedMovePriority.EnPassant,
-            },
-            Move3,
-        ];
+        var expected = Moves
+            .Select(
+                (m, i) =>
+                    moveIndices.Contains(i)
+                        ? m with
+                        {
+                            ForcedPriority = ForcedMovePriority.EnPassant,
+                        }
+                        : m
+            )
+            .ToArray();
+
         result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
     public void Evaluate_does_not_apply_priority_when_predicate_fails()
     {
-        var rule = new ForcedMoveRule(
-            BaseRuleMock,
-            ForcedMovePriority.UnderagePawn,
-            (b, move) => false
-        );
+        ForcedMoveRule rule = new(ForcedMovePriority.UnderagePawn, (b, move) => false, RuleMocks);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().BeEquivalentTo([Move1, Move2, Move3]);
+        result.Should().BeEquivalentTo(Moves);
     }
 
     [Fact]
     public void Evaluate_applies_priority_to_multiple_moves()
     {
-        var rule = new ForcedMoveRule(
-            BaseRuleMock,
+        ForcedMoveRule rule = new(
             ForcedMovePriority.EnPassant,
-            (b, move) => move == Move1 || move == Move3
+            (b, move) => move == Moves[0] || move == Moves[3],
+            RuleMocks
         );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
         Move[] expected =
         [
-            Move1 with
+            Moves[0] with
             {
                 ForcedPriority = ForcedMovePriority.EnPassant,
             },
-            Move2,
-            Move3 with
+            Moves[1],
+            Moves[2],
+            Moves[3] with
             {
                 ForcedPriority = ForcedMovePriority.EnPassant,
             },
+            .. Moves[4..],
         ];
         result.Should().BeEquivalentTo(expected);
     }
@@ -76,7 +79,7 @@ public class ForcedMoveRuleTests : RuleBasedPieceRuleTestBase
         var baseRule = Substitute.For<IPieceMovementRule>();
         baseRule.Evaluate(Board, Origin, Piece).Returns([]);
 
-        var rule = new ForcedMoveRule(baseRule, ForcedMovePriority.UnderagePawn, (b, move) => true);
+        ForcedMoveRule rule = new(ForcedMovePriority.UnderagePawn, (b, move) => true, baseRule);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 

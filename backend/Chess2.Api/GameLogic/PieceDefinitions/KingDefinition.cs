@@ -8,22 +8,25 @@ public class KingDefinition : IPieceDefinition
 {
     public PieceType Type => PieceType.King;
 
-    private readonly List<IPieceMovementRule> _behaviours =
+    private readonly IPieceMovementRule[] _behaviours =
     [
-        new CaptureRule(new StepBehaviour(new Offset(X: 0, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 0, Y: -1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: 0))),
-        new CaptureRule(new StepBehaviour(new Offset(X: 1, Y: -1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 1))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: 0))),
-        new CaptureRule(new StepBehaviour(new Offset(X: -1, Y: -1))),
+        new CaptureRule(
+            new StepBehaviour(new Offset(X: 0, Y: 1)),
+            new StepBehaviour(new Offset(X: 0, Y: -1)),
+            new StepBehaviour(new Offset(X: 1, Y: 1)),
+            new StepBehaviour(new Offset(X: 1, Y: 0)),
+            new StepBehaviour(new Offset(X: 1, Y: -1)),
+            new StepBehaviour(new Offset(X: -1, Y: 1)),
+            new StepBehaviour(new Offset(X: -1, Y: 0)),
+            new StepBehaviour(new Offset(X: -1, Y: -1))
+        ),
         new CastleRule(),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     ) => _behaviours;
 }

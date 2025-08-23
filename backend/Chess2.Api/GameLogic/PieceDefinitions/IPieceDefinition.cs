@@ -5,11 +5,12 @@ namespace Chess2.Api.GameLogic.PieceDefinitions;
 
 public interface IPieceDefinition
 {
-    public PieceType Type { get; }
+    PieceType Type { get; }
 
-    public IEnumerable<IPieceMovementRule> GetBehaviours(
+    IEnumerable<IPieceMovementRule> GetBehaviours(
         ChessBoard board,
         AlgebraicPoint position,
-        Piece movingPiece
+        Piece movingPiece,
+        GameColor movingPlayer
     );
 }
