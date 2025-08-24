@@ -1,30 +1,15 @@
 import { useField } from "formik";
 import React from "react";
+import TextField, { TextFieldProps } from "./TextField";
 
-type FormikFieldProps<TProps extends React.ElementType> = {
-    asInput: TProps;
-    name: string;
-} & React.ComponentPropsWithoutRef<TProps>;
-
-/**
- * Render a regular field as a formik field.
- * Adds error handling and formik field props.
- */
-const FormikField = <TProps extends React.ElementType>({
-    asInput,
-    name,
-    ...props
-}: FormikFieldProps<TProps>) => {
-    const [field, meta] = useField(name);
+const FormikTextField = <C extends React.ElementType = "input">(
+    props: TextFieldProps<C> & { name: string },
+) => {
+    const [field, meta] = useField(props.name);
 
     return (
         <div>
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            {React.createElement(asInput as any, {
-                ...field,
-                ...props,
-            })}
-
+            <TextField {...props} {...field} />
             {meta.error && (
                 <span className="text-error" data-testid="fieldError">
                     {meta.error}
@@ -33,4 +18,4 @@ const FormikField = <TProps extends React.ElementType>({
         </div>
     );
 };
-export default FormikField;
+export default FormikTextField;
