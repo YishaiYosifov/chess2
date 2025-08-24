@@ -10,7 +10,7 @@ interface TextFieldOwnProps {
     icon?: React.ReactNode;
 }
 
-type InputProps<C extends React.ElementType> = PolymorphicProps<
+export type TextFieldProps<C extends React.ElementType> = PolymorphicProps<
     C,
     TextFieldOwnProps
 >;
@@ -22,7 +22,7 @@ const TextField = <C extends React.ElementType = "input">({
     icon,
     "aria-label": ariaLabel,
     ...props
-}: InputProps<C>) => {
+}: TextFieldProps<C>) => {
     const id = useId();
     const Component = as || "input";
 
@@ -39,7 +39,7 @@ const TextField = <C extends React.ElementType = "input">({
                     aria-label={ariaLabel ?? label}
                     className={twMerge(
                         `bg-background/50 autofill:bg-background/50 text-text w-full rounded-md border
-                        border-white/20 p-1 disabled:cursor-not-allowed`,
+                        border-white/20 p-1 disabled:cursor-not-allowed disabled:opacity-50`,
                         className,
                     )}
                     {...props}
