@@ -8,6 +8,6 @@ public record GamePlayer(
     string UserId,
     GameColor Color,
     string UserName,
-    string? CountryCode,
+    string CountryCode,
     int? Rating
 );

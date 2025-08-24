@@ -12,5 +12,5 @@ public class PlayerArchive
     public required double FinalTimeRemaining { get; set; }
     public required int? NewRating { get; set; }
     public required int? RatingChange { get; set; }
-    public required string? CountryCode { get; set; }
+    public required string CountryCode { get; set; }
 }

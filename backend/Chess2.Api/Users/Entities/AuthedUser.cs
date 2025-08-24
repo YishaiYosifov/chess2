@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Users.Entities;
@@ -9,6 +10,7 @@ public class AuthedUser : IdentityUser
     public required string About { get; set; }
 
     [MaxLength(2)]
+    [DefaultValue("XX")]
     public required string CountryCode { get; set; }
 
     public DateTime UsernameLastChanged { get; set; } = DateTime.UtcNow;
