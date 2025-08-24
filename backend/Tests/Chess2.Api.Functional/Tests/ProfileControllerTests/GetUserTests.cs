@@ -18,7 +18,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         response.IsSuccessful.Should().BeTrue();
         PublicUser expectedUser = new(
             UserId: user.Id,
-            UserName: user.UserName,
+            UserName: user.UserName!,
             About: user.About,
             CountryCode: user.CountryCode
         );
