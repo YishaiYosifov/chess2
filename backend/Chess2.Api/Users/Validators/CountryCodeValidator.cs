@@ -21,6 +21,8 @@ public static class CountryCodeValidator
     {
         if (string.IsNullOrWhiteSpace(countryCode))
             return false;
+        if (countryCode.Equals("xx", StringComparison.InvariantCultureIgnoreCase))
+            return true;
 
         try
         {

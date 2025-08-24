@@ -6,18 +6,13 @@ using Chess2.Api.Users.Errors;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Users.Services;
 
 public interface IUserService
 {
-    Task<ErrorOr<AuthedUser>> GetUserByUsernameAsync(string username);
-    Task<ErrorOr<Updated>> EditProfileAsync(
-        AuthedUser user,
-        JsonPatchDocument<ProfileEditRequest> profileEdit
-    );
+    Task<ErrorOr<Updated>> EditProfileAsync(AuthedUser user, ProfileEditRequest profileEdit);
     Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string username);
 }
 
@@ -33,31 +28,16 @@ public class UserService(
     private readonly AppSettings _settings = settings.Value;
     private readonly ILogger<UserService> _logger = logger;
 
-    /// <summary>
-    /// Gets the user by its username.
-    /// If it was not found, return a not found error
-    /// </summary>
-    public async Task<ErrorOr<AuthedUser>> GetUserByUsernameAsync(string username)
-    {
-        var user = await _userManager.FindByNameAsync(username);
-        return user is null ? UserErrors.NotFound : user;
-    }
-
     public async Task<ErrorOr<Updated>> EditProfileAsync(
         AuthedUser user,
-        JsonPatchDocument<ProfileEditRequest> profileEdit
+        ProfileEditRequest profileEdit
     )
     {
-        var applyToProfile = new ProfileEditRequest(user);
-        profileEdit.ApplyTo(applyToProfile);
-
-        var validationResult = _profileEditValidator.Validate(applyToProfile);
+        var validationResult = _profileEditValidator.Validate(profileEdit);
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList();
 
-        user.About = applyToProfile.About ?? "";
-        user.CountryCode = applyToProfile.CountryCode ?? "XX";
-
+        profileEdit.ApplyTo(user);
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {

@@ -3,7 +3,6 @@ using Chess2.Api.Auth.DTOs;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.DTOs;
-using Microsoft.AspNetCore.JsonPatch;
 using Refit;
 
 namespace Chess2.Api.TestInfrastructure;
@@ -30,7 +29,7 @@ public interface IChess2Api
 
     #region Profile Controller
     [Get("/api/profile/me")]
-    Task<IApiResponse<PublicUser>> GetSessionUserAuthedAsync();
+    Task<IApiResponse<PrivateUser>> GetSessionUserAuthedAsync();
 
     [Get("/api/profile/me")]
     Task<IApiResponse<GuestUser>> GetSessionUserGuestAsync();
@@ -38,8 +37,8 @@ public interface IChess2Api
     [Get("/api/profile/by-username/{username}")]
     Task<IApiResponse<PublicUser>> GetUserAsync([AliasAs("username")] string username);
 
-    [Patch("/api/profile/edit-profile")]
-    Task<IApiResponse> EditProfileAsync([Body] JsonPatchDocument<ProfileEditRequest> profileEdit);
+    [Put("/api/profile/edit-profile")]
+    Task<IApiResponse> EditProfileAsync(ProfileEditRequest profileEdit);
 
     [Put("/api/profile/edit-username")]
     [Headers("Content-Type: application/json; charset=utf-8")]
