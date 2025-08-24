@@ -11,7 +11,7 @@ public record PublicUser(string UserId, string UserName, string About, string Co
 }
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-[JsonDerivedType(typeof(PublicUser), SessionUserType.Authed)]
+[JsonDerivedType(typeof(PrivateUser), SessionUserType.Authed)]
 [JsonDerivedType(typeof(GuestUser), SessionUserType.Guest)]
 public abstract record SessionUser(string UserId)
 {
