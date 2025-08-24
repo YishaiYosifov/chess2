@@ -132,7 +132,7 @@ const PopupCardProfile = ({
         <Card
             data-testid={`gameOverPopupProfile-${player.color}`}
             className={clsx(
-                "flex-col items-center gap-3 text-center",
+                "items-center text-center",
                 isWinner && "border-3 border-amber-500",
             )}
         >
