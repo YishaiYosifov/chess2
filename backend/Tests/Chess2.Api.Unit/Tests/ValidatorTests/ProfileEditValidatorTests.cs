@@ -11,26 +11,27 @@ public class ProfileEditValidatorTests
 
     private const string longAbout =
         @"Very long about me
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
     [Theory]
     [InlineData("", true)]
-    [InlineData(null, true)]
     [InlineData("abc", true)]
     [InlineData(longAbout, false)]
-    public void Validate_about(string? about, bool isValid)
+    public void Validate_about(string about, bool isValid)
     {
-        var profileEdit = new ProfileEditRequest(About: about);
+        var profileEdit = new ProfileEditRequest(About: about, CountryCode: "XX");
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 
     [Theory]
     [ClassData(typeof(CountryCodeTestData))]
-    public void Validate_country(string? country, bool isValid)
+    public void Validate_country(string country, bool isValid)
     {
-        var profileEdit = new ProfileEditRequest(CountryCode: country);
+        var profileEdit = new ProfileEditRequest(About: "", CountryCode: country);
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 }

@@ -4,11 +4,11 @@ using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Entities;
+using Chess2.Api.Users.Errors;
 using Chess2.Api.Users.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Users.Controllers;
@@ -44,7 +44,7 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        PublicUser dto = PublicUser.FromAuthed(user);
+        PrivateUser dto = PrivateUser.FromAuthed(user);
         return Ok(dto);
     }
 
@@ -53,19 +53,20 @@ public class ProfileController(
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PublicUser>> GetUser(string username)
     {
-        var result = await _userService.GetUserByUsernameAsync(username);
-        return result.Match(
-            (value) => Ok(PublicUser.FromAuthed(value)),
-            (errors) => errors.ToActionResult()
-        );
+        var result = await _userManager.FindByNameAsync(username);
+        if (result is null)
+            return UserErrors.NotFound.ToActionResult();
+
+        PublicUser dto = PublicUser.FromAuthed(result);
+        return Ok(dto);
     }
 
-    [HttpPatch("edit-profile", Name = nameof(EditProfileSettings))]
+    [HttpPut("edit-profile", Name = nameof(EditProfileSettings))]
     [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
     public async Task<ActionResult<PublicUser>> EditProfileSettings(
-        JsonPatchDocument<ProfileEditRequest> profileEditRequest
+        ProfileEditRequest profileEditRequest
     )
     {
         var user = await _userManager.GetUserAsync(HttpContext.User);

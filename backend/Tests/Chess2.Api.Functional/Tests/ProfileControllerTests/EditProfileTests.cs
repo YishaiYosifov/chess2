@@ -4,7 +4,6 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.DTOs;
 using FluentAssertions;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
@@ -15,25 +14,23 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     public async Task EditProfile_modifies_the_user_when_provided_with_valid_data()
     {
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
-        var profileEdit = new JsonPatchDocument<ProfileEditRequest>();
-        profileEdit.Replace(profileEdit => profileEdit.CountryCode, "US");
+        var profileEdit = new ProfileEditRequest(About: user.About, CountryCode: "US");
 
         var response = await ApiClient.Api.EditProfileAsync(profileEdit);
 
         response.IsSuccessful.Should().BeTrue();
         var updatedUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
         updatedUser.CountryCode.Should().NotBe(user.CountryCode);
-        updatedUser.CountryCode.Should().Be("US");
+        updatedUser.CountryCode.Should().Be(profileEdit.CountryCode);
     }
 
     [Fact]
     public async Task EditProfile_rejects_invalid_data()
     {
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
-        var invalidProfileEdit = new JsonPatchDocument<ProfileEditRequest>();
-        invalidProfileEdit.Replace(profileEdit => profileEdit.CountryCode, "XZ");
+        var profileEdit = new ProfileEditRequest(About: user.About, CountryCode: "XZ");
 
-        var response = await ApiClient.Api.EditProfileAsync(invalidProfileEdit);
+        var response = await ApiClient.Api.EditProfileAsync(profileEdit);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
