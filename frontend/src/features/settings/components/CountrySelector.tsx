@@ -1,14 +1,9 @@
-import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
-
-import TextField from "@/components/ui/TextField";
+import FormikTextField from "@/components/ui/FormikField";
 import countries from "@public/data/countries.json";
 
-const CountrySelector = () => {
-    const user = useAuthedUser();
-    if (!user) return null;
-
+const CountrySelector = ({ name }: { name: string }) => {
     return (
-        <TextField label="Country" as="select" defaultValue={user.countryCode}>
+        <FormikTextField label="Country" as="select" name={name}>
             {Object.entries(countries as Record<string, string>).map(
                 ([code, name]) => (
                     <option
@@ -20,7 +15,7 @@ const CountrySelector = () => {
                     </option>
                 ),
             )}
-        </TextField>
+        </FormikTextField>
     );
 };
 export default CountrySelector;
