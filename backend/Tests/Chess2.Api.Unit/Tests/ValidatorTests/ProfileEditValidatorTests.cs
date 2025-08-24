@@ -30,7 +30,7 @@ public class ProfileEditValidatorTests
     [ClassData(typeof(CountryCodeTestData))]
     public void Validate_country(string? country, bool isValid)
     {
-        var profileEdit = new ProfileEditRequest() { CountryCode = country };
+        var profileEdit = new ProfileEditRequest(CountryCode: country);
         _validator.Validate(profileEdit).IsValid.Should().Be(isValid);
     }
 }

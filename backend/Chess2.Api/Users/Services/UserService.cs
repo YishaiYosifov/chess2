@@ -55,8 +55,8 @@ public class UserService(
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList();
 
-        user.About = applyToProfile.About;
-        user.CountryCode = applyToProfile.CountryCode;
+        user.About = applyToProfile.About ?? "";
+        user.CountryCode = applyToProfile.CountryCode ?? "XX";
 
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
