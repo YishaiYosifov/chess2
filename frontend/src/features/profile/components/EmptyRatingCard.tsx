@@ -5,7 +5,7 @@ import constants from "@/lib/constants";
 
 const EmptyRatingCard = ({ timeControl }: { timeControl: TimeControl }) => {
     return (
-        <Card className="min-w-96 flex-col gap-3">
+        <Card className="min-w-96">
             <section className="flex w-full justify-between">
                 <span className="flex gap-2">
                     {constants.TIME_CONTROL_LABELS[timeControl]}

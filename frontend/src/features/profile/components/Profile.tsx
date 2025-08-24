@@ -7,7 +7,7 @@ import Flag from "./Flag";
 
 const Profile = ({ profile }: { profile: PublicUser }) => {
     return (
-        <Card className={"w-full flex-col gap-3 sm:flex-row"}>
+        <Card className="w-full sm:flex-row">
             <ProfilePicture className="self-center" userId={profile.userId} />
             <section className="flex min-w-0 flex-col gap-3">
                 <div className="flex gap-3">
