@@ -67,7 +67,7 @@ const GameChat = () => {
     }
 
     return (
-        <Card className="flex-col gap-3 overflow-y-auto">
+        <Card className="overflow-y-auto">
             <div
                 className="h-full w-full overflow-auto break-words"
                 ref={chatRef}

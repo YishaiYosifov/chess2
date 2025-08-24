@@ -32,7 +32,10 @@ const PlayOptions = () => {
     }
 
     return (
-        <Card data-testid="playOptions" className="flex-col items-center pt-10">
+        <Card
+            data-testid="playOptions"
+            className="flex-col items-center gap-0 pt-10"
+        >
             <h1 className="text-5xl">Play Chess 2</h1>
 
             {/* spacer */}
