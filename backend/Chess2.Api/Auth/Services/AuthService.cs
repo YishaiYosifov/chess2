@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Auth.DTOs;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Chess2.Api.Auth.DTOs;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Shared.Services;
@@ -7,8 +9,6 @@ using Chess2.Api.Users.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Auth.Services;
 
@@ -57,9 +57,6 @@ public class AuthService(
         return userId;
     }
 
-    /// <summary>
-    /// Get the user that is logged in to the http context
-    /// </summary>
     public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? claimsPrincipal)
     {
         if (claimsPrincipal is null)
@@ -102,10 +99,6 @@ public class AuthService(
         return await whenAuthed(authedUser.Value);
     }
 
-    /// <summary>
-    /// Create a new user
-    /// </summary>
-    /// <param name="signupRequest">The user DTO received from the client</param>
     public async Task<ErrorOr<AuthedUser>> SignupAsync(
         string username,
         string? email = null,
@@ -116,7 +109,8 @@ public class AuthService(
         {
             UserName = username,
             Email = email,
-            CountryCode = countryCode,
+            About = "",
+            CountryCode = countryCode ?? "XX",
         };
 
         var createdUserResult = await _userManager.CreateAsync(dbUser);
