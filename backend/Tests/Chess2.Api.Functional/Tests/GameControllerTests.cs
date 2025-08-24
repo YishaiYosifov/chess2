@@ -251,7 +251,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         var guestPlayer = players.First(p => p.UserId == guestId);
         guestPlayer.UserName.Should().Be("Guest");
-        guestPlayer.CountryCode.Should().BeNull();
+        guestPlayer.CountryCode.Should().Be("XX");
         guestPlayer.Rating.Should().BeNull();
     }
 
