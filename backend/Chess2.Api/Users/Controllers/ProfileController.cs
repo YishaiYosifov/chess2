@@ -44,7 +44,7 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        PrivateUser dto = PrivateUser.FromAuthed(user);
+        PublicUser dto = PublicUser.FromAuthed(user);
         return Ok(dto);
     }
 
@@ -61,10 +61,10 @@ public class ProfileController(
     }
 
     [HttpPatch("edit-profile", Name = nameof(EditProfileSettings))]
-    [ProducesResponseType<PrivateUser>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
-    public async Task<ActionResult<PrivateUser>> EditProfileSettings(
+    public async Task<ActionResult<PublicUser>> EditProfileSettings(
         JsonPatchDocument<ProfileEditRequest> profileEditRequest
     )
     {

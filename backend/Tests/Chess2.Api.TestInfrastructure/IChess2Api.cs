@@ -30,7 +30,7 @@ public interface IChess2Api
 
     #region Profile Controller
     [Get("/api/profile/me")]
-    Task<IApiResponse<PrivateUser>> GetSessionUserAuthedAsync();
+    Task<IApiResponse<PublicUser>> GetSessionUserAuthedAsync();
 
     [Get("/api/profile/me")]
     Task<IApiResponse<GuestUser>> GetSessionUserGuestAsync();
