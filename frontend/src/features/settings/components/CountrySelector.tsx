@@ -8,11 +8,7 @@ const CountrySelector = () => {
     if (!user) return null;
 
     return (
-        <TextField
-            label="Country"
-            as="select"
-            defaultValue={user.countryCode ?? ""}
-        >
+        <TextField label="Country" as="select" defaultValue={user.countryCode}>
             {Object.entries(countries as Record<string, string>).map(
                 ([code, name]) => (
                     <option

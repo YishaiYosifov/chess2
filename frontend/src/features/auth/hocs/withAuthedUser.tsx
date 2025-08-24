@@ -3,12 +3,12 @@ import { cookies } from "next/headers";
 import React from "react";
 
 import SessionContextProvider from "@/features/auth/contexts/sessionContext";
-import { getSessionUser, type PrivateUser } from "@/lib/apiClient";
+import { getSessionUser, type PublicUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { isAuthed } from "../lib/userGuard";
 
 interface WithAuthedUserProps {
-    user: PrivateUser;
+    user: PublicUser;
 }
 
 /**

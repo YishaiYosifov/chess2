@@ -5,13 +5,12 @@ export type SessionUser = {
     type: string;
 };
 
-export type PrivateUser = SessionUser & {
+export type PublicUser = SessionUser & {
     type: "authed";
 } & {
-    userName?: string | null;
-    email?: string | null;
-    about?: string | null;
-    countryCode?: string | null;
+    userName: string;
+    about: string;
+    countryCode: string;
     type: string;
 };
 
@@ -98,13 +97,6 @@ export type ProblemDetails = {
               [key: string]: unknown;
           }
         | undefined;
-};
-
-export type PublicUser = {
-    userId: string;
-    userName?: string | null;
-    about?: string | null;
-    countryCode?: string | null;
 };
 
 export type ValidationProblemDetails = HttpValidationProblemDetails & {
@@ -209,7 +201,7 @@ export type GamePlayer = {
     userId: string;
     color: GameColor;
     userName: string;
-    countryCode?: string | null;
+    countryCode: string;
     rating?: number | null;
 };
 
@@ -410,7 +402,7 @@ export type EditProfileSettingsError =
     EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
 
 export type EditProfileSettingsResponses = {
-    200: PrivateUser;
+    200: PublicUser;
 };
 
 export type EditProfileSettingsResponse =
