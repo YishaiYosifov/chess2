@@ -60,7 +60,7 @@ public class GameStarter(
             UserId: userId,
             Color: color,
             UserName: user?.UserName ?? "Guest",
-            CountryCode: user?.CountryCode,
+            CountryCode: user?.CountryCode ?? "XX",
             Rating: rating
         );
     }
