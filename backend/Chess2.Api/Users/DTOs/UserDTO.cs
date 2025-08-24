@@ -36,7 +36,7 @@ public static class SessionUserType
     public const string Guest = "guest";
 }
 
-public record ProfileEditRequest(string About, string CountryCode)
+public record ProfileEditRequest(string? About = null, string? CountryCode = null)
 {
     public ProfileEditRequest(AuthedUser user)
         : this(user.About, user.CountryCode) { }
