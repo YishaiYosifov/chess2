@@ -5,10 +5,11 @@ export type SessionUser = {
     type: string;
 };
 
-export type PublicUser = SessionUser & {
+export type PrivateUser = SessionUser & {
     type: "authed";
 } & {
     userName: string;
+    usernameLastChanged: number;
     about: string;
     countryCode: string;
     type: string;
@@ -99,6 +100,13 @@ export type ProblemDetails = {
         | undefined;
 };
 
+export type PublicUser = {
+    userId: string;
+    userName: string;
+    about: string;
+    countryCode: string;
+};
+
 export type ValidationProblemDetails = HttpValidationProblemDetails & {
     errors: {
         [key: string]: Array<string>;
@@ -121,14 +129,9 @@ export type HttpValidationProblemDetails = ProblemDetails & {
           };
 };
 
-export type Operation = OperationBase & {
-    value?: unknown;
-};
-
-export type OperationBase = {
-    path?: string | null;
-    op?: string | null;
-    from?: string | null;
+export type ProfileEditRequest = {
+    about: string;
+    countryCode: string;
 };
 
 export type RatingOverview = {
@@ -387,7 +390,7 @@ export type GetUserResponses = {
 export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type EditProfileSettingsData = {
-    body: Array<Operation>;
+    body: ProfileEditRequest;
     path?: never;
     query?: never;
     url: "/api/Profile/edit-profile";
