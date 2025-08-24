@@ -16,10 +16,9 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
         var response = await ApiClient.Api.GetSessionUserAuthedAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        PrivateUser expectedUser = new(
+        PublicUser expectedUser = new(
             UserId: user.Id,
             UserName: user.UserName,
-            Email: user.Email,
             About: user.About,
             CountryCode: user.CountryCode
         );

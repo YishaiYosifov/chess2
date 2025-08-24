@@ -3,38 +3,30 @@ using Chess2.Api.Users.Entities;
 
 namespace Chess2.Api.Users.DTOs;
 
-[method: JsonConstructor]
-public record PublicUser(
-    string UserId,
-    string? UserName = null,
-    string? About = null,
-    string? CountryCode = null
-)
-{
-    public static PublicUser FromAuthed(AuthedUser user) =>
-        new(user.Id, user.UserName, user.About, user.CountryCode);
-}
-
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-[JsonDerivedType(typeof(PrivateUser), SessionUserType.Authed)]
+[JsonDerivedType(typeof(PublicUser), SessionUserType.Authed)]
 [JsonDerivedType(typeof(GuestUser), SessionUserType.Guest)]
 public abstract record SessionUser(string UserId)
 {
     public abstract string Type { get; }
 }
 
-public record PrivateUser(
+public record PublicUser(
     string UserId,
     string? UserName = null,
-    string? Email = null,
     string? About = null,
     string? CountryCode = null
 ) : SessionUser(UserId)
 {
     public override string Type => SessionUserType.Authed;
 
-    public static PrivateUser FromAuthed(AuthedUser user) =>
-        new(user.Id, user.UserName, user.Email, user.About, user.CountryCode);
+    public static PublicUser FromAuthed(AuthedUser user) =>
+        new(
+            UserId: user.Id,
+            UserName: user.UserName,
+            About: user.About,
+            CountryCode: user.CountryCode
+        );
 }
 
 public record GuestUser(string UserId) : SessionUser(UserId)
