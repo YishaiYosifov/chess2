@@ -54,7 +54,7 @@ const RatingCard = ({ overview }: { overview: RatingOverview }) => {
     }
 
     return (
-        <Card className="min-w-96 flex-col gap-3">
+        <Card className="min-w-96">
             <section className="flex justify-between">
                 <span className="flex gap-2">
                     {constants.TIME_CONTROL_LABELS[timeControl]}
