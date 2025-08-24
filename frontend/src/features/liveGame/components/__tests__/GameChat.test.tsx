@@ -16,8 +16,8 @@ import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessS
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import { GuestUser, PublicUser } from "@/lib/apiClient";
-import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
+import { GuestUser, PrivateUser } from "@/lib/apiClient";
+import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 
 vi.mock("@/features/signalR/hooks/useSignalRHubs");
 
@@ -27,7 +27,7 @@ describe("GameChat", () => {
 
     const gameToken = "testGameToken";
     let store: StoreApi<LiveChessStore>;
-    let userMock: PublicUser;
+    let userMock: PrivateUser;
 
     beforeEach(() => {
         Element.prototype.scrollTo = vi.fn();
@@ -37,7 +37,7 @@ describe("GameChat", () => {
         store = createLiveChessStore(createFakeLiveChessStoreProps());
         store.setState({ gameToken });
 
-        userMock = createFakeUser();
+        userMock = createFakePrivateUser();
     });
 
     it("should render the input", () => {

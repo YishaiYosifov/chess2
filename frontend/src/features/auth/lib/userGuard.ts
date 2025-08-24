@@ -1,7 +1,7 @@
-import { GuestUser, PublicUser, SessionUser } from "@/lib/apiClient";
+import { GuestUser, PrivateUser, SessionUser } from "@/lib/apiClient";
 
-export function isAuthed(user: SessionUser): user is PublicUser {
-    const type: PublicUser["type"] = "authed";
+export function isAuthed(user: SessionUser): user is PrivateUser {
+    const type: PrivateUser["type"] = "authed";
     return user.type === type;
 }
 

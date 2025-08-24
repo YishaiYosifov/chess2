@@ -91,7 +91,7 @@ export const getUser = <ThrowOnError extends boolean = false>(
 export const editProfileSettings = <ThrowOnError extends boolean = false>(
     options: Options<EditProfileSettingsData, ThrowOnError>,
 ) => {
-    return (options.client ?? _heyApiClient).patch<
+    return (options.client ?? _heyApiClient).put<
         EditProfileSettingsResponses,
         EditProfileSettingsErrors,
         ThrowOnError
