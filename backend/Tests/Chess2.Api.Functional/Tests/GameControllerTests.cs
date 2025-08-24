@@ -285,7 +285,7 @@ public class GameControllerTests : BaseFunctionalTest
         var players = new[] { gameState.WhitePlayer, gameState.BlackPlayer };
         players.Select(p => p.UserId).Should().BeEquivalentTo([guest1Id, guest2Id]);
         players.Should().OnlyContain(p => p.UserName == "Guest");
-        players.Should().OnlyContain(p => p.CountryCode == null);
+        players.Should().OnlyContain(p => p.CountryCode == "XX");
         players.Should().OnlyContain(p => p.Rating == null);
     }
 }
