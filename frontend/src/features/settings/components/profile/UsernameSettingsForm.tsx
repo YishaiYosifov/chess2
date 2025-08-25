@@ -70,6 +70,7 @@ const UsernameSettingsForm = () => {
                 <Card className="gap-5">
                     <div>
                         <FormikTextField
+                            data-testid="usernameSettingField"
                             name="userName"
                             label="Username"
                             disabled={nextUsernameChangeDate !== null}
