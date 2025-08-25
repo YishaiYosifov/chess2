@@ -1,10 +1,15 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikHelpers } from "formik";
 
-import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
+import {
+    useAuthedUser,
+    useSessionStore,
+} from "@/features/auth/hooks/useSessionUser";
+
 import FormikSubmitButton from "@/components/ui/FormikSubmitButton";
+import { editProfileSettings, PrivateUser } from "@/lib/apiClient";
 import FormikTextField from "@/components/ui/FormikField";
 import Card from "@/components/ui/Card";
 
@@ -14,37 +19,47 @@ const CountrySelector = dynamic(
 );
 
 interface ProfileSettingsValues {
-    userName: string;
     about: string;
-    country: string;
+    countryCode: string;
 }
 
 const ProfileSettingsForm = () => {
     const user = useAuthedUser();
+    const setUser = useSessionStore((x) => x.setUser);
+
     if (!user) return null;
 
-    async function handleSubmit(values: ProfileSettingsValues) {
-        console.log(values);
+    async function handleSubmit(
+        values: ProfileSettingsValues,
+        helpers: FormikHelpers<ProfileSettingsValues>,
+    ) {
+        if (!user) return;
+
+        const { error } = await editProfileSettings({ body: values });
+        if (error) {
+            helpers.setStatus("Failed to save profile settings");
+            console.error(error);
+            return;
+        }
+
+        const newUser: PrivateUser = {
+            ...user,
+            ...values,
+        };
+        setUser(newUser);
+        helpers.resetForm({ values });
     }
 
     return (
         <Formik
             initialValues={{
-                userName: user.userName,
                 about: user.about,
-                country: user.countryCode,
+                countryCode: user.countryCode,
             }}
             onSubmit={handleSubmit}
         >
             <Form>
-                <Card className="gap-5">
-                    <div>
-                        <FormikTextField name="userName" label="Username" />
-                        <span className="text-text/60 text-sm">
-                            Can only be changed once every 2 weeks
-                        </span>
-                    </div>
-
+                <Card>
                     <FormikTextField
                         label="About Me"
                         as="textarea"
@@ -53,7 +68,7 @@ const ProfileSettingsForm = () => {
                         name="about"
                     />
 
-                    <CountrySelector name="country" />
+                    <CountrySelector name="countryCode" />
 
                     <FormikSubmitButton type="submit">Save</FormikSubmitButton>
                 </Card>
