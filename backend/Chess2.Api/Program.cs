@@ -292,6 +292,7 @@ builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 #region Validation
 ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
 builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>();
+builder.Services.AddScoped<IValidator<UsernameEditRequest>, UsernameEditValidator>();
 #endregion
 
 builder.Host.UseOrleans(siloBuilder =>
@@ -360,7 +361,7 @@ builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserSettings, UserSettings>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
