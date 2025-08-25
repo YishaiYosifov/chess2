@@ -50,7 +50,7 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
         );
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
-        var response = await ApiClient.Api.EditUsernameAsync($"\"{newUsername}\"");
+        var response = await ApiClient.Api.EditUsernameAsync(new(newUsername));
 
         response.IsSuccessful.Should().BeTrue();
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);

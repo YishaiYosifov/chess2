@@ -10,23 +10,27 @@ using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Users.Services;
 
-public interface IUserService
+public interface IUserSettings
 {
     Task<ErrorOr<Updated>> EditProfileAsync(AuthedUser user, ProfileEditRequest profileEdit);
-    Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string username);
+    Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, UsernameEditRequest usernameEdit);
 }
 
-public class UserService(
-    IValidator<ProfileEditRequest> userEditValidator,
+public class UserSettings(
+    IValidator<ProfileEditRequest> profileEditValidator,
+    IValidator<UsernameEditRequest> usernameEditValidator,
     UserManager<AuthedUser> userManager,
     IOptions<AppSettings> settings,
-    ILogger<UserService> logger
-) : IUserService
+    ILogger<UserSettings> logger,
+    TimeProvider timeProvider
+) : IUserSettings
 {
-    private readonly IValidator<ProfileEditRequest> _profileEditValidator = userEditValidator;
+    private readonly IValidator<ProfileEditRequest> _profileEditValidator = profileEditValidator;
+    private readonly IValidator<UsernameEditRequest> _usernameEditValidator = usernameEditValidator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly AppSettings _settings = settings.Value;
-    private readonly ILogger<UserService> _logger = logger;
+    private readonly ILogger<UserSettings> _logger = logger;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<ErrorOr<Updated>> EditProfileAsync(
         AuthedUser user,
@@ -48,19 +52,27 @@ public class UserService(
         return Result.Updated;
     }
 
-    public async Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string username)
+    public async Task<ErrorOr<Updated>> EditUsernameAsync(
+        AuthedUser user,
+        UsernameEditRequest usernameEdit
+    )
     {
-        if (DateTime.UtcNow - user.UsernameLastChanged < _settings.UsernameEditCooldown)
+        var validationResult = _usernameEditValidator.Validate(usernameEdit);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList();
+
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
+        if (now - user.UsernameLastChanged < _settings.UsernameEditCooldown)
             return UserErrors.SettingOnCooldown;
 
-        var updateResult = await _userManager.SetUserNameAsync(user, username);
+        var updateResult = await _userManager.SetUserNameAsync(user, usernameEdit.Username);
         if (!updateResult.Succeeded)
         {
             _logger.LogWarning("Failed to edit user {UserId}", user.Id);
             return updateResult.Errors.ToErrorList();
         }
 
-        user.UsernameLastChanged = DateTime.UtcNow;
+        user.UsernameLastChanged = now;
         await _userManager.UpdateAsync(user);
 
         return Result.Updated;

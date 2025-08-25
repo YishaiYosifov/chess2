@@ -16,13 +16,13 @@ namespace Chess2.Api.Users.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class ProfileController(
-    IUserService userService,
+    IUserSettings userSettings,
     IAuthService authService,
     IGuestService guestService,
     UserManager<AuthedUser> userManager
 ) : ControllerBase
 {
-    private readonly IUserService _userService = userService;
+    private readonly IUserSettings _userSettings = userSettings;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
@@ -73,20 +73,20 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userService.EditProfileAsync(user, profileEditRequest);
+        var editResult = await _userSettings.EditProfileAsync(user, profileEditRequest);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 
     [HttpPut("edit-username", Name = nameof(EditUsername))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
-    public async Task<ActionResult> EditUsername([FromBody] string username)
+    public async Task<ActionResult> EditUsername(UsernameEditRequest usernameEditRequest)
     {
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userService.EditUsernameAsync(user, username);
+        var editResult = await _userSettings.EditUsernameAsync(user, usernameEditRequest);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 }

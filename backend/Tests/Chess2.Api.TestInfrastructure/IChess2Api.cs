@@ -42,7 +42,7 @@ public interface IChess2Api
 
     [Put("/api/profile/edit-username")]
     [Headers("Content-Type: application/json; charset=utf-8")]
-    Task<IApiResponse> EditUsernameAsync([Body] string newUsername);
+    Task<IApiResponse> EditUsernameAsync(UsernameEditRequest usernameEdit);
     #endregion
 
     #region Game Controller
