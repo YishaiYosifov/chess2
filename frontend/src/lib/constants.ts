@@ -7,7 +7,7 @@ import {
 } from "./apiClient/definition/types.gen";
 import { logicalPoint } from "./utils/pointUtils";
 
-const USERNAME_EDIT_EVERY = 1000 * 60 * 60 * 24 * 7 * 2;
+const USERNAME_EDIT_EVERY_SECONDS = 60 * 60 * 24 * 7 * 2;
 
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
@@ -173,7 +173,7 @@ const DEFAULT_CHESS_BOARD: PieceMap = new Map([
 ]);
 
 const constants = {
-    USERNAME_EDIT_EVERY,
+    USERNAME_EDIT_EVERY_SECONDS,
     BOARD_WIDTH,
     BOARD_HEIGHT,
     SETTING_PAGES,

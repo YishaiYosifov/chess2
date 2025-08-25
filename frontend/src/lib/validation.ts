@@ -1,17 +1,12 @@
 import * as yup from "yup";
 
 yup.addMethod(yup.string, "username", function () {
-    return this.required("username must be between 1 and 30 characters")
-        .test(
-            "username-length",
-            "username must be between 1 and 30 characters",
-            (value) => value.length <= 30,
-        )
-        .test(
-            "username-spaces",
-            "username can't include spaces",
-            (value) => !value.includes(" "),
+    return this.min(3, "Must be between 3 and 30 characters")
+        .max(30, "Must be between 1 and 30 characters")
+        .matches(
+            /^[a-zA-Z0-9-_]+$/,
+            "Only letters, numbers, hyphens, and underscores are allowed",
         );
 });
 
-export const usernameSchema = yup.string().username();
+export const UsernameSchema = yup.string().username();
