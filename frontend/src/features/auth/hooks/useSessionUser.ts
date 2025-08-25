@@ -1,7 +1,7 @@
 import { useContext, useEffect } from "react";
 
 import { SessionContext } from "@/features/auth/contexts/sessionContext";
-import { getSessionUser, PublicUser, SessionUser } from "@/lib/apiClient";
+import { getSessionUser, PrivateUser, SessionUser } from "@/lib/apiClient";
 import { SessionStore } from "../stores/sessionStore";
 import { useStore } from "zustand";
 import { isAuthed } from "../lib/userGuard";
@@ -38,7 +38,7 @@ export function useSessionUser(): SessionUser | null {
     return user;
 }
 
-export function useAuthedUser(): PublicUser | null {
+export function useAuthedUser(): PrivateUser | null {
     const user = useSessionUser();
 
     if (!user || !isAuthed(user)) return null;
