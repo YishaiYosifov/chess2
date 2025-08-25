@@ -10,7 +10,7 @@ const FormikSubmitButton = ({
     const { dirty, isValid, isSubmitting, status } = useFormikContext();
 
     return (
-        <>
+        <div className="flex flex-col">
             <Button
                 type={type ?? "submit"}
                 disabled={disabled || isSubmitting || !dirty || !isValid}
@@ -24,7 +24,7 @@ const FormikSubmitButton = ({
                     {status}
                 </span>
             )}
-        </>
+        </div>
     );
 };
 export default FormikSubmitButton;
