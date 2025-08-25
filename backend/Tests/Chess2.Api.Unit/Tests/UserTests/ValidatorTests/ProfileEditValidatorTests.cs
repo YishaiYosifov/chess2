@@ -3,7 +3,7 @@ using Chess2.Api.Users.DTOs;
 using Chess2.Api.Users.Validators;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.ValidatorTests;
+namespace Chess2.Api.Unit.Tests.UserTests.ValidatorTests;
 
 public class ProfileEditValidatorTests
 {
