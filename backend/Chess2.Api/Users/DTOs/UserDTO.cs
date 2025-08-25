@@ -21,7 +21,7 @@ public abstract record SessionUser(string UserId)
 public record PrivateUser(
     string UserId,
     string UserName,
-    long UsernameLastChanged,
+    long? UsernameLastChangedSeconds,
     string About,
     string CountryCode
 ) : SessionUser(UserId)
@@ -32,7 +32,9 @@ public record PrivateUser(
         new(
             UserId: user.Id,
             UserName: user.UserName ?? "Unknown",
-            UsernameLastChanged: new DateTimeOffset(user.UsernameLastChanged).ToUnixTimeSeconds(),
+            UsernameLastChangedSeconds: user.UsernameLastChanged is null
+                ? null
+                : new DateTimeOffset(user.UsernameLastChanged.Value).ToUnixTimeSeconds(),
             About: user.About,
             CountryCode: user.CountryCode
         );
