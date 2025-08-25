@@ -8,5 +8,7 @@ public class CountryCodeTestData : TheoryData<string, bool>
         Add("USA", false);
         Add("IL", true);
         Add("XX", true);
+        Add("GB-WLS", true);
+        Add("GB-NIR", true);
     }
 }
