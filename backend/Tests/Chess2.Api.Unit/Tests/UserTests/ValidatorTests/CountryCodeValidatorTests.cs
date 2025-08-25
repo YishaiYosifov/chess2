@@ -2,7 +2,7 @@
 using FluentAssertions;
 using FluentValidation;
 
-namespace Chess2.Api.Unit.Tests.ValidatorTests;
+namespace Chess2.Api.Unit.Tests.UserTests.ValidatorTests;
 
 public class CountryCodeValidatorTests
 {
