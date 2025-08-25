@@ -1,37 +1,29 @@
-﻿using System.Globalization;
+﻿using System.Text.Json;
 using FluentValidation;
 
 namespace Chess2.Api.Users.Validators;
 
 public static class CountryCodeValidator
 {
-    /// <summary>
-    /// Verifies a string is a valid 2 character country code
-    /// </summary>
+    private static readonly HashSet<string> ValidCodes;
+
+    static CountryCodeValidator()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "Data", "countryCodes.json");
+        var json = File.ReadAllText(path);
+        ValidCodes = JsonSerializer.Deserialize<HashSet<string>>(json) ?? [];
+    }
+
     public static IRuleBuilderOptions<T, string?> MustBeACountryCode<T>(
         this IRuleBuilder<T, string?> ruleBuilder,
         string? message = null
     )
     {
-        message ??= "Must be a valid 2 letter country code";
-        return ruleBuilder.Must(BeAValidCountryCode).WithMessage(message);
-    }
-
-    private static bool BeAValidCountryCode(string? countryCode)
-    {
-        if (string.IsNullOrWhiteSpace(countryCode))
-            return false;
-        if (countryCode.Equals("xx", StringComparison.InvariantCultureIgnoreCase))
-            return true;
-
-        try
-        {
-            var info = new RegionInfo(countryCode);
-            return info is not null;
-        }
-        catch
-        {
-            return false;
-        }
+        message ??= "Must be a valid iso alpha-2 country code";
+        return ruleBuilder
+            .NotEmpty()
+            .NotNull()
+            .Must(code => ValidCodes.Contains(code!.ToUpper()))
+            .WithMessage(message);
     }
 }
