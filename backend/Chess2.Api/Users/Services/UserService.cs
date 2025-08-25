@@ -60,6 +60,9 @@ public class UserService(
             return updateResult.Errors.ToErrorList();
         }
 
+        user.UsernameLastChanged = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
+
         return Result.Updated;
     }
 }
