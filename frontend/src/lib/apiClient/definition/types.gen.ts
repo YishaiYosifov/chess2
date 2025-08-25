@@ -9,7 +9,7 @@ export type PrivateUser = SessionUser & {
     type: "authed";
 } & {
     userName: string;
-    usernameLastChanged: number;
+    usernameLastChangedSeconds?: number | null;
     about: string;
     countryCode: string;
     type: string;
@@ -132,6 +132,10 @@ export type HttpValidationProblemDetails = ProblemDetails & {
 export type ProfileEditRequest = {
     about: string;
     countryCode: string;
+};
+
+export type UsernameEditRequest = {
+    username: string;
 };
 
 export type RatingOverview = {
@@ -412,7 +416,7 @@ export type EditProfileSettingsResponse =
     EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
 
 export type EditUsernameData = {
-    body: string;
+    body: UsernameEditRequest;
     path?: never;
     query?: never;
     url: "/api/Profile/edit-username";
