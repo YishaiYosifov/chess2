@@ -409,11 +409,8 @@ export type EditProfileSettingsError =
     EditProfileSettingsErrors[keyof EditProfileSettingsErrors];
 
 export type EditProfileSettingsResponses = {
-    200: PublicUser;
+    200: unknown;
 };
-
-export type EditProfileSettingsResponse =
-    EditProfileSettingsResponses[keyof EditProfileSettingsResponses];
 
 export type EditUsernameData = {
     body: UsernameEditRequest;

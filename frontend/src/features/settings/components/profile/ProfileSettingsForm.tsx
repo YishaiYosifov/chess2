@@ -61,6 +61,7 @@ const ProfileSettingsForm = () => {
             <Form>
                 <Card>
                     <FormikTextField
+                        data-testid="aboutMeSetting"
                         label="About Me"
                         as="textarea"
                         className="min-h-60"

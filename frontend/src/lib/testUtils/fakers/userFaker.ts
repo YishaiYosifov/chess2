@@ -8,7 +8,7 @@ export function createFakeUser(override?: Partial<PublicUser>): PublicUser {
         userId: faker.string.uuid(),
         userName: faker.internet.username(),
         about: faker.lorem.paragraph(),
-        countryCode: faker.location.countryCode(),
+        countryCode: "XX",
         ...override,
     };
 }
@@ -18,7 +18,7 @@ export function createFakePrivateUser(
 ): PrivateUser {
     return {
         ...createFakeUser(),
-        usernameLastChanged:
+        usernameLastChangedSeconds:
             new Date().valueOf() - constants.USERNAME_EDIT_EVERY_SECONDS,
         type: "authed",
 
