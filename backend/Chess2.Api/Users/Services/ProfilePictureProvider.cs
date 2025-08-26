@@ -13,7 +13,7 @@ public interface IProfilePictureProvider
     Task<byte[]> GetProfilePictureAsync(UserId userId, CancellationToken token = default);
     Task<ErrorOr<Created>> UploadProfilePictureAsync(
         UserId userId,
-        IFormFile file,
+        Stream fileStream,
         CancellationToken token = default
     );
 }
@@ -23,7 +23,7 @@ public class ProfilePictureProvider : IProfilePictureProvider
     private readonly IBlobStorage _storage;
     private readonly byte[] _defaultProfilePicture;
 
-    private const float MaxDimensionPx = 512;
+    public const int MaxDimensionPx = 512;
 
     public ProfilePictureProvider(IBlobStorage storage)
     {
@@ -41,16 +41,16 @@ public class ProfilePictureProvider : IProfilePictureProvider
 
     public async Task<ErrorOr<Created>> UploadProfilePictureAsync(
         UserId userId,
-        IFormFile file,
+        Stream fileStream,
         CancellationToken token = default
     )
     {
         SKBitmap original;
         try
         {
-            using var stream = file.OpenReadStream();
-            original =
-                SKBitmap.Decode(stream) ?? throw new InvalidOperationException("Invalid image");
+            original = SKBitmap.Decode(fileStream);
+            if (original is null)
+                return UserErrors.InvalidProfilePicture;
         }
         catch
         {
@@ -59,7 +59,6 @@ public class ProfilePictureProvider : IProfilePictureProvider
 
         int width = original.Width;
         int height = original.Height;
-        float scale = Math.Min(MaxDimensionPx / width, MaxDimensionPx / height);
 
         int newWidth = (int)(width * scale);
         int newHeight = (int)(height * scale);
