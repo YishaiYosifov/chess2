@@ -26,6 +26,5 @@ public class AuthedUserFaker : Faker<AuthedUser>
         RuleFor(x => x.About, "");
         RuleFor(x => x.PasswordHash, (string?)null);
         RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow);
-        RuleFor(x => x.PasswordLastChanged, DateTime.UtcNow);
     }
 }
