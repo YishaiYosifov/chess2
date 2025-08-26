@@ -60,16 +60,28 @@ public class ProfilePictureProvider : IProfilePictureProvider
         int width = original.Width;
         int height = original.Height;
 
-        int newWidth = (int)(width * scale);
-        int newHeight = (int)(height * scale);
+        // resize to fit in MaxDimensionPx
+        float scale = Math.Min(1, (float)MaxDimensionPx / Math.Max(width, height));
+        int scaledWidth = (int)(width * scale);
+        int scaledHeight = (int)(height * scale);
+        using var resized =
+            original.Resize(new SKImageInfo(scaledWidth, scaledHeight), SKSamplingOptions.Default)
+            ?? original;
 
-        using var resized = original.Resize(
-            new SKImageInfo(newWidth, newHeight),
-            SKSamplingOptions.Default
-        );
-        using var image = SKImage.FromBitmap(resized ?? original);
-        using var ms = new MemoryStream();
-        image.Encode(SKEncodedImageFormat.Webp, 90).SaveTo(ms);
+        // make the image a square that is <= MaxDimensionPx
+        int squareSize = Math.Min(MaxDimensionPx, Math.Max(scaledWidth, scaledHeight));
+        using SKBitmap squareBitmap = new(squareSize, squareSize);
+        using SKCanvas canvas = new(squareBitmap);
+        canvas.Clear(SKColors.Transparent);
+
+        int offsetX = (squareSize - resized.Width) / 2;
+        int offsetY = (squareSize - resized.Height) / 2;
+        canvas.DrawBitmap(resized, offsetX, offsetY);
+        canvas.Flush();
+
+        using var image = SKImage.FromBitmap(squareBitmap);
+        using MemoryStream ms = new();
+        image.Encode(SKEncodedImageFormat.Webp, 80).SaveTo(ms);
         ms.Position = 0;
 
         await _storage.WriteAsync(GetPfpPath(userId), ms, cancellationToken: token);
