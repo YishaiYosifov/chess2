@@ -95,7 +95,7 @@ public class ProfileController(
     [RequestSizeLimit(2 * 1024 * 1024)]
     [Authorize]
     public async Task<ActionResult> UploadProfilePicture(
-        [FromForm] IFormFile file,
+        [FromForm] UploadPfpRequest form,
         CancellationToken token
     )
     {
@@ -103,7 +103,7 @@ public class ProfileController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        using var stream = file.OpenReadStream();
+        using var stream = form.File.OpenReadStream();
         var uploadResult = await _profilePictureProvider.UploadProfilePictureAsync(
             userIdResult.Value,
             stream,
