@@ -1,6 +1,8 @@
 ﻿using System.Data.Common;
 using System.Net;
 using Chess2.Api.Infrastructure;
+using FluentStorage;
+using FluentStorage.Blobs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
@@ -16,6 +18,7 @@ using Serilog.Sinks.XUnit.Injectable;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Serilog.Sinks.XUnit.Injectable.Extensions;
 using StackExchange.Redis;
+using Testcontainers.Azurite;
 using Testcontainers.PostgreSql;
 using Testcontainers.Redis;
 
@@ -32,6 +35,10 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     private readonly RedisContainer _redisContainer = new RedisBuilder()
         .WithImage("docker.dragonflydb.io/dragonflydb/dragonfly:latest")
+        .Build();
+
+    private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
+        .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
         .Build();
 
     private DbConnection _dbConnection = null!;
@@ -56,6 +63,15 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                     ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
                 );
 
+                services.RemoveAll<IBlobStorage>();
+                services.AddSingleton<IBlobStorage>(
+                    StorageFactory.Blobs.AzureBlobStorageWithSharedKey(
+                        accountName: AzuriteBuilder.AccountName,
+                        key: AzuriteBuilder.AccountKey,
+                        serviceUri: new(_azuriteContainer.GetBlobEndpoint())
+                    )
+                );
+
                 var injectableTestOutputSink = new InjectableTestOutputSink();
                 services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
                 services.AddSerilog(
@@ -68,7 +84,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             .ConfigureAppConfiguration(
                 (context, configBuilder) =>
                 {
-                    var secrets = new Dictionary<string, string?>
+                    Dictionary<string, string?> secrets = new()
                     {
                         { "Authentication:Google:ClientId", "test-google-client-id" },
                         { "Authentication:Google:ClientSecret", "test-google-client-secret" },
@@ -104,6 +120,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         await _dbContainer.StartAsync();
         await _redisContainer.StartAsync();
+        await _azuriteContainer.StartAsync();
 
         await InitializeDbContainer();
         await InitializeRespawner();
@@ -114,6 +131,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     {
         await _dbContainer.StopAsync();
         await _redisContainer.StopAsync();
+        await _azuriteContainer.StopAsync();
         GC.SuppressFinalize(this);
     }
 
