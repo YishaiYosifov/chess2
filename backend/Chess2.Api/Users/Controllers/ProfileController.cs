@@ -90,11 +90,11 @@ public class ProfileController(
         return editResult.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpPut("profile-picture", Name = nameof(UpdateProfilePicture))]
+    [HttpPut("profile-picture", Name = nameof(UploadProfilePicture))]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [RequestSizeLimit(2 * 1024 * 1024)]
     [Authorize]
-    public async Task<ActionResult> UpdateProfilePicture(
+    public async Task<ActionResult> UploadProfilePicture(
         [FromForm] IFormFile file,
         CancellationToken token
     )
