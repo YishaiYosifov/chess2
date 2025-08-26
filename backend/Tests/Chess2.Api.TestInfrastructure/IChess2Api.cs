@@ -52,7 +52,10 @@ public interface IChess2Api
     Task<IApiResponse> DeleteProfilePictureAsync();
 
     [Get("/api/profile/profile-picture/{userId}")]
-    Task<IApiResponse<byte>> GetProfilePIctureAsync(string userId);
+    Task<IApiResponse<Stream>> GetProfilePictureAsync(
+        string userId,
+        [Header("If-None-Match")] string? etag = null
+    );
     #endregion
 
     #region Game Controller
