@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import countries from "@public/data/countries.json";
-import CountrySelector from "../CountrySelector";
+import CountrySelector from "../profile/CountrySelector";
 import { Form, Formik } from "formik";
 import userEvent from "@testing-library/user-event";
 
