@@ -14,5 +14,4 @@ public class AuthedUser : IdentityUser
     public required string CountryCode { get; set; }
 
     public DateTime? UsernameLastChanged { get; set; }
-    public DateTime PasswordLastChanged { get; set; } = DateTime.UtcNow;
 }
