@@ -17,7 +17,7 @@ const ProfilePicture = ({
     refreshKey,
 }: ProfilePictureProps) => {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/api/Profile/profile-picture/${userId}`;
-    if (refreshKey) url += `?${refreshKey}`;
+    if (refreshKey !== undefined) url += `?${refreshKey}`;
 
     return (
         <Image
