@@ -61,16 +61,21 @@ const ProfilePictureForm = () => {
                 <div className="flex flex-col justify-center gap-3">
                     <div className="flex items-center gap-3">
                         <input
+                            data-testid="profilePictureFileInput"
                             type="file"
                             ref={inputRef}
                             onChange={onUpload}
                             hidden
                         />
 
-                        <Button onClick={() => inputRef.current?.click()}>
+                        <Button
+                            data-testid="uploadProfilePicture"
+                            onClick={() => inputRef.current?.click()}
+                        >
                             Update Profile Picture
                         </Button>
                         <TrashIcon
+                            data-testid="clearProfilePicture"
                             className="h-7 w-7 cursor-pointer"
                             onClick={clearProfilePicture}
                         />
@@ -78,7 +83,11 @@ const ProfilePictureForm = () => {
                     <p>Must be a valid image and cannot exceed 2MB</p>
                 </div>
             </section>
-            {error && <span className="text-error">{error}</span>}
+            {error && (
+                <span data-testid="profilePictureError" className="text-error">
+                    {error}
+                </span>
+            )}
         </Card>
     );
 };
