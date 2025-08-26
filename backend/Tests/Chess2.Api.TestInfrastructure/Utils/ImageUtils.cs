@@ -31,6 +31,6 @@ public static class ImageUtils
     )
     {
         var stream = CreateTestImageStream(width, height, color);
-        return new StreamPart(stream, "file", "test.png", "image/png");
+        return new StreamPart(stream, fileName: "test.png", contentType: "image/png");
     }
 }
