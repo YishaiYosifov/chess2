@@ -8,7 +8,7 @@ vi.mock("next/image");
 
 describe("ProfilePicture", () => {
     it("should render with default props", () => {
-        const { queryByAltText } = render(<ProfilePicture />);
+        const { queryByAltText } = render(<ProfilePicture userId="test" />);
         const profilePicture = queryByAltText("profile picture");
 
         expect(profilePicture).toBeInTheDocument();
@@ -16,12 +16,12 @@ describe("ProfilePicture", () => {
 
     it("should render with custom props", () => {
         const className = "test-class";
-        const username = "testuser";
+        const userId = "testuser";
         const size = 150;
 
         render(
             <ProfilePicture
-                userId={username}
+                userId={userId}
                 width={size}
                 height={size}
                 className={className}
@@ -31,10 +31,11 @@ describe("ProfilePicture", () => {
         expect(Image).toHaveBeenCalledWith(
             expect.objectContaining({
                 className: `aspect-square rounded-md ${className}`,
-                src: "/assets/logo-image-temp.webp",
+                src: `${process.env.NEXT_PUBLIC_API_URL}/api/Profile/profile-picture/${userId}`,
                 alt: "profile picture",
                 width: size,
                 height: size,
+                unoptimized: true,
             }),
             undefined,
         );
