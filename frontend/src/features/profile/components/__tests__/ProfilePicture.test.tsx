@@ -40,4 +40,18 @@ describe("ProfilePicture", () => {
             undefined,
         );
     });
+
+    it("should add refreshKey if provided", () => {
+        const userId = "testuser";
+        const refreshKey = 123;
+
+        render(<ProfilePicture userId={userId} refreshKey={refreshKey} />);
+
+        expect(Image).toHaveBeenCalledWith(
+            expect.objectContaining({
+                src: `${process.env.NEXT_PUBLIC_API_URL}/api/Profile/profile-picture/${userId}?${refreshKey}`,
+            }),
+            undefined,
+        );
+    });
 });

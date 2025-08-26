@@ -12,6 +12,8 @@ const USERNAME_EDIT_EVERY_SECONDS = 60 * 60 * 24 * 7 * 2;
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 10;
 
+const PROFILE_PICTURE_MAX_SIZE = 1024 * 1024 * 2;
+
 export enum OAuthProvider {
     GOOGLE = "google",
     DISCORD = "discord",
@@ -46,13 +48,6 @@ const SIGNALR_PATHS = {
 const HEADERS = {
     REDIRECT_AFTER_AUTH: "Redirect-After-Auth",
 };
-
-const SETTING_PAGES = [
-    { name: "Profile", url: "profile" },
-    { name: "Live Game", url: "live-game" },
-    { name: "Blocked", url: "blocked" },
-    { name: "Security", url: "security" },
-];
 
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
@@ -176,7 +171,7 @@ const constants = {
     USERNAME_EDIT_EVERY_SECONDS,
     BOARD_WIDTH,
     BOARD_HEIGHT,
-    SETTING_PAGES,
+    PROFILE_PICTURE_MAX_SIZE,
     STANDARD_TIME_CONTROLS,
     TIME_CONTROL_LABELS,
     DISPLAY_TIME_CONTROLS,
