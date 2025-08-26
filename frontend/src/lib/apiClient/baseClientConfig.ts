@@ -1,7 +1,7 @@
 import {
-    Config,
-    ClientOptions as DefaultClientOptions,
-} from "@hey-api/client-next";
+    type Config,
+    type ClientOptions as DefaultClientOptions,
+} from "./definition/client";
 import { ClientOptions } from "./definition";
 
 const baseClientConfig: Config<Required<DefaultClientOptions> & ClientOptions> =

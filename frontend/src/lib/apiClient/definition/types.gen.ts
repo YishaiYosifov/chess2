@@ -26,55 +26,8 @@ export type ApiProblemDetails = ProblemDetails & {
     [key: string]: unknown | Array<ApiProblemError>;
 };
 
-export enum ErrorCode {
-    USER_NOT_FOUND = "User.NotFound",
-    USER_COOLDOWN_SETTING = "User.Cooldown.Setting",
-    AUTH_TOKEN_MISSING = "Auth.TokenMissing",
-    AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
-    AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
-    AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
-    GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
-    GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
-    MATCHMAKING_SEEK_NOT_FOUND = "Matchmaking.SeekNotFound",
-    MATCHMAKING_SEEKER_NOT_COMPATIBLE = "Matchmaking.SeekerNotCompatible",
-    PLAYER_SESSION_CONNECTION_IN_GAME = "PlayerSession.ConnectionInGame",
-    PLAYER_SESSION_TOO_MANY_GAMES = "PlayerSession.TooManyGames",
-    GAME_NOT_FOUND = "Game.NotFound",
-    GAME_ALREADY_ENDED = "Game.AlreadyEnded",
-    GAME_PLAYER_INVALID = "Game.PlayerInvalid",
-    GAME_MOVE_INVALID = "Game.MoveInvalid",
-    GAME_DRAW_ALREADY_REQUESTED = "Game.DrawAlreadyRequested",
-    GAME_DRAW_ON_COOLDOWN = "Game.DrawOnCooldown",
-    GAME_DRAW_NOT_REQUESTED = "Game.DrawNotRequested",
-    GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
-    GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
-    GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
-}
-
 export type ApiProblemError = {
-    errorCode:
-        | "User.NotFound"
-        | "User.Cooldown.Setting"
-        | "Auth.TokenMissing"
-        | "Auth.TokenInvalid"
-        | "Auth.OAuth.Invalid"
-        | "Auth.OAuth.ProviderNotFound"
-        | "GameLogic.PieceNotFound"
-        | "GameLogic.PointOutOfBound"
-        | "Matchmaking.SeekNotFound"
-        | "Matchmaking.SeekerNotCompatible"
-        | "PlayerSession.ConnectionInGame"
-        | "PlayerSession.TooManyGames"
-        | "Game.NotFound"
-        | "Game.AlreadyEnded"
-        | "Game.PlayerInvalid"
-        | "Game.MoveInvalid"
-        | "Game.DrawAlreadyRequested"
-        | "Game.DrawOnCooldown"
-        | "Game.DrawNotRequested"
-        | "GameChat.InvalidUser"
-        | "GameChat.InvalidMessage"
-        | "GameChat.OnCooldown";
+    errorCode: ErrorCode;
     description: string;
 };
 
@@ -351,6 +304,32 @@ export type PlayerSummary = {
     rating?: number | null;
 };
 
+export enum ErrorCode {
+    USER_NOT_FOUND = "User.NotFound",
+    USER_COOLDOWN_SETTING = "User.Cooldown.Setting",
+    USER_INVALID_PROFILE_PICTURE = "User.InvalidProfilePicture",
+    AUTH_TOKEN_MISSING = "Auth.TokenMissing",
+    AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
+    AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
+    AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
+    GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
+    GAME_LOGIC_POINT_OUT_OF_BOUND = "GameLogic.PointOutOfBound",
+    MATCHMAKING_SEEK_NOT_FOUND = "Matchmaking.SeekNotFound",
+    MATCHMAKING_SEEKER_NOT_COMPATIBLE = "Matchmaking.SeekerNotCompatible",
+    PLAYER_SESSION_CONNECTION_IN_GAME = "PlayerSession.ConnectionInGame",
+    PLAYER_SESSION_TOO_MANY_GAMES = "PlayerSession.TooManyGames",
+    GAME_NOT_FOUND = "Game.NotFound",
+    GAME_ALREADY_ENDED = "Game.AlreadyEnded",
+    GAME_PLAYER_INVALID = "Game.PlayerInvalid",
+    GAME_MOVE_INVALID = "Game.MoveInvalid",
+    GAME_DRAW_ALREADY_REQUESTED = "Game.DrawAlreadyRequested",
+    GAME_DRAW_ON_COOLDOWN = "Game.DrawOnCooldown",
+    GAME_DRAW_NOT_REQUESTED = "Game.DrawNotRequested",
+    GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
+    GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
+    GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
+}
+
 export type GetSessionUserData = {
     body?: never;
     path?: never;
@@ -431,6 +410,68 @@ export type EditUsernameResponses = {
 
 export type EditUsernameResponse =
     EditUsernameResponses[keyof EditUsernameResponses];
+
+export type DeleteProfilePictureData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Profile/profile-picture";
+};
+
+export type DeleteProfilePictureErrors = {
+    401: ApiProblemDetails;
+};
+
+export type DeleteProfilePictureError =
+    DeleteProfilePictureErrors[keyof DeleteProfilePictureErrors];
+
+export type DeleteProfilePictureResponses = {
+    204: void;
+};
+
+export type DeleteProfilePictureResponse =
+    DeleteProfilePictureResponses[keyof DeleteProfilePictureResponses];
+
+export type UploadProfilePictureData = {
+    body?: {
+        ContentType?: string | null;
+        ContentDisposition?: string | null;
+        Headers?: Array<unknown> | null;
+        Length?: number;
+        Name?: string | null;
+        FileName?: string | null;
+    };
+    path?: never;
+    query?: never;
+    url: "/api/Profile/profile-picture";
+};
+
+export type UploadProfilePictureErrors = {
+    401: ApiProblemDetails;
+};
+
+export type UploadProfilePictureError =
+    UploadProfilePictureErrors[keyof UploadProfilePictureErrors];
+
+export type UploadProfilePictureResponses = {
+    201: unknown;
+};
+
+export type GetProfilePictureData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: "/api/Profile/profile-picture/{userId}";
+};
+
+export type GetProfilePictureResponses = {
+    200: Blob | File;
+};
+
+export type GetProfilePictureResponse =
+    GetProfilePictureResponses[keyof GetProfilePictureResponses];
 
 export type GetRatingArchivesData = {
     body?: never;

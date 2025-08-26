@@ -1,5 +1,5 @@
 import type { ClientOptions } from "./definition/types.gen";
-import { createClient, createConfig } from "@hey-api/client-next";
+import { createClient, createConfig } from "./definition/client";
 import baseClientConfig from "./baseClientConfig";
 
 const config = {
