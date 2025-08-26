@@ -5,7 +5,7 @@ import { ChangeEvent, useRef, useState } from "react";
 
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
-import { uploadProfilePicture } from "@/lib/apiClient";
+import { deleteProfilePicture, uploadProfilePicture } from "@/lib/apiClient";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
@@ -43,6 +43,17 @@ const ProfilePictureForm = () => {
         setError(null);
     }
 
+    async function clearProfilePicture(): Promise<void> {
+        const { error } = await deleteProfilePicture();
+        if (error) {
+            console.log(error);
+            setError("Failed to clear profile picture");
+            return;
+        }
+
+        setRefreshKey((prev) => prev + 1);
+    }
+
     return (
         <Card className="w-full max-w-3xl gap-0">
             <section className="flex h-fit w-full gap-3">
@@ -59,7 +70,10 @@ const ProfilePictureForm = () => {
                         <Button onClick={() => inputRef.current?.click()}>
                             Update Profile Picture
                         </Button>
-                        <TrashIcon className="h-7 w-7" />
+                        <TrashIcon
+                            className="h-7 w-7 cursor-pointer"
+                            onClick={clearProfilePicture}
+                        />
                     </div>
                     <p>Must be a valid image and cannot exceed 2MB</p>
                 </div>
