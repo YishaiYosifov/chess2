@@ -94,15 +94,20 @@ public class ProfileController(
     [ProducesResponseType(StatusCodes.Status201Created)]
     [RequestSizeLimit(2 * 1024 * 1024)]
     [Authorize]
-    public async Task<ActionResult> UpdateProfilePicture([FromForm] IFormFile file)
+    public async Task<ActionResult> UpdateProfilePicture(
+        [FromForm] IFormFile file,
+        CancellationToken token
+    )
     {
         var userIdResult = _authService.GetUserId(HttpContext.User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
+        using var stream = file.OpenReadStream();
         var uploadResult = await _profilePictureProvider.UploadProfilePictureAsync(
             userIdResult.Value,
-            file
+            stream,
+            token
         );
         return uploadResult.Match(value => Created(), errors => errors.ToActionResult());
     }
