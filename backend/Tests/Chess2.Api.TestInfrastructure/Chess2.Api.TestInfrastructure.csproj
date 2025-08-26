@@ -25,6 +25,7 @@
     <PackageReference Include="System.Formats.Asn1" Version="9.0.4" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="4.4.0" />
     <PackageReference Include="Testcontainers.Redis" Version="4.4.0" />
+    <PackageReference Include="Testcontainers.Azurite" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
