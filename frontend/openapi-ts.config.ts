@@ -15,8 +15,12 @@ export default defineConfig({
         },
         {
             name: "@hey-api/typescript",
-            enums: "typescript",
-            exportInlineEnums: true,
+            enums: {
+                mode: "typescript",
+            },
         },
     ],
+    parser: {
+        transforms: { enums: { mode: "root", name: "{{name}}" } },
+    },
 });
