@@ -72,7 +72,7 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
                     )
                 );
 
-                var injectableTestOutputSink = new InjectableTestOutputSink();
+                InjectableTestOutputSink injectableTestOutputSink = new();
                 services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
                 services.AddSerilog(
                     (_, loggerConfiguration) =>
