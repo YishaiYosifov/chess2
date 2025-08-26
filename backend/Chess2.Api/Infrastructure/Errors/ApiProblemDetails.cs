@@ -18,6 +18,7 @@ public static class ErrorCodes
 {
     public const string UserNotFound = "User.NotFound";
     public const string UserSettingOnCooldown = "User.Cooldown.Setting";
+    public const string UserInvalidProfilePicture = "User.InvalidProfilePicture";
 
     public const string AuthTokenMissing = "Auth.TokenMissing";
     public const string AuthTokenInvalid = "Auth.TokenInvalid";

@@ -43,6 +43,13 @@ public interface IChess2Api
     [Put("/api/profile/edit-username")]
     [Headers("Content-Type: application/json; charset=utf-8")]
     Task<IApiResponse> EditUsernameAsync(UsernameEditRequest usernameEdit);
+
+    [Multipart]
+    [Put("/api/profile/profile-picture")]
+    Task<IApiResponse> UploadProfilePictureAsync(StreamPart file);
+
+    [Get("/api/profile/profile-picture/{userId}")]
+    Task<IApiResponse<byte>> GetProfilePIctureAsync(string userId);
     #endregion
 
     #region Game Controller
