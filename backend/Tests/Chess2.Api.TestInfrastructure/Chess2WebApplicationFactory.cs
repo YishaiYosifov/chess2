@@ -98,8 +98,8 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     public ApiClient CreateApiClient()
     {
-        var cookieContainer = new CookieContainer();
-        var cookieHandler = new CookieContainerHandler(cookieContainer);
+        CookieContainer cookieContainer = new();
+        CookieContainerHandler cookieHandler = new(cookieContainer);
 
         var httpClient = CreateDefaultClient(new Uri("https://localhost"), cookieHandler);
         var apiClient = RestService.For<IChess2Api>(
