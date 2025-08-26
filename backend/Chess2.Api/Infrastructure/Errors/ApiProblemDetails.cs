@@ -12,6 +12,12 @@ public class ApiProblemError
     /// <see cref="ErrorCodes"/>
     public required string ErrorCode { get; set; }
     public required string Description { get; set; }
+    public Dictionary<string, object> Metadata { get; set; } = [];
+}
+
+public static class ErroConstants
+{
+    public const string FieldValidationMeta = "InvalidField";
 }
 
 public static class ErrorCodes
