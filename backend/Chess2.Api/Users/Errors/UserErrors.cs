@@ -10,4 +10,10 @@ public static class UserErrors
 
     public static Error SettingOnCooldown =>
         Error.Forbidden(ErrorCodes.UserSettingOnCooldown, "Cannot edit a setting, on cooldown");
+
+    public static Error InvalidProfilePicture =>
+        Error.Validation(
+            ErrorCodes.UserInvalidProfilePicture,
+            "The provided profile picture is not a valid image"
+        );
 }

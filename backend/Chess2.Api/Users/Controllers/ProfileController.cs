@@ -19,13 +19,15 @@ public class ProfileController(
     IUserSettings userSettings,
     IAuthService authService,
     IGuestService guestService,
-    UserManager<AuthedUser> userManager
+    UserManager<AuthedUser> userManager,
+    IProfilePictureProvider profilePictureProvider
 ) : ControllerBase
 {
     private readonly IUserSettings _userSettings = userSettings;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly IProfilePictureProvider _profilePictureProvider = profilePictureProvider;
 
     [HttpGet("me", Name = nameof(GetSessionUser))]
     [ProducesResponseType<SessionUser>(StatusCodes.Status200OK)]
@@ -62,12 +64,10 @@ public class ProfileController(
     }
 
     [HttpPut("edit-profile", Name = nameof(EditProfileSettings))]
-    [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
-    public async Task<ActionResult<PublicUser>> EditProfileSettings(
-        ProfileEditRequest profileEditRequest
-    )
+    public async Task<ActionResult> EditProfileSettings(ProfileEditRequest profileEditRequest)
     {
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
@@ -87,6 +87,51 @@ public class ProfileController(
             return Error.Unauthorized().ToActionResult();
 
         var editResult = await _userSettings.EditUsernameAsync(user, usernameEditRequest);
-        return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
+        return editResult.Match(value => NoContent(), errors => errors.ToActionResult());
+    }
+
+    [HttpPut("profile-picture", Name = nameof(UpdateProfilePicture))]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [RequestSizeLimit(2 * 1024 * 1024)]
+    [Authorize]
+    public async Task<ActionResult> UpdateProfilePicture([FromForm] IFormFile file)
+    {
+        var userIdResult = _authService.GetUserId(HttpContext.User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var uploadResult = await _profilePictureProvider.UploadProfilePictureAsync(
+            userIdResult.Value,
+            file
+        );
+        return uploadResult.Match(value => Created(), errors => errors.ToActionResult());
+    }
+
+    [HttpDelete("profile-picture", Name = nameof(DeleteProfilePicture))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [Authorize]
+    public async Task<ActionResult> DeleteProfilePicture(CancellationToken token)
+    {
+        var userIdResult = _authService.GetUserId(HttpContext.User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        await _profilePictureProvider.DeleteProfilePictureAsync(userIdResult.Value, token);
+        return NoContent();
+    }
+
+    [HttpGet("profile-picture/{userId}", Name = nameof(GetProfilePicture))]
+    [ProducesResponseType<FileResult>(StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetProfilePicture(string userId, CancellationToken token)
+    {
+        var lastModified = await _profilePictureProvider.GetLastModifiedAsync(userId, token);
+        var etag = $"\"{lastModified.Ticks}\"";
+        Response.Headers.ETag = etag;
+
+        if (HttpContext.Request.Headers.TryGetValue("If-None-Match", out var inm) && inm == etag)
+            return StatusCode(StatusCodes.Status304NotModified);
+
+        var image = await _profilePictureProvider.GetProfilePictureAsync(userId, token);
+        return File(image, "image/webp");
     }
 }

@@ -14,6 +14,8 @@ public class AppSettings
 
     public required string RedisConnString { get; set; }
     public required string DatabaseConnString { get; set; }
+    public required string BlobStorageConnString { get; set; }
+
     public TimeSpan UsernameEditCooldown { get; set; }
 }
 

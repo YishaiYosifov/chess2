@@ -32,6 +32,7 @@ using Chess2.Api.Users.Entities;
 using Chess2.Api.Users.Services;
 using Chess2.Api.Users.Validators;
 using ErrorOr;
+using FluentStorage;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -122,6 +123,12 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(serviceProvider =>
 {
     var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
     return ConnectionMultiplexer.Connect(runtimeAppSettings.RedisConnString);
+});
+
+builder.Services.AddSingleton(serviceProvider =>
+{
+    var runtimeAppSettings = serviceProvider.GetRequiredService<IOptions<AppSettings>>().Value;
+    return StorageFactory.Blobs.AzureBlobStorageWithLocalEmulator().WithGzipCompression();
 });
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -357,11 +364,15 @@ builder.Services.AddScoped<IChatMessageLogger, ChatMessageLogger>();
 builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #endregion
 
+#region Profile
+builder.Services.AddScoped<IUserSettings, UserSettings>();
+builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
+#endregion
+
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
-builder.Services.AddScoped<IUserSettings, UserSettings>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
