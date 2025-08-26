@@ -29,6 +29,9 @@ export type ApiProblemDetails = ProblemDetails & {
 export type ApiProblemError = {
     errorCode: ErrorCode;
     description: string;
+    metadata: {
+        [key: string]: unknown;
+    };
 };
 
 export type ProblemDetails = {
@@ -434,12 +437,7 @@ export type DeleteProfilePictureResponse =
 
 export type UploadProfilePictureData = {
     body?: {
-        ContentType?: string | null;
-        ContentDisposition?: string | null;
-        Headers?: Array<unknown> | null;
-        Length?: number;
-        Name?: string | null;
-        FileName?: string | null;
+        File?: (Blob | File) | null;
     };
     path?: never;
     query?: never;
