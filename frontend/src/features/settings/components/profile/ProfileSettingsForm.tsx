@@ -13,10 +13,9 @@ import { editProfileSettings, PrivateUser } from "@/lib/apiClient";
 import FormikTextField from "@/components/ui/FormikField";
 import Card from "@/components/ui/Card";
 
-const CountrySelector = dynamic(
-    () => import("@/features/settings/components/CountrySelector"),
-    { ssr: false },
-);
+const CountrySelector = dynamic(() => import("./CountrySelector"), {
+    ssr: false,
+});
 
 interface ProfileSettingsValues {
     about: string;
