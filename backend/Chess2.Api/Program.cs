@@ -121,7 +121,9 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 
 StorageFactory.Modules.UseAzureBlobStorage();
 builder.Services.AddSingleton(
-    StorageFactory.Blobs.FromConnectionString("azure.blob://").WithGzipCompression()
+    StorageFactory
+        .Blobs.FromConnectionString(appSettings.BlobStorageConnString)
+        .WithGzipCompression()
 );
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
