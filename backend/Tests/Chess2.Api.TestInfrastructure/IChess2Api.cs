@@ -48,6 +48,9 @@ public interface IChess2Api
     [Put("/api/profile/profile-picture")]
     Task<IApiResponse> UploadProfilePictureAsync(StreamPart file);
 
+    [Delete("/api/profile/profile-picture")]
+    Task<IApiResponse> DeleteProfilePictureAsync();
+
     [Get("/api/profile/profile-picture/{userId}")]
     Task<IApiResponse<byte>> GetProfilePIctureAsync(string userId);
     #endregion

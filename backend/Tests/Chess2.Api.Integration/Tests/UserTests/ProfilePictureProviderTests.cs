@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.Errors;
 using Chess2.Api.Users.Models;
 using Chess2.Api.Users.Services;
@@ -25,25 +26,6 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
         _userId = Guid.NewGuid().ToString();
     }
 
-    private static MemoryStream CreateTestImage(
-        int width = 10,
-        int height = 10,
-        SKColor? color = null
-    )
-    {
-        using SKBitmap bitmap = new(width, height);
-
-        using var canvas = new SKCanvas(bitmap);
-        canvas.Clear(color ?? SKColors.White);
-
-        MemoryStream ms = new();
-        using var image = SKImage.FromBitmap(bitmap);
-        image.Encode(SKEncodedImageFormat.Png, 100).SaveTo(ms);
-        ms.Position = 0;
-
-        return ms;
-    }
-
     private static string GetPfpPath(UserId userId) => $"profile-pictures/{userId}";
 
     [Fact]
@@ -52,7 +34,7 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
         int width = 30;
         int height = 20;
 
-        var stream = CreateTestImage(width, height, color: SKColors.White);
+        using var stream = ImageUtils.CreateTestImageStream(width, height, color: SKColors.White);
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, stream, CT);
 
         var bytes = await _storage.ReadBytesAsync(GetPfpPath(_userId), CT);
@@ -87,7 +69,10 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     [Fact]
     public async Task UploadProfilePictureAsync_crops_image_if_its_above_max_dimensions()
     {
-        var stream = CreateTestImage(ProfilePictureProvider.MaxDimensionPx + 100, 10);
+        using var stream = ImageUtils.CreateTestImageStream(
+            ProfilePictureProvider.MaxDimensionPx + 100,
+            10
+        );
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, stream, CT);
 
         var bytes = await _storage.ReadBytesAsync(GetPfpPath(_userId), CT);
@@ -100,7 +85,7 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     [Fact]
     public async Task DeleteProfilePictureAsync_removes_uploaded_picture()
     {
-        var stream = CreateTestImage();
+        using var stream = ImageUtils.CreateTestImageStream();
 
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, stream, CT);
         await _profilePictureProvider.DeleteProfilePictureAsync(_userId, CT);
@@ -127,8 +112,8 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     {
         UserId userId2 = Guid.NewGuid().ToString();
 
-        var user1Stream = CreateTestImage(color: SKColors.White);
-        var user2Stream = CreateTestImage(color: SKColors.Black);
+        using var user1Stream = ImageUtils.CreateTestImageStream(color: SKColors.White);
+        using var user2Stream = ImageUtils.CreateTestImageStream(color: SKColors.Black);
 
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, user1Stream, CT);
         await _profilePictureProvider.UploadProfilePictureAsync(userId2, user2Stream, CT);
@@ -147,7 +132,7 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     [Fact]
     public async Task GetLastModifiedAsync_returns_value_after_upload()
     {
-        var stream = CreateTestImage();
+        using var stream = ImageUtils.CreateTestImageStream();
 
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, stream, CT);
 
@@ -167,7 +152,7 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     [Fact]
     public async Task UploadProfilePictureAsync_returns_error_for_invalid_file()
     {
-        await using MemoryStream ms = new([1, 2, 3, 4, 5]);
+        using MemoryStream ms = new([1, 2, 3, 4, 5]);
 
         var result = await _profilePictureProvider.UploadProfilePictureAsync(_userId, ms, CT);
 
