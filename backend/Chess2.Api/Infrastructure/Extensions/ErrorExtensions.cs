@@ -19,41 +19,11 @@ public static class ErrorExtensions
     public static ActionResult ToActionResult(this IEnumerable<Error> errors)
     {
         var errorType = errors.First().Type;
-        return errorType switch
-        {
-            ErrorType.Validation => new ObjectResult(CreateValidationProblemDetails(errors)),
-            _ => new ObjectResult(CreateApiProblemDetails(errors)),
-        };
-    }
-
-    private static ValidationProblemDetails CreateValidationProblemDetails(
-        IEnumerable<Error> errors
-    )
-    {
-        var formattedErrors = errors
-            .GroupBy(x => x.Code)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(err => err.Description).ToArray()
-            );
-
-        var problemDetails = new ValidationProblemDetails()
-        {
-            Status = GetStatusCode(ErrorType.Validation),
-            Title = GetTitle(ErrorType.Validation),
-            Type = GetType(ErrorType.Validation),
-            Errors = formattedErrors,
-        };
-        return problemDetails;
-    }
-
-    private static ApiProblemDetails CreateApiProblemDetails(IEnumerable<Error> errors)
-    {
-        var errorType = errors.First().Type;
         var formattedErrors = errors.Select(error => new ApiProblemError()
         {
             ErrorCode = error.Code,
             Description = error.Description,
+            Metadata = error.Metadata ?? [],
         });
 
         var problemDetails = new ApiProblemDetails()
@@ -63,7 +33,7 @@ public static class ErrorExtensions
             Type = GetType(errorType),
             Errors = formattedErrors,
         };
-        return problemDetails;
+        return new ObjectResult(problemDetails);
     }
 
     private static int GetStatusCode(ErrorType errorType) =>

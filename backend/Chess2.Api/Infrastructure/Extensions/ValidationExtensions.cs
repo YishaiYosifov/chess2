@@ -1,4 +1,5 @@
-﻿using ErrorOr;
+﻿using Chess2.Api.Infrastructure.Errors;
+using ErrorOr;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,7 +10,10 @@ public static class ValidationExtensions
     public static List<Error> ToErrorList(this IEnumerable<ValidationFailure> errors) =>
         [
             .. errors.Select(error =>
-                Error.Validation(code: error.PropertyName, description: error.ErrorMessage)
+                Error.Validation(
+                    description: error.ErrorMessage,
+                    metadata: new() { [ErroConstants.FieldValidationMeta] = error.PropertyName }
+                )
             ),
         ];
 
