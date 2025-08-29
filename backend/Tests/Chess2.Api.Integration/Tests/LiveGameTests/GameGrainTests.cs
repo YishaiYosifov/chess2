@@ -6,7 +6,6 @@ using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Orleans.TestKit;
+using Orleans.TestKit.Storage;
 
 namespace Chess2.Api.Integration.Tests.LiveGameTests;
 
@@ -31,15 +31,16 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private readonly IGameResultDescriber _gameResultDescriber;
     private readonly ISanCalculator _sanCalculator;
     private readonly IGameCore _gameCore;
-    private readonly IDrawRequestHandler _drawRequestHandler;
     private readonly GameSettings _settings;
 
     private readonly IGameNotifier _gameNotifierMock = Substitute.For<IGameNotifier>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
-    private readonly IStopwatchProvider _stopwatchMock = Substitute.For<IStopwatchProvider>();
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
+
+    private readonly GameGrainState _state;
+    private readonly TestStorageStats _stateStats;
 
     public GameGrainTests(Chess2WebApplicationFactory factory)
         : base(factory)
@@ -48,22 +49,25 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         _gameCore = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameCore>();
         _gameResultDescriber =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameResultDescriber>();
-        _drawRequestHandler =
-            ApiTestBase.Scope.ServiceProvider.GetRequiredService<IDrawRequestHandler>();
-        _settings = ApiTestBase
-            .Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>()
-            .Value.Game;
-        var gameFinalizer = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-        var clock = new GameClock(_timeProviderMock, _stopwatchMock);
 
+        var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
+            IOptions<AppSettings>
+        >();
+        var gameFinalizer = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
+        GameClock clock = new(_timeProviderMock);
+
+        _settings = settings.Value.Game;
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
         Silo.ServiceProvider.AddService(_gameCore);
         Silo.ServiceProvider.AddService<IGameClock>(clock);
         Silo.ServiceProvider.AddService(_gameResultDescriber);
         Silo.ServiceProvider.AddService(_gameNotifierMock);
-        Silo.ServiceProvider.AddService(_drawRequestHandler);
         Silo.ServiceProvider.AddService(gameFinalizer);
+        Silo.ServiceProvider.AddService(settings);
+
+        _state = Silo.State<GameGrain, GameGrainState>();
+        _stateStats = Silo.StorageManager.GetStorageStats<GameGrain, GameGrainState>()!;
     }
 
     private async Task<IGameGrain> CreateGrainAsync() =>
@@ -78,21 +82,21 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var result = await grain.GetStateAsync(_whitePlayer.UserId);
 
         result.IsError.Should().BeFalse();
-        var expectedClock = new ClockSnapshot(
+        ClockSnapshot expectedClock = new(
             WhiteClock: _pool.TimeControl.BaseSeconds * 1000,
             BlackClock: _pool.TimeControl.BaseSeconds * 1000,
             LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
         );
-        var legalMoves = _gameCore.GetLegalMoves(GameColor.White);
-        var expectedGameState = new GameState(
+        var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state.Core);
+        GameState expectedGameState = new(
             Pool: _pool,
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
             Clocks: expectedClock,
             SideToMove: GameColor.White,
-            InitialFen: _gameCore.InitialFen,
+            InitialFen: _state.InitialFen,
             MoveHistory: [],
-            DrawState: _drawRequestHandler.GetState(),
+            DrawState: new DrawState(),
             MoveOptions: new(
                 LegalMoves: legalMoves.MovePaths,
                 HasForcedMoves: legalMoves.HasForcedMoves
@@ -119,6 +123,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         var state = await grain.GetStateAsync();
         state.Value.DrawState.ActiveRequester.Should().Be(GameColor.White);
+        _stateStats.Writes.Should().Be(1);
     }
 
     [Fact]
@@ -151,6 +156,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         var state = await grain.GetStateAsync();
         state.Value.DrawState.ActiveRequester.Should().BeNull();
+        _stateStats.Writes.Should().Be(2);
+        _stateStats.Clears.Should().Be(0);
     }
 
     [Fact]
@@ -158,7 +165,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
-        _stopwatchMock.Elapsed.Returns(TimeSpan.FromSeconds(2));
+        var in2Seconds = _fakeNow + TimeSpan.FromSeconds(2);
+        _timeProviderMock.GetUtcNow().Returns(in2Seconds);
 
         var move = await MakeLegalMoveAsync(grain, _whitePlayer);
 
@@ -171,16 +179,16 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             Path: MovePath.FromMove(move, GameConstants.BoardWidth),
             San: _sanCalculator.CalculateSan(
                 move,
-                _gameCore.GetLegalMoves(GameColor.White).AllMoves
+                _gameCore.GetLegalMovesOf(GameColor.White, _state.Core).AllMoves
             ),
             TimeLeft: expectedTimeLeft
         );
         ClockSnapshot expectedClock = new(
             WhiteClock: expectedTimeLeft,
             BlackClock: _pool.TimeControl.BaseSeconds * 1000,
-            LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
+            LastUpdated: in2Seconds.ToUnixTimeMilliseconds()
         );
-        var legalMoves = _gameCore.GetLegalMoves(GameColor.Black);
+        var legalMoves = _gameCore.GetLegalMovesOf(GameColor.Black, _state.Core);
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
@@ -232,6 +240,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             await grain.MovePieceAsync(_blackPlayer.UserId, new(blackFrom, blackTo));
         }
 
+        // (1 white move + 1 black move) * 4 times - 1 that results in a draw
+        _stateStats.Writes.Should().Be(2 * 4 - 1);
         await TestGameEndedAsync(grain, _gameResultDescriber.ThreeFold());
     }
 
@@ -338,7 +348,10 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await MakeLegalMoveAsync(grain, _blackPlayer);
         await MakeLegalMoveAsync(grain, _whitePlayer);
 
+        _stateStats.ResetCounts();
         await grain.RequestGameEndAsync(_whitePlayer.UserId);
+        _stateStats.Writes.Should().Be(0);
+
         await TestGameEndedAsync(grain, _gameResultDescriber.Resignation(GameColor.White));
     }
 
@@ -365,7 +378,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     private Move GetLegalMoveFor(GamePlayer player) =>
-        _gameCore.GetLegalMoves(player.Color).MovesMap.First().Value;
+        _gameCore.GetLegalMovesOf(player.Color, _state.Core).MovesMap.First().Value;
 
     private async Task<Move> MakeLegalMoveAsync(IGameGrain grain, GamePlayer player)
     {
@@ -374,14 +387,15 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         return move;
     }
 
-    private Task StartGameAsync(
+    private async Task StartGameAsync(
         IGameGrain grain,
         GamePlayer? whitePlayer = null,
         GamePlayer? blackPlayer = null,
         TimeControlSettings? timeControl = null,
         PoolType? poolType = null
-    ) =>
-        grain.StartGameAsync(
+    )
+    {
+        await grain.StartGameAsync(
             whitePlayer: whitePlayer ?? _whitePlayer,
             blackPlayer: blackPlayer ?? _blackPlayer,
             pool: new PoolKey(
@@ -389,6 +403,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
                 TimeControl: timeControl ?? _pool.TimeControl
             )
         );
+        _stateStats.ResetCounts();
+    }
 
     private async Task TestGameEndedAsync(IGameGrain grain, GameEndStatus expectedEndStatus)
     {
@@ -406,5 +422,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             );
         var isOngoing = await grain.IsGameOngoingAsync();
         isOngoing.Should().BeFalse();
+
+        _stateStats.Clears.Should().Be(1);
     }
 }

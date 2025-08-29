@@ -4,8 +4,10 @@ using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using ErrorOr;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
@@ -17,6 +19,11 @@ public class GameGrainTests : BaseGrainTest
     private readonly PoolKey _pool = new(PoolType.Rated, new(600, 5));
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).Generate();
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).Generate();
+
+    public GameGrainTests()
+    {
+        Silo.ServiceProvider.AddService(Options.Create(AppSettingsLoader.LoadAppSettings()));
+    }
 
     [Fact]
     public async Task StartGame_initializes_the_game_and_transitions_to_playing_state()
