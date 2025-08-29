@@ -23,6 +23,7 @@ const ProfilePicture = ({
         <Image
             data-testid="profilePicture"
             className={twMerge("aspect-square rounded-md", className)}
+            style={{ width, height }}
             alt="profile picture"
             src={url}
             width={width}

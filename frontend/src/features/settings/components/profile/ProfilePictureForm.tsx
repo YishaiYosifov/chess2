@@ -56,9 +56,9 @@ const ProfilePictureForm = () => {
 
     return (
         <Card className="w-full max-w-3xl gap-0">
-            <section className="flex h-fit w-full gap-3">
+            <section className="flex h-fit w-full flex-col items-center gap-3 sm:flex-row sm:items-start">
                 <ProfilePicture userId={user.userId} refreshKey={refreshKey} />
-                <div className="flex flex-col justify-center gap-3">
+                <div className="flex flex-col items-center justify-center gap-3 sm:items-start">
                     <div className="flex items-center gap-3">
                         <input
                             data-testid="profilePictureFileInput"
