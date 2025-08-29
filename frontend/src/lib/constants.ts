@@ -49,8 +49,17 @@ const HEADERS = {
     REDIRECT_AFTER_AUTH: "Redirect-After-Auth",
 };
 
+const SEARCH_PARAMS = {
+    SETTINGS_PAGE: "page",
+};
+
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
+};
+
+const SETTING_QUERY_PATHS = {
+    PROFILE: "profile",
+    SOCIAL: "social",
 };
 
 interface TimeControlLabel {
@@ -180,7 +189,9 @@ const constants = {
     COOKIES,
     PATHS,
     HEADERS,
+    SEARCH_PARAMS,
     LOCALSTORAGE,
+    SETTING_QUERY_PATHS,
     ALLOW_ABORTION_UNTIL_MOVE,
     INITIAL_FEN,
     LETTER_TO_PIECE,
