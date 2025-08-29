@@ -9,18 +9,20 @@ public class DrawEvaluatorTests
 {
     private readonly GameResultDescriber _describer = new();
     private readonly DrawEvaulator _drawEvaluator;
+    private readonly AutoDrawState _state;
 
     public DrawEvaluatorTests()
     {
         _drawEvaluator = new DrawEvaulator(_describer);
+        _state = new AutoDrawState();
     }
 
     [Fact]
     public void TryEvaluateDraw_returns_false_with_no_draw_condition()
     {
-        var move = new Move(from: new("a1"), to: new("a2"), piece: PieceFactory.White());
+        Move move = new(from: new("a1"), to: new("a2"), piece: PieceFactory.White());
 
-        var result = _drawEvaluator.TryEvaluateDraw(move, "fen", out var endStatus);
+        var result = _drawEvaluator.TryEvaluateDraw(move, "fen", _state, out var endStatus);
 
         result.Should().BeFalse();
         endStatus.Should().BeNull();
@@ -29,11 +31,11 @@ public class DrawEvaluatorTests
     [Fact]
     public void TryEvaluateDraw_returns_true_after_three_fold_repetition()
     {
-        var move = new Move(from: new("a1"), to: new("a2"), piece: PieceFactory.White());
+        Move move = new(from: new("a1"), to: new("a2"), piece: PieceFactory.White());
 
-        _drawEvaluator.TryEvaluateDraw(move, "fen", out _).Should().BeFalse();
-        _drawEvaluator.TryEvaluateDraw(move, "fen", out _).Should().BeFalse();
-        var result = _drawEvaluator.TryEvaluateDraw(move, "fen", out var endStatus);
+        _drawEvaluator.TryEvaluateDraw(move, "fen", _state, out _).Should().BeFalse();
+        _drawEvaluator.TryEvaluateDraw(move, "fen", _state, out _).Should().BeFalse();
+        var result = _drawEvaluator.TryEvaluateDraw(move, "fen", _state, out var endStatus);
 
         result.Should().BeTrue();
         endStatus.Should().BeEquivalentTo(_describer.ThreeFold());
@@ -42,7 +44,7 @@ public class DrawEvaluatorTests
     [Fact]
     public void TryEvaluateDraw_returns_true_after_50_moves()
     {
-        var move = new Move(
+        Move move = new(
             from: new("a1"),
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Horsey)
@@ -50,10 +52,10 @@ public class DrawEvaluatorTests
 
         for (int i = 0; i < 99; i++)
         {
-            _drawEvaluator.TryEvaluateDraw(move, $"fen {i}", out _).Should().BeFalse();
+            _drawEvaluator.TryEvaluateDraw(move, $"fen {i}", _state, out _).Should().BeFalse();
         }
 
-        var result = _drawEvaluator.TryEvaluateDraw(move, $"fen final", out var endStatus);
+        var result = _drawEvaluator.TryEvaluateDraw(move, $"fen final", _state, out var endStatus);
 
         result.Should().BeTrue();
         endStatus.Should().BeEquivalentTo(_describer.FiftyMoves());
@@ -62,7 +64,7 @@ public class DrawEvaluatorTests
     [Fact]
     public void TryEvaluateDraw_resets_half_clock_after_pawn_move()
     {
-        var pawnMove = new Move(
+        Move pawnMove = new(
             from: new("a1"),
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Pawn)
@@ -73,7 +75,7 @@ public class DrawEvaluatorTests
     [Fact]
     public void TryEvaluateDraw_ResetsHalfMoveClock_OnCapture()
     {
-        var captureMove = new Move(
+        Move captureMove = new(
             from: new("a1"),
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Knook),
@@ -84,22 +86,25 @@ public class DrawEvaluatorTests
 
     private void TestFiftyMoveReset(Move resetMove)
     {
-        var regularMove = new Move(
+        Move regularMove = new(
             from: new("a1"),
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Horsey)
         );
         for (int i = 0; i < 49; i++)
         {
-            _drawEvaluator.TryEvaluateDraw(regularMove, $"fen {i}", out _).Should().BeFalse();
+            _drawEvaluator
+                .TryEvaluateDraw(regularMove, $"fen {i}", _state, out _)
+                .Should()
+                .BeFalse();
         }
 
-        _drawEvaluator.TryEvaluateDraw(resetMove, "fen reset", out var _).Should().BeFalse();
+        _drawEvaluator.TryEvaluateDraw(resetMove, "fen reset", _state, out _).Should().BeFalse();
 
         for (int i = 0; i < 50; i++)
         {
             _drawEvaluator
-                .TryEvaluateDraw(regularMove, $"fen after reset {i}", out _)
+                .TryEvaluateDraw(regularMove, $"fen after reset {i}", _state, out _)
                 .Should()
                 .BeFalse();
         }

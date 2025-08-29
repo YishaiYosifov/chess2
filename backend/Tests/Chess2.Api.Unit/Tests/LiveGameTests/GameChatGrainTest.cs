@@ -2,7 +2,6 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -63,7 +62,7 @@ public class GameChatGrainTest : BaseGrainTest
         var settingOptions = AppSettingsLoader.LoadAppSettings();
         _settings = settingOptions.Game.Chat;
 
-        _gameGrainMock.GetPlayersAsync().Returns(new GamePlayers(_whitePlayer, _blackPlayer));
+        _gameGrainMock.GetPlayersAsync().Returns(new PlayerRoster(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
             .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
