@@ -63,7 +63,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             return;
         }
 
-        var response = await _grains.GetGrain<IGameGrain>(gameToken).EndGameAsync(userId);
+        var response = await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(userId);
         if (response.IsError)
         {
             await HandleErrors(response.Errors);

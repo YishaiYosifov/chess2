@@ -322,7 +322,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await StartGameAsync(grain);
 
         // No moves or just one move = still abortable
-        await grain.EndGameAsync(_whitePlayer.UserId);
+        await grain.RequestGameEndAsync(_whitePlayer.UserId);
 
         await TestGameEndedAsync(grain, _gameResultDescriber.Aborted(GameColor.White));
     }
@@ -338,7 +338,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await MakeLegalMoveAsync(grain, _blackPlayer);
         await MakeLegalMoveAsync(grain, _whitePlayer);
 
-        await grain.EndGameAsync(_whitePlayer.UserId);
+        await grain.RequestGameEndAsync(_whitePlayer.UserId);
         await TestGameEndedAsync(grain, _gameResultDescriber.Resignation(GameColor.White));
     }
 

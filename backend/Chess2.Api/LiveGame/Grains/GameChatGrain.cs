@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using Chess2.Api.LiveGame.Errors;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Users.Entities;
@@ -39,7 +38,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     private readonly UserManager<AuthedUser> _userManager;
     private readonly IChatMessageLogger _chatMessageLogger;
 
-    private GamePlayers? _players;
+    private PlayerRoster? _players;
     private readonly ConcurrentDictionary<string, string> _usernameCache = [];
 
     public GameChatGrain(
@@ -162,7 +161,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         return isPlaying;
     }
 
-    private async Task<ErrorOr<GamePlayers>> GetPlayersAsync()
+    private async Task<ErrorOr<PlayerRoster>> GetPlayersAsync()
     {
         if (_players is not null)
             return _players;
