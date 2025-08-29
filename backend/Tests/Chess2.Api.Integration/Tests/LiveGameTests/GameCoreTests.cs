@@ -11,26 +11,26 @@ public class GameCoreTests : BaseIntegrationTest
 {
     private readonly IGameCore _gameCore;
     private readonly GameResultDescriber _resultDescriber = new();
+    private readonly GameCoreState _state = new();
 
     public GameCoreTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _gameCore = Scope.ServiceProvider.GetRequiredService<IGameCore>();
-        _gameCore.InitializeGame();
+        _gameCore.StartGame(_state);
     }
 
     [Fact]
     public void MakeMove_moves_the_piece_and_updates_legal_moves()
     {
         var moveKey = new MoveKey(new("e2"), new("e4"));
-        var result = _gameCore.MakeMove(moveKey, GameColor.White);
+        var result = _gameCore.MakeMove(moveKey, _state);
 
         result.IsError.Should().BeFalse();
-        _gameCore.SideToMove.Should().Be(GameColor.Black);
+        _gameCore.SideToMove(_state).Should().Be(GameColor.Black);
 
-        var legalMoves = _gameCore.GetLegalMoves(GameColor.Black);
+        var legalMoves = _gameCore.GetLegalMovesOf(GameColor.Black, _state);
         legalMoves.MovesMap.Should().NotBeEmpty();
-        _gameCore.InitialFen.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class GameCoreTests : BaseIntegrationTest
     {
         MakeMoves(new MoveKey(new("e2"), new("e4")), new MoveKey(new("e9"), new("e7")));
 
-        _gameCore.SideToMove.Should().Be(GameColor.White);
+        _gameCore.SideToMove(_state).Should().Be(GameColor.White);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class GameCoreTests : BaseIntegrationTest
             new MoveKey(new("a9"), new("a8"))
         );
 
-        var legalMoves = _gameCore.GetLegalMoves(GameColor.White);
+        var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state);
         legalMoves.HasForcedMoves.Should().BeTrue();
         legalMoves.MovePaths.Should().ContainSingle();
         legalMoves.MovesMap.Should().ContainSingle();
@@ -96,7 +96,7 @@ public class GameCoreTests : BaseIntegrationTest
         MoveResult lastResult = default;
         foreach (var move in moves)
         {
-            var result = _gameCore.MakeMove(move, _gameCore.SideToMove);
+            var result = _gameCore.MakeMove(move, _state);
             result.IsError.Should().BeFalse();
             lastResult = result.Value;
         }

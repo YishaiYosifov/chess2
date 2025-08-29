@@ -4,16 +4,11 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.GameLogicTests;
 
 public class LegalMoveCalculatorTests : BaseIntegrationTest
 {
-    private readonly ILogger<LegalMoveCalculator> _loggerMock = Substitute.For<
-        ILogger<LegalMoveCalculator>
-    >();
     private readonly ILegalMoveCalculator _calculator;
 
     public LegalMoveCalculatorTests(Chess2WebApplicationFactory factory)
@@ -25,7 +20,7 @@ public class LegalMoveCalculatorTests : BaseIntegrationTest
     [Fact]
     public void Constructor_throws_if_not_all_piece_types_are_defined()
     {
-        var act = () => new LegalMoveCalculator(_loggerMock, []);
+        var act = () => new LegalMoveCalculator([]);
 
         act.Should()
             .Throw<InvalidOperationException>()
