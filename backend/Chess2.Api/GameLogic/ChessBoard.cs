@@ -1,18 +1,27 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.LiveGame;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameLogic.ChessBoard")]
 public class ChessBoard
 {
+    [Id(0)]
     private readonly Piece?[,] _board;
 
+    [Id(1)]
     private readonly List<Move> _moves = [];
 
     public IReadOnlyList<Move> Moves => _moves;
-    public int Height { get; }
-    public int Width { get; }
+    public GameColor SideToMove => _moves.Count % 2 == 0 ? GameColor.White : GameColor.Black;
+
+    [Id(3)]
+    public int Height { get; private set; }
+
+    [Id(4)]
+    public int Width { get; private set; }
 
     public ChessBoard(
         Dictionary<AlgebraicPoint, Piece>? pieces = null,

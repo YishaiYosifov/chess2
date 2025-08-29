@@ -94,12 +94,14 @@ public class GameGrainTests : BaseGrainTest
 
     [Fact]
     public Task EndGameAsync_rejects_invalid_users() =>
-        AssertRejectsForInvalidPlayerAsync(async grain => await grain.EndGameAsync("invalid user"));
+        AssertRejectsForInvalidPlayerAsync(async grain =>
+            await grain.RequestGameEndAsync("invalid user")
+        );
 
     [Fact]
     public Task EndGameAsync_rejects_when_not_playing() =>
         AssertRejectsForNotPlayingAsync(async grain =>
-            await grain.EndGameAsync(_whitePlayer.UserId)
+            await grain.RequestGameEndAsync(_whitePlayer.UserId)
         );
 
     private async Task AssertRejectsForInvalidPlayerAsync<T>(

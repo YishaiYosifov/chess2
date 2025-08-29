@@ -1,48 +1,40 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
-using Chess2.Api.Shared.Models;
 using ErrorOr;
-using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.LiveGame.Services;
 
-public interface IDrawRequestHandler
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Services.DrawRequestState")]
+public class DrawRequestState
 {
-    void DecrementCooldown();
-    DrawState GetState();
-    bool HasPendingRequest(GameColor requester);
-    ErrorOr<Success> RequestDraw(GameColor requester);
-    bool TryDeclineDraw(GameColor by);
-}
-
-public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHandler
-{
-    private readonly int _drawCooldown = settings.Value.Game.DrawCooldown;
-
+    [Id(0)]
     private readonly Dictionary<GameColor, int> _activeCooldowns = [];
-    private GameColor? _activeRequester;
+
+    [Id(1)]
+    public GameColor? ActiveRequester { get; private set; }
 
     public ErrorOr<Success> RequestDraw(GameColor requester)
     {
-        if (_activeRequester is not null)
+        if (ActiveRequester is not null)
             return GameErrors.DrawAlreadyRequested;
 
         if (_activeCooldowns.GetValueOrDefault(requester) > 0)
             return GameErrors.DrawOnCooldown;
 
-        _activeRequester = requester;
+        ActiveRequester = requester;
         return Result.Success;
     }
 
-    public bool TryDeclineDraw(GameColor by)
+    public bool TryDeclineDraw(GameColor by, int drawCooldown)
     {
-        if (_activeRequester is null || _activeRequester == by)
+        if (ActiveRequester is null || ActiveRequester == by)
             return false;
 
-        var activeRequester = _activeRequester.Value;
-        _activeCooldowns[activeRequester] = _drawCooldown;
-        _activeRequester = null;
+        var activeRequester = ActiveRequester.Value;
+        _activeCooldowns[activeRequester] = drawCooldown;
+        ActiveRequester = null;
         return true;
     }
 
@@ -58,11 +50,11 @@ public class DrawRequestHandler(IOptions<AppSettings> settings) : IDrawRequestHa
     }
 
     public bool HasPendingRequest(GameColor player) =>
-        _activeRequester is not null && _activeRequester != player;
+        ActiveRequester is not null && ActiveRequester != player;
 
     public DrawState GetState() =>
         new(
-            ActiveRequester: _activeRequester,
+            ActiveRequester: ActiveRequester,
             WhiteCooldown: _activeCooldowns.GetValueOrDefault(GameColor.White),
             BlackCooldown: _activeCooldowns.GetValueOrDefault(GameColor.Black)
         );

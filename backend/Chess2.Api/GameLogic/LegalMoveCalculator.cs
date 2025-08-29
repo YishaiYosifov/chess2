@@ -23,15 +23,9 @@ public interface ILegalMoveCalculator
 public class LegalMoveCalculator : ILegalMoveCalculator
 {
     private readonly Dictionary<PieceType, IPieceDefinition> _pieceDefinitions = [];
-    private readonly ILogger<LegalMoveCalculator> _logger;
 
-    public LegalMoveCalculator(
-        ILogger<LegalMoveCalculator> logger,
-        IEnumerable<IPieceDefinition> pieceDefinitions
-    )
+    public LegalMoveCalculator(IEnumerable<IPieceDefinition> pieceDefinitions)
     {
-        _logger = logger;
-
         _pieceDefinitions = pieceDefinitions.ToDictionary(definition => definition.Type);
         if (_pieceDefinitions.Count != Enum.GetNames<PieceType>().Length)
             throw new InvalidOperationException("Could not find definitions for all pieces");

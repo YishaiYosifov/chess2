@@ -1,17 +1,19 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
-public record Move
+[GenerateSerializer]
+[Alias("Chess2.Api.GameLogic.Models.Move")]
+public record Move(
+    AlgebraicPoint From,
+    AlgebraicPoint To,
+    Piece Piece,
+    IReadOnlyCollection<AlgebraicPoint> TriggerSquares,
+    IReadOnlyCollection<AlgebraicPoint> CapturedSquares,
+    IReadOnlyCollection<MoveSideEffect> SideEffects,
+    SpecialMoveType SpecialMoveType,
+    ForcedMovePriority ForcedPriority,
+    PieceType? PromotesTo
+)
 {
-    public AlgebraicPoint From { get; init; }
-    public AlgebraicPoint To { get; init; }
-    public Piece Piece { get; init; }
-    public IReadOnlyList<AlgebraicPoint> TriggerSquares { get; init; }
-    public IReadOnlyList<AlgebraicPoint> CapturedSquares { get; init; }
-    public IReadOnlyList<MoveSideEffect> SideEffects { get; init; }
-    public SpecialMoveType SpecialMoveType { get; init; }
-    public ForcedMovePriority ForcedPriority { get; init; }
-    public PieceType? PromotesTo { get; init; }
-
     public Move(
         AlgebraicPoint from,
         AlgebraicPoint to,
@@ -23,17 +25,17 @@ public record Move
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
         PieceType? promotesTo = null
     )
-    {
-        From = from;
-        To = to;
-        Piece = piece;
-        TriggerSquares = triggerSquares?.ToList() ?? [];
-        CapturedSquares = capturedSquares?.ToList() ?? [];
-        SideEffects = sideEffects?.ToList() ?? [];
-        SpecialMoveType = specialMoveType;
-        ForcedPriority = forcedPriority;
-        PromotesTo = promotesTo;
-    }
+        : this(
+            From: from,
+            To: to,
+            Piece: piece,
+            TriggerSquares: triggerSquares?.ToList() ?? [],
+            CapturedSquares: capturedSquares?.ToList() ?? [],
+            SideEffects: sideEffects?.ToList() ?? [],
+            SpecialMoveType: specialMoveType,
+            ForcedPriority: forcedPriority,
+            PromotesTo: promotesTo
+        ) { }
 
     public IEnumerable<(AlgebraicPoint From, AlgebraicPoint To)> Flatten()
     {

@@ -3,6 +3,8 @@ using Chess2.Api.GameSnapshot.Models;
 
 namespace Chess2.Api.LiveGame.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Models.LegalMoveSet")]
 public record LegalMoveSet(
     IReadOnlyDictionary<MoveKey, Move> MovesMap,
     IReadOnlyCollection<MovePath> MovePaths,

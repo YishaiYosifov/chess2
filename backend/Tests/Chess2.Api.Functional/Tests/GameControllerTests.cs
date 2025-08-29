@@ -118,7 +118,9 @@ public class GameControllerTests : BaseFunctionalTest
     public async Task GetGame_returns_correct_game_after_it_is_over_when_rated()
     {
         var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
-        await _grains.GetGrain<IGameGrain>(startGame.GameToken).EndGameAsync(startGame.User2.Id);
+        await _grains
+            .GetGrain<IGameGrain>(startGame.GameToken)
+            .RequestGameEndAsync(startGame.User2.Id);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
         var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
@@ -149,7 +151,7 @@ public class GameControllerTests : BaseFunctionalTest
             "guest2",
             new PoolKey(PoolType.Casual, new(600, 0))
         );
-        await _grains.GetGrain<IGameGrain>(gameToken).EndGameAsync("guest2");
+        await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync("guest2");
 
         AuthUtils.AuthenticateGuest(ApiClient, "guest1");
         var response = await ApiClient.Api.GetGameAsync(gameToken);

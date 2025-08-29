@@ -9,7 +9,7 @@ namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
 public class DrawRequestHandlerTests
 {
-    private readonly DrawRequestHandler _handler;
+    private readonly DrawRequestState _handler;
     private readonly int _drawRequestCooldownMoves;
 
     public DrawRequestHandlerTests()

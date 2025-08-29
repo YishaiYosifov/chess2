@@ -307,6 +307,7 @@ builder.Host.UseOrleans(siloBuilder =>
         options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
             TimeSpan.FromMinutes(5);
     });
+    siloBuilder.AddMemoryGrainStorageAsDefault();
 });
 
 #region Matchmaking
@@ -331,7 +332,6 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 
 builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddTransient<IGameClock, GameClock>();
-builder.Services.AddTransient<IDrawRequestHandler, DrawRequestHandler>();
 builder.Services.AddTransient<IDrawEvaulator, DrawEvaulator>();
 builder.Services.AddSingleton<ISanCalculator, SanCalculator>();
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
