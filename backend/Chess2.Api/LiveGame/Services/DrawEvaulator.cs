@@ -6,30 +6,46 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IDrawEvaulator
 {
-    void RegisterInitialPosition(string fen);
-    bool TryEvaluateDraw(Move move, string fen, [NotNullWhen(true)] out GameEndStatus? reason);
+    void RegisterInitialPosition(string fen, AutoDrawState state);
+    bool TryEvaluateDraw(
+        Move move,
+        string fen,
+        AutoDrawState state,
+        [NotNullWhen(true)] out GameEndStatus? reason
+    );
+}
+
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Services.AutoDrawState")]
+public class AutoDrawState
+{
+    [Id(0)]
+    public Dictionary<string, int> FenOccurrences { get; init; } = [];
+
+    [Id(1)]
+    public int HalfMoveClock { get; set; }
 }
 
 public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvaulator
 {
     private readonly IGameResultDescriber _gameResultDescriber = gameResultDescriber;
-    private readonly Dictionary<string, int> _fenOccurrences = [];
-    private int _halfMoveClock = 0;
 
-    public void RegisterInitialPosition(string fen) => _fenOccurrences.TryAdd(fen, 1);
+    public void RegisterInitialPosition(string fen, AutoDrawState state) =>
+        state.FenOccurrences.TryAdd(fen, 1);
 
     public bool TryEvaluateDraw(
         Move move,
         string fen,
+        AutoDrawState state,
         [NotNullWhen(true)] out GameEndStatus? endStatus
     )
     {
-        if (IsThreeFold(fen))
+        if (IsThreeFold(fen, state))
         {
             endStatus = _gameResultDescriber.ThreeFold();
             return true;
         }
-        if (Is50Moves(move))
+        if (Is50Moves(move, state))
         {
             endStatus = _gameResultDescriber.FiftyMoves();
             return true;
@@ -39,24 +55,24 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
         return false;
     }
 
-    private bool IsThreeFold(string fen)
+    private static bool IsThreeFold(string fen, AutoDrawState state)
     {
-        if (_fenOccurrences.TryAdd(fen, 1))
+        if (state.FenOccurrences.TryAdd(fen, 1))
             return false;
 
-        _fenOccurrences[fen]++;
-        return _fenOccurrences[fen] >= 3;
+        state.FenOccurrences[fen]++;
+        return state.FenOccurrences[fen] >= 3;
     }
 
-    private bool Is50Moves(Move move)
+    private static bool Is50Moves(Move move, AutoDrawState state)
     {
-        if (move.Piece.Type is PieceType.Pawn || move.CapturedSquares.Any())
+        if (move.Piece.Type is PieceType.Pawn || move.CapturedSquares.Count != 0)
         {
-            _halfMoveClock = 0;
+            state.HalfMoveClock = 0;
             return false;
         }
 
-        _halfMoveClock++;
-        return _halfMoveClock >= 100;
+        state.HalfMoveClock++;
+        return state.HalfMoveClock >= 100;
     }
 }
