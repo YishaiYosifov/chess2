@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using ErrorOr;
 
 namespace Chess2.Api.Auth.Services.OAuthAuthenticators;

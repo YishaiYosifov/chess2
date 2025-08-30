@@ -1,10 +1,10 @@
 ﻿using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Users.DTOs;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Errors;
-using Chess2.Api.Users.Services;
+using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Errors;
+using Chess2.Api.Profile.Services;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;

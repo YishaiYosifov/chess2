@@ -3,7 +3,7 @@ using Chess2.Api.Auth.DTOs;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Shared.Services;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;

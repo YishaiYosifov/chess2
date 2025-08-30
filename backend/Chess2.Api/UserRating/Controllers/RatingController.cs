@@ -2,7 +2,7 @@
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

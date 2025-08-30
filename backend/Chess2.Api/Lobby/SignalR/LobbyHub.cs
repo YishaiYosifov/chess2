@@ -5,7 +5,7 @@ using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 

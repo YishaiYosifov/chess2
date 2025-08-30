@@ -7,7 +7,7 @@ using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 

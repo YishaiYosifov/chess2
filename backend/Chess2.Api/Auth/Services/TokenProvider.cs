@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;

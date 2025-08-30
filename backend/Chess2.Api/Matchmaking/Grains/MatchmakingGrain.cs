@@ -5,7 +5,7 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;

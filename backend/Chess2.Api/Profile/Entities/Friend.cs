@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Users.Entities;
+﻿namespace Chess2.Api.Profile.Entities;
 
 public class Friend
 {

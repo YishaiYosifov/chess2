@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Services;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
