@@ -365,7 +365,7 @@ builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #endregion
 
 #region Profile
-builder.Services.AddScoped<IUserSettings, UserSettings>();
+builder.Services.AddScoped<IProfileSettings, ProfileSettings>();
 builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 builder.Services.AddScoped<IFriendService, FriendService>();
