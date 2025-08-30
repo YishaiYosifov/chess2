@@ -1,8 +1,6 @@
 ﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Models;
-using Chess2.Api.Preferences.Repositories;
 using Chess2.Api.Preferences.Services;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -14,15 +12,11 @@ namespace Chess2.Api.Integration.Tests.Preferences;
 public class PreferenceServiceTests : BaseIntegrationTest
 {
     private readonly IPreferenceService _service;
-    private readonly IPreferencesRepository _repository;
-    private readonly IUnitOfWork _unitOfWork;
 
     public PreferenceServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _service = Scope.ServiceProvider.GetRequiredService<IPreferenceService>();
-        _repository = Scope.ServiceProvider.GetRequiredService<IPreferencesRepository>();
-        _unitOfWork = Scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
     }
 
     [Fact]
