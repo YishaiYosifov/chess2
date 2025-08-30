@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
+using Chess2.Api.Shared.Models;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -63,7 +63,7 @@ public class UserSettings(
 
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         if (now - user.UsernameLastChanged < _settings.UsernameEditCooldown)
-            return UserErrors.SettingOnCooldown;
+            return ProfileErrors.SettingOnCooldown;
 
         var updateResult = await _userManager.SetUserNameAsync(user, usernameEdit.Username);
         if (!updateResult.Succeeded)

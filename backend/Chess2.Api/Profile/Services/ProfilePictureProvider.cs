@@ -50,11 +50,11 @@ public class ProfilePictureProvider : IProfilePictureProvider
         {
             original = SKBitmap.Decode(fileStream);
             if (original is null)
-                return UserErrors.InvalidProfilePicture;
+                return ProfileErrors.InvalidProfilePicture;
         }
         catch
         {
-            return UserErrors.InvalidProfilePicture;
+            return ProfileErrors.InvalidProfilePicture;
         }
 
         int width = original.Width;
