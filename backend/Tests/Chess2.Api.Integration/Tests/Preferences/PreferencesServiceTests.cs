@@ -54,7 +54,7 @@ public class PreferenceServiceTests : BaseIntegrationTest
             .Should()
             .BeEquivalentTo(
                 new PreferenceDto(
-                    AllowFriendRequests: false,
+                    AllowFriendRequests: true,
                     ChallengePreference: InteractionLevel.Everyone,
                     ChatPreference: InteractionLevel.Everyone
                 )
