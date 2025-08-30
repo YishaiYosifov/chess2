@@ -27,12 +27,14 @@ public class PreferenceService(IPreferencesRepository preferencesRepository, IUn
         CancellationToken token = default
     )
     {
-        var preferences =
-            await _preferencesRepository.GetPreferencesAsync(userId, token)
-            ?? new() { UserId = userId };
-        newPreferences.ApplyTo(preferences);
+        var preferences = await _preferencesRepository.GetPreferencesAsync(userId, token);
+        if (preferences is null)
+        {
+            preferences = new() { UserId = userId };
+            await _preferencesRepository.AddPreferencesAsync(preferences, token);
+        }
 
-        await _preferencesRepository.UpsertPreferencesAsync(preferences, token);
+        newPreferences.ApplyTo(preferences);
         await _unitOfWork.CompleteAsync(token);
     }
 
