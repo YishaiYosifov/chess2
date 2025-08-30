@@ -10,26 +10,26 @@ using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Profile.Services;
 
-public interface IUserSettings
+public interface IProfileSettings
 {
     Task<ErrorOr<Updated>> EditProfileAsync(AuthedUser user, ProfileEditRequest profileEdit);
     Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, UsernameEditRequest usernameEdit);
 }
 
-public class UserSettings(
+public class ProfileSettings(
     IValidator<ProfileEditRequest> profileEditValidator,
     IValidator<UsernameEditRequest> usernameEditValidator,
     UserManager<AuthedUser> userManager,
     IOptions<AppSettings> settings,
-    ILogger<UserSettings> logger,
+    ILogger<ProfileSettings> logger,
     TimeProvider timeProvider
-) : IUserSettings
+) : IProfileSettings
 {
     private readonly IValidator<ProfileEditRequest> _profileEditValidator = profileEditValidator;
     private readonly IValidator<UsernameEditRequest> _usernameEditValidator = usernameEditValidator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly AppSettings _settings = settings.Value;
-    private readonly ILogger<UserSettings> _logger = logger;
+    private readonly ILogger<ProfileSettings> _logger = logger;
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<ErrorOr<Updated>> EditProfileAsync(

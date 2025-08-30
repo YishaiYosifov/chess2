@@ -16,15 +16,15 @@ using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.ProfileTests;
 
-public class UserSettingsTests : BaseIntegrationTest
+public class ProfileSettingsTests : BaseIntegrationTest
 {
-    private readonly UserSettings _userSettings;
+    private readonly ProfileSettings _profileSettings;
     private readonly AppSettings _settings;
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
     private readonly DateTime _fakeNow;
 
-    public UserSettingsTests(Chess2WebApplicationFactory factory)
+    public ProfileSettingsTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         var settings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
@@ -33,12 +33,12 @@ public class UserSettingsTests : BaseIntegrationTest
         _fakeNow = DateTime.UtcNow;
         _timeProviderMock.GetUtcNow().Returns(new DateTimeOffset(_fakeNow));
 
-        _userSettings = new(
+        _profileSettings = new(
             Scope.ServiceProvider.GetRequiredService<IValidator<ProfileEditRequest>>(),
             Scope.ServiceProvider.GetRequiredService<IValidator<UsernameEditRequest>>(),
             Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>(),
             settings,
-            Scope.ServiceProvider.GetRequiredService<ILogger<UserSettings>>(),
+            Scope.ServiceProvider.GetRequiredService<ILogger<ProfileSettings>>(),
             _timeProviderMock
         );
     }
@@ -52,7 +52,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         ProfileEditRequest profileEdit = new(About: "New about me", CountryCode: "US");
 
-        var result = await _userSettings.EditProfileAsync(user, profileEdit);
+        var result = await _profileSettings.EditProfileAsync(user, profileEdit);
 
         result.IsError.Should().BeFalse();
         var updatedUser = await DbContext
@@ -71,7 +71,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         ProfileEditRequest profileEdit = new(About: "", CountryCode: "XZ");
 
-        var result = await _userSettings.EditProfileAsync(user, profileEdit);
+        var result = await _profileSettings.EditProfileAsync(user, profileEdit);
 
         result.IsError.Should().BeTrue();
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(x => x.Id == user.Id, CT);
@@ -89,7 +89,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         UsernameEditRequest usernameEdit = new("new-username");
 
-        var result = await _userSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
 
         result.IsError.Should().BeFalse();
 
@@ -114,7 +114,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         UsernameEditRequest usernameEdit = new("new-username");
 
-        var result = await _userSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
 
         result.IsError.Should().BeFalse();
 
@@ -139,7 +139,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         UsernameEditRequest usernameEdit = new("new-username");
 
-        var result = await _userSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().BeEquivalentTo(ProfileErrors.SettingOnCooldown);
@@ -157,7 +157,7 @@ public class UserSettingsTests : BaseIntegrationTest
 
         UsernameEditRequest usernameEdit = new("inv@l$d username");
 
-        var result = await _userSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
 
         result.IsError.Should().BeTrue();
     }
