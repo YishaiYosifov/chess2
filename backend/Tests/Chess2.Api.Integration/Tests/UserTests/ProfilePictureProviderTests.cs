@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Users.Errors;
-using Chess2.Api.Users.Models;
-using Chess2.Api.Users.Services;
+using Chess2.Api.Profile.Errors;
+using Chess2.Api.Profile.Models;
+using Chess2.Api.Profile.Services;
 using FluentAssertions;
 using FluentStorage.Blobs;
 using Microsoft.Extensions.DependencyInjection;

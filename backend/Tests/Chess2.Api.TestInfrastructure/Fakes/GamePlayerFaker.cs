@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 

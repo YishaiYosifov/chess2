@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.Shared.Services;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Chess2.Api.Users.Services;
+namespace Chess2.Api.Profile.Services;
 
 public interface IUsernameGenerator
 {

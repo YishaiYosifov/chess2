@@ -1,14 +1,14 @@
 ﻿using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.DTOs;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Errors;
+using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Errors;
 using ErrorOr;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
-namespace Chess2.Api.Users.Services;
+namespace Chess2.Api.Profile.Services;
 
 public interface IUserSettings
 {

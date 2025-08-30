@@ -6,7 +6,7 @@ using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using Orleans.Streams;
 
 namespace Chess2.Api.Lobby.Grains;

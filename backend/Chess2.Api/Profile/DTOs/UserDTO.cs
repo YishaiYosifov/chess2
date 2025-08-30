@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 
-namespace Chess2.Api.Users.DTOs;
+namespace Chess2.Api.Profile.DTOs;
 
 [method: JsonConstructor]
 public record PublicUser(string UserId, string UserName, string About, string CountryCode)

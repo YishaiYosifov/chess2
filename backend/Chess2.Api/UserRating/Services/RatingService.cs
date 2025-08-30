@@ -3,7 +3,7 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Repositories;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.UserRating.Services;

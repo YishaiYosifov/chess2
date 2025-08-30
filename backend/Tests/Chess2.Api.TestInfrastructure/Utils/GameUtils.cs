@@ -4,7 +4,7 @@ using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Entities;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 

@@ -2,7 +2,7 @@
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;

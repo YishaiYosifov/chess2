@@ -1,7 +1,7 @@
-﻿using Chess2.Api.Users.DTOs;
+﻿using Chess2.Api.Profile.DTOs;
 using FluentValidation;
 
-namespace Chess2.Api.Users.Validators;
+namespace Chess2.Api.Profile.Validators;
 
 public class UsernameEditValidator : AbstractValidator<UsernameEditRequest>
 {

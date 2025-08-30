@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Users.Models;
+﻿using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.Matchmaking.Models;
 

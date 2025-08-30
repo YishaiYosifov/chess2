@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 

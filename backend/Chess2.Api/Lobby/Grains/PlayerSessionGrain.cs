@@ -4,7 +4,7 @@ using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 

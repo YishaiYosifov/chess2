@@ -10,7 +10,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 

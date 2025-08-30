@@ -1,7 +1,7 @@
 ﻿using System.Threading.Channels;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;

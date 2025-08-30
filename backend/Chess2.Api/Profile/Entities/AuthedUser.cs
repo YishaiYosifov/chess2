@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
-namespace Chess2.Api.Users.Entities;
+namespace Chess2.Api.Profile.Entities;
 
 public class AuthedUser : IdentityUser
 {

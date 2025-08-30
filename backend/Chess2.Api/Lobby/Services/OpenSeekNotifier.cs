@@ -2,7 +2,7 @@
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.Lobby.Services;

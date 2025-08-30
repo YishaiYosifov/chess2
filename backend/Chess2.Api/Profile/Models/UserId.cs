@@ -1,7 +1,7 @@
-﻿namespace Chess2.Api.Users.Models;
+﻿namespace Chess2.Api.Profile.Models;
 
 [GenerateSerializer]
-[Alias("Chess2.Api.Users.Models.UserId")]
+[Alias("Chess2.Api.Profile.Models.UserId")]
 public readonly record struct UserId(string Value)
 {
     public static implicit operator string(UserId id) => id.Value;

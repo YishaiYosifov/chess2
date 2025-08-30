@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using Chess2.Api.Auth.Errors;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Services;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Services;
 using ErrorOr;
 using OpenIddict.Abstractions;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;

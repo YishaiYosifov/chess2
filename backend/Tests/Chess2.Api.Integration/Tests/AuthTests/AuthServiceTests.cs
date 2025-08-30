@@ -5,7 +5,7 @@ using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

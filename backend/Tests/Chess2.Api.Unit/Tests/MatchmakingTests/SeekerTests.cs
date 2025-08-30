@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests;

@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Users.DTOs;
-using Chess2.Api.Users.Validators;
+﻿using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Validators;
 using FluentValidation.TestHelper;
 
 namespace Chess2.Api.Unit.Tests.UserTests.ValidatorTests;

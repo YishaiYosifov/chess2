@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Repositories;
 using Chess2.Api.Shared.Services;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.Preferences.Services;
 

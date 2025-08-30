@@ -3,7 +3,7 @@ using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 

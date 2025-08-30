@@ -2,8 +2,8 @@
 using Chess2.Api.Auth.Entities;
 using Chess2.Api.LiveGame.Entities;
 using Chess2.Api.Preferences.Entities;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.UserRating.Entities;
-using Chess2.Api.Users.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 
 namespace Chess2.Api.Auth.Entities;
 

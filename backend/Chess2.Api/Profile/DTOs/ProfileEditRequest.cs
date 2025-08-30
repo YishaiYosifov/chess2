@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Users.Entities;
+﻿using Chess2.Api.Profile.Entities;
 
-namespace Chess2.Api.Users.DTOs;
+namespace Chess2.Api.Profile.DTOs;
 
 public record ProfileEditRequest(string About, string CountryCode)
 {
