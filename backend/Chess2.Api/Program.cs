@@ -25,14 +25,17 @@ using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Preferences.Repositories;
 using Chess2.Api.Preferences.Services;
-using Chess2.Api.Shared.Models;
-using Chess2.Api.Shared.Services;
-using Chess2.Api.UserRating.Repositories;
-using Chess2.Api.UserRating.Services;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Services;
 using Chess2.Api.Profile.Validators;
+using Chess2.Api.Shared.Models;
+using Chess2.Api.Shared.Services;
+using Chess2.Api.Social.Repository;
+using Chess2.Api.Social.Services;
+using Chess2.Api.Social.SignalR;
+using Chess2.Api.UserRating.Repositories;
+using Chess2.Api.UserRating.Services;
 using ErrorOr;
 using FluentStorage;
 using FluentValidation;
@@ -364,10 +367,12 @@ builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #region Profile
 builder.Services.AddScoped<IUserSettings, UserSettings>();
 builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
+builder.Services.AddScoped<IFriendRepository, FriendRepository>();
+builder.Services.AddScoped<IFriendService, FriendService>();
 #endregion
 
 #region Preferences
-builder.Services.AddScoped<IPreferencesRepository, PreferencesRepository>();
+builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 #endregion
 
@@ -406,6 +411,8 @@ app.MapControllers();
 app.MapHub<OpenSeekHub>("/api/hub/openseek");
 app.MapHub<LobbyHub>("/api/hub/lobby");
 app.MapHub<GameHub>("/api/hub/game");
+
+app.MapHub<SocialHub>("/api/hub/social");
 
 app.UseResponseCompression();
 

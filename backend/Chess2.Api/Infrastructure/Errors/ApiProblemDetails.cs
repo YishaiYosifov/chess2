@@ -25,7 +25,9 @@ public static class ErrorCodes
     public const string ProfileNotFound = "Profile.NotFound";
     public const string ProfileSettingOnCooldown = "Profile.Cooldown.Setting";
     public const string ProfileInvalidProfilePicture = "Profile.InvalidProfilePicture";
-    public const string ProfileFriendAlreadyRequested = "Profile.FriendAlreadyRequested";
+
+    public const string SocialFriendAlreadyRequested = "Social.FriendAlreadyRequested";
+    public const string SocialNotAcceptingFriends = "Social.NotAcceptingFriends";
 
     public const string AuthTokenMissing = "Auth.TokenMissing";
     public const string AuthTokenInvalid = "Auth.TokenInvalid";

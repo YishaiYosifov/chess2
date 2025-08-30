@@ -3,6 +3,7 @@ using Chess2.Api.Auth.Entities;
 using Chess2.Api.LiveGame.Entities;
 using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Social.Entities;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public required DbSet<BlockedUser> BlockedUsers { get; set; }
     public required DbSet<Friend> Friends { get; set; }
+    public required DbSet<FriendRequest> FriendRequests { get; set; }
 
     public required DbSet<CurrentRating> CurrentRatings { get; set; }
     public required DbSet<RatingArchive> RatingArchives { get; set; }
@@ -28,4 +30,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<PlayerArchive> PlayerArchives { get; set; }
     public required DbSet<MoveArchive> MoveArchives { get; set; }
     public required DbSet<MoveSideEffectArchive> MoveSideEffectArchives { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Friend>().Navigation(x => x.User1).AutoInclude();
+        builder.Entity<Friend>().Navigation(x => x.User2).AutoInclude();
+
+        base.OnModelCreating(builder);
+    }
 }
