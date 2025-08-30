@@ -5,7 +5,6 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Models;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -146,7 +145,9 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetPaginatedResultsAsync_maps_all_properties_correctly()
     {
-        var archive = await FakerUtils.StoreFakerAsync(DbContext, new GameArchiveFaker());
+        var archive = new GameArchiveFaker().Generate();
+        await DbContext.AddAsync(archive, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var pagination = new PaginationQuery(Page: 0, PageSize: 1);
         var result = await _gameArchiveService.GetPaginatedResultsAsync(
@@ -220,10 +221,10 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
                     SideEffects =
                         move.Path.SideEffects?.Select(se => new MoveSideEffectArchive
-                        {
-                            FromIdx = se.FromIdx,
-                            ToIdx = se.ToIdx,
-                        })
+                            {
+                                FromIdx = se.FromIdx,
+                                ToIdx = se.ToIdx,
+                            })
                             .ToList() ?? [],
                     PromotesTo = move.Path.PromotesTo,
                 }

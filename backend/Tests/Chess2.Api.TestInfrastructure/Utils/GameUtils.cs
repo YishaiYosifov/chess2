@@ -24,17 +24,19 @@ public static class GameUtils
     )
     {
         var timeControl = new TimeControlSettings(30, 0);
-        var user1 = await FakerUtils.StoreFakerAsync(dbContext, new AuthedUserFaker());
-        var user2 = await FakerUtils.StoreFakerAsync(dbContext, new AuthedUserFaker());
 
-        var user1Rating = await FakerUtils.StoreFakerAsync(
-            dbContext,
-            new CurrentRatingFaker(user1, 1200).RuleFor(x => x.TimeControl, TimeControl.Bullet)
-        );
-        var user2Rating = await FakerUtils.StoreFakerAsync(
-            dbContext,
-            new CurrentRatingFaker(user2, 1300).RuleFor(x => x.TimeControl, TimeControl.Bullet)
-        );
+        var user1 = new AuthedUserFaker().Generate();
+        var user1Rating = new CurrentRatingFaker(user1, 1200)
+            .RuleFor(x => x.TimeControl, TimeControl.Bullet)
+            .Generate();
+
+        var user2 = new AuthedUserFaker().Generate();
+        var user2Rating = new CurrentRatingFaker(user2, 1300)
+            .RuleFor(x => x.TimeControl, TimeControl.Bullet)
+            .Generate();
+
+        await dbContext.AddRangeAsync(user1, user1Rating, user2, user2Rating);
+        await dbContext.SaveChangesAsync();
 
         var gameToken = await gameStarter.StartGameAsync(
             user1.Id,

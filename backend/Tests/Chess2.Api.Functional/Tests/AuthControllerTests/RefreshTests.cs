@@ -23,7 +23,10 @@ public class RefreshTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task RefreshToken_disallows_refreshing_when_provided_an_access_token()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
         var accessToken = TokenProvider.GenerateAccessToken(user);
         AuthUtils.AuthenticateWithTokens(ApiClient, refreshToken: accessToken);
 
