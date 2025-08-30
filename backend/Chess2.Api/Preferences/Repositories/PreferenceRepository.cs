@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Preferences.Repositories;
 
-public interface IPreferencesRepository
+public interface IPreferenceRepository
 {
     Task<UserPreferences?> GetPreferencesAsync(string userId, CancellationToken token = default);
     Task AddPreferencesAsync(UserPreferences preferences, CancellationToken token = default);
 }
 
-public class PreferencesRepository(ApplicationDbContext dbContext) : IPreferencesRepository
+public class PreferenceRepository(ApplicationDbContext dbContext) : IPreferenceRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 

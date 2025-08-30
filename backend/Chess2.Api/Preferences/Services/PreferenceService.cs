@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Repositories;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Services;
 
 namespace Chess2.Api.Preferences.Services;
 
@@ -15,10 +15,10 @@ public interface IPreferenceService
     );
 }
 
-public class PreferenceService(IPreferencesRepository preferencesRepository, IUnitOfWork unitOfWork)
+public class PreferenceService(IPreferenceRepository preferencesRepository, IUnitOfWork unitOfWork)
     : IPreferenceService
 {
-    private readonly IPreferencesRepository _preferencesRepository = preferencesRepository;
+    private readonly IPreferenceRepository _preferencesRepository = preferencesRepository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task UpdatePreferencesAsync(

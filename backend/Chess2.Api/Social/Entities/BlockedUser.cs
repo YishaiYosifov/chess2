@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Profile.Entities;
+﻿namespace Chess2.Api.Social.Entities;
 
 public class BlockedUser
 {
