@@ -16,6 +16,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public required DbSet<UserPreferences> UserPreferences { get; set; }
 
+    public required DbSet<BlockedUser> BlockedUsers { get; set; }
+    public required DbSet<Friend> Friends { get; set; }
+
     public required DbSet<CurrentRating> CurrentRatings { get; set; }
     public required DbSet<RatingArchive> RatingArchives { get; set; }
 
