@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
-namespace Chess2.Api.Integration.Tests.UserTests;
+namespace Chess2.Api.Integration.Tests.ProfileTests;
 
 public class UserSettingsTests : BaseIntegrationTest
 {

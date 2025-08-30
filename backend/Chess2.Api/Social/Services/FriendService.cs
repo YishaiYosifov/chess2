@@ -1,5 +1,8 @@
 ﻿using Chess2.Api.Preferences.Services;
+using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Entities;
 using Chess2.Api.Social.Errors;
@@ -10,6 +13,11 @@ namespace Chess2.Api.Social.Services;
 
 public interface IFriendService
 {
+    Task<PagedResult<MinimalProfile>> GetFriendRequestsAsync(
+        UserId forUser,
+        PaginationQuery pagination,
+        CancellationToken token = default
+    );
     Task<ErrorOr<Created>> RequestFriendAsync(
         AuthedUser requester,
         AuthedUser recipient,
@@ -26,6 +34,33 @@ public class FriendService(
     private readonly IFriendRepository _friendRepository = friendRepository;
     private readonly IPreferenceService _preferenceService = preferenceService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+    public async Task<PagedResult<MinimalProfile>> GetFriendRequestsAsync(
+        UserId forUser,
+        PaginationQuery pagination,
+        CancellationToken token = default
+    )
+    {
+        var requesters = await _friendRepository.GetIncomingFriendRequestsAsync(
+            forUser,
+            take: pagination.PageSize,
+            skip: pagination.Skip,
+            token
+        );
+        var totalCount = await _friendRepository.GetIncomingFriendRequestCount(forUser, token);
+
+        var minimalProfiles = requesters.Select(requester => new MinimalProfile(
+            UserId: requester.Id,
+            UserName: requester.UserName ?? "Unknown"
+        ));
+
+        return new(
+            Items: minimalProfiles,
+            TotalCount: totalCount,
+            Page: pagination.Page,
+            PageSize: pagination.PageSize
+        );
+    }
 
     public async Task<ErrorOr<Created>> RequestFriendAsync(
         AuthedUser requester,
@@ -58,7 +93,9 @@ public class FriendService(
         FriendRequest request = new()
         {
             RequesterUserId = requester.Id,
+            Requester = requester,
             RecipientUserId = recipient.Id,
+            Recipient = recipient,
         };
         await _friendRepository.AddFriendRequestAsync(request, token);
         return Result.Created;
