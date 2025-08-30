@@ -8,7 +8,7 @@ using FluentStorage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;
 
-namespace Chess2.Api.Integration.Tests.UserTests;
+namespace Chess2.Api.Integration.Tests.ProfileTests;
 
 public class ProfilePictureProviderTests : BaseIntegrationTest
 {

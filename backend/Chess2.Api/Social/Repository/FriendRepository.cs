@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.Social.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,25 +10,42 @@ public interface IFriendRepository
     Task AddFriendAsync(Friend friend, CancellationToken token = default);
     Task AddFriendRequestAsync(FriendRequest request, CancellationToken token = default);
     void DeleteFriendRequest(FriendRequest request);
-    Task<List<Friend>> GetAllFriendsAsync(string userId, CancellationToken token = default);
+    Task<List<AuthedUser>> GetIncomingFriendRequestsAsync(
+        string userId,
+        int take,
+        int skip,
+        CancellationToken token = default
+    );
     Task<FriendRequest?> GetRequestBetweenAsync(
         string userId1,
         string userId2,
         CancellationToken token = default
     );
+    Task<int> GetIncomingFriendRequestCount(string userId, CancellationToken token = default);
 }
 
 public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<List<Friend>> GetAllFriendsAsync(
+    public Task<List<AuthedUser>> GetIncomingFriendRequestsAsync(
         string userId,
+        int take,
+        int skip,
         CancellationToken token = default
     ) =>
         _dbContext
-            .Friends.Where(x => x.UserId1 == userId || x.UserId2 == userId)
+            .FriendRequests.Include(x => x.Requester)
+            .Where(x => x.RecipientUserId == userId)
+            .Select(x => x.Requester)
+            .Skip(skip)
+            .Take(take)
             .ToListAsync(token);
+
+    public Task<int> GetIncomingFriendRequestCount(
+        string userId,
+        CancellationToken token = default
+    ) => _dbContext.FriendRequests.Where(x => x.RecipientUserId == userId).CountAsync(token);
 
     public Task<FriendRequest?> GetRequestBetweenAsync(
         string userId1,
