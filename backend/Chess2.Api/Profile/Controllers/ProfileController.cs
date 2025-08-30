@@ -2,16 +2,16 @@
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Users.DTOs;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Errors;
-using Chess2.Api.Users.Services;
+using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Errors;
+using Chess2.Api.Profile.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chess2.Api.Users.Controllers;
+namespace Chess2.Api.Profile.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

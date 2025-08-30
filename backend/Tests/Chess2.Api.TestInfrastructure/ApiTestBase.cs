@@ -2,7 +2,7 @@
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.SignalR.Client;

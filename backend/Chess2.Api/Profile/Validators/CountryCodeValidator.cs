@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using FluentValidation;
 
-namespace Chess2.Api.Users.Validators;
+namespace Chess2.Api.Profile.Validators;
 
 public static class CountryCodeValidator
 {

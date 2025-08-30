@@ -1,4 +1,4 @@
-﻿using Chess2.Api.Users.Validators;
+﻿using Chess2.Api.Profile.Validators;
 using FluentAssertions;
 using FluentValidation;
 

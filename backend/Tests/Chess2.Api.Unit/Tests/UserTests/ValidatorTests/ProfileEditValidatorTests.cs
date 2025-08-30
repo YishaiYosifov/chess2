@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.TestInfrastructure.TestData;
-using Chess2.Api.Users.DTOs;
-using Chess2.Api.Users.Validators;
+using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Validators;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.UserTests.ValidatorTests;

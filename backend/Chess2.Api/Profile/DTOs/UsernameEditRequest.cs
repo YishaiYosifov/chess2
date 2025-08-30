@@ -1,3 +1,3 @@
-﻿namespace Chess2.Api.Users.DTOs;
+﻿namespace Chess2.Api.Profile.DTOs;
 
 public record UsernameEditRequest(string Username);

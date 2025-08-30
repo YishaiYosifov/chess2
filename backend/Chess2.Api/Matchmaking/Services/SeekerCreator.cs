@@ -3,8 +3,8 @@ using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Services;
-using Chess2.Api.Users.Entities;
-using Chess2.Api.Users.Models;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.Matchmaking.Services;

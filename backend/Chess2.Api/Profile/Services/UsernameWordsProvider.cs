@@ -1,4 +1,4 @@
-﻿namespace Chess2.Api.Users.Services;
+﻿namespace Chess2.Api.Profile.Services;
 
 public interface IUsernameWordsProvider
 {

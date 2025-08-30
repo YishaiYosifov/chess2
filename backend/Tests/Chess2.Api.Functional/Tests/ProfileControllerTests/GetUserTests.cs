@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Users.DTOs;
+using Chess2.Api.Profile.DTOs;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests.ProfileControllerTests;

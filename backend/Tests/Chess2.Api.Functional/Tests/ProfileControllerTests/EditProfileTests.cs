@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Users.DTOs;
+using Chess2.Api.Profile.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 

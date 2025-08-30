@@ -7,7 +7,7 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Entities;
-using Chess2.Api.Users.Entities;
+using Chess2.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
