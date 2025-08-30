@@ -55,8 +55,8 @@ public class PreferenceServiceTests : BaseIntegrationTest
             .BeEquivalentTo(
                 new PreferenceDto(
                     AllowFriendRequests: false,
-                    ChallengePreference: InteractionLevel.NoOne,
-                    ChatPreference: InteractionLevel.NoOne
+                    ChallengePreference: InteractionLevel.Everyone,
+                    ChatPreference: InteractionLevel.Everyone
                 )
             );
     }
