@@ -57,7 +57,7 @@ public class ProfileController(
     {
         var result = await _userManager.FindByNameAsync(username);
         if (result is null)
-            return UserErrors.NotFound.ToActionResult();
+            return ProfileErrors.NotFound.ToActionResult();
 
         PublicUser dto = PublicUser.FromAuthed(result);
         return Ok(dto);
