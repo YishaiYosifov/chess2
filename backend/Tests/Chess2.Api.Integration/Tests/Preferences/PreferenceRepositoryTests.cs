@@ -7,14 +7,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.Preferences;
 
-public class PreferencesRepositoryTests : BaseIntegrationTest
+public class PreferenceRepositoryTests : BaseIntegrationTest
 {
-    private readonly IPreferencesRepository _repository;
+    private readonly IPreferenceRepository _repository;
 
-    public PreferencesRepositoryTests(Chess2WebApplicationFactory factory)
+    public PreferenceRepositoryTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _repository = Scope.ServiceProvider.GetRequiredService<IPreferencesRepository>();
+        _repository = Scope.ServiceProvider.GetRequiredService<IPreferenceRepository>();
     }
 
     [Fact]

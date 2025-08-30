@@ -16,10 +16,4 @@ public static class ProfileErrors
             ErrorCodes.ProfileInvalidProfilePicture,
             "The provided profile picture is not a valid image"
         );
-
-    public static Error FriendAlreadyRequested =>
-        Error.Conflict(
-            ErrorCodes.ProfileFriendAlreadyRequested,
-            "You already have an outgoing friend request to this user"
-        );
 }
