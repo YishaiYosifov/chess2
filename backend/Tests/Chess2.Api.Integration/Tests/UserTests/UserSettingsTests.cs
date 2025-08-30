@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Shared.Models;
-using Chess2.Api.TestInfrastructure;
-using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Profile.DTOs;
+﻿using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
 using Chess2.Api.Profile.Services;
+using Chess2.Api.Shared.Models;
+using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -142,7 +142,7 @@ public class UserSettingsTests : BaseIntegrationTest
         var result = await _userSettings.EditUsernameAsync(user, usernameEdit);
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(UserErrors.SettingOnCooldown);
+        result.FirstError.Should().BeEquivalentTo(ProfileErrors.SettingOnCooldown);
     }
 
     [Fact]

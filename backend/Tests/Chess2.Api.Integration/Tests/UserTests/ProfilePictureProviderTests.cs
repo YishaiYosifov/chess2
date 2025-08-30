@@ -1,8 +1,8 @@
-﻿using Chess2.Api.TestInfrastructure;
-using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Profile.Errors;
+﻿using Chess2.Api.Profile.Errors;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Profile.Services;
+using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using FluentStorage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
@@ -157,6 +157,6 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
         var result = await _profilePictureProvider.UploadProfilePictureAsync(_userId, ms, CT);
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(UserErrors.InvalidProfilePicture);
+        result.FirstError.Should().Be(ProfileErrors.InvalidProfilePicture);
     }
 }
