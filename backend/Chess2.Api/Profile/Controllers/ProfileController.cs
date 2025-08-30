@@ -16,14 +16,14 @@ namespace Chess2.Api.Profile.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class ProfileController(
-    IUserSettings userSettings,
+    IProfileSettings profileSettings,
     IAuthService authService,
     IGuestService guestService,
     UserManager<AuthedUser> userManager,
     IProfilePictureProvider profilePictureProvider
 ) : ControllerBase
 {
-    private readonly IUserSettings _userSettings = userSettings;
+    private readonly IProfileSettings _profileSettings = profileSettings;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
@@ -73,7 +73,7 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userSettings.EditProfileAsync(user, profileEditRequest);
+        var editResult = await _profileSettings.EditProfileAsync(user, profileEditRequest);
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 
@@ -86,7 +86,7 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _userSettings.EditUsernameAsync(user, usernameEditRequest);
+        var editResult = await _profileSettings.EditUsernameAsync(user, usernameEditRequest);
         return editResult.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
