@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Auth.Errors;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -8,8 +10,6 @@ using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Integration.Tests.AuthTests;
 
@@ -134,7 +134,9 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetLoggedInUserAsync_returns_the_user_from_the_claims()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
         var principal = ClaimUtils.CreateUserClaims(user.Id);
 
         var result = await _authService.GetLoggedInUserAsync(principal);
@@ -155,7 +157,9 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetLoggedInUserAsync_returns_an_error_when_the_user_is_not_found()
     {
-        await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
         var principal = ClaimUtils.CreateUserClaims("69420");
 
         var result = await _authService.GetLoggedInUserAsync(principal);
@@ -167,7 +171,9 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GenerateAuthTokensAsync_creates_valid_tokens()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _authService.GenerateAuthTokensAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -182,8 +188,10 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task RefreshTokenAsync_handles_a_valid_refresh_tokens_correctly()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var refreshToken = await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
+        var user = new AuthedUserFaker().Generate();
+        var refreshToken = new RefreshTokenFaker(user).Generate();
+        await DbContext.AddRangeAsync(user, refreshToken);
+        await DbContext.SaveChangesAsync(CT);
 
         var principal = ClaimUtils.CreateUserClaims(
             user.Id,
@@ -208,8 +216,10 @@ public class AuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task RefreshTokenAsync_returns_an_error_when_jti_claim_is_not_found()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(DbContext, new RefreshTokenFaker(user));
+        var user = new AuthedUserFaker().Generate();
+        var refreshToken = new RefreshTokenFaker(user).Generate();
+        await DbContext.AddRangeAsync(user, refreshToken);
+        await DbContext.SaveChangesAsync(CT);
 
         var principal = ClaimUtils.CreateUserClaims(
             user.Id,

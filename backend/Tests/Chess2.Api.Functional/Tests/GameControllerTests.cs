@@ -171,14 +171,16 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_game_state_for_mixed_player_types()
     {
-        // Arrange: create one authed user and use one guest ID
-        var authedUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var guestId = "guest123";
+        var authedUser = new AuthedUserFaker().Generate();
+        var rating = new CurrentRatingFaker(
+            authedUser,
+            1500,
+            timeControl: TimeControl.Blitz
+        ).Generate();
+        await DbContext.AddRangeAsync(authedUser, rating);
+        await DbContext.SaveChangesAsync(CT);
 
-        var rating = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(authedUser, 1500).RuleFor(x => x.TimeControl, TimeControl.Blitz)
-        );
+        var guestId = "guest123";
 
         var gameToken = await _gameStarter.StartGameAsync(
             authedUser.Id,

@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Repositories;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +21,12 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task AddRatingAsync_adds_archive_to_context()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-
-        var archive = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user).RuleFor(x => x.TimeControl, TimeControl.Rapid)
-        );
+        var user = new AuthedUserFaker().Generate();
+        var archive = new RatingArchiveFaker(user)
+            .RuleFor(x => x.TimeControl, TimeControl.Rapid)
+            .Generate();
+        await DbContext.AddRangeAsync(user, archive);
+        await DbContext.SaveChangesAsync(CT);
 
         var dbArchive = await DbContext
             .RatingArchives.AsNoTracking()
@@ -46,16 +45,16 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetArchivesAsync_returns_archives_after_since_date_in_chronological_order()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-
+        var user = new AuthedUserFaker().Generate();
         var archives = new RatingArchiveFaker(user, timeControl: TimeControl.Blitz).Generate(3);
+        var otherUser = new AuthedUserFaker().Generate();
+        var otherArchive = new RatingArchiveFaker(
+            otherUser,
+            timeControl: TimeControl.Blitz
+        ).Generate();
         await DbContext.AddRangeAsync(archives, CT);
-
-        var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(otherUser, timeControl: TimeControl.Blitz)
-        );
+        await DbContext.AddRangeAsync(user, otherUser, otherArchive);
+        await DbContext.SaveChangesAsync(CT);
 
         var since = DateTime.UtcNow.AddDays(-7);
 
@@ -73,7 +72,9 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetArchivesAsync_returns_empty_when_none_found()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var archives = await _archiveRepository.GetArchivesAsync(
             user.Id,
@@ -88,28 +89,31 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetHighestAsync_returns_archive_with_max_value()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        var otherUser = new AuthedUserFaker().Generate();
 
-        // low
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1200, timeControl: TimeControl.Rapid)
-        );
-        // mid
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1500, timeControl: TimeControl.Rapid)
-        );
-        var high = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1800, timeControl: TimeControl.Rapid)
-        );
+        var high = new RatingArchiveFaker(
+            user,
+            rating: 1800,
+            timeControl: TimeControl.Rapid
+        ).Generate();
 
-        var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(otherUser, rating: 2000, timeControl: TimeControl.Rapid)
+        await DbContext.AddRangeAsync(
+            user,
+            //low
+            new RatingArchiveFaker(user, rating: 1200, timeControl: TimeControl.Rapid).Generate(),
+            // mid
+            new RatingArchiveFaker(user, rating: 1500, timeControl: TimeControl.Rapid).Generate(),
+            high,
+            // other user
+            otherUser,
+            new RatingArchiveFaker(
+                otherUser,
+                rating: 2000,
+                timeControl: TimeControl.Rapid
+            ).Generate()
         );
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _archiveRepository.GetHighestAsync(user.Id, TimeControl.Rapid, CT);
 
@@ -120,7 +124,9 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetHighestAsync_returns_null_when_no_archives_exist()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _archiveRepository.GetHighestAsync(user.Id, TimeControl.Blitz, CT);
 
@@ -130,29 +136,31 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetLowestAsync_returns_archive_with_min_value()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        var otherUser = new AuthedUserFaker().Generate();
 
-        // low
-        var low = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1200, timeControl: TimeControl.Rapid)
-        );
-        // mid
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1500, timeControl: TimeControl.Rapid)
-        );
-        // high
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, rating: 1800, timeControl: TimeControl.Rapid)
-        );
+        var low = new RatingArchiveFaker(
+            user,
+            rating: 1200,
+            timeControl: TimeControl.Rapid
+        ).Generate();
 
-        var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(otherUser, rating: 100, timeControl: TimeControl.Rapid)
+        await DbContext.AddRangeAsync(
+            user,
+            low,
+            // mid
+            new RatingArchiveFaker(user, rating: 1500, timeControl: TimeControl.Rapid).Generate(),
+            // high
+            new RatingArchiveFaker(user, rating: 1800, timeControl: TimeControl.Rapid).Generate(),
+            // other user
+            otherUser,
+            new RatingArchiveFaker(
+                otherUser,
+                rating: 100,
+                timeControl: TimeControl.Rapid
+            ).Generate()
         );
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _archiveRepository.GetLowestAsync(user.Id, TimeControl.Rapid, CT);
 
@@ -163,7 +171,9 @@ public class RatingArchiveRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetLowestAsync_returns_null_when_no_archives_exist()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _archiveRepository.GetLowestAsync(user.Id, TimeControl.Rapid, CT);
 

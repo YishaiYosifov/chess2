@@ -3,7 +3,6 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
-using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests.LobbyTests;
@@ -36,8 +35,10 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [Fact]
     public async Task SeekRatedAsync_match_with_two_authed_users()
     {
-        var user1 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var user2 = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
 
         await using LobbyHubClient conn1 = new(
             await AuthedSignalRAsync(LobbyHubClient.Path, user1)
@@ -55,7 +56,9 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [Fact]
     public async Task SeekCasualAsync_match_with_authed_and_guest()
     {
-        var authedUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var authedUser = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(authedUser, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         await using LobbyHubClient conn1 = new(
             await AuthedSignalRAsync(LobbyHubClient.Path, authedUser)

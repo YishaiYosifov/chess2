@@ -2,7 +2,6 @@
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
 using FluentAssertions;
@@ -24,7 +23,9 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingAsync_returns_default_rating_when_none_exists()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Blitz, CT);
 
@@ -42,11 +43,10 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingAsync_returns_existing_rating()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var rating = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(user, timeControl: TimeControl.Rapid)
-        );
+        var user = new AuthedUserFaker().Generate();
+        var rating = new CurrentRatingFaker(user, timeControl: TimeControl.Rapid).Generate();
+        await DbContext.AddRangeAsync(user, rating);
+        await DbContext.SaveChangesAsync(CT);
 
         var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Rapid, CT);
 
@@ -56,7 +56,9 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task UpdateRatingAsync_updates_current_rating_and_adds_archive_entry()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
         int newRatingValue = 1500;
         var timeControl = TimeControl.Blitz;
 
@@ -87,7 +89,9 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task UpdateRatingAsync_can_be_called_multiple_times_and_appends_archives()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
         var timeControl = TimeControl.Classical;
 
         int[] ratingSequence = [1400, 1500, 1600];
@@ -196,7 +200,9 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingOverviewsAsync_returns_empty_when_user_has_no_current_ratings()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _ratingService.GetRatingOverviewsAsync(user, since: null, CT);
 
@@ -206,27 +212,17 @@ public class RatingServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingOverviewsAsync_with_null_since_returns_all_archives()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var blitzCurrent = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(user, timeControl: TimeControl.Blitz)
-        );
+        var user = new AuthedUserFaker().Generate();
+        var blitzCurrent = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
 
-        var older = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, timeControl: TimeControl.Blitz).RuleFor(
-                x => x.AchievedAt,
-                DateTime.UtcNow.AddYears(-2)
-            )
-        );
-
-        var recent = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new RatingArchiveFaker(user, timeControl: TimeControl.Blitz).RuleFor(
-                x => x.AchievedAt,
-                DateTime.UtcNow.AddDays(-1)
-            )
-        );
+        var older = new RatingArchiveFaker(user, timeControl: TimeControl.Blitz)
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddYears(-2))
+            .Generate();
+        var recent = new RatingArchiveFaker(user, timeControl: TimeControl.Blitz)
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-1))
+            .Generate();
+        await DbContext.AddRangeAsync(user, blitzCurrent, older, recent);
+        await DbContext.SaveChangesAsync(CT);
 
         var overviews = await _ratingService.GetRatingOverviewsAsync(user, since: null, CT);
 
@@ -258,8 +254,10 @@ public class RatingServiceTests : BaseIntegrationTest
         int expectedBlackRatingChange
     )
     {
-        var whiteUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var blackUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var whiteUser = new AuthedUserFaker().Generate();
+        var blackUser = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(whiteUser, blackUser);
+        await DbContext.SaveChangesAsync(CT);
 
         await _ratingService.UpdateRatingAsync(whiteUser, TimeControl.Blitz, whiteRating, CT);
         await _ratingService.UpdateRatingAsync(blackUser, TimeControl.Blitz, blackRating, CT);

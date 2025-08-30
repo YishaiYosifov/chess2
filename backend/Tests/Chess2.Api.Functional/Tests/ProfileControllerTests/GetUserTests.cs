@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.DTOs;
 using FluentAssertions;
 
@@ -45,7 +44,9 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task GetUser_with_an_existing_user()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var response = await ApiClient.Api.GetUserAsync(user.UserName!);
 
@@ -56,7 +57,9 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task GetUser_with_a_non_existing_user()
     {
-        await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var response = await ApiClient.Api.GetUserAsync("wrong username doesn't exist");
 
