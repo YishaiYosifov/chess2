@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Repositories;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -22,18 +21,21 @@ public class CurrentRatingRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingAsync_finds_the_correct_rating_for_a_user_and_time_control()
     {
-        var userToFind = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        var ratingToFind = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(userToFind, timeControl: TimeControl.Blitz)
-        );
+        var userToFind = new AuthedUserFaker().Generate();
+        var ratingToFind = new CurrentRatingFaker(
+            userToFind,
+            timeControl: TimeControl.Blitz
+        ).Generate();
 
         // store a rating for another user to ensure it doesn't interfere
-        var otherUser = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(otherUser, timeControl: ratingToFind.TimeControl)
+        var otherUser = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(
+            userToFind,
+            ratingToFind,
+            otherUser,
+            new CurrentRatingFaker(otherUser, timeControl: ratingToFind.TimeControl).Generate()
         );
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _ratingRepository.GetRatingAsync(
             userToFind.Id,
@@ -48,11 +50,12 @@ public class CurrentRatingRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetRatingAsync_returns_null_when_the_rating_doesnt_exist()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
-        await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new CurrentRatingFaker(user, timeControl: TimeControl.Rapid)
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(
+            user,
+            new CurrentRatingFaker(user, timeControl: TimeControl.Rapid).Generate()
         );
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _ratingRepository.GetRatingAsync(user.Id, TimeControl.Blitz, CT);
 
@@ -62,7 +65,9 @@ public class CurrentRatingRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task UpdateRatingAsync_adds_the_rating_to_the_user_and_db_context()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var rating = new CurrentRatingFaker(user)
             .RuleFor(x => x.TimeControl, TimeControl.Classical)

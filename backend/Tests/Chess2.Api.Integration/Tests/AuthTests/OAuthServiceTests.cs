@@ -99,7 +99,10 @@ public class OAuthServiceTests : BaseIntegrationTest
     [Fact]
     public async Task AuthenticateAsync_with_existing_user_just_logs_in()
     {
-        var user = await FakerUtils.StoreFakerAsync(DbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
         var ticket = ClaimUtils.CreateAuthenticationTicket(
             new Claim(ClaimTypes.Email, user.Email!)
         );

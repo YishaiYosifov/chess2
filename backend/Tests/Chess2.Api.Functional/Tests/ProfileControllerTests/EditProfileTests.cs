@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.Users.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -41,13 +40,12 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
     public async Task EditUsername_changes_the_username_when_provided_with_valid_data()
     {
         var newUsername = "new-test-username";
-        var user = await FakerUtils.StoreFakerAsync(
-            DbContext,
-            new AuthedUserFaker().RuleFor(
-                x => x.UsernameLastChanged,
-                DateTime.UtcNow - TimeSpan.FromDays(365)
-            )
-        );
+        var user = new AuthedUserFaker()
+            .RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow - TimeSpan.FromDays(365))
+            .Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
         var response = await ApiClient.Api.EditUsernameAsync(new(newUsername));

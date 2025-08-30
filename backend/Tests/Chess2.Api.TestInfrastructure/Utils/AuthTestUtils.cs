@@ -125,7 +125,10 @@ public class AuthTestUtils(
         bool setRefreshToken = true
     )
     {
-        var user = await FakerUtils.StoreFakerAsync(_dbContext, new AuthedUserFaker());
+        var user = new AuthedUserFaker().Generate();
+        await _dbContext.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
+
         var authResult = await AuthenticateWithUserAsync(
             apiClient,
             user,
