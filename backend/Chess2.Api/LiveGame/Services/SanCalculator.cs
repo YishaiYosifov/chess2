@@ -43,7 +43,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
     private void NotateRegularMove(Move move, IEnumerable<Move> legalMoves, StringBuilder sb)
     {
         var isPawn = move.Piece.Type == PieceType.Pawn || move.Piece.Type == PieceType.UnderagePawn;
-        var isCapture = move.CapturedSquares.Any();
+        var isCapture = move.CapturedSquares.Count != 0;
 
         // add the piece letter if this is not a pawn move
         if (!isPawn)

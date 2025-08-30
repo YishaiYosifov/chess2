@@ -15,17 +15,20 @@ public record MovePath(
 {
     public static MovePath FromMove(Move move, int boardWidth)
     {
-        var captures = move.CapturedSquares.Any()
-            ? move.CapturedSquares.Select(c => c.AsIndex(boardWidth)).ToList()
-            : null;
-        var triggers = move.TriggerSquares.Any()
-            ? move.TriggerSquares.Select(t => t.AsIndex(boardWidth)).ToList()
-            : null;
-        var sideEffects = move.SideEffects.Any()
-            ? move
-                .SideEffects.Select(m => MoveSideEffectPath.FromMoveSideEffect(m, boardWidth))
-                .ToList()
-            : null;
+        var captures =
+            move.CapturedSquares.Count != 0
+                ? move.CapturedSquares.Select(c => c.AsIndex(boardWidth)).ToList()
+                : null;
+        var triggers =
+            move.TriggerSquares.Count != 0
+                ? move.TriggerSquares.Select(t => t.AsIndex(boardWidth)).ToList()
+                : null;
+        var sideEffects =
+            move.SideEffects.Count != 0
+                ? move
+                    .SideEffects.Select(m => MoveSideEffectPath.FromMoveSideEffect(m, boardWidth))
+                    .ToList()
+                : null;
 
         return new(
             FromIdx: move.From.AsIndex(boardWidth),
