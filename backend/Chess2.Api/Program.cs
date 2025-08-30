@@ -23,6 +23,8 @@ using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.Preferences.Repositories;
+using Chess2.Api.Preferences.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Repositories;
@@ -362,6 +364,11 @@ builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #region Profile
 builder.Services.AddScoped<IUserSettings, UserSettings>();
 builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
+#endregion
+
+#region Preferences
+builder.Services.AddScoped<IPreferencesRepository, PreferencesRepository>();
+builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
