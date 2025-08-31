@@ -217,4 +217,40 @@ public class FriendServiceTests : BaseIntegrationTest
         var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
         dbRequests.Should().ContainSingle();
     }
+
+    [Fact]
+    public async Task DenyFriendRequestBetweenAsync_deletes_request_if_exists()
+    {
+        var request = new FriendRequestFaker().Generate();
+        await DbContext.AddAsync(request, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.DenyFriendRequestBetweenAsync(
+            request.Recipient,
+            request.Requester,
+            CT
+        );
+
+        result.IsError.Should().BeFalse();
+
+        var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbRequest.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DenyFriendRequestBetweenAsync_returns_error_if_no_request_exists()
+    {
+        var otherRequest = new FriendRequestFaker().Generate();
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2, otherRequest);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.DenyFriendRequestBetweenAsync(user1, user2, CT);
+
+        result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
+
+        var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
+        dbRequests.Should().ContainSingle();
+    }
 }
