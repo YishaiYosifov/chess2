@@ -14,11 +14,6 @@ namespace Chess2.Api.Social.Services;
 
 public interface IFriendService
 {
-    Task<ErrorOr<Created>> AcceptFriendRequestAsync(
-        AuthedUser requester,
-        AuthedUser recipient,
-        CancellationToken token = default
-    );
     Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
         AuthedUser user1,
         AuthedUser user2,
@@ -114,25 +109,6 @@ public class FriendService(
         return Result.Created;
     }
 
-    public async Task<ErrorOr<Created>> AcceptFriendRequestAsync(
-        AuthedUser requester,
-        AuthedUser recipient,
-        CancellationToken token = default
-    )
-    {
-        var request = await _friendRepository.GetRequestBetweenAsync(
-            requester.Id,
-            recipient.Id,
-            token
-        );
-        if (request is null || request.RecipientUserId != recipient.Id)
-            return SocialErrors.FriendNotRequested;
-
-        await ConvertRequestToFriendAsync(request, token);
-        await _unitOfWork.CompleteAsync(token);
-        return Result.Created;
-    }
-
     public async Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
         AuthedUser user1,
         AuthedUser user2,
@@ -149,29 +125,24 @@ public class FriendService(
     }
 
     private async Task<ErrorOr<Created>> HandleExistingRequestAsync(
-        FriendRequest existing,
+        FriendRequest existingRequest,
         AuthedUser requester,
         CancellationToken token = default
     )
     {
-        if (existing.RequesterUserId == requester.Id)
+        if (existingRequest.RequesterUserId == requester.Id)
             return SocialErrors.FriendAlreadyRequested;
 
-        await ConvertRequestToFriendAsync(existing, token);
-        return Result.Created;
-    }
-
-    private async Task ConvertRequestToFriendAsync(FriendRequest request, CancellationToken token)
-    {
         Friend friend = new()
         {
-            UserId1 = request.RequesterUserId,
-            User1 = request.Requester,
-            UserId2 = request.RecipientUserId,
-            User2 = request.Recipient,
+            UserId1 = existingRequest.RequesterUserId,
+            User1 = existingRequest.Requester,
+            UserId2 = existingRequest.RecipientUserId,
+            User2 = existingRequest.Recipient,
         };
 
-        _friendRepository.DeleteFriendRequest(request);
+        _friendRepository.DeleteFriendRequest(existingRequest);
         await _friendRepository.AddFriendAsync(friend, token);
+        return Result.Created;
     }
 }
