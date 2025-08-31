@@ -83,7 +83,7 @@ const UsernameSettingsForm = () => {
                         </span>
                     </div>
 
-                    <FormikSubmitButton type="submit">Save</FormikSubmitButton>
+                    <FormikSubmitButton>Save</FormikSubmitButton>
                 </Card>
             </Form>
         </Formik>
