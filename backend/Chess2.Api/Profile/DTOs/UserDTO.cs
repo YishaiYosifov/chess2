@@ -6,8 +6,13 @@ namespace Chess2.Api.Profile.DTOs;
 [method: JsonConstructor]
 public record PublicUser(string UserId, string UserName, string About, string CountryCode)
 {
-    public static PublicUser FromAuthed(AuthedUser user) =>
-        new(user.Id, user.UserName ?? "Unknown", user.About, user.CountryCode);
+    public PublicUser(AuthedUser user)
+        : this(
+            UserId: user.Id,
+            UserName: user.UserName ?? "Unknown",
+            About: user.About,
+            CountryCode: user.CountryCode
+        ) { }
 }
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
@@ -28,8 +33,8 @@ public record PrivateUser(
 {
     public override string Type => SessionUserType.Authed;
 
-    public static PrivateUser FromAuthed(AuthedUser user) =>
-        new(
+    public PrivateUser(AuthedUser user)
+        : this(
             UserId: user.Id,
             UserName: user.UserName ?? "Unknown",
             UsernameLastChangedSeconds: user.UsernameLastChanged is null
@@ -37,7 +42,7 @@ public record PrivateUser(
                 : new DateTimeOffset(user.UsernameLastChanged.Value).ToUnixTimeSeconds(),
             About: user.About,
             CountryCode: user.CountryCode
-        );
+        ) { }
 }
 
 public record GuestUser(string UserId) : SessionUser(UserId)
