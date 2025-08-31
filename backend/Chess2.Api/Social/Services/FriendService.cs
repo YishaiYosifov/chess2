@@ -14,6 +14,7 @@ namespace Chess2.Api.Social.Services;
 
 public interface IFriendService
 {
+    Task<bool> AreFriendsAsync(UserId user1, UserId user2, CancellationToken token = default);
     Task<ErrorOr<Success>> DeleteFriendRequestBetweenAsync(
         UserId user1,
         UserId user2,
@@ -42,6 +43,16 @@ public class FriendService(
     private readonly IPreferenceService _preferenceService = preferenceService;
     private readonly ISocialNotifier _socialNotifier = socialNotifier;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+    public async Task<bool> AreFriendsAsync(
+        UserId user1,
+        UserId user2,
+        CancellationToken token = default
+    )
+    {
+        var friend = await _friendRepository.GetFriendBetweenAsync(user1, user2, token);
+        return friend is not null;
+    }
 
     public async Task<PagedResult<MinimalProfile>> GetFriendRequestsAsync(
         UserId forUser,
