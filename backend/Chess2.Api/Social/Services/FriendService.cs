@@ -100,6 +100,7 @@ public class FriendService(
             Recipient = recipient,
         };
         await _friendRepository.AddFriendRequestAsync(request, token);
+        await _unitOfWork.CompleteAsync(token);
         return Result.Created;
     }
 
