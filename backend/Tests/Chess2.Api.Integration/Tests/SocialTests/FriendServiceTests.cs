@@ -168,8 +168,8 @@ public class FriendServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var result = await _friendService.DeleteFriendRequestBetweenAsync(
-            request.Recipient,
-            request.Requester,
+            request.Recipient.Id,
+            request.Requester.Id,
             CT
         );
 
@@ -192,7 +192,7 @@ public class FriendServiceTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user1, user2, otherRequest);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.DeleteFriendRequestBetweenAsync(user1, user2, CT);
+        var result = await _friendService.DeleteFriendRequestBetweenAsync(user1.Id, user2.Id, CT);
 
         result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
 
