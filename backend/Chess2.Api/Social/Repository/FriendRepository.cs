@@ -23,6 +23,11 @@ public interface IFriendRepository
         CancellationToken token = default
     );
     Task<int> GetIncomingFriendRequestCount(string userId, CancellationToken token = default);
+    Task<Friend?> GetFriendBetweenAsync(
+        string userId1,
+        string userId2,
+        CancellationToken token = default
+    );
 }
 
 public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepository
@@ -69,4 +74,16 @@ public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepositor
 
     public async Task AddFriendAsync(Friend friend, CancellationToken token = default) =>
         await _dbContext.Friends.AddAsync(friend, token);
+
+    public Task<Friend?> GetFriendBetweenAsync(
+        string userId1,
+        string userId2,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .Friends.Where(x =>
+                (x.UserId1 == userId1 || x.UserId2 == userId1)
+                && (x.UserId1 == userId2 || x.UserId2 == userId2)
+            )
+            .FirstOrDefaultAsync(token);
 }

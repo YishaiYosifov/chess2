@@ -152,4 +152,49 @@ public class FriendRepositoryTests : BaseIntegrationTest
         var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
         dbRequest.Should().BeEquivalentTo(otherRequest);
     }
+
+    [Fact]
+    public async Task GetFriendBetweenAsync_returns_friend_if_exists()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        var friend = new FriendFaker(user1, user2).Generate();
+
+        await DbContext.AddRangeAsync(user1, user2, friend);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _repository.GetFriendBetweenAsync(user1.Id, user2.Id, CT);
+
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(friend);
+    }
+
+    [Fact]
+    public async Task GetFriendBetweenAsync_returns_friend_if_order_is_reversed()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        var friend = new FriendFaker(user1, user2).Generate();
+
+        await DbContext.AddRangeAsync(user1, user2, friend);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _repository.GetFriendBetweenAsync(user2.Id, user1.Id, CT);
+
+        result.Should().NotBeNull();
+        result.Should().BeEquivalentTo(friend);
+    }
+
+    [Fact]
+    public async Task GetFriendBetweenAsync_returns_null_if_no_friend_exists()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _repository.GetFriendBetweenAsync(user1.Id, user2.Id, CT);
+
+        result.Should().BeNull();
+    }
 }
