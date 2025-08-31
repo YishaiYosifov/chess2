@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Preferences.Services;
+﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -43,16 +44,17 @@ public class FriendService(
     {
         var requesters = await _friendRepository.GetIncomingFriendRequestsAsync(
             forUser,
-            take: pagination.PageSize,
-            skip: pagination.Skip,
+            pagination,
             token
         );
         var totalCount = await _friendRepository.GetIncomingFriendRequestCount(forUser, token);
 
-        var minimalProfiles = requesters.Select(requester => new MinimalProfile(
-            UserId: requester.Id,
-            UserName: requester.UserName ?? "Unknown"
-        ));
+        var minimalProfiles = requesters
+            .Select(requester => new MinimalProfile(
+                UserId: requester.Id,
+                UserName: requester.UserName ?? "Unknown"
+            ))
+            .ToList();
 
         return new(
             Items: minimalProfiles,

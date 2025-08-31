@@ -1,8 +1,9 @@
 ﻿using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.Auth.DTOs;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Shared.Models;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Shared.Models;
 using Refit;
 
 namespace Chess2.Api.TestInfrastructure;

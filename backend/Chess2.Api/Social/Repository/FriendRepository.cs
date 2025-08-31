@@ -1,4 +1,6 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Pagination.Extensions;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Social.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +14,7 @@ public interface IFriendRepository
     void DeleteFriendRequest(FriendRequest request);
     Task<List<AuthedUser>> GetIncomingFriendRequestsAsync(
         string userId,
-        int take,
-        int skip,
+        PaginationQuery query,
         CancellationToken token = default
     );
     Task<FriendRequest?> GetRequestBetweenAsync(
@@ -30,8 +31,7 @@ public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepositor
 
     public Task<List<AuthedUser>> GetIncomingFriendRequestsAsync(
         string userId,
-        int take,
-        int skip,
+        PaginationQuery query,
         CancellationToken token = default
     ) =>
         _dbContext
@@ -39,8 +39,7 @@ public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepositor
             .Include(x => x.Requester)
             .Where(x => x.RecipientUserId == userId)
             .Select(x => x.Requester)
-            .Skip(skip)
-            .Take(take)
+            .Paginate(query)
             .ToListAsync(token);
 
     public Task<int> GetIncomingFriendRequestCount(

@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Social.Repository;
+﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Social.Repository;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -30,8 +31,7 @@ public class FriendRepositoryTests : BaseIntegrationTest
 
         var result = await _repository.GetIncomingFriendRequestsAsync(
             recipient.Id,
-            take: 10,
-            skip: 0,
+            new PaginationQuery(Page: 0, PageSize: 20),
             CT
         );
 
@@ -50,8 +50,7 @@ public class FriendRepositoryTests : BaseIntegrationTest
 
         var result = await _repository.GetIncomingFriendRequestsAsync(
             recipient.Id,
-            take: 2,
-            skip: 1,
+            new PaginationQuery(Page: 1, PageSize: 2),
             CT
         );
 
