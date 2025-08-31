@@ -35,7 +35,8 @@ public class FriendRepository(ApplicationDbContext dbContext) : IFriendRepositor
         CancellationToken token = default
     ) =>
         _dbContext
-            .FriendRequests.Include(x => x.Requester)
+            .FriendRequests.IgnoreAutoIncludes()
+            .Include(x => x.Requester)
             .Where(x => x.RecipientUserId == userId)
             .Select(x => x.Requester)
             .Skip(skip)
