@@ -115,7 +115,7 @@ public class FriendServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task RequestFriendAsync_accepts_existing_request_if_found()
+    public async Task RequestFriendAsync_accepts_existing_request_by_recipient_if_found()
     {
         var existingRequest = new FriendRequestFaker().Generate();
         await DbContext.AddAsync(existingRequest, CT);
@@ -131,8 +131,8 @@ public class FriendServiceTests : BaseIntegrationTest
 
         var dbFriend = await DbContext.Friends.AsNoTracking().SingleOrDefaultAsync(CT);
         dbFriend.Should().NotBeNull();
-        dbFriend.UserId1.Should().Be(existingRequest.Recipient.Id);
-        dbFriend.UserId2.Should().Be(existingRequest.Requester.Id);
+        dbFriend.UserId1.Should().Be(existingRequest.Requester.Id);
+        dbFriend.UserId2.Should().Be(existingRequest.Recipient.Id);
 
         var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
         dbRequests.Should().BeEmpty();
