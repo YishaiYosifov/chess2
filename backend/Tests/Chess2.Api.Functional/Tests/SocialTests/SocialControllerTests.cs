@@ -12,7 +12,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task GetFriends_returns_expected_paginated_friends()
+    public async Task GetFriendRequests_returns_expected_paginated_friends()
     {
         var recipient = new AuthedUserFaker().Generate();
         var requests = new FriendRequestFaker(recipient: recipient).Generate(5);
@@ -22,7 +22,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
 
-        var response = await ApiClient.Api.GetFriendsAsync(
+        var response = await ApiClient.Api.GetFriendRequestsAsync(
             new PaginationQuery(Page: 1, PageSize: 2)
         );
 
@@ -34,11 +34,11 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetFriends_returns_bad_request_for_invalid_pagination()
+    public async Task GetFriendRequests_returns_bad_request_for_invalid_pagination()
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var response = await ApiClient.Api.GetFriendsAsync(
+        var response = await ApiClient.Api.GetFriendRequestsAsync(
             new PaginationQuery(Page: 0, PageSize: -1)
         );
 
