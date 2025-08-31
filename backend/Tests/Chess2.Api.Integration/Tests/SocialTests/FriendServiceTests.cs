@@ -153,4 +153,68 @@ public class FriendServiceTests : BaseIntegrationTest
 
         result.FirstError.Should().Be(SocialErrors.FriendAlreadyRequested);
     }
+
+    [Fact]
+    public async Task AcceptFriendRequestAsync_creates_friend_and_removes_request()
+    {
+        var request = new FriendRequestFaker().Generate();
+        await DbContext.AddAsync(request, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.AcceptFriendRequestAsync(
+            request.Requester,
+            request.Recipient,
+            CT
+        );
+
+        result.IsError.Should().BeFalse();
+
+        var dbFriend = await DbContext.Friends.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbFriend.Should().NotBeNull();
+        dbFriend.UserId1.Should().Be(request.Requester.Id);
+        dbFriend.UserId2.Should().Be(request.Recipient.Id);
+
+        var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
+        dbRequests.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AcceptFriendRequestAsync_returns_error_if_no_request_exists()
+    {
+        var requester = new AuthedUserFaker().Generate();
+        var recipient = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(requester, recipient);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.AcceptFriendRequestAsync(requester, recipient, CT);
+
+        result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
+
+        var dbFriends = await DbContext.Friends.AsNoTracking().ToListAsync(CT);
+        dbFriends.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AcceptFriendRequestAsync_returns_error_if_user_not_recipient()
+    {
+        var wrongRecipient = new AuthedUserFaker().Generate();
+        var request = new FriendRequestFaker().Generate();
+
+        await DbContext.AddRangeAsync(wrongRecipient, request);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.AcceptFriendRequestAsync(
+            request.Requester,
+            wrongRecipient,
+            CT
+        );
+
+        result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
+
+        var dbFriends = await DbContext.Friends.AsNoTracking().ToListAsync(CT);
+        dbFriends.Should().BeEmpty();
+
+        var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
+        dbRequests.Should().ContainSingle();
+    }
 }
