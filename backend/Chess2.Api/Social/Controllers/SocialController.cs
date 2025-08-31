@@ -92,7 +92,7 @@ public class SocialController(
         if (requester is null)
             return ProfileErrors.NotFound.ToActionResult();
 
-        var result = await _friendService.DenyFriendRequestBetweenAsync(
+        var result = await _friendService.DeleteFriendRequestBetweenAsync(
             loggedInUserResult.Value,
             requester,
             token
