@@ -23,6 +23,7 @@ public abstract record SessionUser(string UserId)
     public abstract string Type { get; }
 }
 
+[method: JsonConstructor]
 public record PrivateUser(
     string UserId,
     string UserName,
