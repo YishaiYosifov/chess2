@@ -6,8 +6,8 @@ using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
@@ -15,8 +15,8 @@ namespace Chess2.Api.Lobby.SignalR;
 
 public interface IOpenSeekHubClient : IChess2HubClient
 {
-    public Task NewOpenSeeksAsync(IEnumerable<OpenSeek> openSeeks);
-    public Task OpenSeekEndedAsync(UserId seekerId, PoolKey pool);
+    Task NewOpenSeeksAsync(IEnumerable<OpenSeek> openSeeks);
+    Task OpenSeekEndedAsync(UserId seekerId, PoolKey pool);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
