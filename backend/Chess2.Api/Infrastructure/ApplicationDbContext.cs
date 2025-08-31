@@ -30,4 +30,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<PlayerArchive> PlayerArchives { get; set; }
     public required DbSet<MoveArchive> MoveArchives { get; set; }
     public required DbSet<MoveSideEffectArchive> MoveSideEffectArchives { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<FriendRequest>().Navigation(x => x.Requester).AutoInclude();
+        builder.Entity<FriendRequest>().Navigation(x => x.Recipient).AutoInclude();
+
+        builder.Entity<Friend>().Navigation(x => x.User1).AutoInclude();
+        builder.Entity<Friend>().Navigation(x => x.User2).AutoInclude();
+
+        base.OnModelCreating(builder);
+    }
 }
