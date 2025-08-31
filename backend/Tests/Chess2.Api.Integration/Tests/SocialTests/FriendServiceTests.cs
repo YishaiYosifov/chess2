@@ -31,6 +31,35 @@ public class FriendServiceTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task AreFriendsAsync_returns_true_if_users_are_friends()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        await _friendService.RequestFriendAsync(user1, user2, CT);
+        await _friendService.RequestFriendAsync(user2, user1, CT);
+        var result = await _friendService.AreFriendsAsync(user1.Id, user2.Id, CT);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task AreFriendsAsync_returns_false_if_users_are_not_friends()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _friendService.AreFriendsAsync(user1.Id, user2.Id, CT);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task GetFriendRequestsAsync_returns_minimal_profiles()
     {
         var recipient = new AuthedUserFaker().Generate();
