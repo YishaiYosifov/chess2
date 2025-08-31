@@ -55,7 +55,7 @@ public class FriendRepositoryTests : BaseIntegrationTest
         );
 
         result.Should().HaveCount(2);
-        result.Should().BeEquivalentTo(requests.Skip(1).Take(2).Select(r => r.Requester));
+        result.Should().BeEquivalentTo(requests.Skip(2).Take(2).Select(r => r.Requester));
     }
 
     [Fact]
