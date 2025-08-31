@@ -46,7 +46,7 @@ public class ProfileController(
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        PrivateUser dto = PrivateUser.FromAuthed(user);
+        PrivateUser dto = new(user);
         return Ok(dto);
     }
 
@@ -59,7 +59,7 @@ public class ProfileController(
         if (result is null)
             return ProfileErrors.NotFound.ToActionResult();
 
-        PublicUser dto = PublicUser.FromAuthed(result);
+        PublicUser dto = new(result);
         return Ok(dto);
     }
 
