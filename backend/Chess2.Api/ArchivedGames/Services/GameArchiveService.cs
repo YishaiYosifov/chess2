@@ -3,6 +3,7 @@ using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Models;
 using ErrorOr;
@@ -103,8 +104,7 @@ public class GameArchiveService(
     {
         var archives = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
             userId,
-            take: pagination.PageSize,
-            skip: pagination.Skip,
+            pagination,
             token
         );
         var totalCount = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, token);
@@ -156,10 +156,10 @@ public class GameArchiveService(
         var path = moveSnapshot.Path;
         var sideEffects =
             path.SideEffects?.Select(se => new MoveSideEffectArchive
-            {
-                FromIdx = se.FromIdx,
-                ToIdx = se.ToIdx,
-            })
+                {
+                    FromIdx = se.FromIdx,
+                    ToIdx = se.ToIdx,
+                })
                 .ToList() ?? [];
 
         return new()

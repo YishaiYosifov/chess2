@@ -6,7 +6,9 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Shared.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +19,14 @@ namespace Chess2.Api.Game.Controllers;
 public class GameController(
     IGameStateProvider gameStateProvider,
     IGameArchiveService gameArchiveService,
-    IAuthService authService
+    IAuthService authService,
+    IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
     private readonly IGameStateProvider _gameStateProvider = gameStateProvider;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly IAuthService _authService = authService;
+    private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet("{gameToken}", Name = nameof(GetGame))]
     [ProducesResponseType<GameState>(StatusCodes.Status200OK)]
@@ -50,6 +54,10 @@ public class GameController(
         CancellationToken token
     )
     {
+        var validationResult = _paginationValidator.Validate(pagination);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
         var result = await _gameArchiveService.GetPaginatedResultsAsync(userId, pagination, token);
         return Ok(result);
     }
