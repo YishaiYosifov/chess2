@@ -2,7 +2,7 @@
 using Chess2.Api.Profile.Validators;
 using FluentValidation.TestHelper;
 
-namespace Chess2.Api.Unit.Tests.UserTests.ValidatorTests;
+namespace Chess2.Api.Unit.Tests.ProfileTests.ValidatorTests;
 
 public class UsernameEditValidatorTests
 {
