@@ -2,7 +2,7 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Shared.Models;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Models;
@@ -117,7 +117,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         await DbContext.GameArchives.AddRangeAsync(archives, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var pagination = new PaginationQuery(Page: 0, PageSize: 2);
+        PaginationQuery pagination = new(Page: 0, PageSize: 2);
 
         var result = await _gameArchiveService.GetPaginatedResultsAsync(userId, pagination, CT);
 
@@ -132,7 +132,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetPaginatedResultsAsync_returns_empty_when_user_has_no_archives()
     {
-        var pagination = new PaginationQuery(Page: 0, PageSize: 5);
+        PaginationQuery pagination = new(Page: 0, PageSize: 5);
 
         var result = await _gameArchiveService.GetPaginatedResultsAsync("no one", pagination, CT);
 
