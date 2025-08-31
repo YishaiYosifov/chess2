@@ -10,6 +10,10 @@ public static class SocialErrors
             ErrorCodes.SocialFriendAlreadyRequested,
             "You already have an outgoing friend request to this user"
         );
+
+    public static Error FriendNotRequested =>
+        Error.NotFound(ErrorCodes.SocialFriendNotRequested, "Friend request not found");
+
     public static Error NotAcceptingFriends =>
         Error.Forbidden(
             ErrorCodes.SocialNotAcceptingFriends,
