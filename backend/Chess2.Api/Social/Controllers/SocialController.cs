@@ -29,10 +29,10 @@ public class SocialController(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("friends", Name = nameof(GetFriends))]
+    [HttpGet("friends/requests", Name = nameof(GetFriendRequests))]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetFriends(
+    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetFriendRequests(
         [FromQuery] PaginationQuery pagination,
         CancellationToken token
     )
