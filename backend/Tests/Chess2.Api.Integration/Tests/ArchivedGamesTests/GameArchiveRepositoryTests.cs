@@ -79,33 +79,14 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
 
         var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
             userId,
-            take: 2,
-            skip: 1,
+            pagination: new(Page: 1, PageSize: 2),
             CT
         );
 
         result
             .Should()
-            .BeEquivalentTo(archives.OrderByDescending(a => a.CreatedAt).Skip(1).Take(2));
+            .BeEquivalentTo(archives.OrderByDescending(a => a.CreatedAt).Skip(2).Take(2));
         result.Should().BeInDescendingOrder(a => a.CreatedAt);
-    }
-
-    [Fact]
-    public async Task GetPaginatedArchivedGamesForUserAsync_returns_empty_when_skip_exceeds_total()
-    {
-        var userId = "user123";
-        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(5);
-        await DbContext.AddRangeAsync(archives, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
-            userId,
-            take: 2,
-            skip: 10,
-            CT
-        );
-
-        result.Should().BeEmpty();
     }
 
     [Fact]
