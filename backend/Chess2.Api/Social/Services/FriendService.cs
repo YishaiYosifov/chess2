@@ -19,6 +19,11 @@ public interface IFriendService
         AuthedUser recipient,
         CancellationToken token = default
     );
+    Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
+        AuthedUser user1,
+        AuthedUser user2,
+        CancellationToken token = default
+    );
     Task<PagedResult<MinimalProfile>> GetFriendRequestsAsync(
         UserId forUser,
         PaginationQuery pagination,
@@ -126,6 +131,21 @@ public class FriendService(
         await ConvertRequestToFriendAsync(request, token);
         await _unitOfWork.CompleteAsync(token);
         return Result.Created;
+    }
+
+    public async Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
+        AuthedUser user1,
+        AuthedUser user2,
+        CancellationToken token = default
+    )
+    {
+        var request = await _friendRepository.GetRequestBetweenAsync(user1.Id, user2.Id, token);
+        if (request is null)
+            return SocialErrors.FriendNotRequested;
+
+        _friendRepository.DeleteFriendRequest(request);
+        await _unitOfWork.CompleteAsync(token);
+        return Result.Success;
     }
 
     private async Task<ErrorOr<Created>> HandleExistingRequestAsync(
