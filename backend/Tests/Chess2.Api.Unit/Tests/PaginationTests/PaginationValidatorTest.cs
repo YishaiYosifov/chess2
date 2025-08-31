@@ -16,7 +16,7 @@ public class PaginationValidatorTests
     {
         PaginationQuery model = new(page, 10);
         var result = _validator.TestValidate(model);
-        result.ShouldNotHaveValidationErrorFor(x => x.Page);
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
     [Theory]
@@ -37,7 +37,7 @@ public class PaginationValidatorTests
     {
         PaginationQuery model = new(0, pageSize);
         var result = _validator.TestValidate(model);
-        result.ShouldNotHaveValidationErrorFor(x => x.PageSize);
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
     [Theory]
