@@ -1,0 +1,54 @@
+﻿using System.Net;
+using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.DTOs;
+using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Fakes;
+using FluentAssertions;
+
+namespace Chess2.Api.Functional.Tests.SocialTests;
+
+public class SocialControllerTests(Chess2WebApplicationFactory factory)
+    : BaseFunctionalTest(factory)
+{
+    [Fact]
+    public async Task GetFriends_returns_expected_paginated_friends()
+    {
+        var recipient = new AuthedUserFaker().Generate();
+        var requests = new FriendRequestFaker(recipient: recipient).Generate(5);
+        await DbContext.AddAsync(recipient, CT);
+        await DbContext.AddRangeAsync(requests, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
+
+        var response = await ApiClient.Api.GetFriendsAsync(
+            new PaginationQuery(Page: 1, PageSize: 2)
+        );
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().NotBeNull();
+        response
+            .Content.Items.Should()
+            .BeEquivalentTo(
+                requests
+                    .Skip(2)
+                    .Take(2)
+                    .Select(r => new MinimalProfile(
+                        UserId: r.Requester.Id,
+                        UserName: r.Requester.UserName!
+                    ))
+            );
+    }
+
+    [Fact]
+    public async Task GetFriends_returns_bad_request_for_invalid_pagination()
+    {
+        await AuthUtils.AuthenticateAsync(ApiClient);
+
+        var response = await ApiClient.Api.GetFriendsAsync(
+            new PaginationQuery(Page: 0, PageSize: -1)
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+}

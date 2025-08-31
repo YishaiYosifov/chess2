@@ -10,7 +10,7 @@ namespace Chess2.Api.TestInfrastructure;
 
 public interface IChess2Api
 {
-    #region Auth Controller
+    #region Auth
 
     [Get("/api/oauth/signin/{provider}")]
     Task<IApiResponse<Tokens>> OAuthLoginAsync([AliasAs("provider")] string provider);
@@ -28,7 +28,7 @@ public interface IChess2Api
     Task<IApiResponse> TestGuestAsync();
     #endregion
 
-    #region Profile Controller
+    #region Profile
     [Get("/api/profile/me")]
     Task<IApiResponse<PrivateUser>> GetSessionUserAuthedAsync();
 
@@ -59,13 +59,20 @@ public interface IChess2Api
     );
     #endregion
 
-    #region Game Controller
+    #region Game
     [Get("/api/game/{gameToken}")]
     Task<IApiResponse<GameState>> GetGameAsync([AliasAs("gameToken")] string gameToken);
 
     [Get("/api/game/results/{userId}")]
     Task<IApiResponse<PagedResult<GameSummaryDto>>> GetGameResultsAsync(
         [AliasAs("userId")] string userId,
+        [Query] PaginationQuery pagination
+    );
+    #endregion
+
+    #region Social
+    [Get("/api/social/friends")]
+    Task<IApiResponse<PagedResult<MinimalProfile>>> GetFriendsAsync(
         [Query] PaginationQuery pagination
     );
     #endregion
