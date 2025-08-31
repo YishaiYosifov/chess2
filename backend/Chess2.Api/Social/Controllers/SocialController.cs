@@ -76,4 +76,27 @@ public class SocialController(
         );
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
+
+    [HttpDelete("friends/request/{userId}", Name = nameof(DenyFriendRequest))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [Authorize(AuthPolicies.AuthedUser)]
+    public async Task<ActionResult> DenyFriendRequest(string userId, CancellationToken token)
+    {
+        var loggedInUserResult = await _authService.GetLoggedInUserAsync(User);
+        if (loggedInUserResult.IsError)
+            return loggedInUserResult.Errors.ToActionResult();
+
+        var requester = await _userManager.FindByIdAsync(userId);
+        if (requester is null)
+            return ProfileErrors.NotFound.ToActionResult();
+
+        var result = await _friendService.DenyFriendRequestBetweenAsync(
+            loggedInUserResult.Value,
+            requester,
+            token
+        );
+        return result.Match(value => NoContent(), errors => errors.ToActionResult());
+    }
 }

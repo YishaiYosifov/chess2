@@ -78,5 +78,8 @@ public interface IChess2Api
 
     [Post("/api/social/friends/request/{userId}")]
     Task<IApiResponse> RequestFriendAsync(string userId);
+
+    [Delete("/api/social/friends/request/{userId}")]
+    Task<IApiResponse> DenyFriendRequestAsync(string userId);
     #endregion
 }
