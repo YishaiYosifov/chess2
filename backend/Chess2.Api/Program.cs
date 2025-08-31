@@ -23,6 +23,8 @@ using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.Pagination.Models;
+using Chess2.Api.Pagination.Validators;
 using Chess2.Api.Preferences.Repositories;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
@@ -98,6 +100,8 @@ builder.Services.AddOpenApiDocument(options =>
 });
 builder.Services.AddSingleton<IDocumentProcessor, ErrorCodesDocumentProcessor>();
 builder.Services.AddSingleton<IOperationProcessor, MethodNameOperationIdProcessor>();
+
+ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
 
 const string AllowCorsOriginName = "AllowCorsOrigin";
 builder.Services.AddCors(options =>
@@ -296,11 +300,6 @@ builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
 builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 #endregion
 
-#region Validation
-ValidatorOptions.Global.PropertyNameResolver = CamelCasePropertyNameResolver.ResolvePropertyName;
-builder.Services.AddScoped<IValidator<ProfileEditRequest>, ProfileEditValidator>();
-builder.Services.AddScoped<IValidator<UsernameEditRequest>, UsernameEditValidator>();
-#endregion
 
 builder.Host.UseOrleans(siloBuilder =>
 {
@@ -369,6 +368,8 @@ builder.Services.AddScoped<IProfileSettings, ProfileSettings>();
 builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddSingleton<IValidator<ProfileEditRequest>, ProfileEditValidator>();
+builder.Services.AddSingleton<IValidator<UsernameEditRequest>, UsernameEditValidator>();
 #endregion
 
 #region Preferences
@@ -380,6 +381,7 @@ builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
 builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
+builder.Services.AddSingleton<IValidator<PaginationQuery>, PaginationValidator>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

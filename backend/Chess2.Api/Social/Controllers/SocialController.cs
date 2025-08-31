@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Social.Services;

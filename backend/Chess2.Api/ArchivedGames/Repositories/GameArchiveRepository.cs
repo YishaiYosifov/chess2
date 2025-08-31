@@ -1,5 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Pagination.Extensions;
+using Chess2.Api.Pagination.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.ArchivedGames.Repositories;
@@ -13,8 +15,7 @@ public interface IGameArchiveRepository
     Task AddArchiveAsync(GameArchive gameArchive, CancellationToken token = default);
     Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
         string userId,
-        int take,
-        int skip,
+        PaginationQuery pagination,
         CancellationToken token = default
     );
     Task<int> CountArchivedGamesForUserAsync(string userId, CancellationToken token = default);
@@ -38,8 +39,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
 
     public Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
         string userId,
-        int take,
-        int skip,
+        PaginationQuery pagination,
         CancellationToken token = default
     ) =>
         _dbContext
@@ -49,8 +49,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
                 archive.WhitePlayer.UserId == userId || archive.BlackPlayer.UserId == userId
             )
             .OrderByDescending(archive => archive.CreatedAt)
-            .Skip(skip)
-            .Take(take)
+            .Paginate(pagination)
             .ToListAsync(token);
 
     public Task<int> CountArchivedGamesForUserAsync(
