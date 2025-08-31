@@ -27,6 +27,7 @@ public static class ErrorCodes
     public const string ProfileInvalidProfilePicture = "Profile.InvalidProfilePicture";
 
     public const string SocialFriendAlreadyRequested = "Social.FriendAlreadyRequested";
+    public const string SocialFriendNotRequested = "Social.FriendNotRequested";
     public const string SocialNotAcceptingFriends = "Social.NotAcceptingFriends";
 
     public const string AuthTokenMissing = "Auth.TokenMissing";
