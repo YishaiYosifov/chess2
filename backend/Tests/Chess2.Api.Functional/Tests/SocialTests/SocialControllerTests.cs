@@ -81,4 +81,29 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task DenyFriendRequest_returns_no_content_when_successful()
+    {
+        var request = new FriendRequestFaker().Generate();
+        await DbContext.AddAsync(request, CT);
+        await DbContext.SaveChangesAsync(CT);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, request.Recipient);
+
+        var response = await ApiClient.Api.DenyFriendRequestAsync(request.Requester.Id);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var dbRequest = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
+        dbRequest.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DenyFriendRequest_returns_not_found_if_user_does_not_exist()
+    {
+        await AuthUtils.AuthenticateAsync(ApiClient);
+
+        var response = await ApiClient.Api.DenyFriendRequestAsync("random user id");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
 }
