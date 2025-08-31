@@ -1,23 +1,33 @@
 ﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Errors;
+using Chess2.Api.Social.Repository;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.SocialTests;
 
 public class FriendServiceTests : BaseIntegrationTest
 {
-    private readonly IFriendService _friendService;
+    private readonly FriendService _friendService;
+    private readonly ISocialNotifier _socialNotifierMock = Substitute.For<ISocialNotifier>();
 
     public FriendServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _friendService = Scope.ServiceProvider.GetRequiredService<IFriendService>();
+        _friendService = new(
+            Scope.ServiceProvider.GetRequiredService<IFriendRepository>(),
+            Scope.ServiceProvider.GetRequiredService<IPreferenceService>(),
+            _socialNotifierMock,
+            Scope.ServiceProvider.GetRequiredService<IUnitOfWork>()
+        );
     }
 
     [Fact]
@@ -33,14 +43,7 @@ public class FriendServiceTests : BaseIntegrationTest
         var pagination = new PaginationQuery(Page: 0, PageSize: 20);
         var result = await _friendService.GetFriendRequestsAsync(recipient.Id, pagination, CT);
 
-        result
-            .Items.Should()
-            .BeEquivalentTo(
-                requests.Select(r => new MinimalProfile(
-                    UserId: r.Requester.Id,
-                    UserName: r.Requester.UserName!
-                ))
-            );
+        result.Items.Should().BeEquivalentTo(requests.Select(x => new MinimalProfile(x.Requester)));
         result.TotalCount.Should().Be(requests.Count);
     }
 
@@ -63,15 +66,7 @@ public class FriendServiceTests : BaseIntegrationTest
         result.Items.Should().HaveCount(2);
         result
             .Items.Should()
-            .BeEquivalentTo(
-                requests
-                    .Skip(2)
-                    .Take(2)
-                    .Select(r => new MinimalProfile(
-                        UserId: r.Requester.Id,
-                        UserName: r.Requester.UserName ?? "Unknown"
-                    ))
-            );
+            .BeEquivalentTo(requests.Skip(2).Take(2).Select(x => new MinimalProfile(x.Requester)));
         result.TotalCount.Should().Be(requests.Count);
     }
 
@@ -95,6 +90,10 @@ public class FriendServiceTests : BaseIntegrationTest
         dbRequest.Should().NotBeNull();
         dbRequest.RequesterUserId.Should().Be(requester.Id);
         dbRequest.RecipientUserId.Should().Be(recipient.Id);
+
+        await _socialNotifierMock
+            .Received(1)
+            .NotifyFriendRequest(recipient.Id, new MinimalProfile(requester));
     }
 
     [Fact]
@@ -136,6 +135,13 @@ public class FriendServiceTests : BaseIntegrationTest
 
         var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
         dbRequests.Should().BeEmpty();
+
+        await _socialNotifierMock
+            .Received(1)
+            .NotifyFriendRequestAccepted(
+                existingRequest.Requester.Id,
+                existingRequest.Recipient.Id
+            );
     }
 
     [Fact]
@@ -155,13 +161,13 @@ public class FriendServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task DenyFriendRequestBetweenAsync_deletes_request_if_exists()
+    public async Task DeleteFriendRequestBetweenAsync_deletes_request_if_exists()
     {
         var request = new FriendRequestFaker().Generate();
         await DbContext.AddAsync(request, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.DenyFriendRequestBetweenAsync(
+        var result = await _friendService.DeleteFriendRequestBetweenAsync(
             request.Recipient,
             request.Requester,
             CT
@@ -171,10 +177,14 @@ public class FriendServiceTests : BaseIntegrationTest
 
         var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
         dbRequest.Should().BeNull();
+
+        await _socialNotifierMock
+            .Received(1)
+            .NotifyFriendRequestRemoved(request.RequesterUserId, request.RecipientUserId);
     }
 
     [Fact]
-    public async Task DenyFriendRequestBetweenAsync_returns_error_if_no_request_exists()
+    public async Task DeleteFriendRequestBetweenAsync_returns_error_if_no_request_exists()
     {
         var otherRequest = new FriendRequestFaker().Generate();
         var user1 = new AuthedUserFaker().Generate();
@@ -182,7 +192,7 @@ public class FriendServiceTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user1, user2, otherRequest);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.DenyFriendRequestBetweenAsync(user1, user2, CT);
+        var result = await _friendService.DeleteFriendRequestBetweenAsync(user1, user2, CT);
 
         result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
 

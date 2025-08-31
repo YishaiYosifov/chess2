@@ -30,15 +30,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
         response.Content.Should().NotBeNull();
         response
             .Content.Items.Should()
-            .BeEquivalentTo(
-                requests
-                    .Skip(2)
-                    .Take(2)
-                    .Select(r => new MinimalProfile(
-                        UserId: r.Requester.Id,
-                        UserName: r.Requester.UserName!
-                    ))
-            );
+            .BeEquivalentTo(requests.Skip(2).Take(2).Select(x => new MinimalProfile(x.Requester)));
     }
 
     [Fact]

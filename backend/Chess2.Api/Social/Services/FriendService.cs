@@ -14,7 +14,7 @@ namespace Chess2.Api.Social.Services;
 
 public interface IFriendService
 {
-    Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
+    Task<ErrorOr<Success>> DeleteFriendRequestBetweenAsync(
         AuthedUser user1,
         AuthedUser user2,
         CancellationToken token = default
@@ -34,11 +34,13 @@ public interface IFriendService
 public class FriendService(
     IFriendRepository friendRepository,
     IPreferenceService preferenceService,
+    ISocialNotifier socialNotifier,
     IUnitOfWork unitOfWork
 ) : IFriendService
 {
     private readonly IFriendRepository _friendRepository = friendRepository;
     private readonly IPreferenceService _preferenceService = preferenceService;
+    private readonly ISocialNotifier _socialNotifier = socialNotifier;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<PagedResult<MinimalProfile>> GetFriendRequestsAsync(
@@ -55,10 +57,7 @@ public class FriendService(
         var totalCount = await _friendRepository.GetIncomingFriendRequestCount(forUser, token);
 
         var minimalProfiles = requesters
-            .Select(requester => new MinimalProfile(
-                UserId: requester.Id,
-                UserName: requester.UserName ?? "Unknown"
-            ))
+            .Select(requester => new MinimalProfile(requester))
             .ToList();
 
         return new(
@@ -103,13 +102,17 @@ public class FriendService(
             Recipient = recipient,
         };
 
+        await _socialNotifier.NotifyFriendRequest(
+            recipientId: recipient.Id,
+            requester: new MinimalProfile(requester)
+        );
         await _friendRepository.AddFriendRequestAsync(request, token);
         await _unitOfWork.CompleteAsync(token);
 
         return Result.Created;
     }
 
-    public async Task<ErrorOr<Success>> DenyFriendRequestBetweenAsync(
+    public async Task<ErrorOr<Success>> DeleteFriendRequestBetweenAsync(
         AuthedUser user1,
         AuthedUser user2,
         CancellationToken token = default
@@ -121,6 +124,10 @@ public class FriendService(
 
         _friendRepository.DeleteFriendRequest(request);
         await _unitOfWork.CompleteAsync(token);
+        await _socialNotifier.NotifyFriendRequestRemoved(
+            requesterId: request.RequesterUserId,
+            recipientId: request.RecipientUserId
+        );
         return Result.Success;
     }
 
@@ -143,6 +150,11 @@ public class FriendService(
 
         _friendRepository.DeleteFriendRequest(existingRequest);
         await _friendRepository.AddFriendAsync(friend, token);
+        await _socialNotifier.NotifyFriendRequestAccepted(
+            requesterId: existingRequest.Requester.Id,
+            recipientId: existingRequest.Recipient.Id
+        );
+
         return Result.Created;
     }
 }

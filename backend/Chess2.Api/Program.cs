@@ -366,10 +366,14 @@ builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 #region Profile
 builder.Services.AddScoped<IProfileSettings, ProfileSettings>();
 builder.Services.AddScoped<IProfilePictureProvider, ProfilePictureProvider>();
-builder.Services.AddScoped<IFriendRepository, FriendRepository>();
-builder.Services.AddScoped<IFriendService, FriendService>();
 builder.Services.AddSingleton<IValidator<ProfileEditRequest>, ProfileEditValidator>();
 builder.Services.AddSingleton<IValidator<UsernameEditRequest>, UsernameEditValidator>();
+#endregion
+
+#region Social
+builder.Services.AddScoped<IFriendRepository, FriendRepository>();
+builder.Services.AddScoped<IFriendService, FriendService>();
+builder.Services.AddSingleton<ISocialNotifier, SocialNotifier>();
 #endregion
 
 #region Preferences
