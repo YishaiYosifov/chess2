@@ -80,7 +80,6 @@ public class FriendService(
             recipient.Id,
             token
         );
-
         if (existingRequest is not null)
         {
             var existingRequestResult = await HandleExistingRequestAsync(
