@@ -4,13 +4,10 @@ using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
-using Chess2.Api.Profile.Entities;
-using Chess2.Api.Profile.Errors;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Social.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chess2.Api.Social.Controllers;
@@ -18,21 +15,20 @@ namespace Chess2.Api.Social.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class SocialController(
-    IFriendService friendService,
+    IStarService starService,
     IAuthService authService,
-    UserManager<AuthedUser> userManager,
     IValidator<PaginationQuery> paginationValidator
 ) : ControllerBase
 {
-    private readonly IFriendService _friendService = friendService;
+    private readonly IStarService _starService = starService;
     private readonly IAuthService _authService = authService;
-    private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("friends/requests", Name = nameof(GetFriendRequests))]
+    [HttpGet("stars", Name = nameof(GetStars))]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetFriendRequests(
+    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetStars(
         [FromQuery] PaginationQuery pagination,
         CancellationToken token
     )
@@ -45,52 +41,42 @@ public class SocialController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var result = await _friendService.GetFriendRequestsAsync(
-            userIdResult.Value,
-            pagination,
-            token
-        );
+        var result = await _starService.GetStarsOfAsync(userIdResult.Value, pagination, token);
         return Ok(result);
     }
 
-    [HttpPost("friends/request/{userId}", Name = nameof(RequestFriend))]
+    [HttpPost("star/{starredUserId}", Name = nameof(AddStar))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
     [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult> RequestFriend(string userId, CancellationToken token)
-    {
-        var loggedInUserResult = await _authService.GetLoggedInUserAsync(User);
-        if (loggedInUserResult.IsError)
-            return loggedInUserResult.Errors.ToActionResult();
-
-        var recipient = await _userManager.FindByIdAsync(userId);
-        if (recipient is null)
-            return ProfileErrors.NotFound.ToActionResult();
-
-        var result = await _friendService.RequestFriendAsync(
-            requester: loggedInUserResult.Value,
-            recipient,
-            token
-        );
-        return result.Match(value => NoContent(), errors => errors.ToActionResult());
-    }
-
-    [HttpDelete("friends/request/{userId}", Name = nameof(DeleteFriendRequest))]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult> DeleteFriendRequest(string userId, CancellationToken token)
+    public async Task<ActionResult> AddStar(string starredUserId, CancellationToken token)
     {
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var result = await _friendService.DeleteFriendRequestBetweenAsync(
-            userIdResult.Value,
-            userId,
+        var result = await _starService.AddStarAsync(
+            forUserId: userIdResult.Value,
+            starredUserId,
+            token
+        );
+        return result.Match(value => NoContent(), errors => errors.ToActionResult());
+    }
+
+    [HttpDelete("star/{starredUserId}", Name = nameof(RemoveStar))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(AuthPolicies.AuthedUser)]
+    public async Task<ActionResult> RemoveStar(string starredUserId, CancellationToken token)
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _starService.RemoveStarAsync(
+            forUserId: userIdResult.Value,
+            starredUserId,
             token
         );
         return result.Match(value => NoContent(), errors => errors.ToActionResult());

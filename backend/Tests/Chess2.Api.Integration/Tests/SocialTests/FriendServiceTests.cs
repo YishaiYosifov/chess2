@@ -1,93 +1,91 @@
 ﻿using Chess2.Api.Pagination.Models;
-using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Errors;
-using Chess2.Api.Social.Repository;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.SocialTests;
 
 public class FriendServiceTests : BaseIntegrationTest
 {
-    private readonly FriendService _friendService;
-    private readonly ISocialNotifier _socialNotifierMock = Substitute.For<ISocialNotifier>();
+    private readonly IStarService _starService;
 
     public FriendServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _friendService = new(
-            Scope.ServiceProvider.GetRequiredService<IFriendRepository>(),
-            Scope.ServiceProvider.GetRequiredService<IPreferenceService>(),
-            _socialNotifierMock,
-            Scope.ServiceProvider.GetRequiredService<IUnitOfWork>()
-        );
+        _starService = Scope.ServiceProvider.GetRequiredService<IStarService>();
     }
 
     [Fact]
-    public async Task AreFriendsAsync_returns_true_if_users_are_friends()
+    public async Task IsStarredAsync_returns_true_if_user_has_starred_another()
     {
         var user1 = new AuthedUserFaker().Generate();
         var user2 = new AuthedUserFaker().Generate();
         await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        await _friendService.RequestFriendAsync(user1, user2, CT);
-        await _friendService.RequestFriendAsync(user2, user1, CT);
-        var result = await _friendService.AreFriendsAsync(user1.Id, user2.Id, CT);
+        await _starService.AddStarAsync(user1.Id, user2.Id, CT);
+        var result = await _starService.IsStarredAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task AreFriendsAsync_returns_false_if_users_are_not_friends()
+    public async Task IsStarredAsync_returns_false_if_user_has_not_starred_another()
     {
         var user1 = new AuthedUserFaker().Generate();
         var user2 = new AuthedUserFaker().Generate();
-
         await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.AreFriendsAsync(user1.Id, user2.Id, CT);
+        var result = await _starService.IsStarredAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeFalse();
     }
 
     [Fact]
-    public async Task GetFriendRequestsAsync_returns_minimal_profiles()
+    public async Task GetStarsOfAsync_returns_minimal_profiles()
     {
-        var recipient = new AuthedUserFaker().Generate();
-        var requests = new FriendRequestFaker(recipient: recipient).Generate(3);
+        var user = new AuthedUserFaker().Generate();
+        var starredUsers = new AuthedUserFaker().Generate(3);
 
-        await DbContext.AddAsync(recipient, CT);
-        await DbContext.AddRangeAsync(requests, CT);
+        await DbContext.AddAsync(user, CT);
+        await DbContext.AddRangeAsync(starredUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var pagination = new PaginationQuery(Page: 0, PageSize: 20);
-        var result = await _friendService.GetFriendRequestsAsync(recipient.Id, pagination, CT);
+        foreach (var starred in starredUsers)
+        {
+            await _starService.AddStarAsync(user.Id, starred.Id, CT);
+        }
 
-        result.Items.Should().BeEquivalentTo(requests.Select(x => new MinimalProfile(x.Requester)));
-        result.TotalCount.Should().Be(requests.Count);
+        var pagination = new PaginationQuery(Page: 0, PageSize: 20);
+        var result = await _starService.GetStarsOfAsync(user.Id, pagination, CT);
+
+        result.Items.Should().BeEquivalentTo(starredUsers.Select(x => new MinimalProfile(x)));
+        result.TotalCount.Should().Be(starredUsers.Count);
     }
 
     [Fact]
-    public async Task GetFriendRequestsAsync_applies_pagination()
+    public async Task GetStarsOfAsync_applies_pagination()
     {
-        var recipient = new AuthedUserFaker().Generate();
-        var requests = new FriendRequestFaker(recipient: recipient).Generate(5);
+        var user = new AuthedUserFaker().Generate();
+        var starredUsers = new AuthedUserFaker().Generate(5);
 
-        await DbContext.AddAsync(recipient, CT);
-        await DbContext.AddRangeAsync(requests, CT);
+        await DbContext.AddAsync(user, CT);
+        await DbContext.AddRangeAsync(starredUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.GetFriendRequestsAsync(
-            recipient.Id,
+        foreach (var starred in starredUsers)
+        {
+            await _starService.AddStarAsync(user.Id, starred.Id, CT);
+        }
+
+        var result = await _starService.GetStarsOfAsync(
+            user.Id,
             new PaginationQuery(Page: 1, PageSize: 2),
             CT
         );
@@ -95,137 +93,71 @@ public class FriendServiceTests : BaseIntegrationTest
         result.Items.Should().HaveCount(2);
         result
             .Items.Should()
-            .BeEquivalentTo(requests.Skip(2).Take(2).Select(x => new MinimalProfile(x.Requester)));
-        result.TotalCount.Should().Be(requests.Count);
+            .BeEquivalentTo(starredUsers.Skip(2).Take(2).Select(x => new MinimalProfile(x)));
+        result.TotalCount.Should().Be(starredUsers.Count);
     }
 
     [Fact]
-    public async Task RequestFriendAsync_creates_new_request_if_none_exists()
+    public async Task AddStarAsync_creates_new_star_if_none_exists()
     {
-        var requester = new AuthedUserFaker().Generate();
-        var recipient = new AuthedUserFaker().Generate();
-        var recipientPrefs = new UserPreferencesFaker(recipient)
-            .RuleFor(x => x.AllowFriendRequests, true)
-            .Generate();
-
-        await DbContext.AddRangeAsync(requester, recipient, recipientPrefs);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _friendService.RequestFriendAsync(requester, recipient, CT);
-
-        result.IsError.Should().BeFalse();
-
-        var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
-        dbRequest.Should().NotBeNull();
-        dbRequest.RequesterUserId.Should().Be(requester.Id);
-        dbRequest.RecipientUserId.Should().Be(recipient.Id);
-
-        await _socialNotifierMock
-            .Received(1)
-            .NotifyFriendRequest(recipient.Id, new MinimalProfile(requester));
-    }
-
-    [Fact]
-    public async Task RequestFriendAsync_returns_error_if_recipient_not_accepting()
-    {
-        var requester = new AuthedUserFaker().Generate();
-        var recipient = new AuthedUserFaker().Generate();
-        var recipientPrefs = new UserPreferencesFaker(recipient)
-            .RuleFor(x => x.AllowFriendRequests, false)
-            .Generate();
-
-        await DbContext.AddRangeAsync(requester, recipient, recipientPrefs);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _friendService.RequestFriendAsync(requester, recipient, CT);
-
-        result.FirstError.Should().Be(SocialErrors.NotAcceptingFriends);
-    }
-
-    [Fact]
-    public async Task RequestFriendAsync_accepts_existing_request_by_recipient_if_found()
-    {
-        var existingRequest = new FriendRequestFaker().Generate();
-        await DbContext.AddAsync(existingRequest, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _friendService.RequestFriendAsync(
-            existingRequest.Recipient,
-            existingRequest.Requester,
-            CT
-        );
-
-        result.IsError.Should().BeFalse();
-
-        var dbFriend = await DbContext.Friends.AsNoTracking().SingleOrDefaultAsync(CT);
-        dbFriend.Should().NotBeNull();
-        dbFriend.UserId1.Should().Be(existingRequest.Requester.Id);
-        dbFriend.UserId2.Should().Be(existingRequest.Recipient.Id);
-
-        var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
-        dbRequests.Should().BeEmpty();
-
-        await _socialNotifierMock
-            .Received(1)
-            .NotifyFriendRequestAccepted(
-                existingRequest.Requester.Id,
-                existingRequest.Recipient.Id
-            );
-    }
-
-    [Fact]
-    public async Task RequestFriendAsync_returns_error_if_request_already_sent_by_requester()
-    {
-        var existingRequest = new FriendRequestFaker().Generate();
-        await DbContext.AddAsync(existingRequest, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _friendService.RequestFriendAsync(
-            existingRequest.Requester,
-            existingRequest.Recipient,
-            CT
-        );
-
-        result.FirstError.Should().Be(SocialErrors.FriendAlreadyRequested);
-    }
-
-    [Fact]
-    public async Task DeleteFriendRequestBetweenAsync_deletes_request_if_exists()
-    {
-        var request = new FriendRequestFaker().Generate();
-        await DbContext.AddAsync(request, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _friendService.DeleteFriendRequestBetweenAsync(
-            request.Recipient.Id,
-            request.Requester.Id,
-            CT
-        );
-
-        result.IsError.Should().BeFalse();
-
-        var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
-        dbRequest.Should().BeNull();
-
-        await _socialNotifierMock
-            .Received(1)
-            .NotifyFriendRequestRemoved(request.RequesterUserId, request.RecipientUserId);
-    }
-
-    [Fact]
-    public async Task DeleteFriendRequestBetweenAsync_returns_error_if_no_request_exists()
-    {
-        var otherRequest = new FriendRequestFaker().Generate();
         var user1 = new AuthedUserFaker().Generate();
         var user2 = new AuthedUserFaker().Generate();
-        await DbContext.AddRangeAsync(user1, user2, otherRequest);
+        await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _friendService.DeleteFriendRequestBetweenAsync(user1.Id, user2.Id, CT);
+        var result = await _starService.AddStarAsync(user1.Id, user2.Id, CT);
 
-        result.FirstError.Should().Be(SocialErrors.FriendNotRequested);
+        result.IsError.Should().BeFalse();
 
-        var dbRequests = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
-        dbRequests.Should().ContainSingle();
+        var dbStar = await DbContext.StarredUsers.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbStar.Should().NotBeNull();
+        dbStar.UserId.Should().Be(user1.Id);
+        dbStar.StarredUserId.Should().Be(user2.Id);
+    }
+
+    [Fact]
+    public async Task AddStarAsync_returns_error_if_already_starred()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        await _starService.AddStarAsync(user1.Id, user2.Id, CT);
+
+        var result = await _starService.AddStarAsync(user1.Id, user2.Id, CT);
+
+        result.FirstError.Should().Be(SocialErrors.AlreadyStarred);
+    }
+
+    [Fact]
+    public async Task RemoveStarAsync_deletes_star_if_exists()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        await _starService.AddStarAsync(user1.Id, user2.Id, CT);
+
+        var result = await _starService.RemoveStarAsync(user1.Id, user2.Id, CT);
+
+        result.IsError.Should().BeFalse();
+
+        var dbStar = await DbContext.StarredUsers.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbStar.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RemoveStarAsync_returns_error_if_star_does_not_exist()
+    {
+        var user1 = new AuthedUserFaker().Generate();
+        var user2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(user1, user2);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _starService.RemoveStarAsync(user1.Id, user2.Id, CT);
+
+        result.FirstError.Should().Be(SocialErrors.NotStarred);
     }
 }

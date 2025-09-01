@@ -5,18 +5,9 @@ namespace Chess2.Api.Social.Errors;
 
 public static class SocialErrors
 {
-    public static Error FriendAlreadyRequested =>
-        Error.Conflict(
-            ErrorCodes.SocialFriendAlreadyRequested,
-            "You already have an outgoing friend request to this user"
-        );
+    public static Error AlreadyStarred =>
+        Error.Conflict(ErrorCodes.SocialAlreadyStarred, "User is already starred");
 
-    public static Error FriendNotRequested =>
-        Error.NotFound(ErrorCodes.SocialFriendNotRequested, "Friend request not found");
-
-    public static Error NotAcceptingFriends =>
-        Error.Forbidden(
-            ErrorCodes.SocialNotAcceptingFriends,
-            "This user is not accepting friend requests"
-        );
+    public static Error NotStarred =>
+        Error.NotFound(ErrorCodes.SocialNotStarred, "User is not starred");
 }

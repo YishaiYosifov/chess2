@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Pagination.Models;
+﻿using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.SocialTests;
 
@@ -12,33 +12,32 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task GetFriendRequests_returns_expected_paginated_friends()
+    public async Task GetStars_returns_expected_paginated_stars()
     {
-        var recipient = new AuthedUserFaker().Generate();
-        var requests = new FriendRequestFaker(recipient: recipient).Generate(5);
-        await DbContext.AddAsync(recipient, CT);
-        await DbContext.AddRangeAsync(requests, CT);
+        var user = new AuthedUserFaker().Generate();
+        var stars = new StarredUserFaker(forUser: user.Id).Generate(5);
+
+        await DbContext.AddAsync(user, CT);
+        await DbContext.AddRangeAsync(stars, CT);
         await DbContext.SaveChangesAsync(CT);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
-
-        var response = await ApiClient.Api.GetFriendRequestsAsync(
-            new PaginationQuery(Page: 1, PageSize: 2)
-        );
+        var response = await ApiClient.Api.GetStarsAsync(new PaginationQuery(Page: 1, PageSize: 2));
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().NotBeNull();
         response
             .Content.Items.Should()
-            .BeEquivalentTo(requests.Skip(2).Take(2).Select(x => new MinimalProfile(x.Requester)));
+            .BeEquivalentTo(stars.Skip(2).Take(2).Select(x => new MinimalProfile(x.Starred)));
+        response.Content.TotalCount.Should().Be(stars.Count);
     }
 
     [Fact]
-    public async Task GetFriendRequests_returns_bad_request_for_invalid_pagination()
+    public async Task GetStars_returns_bad_request_for_invalid_pagination()
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var response = await ApiClient.Api.GetFriendRequestsAsync(
+        var response = await ApiClient.Api.GetStarsAsync(
             new PaginationQuery(Page: 0, PageSize: -1)
         );
 
@@ -46,46 +45,59 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task RequestFriend_returns_no_content_when_successful()
+    public async Task AddStar_returns_no_content_when_successful()
     {
-        var requester = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
-        var recipient = new AuthedUserFaker().Generate();
+        var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
+        var starredUser = new AuthedUserFaker().Generate();
 
-        await DbContext.AddAsync(recipient, CT);
+        await DbContext.AddAsync(starredUser, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.RequestFriendAsync(recipient.Id);
+        var response = await ApiClient.Api.AddStarAsync(starredUser.Id);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var dbRequest = await DbContext.FriendRequests.AsNoTracking().SingleOrDefaultAsync(CT);
-        dbRequest.Should().NotBeNull();
-        dbRequest.RequesterUserId.Should().Be(requester.Id);
-        dbRequest.RecipientUserId.Should().Be(recipient.Id);
+        var dbStar = await DbContext.StarredUsers.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbStar.Should().NotBeNull();
+        dbStar.UserId.Should().Be(user.Id);
+        dbStar.StarredUserId.Should().Be(starredUser.Id);
     }
 
     [Fact]
-    public async Task RequestFriend_returns_not_found_if_recipient_does_not_exist()
+    public async Task AddStar_returns_not_found_if_starred_user_does_not_exist()
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var response = await ApiClient.Api.RequestFriendAsync("random user id");
+        var response = await ApiClient.Api.AddStarAsync("non-existent-user-id");
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
-    public async Task DeleteFriendRequest_returns_no_content_when_successful()
+    public async Task RemoveStar_returns_no_content_when_successful()
     {
-        var request = new FriendRequestFaker().Generate();
-        await DbContext.AddAsync(request, CT);
+        var user = new AuthedUserFaker().Generate();
+        var star = new StarredUserFaker(forUser: user.Id).Generate();
+        await DbContext.AddRangeAsync(user, star);
         await DbContext.SaveChangesAsync(CT);
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, request.Recipient);
 
-        var response = await ApiClient.Api.DeleteFriendRequestAsync(request.Requester.Id);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+
+        var response = await ApiClient.Api.RemoveStarAsync(star.StarredUserId);
 
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        var dbRequest = await DbContext.FriendRequests.AsNoTracking().ToListAsync(CT);
-        dbRequest.Should().BeEmpty();
+
+        var dbStar = await DbContext.StarredUsers.AsNoTracking().SingleOrDefaultAsync(CT);
+        dbStar.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RemoveStar_returns_not_found_if_star_does_not_exist()
+    {
+        await AuthUtils.AuthenticateAsync(ApiClient);
+
+        var response = await ApiClient.Api.RemoveStarAsync("non-existent-user-id");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
