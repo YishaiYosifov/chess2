@@ -14,19 +14,19 @@ const Profile = ({ profile }: { profile: PublicUser }) => {
                 userId={profile.userId}
             />
 
-            <section className="flex flex-1 flex-col gap-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <section className="flex flex-1 flex-col items-center gap-3 sm:items-start">
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span
-                        className="flex items-center gap-3 overflow-hidden"
+                        className="flex flex-1 items-center justify-center gap-3 overflow-hidden sm:justify-start"
                         data-testid="username"
                     >
-                        <span className="truncate text-2xl sm:text-3xl">
+                        <span className="min-w-0 truncate text-2xl sm:text-3xl">
                             {profile.userName}
                         </span>
                         <Flag size={32} countryCode={profile.countryCode} />
                     </span>
 
-                    <div className="flex flex-wrap gap-2 sm:gap-3">
+                    <div className="flex flex-wrap gap-3 sm:gap-3">
                         <Button className="bg-secondary min-w-[100px] flex-1 truncate text-black">
                             Challenge
                         </Button>
