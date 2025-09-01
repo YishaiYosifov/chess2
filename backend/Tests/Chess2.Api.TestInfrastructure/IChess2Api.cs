@@ -71,7 +71,7 @@ public interface IChess2Api
     #endregion
 
     #region Social
-    [Get("/api/social/friends")]
+    [Get("/api/social/friends/requests")]
     Task<IApiResponse<PagedResult<MinimalProfile>>> GetFriendRequestsAsync(
         [Query] PaginationQuery pagination
     );
