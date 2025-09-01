@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -35,7 +33,6 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Repository;
 using Chess2.Api.Social.Services;
-using Chess2.Api.Social.SignalR;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.UserRating.Services;
 using ErrorOr;
@@ -52,6 +49,8 @@ using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -371,9 +370,8 @@ builder.Services.AddSingleton<IValidator<UsernameEditRequest>, UsernameEditValid
 #endregion
 
 #region Social
-builder.Services.AddScoped<IFriendRepository, FriendRepository>();
-builder.Services.AddScoped<IFriendService, FriendService>();
-builder.Services.AddSingleton<ISocialNotifier, SocialNotifier>();
+builder.Services.AddScoped<IStarRepository, StarRepository>();
+builder.Services.AddScoped<IStarService, StarService>();
 #endregion
 
 #region Preferences
@@ -417,8 +415,6 @@ app.MapControllers();
 app.MapHub<OpenSeekHub>("/api/hub/openseek");
 app.MapHub<LobbyHub>("/api/hub/lobby");
 app.MapHub<GameHub>("/api/hub/game");
-
-app.MapHub<SocialHub>("/api/hub/social");
 
 app.UseResponseCompression();
 

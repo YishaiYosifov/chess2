@@ -18,8 +18,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<UserPreferences> UserPreferences { get; set; }
 
     public required DbSet<BlockedUser> BlockedUsers { get; set; }
-    public required DbSet<Friend> Friends { get; set; }
-    public required DbSet<FriendRequest> FriendRequests { get; set; }
+    public required DbSet<StarredUser> StarredUsers { get; set; }
 
     public required DbSet<CurrentRating> CurrentRatings { get; set; }
     public required DbSet<RatingArchive> RatingArchives { get; set; }
@@ -33,11 +32,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<FriendRequest>().Navigation(x => x.Requester).AutoInclude();
-        builder.Entity<FriendRequest>().Navigation(x => x.Recipient).AutoInclude();
-
-        builder.Entity<Friend>().Navigation(x => x.User1).AutoInclude();
-        builder.Entity<Friend>().Navigation(x => x.User2).AutoInclude();
+        builder.Entity<StarredUser>().Navigation(x => x.Starred).AutoInclude();
 
         base.OnModelCreating(builder);
     }

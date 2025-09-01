@@ -71,15 +71,15 @@ public interface IChess2Api
     #endregion
 
     #region Social
-    [Get("/api/social/friends/requests")]
-    Task<IApiResponse<PagedResult<MinimalProfile>>> GetFriendRequestsAsync(
+    [Get("/api/social/stars")]
+    Task<IApiResponse<PagedResult<MinimalProfile>>> GetStarsAsync(
         [Query] PaginationQuery pagination
     );
 
-    [Post("/api/social/friends/request/{userId}")]
-    Task<IApiResponse> RequestFriendAsync(string userId);
+    [Post("/api/social/star/{userId}")]
+    Task<IApiResponse> AddStarAsync(string userId);
 
-    [Delete("/api/social/friends/request/{userId}")]
-    Task<IApiResponse> DeleteFriendRequestAsync(string userId);
+    [Delete("/api/social/star/{userId}")]
+    Task<IApiResponse> RemoveStarAsync(string userId);
     #endregion
 }
