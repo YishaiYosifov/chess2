@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-const UserPage = async ({ params }: { params: Params }) => {
+const ProfilePage = async ({ params }: { params: Params }) => {
     const { username } = await params;
 
     const { error: profileError, data: profile } = await getUser({
@@ -80,4 +80,4 @@ const UserPage = async ({ params }: { params: Params }) => {
         </div>
     );
 };
-export default UserPage;
+export default ProfilePage;
