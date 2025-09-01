@@ -324,9 +324,8 @@ export enum ErrorCode {
     PROFILE_NOT_FOUND = "Profile.NotFound",
     PROFILE_COOLDOWN_SETTING = "Profile.Cooldown.Setting",
     PROFILE_INVALID_PROFILE_PICTURE = "Profile.InvalidProfilePicture",
-    SOCIAL_FRIEND_ALREADY_REQUESTED = "Social.FriendAlreadyRequested",
-    SOCIAL_FRIEND_NOT_REQUESTED = "Social.FriendNotRequested",
-    SOCIAL_NOT_ACCEPTING_FRIENDS = "Social.NotAcceptingFriends",
+    SOCIAL_ALREADY_STARRED = "Social.AlreadyStarred",
+    SOCIAL_NOT_STARRED = "Social.NotStarred",
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
@@ -374,79 +373,73 @@ export type GetRatingArchivesResponses = {
 export type GetRatingArchivesResponse =
     GetRatingArchivesResponses[keyof GetRatingArchivesResponses];
 
-export type GetFriendRequestsData = {
+export type GetStarsData = {
     body?: never;
     path?: never;
     query?: {
         Page?: number;
         PageSize?: number;
     };
-    url: "/api/Social/friends/requests";
+    url: "/api/Social/stars";
 };
 
-export type GetFriendRequestsErrors = {
+export type GetStarsErrors = {
+    400: ApiProblemDetails;
     401: ApiProblemDetails;
 };
 
-export type GetFriendRequestsError =
-    GetFriendRequestsErrors[keyof GetFriendRequestsErrors];
+export type GetStarsError = GetStarsErrors[keyof GetStarsErrors];
 
-export type GetFriendRequestsResponses = {
+export type GetStarsResponses = {
     200: PagedResultOfMinimalProfile;
 };
 
-export type GetFriendRequestsResponse =
-    GetFriendRequestsResponses[keyof GetFriendRequestsResponses];
+export type GetStarsResponse = GetStarsResponses[keyof GetStarsResponses];
 
-export type DeleteFriendRequestData = {
+export type RemoveStarData = {
     body?: never;
     path: {
-        userId: string;
+        starredUserId: string;
     };
     query?: never;
-    url: "/api/Social/friends/request/{userId}";
+    url: "/api/Social/star/{starredUserId}";
 };
 
-export type DeleteFriendRequestErrors = {
-    400: ApiProblemDetails;
+export type RemoveStarErrors = {
     401: ApiProblemDetails;
-    404: ApiProblemDetails;
+    404: ProblemDetails;
 };
 
-export type DeleteFriendRequestError =
-    DeleteFriendRequestErrors[keyof DeleteFriendRequestErrors];
+export type RemoveStarError = RemoveStarErrors[keyof RemoveStarErrors];
 
-export type DeleteFriendRequestResponses = {
+export type RemoveStarResponses = {
     204: void;
 };
 
-export type DeleteFriendRequestResponse =
-    DeleteFriendRequestResponses[keyof DeleteFriendRequestResponses];
+export type RemoveStarResponse = RemoveStarResponses[keyof RemoveStarResponses];
 
-export type RequestFriendData = {
+export type AddStarData = {
     body?: never;
     path: {
-        userId: string;
+        starredUserId: string;
     };
     query?: never;
-    url: "/api/Social/friends/request/{userId}";
+    url: "/api/Social/star/{starredUserId}";
 };
 
-export type RequestFriendErrors = {
-    400: ApiProblemDetails;
+export type AddStarErrors = {
     401: ApiProblemDetails;
     404: ApiProblemDetails;
     409: ApiProblemDetails;
 };
 
-export type RequestFriendError = RequestFriendErrors[keyof RequestFriendErrors];
+export type AddStarError = AddStarErrors[keyof AddStarErrors];
 
-export type RequestFriendResponses = {
+export type AddStarResponses = {
     204: void;
 };
 
-export type RequestFriendResponse =
-    RequestFriendResponses[keyof RequestFriendResponses];
+export type AddStarResponse = AddStarResponses[keyof AddStarResponses];
 
 export type GetSessionUserData = {
     body?: never;
