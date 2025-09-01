@@ -7,6 +7,18 @@ import {
     formDataBodySerializer,
 } from "./client";
 import type {
+    GetRatingArchivesData,
+    GetRatingArchivesResponses,
+    GetRatingArchivesErrors,
+    GetFriendRequestsData,
+    GetFriendRequestsResponses,
+    GetFriendRequestsErrors,
+    DeleteFriendRequestData,
+    DeleteFriendRequestResponses,
+    DeleteFriendRequestErrors,
+    RequestFriendData,
+    RequestFriendResponses,
+    RequestFriendErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -27,9 +39,6 @@ import type {
     UploadProfilePictureErrors,
     GetProfilePictureData,
     GetProfilePictureResponses,
-    GetRatingArchivesData,
-    GetRatingArchivesResponses,
-    GetRatingArchivesErrors,
     GetGameData,
     GetGameResponses,
     GetGameErrors,
@@ -69,6 +78,58 @@ export type Options<
      * used to access values that aren't defined as part of the SDK function.
      */
     meta?: Record<string, unknown>;
+};
+
+export const getRatingArchives = <ThrowOnError extends boolean = false>(
+    options: Options<GetRatingArchivesData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetRatingArchivesResponses,
+        GetRatingArchivesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Rating/{userId}",
+        ...options,
+    });
+};
+
+export const getFriendRequests = <ThrowOnError extends boolean = false>(
+    options?: Options<GetFriendRequestsData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetFriendRequestsResponses,
+        GetFriendRequestsErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/friends/requests",
+        ...options,
+    });
+};
+
+export const deleteFriendRequest = <ThrowOnError extends boolean = false>(
+    options: Options<DeleteFriendRequestData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).delete<
+        DeleteFriendRequestResponses,
+        DeleteFriendRequestErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/friends/request/{userId}",
+        ...options,
+    });
+};
+
+export const requestFriend = <ThrowOnError extends boolean = false>(
+    options: Options<RequestFriendData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).post<
+        RequestFriendResponses,
+        RequestFriendErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/friends/request/{userId}",
+        ...options,
+    });
 };
 
 export const getSessionUser = <ThrowOnError extends boolean = false>(
@@ -171,19 +232,6 @@ export const getProfilePicture = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Profile/profile-picture/{userId}",
-        ...options,
-    });
-};
-
-export const getRatingArchives = <ThrowOnError extends boolean = false>(
-    options: Options<GetRatingArchivesData, ThrowOnError>,
-) => {
-    return (options.client ?? _heyApiClient).get<
-        GetRatingArchivesResponses,
-        GetRatingArchivesErrors,
-        ThrowOnError
-    >({
-        url: "/api/Rating/{userId}",
         ...options,
     });
 };
