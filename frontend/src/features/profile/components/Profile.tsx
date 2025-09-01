@@ -14,7 +14,7 @@ const Profile = ({ profile }: { profile: PublicUser }) => {
                 userId={profile.userId}
             />
 
-            <section className="flex flex-1 flex-col items-center gap-3 sm:items-start">
+            <section className="flex flex-1 flex-col items-center gap-3 sm:items-start sm:gap-0">
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span
                         className="flex flex-1 items-center justify-center gap-3 overflow-hidden sm:justify-start"
