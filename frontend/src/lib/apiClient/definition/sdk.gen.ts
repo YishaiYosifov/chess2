@@ -10,15 +10,15 @@ import type {
     GetRatingArchivesData,
     GetRatingArchivesResponses,
     GetRatingArchivesErrors,
-    GetFriendRequestsData,
-    GetFriendRequestsResponses,
-    GetFriendRequestsErrors,
-    DeleteFriendRequestData,
-    DeleteFriendRequestResponses,
-    DeleteFriendRequestErrors,
-    RequestFriendData,
-    RequestFriendResponses,
-    RequestFriendErrors,
+    GetStarsData,
+    GetStarsResponses,
+    GetStarsErrors,
+    RemoveStarData,
+    RemoveStarResponses,
+    RemoveStarErrors,
+    AddStarData,
+    AddStarResponses,
+    AddStarErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -93,41 +93,41 @@ export const getRatingArchives = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getFriendRequests = <ThrowOnError extends boolean = false>(
-    options?: Options<GetFriendRequestsData, ThrowOnError>,
+export const getStars = <ThrowOnError extends boolean = false>(
+    options?: Options<GetStarsData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).get<
-        GetFriendRequestsResponses,
-        GetFriendRequestsErrors,
+        GetStarsResponses,
+        GetStarsErrors,
         ThrowOnError
     >({
-        url: "/api/Social/friends/requests",
+        url: "/api/Social/stars",
         ...options,
     });
 };
 
-export const deleteFriendRequest = <ThrowOnError extends boolean = false>(
-    options: Options<DeleteFriendRequestData, ThrowOnError>,
+export const removeStar = <ThrowOnError extends boolean = false>(
+    options: Options<RemoveStarData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).delete<
-        DeleteFriendRequestResponses,
-        DeleteFriendRequestErrors,
+        RemoveStarResponses,
+        RemoveStarErrors,
         ThrowOnError
     >({
-        url: "/api/Social/friends/request/{userId}",
+        url: "/api/Social/star/{starredUserId}",
         ...options,
     });
 };
 
-export const requestFriend = <ThrowOnError extends boolean = false>(
-    options: Options<RequestFriendData, ThrowOnError>,
+export const addStar = <ThrowOnError extends boolean = false>(
+    options: Options<AddStarData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).post<
-        RequestFriendResponses,
-        RequestFriendErrors,
+        AddStarResponses,
+        AddStarErrors,
         ThrowOnError
     >({
-        url: "/api/Social/friends/request/{userId}",
+        url: "/api/Social/star/{starredUserId}",
         ...options,
     });
 };
