@@ -14,7 +14,7 @@ const Profile = ({ profile }: { profile: PublicUser }) => {
                 userId={profile.userId}
             />
 
-            <section className="flex flex-1 flex-col items-center gap-3 sm:items-start sm:gap-0">
+            <section className="flex min-w-0 flex-1 flex-col items-center gap-3 sm:items-start sm:gap-1">
                 <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span
                         className="flex flex-1 items-center justify-center gap-3 overflow-hidden sm:justify-start"
@@ -37,7 +37,7 @@ const Profile = ({ profile }: { profile: PublicUser }) => {
                 </div>
 
                 <p
-                    className="text-text/70 text-sm break-words sm:text-base"
+                    className="text-text/70 max-w-full text-sm break-words"
                     data-testid="aboutMe"
                 >
                     {profile.about}
