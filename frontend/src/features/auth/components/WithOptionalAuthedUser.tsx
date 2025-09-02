@@ -7,7 +7,7 @@ interface WithOptionalAuthedUserProps {
     user: PrivateUser | null;
 }
 
-export default async function WithAuthedUser({
+export default async function WithOptionalAuthedUser({
     children,
 }: {
     children: Renderable<WithOptionalAuthedUserProps>;
