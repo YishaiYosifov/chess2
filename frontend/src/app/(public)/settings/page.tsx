@@ -1,13 +1,14 @@
-import withAuthedUser from "@/features/auth/hocs/withAuthedUser";
+import WithAuthedUser from "@/features/auth/components/WithAuthedUser";
 import SettingsSelector from "@/features/settings/components/SettingsSelector";
 import SettingsPageSwitcher from "@/features/settings/components/SettingsPageSwitcher";
 
-function Page() {
+export default function Page() {
     return (
-        <div className="flex w-full justify-center gap-5 p-5">
-            <SettingsSelector />
-            <SettingsPageSwitcher />
-        </div>
+        <WithAuthedUser>
+            <div className="flex w-full justify-center gap-5 p-5">
+                <SettingsSelector />
+                <SettingsPageSwitcher />
+            </div>
+        </WithAuthedUser>
     );
 }
-export default withAuthedUser(Page);
