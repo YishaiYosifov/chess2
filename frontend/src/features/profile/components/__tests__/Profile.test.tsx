@@ -39,7 +39,7 @@ describe("Profile", () => {
         render(<Profile profile={userMock} />);
 
         const profilePicture = screen.getByAltText("profile picture");
-        const profilePictureSrc = `/assets/logo-image-temp.webp`;
+        const profilePictureSrc = `${process.env.NEXT_PUBLIC_API_URL}/api/Profile/profile-picture/${userMock.userId}`;
         expect(profilePicture).toHaveAttribute("src", profilePictureSrc);
     });
 });
