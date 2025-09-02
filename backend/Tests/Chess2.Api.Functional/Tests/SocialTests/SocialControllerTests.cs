@@ -50,6 +50,38 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task IsStarred_returns_true_when_user_has_starred()
+    {
+        var user = new AuthedUserFaker().Generate();
+        var star = new StarredUserFaker(forUser: user.Id).Generate();
+
+        await DbContext.AddRangeAsync(user, star);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+
+        var response = await ApiClient.Api.IsStarredAsync(star.StarredUserId);
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task IsStarred_returns_false_when_user_has_not_starred()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+
+        var response = await ApiClient.Api.IsStarredAsync("some random user");
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task AddStar_returns_no_content_when_successful()
     {
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;

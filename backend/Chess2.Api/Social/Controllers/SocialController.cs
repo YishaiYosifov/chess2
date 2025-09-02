@@ -41,6 +41,22 @@ public class SocialController(
         return Ok(result);
     }
 
+    [HttpGet("star/{starredUserId}/exists", Name = nameof(IsStarred))]
+    [ProducesResponseType<bool>(StatusCodes.Status200OK)]
+    [Authorize(AuthPolicies.AuthedUser)]
+    public async Task<ActionResult<bool>> IsStarred(
+        string starredUserId,
+        CancellationToken token = default
+    )
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _starService.IsStarredAsync(userIdResult.Value, starredUserId, token);
+        return Ok(result);
+    }
+
     [HttpPost("star/{starredUserId}", Name = nameof(AddStar))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
