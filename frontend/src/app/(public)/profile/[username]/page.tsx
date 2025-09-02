@@ -1,6 +1,11 @@
 import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
-import { getGameResults, getRatingArchives, getUser } from "@/lib/apiClient";
+import {
+    getGameResults,
+    getRatingArchives,
+    getStars,
+    getUser,
+} from "@/lib/apiClient";
 import { notFound } from "next/navigation";
 import constants from "@/lib/constants";
 import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
@@ -30,31 +35,32 @@ const ProfilePage = async ({ params }: { params: Params }) => {
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const [ratingsResult, gamesResult] = await Promise.all([
-        getRatingArchives({
-            path: { userId: profile.userId },
-            query: { since: lastMonth.toLocaleString() },
-        }),
-        getGameResults({
-            path: { userId: profile.userId },
-            query: {
-                Page: 0,
-                PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
-            },
-        }),
+    const [ratings, games, stars] = await Promise.all([
+        safeFetch(() =>
+            getRatingArchives({
+                path: { userId: profile.userId },
+                query: { since: lastMonth.toLocaleString() },
+            }),
+        ),
+        safeFetch(() =>
+            getGameResults({
+                path: { userId: profile.userId },
+                query: {
+                    Page: 0,
+                    PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+                },
+            }),
+        ),
+        safeFetch(() =>
+            getStars({
+                path: { userId: profile.userId },
+                query: {
+                    Page: 0,
+                    PageSize: constants.PAGINATION_PAGE_SIZE.STARS,
+                },
+            }),
+        ),
     ]);
-
-    const { error: ratingsError, data: ratings } = ratingsResult;
-    if (ratingsError || !ratings) {
-        console.error(ratingsError);
-        notFound();
-    }
-
-    const { error: gamesError, data: games } = gamesResult;
-    if (gamesError || !games) {
-        console.error(gamesError);
-        notFound();
-    }
 
     const ratingCards = constants.DISPLAY_TIME_CONTROLS.map((timeControl) => {
         const overview = ratings.find((x) => x.timeControl === timeControl);
@@ -81,3 +87,14 @@ const ProfilePage = async ({ params }: { params: Params }) => {
     );
 };
 export default ProfilePage;
+
+async function safeFetch<T>(
+    fn: () => Promise<{ error?: unknown; data?: T }>,
+): Promise<T> {
+    const { error, data } = await fn();
+    if (error || !data) {
+        console.error(error);
+        notFound();
+    }
+    return data;
+}
