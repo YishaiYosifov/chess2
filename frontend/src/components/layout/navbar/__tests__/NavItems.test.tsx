@@ -6,8 +6,7 @@ describe("UpperNavItems", () => {
     it("should render with unauthenticated links when not authenticated", () => {
         render(<UpperNavItems hasAccessCookie={false} />);
 
-        expect(screen.getByText("Login")).toBeInTheDocument();
-        expect(screen.getByText("Signup")).toBeInTheDocument();
+        expect(screen.getByText("Register")).toBeInTheDocument();
         expect(screen.getByText("Play")).toBeInTheDocument();
         expect(screen.getByText("Home")).toBeInTheDocument();
         // TODO
@@ -27,13 +26,9 @@ describe("UpperNavItems", () => {
     it("should render with the correct href when not authenticated", () => {
         render(<UpperNavItems hasAccessCookie={false} />);
 
-        expect(screen.getByText("Login").closest("a")).toHaveAttribute(
+        expect(screen.getByText("Register").closest("a")).toHaveAttribute(
             "href",
-            "/login",
-        );
-        expect(screen.getByText("Signup").closest("a")).toHaveAttribute(
-            "href",
-            "/signup",
+            "/register",
         );
         expect(screen.getByText("Play").closest("a")).toHaveAttribute(
             "href",
