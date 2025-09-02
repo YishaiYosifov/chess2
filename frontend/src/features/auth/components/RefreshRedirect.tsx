@@ -22,7 +22,7 @@ const RefreshRedirect = ({ redirectTo }: { redirectTo: string }) => {
             const { error } = await refresh();
             if (error) {
                 await logout();
-                router.replace(constants.PATHS.LOGIN);
+                router.replace(constants.PATHS.REGISTER);
                 return;
             }
 
