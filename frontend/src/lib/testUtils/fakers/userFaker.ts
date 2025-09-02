@@ -19,7 +19,7 @@ export function createFakePrivateUser(
     return {
         ...createFakeUser(),
         usernameLastChangedSeconds:
-            new Date().valueOf() - constants.USERNAME_EDIT_EVERY_SECONDS,
+            new Date().valueOf() / 1000 - constants.USERNAME_EDIT_EVERY_SECONDS,
         type: "authed",
 
         ...override,

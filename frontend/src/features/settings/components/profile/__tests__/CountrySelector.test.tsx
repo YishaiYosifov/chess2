@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import countries from "@public/data/countries.json";
-import CountrySelector from "../profile/CountrySelector";
+import CountrySelector from "../CountrySelector";
 import { Form, Formik } from "formik";
 import userEvent from "@testing-library/user-event";
 
@@ -25,13 +25,12 @@ describe("CountrySelector", () => {
 
     it("should render an option for each country from the JSON", () => {
         renderWithFormik();
-        const options = screen.getAllByRole("option");
-        expect(options).toHaveLength(Object.keys(countries).length);
 
-        Object.entries(countries).forEach(([code, name]) => {
-            const option = screen.getByRole("option", { name });
-            expect(option).toHaveValue(code);
-        });
+        const options = screen.getAllByRole<HTMLInputElement>("option");
+        expect(options.map((o) => o.value)).toEqual(Object.keys(countries));
+        expect(options.map((o) => o.textContent)).toEqual(
+            Object.values(countries),
+        );
     });
 
     it("should render options with the correct classes", () => {

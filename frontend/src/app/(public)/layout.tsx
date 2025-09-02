@@ -4,9 +4,9 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
-import Navbar from "@/components/layout/navbar/Navbar";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
+import Navbar from "@/components/layout/navbar/Navbar";
 
 const secularOne = Secular_One({
     weight: ["400"],

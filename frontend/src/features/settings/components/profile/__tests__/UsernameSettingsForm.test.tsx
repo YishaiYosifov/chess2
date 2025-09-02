@@ -95,7 +95,9 @@ describe("UsernameSettingsForm", () => {
             </SessionContext.Provider>,
         );
 
-        const input = screen.getByTestId("usernameSettingField");
+        const input = screen.getByTestId<HTMLInputElement>(
+            "usernameSettingField",
+        );
         const submitButton = screen.getByTestId("submitFormButton");
 
         await user.clear(input);
