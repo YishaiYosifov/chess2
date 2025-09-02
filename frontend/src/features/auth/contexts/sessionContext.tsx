@@ -12,12 +12,14 @@ export const SessionContext = createContext<StoreApi<SessionStore> | null>(
 
 const SessionProvider = ({
     user,
+    fetchAttempted,
     children,
 }: {
-    user?: SessionUser;
+    user: SessionUser | null;
+    fetchAttempted: boolean;
     children: React.ReactNode;
 }) => {
-    const store = createSessionStore({ user: user ?? null });
+    const store = createSessionStore({ user, fetchAttempted });
     return (
         <SessionContext.Provider value={store}>
             {children}
