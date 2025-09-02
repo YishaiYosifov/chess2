@@ -77,6 +77,9 @@ public interface IChess2Api
         [Query] PaginationQuery pagination
     );
 
+    [Get("/api/social/star/{userId}/exists")]
+    Task<IApiResponse<bool>> IsStarredAsync(string userId);
+
     [Post("/api/social/star/{userId}")]
     Task<IApiResponse> AddStarAsync(string userId);
 
