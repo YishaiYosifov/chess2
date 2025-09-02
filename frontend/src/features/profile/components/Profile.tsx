@@ -1,5 +1,8 @@
 "use client";
 
+import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
+import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
+
 import ProfilePicture from "./ProfilePicture";
 import Card from "@/components/ui/Card";
 import { PublicUser } from "@/lib/apiClient";
@@ -27,11 +30,10 @@ const Profile = ({ profile }: { profile: PublicUser }) => {
                     </span>
 
                     <div className="flex flex-wrap gap-3 sm:gap-3">
+                        {/* <StarIconOutline className="h-8 w-8 text-amber-300" /> */}
+                        <StarIconSolid className="h-8 w-8 text-amber-300" />
                         <Button className="bg-secondary min-w-[100px] flex-1 truncate text-black">
                             Challenge
-                        </Button>
-                        <Button className="min-w-[100px] flex-1 truncate">
-                            Add Friend
                         </Button>
                     </div>
                 </div>
