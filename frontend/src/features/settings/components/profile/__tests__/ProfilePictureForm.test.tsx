@@ -103,7 +103,7 @@ describe("ProfilePictureForm", () => {
             error: {
                 errors: [
                     {
-                        errorCode: ErrorCode.USER_INVALID_PROFILE_PICTURE,
+                        errorCode: ErrorCode.PROFILE_INVALID_PROFILE_PICTURE,
                         description: "Upload failed",
                         metadata: {},
                     },

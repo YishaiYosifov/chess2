@@ -23,7 +23,7 @@ describe("ProfileSettingsForm", () => {
 
     beforeEach(async () => {
         userMock = createFakePrivateUser();
-        store = createSessionStore({ user: userMock });
+        store = createSessionStore({ user: userMock, fetchAttempted: true });
         editProfileSettingsMock.mockResolvedValue({
             data: undefined,
             response: new Response(),

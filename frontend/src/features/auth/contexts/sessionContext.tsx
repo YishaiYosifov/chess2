@@ -16,10 +16,13 @@ const SessionProvider = ({
     children,
 }: {
     user: SessionUser | null;
-    fetchAttempted: boolean;
+    fetchAttempted?: boolean;
     children: React.ReactNode;
 }) => {
-    const store = createSessionStore({ user, fetchAttempted });
+    const store = createSessionStore({
+        user,
+        fetchAttempted: fetchAttempted || user !== null,
+    });
     return (
         <SessionContext.Provider value={store}>
             {children}
