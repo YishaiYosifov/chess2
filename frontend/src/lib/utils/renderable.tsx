@@ -5,9 +5,9 @@ export type Renderable<T = void> =
     | ((props: T) => MaybePromise<JSX.Element>)
     | JSX.Element;
 
-export async function renderRenderable<T>(
+export function renderRenderable<T>(
     children: Renderable<T>,
     props: T,
-): Promise<JSX.Element> {
+): MaybePromise<JSX.Element> {
     return typeof children === "function" ? children(props) : children;
 }

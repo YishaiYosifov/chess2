@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 
-import { PrivateUser, PublicUser } from "@/lib/apiClient";
+import { GuestUser, PrivateUser, PublicUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 
 export function createFakeUser(override?: Partial<PublicUser>): PublicUser {
@@ -21,6 +21,15 @@ export function createFakePrivateUser(
         usernameLastChangedSeconds:
             new Date().valueOf() / 1000 - constants.USERNAME_EDIT_EVERY_SECONDS,
         type: "authed",
+
+        ...override,
+    };
+}
+
+export function createFakeGuestUser(override?: Partial<GuestUser>): GuestUser {
+    return {
+        userId: faker.string.uuid(),
+        type: "guest",
 
         ...override,
     };
