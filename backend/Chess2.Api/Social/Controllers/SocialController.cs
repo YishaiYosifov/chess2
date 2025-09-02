@@ -24,11 +24,11 @@ public class SocialController(
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("stars", Name = nameof(GetStars))]
+    [HttpGet("stars/{userId}", Name = nameof(GetStars))]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
-    [Authorize(AuthPolicies.AuthedUser)]
     public async Task<ActionResult<PagedResult<MinimalProfile>>> GetStars(
+        string userId,
         [FromQuery] PaginationQuery pagination,
         CancellationToken token
     )
@@ -37,11 +37,7 @@ public class SocialController(
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList().ToActionResult();
 
-        var userIdResult = _authService.GetUserId(User);
-        if (userIdResult.IsError)
-            return userIdResult.Errors.ToActionResult();
-
-        var result = await _starService.GetStarsOfAsync(userIdResult.Value, pagination, token);
+        var result = await _starService.GetStarsOfAsync(userId, pagination, token);
         return Ok(result);
     }
 

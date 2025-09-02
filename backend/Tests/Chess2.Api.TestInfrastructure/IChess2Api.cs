@@ -13,7 +13,7 @@ public interface IChess2Api
     #region Auth
 
     [Get("/api/oauth/signin/{provider}")]
-    Task<IApiResponse<Tokens>> OAuthLoginAsync([AliasAs("provider")] string provider);
+    Task<IApiResponse<Tokens>> OAuthLoginAsync(string provider);
 
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();
@@ -36,7 +36,7 @@ public interface IChess2Api
     Task<IApiResponse<GuestUser>> GetSessionUserGuestAsync();
 
     [Get("/api/profile/by-username/{username}")]
-    Task<IApiResponse<PublicUser>> GetUserAsync([AliasAs("username")] string username);
+    Task<IApiResponse<PublicUser>> GetUserAsync(string username);
 
     [Put("/api/profile/edit-profile")]
     Task<IApiResponse> EditProfileAsync(ProfileEditRequest profileEdit);
@@ -61,18 +61,19 @@ public interface IChess2Api
 
     #region Game
     [Get("/api/game/{gameToken}")]
-    Task<IApiResponse<GameState>> GetGameAsync([AliasAs("gameToken")] string gameToken);
+    Task<IApiResponse<GameState>> GetGameAsync(string gameToken);
 
     [Get("/api/game/results/{userId}")]
     Task<IApiResponse<PagedResult<GameSummaryDto>>> GetGameResultsAsync(
-        [AliasAs("userId")] string userId,
+        string userId,
         [Query] PaginationQuery pagination
     );
     #endregion
 
     #region Social
-    [Get("/api/social/stars")]
+    [Get("/api/social/stars/{userId}")]
     Task<IApiResponse<PagedResult<MinimalProfile>>> GetStarsAsync(
+        string userId,
         [Query] PaginationQuery pagination
     );
 

@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Pagination.Models;
+﻿using System.Net;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.SocialTests;
 
@@ -20,9 +20,11 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
         await DbContext.AddAsync(user, CT);
         await DbContext.AddRangeAsync(stars, CT);
         await DbContext.SaveChangesAsync(CT);
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
-        var response = await ApiClient.Api.GetStarsAsync(new PaginationQuery(Page: 1, PageSize: 2));
+        var response = await ApiClient.Api.GetStarsAsync(
+            user.Id,
+            new PaginationQuery(Page: 1, PageSize: 2)
+        );
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().NotBeNull();
@@ -35,9 +37,12 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetStars_returns_bad_request_for_invalid_pagination()
     {
-        await AuthUtils.AuthenticateAsync(ApiClient);
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var response = await ApiClient.Api.GetStarsAsync(
+            user.Id,
             new PaginationQuery(Page: 0, PageSize: -1)
         );
 
