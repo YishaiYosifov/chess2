@@ -32,6 +32,8 @@ const UsernameSettingsForm = () => {
         const nextUsernameChange =
             user.usernameLastChangedSeconds +
             constants.USERNAME_EDIT_EVERY_SECONDS;
+        if (nextUsernameChange <= Date.now() / 1000) return null;
+
         return new Date(nextUsernameChange * 1000);
     }
     const nextUsernameChangeDate = cooldownUntil();
