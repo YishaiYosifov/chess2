@@ -13,6 +13,9 @@ import type {
     GetStarsData,
     GetStarsResponses,
     GetStarsErrors,
+    IsStarredData,
+    IsStarredResponses,
+    IsStarredErrors,
     RemoveStarData,
     RemoveStarResponses,
     RemoveStarErrors,
@@ -94,14 +97,27 @@ export const getRatingArchives = <ThrowOnError extends boolean = false>(
 };
 
 export const getStars = <ThrowOnError extends boolean = false>(
-    options?: Options<GetStarsData, ThrowOnError>,
+    options: Options<GetStarsData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).get<
+    return (options.client ?? _heyApiClient).get<
         GetStarsResponses,
         GetStarsErrors,
         ThrowOnError
     >({
-        url: "/api/Social/stars",
+        url: "/api/Social/stars/{userId}",
+        ...options,
+    });
+};
+
+export const isStarred = <ThrowOnError extends boolean = false>(
+    options: Options<IsStarredData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        IsStarredResponses,
+        IsStarredErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/star/{starredUserId}/exists",
         ...options,
     });
 };
