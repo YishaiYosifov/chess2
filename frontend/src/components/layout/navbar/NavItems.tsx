@@ -3,8 +3,7 @@
 import {
     PlayIcon,
     HomeIcon,
-    ArrowRightEndOnRectangleIcon,
-    PencilSquareIcon,
+    PlusIcon,
     Cog6ToothIcon,
     UserCircleIcon,
     BoltSlashIcon,
@@ -35,19 +34,12 @@ export const UpperNavItems = ({
         <>
             <NavItem
                 as={Link}
-                href="/login"
-                icon={<ArrowRightEndOnRectangleIcon />}
+                href="/register"
+                icon={<PlusIcon />}
                 isCollapsed={isCollapsed}
+                className="text-secondary rounded-md"
             >
-                Login
-            </NavItem>
-            <NavItem
-                as={Link}
-                href="/signup"
-                icon={<PencilSquareIcon />}
-                isCollapsed={isCollapsed}
-            >
-                Signup
+                Register
             </NavItem>
         </>
     );
@@ -57,7 +49,6 @@ export const UpperNavItems = ({
             <NavItem
                 as={Link}
                 href="/play"
-                className="text-secondary"
                 icon={<PlayIcon />}
                 isCollapsed={isCollapsed}
             >
