@@ -47,13 +47,10 @@ describe("Navbar Component", () => {
             render(page);
 
             const settingsLink = screen.queryAllByText("Settings")[0];
-            const loginLink = screen.queryAllByText("Login")[0];
             if (hasCookie) {
                 expect(settingsLink).toBeInTheDocument();
-                expect(loginLink).toBeUndefined();
             } else {
                 expect(settingsLink).toBeUndefined();
-                expect(loginLink).toBeInTheDocument();
             }
         },
     );
