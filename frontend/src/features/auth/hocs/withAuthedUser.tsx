@@ -23,7 +23,7 @@ const withAuthedUser = <P extends WithAuthedUserProps>(
     const NewComponent = async (props: P) => {
         const cookieStore = await cookies();
         if (!cookieStore.has(constants.COOKIES.ACCESS_TOKEN))
-            redirect(constants.PATHS.LOGIN);
+            redirect(constants.PATHS.REGISTER);
 
         const { data: user, error } = await getSessionUser({
             headers: { Cookie: cookieStore.toString() },
@@ -33,7 +33,7 @@ const withAuthedUser = <P extends WithAuthedUserProps>(
             redirect(constants.PATHS.LOGOUT);
         }
 
-        if (!isAuthed(user)) redirect(constants.PATHS.LOGIN);
+        if (!isAuthed(user)) redirect(constants.PATHS.REGISTER);
 
         return (
             <SessionContextProvider user={user}>

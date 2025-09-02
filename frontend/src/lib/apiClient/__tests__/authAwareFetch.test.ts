@@ -69,7 +69,7 @@ describe("authAwareFetch", () => {
         await authAwareFetch("https://localhost/api/data");
 
         expect(logout).toHaveBeenCalled();
-        expect(navigate).toHaveBeenCalledWith(constants.PATHS.LOGIN);
+        expect(navigate).toHaveBeenCalledWith(constants.PATHS.REGISTER);
     });
 
     it("should queue multiple 401 requests and retries them after refresh", async () => {

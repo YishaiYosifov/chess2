@@ -69,7 +69,7 @@ async function handleRefresh(): Promise<boolean> {
 
 async function handleLogout() {
     await logout();
-    navigate(constants.PATHS.LOGIN);
+    navigate(constants.PATHS.REGISTER);
 }
 
 const addToRefreshQueue = (

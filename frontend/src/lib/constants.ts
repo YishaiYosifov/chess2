@@ -27,7 +27,7 @@ const COOKIES = {
 };
 
 const PATHS = {
-    LOGIN: "/login",
+    REGISTER: "/register",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
     GUEST: "/guest",
