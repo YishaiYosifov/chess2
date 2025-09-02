@@ -23,7 +23,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
             <body className={`${secularOne.className} bg-background text-text`}>
-                <SessionProvider>
+                <SessionProvider user={null} fetchAttempted={false}>
                     <div className="flex min-h-screen max-w-screen flex-col md:flex-row">
                         <Navbar />
                         <main className="flex flex-1 overflow-auto">
