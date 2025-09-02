@@ -1,9 +1,10 @@
 import { useContext, useEffect } from "react";
-
-import { SessionContext } from "@/features/auth/contexts/sessionContext";
-import { getSessionUser, PrivateUser, SessionUser } from "@/lib/apiClient";
-import { SessionStore } from "../stores/sessionStore";
+import { useShallow } from "zustand/shallow";
 import { useStore } from "zustand";
+
+import { getSessionUser, PrivateUser, SessionUser } from "@/lib/apiClient";
+import { SessionContext } from "@/features/auth/contexts/sessionContext";
+import { SessionStore } from "../stores/sessionStore";
 import { isAuthed } from "../lib/userGuard";
 
 export function useSessionStore<T>(selector: (store: SessionStore) => T): T {
@@ -13,17 +14,24 @@ export function useSessionStore<T>(selector: (store: SessionStore) => T): T {
             "useSessionStore must be use within AuthContextProvider",
         );
 
-    return useStore(sessionStoreContext, selector);
+    return useStore(sessionStoreContext, useShallow(selector));
 }
 
 export function useSessionUser(): SessionUser | null {
-    const user = useSessionStore((x) => x.user);
-    const setUser = useSessionStore((x) => x.setUser);
+    const { user, fetchAttempted, setUser, markFetchAttempted } =
+        useSessionStore((x) => ({
+            user: x.user,
+            fetchAttempted: x.fetchAttempted,
+            setUser: x.setUser,
+            markFetchAttempted: x.markFetchAttempted,
+        }));
 
     useEffect(() => {
-        if (user) return;
+        if (user || fetchAttempted) return;
 
         async function loadUser() {
+            markFetchAttempted();
+
             const { error, data: loadedUser } = await getSessionUser();
             if (error || !loadedUser) {
                 console.error(error);
@@ -33,7 +41,7 @@ export function useSessionUser(): SessionUser | null {
             setUser(loadedUser);
         }
         loadUser();
-    }, [user, setUser]);
+    }, [user, fetchAttempted, setUser, markFetchAttempted]);
 
     return user;
 }
