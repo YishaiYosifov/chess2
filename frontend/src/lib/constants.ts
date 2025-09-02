@@ -55,6 +55,7 @@ const SEARCH_PARAMS = {
 
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
+    STARS: 5,
 };
 
 const SETTING_QUERY_PATHS = {

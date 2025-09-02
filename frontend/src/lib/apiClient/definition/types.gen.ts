@@ -375,17 +375,18 @@ export type GetRatingArchivesResponse =
 
 export type GetStarsData = {
     body?: never;
-    path?: never;
+    path: {
+        userId: string;
+    };
     query?: {
         Page?: number;
         PageSize?: number;
     };
-    url: "/api/Social/stars";
+    url: "/api/Social/stars/{userId}";
 };
 
 export type GetStarsErrors = {
     400: ApiProblemDetails;
-    401: ApiProblemDetails;
 };
 
 export type GetStarsError = GetStarsErrors[keyof GetStarsErrors];
@@ -395,6 +396,27 @@ export type GetStarsResponses = {
 };
 
 export type GetStarsResponse = GetStarsResponses[keyof GetStarsResponses];
+
+export type IsStarredData = {
+    body?: never;
+    path: {
+        starredUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/star/{starredUserId}/exists";
+};
+
+export type IsStarredErrors = {
+    401: ApiProblemDetails;
+};
+
+export type IsStarredError = IsStarredErrors[keyof IsStarredErrors];
+
+export type IsStarredResponses = {
+    200: boolean;
+};
+
+export type IsStarredResponse = IsStarredResponses[keyof IsStarredResponses];
 
 export type RemoveStarData = {
     body?: never;
