@@ -27,14 +27,15 @@ const UsernameSettingsForm = () => {
     if (!user) return null;
 
     function cooldownUntil(): Date | null {
-        if (!user || !user.usernameLastChangedSeconds) return null;
+        if (!user || !user.usernameLastChanged) return null;
 
-        const nextUsernameChange =
-            user.usernameLastChangedSeconds +
-            constants.USERNAME_EDIT_EVERY_SECONDS;
-        if (nextUsernameChange <= Date.now() / 1000) return null;
+        const nextUsernameChange = new Date(
+            new Date(user.usernameLastChanged).valueOf() +
+                constants.USERNAME_EDIT_EVERY_MS,
+        );
+        if (nextUsernameChange <= new Date()) return null;
 
-        return new Date(nextUsernameChange * 1000);
+        return nextUsernameChange;
     }
     const nextUsernameChangeDate = cooldownUntil();
 
@@ -56,7 +57,7 @@ const UsernameSettingsForm = () => {
         const newUser: PrivateUser = {
             ...user,
             userName: values.userName,
-            usernameLastChangedSeconds: Date.now() / 1000,
+            usernameLastChanged: new Date().toISOString(),
         };
         setUser(newUser);
         helpers.resetForm({ values });

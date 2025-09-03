@@ -11,8 +11,8 @@ vi.mock("react-apexcharts");
 const ratingMock: RatingOverview = {
     timeControl: TimeControl.BLITZ,
     ratings: [
-        { rating: 800, at: new Date("2024-11-24T11:00:00").valueOf() },
-        { rating: 900, at: new Date("2024-11-24T12:00:00").valueOf() },
+        { rating: 800, achievedAt: "2024-11-24T11:00:00Z" },
+        { rating: 900, achievedAt: "2024-11-24T12:00:00Z" },
     ],
     highest: 1200,
     lowest: 600,
@@ -41,8 +41,8 @@ describe("RatingsCard", () => {
         expect(callArgs.series).toEqual([
             {
                 name: "Rating",
-                data: ratingMock.ratings.map(({ at, rating }) => ({
-                    x: at,
+                data: ratingMock.ratings.map(({ achievedAt, rating }) => ({
+                    x: new Date(achievedAt).valueOf(),
                     y: rating,
                 })),
             },
@@ -63,17 +63,32 @@ describe("RatingsCard", () => {
 
     it.each([
         [
-            { ratings: [{ rating: 1000, at: 1 }], current: 1100 },
+            {
+                ratings: [
+                    { rating: 1000, achievedAt: new Date().toISOString() },
+                ],
+                current: 1100,
+            },
             "+100",
             "text-green-400",
         ],
         [
-            { ratings: [{ rating: 1000, at: 1 }], current: 900 },
+            {
+                ratings: [
+                    { rating: 1000, achievedAt: new Date().toISOString() },
+                ],
+                current: 900,
+            },
             "-100",
             "text-red-400",
         ],
         [
-            { ratings: [{ rating: 1000, at: 1 }], current: 1000 },
+            {
+                ratings: [
+                    { rating: 1000, achievedAt: new Date().toISOString() },
+                ],
+                current: 1000,
+            },
             "±0",
             "text-neutral-400",
         ],

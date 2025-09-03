@@ -29,7 +29,7 @@ export enum TimeControl {
 
 export type Rating = {
     rating: number;
-    at: number;
+    achievedAt: string;
 };
 
 export type ApiProblemDetails = ProblemDetails & {
@@ -89,9 +89,9 @@ export type PrivateUser = SessionUser & {
     type: "authed";
 } & {
     userName: string;
-    usernameLastChangedSeconds?: number | null;
     about: string;
     countryCode: string;
+    usernameLastChanged?: string | null;
     type: string;
 };
 
