@@ -4,14 +4,21 @@ using System.Text.Json.Serialization;
 namespace Chess2.Api.Profile.DTOs;
 
 [method: JsonConstructor]
-public record PublicUser(string UserId, string UserName, string About, string CountryCode)
+public record PublicUser(
+    string UserId,
+    string UserName,
+    string About,
+    string CountryCode,
+    DateTime CreatedAt
+)
 {
     public PublicUser(AuthedUser user)
         : this(
             UserId: user.Id,
             UserName: user.UserName ?? "Unknown",
             About: user.About,
-            CountryCode: user.CountryCode
+            CountryCode: user.CountryCode,
+            CreatedAt: user.CreatedAt
         )
     { }
 }
@@ -30,6 +37,7 @@ public record PrivateUser(
     string UserName,
     string About,
     string CountryCode,
+    DateTime CreatedAt,
     DateTime? UsernameLastChanged
 ) : SessionUser(UserId)
 {
@@ -41,6 +49,7 @@ public record PrivateUser(
             UserName: user.UserName ?? "Unknown",
             About: user.About,
             CountryCode: user.CountryCode,
+            CreatedAt: user.CreatedAt,
             UsernameLastChanged: user.UsernameLastChanged
         )
     { }
