@@ -229,14 +229,9 @@ public class RatingServiceTests : BaseIntegrationTest
         overviews.Should().ContainSingle();
         overviews
             .ElementAt(0)
-            .Ratings.Select(r => r.At)
+            .Ratings.Select(r => r.AchievedAt)
             .Should()
-            .BeEquivalentTo(
-                [
-                    new DateTimeOffset(older.AchievedAt).ToUnixTimeMilliseconds(),
-                    new DateTimeOffset(recent.AchievedAt).ToUnixTimeMilliseconds(),
-                ]
-            );
+            .BeEquivalentTo([older.AchievedAt, recent.AchievedAt]);
     }
 
     [Theory]
