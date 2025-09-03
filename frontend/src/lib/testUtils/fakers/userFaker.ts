@@ -9,6 +9,7 @@ export function createFakeUser(override?: Partial<PublicUser>): PublicUser {
         userName: faker.internet.username(),
         about: faker.lorem.paragraph(),
         countryCode: "XX",
+        createdAt: new Date().toISOString(),
         ...override,
     };
 }
@@ -21,6 +22,7 @@ export function createFakePrivateUser(
         usernameLastChanged: new Date(
             new Date().valueOf() - constants.USERNAME_EDIT_EVERY_MS,
         ).toISOString(),
+        createdAt: new Date().toISOString(),
         type: "authed",
 
         ...override,
