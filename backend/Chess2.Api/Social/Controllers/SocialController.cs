@@ -42,6 +42,7 @@ public class SocialController(
     }
 
     [HttpGet("stars/{starredUserId}", Name = nameof(GetStarsReceivedCount))]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
     public async Task<ActionResult<int>> GetStarsReceivedCount(
         string starredUserId,
         CancellationToken token
