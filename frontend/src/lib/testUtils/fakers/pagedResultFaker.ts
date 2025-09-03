@@ -34,3 +34,15 @@ export function createFakePagedResult<TItem>({
         totalPages,
     };
 }
+
+export function createFakeEmptyPagedResult<TItem>(
+    pageSize: number,
+): PagedResult<TItem> {
+    return {
+        items: [],
+        totalCount: 0,
+        page: 0,
+        totalPages: 0,
+        pageSize,
+    };
+}

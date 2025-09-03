@@ -5,7 +5,10 @@ import constants from "@/lib/constants";
 
 const EmptyRatingCard = ({ timeControl }: { timeControl: TimeControl }) => {
     return (
-        <Card className="min-w-96">
+        <Card
+            className="min-w-96"
+            data-testid={`emptyRatingCard-${timeControl}`}
+        >
             <section className="flex w-full justify-between">
                 <span className="flex gap-2">
                     {constants.TIME_CONTROL_LABELS[timeControl]}
