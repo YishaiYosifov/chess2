@@ -15,20 +15,21 @@ public interface IStarRepository
         string starredUserId,
         CancellationToken token = default
     );
-    Task<List<AuthedUser>> GetPaginatedStarsAsync(
+    Task<List<AuthedUser>> GetPaginatedStarsGivenAsync(
         string userId,
         PaginationQuery query,
         CancellationToken token = default
     );
     void RemoveStar(StarredUser starredUser);
-    Task<int> GetStarredCountAsync(string userId, CancellationToken token = default);
+    Task<int> GetStarsGivenCount(string userId, CancellationToken token = default);
+    Task<int> GetStarsReceivedCountAsync(string userId, CancellationToken token = default);
 }
 
 public class StarRepository(ApplicationDbContext dbContext) : IStarRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<List<AuthedUser>> GetPaginatedStarsAsync(
+    public Task<List<AuthedUser>> GetPaginatedStarsGivenAsync(
         string userId,
         PaginationQuery query,
         CancellationToken token = default
@@ -39,8 +40,11 @@ public class StarRepository(ApplicationDbContext dbContext) : IStarRepository
             .Paginate(query)
             .ToListAsync(token);
 
-    public Task<int> GetStarredCountAsync(string userId, CancellationToken token = default) =>
+    public Task<int> GetStarsGivenCount(string userId, CancellationToken token = default) =>
         _dbContext.StarredUsers.Where(x => x.UserId == userId).CountAsync(token);
+
+    public Task<int> GetStarsReceivedCountAsync(string userId, CancellationToken token = default) =>
+        _dbContext.StarredUsers.Where(x => x.StarredUserId == userId).CountAsync(token);
 
     public Task<StarredUser?> GetStarAsync(
         string userId,

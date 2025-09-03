@@ -24,10 +24,10 @@ public class SocialController(
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("stars/{userId}", Name = nameof(GetStars))]
+    [HttpGet("starred/{userId}", Name = nameof(GetStarredUsers))]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetStars(
+    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetStarredUsers(
         string userId,
         [FromQuery] PaginationQuery pagination,
         CancellationToken token
@@ -37,14 +37,24 @@ public class SocialController(
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList().ToActionResult();
 
-        var result = await _starService.GetStarsOfAsync(userId, pagination, token);
+        var result = await _starService.GetStarredUsersAsync(userId, pagination, token);
         return Ok(result);
     }
 
-    [HttpGet("star/{starredUserId}/exists", Name = nameof(GetIsStarred))]
+    [HttpGet("stars/{starredUserId}", Name = nameof(GetStarsReceivedCount))]
+    public async Task<ActionResult<int>> GetStarsReceivedCount(
+        string starredUserId,
+        CancellationToken token
+    )
+    {
+        var count = await _starService.GetStarsReceivedCountAsync(starredUserId, token);
+        return Ok(count);
+    }
+
+    [HttpGet("star/{starredUserId}/exists", Name = nameof(GetHasStarred))]
     [ProducesResponseType<bool>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult<bool>> GetIsStarred(
+    public async Task<ActionResult<bool>> GetHasStarred(
         string starredUserId,
         CancellationToken token = default
     )
@@ -53,7 +63,7 @@ public class SocialController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var result = await _starService.IsStarredAsync(userIdResult.Value, starredUserId, token);
+        var result = await _starService.HasStarredAsync(userIdResult.Value, starredUserId, token);
         return Ok(result);
     }
 
