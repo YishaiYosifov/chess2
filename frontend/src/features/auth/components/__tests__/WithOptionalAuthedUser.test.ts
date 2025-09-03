@@ -28,7 +28,7 @@ describe("WithOptionalAuthedUser", () => {
         expect(ui.props).toEqual(
             expect.objectContaining({ fetchAttempted: true, user: userMock }),
         );
-        expect(childrenMock).toHaveBeenCalledWith({ user: userMock });
+        expect(childrenMock).toHaveBeenCalledWith(sessionMock);
     });
 
     it("should render children with null user when no session", async () => {
@@ -42,6 +42,9 @@ describe("WithOptionalAuthedUser", () => {
         expect(ui.props).toEqual(
             expect.objectContaining({ fetchAttempted: true, user: null }),
         );
-        expect(childrenMock).toHaveBeenCalledWith({ user: null });
+        expect(childrenMock).toHaveBeenCalledWith({
+            user: null,
+            accessToken: null,
+        });
     });
 });
