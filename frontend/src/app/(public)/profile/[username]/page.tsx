@@ -5,11 +5,15 @@ import {
     getRatingArchives,
     getStars,
     getUser,
+    PublicUser,
+    SessionUser,
 } from "@/lib/apiClient";
 import { notFound } from "next/navigation";
 import constants from "@/lib/constants";
 import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
 import GameHistory from "@/features/profile/components/GameHistory";
+import WithOptionalAuthedUser from "@/features/auth/components/WithOptionalAuthedUser";
+import { isAuthed } from "@/features/auth/lib/userGuard";
 
 type Params = Promise<{ username: string }>;
 
@@ -20,16 +24,46 @@ export async function generateMetadata({ params }: { params: Params }) {
     };
 }
 
-const ProfilePage = async ({ params }: { params: Params }) => {
+export default async function ProfilePage({ params }: { params: Params }) {
     const { username } = await params;
 
-    const { error: profileError, data: profile } = await getUser({
-        path: { username },
-    });
-    if (profileError || !profile) {
-        console.error(profileError);
-        notFound();
+    return (
+        <WithOptionalAuthedUser>
+            {async ({ user }) => (
+                <LoadProfilePage
+                    loggedInUser={user}
+                    profileUsername={username}
+                />
+            )}
+        </WithOptionalAuthedUser>
+    );
+}
+
+async function LoadProfilePage({
+    loggedInUser,
+    profileUsername,
+}: {
+    loggedInUser: SessionUser | null;
+    profileUsername: string;
+}) {
+    async function getProfile(): Promise<PublicUser> {
+        if (
+            loggedInUser &&
+            isAuthed(loggedInUser) &&
+            loggedInUser.userName === profileUsername
+        )
+            return loggedInUser;
+
+        const { error: profileError, data: profile } = await getUser({
+            path: { username: profileUsername },
+        });
+        if (profileError || !profile) {
+            console.error(profileError);
+            notFound();
+        }
+        return profile;
     }
+    const profile = await getProfile();
 
     const lastMonth = new Date();
     lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -73,7 +107,7 @@ const ProfilePage = async ({ params }: { params: Params }) => {
 
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-6">
-            <Profile profile={profile} />
+            <Profile profile={profile} initialStarCount={stars.totalCount} />
 
             <section className="flex flex-shrink-0 gap-5 overflow-x-auto">
                 {ratingCards}
@@ -85,8 +119,7 @@ const ProfilePage = async ({ params }: { params: Params }) => {
             />
         </div>
     );
-};
-export default ProfilePage;
+}
 
 async function safeFetch<T>(
     fn: () => Promise<{ error?: unknown; data?: T }>,

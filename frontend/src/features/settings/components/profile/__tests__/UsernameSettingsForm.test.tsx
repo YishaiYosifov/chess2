@@ -42,8 +42,8 @@ describe("UsernameSettingsForm", () => {
     });
 
     it("should disable the input if cooldown is active", () => {
-        const now = Math.floor(Date.now() / 1000);
-        userMock.usernameLastChangedSeconds = now;
+        const now = new Date().toISOString();
+        userMock.usernameLastChanged = now;
         store.getState().setUser(userMock);
 
         render(
@@ -57,7 +57,7 @@ describe("UsernameSettingsForm", () => {
 
     it("should allow username change when cooldown expired", async () => {
         const user = userEvent.setup();
-        userMock.usernameLastChangedSeconds = null;
+        userMock.usernameLastChanged = null;
         store.getState().setUser(userMock);
 
         render(
