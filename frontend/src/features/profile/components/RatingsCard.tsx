@@ -27,8 +27,8 @@ const RatingCard = ({ overview }: { overview: RatingOverview }) => {
     let formattedRatings: DataPoint[];
     // if there are enough recent rating points, use them directly
     if (ratings.length >= 2) {
-        formattedRatings = ratings.map(({ at, rating }) => ({
-            x: at,
+        formattedRatings = ratings.map(({ achievedAt, rating }) => ({
+            x: new Date(achievedAt).valueOf(),
             y: rating,
         }));
     } else {
