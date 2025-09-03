@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import { notFound } from "next/navigation";
 
 import {
     getGameResults,
@@ -27,7 +26,7 @@ import { createFakeRatingOverview } from "@/lib/testUtils/fakers/ratingOverviewF
 
 vi.mock("@/lib/apiClient/definition");
 
-describe("LoadProfilePage", () => {
+describe("ProfilePage", () => {
     let ownUser: PrivateUser;
     let otherUser: PublicUser;
     let gameSummary: PagedResultOfGameSummaryDto;
@@ -157,27 +156,45 @@ describe("LoadProfilePage", () => {
     });
 
     it.each([
-        [true, "Unstar", "true"],
-        [false, "Star", "false"],
+        [true, "Unstar"],
+        [false, "Star"],
     ])(
         "should set initialHasStarred=%s and render button text '%s'",
-        async (hasStarred, expectedText, expectedDataAttr) => {
+        async (hasStarred, expectedText) => {
             // Mock getHasStarred for this run
             getHasStarredMock.mockResolvedValueOnce({
                 data: hasStarred,
                 response: new Response(),
             });
 
-            const page = await LoadProfilePage({
-                loggedInUser: ownUser,
-                accessToken: "token",
-                profileUsername: otherUser.userName,
-            });
-
-            render(<SessionProvider user={ownUser}>{page}</SessionProvider>);
+            render(
+                <SessionProvider user={ownUser}>
+                    {await LoadProfilePage({
+                        loggedInUser: ownUser,
+                        accessToken: "token",
+                        profileUsername: otherUser.userName,
+                    })}
+                </SessionProvider>,
+            );
 
             const starButton = screen.getByTestId("profileStarButton");
             expect(starButton).toHaveTextContent(expectedText);
         },
     );
+
+    it("should not call getHasStarred if the user is not logged in", async () => {
+        render(
+            <SessionProvider user={null} fetchAttempted>
+                {await LoadProfilePage({
+                    loggedInUser: null,
+                    accessToken: null,
+                    profileUsername: otherUser.userName,
+                })}
+            </SessionProvider>,
+        );
+
+        expect(getHasStarredMock).not.toHaveBeenCalled();
+        const starButton = screen.getByTestId("profileStarButton");
+        expect(starButton).toHaveTextContent("Star");
+    });
 });
