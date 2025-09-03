@@ -1,6 +1,6 @@
-﻿using Chess2.Api.TestInfrastructure;
+﻿using Chess2.Api.Profile.DTOs;
+using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Profile.DTOs;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests.ProfileControllerTests;
@@ -18,12 +18,10 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
 
         PrivateUser expectedUser = new(
             UserId: user.Id,
-            UsernameLastChangedSeconds: user.UsernameLastChanged is null
-                ? null
-                : new DateTimeOffset(user.UsernameLastChanged.Value).ToUnixTimeSeconds(),
             UserName: user.UserName!,
             About: user.About,
-            CountryCode: user.CountryCode
+            CountryCode: user.CountryCode,
+            UsernameLastChanged: user.UsernameLastChanged
         );
         response.Content.Should().BeEquivalentTo(expectedUser);
     }
