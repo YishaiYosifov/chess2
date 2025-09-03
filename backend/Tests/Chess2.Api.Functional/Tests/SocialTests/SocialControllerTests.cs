@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Pagination.Models;
+﻿using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.SocialTests;
 
@@ -12,7 +12,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task GetStars_returns_expected_paginated_stars()
+    public async Task GetStarredUsers_returns_expected_paginated_stars()
     {
         var user = new AuthedUserFaker().Generate();
         var stars = new StarredUserFaker(forUser: user.Id).Generate(5);
@@ -21,7 +21,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
         await DbContext.AddRangeAsync(stars, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetStarsAsync(
+        var response = await ApiClient.Api.GetStarredUsersAsync(
             user.Id,
             new PaginationQuery(Page: 1, PageSize: 2)
         );
@@ -35,18 +35,34 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetStars_returns_bad_request_for_invalid_pagination()
+    public async Task GetStarredUsers_returns_bad_request_for_invalid_pagination()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetStarsAsync(
+        var response = await ApiClient.Api.GetStarredUsersAsync(
             user.Id,
             new PaginationQuery(Page: 0, PageSize: -1)
         );
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetStarsReceivedCount_returns_expected_count()
+    {
+        var starredUser = new AuthedUserFaker().Generate();
+        var stargazers = new StarredUserFaker(starredUser: starredUser).Generate(3);
+
+        await DbContext.AddAsync(starredUser, CT);
+        await DbContext.AddRangeAsync(stargazers, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetStarsReceivedCountAsync(starredUser.Id);
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().Be(3);
     }
 
     [Fact]

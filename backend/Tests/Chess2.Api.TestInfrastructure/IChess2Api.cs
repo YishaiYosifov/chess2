@@ -71,11 +71,14 @@ public interface IChess2Api
     #endregion
 
     #region Social
-    [Get("/api/social/stars/{userId}")]
-    Task<IApiResponse<PagedResult<MinimalProfile>>> GetStarsAsync(
+    [Get("/api/social/starred/{userId}")]
+    Task<IApiResponse<PagedResult<MinimalProfile>>> GetStarredUsersAsync(
         string userId,
         [Query] PaginationQuery pagination
     );
+
+    [Get("/api/social/stars/{userId}")]
+    Task<IApiResponse<int>> GetStarsReceivedCountAsync(string userId);
 
     [Get("/api/social/star/{userId}/exists")]
     Task<IApiResponse<bool>> GetIsStarredAsync(string userId);

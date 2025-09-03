@@ -28,7 +28,7 @@ public class StarRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(starredUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _repository.GetPaginatedStarsAsync(
+        var result = await _repository.GetPaginatedStarsGivenAsync(
             UserId,
             new PaginationQuery(Page: 1, PageSize: 2),
             CT
@@ -39,7 +39,7 @@ public class StarRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetStarredCountAsync_returns_correct_number()
+    public async Task GetStarsGivenCount_returns_correct_number()
     {
         var starredUsers = new StarredUserFaker(forUser: UserId).Generate(4);
         var otherStarred = new StarredUserFaker().Generate();
@@ -48,9 +48,25 @@ public class StarRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherStarred);
         await DbContext.SaveChangesAsync(CT);
 
-        var count = await _repository.GetStarredCountAsync(UserId, CT);
+        var count = await _repository.GetStarsGivenCount(UserId, CT);
 
         count.Should().Be(starredUsers.Count);
+    }
+
+    [Fact]
+    public async Task GetStarsReceivedCountAsync_returns_number_of_stars_received()
+    {
+        var starredUser = new AuthedUserFaker().Generate();
+        var stars = new StarredUserFaker(starredUser: starredUser).Generate(3);
+        var otherStars = new StarredUserFaker().Generate(2);
+
+        await DbContext.AddRangeAsync(stars, CT);
+        await DbContext.AddRangeAsync(otherStars, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var count = await _repository.GetStarsReceivedCountAsync(starredUser.Id, CT);
+
+        count.Should().Be(3);
     }
 
     [Fact]

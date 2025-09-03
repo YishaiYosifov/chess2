@@ -29,7 +29,7 @@ public class FriendServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         await _starService.AddStarAsync(user1.Id, user2.Id, CT);
-        var result = await _starService.IsStarredAsync(user1.Id, user2.Id, CT);
+        var result = await _starService.HasStarredAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeTrue();
     }
@@ -42,7 +42,7 @@ public class FriendServiceTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _starService.IsStarredAsync(user1.Id, user2.Id, CT);
+        var result = await _starService.HasStarredAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeFalse();
     }
@@ -63,7 +63,7 @@ public class FriendServiceTests : BaseIntegrationTest
         }
 
         var pagination = new PaginationQuery(Page: 0, PageSize: 20);
-        var result = await _starService.GetStarsOfAsync(user.Id, pagination, CT);
+        var result = await _starService.GetStarredUsersAsync(user.Id, pagination, CT);
 
         result.Items.Should().BeEquivalentTo(starredUsers.Select(x => new MinimalProfile(x)));
         result.TotalCount.Should().Be(starredUsers.Count);
@@ -84,7 +84,7 @@ public class FriendServiceTests : BaseIntegrationTest
             await _starService.AddStarAsync(user.Id, starred.Id, CT);
         }
 
-        var result = await _starService.GetStarsOfAsync(
+        var result = await _starService.GetStarredUsersAsync(
             user.Id,
             new PaginationQuery(Page: 1, PageSize: 2),
             CT
