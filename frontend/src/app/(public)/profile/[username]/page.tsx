@@ -2,8 +2,10 @@ import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
 import {
     getGameResults,
+    getHasStarred,
     getRatingArchives,
-    getStars,
+    getStarredUsers,
+    getStarsReceivedCount,
     getUser,
     PublicUser,
     SessionUser,
@@ -29,9 +31,10 @@ export default async function ProfilePage({ params }: { params: Params }) {
 
     return (
         <WithOptionalAuthedUser>
-            {async ({ user }) => (
+            {async ({ user, accessToken }) => (
                 <LoadProfilePage
                     loggedInUser={user}
+                    accessToken={accessToken}
                     profileUsername={username}
                 />
             )}
@@ -41,9 +44,11 @@ export default async function ProfilePage({ params }: { params: Params }) {
 
 async function LoadProfilePage({
     loggedInUser,
+    accessToken,
     profileUsername,
 }: {
     loggedInUser: SessionUser | null;
+    accessToken: string | null;
     profileUsername: string;
 }) {
     async function getProfile(): Promise<PublicUser> {
@@ -57,7 +62,7 @@ async function LoadProfilePage({
         const { error: profileError, data: profile } = await getUser({
             path: { username: profileUsername },
         });
-        if (profileError || !profile) {
+        if (profileError || profile === undefined) {
             console.error(profileError);
             notFound();
         }
@@ -69,32 +74,50 @@ async function LoadProfilePage({
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const [ratings, games, stars] = await Promise.all([
-        safeFetch(() =>
-            getRatingArchives({
-                path: { userId: profile.userId },
-                query: { since: lastMonth.toLocaleString() },
-            }),
-        ),
-        safeFetch(() =>
-            getGameResults({
-                path: { userId: profile.userId },
-                query: {
-                    Page: 0,
-                    PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
-                },
-            }),
-        ),
-        safeFetch(() =>
-            getStars({
-                path: { userId: profile.userId },
-                query: {
-                    Page: 0,
-                    PageSize: constants.PAGINATION_PAGE_SIZE.STARS,
-                },
-            }),
-        ),
-    ]);
+    const [ratings, games, starred, starsCount, hasStarred] = await Promise.all(
+        [
+            requireData(
+                getRatingArchives({
+                    path: { userId: profile.userId },
+                    query: { since: lastMonth.toLocaleString() },
+                }),
+            ),
+            requireData(
+                getGameResults({
+                    path: { userId: profile.userId },
+                    query: {
+                        Page: 0,
+                        PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+                    },
+                }),
+            ),
+            requireData(
+                getStarredUsers({
+                    path: { userId: profile.userId },
+                    query: {
+                        Page: 0,
+                        PageSize: constants.PAGINATION_PAGE_SIZE.STARS,
+                    },
+                }),
+            ),
+            requireData(
+                getStarsReceivedCount({
+                    path: { starredUserId: profile.userId },
+                }),
+            ),
+            (async (): Promise<boolean> => {
+                if (!accessToken || profile.userId === loggedInUser?.userId)
+                    return false;
+
+                return requireData(
+                    getHasStarred({
+                        path: { starredUserId: profile.userId },
+                        auth: () => accessToken,
+                    }),
+                );
+            })(),
+        ],
+    );
 
     const ratingCards = constants.DISPLAY_TIME_CONTROLS.map((timeControl) => {
         const overview = ratings.find((x) => x.timeControl === timeControl);
@@ -107,7 +130,11 @@ async function LoadProfilePage({
 
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-6">
-            <Profile profile={profile} initialStarCount={stars.totalCount} />
+            <Profile
+                profile={profile}
+                initialStarCount={starsCount}
+                initialHasStarred={hasStarred}
+            />
 
             <section className="flex flex-shrink-0 gap-5 overflow-x-auto">
                 {ratingCards}
@@ -121,11 +148,11 @@ async function LoadProfilePage({
     );
 }
 
-async function safeFetch<T>(
-    fn: () => Promise<{ error?: unknown; data?: T }>,
+async function requireData<T>(
+    promise: Promise<{ error?: unknown; data?: T }>,
 ): Promise<T> {
-    const { error, data } = await fn();
-    if (error || !data) {
+    const { error, data } = await promise;
+    if (error || data === undefined) {
         console.error(error);
         notFound();
     }
