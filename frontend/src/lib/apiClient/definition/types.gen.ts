@@ -91,6 +91,7 @@ export type PrivateUser = SessionUser & {
     userName: string;
     about: string;
     countryCode: string;
+    createdAt: string;
     usernameLastChanged?: string | null;
     type: string;
 };
@@ -106,6 +107,7 @@ export type PublicUser = {
     userName: string;
     about: string;
     countryCode: string;
+    createdAt: string;
 };
 
 export type ValidationProblemDetails = HttpValidationProblemDetails & {
@@ -373,7 +375,7 @@ export type GetRatingArchivesResponses = {
 export type GetRatingArchivesResponse =
     GetRatingArchivesResponses[keyof GetRatingArchivesResponses];
 
-export type GetStarsData = {
+export type GetStarredUsersData = {
     body?: never;
     path: {
         userId: string;
@@ -382,22 +384,40 @@ export type GetStarsData = {
         Page?: number;
         PageSize?: number;
     };
-    url: "/api/Social/stars/{userId}";
+    url: "/api/Social/starred/{userId}";
 };
 
-export type GetStarsErrors = {
+export type GetStarredUsersErrors = {
     400: ApiProblemDetails;
 };
 
-export type GetStarsError = GetStarsErrors[keyof GetStarsErrors];
+export type GetStarredUsersError =
+    GetStarredUsersErrors[keyof GetStarredUsersErrors];
 
-export type GetStarsResponses = {
+export type GetStarredUsersResponses = {
     200: PagedResultOfMinimalProfile;
 };
 
-export type GetStarsResponse = GetStarsResponses[keyof GetStarsResponses];
+export type GetStarredUsersResponse =
+    GetStarredUsersResponses[keyof GetStarredUsersResponses];
 
-export type GetIsStarredData = {
+export type GetStarsReceivedCountData = {
+    body?: never;
+    path: {
+        starredUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/stars/{starredUserId}";
+};
+
+export type GetStarsReceivedCountResponses = {
+    200: number;
+};
+
+export type GetStarsReceivedCountResponse =
+    GetStarsReceivedCountResponses[keyof GetStarsReceivedCountResponses];
+
+export type GetHasStarredData = {
     body?: never;
     path: {
         starredUserId: string;
@@ -406,18 +426,18 @@ export type GetIsStarredData = {
     url: "/api/Social/star/{starredUserId}/exists";
 };
 
-export type GetIsStarredErrors = {
+export type GetHasStarredErrors = {
     401: ApiProblemDetails;
 };
 
-export type GetIsStarredError = GetIsStarredErrors[keyof GetIsStarredErrors];
+export type GetHasStarredError = GetHasStarredErrors[keyof GetHasStarredErrors];
 
-export type GetIsStarredResponses = {
+export type GetHasStarredResponses = {
     200: boolean;
 };
 
-export type GetIsStarredResponse =
-    GetIsStarredResponses[keyof GetIsStarredResponses];
+export type GetHasStarredResponse =
+    GetHasStarredResponses[keyof GetHasStarredResponses];
 
 export type RemoveStarData = {
     body?: never;
