@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Chess2.Api.Profile.Entities;
+﻿using Chess2.Api.Profile.Entities;
+using System.Text.Json.Serialization;
 
 namespace Chess2.Api.Profile.DTOs;
 
@@ -12,7 +12,8 @@ public record PublicUser(string UserId, string UserName, string About, string Co
             UserName: user.UserName ?? "Unknown",
             About: user.About,
             CountryCode: user.CountryCode
-        ) { }
+        )
+    { }
 }
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
@@ -27,9 +28,9 @@ public abstract record SessionUser(string UserId)
 public record PrivateUser(
     string UserId,
     string UserName,
-    long? UsernameLastChangedSeconds,
     string About,
-    string CountryCode
+    string CountryCode,
+    DateTime? UsernameLastChanged
 ) : SessionUser(UserId)
 {
     public override string Type => SessionUserType.Authed;
@@ -38,12 +39,11 @@ public record PrivateUser(
         : this(
             UserId: user.Id,
             UserName: user.UserName ?? "Unknown",
-            UsernameLastChangedSeconds: user.UsernameLastChanged is null
-                ? null
-                : new DateTimeOffset(user.UsernameLastChanged.Value).ToUnixTimeSeconds(),
             About: user.About,
-            CountryCode: user.CountryCode
-        ) { }
+            CountryCode: user.CountryCode,
+            UsernameLastChanged: user.UsernameLastChanged
+        )
+    { }
 }
 
 public record GuestUser(string UserId) : SessionUser(UserId)
