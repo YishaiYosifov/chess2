@@ -397,7 +397,7 @@ export type GetStarsResponses = {
 
 export type GetStarsResponse = GetStarsResponses[keyof GetStarsResponses];
 
-export type IsStarredData = {
+export type GetIsStarredData = {
     body?: never;
     path: {
         starredUserId: string;
@@ -406,17 +406,18 @@ export type IsStarredData = {
     url: "/api/Social/star/{starredUserId}/exists";
 };
 
-export type IsStarredErrors = {
+export type GetIsStarredErrors = {
     401: ApiProblemDetails;
 };
 
-export type IsStarredError = IsStarredErrors[keyof IsStarredErrors];
+export type GetIsStarredError = GetIsStarredErrors[keyof GetIsStarredErrors];
 
-export type IsStarredResponses = {
+export type GetIsStarredResponses = {
     200: boolean;
 };
 
-export type IsStarredResponse = IsStarredResponses[keyof IsStarredResponses];
+export type GetIsStarredResponse =
+    GetIsStarredResponses[keyof GetIsStarredResponses];
 
 export type RemoveStarData = {
     body?: never;

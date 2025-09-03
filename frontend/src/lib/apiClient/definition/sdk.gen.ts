@@ -13,9 +13,9 @@ import type {
     GetStarsData,
     GetStarsResponses,
     GetStarsErrors,
-    IsStarredData,
-    IsStarredResponses,
-    IsStarredErrors,
+    GetIsStarredData,
+    GetIsStarredResponses,
+    GetIsStarredErrors,
     RemoveStarData,
     RemoveStarResponses,
     RemoveStarErrors,
@@ -109,12 +109,12 @@ export const getStars = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const isStarred = <ThrowOnError extends boolean = false>(
-    options: Options<IsStarredData, ThrowOnError>,
+export const getIsStarred = <ThrowOnError extends boolean = false>(
+    options: Options<GetIsStarredData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        IsStarredResponses,
-        IsStarredErrors,
+        GetIsStarredResponses,
+        GetIsStarredErrors,
         ThrowOnError
     >({
         url: "/api/Social/star/{starredUserId}/exists",
