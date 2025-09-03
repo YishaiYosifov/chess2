@@ -14,7 +14,7 @@ export async function fetchUserSession(): Promise<{
     const { data: user, error } = await getSessionUser({
         headers: { Cookie: cookieStore.toString() },
     });
-    if (error || !user) {
+    if (error || user === undefined) {
         console.error(error);
         return null;
     }
