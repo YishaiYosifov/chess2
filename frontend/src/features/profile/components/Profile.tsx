@@ -5,13 +5,7 @@ import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 
 import ProfilePicture from "./ProfilePicture";
 import Card from "@/components/ui/Card";
-import {
-    addStar,
-    ApiProblemDetails,
-    ProblemDetails,
-    PublicUser,
-    removeStar,
-} from "@/lib/apiClient";
+import { addStar, PublicUser, removeStar, SessionUser } from "@/lib/apiClient";
 import Flag from "./Flag";
 import Button from "@/components/ui/Button";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
@@ -30,6 +24,7 @@ const Profile = ({
 }) => {
     const loggedInUser = useSessionUser();
     const [hasStarred, setHasStarred] = useState(initialHasStarred);
+    const [starCount, setStarCount] = useState(initialStarCount);
 
     const createdAt = new Date(profile.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString("en-US", {
@@ -38,21 +33,28 @@ const Profile = ({
         year: "numeric",
     });
 
-    async function toggleStar() {
-        let error: ProblemDetails | ApiProblemDetails | undefined;
-        if (hasStarred) {
-            ({ error } = await removeStar({
-                path: { starredUserId: profile.userId },
-            }));
-        } else {
-            ({ error } = await addStar({
-                path: { starredUserId: profile.userId },
-            }));
-        }
+    async function addStarToUser(): Promise<void> {
+        const { error } = await addStar({
+            path: { starredUserId: profile.userId },
+        });
+        if (error) return console.error(error);
 
-        if (error) console.error(error);
-        else setHasStarred((prev) => !prev);
+        setHasStarred(true);
+        setStarCount((prev) => prev + 1);
     }
+
+    async function removeStarFromUser(): Promise<void> {
+        const { error } = await removeStar({
+            path: { starredUserId: profile.userId },
+        });
+        if (error) return console.error(error);
+
+        setHasStarred(false);
+        setStarCount((prev) => prev - 1);
+    }
+
+    const toggleStar = (): Promise<void> =>
+        hasStarred ? removeStarFromUser() : addStarToUser();
 
     return (
         <Card className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start">
@@ -80,33 +82,12 @@ const Profile = ({
                     </span>
 
                     <div className="flex flex-wrap gap-3 sm:gap-3">
-                        {loggedInUser?.userId === profile.userId ? (
-                            <Button className="flex-1">
-                                <Link
-                                    href={`/settings?${constants.SEARCH_PARAMS.SETTINGS_PAGE}=${constants.SETTING_QUERY_PATHS.PROFILE}`}
-                                >
-                                    Edit Profile
-                                </Link>
-                            </Button>
-                        ) : (
-                            <>
-                                <Button
-                                    className="flex min-w-[120px] flex-1 items-center justify-center gap-2"
-                                    onClick={toggleStar}
-                                    data-testid="profileStarButton"
-                                >
-                                    {hasStarred ? (
-                                        <StarIconSolid className="h-8 w-8 text-amber-300" />
-                                    ) : (
-                                        <StarIconOutline className="h-8 w-8 text-amber-300" />
-                                    )}
-                                    {hasStarred ? "Unstar" : "Star"}
-                                </Button>
-                                <Button className="bg-secondary min-w-[100px] flex-1 text-black">
-                                    Challenge
-                                </Button>
-                            </>
-                        )}
+                        <ProfileActions
+                            loggedInUser={loggedInUser}
+                            profile={profile}
+                            hasStarred={hasStarred}
+                            toggleStar={toggleStar}
+                        />
                     </div>
                 </div>
 
@@ -118,13 +99,13 @@ const Profile = ({
                 </p>
                 <div className="flex gap-3">
                     <p>
-                        <span data-testid="profileStarCount">
-                            {initialStarCount}
-                        </span>{" "}
+                        <span data-testid="profileStarCount">{starCount}</span>{" "}
                         <span className="text-text/70">Stars</span>
                     </p>
                     <p>
-                        <span>{formattedCreatedAt}</span>{" "}
+                        <span data-testid="profileCreatedAt">
+                            {formattedCreatedAt}
+                        </span>{" "}
                         <span className="text-text/70">Joined</span>
                     </p>
                 </div>
@@ -133,3 +114,65 @@ const Profile = ({
     );
 };
 export default Profile;
+
+const ProfileActions = ({
+    loggedInUser,
+    profile,
+    hasStarred,
+    toggleStar,
+}: {
+    loggedInUser: SessionUser | null;
+    profile: PublicUser;
+    hasStarred: boolean;
+    toggleStar: () => Promise<void>;
+}) => {
+    // guest user
+    if (!loggedInUser) {
+        return (
+            <Button
+                className="bg-secondary min-w-[100px] flex-1 text-black"
+                data-testid="profileChallengeButton"
+            >
+                Challenge
+            </Button>
+        );
+    }
+
+    // viewing your own profile
+    if (loggedInUser.userId === profile.userId) {
+        return (
+            <Button className="flex-1">
+                <Link
+                    href={`/settings?${constants.SEARCH_PARAMS.SETTINGS_PAGE}=${constants.SETTING_QUERY_PATHS.PROFILE}`}
+                >
+                    Edit Profile
+                </Link>
+            </Button>
+        );
+    }
+
+    // logged in user viewing someone else's profile
+    return (
+        <>
+            <Button
+                className="flex min-w-[120px] flex-1 items-center justify-center gap-2"
+                onClick={toggleStar}
+                data-testid="profileStarButton"
+            >
+                {hasStarred ? (
+                    <StarIconSolid className="h-8 w-8 text-amber-300" />
+                ) : (
+                    <StarIconOutline className="h-8 w-8 text-amber-300" />
+                )}
+                {hasStarred ? "Unstar" : "Star"}
+            </Button>
+
+            <Button
+                className="bg-secondary min-w-[100px] flex-1 text-black"
+                data-testid="profileChallengeButton"
+            >
+                Challenge
+            </Button>
+        </>
+    );
+};
