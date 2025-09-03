@@ -4,7 +4,6 @@ import {
     getGameResults,
     getHasStarred,
     getRatingArchives,
-    getStarredUsers,
     getStarsReceivedCount,
     getUser,
     PublicUser,
@@ -72,50 +71,39 @@ export async function LoadProfilePage({
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const [ratings, games, starred, starsCount, hasStarred] = await Promise.all(
-        [
-            requireData(
-                getRatingArchives({
-                    path: { userId: profile.userId },
-                    query: { since: lastMonth.toLocaleString() },
-                }),
-            ),
-            requireData(
-                getGameResults({
-                    path: { userId: profile.userId },
-                    query: {
-                        Page: 0,
-                        PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
-                    },
-                }),
-            ),
-            requireData(
-                getStarredUsers({
-                    path: { userId: profile.userId },
-                    query: {
-                        Page: 0,
-                        PageSize: constants.PAGINATION_PAGE_SIZE.STARS,
-                    },
-                }),
-            ),
-            requireData(
-                getStarsReceivedCount({
-                    path: { starredUserId: profile.userId },
-                }),
-            ),
-            (async (): Promise<boolean> => {
-                if (!accessToken || profile.userId === loggedInUser?.userId)
-                    return false;
+    const [ratings, games, starsCount, hasStarred] = await Promise.all([
+        requireData(
+            getRatingArchives({
+                path: { userId: profile.userId },
+                query: { since: lastMonth.toLocaleString() },
+            }),
+        ),
+        requireData(
+            getGameResults({
+                path: { userId: profile.userId },
+                query: {
+                    Page: 0,
+                    PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+                },
+            }),
+        ),
+        requireData(
+            getStarsReceivedCount({
+                path: { starredUserId: profile.userId },
+            }),
+        ),
+        (async (): Promise<boolean> => {
+            if (!accessToken || profile.userId === loggedInUser?.userId)
+                return false;
 
-                return requireData(
-                    getHasStarred({
-                        path: { starredUserId: profile.userId },
-                        auth: () => accessToken,
-                    }),
-                );
-            })(),
-        ],
-    );
+            return requireData(
+                getHasStarred({
+                    path: { starredUserId: profile.userId },
+                    auth: () => accessToken,
+                }),
+            );
+        })(),
+    ]);
 
     const ratingCards = constants.DISPLAY_TIME_CONTROLS.map((timeControl) => {
         const overview = ratings.find((x) => x.timeControl === timeControl);

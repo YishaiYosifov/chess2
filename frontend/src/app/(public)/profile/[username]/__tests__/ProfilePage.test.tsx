@@ -4,10 +4,8 @@ import {
     getGameResults,
     getHasStarred,
     getRatingArchives,
-    getStarredUsers,
     getStarsReceivedCount,
     getUser,
-    MinimalProfile,
     PagedResultOfGameSummaryDto,
     PrivateUser,
     PublicUser,
@@ -19,7 +17,6 @@ import {
 } from "@/lib/testUtils/fakers/userFaker";
 import { LoadProfilePage } from "../page";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import { createFakeEmptyPagedResult } from "@/lib/testUtils/fakers/pagedResultFaker";
 import constants from "@/lib/constants";
 import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
 import { createFakeRatingOverview } from "@/lib/testUtils/fakers/ratingOverviewFaker";
@@ -37,7 +34,6 @@ describe("ProfilePage", () => {
     const getUserMock = vi.mocked(getUser);
     const getRatingArchivesMock = vi.mocked(getRatingArchives);
     const getGameResultsMock = vi.mocked(getGameResults);
-    const getStarredUsersMock = vi.mocked(getStarredUsers);
     const getStarsReceivedCountMock = vi.mocked(getStarsReceivedCount);
     const getHasStarredMock = vi.mocked(getHasStarred);
 
@@ -63,12 +59,6 @@ describe("ProfilePage", () => {
         });
         getGameResultsMock.mockResolvedValue({
             data: gameSummary,
-            response: new Response(),
-        });
-        getStarredUsersMock.mockResolvedValue({
-            data: createFakeEmptyPagedResult<MinimalProfile>(
-                constants.PAGINATION_PAGE_SIZE.STARS,
-            ),
             response: new Response(),
         });
         getStarsReceivedCountMock.mockResolvedValue({
