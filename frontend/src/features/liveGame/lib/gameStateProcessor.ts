@@ -141,7 +141,7 @@ export async function refetchGame(
     const { error, data: gameState } = await getGame({
         path: { gameToken },
     });
-    if (error || !gameState) {
+    if (error || gameState === undefined) {
         console.error(error);
         return;
     }
