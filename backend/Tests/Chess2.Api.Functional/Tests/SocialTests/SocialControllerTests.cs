@@ -60,7 +60,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
-        var response = await ApiClient.Api.IsStarredAsync(star.StarredUserId);
+        var response = await ApiClient.Api.GetIsStarredAsync(star.StarredUserId);
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeTrue();
@@ -75,7 +75,7 @@ public class SocialControllerTests(Chess2WebApplicationFactory factory)
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
 
-        var response = await ApiClient.Api.IsStarredAsync("some random user");
+        var response = await ApiClient.Api.GetIsStarredAsync("some random user");
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeFalse();
