@@ -25,12 +25,17 @@ public interface IStarService
         UserId starredUserId,
         CancellationToken token = default
     );
-    Task<PagedResult<MinimalProfile>> GetStarsOfAsync(
+    Task<PagedResult<MinimalProfile>> GetStarredUsersAsync(
         UserId forUser,
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task<bool> IsStarredAsync(UserId userId, UserId starredUser, CancellationToken token = default);
+    Task<bool> HasStarredAsync(
+        UserId userId,
+        UserId starredUser,
+        CancellationToken token = default
+    );
+    Task<int> GetStarsReceivedCountAsync(UserId starredUserId, CancellationToken token = default);
 }
 
 public class StarService(
@@ -43,7 +48,7 @@ public class StarService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<bool> IsStarredAsync(
+    public async Task<bool> HasStarredAsync(
         UserId userId,
         UserId starredUser,
         CancellationToken token = default
@@ -53,14 +58,18 @@ public class StarService(
         return star is not null;
     }
 
-    public async Task<PagedResult<MinimalProfile>> GetStarsOfAsync(
+    public async Task<PagedResult<MinimalProfile>> GetStarredUsersAsync(
         UserId forUser,
         PaginationQuery pagination,
         CancellationToken token = default
     )
     {
-        var starredUsers = await _starRepository.GetPaginatedStarsAsync(forUser, pagination, token);
-        var totalCount = await _starRepository.GetStarredCountAsync(forUser, token);
+        var starredUsers = await _starRepository.GetPaginatedStarsGivenAsync(
+            forUser,
+            pagination,
+            token
+        );
+        var totalCount = await _starRepository.GetStarsGivenCount(forUser, token);
 
         var minimalProfiles = starredUsers
             .Select(requester => new MinimalProfile(requester))
@@ -73,6 +82,11 @@ public class StarService(
             PageSize: pagination.PageSize
         );
     }
+
+    public Task<int> GetStarsReceivedCountAsync(
+        UserId starredUserId,
+        CancellationToken token = default
+    ) => _starRepository.GetStarsReceivedCountAsync(starredUserId, token);
 
     public async Task<ErrorOr<Created>> AddStarAsync(
         UserId forUserId,
