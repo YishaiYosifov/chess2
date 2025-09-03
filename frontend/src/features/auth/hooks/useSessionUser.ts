@@ -33,7 +33,7 @@ export function useSessionUser(): SessionUser | null {
             markFetchAttempted();
 
             const { error, data: loadedUser } = await getSessionUser();
-            if (error || !loadedUser) {
+            if (error || loadedUser === undefined) {
                 console.error(error);
                 return;
             }

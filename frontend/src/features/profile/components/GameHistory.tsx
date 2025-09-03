@@ -30,7 +30,7 @@ const GameHistory = ({
                     PageSize: gameResults.pageSize,
                 },
             });
-            if (error || !games) {
+            if (error || games === undefined) {
                 console.error(error);
                 return;
             }

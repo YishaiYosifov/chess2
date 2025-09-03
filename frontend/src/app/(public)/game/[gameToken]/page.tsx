@@ -21,7 +21,7 @@ export default async function GamePage({
                     auth: () => accessToken,
                 });
 
-                if (error || !game) {
+                if (error || game === undefined) {
                     console.warn(error);
                     notFound();
                 }
