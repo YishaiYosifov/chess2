@@ -10,12 +10,14 @@ import type {
     GetRatingArchivesData,
     GetRatingArchivesResponses,
     GetRatingArchivesErrors,
-    GetStarsData,
-    GetStarsResponses,
-    GetStarsErrors,
-    GetIsStarredData,
-    GetIsStarredResponses,
-    GetIsStarredErrors,
+    GetStarredUsersData,
+    GetStarredUsersResponses,
+    GetStarredUsersErrors,
+    GetStarsReceivedCountData,
+    GetStarsReceivedCountResponses,
+    GetHasStarredData,
+    GetHasStarredResponses,
+    GetHasStarredErrors,
     RemoveStarData,
     RemoveStarResponses,
     RemoveStarErrors,
@@ -96,25 +98,38 @@ export const getRatingArchives = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getStars = <ThrowOnError extends boolean = false>(
-    options: Options<GetStarsData, ThrowOnError>,
+export const getStarredUsers = <ThrowOnError extends boolean = false>(
+    options: Options<GetStarredUsersData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetStarsResponses,
-        GetStarsErrors,
+        GetStarredUsersResponses,
+        GetStarredUsersErrors,
         ThrowOnError
     >({
-        url: "/api/Social/stars/{userId}",
+        url: "/api/Social/starred/{userId}",
         ...options,
     });
 };
 
-export const getIsStarred = <ThrowOnError extends boolean = false>(
-    options: Options<GetIsStarredData, ThrowOnError>,
+export const getStarsReceivedCount = <ThrowOnError extends boolean = false>(
+    options: Options<GetStarsReceivedCountData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetIsStarredResponses,
-        GetIsStarredErrors,
+        GetStarsReceivedCountResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/Social/stars/{starredUserId}",
+        ...options,
+    });
+};
+
+export const getHasStarred = <ThrowOnError extends boolean = false>(
+    options: Options<GetHasStarredData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetHasStarredResponses,
+        GetHasStarredErrors,
         ThrowOnError
     >({
         url: "/api/Social/star/{starredUserId}/exists",
