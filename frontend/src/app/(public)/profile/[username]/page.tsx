@@ -42,7 +42,7 @@ export default async function ProfilePage({ params }: { params: Params }) {
     );
 }
 
-async function LoadProfilePage({
+export async function LoadProfilePage({
     loggedInUser,
     accessToken,
     profileUsername,
@@ -59,13 +59,11 @@ async function LoadProfilePage({
         )
             return loggedInUser;
 
-        const { error: profileError, data: profile } = await getUser({
-            path: { username: profileUsername },
-        });
-        if (profileError || profile === undefined) {
-            console.error(profileError);
-            notFound();
-        }
+        const profile = await requireData(
+            getUser({
+                path: { username: profileUsername },
+            }),
+        );
         return profile;
     }
     const profile = await getProfile();
