@@ -41,10 +41,10 @@ public class SocialController(
         return Ok(result);
     }
 
-    [HttpGet("star/{starredUserId}/exists", Name = nameof(IsStarred))]
+    [HttpGet("star/{starredUserId}/exists", Name = nameof(GetIsStarred))]
     [ProducesResponseType<bool>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.AuthedUser)]
-    public async Task<ActionResult<bool>> IsStarred(
+    public async Task<ActionResult<bool>> GetIsStarred(
         string starredUserId,
         CancellationToken token = default
     )

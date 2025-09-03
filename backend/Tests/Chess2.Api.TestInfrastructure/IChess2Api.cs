@@ -78,7 +78,7 @@ public interface IChess2Api
     );
 
     [Get("/api/social/star/{userId}/exists")]
-    Task<IApiResponse<bool>> IsStarredAsync(string userId);
+    Task<IApiResponse<bool>> GetIsStarredAsync(string userId);
 
     [Post("/api/social/star/{userId}")]
     Task<IApiResponse> AddStarAsync(string userId);
