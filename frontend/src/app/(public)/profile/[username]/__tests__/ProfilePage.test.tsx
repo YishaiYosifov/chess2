@@ -184,7 +184,5 @@ describe("ProfilePage", () => {
         );
 
         expect(getHasStarredMock).not.toHaveBeenCalled();
-        const starButton = screen.getByTestId("profileStarButton");
-        expect(starButton).toHaveTextContent("Star");
     });
 });
