@@ -143,7 +143,8 @@ const ProfileActions = ({
         return (
             <Button className="flex-1">
                 <Link
-                    href={`/settings?${constants.SEARCH_PARAMS.SETTINGS_PAGE}=${constants.SETTING_QUERY_PATHS.PROFILE}`}
+                    href={constants.PATHS.SETTINGS_PROFILE}
+                    data-testid="editProfileLink"
                 >
                     Edit Profile
                 </Link>

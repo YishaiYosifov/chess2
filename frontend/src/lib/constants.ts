@@ -32,6 +32,9 @@ const PATHS = {
     REFRESH: "/refresh",
     GUEST: "/guest",
     GAME: "/game",
+    SETTINGS_BASE: "/settings",
+    SETTINGS_PROFILE: "/settings/profile",
+    SETTINGS_SOCIAL: "/settings/social",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
 };
 
@@ -49,18 +52,9 @@ const HEADERS = {
     REDIRECT_AFTER_AUTH: "Redirect-After-Auth",
 };
 
-const SEARCH_PARAMS = {
-    SETTINGS_PAGE: "page",
-};
-
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
     STARS: 5,
-};
-
-const SETTING_QUERY_PATHS = {
-    PROFILE: "profile",
-    SOCIAL: "social",
 };
 
 interface TimeControlLabel {
@@ -190,9 +184,7 @@ const constants = {
     COOKIES,
     PATHS,
     HEADERS,
-    SEARCH_PARAMS,
     LOCALSTORAGE,
-    SETTING_QUERY_PATHS,
     ALLOW_ABORTION_UNTIL_MOVE,
     INITIAL_FEN,
     LETTER_TO_PIECE,
