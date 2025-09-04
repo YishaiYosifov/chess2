@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 
 import Card from "@/components/ui/Card";
-import TextField from "@/components/ui/TextField";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import {
     useGameEmitter,
@@ -10,6 +9,7 @@ import {
 import { useRouter } from "next/navigation";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
+import InputField from "@/components/ui/InputField";
 
 interface ChatMessage {
     sender: string;
@@ -93,11 +93,11 @@ const GameChat = () => {
                 ))}
             </div>
             <form onSubmit={onChatSend}>
-                <TextField
+                <InputField
                     data-testid="gameChatInput"
                     className="bg-white/5 text-white"
-                    placeholder={getPlaceholderMessage()}
                     value={message}
+                    placeholder={getPlaceholderMessage()}
                     onChange={(e) => setMessage(e.target.value)}
                     disabled={isGuest || isOnCooldown}
                     maxLength={200}
