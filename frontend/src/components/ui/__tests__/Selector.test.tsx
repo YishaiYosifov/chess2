@@ -18,7 +18,7 @@ describe("Selector", () => {
     });
 
     it("should select the default value if provided", () => {
-        render(<Selector options={options} defaultValue={2} />);
+        render(<Selector options={options} value={2} />);
 
         const selectedButton = screen.getByText("Option 2");
         expect(selectedButton).toHaveAttribute("disabled");
@@ -36,12 +36,16 @@ describe("Selector", () => {
     it("should call onChange with the correct value when an option is clicked", async () => {
         const onChange = vi.fn();
         const user = userEvent.setup();
-        render(<Selector options={options} onChange={onChange} />);
+        render(
+            <Selector options={options} name="testName" onChange={onChange} />,
+        );
 
         const secondButton = screen.getByText("Option 2");
         await user.click(secondButton);
 
-        expect(onChange).toHaveBeenCalledWith(2);
+        expect(onChange).toHaveBeenCalledWith({
+            target: { name: "testName", value: 2 },
+        });
     });
 
     it("should update selected state when a different option is clicked", async () => {
@@ -61,7 +65,7 @@ describe("Selector", () => {
     });
 
     it("should fallback to first option if defaultValue does not exist in options", () => {
-        render(<Selector options={options} defaultValue={999} />);
+        render(<Selector options={options} value={999} />);
 
         const firstButton = screen.getByText("Option 1");
         expect(firstButton).toHaveAttribute("disabled");

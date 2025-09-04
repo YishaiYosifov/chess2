@@ -141,7 +141,7 @@ export type UsernameEditRequest = {
     username: string;
 };
 
-export type PreferenceDto = {
+export type Preferences = {
     challengePreference: InteractionLevel;
     chatPreference: InteractionLevel;
 };
@@ -657,14 +657,14 @@ export type GetPreferencesError =
     GetPreferencesErrors[keyof GetPreferencesErrors];
 
 export type GetPreferencesResponses = {
-    200: PreferenceDto;
+    200: Preferences;
 };
 
 export type GetPreferencesResponse =
     GetPreferencesResponses[keyof GetPreferencesResponses];
 
 export type SetPreferencesData = {
-    body: PreferenceDto;
+    body: Preferences;
     path?: never;
     query?: never;
     url: "/api/Preference";
