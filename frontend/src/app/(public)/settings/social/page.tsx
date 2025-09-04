@@ -5,6 +5,8 @@ import { getPreferences } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { cookies } from "next/headers";
 
+export const metadata = { title: "Social Settings - Chess 2" };
+
 export default async function SocialPage() {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get(constants.COOKIES.ACCESS_TOKEN);
