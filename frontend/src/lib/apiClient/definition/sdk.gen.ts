@@ -44,6 +44,12 @@ import type {
     UploadProfilePictureErrors,
     GetProfilePictureData,
     GetProfilePictureResponses,
+    GetPreferencesData,
+    GetPreferencesResponses,
+    GetPreferencesErrors,
+    SetPreferencesData,
+    SetPreferencesResponses,
+    SetPreferencesErrors,
     GetGameData,
     GetGameResponses,
     GetGameErrors,
@@ -264,6 +270,36 @@ export const getProfilePicture = <ThrowOnError extends boolean = false>(
     >({
         url: "/api/Profile/profile-picture/{userId}",
         ...options,
+    });
+};
+
+export const getPreferences = <ThrowOnError extends boolean = false>(
+    options?: Options<GetPreferencesData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetPreferencesResponses,
+        GetPreferencesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Preference",
+        ...options,
+    });
+};
+
+export const setPreferences = <ThrowOnError extends boolean = false>(
+    options: Options<SetPreferencesData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).put<
+        SetPreferencesResponses,
+        SetPreferencesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Preference",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+        },
     });
 };
 

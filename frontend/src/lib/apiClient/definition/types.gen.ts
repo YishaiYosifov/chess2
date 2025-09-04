@@ -141,6 +141,26 @@ export type UsernameEditRequest = {
     username: string;
 };
 
+export type PreferenceDto = {
+    challengePreference: InteractionLevel;
+    chatPreference: InteractionLevel;
+};
+
+export enum InteractionLevel {
+    /**
+     * NoOne
+     */
+    NO_ONE = 0,
+    /**
+     * Starred
+     */
+    STARRED = 1,
+    /**
+     * Everyone
+     */
+    EVERYONE = 2,
+}
+
 export type GameState = {
     pool: PoolKey;
     whitePlayer: GamePlayer;
@@ -621,6 +641,48 @@ export type GetProfilePictureResponses = {
 
 export type GetProfilePictureResponse =
     GetProfilePictureResponses[keyof GetProfilePictureResponses];
+
+export type GetPreferencesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Preference";
+};
+
+export type GetPreferencesErrors = {
+    401: ApiProblemDetails;
+};
+
+export type GetPreferencesError =
+    GetPreferencesErrors[keyof GetPreferencesErrors];
+
+export type GetPreferencesResponses = {
+    200: PreferenceDto;
+};
+
+export type GetPreferencesResponse =
+    GetPreferencesResponses[keyof GetPreferencesResponses];
+
+export type SetPreferencesData = {
+    body: PreferenceDto;
+    path?: never;
+    query?: never;
+    url: "/api/Preference";
+};
+
+export type SetPreferencesErrors = {
+    401: ApiProblemDetails;
+};
+
+export type SetPreferencesError =
+    SetPreferencesErrors[keyof SetPreferencesErrors];
+
+export type SetPreferencesResponses = {
+    204: void;
+};
+
+export type SetPreferencesResponse =
+    SetPreferencesResponses[keyof SetPreferencesResponses];
 
 export type GetGameData = {
     body?: never;
