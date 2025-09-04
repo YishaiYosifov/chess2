@@ -3,7 +3,6 @@
 import * as yup from "yup";
 
 import Card from "@/components/ui/Card";
-import FormikTextField from "@/components/ui/FormikField";
 import FormikSubmitButton from "@/components/ui/FormikSubmitButton";
 import {
     useAuthedUser,
@@ -13,6 +12,8 @@ import { editUsername, PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { UsernameSchema } from "@/lib/validation";
 import { Form, Formik, FormikHelpers } from "formik";
+import InputField from "@/components/ui/InputField";
+import FormField from "@/components/ui/FormField";
 
 interface UsernameFormValues {
     userName: string;
@@ -72,13 +73,13 @@ const UsernameSettingsForm = () => {
             <Form>
                 <Card className="gap-5">
                     <div>
-                        <FormikTextField
-                            data-testid="usernameSettingField"
-                            name="userName"
-                            label="Username"
-                            disabled={nextUsernameChangeDate !== null}
-                            maxLength={30}
-                        />
+                        <FormField label="Username" name="userName">
+                            <InputField
+                                data-testid="usernameSettingField"
+                                disabled={nextUsernameChangeDate !== null}
+                                maxLength={30}
+                            />
+                        </FormField>
                         <span className="text-text/60 text-sm">
                             {nextUsernameChangeDate
                                 ? `Can changed again on ${nextUsernameChangeDate.toLocaleDateString("en-US")}`

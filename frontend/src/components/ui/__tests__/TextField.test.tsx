@@ -1,36 +1,44 @@
 import { render, screen } from "@testing-library/react";
-import TextField from "../TextField";
+import InputField from "../InputField";
 
-describe("TextField", () => {
-    it("should render an input with a label", () => {
-        render(<TextField label="Username" />);
-        expect(screen.getByLabelText("Username")).toBeInTheDocument();
-        expect(screen.getByLabelText("Username").tagName).toBe("INPUT");
+describe("InputField", () => {
+    it("should render a default input element", () => {
+        render(<InputField data-testid="testInput" />);
+
+        const input = screen.getByTestId("testInput");
+        expect(input).toBeInTheDocument();
+        expect(input.tagName.toLowerCase()).toBe("input");
     });
 
-    it("should render an input without a label using aria-label", () => {
-        render(<TextField aria-label="Search" />);
-        const element = screen.getByLabelText("Search");
-        expect(element).toBeInTheDocument();
-        expect(element.tagName).toBe("INPUT");
+    it("should render a custom component when 'as' prop is provided", () => {
+        render(<InputField as="textarea" data-testid="testInput" />);
+
+        const textarea = screen.getByTestId("testInput");
+        expect(textarea).toBeInTheDocument();
+        expect(textarea.tagName.toLowerCase()).toBe("textarea");
     });
 
-    it("should render a textarea when as='textarea'", () => {
-        render(<TextField as="textarea" label="Message" />);
-        const element = screen.getByLabelText("Message");
-        expect(element).toBeInTheDocument();
-        expect(element.tagName).toBe("TEXTAREA");
+    it("should apply the provided className in addition to default classes", () => {
+        render(<InputField className="custom-class" data-testid="testInput" />);
+
+        const input = screen.getByTestId("testInput");
+
+        expect(input).toHaveClass("custom-class");
+        expect(input).toHaveClass("bg-background/50");
     });
 
-    it("should render an input with an icon", () => {
-        const Icon = () => <span>Icon</span>;
-        render(<TextField label="With Icon" icon={<Icon />} />);
-        expect(screen.getByText("Icon")).toBeInTheDocument();
+    it("should render the icon when 'icon' prop is provided", () => {
+        render(<InputField icon={<span data-testid="testIcon">icon</span>} />);
+
+        const icon = screen.getByTestId("testIcon");
+        expect(icon).toBeInTheDocument();
+        expect(icon.textContent).toBe("icon");
     });
 
-    it("should apply custom className", () => {
-        render(<TextField label="Custom Class" className="custom-class" />);
-        const element = screen.getByLabelText("Custom Class");
-        expect(element).toHaveClass("custom-class");
+    it("should forward other props to the underlying input element", () => {
+        render(<InputField disabled data-testid="testInput" />);
+
+        const input = screen.getByTestId("testInput");
+        expect(input).toBeDisabled();
     });
 });

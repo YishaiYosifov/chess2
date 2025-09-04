@@ -10,8 +10,9 @@ import {
 
 import FormikSubmitButton from "@/components/ui/FormikSubmitButton";
 import { editProfileSettings, PrivateUser } from "@/lib/apiClient";
-import FormikTextField from "@/components/ui/FormikField";
 import Card from "@/components/ui/Card";
+import FormField from "@/components/ui/FormField";
+import InputField from "@/components/ui/InputField";
 
 const CountrySelector = dynamic(() => import("./CountrySelector"), {
     ssr: false,
@@ -59,14 +60,14 @@ const ProfileSettingsForm = () => {
         >
             <Form>
                 <Card>
-                    <FormikTextField
-                        data-testid="aboutMeSetting"
-                        label="About Me"
-                        as="textarea"
-                        className="min-h-60"
-                        maxLength={500}
-                        name="about"
-                    />
+                    <FormField label="About Me" name="about">
+                        <InputField
+                            data-testid="aboutMeSetting"
+                            as="textarea"
+                            className="min-h-60"
+                            maxLength={500}
+                        />
+                    </FormField>
 
                     <CountrySelector name="countryCode" />
 
