@@ -48,6 +48,7 @@ const PrivacyForm = () => {
                         name="challengePreference"
                     >
                         <Selector
+                            data-testid="challengePreference"
                             options={[
                                 {
                                     label: "Never",
@@ -69,6 +70,7 @@ const PrivacyForm = () => {
 
                     <FormField label="Show Chat" name="chatPreference">
                         <Selector
+                            data-testid="chatPreference"
                             options={[
                                 {
                                     label: "Never",
