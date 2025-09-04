@@ -35,7 +35,7 @@ const LoadProfilePage = async ({
         const { error, data } = await getUser({
             path: { username: profileUsername },
         });
-        if (!error || data === undefined) notFound();
+        if (error || data === undefined) notFound();
 
         return data;
     }
