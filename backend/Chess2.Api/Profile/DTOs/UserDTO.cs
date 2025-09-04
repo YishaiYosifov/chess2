@@ -1,5 +1,7 @@
-﻿using Chess2.Api.Profile.Entities;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Chess2.Api.Profile.Entities;
+using Newtonsoft.Json;
+using JsonConstructor = Newtonsoft.Json.JsonConstructorAttribute;
 
 namespace Chess2.Api.Profile.DTOs;
 
@@ -19,8 +21,7 @@ public record PublicUser(
             About: user.About,
             CountryCode: user.CountryCode,
             CreatedAt: user.CreatedAt
-        )
-    { }
+        ) { }
 }
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
@@ -51,8 +52,7 @@ public record PrivateUser(
             CountryCode: user.CountryCode,
             CreatedAt: user.CreatedAt,
             UsernameLastChanged: user.UsernameLastChanged
-        )
-    { }
+        ) { }
 }
 
 public record GuestUser(string UserId) : SessionUser(UserId)
