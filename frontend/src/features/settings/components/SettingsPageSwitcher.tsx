@@ -2,11 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import React, { JSX } from "react";
+import { ReactNode } from "react";
+
 import clsx from "clsx";
 import constants from "@/lib/constants";
 
-const SettingsPageSwitcher = ({ children }: { children: JSX.Element }) => {
+const SettingsPageSwitcher = ({ children }: { children: ReactNode }) => {
     const router = useRouter();
     const pathname = usePathname();
     const isBaseSettings = pathname === constants.PATHS.SETTINGS_BASE;
