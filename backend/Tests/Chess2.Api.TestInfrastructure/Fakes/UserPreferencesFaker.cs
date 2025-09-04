@@ -12,7 +12,6 @@ public class UserPreferencesFaker : Faker<UserPreferences>
         StrictMode(true);
         RuleFor(x => x.Id, 0);
         RuleFor(x => x.UserId, user.Id);
-        RuleFor(x => x.AllowFriendRequests, f => f.Random.Bool());
         RuleFor(x => x.ChallengePreference, f => f.PickRandom<InteractionLevel>());
         RuleFor(x => x.ChatPreference, f => f.PickRandom<InteractionLevel>());
     }

@@ -1,24 +1,20 @@
 ﻿using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Preferences.Models;
+using Newtonsoft.Json;
 
 namespace Chess2.Api.Preferences.DTOs;
 
-public record PreferenceDto(
-    bool AllowFriendRequests,
-    InteractionLevel ChallengePreference,
-    InteractionLevel ChatPreference
-)
+[method: JsonConstructor]
+public record PreferenceDto(InteractionLevel ChallengePreference, InteractionLevel ChatPreference)
 {
     public PreferenceDto(UserPreferences preferences)
         : this(
-            preferences.AllowFriendRequests,
-            preferences.ChatPreference,
-            preferences.ChatPreference
+            ChallengePreference: preferences.ChallengePreference,
+            ChatPreference: preferences.ChatPreference
         ) { }
 
     public void ApplyTo(UserPreferences preferences)
     {
-        preferences.AllowFriendRequests = AllowFriendRequests;
         preferences.ChatPreference = ChatPreference;
         preferences.ChallengePreference = ChallengePreference;
     }
