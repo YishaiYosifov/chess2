@@ -1,10 +1,12 @@
-﻿using Chess2.Api.Preferences.Entities;
+﻿using System.ComponentModel;
+using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Preferences.Models;
 using Newtonsoft.Json;
 
 namespace Chess2.Api.Preferences.DTOs;
 
 [method: JsonConstructor]
+[DisplayName("Preferences")]
 public record PreferenceDto(InteractionLevel ChallengePreference, InteractionLevel ChatPreference)
 {
     public PreferenceDto(UserPreferences preferences)
