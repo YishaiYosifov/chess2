@@ -1,51 +1,58 @@
 import { useMemo, useState } from "react";
 import Button from "./Button";
+import clsx from "clsx";
 
-type SelectorProps<T extends Record<string, unknown>> = {
-    options: T;
-    defaultValue?: T[keyof T];
-    onSelect?: (option: T[keyof T]) => void;
-    id?: string;
-    className?: string;
+type Option<T> = {
+    label: string;
+    value: T;
 };
 
-function Selector<T extends Record<string, unknown>>({
+interface SelectorProps<T> {
+    className?: string;
+    id?: string;
+    options: Option<T>[];
+    defaultValue?: T;
+    onChange?: (option: T) => void;
+}
+
+const Selector = <T,>({
     options,
     defaultValue,
-    onSelect,
-    id,
-}: SelectorProps<T>) {
-    const initialKey = useMemo(
+    onChange,
+}: SelectorProps<T>) => {
+    let initialIndex = useMemo(
         () =>
-            defaultValue
-                ? Object.keys(options).find((k) => options[k] === defaultValue)
-                : undefined,
-        [defaultValue, options],
+            defaultValue !== undefined
+                ? options.findIndex((o) => o.value === defaultValue)
+                : 0,
+        [options, defaultValue],
     );
+    if (initialIndex === -1) initialIndex = 0;
 
-    const [selectedKey, setSelectedKey] = useState<keyof T | undefined>(
-        initialKey,
-    );
+    const [selectedIndex, setSelectedIndex] = useState(initialIndex);
 
-    function select(key: keyof T) {
-        setSelectedKey(key);
-        onSelect?.(options[key]);
-    }
+    const select = (index: number) => {
+        setSelectedIndex(index);
+        onChange?.(options[index].value);
+    };
 
     return (
-        <div className="flex w-full gap-3" id={id}>
-            {Object.keys(options).map((key) => (
+        <div className="flex w-full gap-3">
+            {options.map((option, i) => (
                 <Button
-                    key={key}
-                    className="w-full"
-                    disabled={key === selectedKey}
-                    onClick={() => select(key as keyof T)}
+                    key={i}
+                    className={clsx(
+                        "w-full disabled:cursor-default",
+                        i === selectedIndex && "border-secondary border-3",
+                    )}
+                    disabled={i === selectedIndex}
+                    onClick={() => select(i)}
                 >
-                    {key}
+                    {option.label}
                 </Button>
             ))}
         </div>
     );
-}
+};
 
 export default Selector;
