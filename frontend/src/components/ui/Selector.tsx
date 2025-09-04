@@ -14,6 +14,7 @@ interface SelectorProps<T> {
     value?: T;
     onChange?: (e: { target: { name?: string; value: T } }) => void;
     onBlur?: React.FocusEventHandler<HTMLDivElement>;
+    "data-testid"?: string;
 }
 
 const Selector = <T,>({
@@ -22,6 +23,7 @@ const Selector = <T,>({
     options,
     value,
     onChange,
+    "data-testid": testId,
 }: SelectorProps<T>) => {
     const initialIndex = useMemo(
         () =>
@@ -55,7 +57,11 @@ const Selector = <T,>({
     };
 
     return (
-        <div id={id} className="flex w-full flex-wrap gap-3">
+        <div
+            id={id}
+            className="flex w-full flex-wrap gap-3"
+            data-testid={testId}
+        >
             {options.map((option, i) => (
                 <Button
                     key={i}
@@ -65,6 +71,7 @@ const Selector = <T,>({
                     )}
                     disabled={i === selectedIndex}
                     onClick={() => select(i)}
+                    type="button"
                 >
                     {option.label}
                 </Button>
