@@ -8,6 +8,7 @@ import { addStar, PrivateUser, PublicUser, removeStar } from "@/lib/apiClient";
 import Profile from "../Profile";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import userEvent from "@testing-library/user-event";
+import constants from "@/lib/constants";
 
 vi.mock("next/image");
 vi.mock("@/lib/apiClient/definition");
@@ -113,7 +114,9 @@ describe("Profile", () => {
             </SessionProvider>,
         );
 
-        expect(screen.getByText(/Edit Profile/i)).toBeInTheDocument();
+        expect(screen.getByTestId("editProfileLink").getAttribute("href")).toBe(
+            constants.PATHS.SETTINGS_PROFILE,
+        );
     });
 
     it("should render Star button for logged in users viewing someone else's profile", () => {
