@@ -65,7 +65,7 @@ public class PreferenceServiceTests : BaseIntegrationTest
 
         PreferenceDto newPrefs = new(
             AllowFriendRequests: !prefs.AllowFriendRequests,
-            ChallengePreference: InteractionLevel.Friends,
+            ChallengePreference: InteractionLevel.Starred,
             ChatPreference: InteractionLevel.Everyone
         );
 
@@ -88,7 +88,7 @@ public class PreferenceServiceTests : BaseIntegrationTest
         var newDto = new PreferenceDto(
             AllowFriendRequests: true,
             ChallengePreference: InteractionLevel.Everyone,
-            ChatPreference: InteractionLevel.Friends
+            ChatPreference: InteractionLevel.Starred
         );
 
         await _service.UpdatePreferencesAsync(user.Id, newDto, CT);

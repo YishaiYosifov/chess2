@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Profile.Entities;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Chess2.Api.Profile.DTOs;
 

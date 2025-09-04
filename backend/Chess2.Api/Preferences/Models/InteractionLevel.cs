@@ -3,6 +3,6 @@
 public enum InteractionLevel
 {
     NoOne,
-    Friends,
+    Starred,
     Everyone,
 }
