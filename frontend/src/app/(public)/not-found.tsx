@@ -1,16 +1,13 @@
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 
 const notFound = () => {
     return (
-        <div className="container">
-            <div className="row justify-content-center">
-                <div className="col-auto text-center">
-                    <h1>Not found - 404!</h1>
-                    <div>
-                        <Link href="/">Go back to Home</Link>
-                    </div>
-                </div>
-            </div>
+        <div className="flex h-full w-full flex-col items-center justify-center gap-5">
+            <h1 className="text-3xl">Not Found!</h1>
+            <Button>
+                <Link href="/">Go back to Home</Link>
+            </Button>
         </div>
     );
 };
