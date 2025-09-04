@@ -2,32 +2,17 @@
 
 import { Form, Formik, FormikHelpers } from "formik";
 
+import { InteractionLevel, Preferences, setPreferences } from "@/lib/apiClient";
 import FormikSubmitButton from "@/components/ui/FormikSubmitButton";
+import FormField from "@/components/ui/FormField";
 import Selector from "@/components/ui/Selector";
 import Card from "@/components/ui/Card";
-import FormField from "@/components/ui/FormField";
-import {
-    getPreferences,
-    InteractionLevel,
-    Preferences,
-    setPreferences,
-} from "@/lib/apiClient";
-import { useEffect, useState } from "react";
 
-const PrivacyForm = () => {
-    const [initialPreferences, setInitialPreferences] =
-        useState<Preferences | null>(null);
-
-    useEffect(() => {
-        async function fetchPreferences() {
-            const { error, data } = await getPreferences();
-            if (error || data === undefined) console.error(error);
-            else setInitialPreferences(data);
-        }
-        fetchPreferences();
-    }, []);
-    if (!initialPreferences) return null;
-
+const PrivacyForm = ({
+    initialPreferences,
+}: {
+    initialPreferences: Preferences;
+}) => {
     async function onSubmit(
         values: Preferences,
         helpers: FormikHelpers<Preferences>,

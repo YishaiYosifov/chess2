@@ -31,10 +31,10 @@ describe("PrivacyForm", () => {
         });
     });
 
-    it("should render the form with current preferences", async () => {
-        render(<PrivacyForm />);
+    it("should render the form with current preferences", () => {
+        render(<PrivacyForm initialPreferences={preferencesMock} />);
 
-        const challengeField = await screen.findByTestId("challengePreference");
+        const challengeField = screen.getByTestId("challengePreference");
         const chatField = screen.getByTestId("chatPreference");
 
         // disabled == selected
@@ -50,9 +50,9 @@ describe("PrivacyForm", () => {
 
     it("should allow preferences to be submitted", async () => {
         const user = userEvent.setup();
-        render(<PrivacyForm />);
+        render(<PrivacyForm initialPreferences={preferencesMock} />);
 
-        const challengeField = await screen.findByTestId("challengePreference");
+        const challengeField = screen.getByTestId("challengePreference");
         const chatField = screen.getByTestId("chatPreference");
         const submitButton = screen.getByTestId("submitFormButton");
 
@@ -80,9 +80,9 @@ describe("PrivacyForm", () => {
         });
 
         const user = userEvent.setup();
-        render(<PrivacyForm />);
+        render(<PrivacyForm initialPreferences={preferencesMock} />);
 
-        const challengeField = await screen.findByTestId("challengePreference");
+        const challengeField = screen.getByTestId("challengePreference");
         const submitButton = screen.getByTestId("submitFormButton");
 
         const challengeButtons = challengeField.querySelectorAll("button");

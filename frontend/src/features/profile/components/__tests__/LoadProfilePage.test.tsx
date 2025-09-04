@@ -15,7 +15,7 @@ import {
     createFakePrivateUser,
     createFakeUser,
 } from "@/lib/testUtils/fakers/userFaker";
-import { LoadProfilePage } from "../page";
+import LoadProfilePage from "../LoadProfilePage";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import constants from "@/lib/constants";
 import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
