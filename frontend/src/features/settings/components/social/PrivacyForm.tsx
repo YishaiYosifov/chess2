@@ -1,3 +1,5 @@
+"use client";
+
 import { Form, Formik, FormikHelpers } from "formik";
 
 import FormikSubmitButton from "@/components/ui/FormikSubmitButton";
