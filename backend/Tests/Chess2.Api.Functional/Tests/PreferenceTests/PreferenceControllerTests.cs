@@ -47,10 +47,6 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
     public async Task SetPreferences_updates_preferences()
     {
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
-        var originalPrefs = new UserPreferencesFaker(user).Generate();
-        await DbContext.AddAsync(originalPrefs, CT);
-        await DbContext.SaveChangesAsync(CT);
-
         PreferenceDto newPrefs = new(
             ChallengePreference: InteractionLevel.Starred,
             ChatPreference: InteractionLevel.NoOne
@@ -60,7 +56,9 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
 
         response.IsSuccessful.Should().BeTrue();
 
-        var dbPrefs = await DbContext.UserPreferences.FirstAsync(p => p.UserId == user.Id, CT);
+        var dbPrefs = await DbContext
+            .UserPreferences.AsNoTracking()
+            .FirstAsync(p => p.UserId == user.Id, CT);
 
         dbPrefs.ChallengePreference.Should().Be(newPrefs.ChallengePreference);
         dbPrefs.ChatPreference.Should().Be(newPrefs.ChatPreference);
