@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Button from "./Button";
 import clsx from "clsx";
 
@@ -8,41 +8,59 @@ type Option<T> = {
 };
 
 interface SelectorProps<T> {
-    className?: string;
     id?: string;
+    name?: string;
     options: Option<T>[];
-    defaultValue?: T;
-    onChange?: (option: T) => void;
+    value?: T;
+    onChange?: (e: { target: { name?: string; value: T } }) => void;
+    onBlur?: React.FocusEventHandler<HTMLDivElement>;
 }
 
 const Selector = <T,>({
+    id,
+    name,
     options,
-    defaultValue,
+    value,
     onChange,
 }: SelectorProps<T>) => {
-    let initialIndex = useMemo(
+    const initialIndex = useMemo(
         () =>
-            defaultValue !== undefined
-                ? options.findIndex((o) => o.value === defaultValue)
+            value !== undefined
+                ? options.findIndex((o) => o.value === value)
                 : 0,
-        [options, defaultValue],
+        [options, value],
     );
-    if (initialIndex === -1) initialIndex = 0;
 
-    const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+    const [selectedIndex, setSelectedIndex] = useState(
+        initialIndex === -1 ? 0 : initialIndex,
+    );
+
+    useEffect(() => {
+        if (value === undefined) return;
+
+        const idx = options.findIndex((o) => o.value === value);
+        if (idx !== -1 && idx !== selectedIndex) setSelectedIndex(idx);
+    }, [value, options, selectedIndex]);
 
     const select = (index: number) => {
         setSelectedIndex(index);
-        onChange?.(options[index].value);
+        const selectedValue = options[index].value;
+
+        onChange?.({
+            target: {
+                name,
+                value: selectedValue,
+            },
+        });
     };
 
     return (
-        <div className="flex w-full gap-3">
+        <div id={id} className="flex w-full flex-wrap gap-3">
             {options.map((option, i) => (
                 <Button
                     key={i}
                     className={clsx(
-                        "w-full disabled:cursor-default",
+                        "flex-1 text-nowrap disabled:cursor-default",
                         i === selectedIndex && "border-secondary border-3",
                     )}
                     disabled={i === selectedIndex}
