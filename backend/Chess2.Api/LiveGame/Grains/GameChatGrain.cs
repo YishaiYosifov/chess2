@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -125,7 +125,8 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         var isPlaying = await IsUserPlayingAsync(userId);
         await _gameChatNotifier.SendMessageAsync(
             _gameToken,
-            usernameResult.Value,
+            userId: userId,
+            userName: usernameResult.Value,
             connectionId,
             cooldownLeft,
             message,

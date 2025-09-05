@@ -19,6 +19,7 @@ public interface IGameChatNotifier
     );
     Task SendMessageAsync(
         string gameToken,
+        string userId,
         string userName,
         string connectionId,
         TimeSpan cooldownLeft,
@@ -58,6 +59,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 
     public async Task SendMessageAsync(
         string gameToken,
+        string userId,
         string userName,
         string connectionId,
         TimeSpan cooldownLeft,
@@ -66,7 +68,9 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     )
     {
         var groupName = GetGroupName(gameToken, isPlaying);
-        await _hub.Clients.Group(groupName).ChatMessageAsync(userName, message);
+        await _hub
+            .Clients.Group(groupName)
+            .ChatMessageAsync(senderUserId: userId, senderUsername: userName, message);
 
         await _hub
             .Clients.Client(connectionId)

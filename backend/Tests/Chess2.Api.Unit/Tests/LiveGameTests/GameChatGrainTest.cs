@@ -3,10 +3,10 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -137,6 +137,7 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(1)
             .SendMessageAsync(
                 TestGameToken,
+                userId,
                 user.UserName!,
                 ConnectionId,
                 cooldown,
@@ -167,6 +168,7 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(2)
             .SendMessageAsync(
                 TestGameToken,
+                WhiteUserId,
                 _whiteUser.UserName!,
                 ConnectionId,
                 TimeSpan.Zero,
@@ -204,15 +206,8 @@ public class GameChatGrainTest : BaseGrainTest
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.OnCooldown);
 
         await _gameChatNotifierMock
-            .DidNotReceive()
-            .SendMessageAsync(
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<string>(),
-                Arg.Any<TimeSpan>(),
-                Arg.Any<string>(),
-                Arg.Any<bool>()
-            );
+            .DidNotReceiveWithAnyArgs()
+            .SendMessageAsync(default!, default!, default!, default!, default!, default!, default!);
     }
 
     [Theory]
@@ -257,6 +252,7 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(1)
             .SendMessageAsync(
                 TestGameToken,
+                _whitePlayer.UserId,
                 _whitePlayer.UserName,
                 ConnectionId,
                 TimeSpan.Zero,
