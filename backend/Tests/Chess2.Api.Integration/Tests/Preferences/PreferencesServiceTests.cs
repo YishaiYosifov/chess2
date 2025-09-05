@@ -47,10 +47,7 @@ public class PreferenceServiceTests : BaseIntegrationTest
         result
             .Should()
             .BeEquivalentTo(
-                new PreferenceDto(
-                    ChallengePreference: InteractionLevel.Everyone,
-                    ChatPreference: InteractionLevel.Everyone
-                )
+                new PreferenceDto(ChallengePreference: InteractionLevel.Everyone, ShowChat: true)
             );
     }
 
@@ -60,15 +57,12 @@ public class PreferenceServiceTests : BaseIntegrationTest
         var user = new AuthedUserFaker().Generate();
         var prefs = new UserPreferencesFaker(user)
             .RuleFor(x => x.ChallengePreference, InteractionLevel.NoOne)
-            .RuleFor(x => x.ChatPreference, InteractionLevel.NoOne)
+            .RuleFor(x => x.ShowChat, false)
             .Generate();
         await DbContext.AddRangeAsync(user, prefs);
         await DbContext.SaveChangesAsync(CT);
 
-        PreferenceDto newPrefs = new(
-            ChallengePreference: InteractionLevel.Starred,
-            ChatPreference: InteractionLevel.Everyone
-        );
+        PreferenceDto newPrefs = new(ChallengePreference: InteractionLevel.Starred, ShowChat: true);
 
         await _service.UpdatePreferencesAsync(user.Id, newPrefs, CT);
 
@@ -87,8 +81,8 @@ public class PreferenceServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var newDto = new PreferenceDto(
-            ChallengePreference: InteractionLevel.Everyone,
-            ChatPreference: InteractionLevel.Starred
+            ChallengePreference: InteractionLevel.NoOne,
+            ShowChat: false
         );
 
         await _service.UpdatePreferencesAsync(user.Id, newDto, CT);

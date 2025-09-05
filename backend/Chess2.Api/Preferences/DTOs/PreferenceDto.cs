@@ -7,19 +7,17 @@ namespace Chess2.Api.Preferences.DTOs;
 
 [method: JsonConstructor]
 [DisplayName("Preferences")]
-public record PreferenceDto(InteractionLevel ChallengePreference, InteractionLevel ChatPreference)
+public record PreferenceDto(InteractionLevel ChallengePreference, bool ShowChat)
 {
     public PreferenceDto(UserPreferences preferences)
-        : this(
-            ChallengePreference: preferences.ChallengePreference,
-            ChatPreference: preferences.ChatPreference
-        ) { }
+        : this(ChallengePreference: preferences.ChallengePreference, ShowChat: preferences.ShowChat)
+    { }
 
     public static PreferenceDto Default => new(new UserPreferences() { UserId = "" });
 
     public void ApplyTo(UserPreferences preferences)
     {
-        preferences.ChatPreference = ChatPreference;
+        preferences.ShowChat = ShowChat;
         preferences.ChallengePreference = ChallengePreference;
     }
 }

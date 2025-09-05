@@ -8,5 +8,5 @@ public class UserPreferences
     public required string UserId { get; set; }
 
     public InteractionLevel ChallengePreference { get; set; } = InteractionLevel.Everyone;
-    public InteractionLevel ChatPreference { get; set; } = InteractionLevel.Everyone;
+    public bool ShowChat { get; set; } = true;
 }
