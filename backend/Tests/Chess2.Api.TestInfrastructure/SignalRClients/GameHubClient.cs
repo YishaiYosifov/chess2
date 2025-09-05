@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
-using ChatTcs = TaskCompletionSource<(string senderUserId, string senderUserName, string message)>;
+using ChatTcs = TaskCompletionSource<(string senderUserName, string message)>;
 
 public class GameHubClient : BaseHubClient
 {
@@ -18,10 +18,9 @@ public class GameHubClient : BaseHubClient
         _gameToken = gameToken;
 
         Connection.On("ChatConnectedAsync", _connectedTcs.SetResult);
-        Connection.On<string, string, string>(
+        Connection.On<string, string>(
             "ChatMessageAsync",
-            (senderUserId, senderUserName, message) =>
-                _messageTcs.TrySetResult((senderUserId, senderUserName, message))
+            (senderUserName, message) => _messageTcs.TrySetResult((senderUserName, message))
         );
     }
 
@@ -42,7 +41,7 @@ public class GameHubClient : BaseHubClient
     public Task SendChatAsync(string message, CancellationToken token) =>
         Connection.InvokeAsync("SendChatAsync", _gameToken, message, token);
 
-    public Task<(string SenderUserId, string SenderUserName, string Message)> WaitForMessageAsync(
+    public Task<(string SenderUserName, string Message)> WaitForMessageAsync(
         CancellationToken token
     ) => _messageTcs.Task.WaitAsync(TimeSpan.FromSeconds(10), token);
 }
