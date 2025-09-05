@@ -1,13 +1,8 @@
-﻿using Chess2.Api.Profile.Models;
-using Microsoft.AspNetCore.SignalR.Client;
+﻿using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
-using ChatTcs = TaskCompletionSource<(
-    Profile.Models.UserId senderUserId,
-    string senderUserName,
-    string message
-)>;
+using ChatTcs = TaskCompletionSource<(string senderUserId, string senderUserName, string message)>;
 
 public class GameHubClient : BaseHubClient
 {
@@ -47,7 +42,7 @@ public class GameHubClient : BaseHubClient
     public Task SendChatAsync(string message, CancellationToken token) =>
         Connection.InvokeAsync("SendChatAsync", _gameToken, message, token);
 
-    public Task<(UserId SenderUserId, string SenderUserName, string Message)> WaitForMessageAsync(
+    public Task<(string SenderUserId, string SenderUserName, string Message)> WaitForMessageAsync(
         CancellationToken token
     ) => _messageTcs.Task.WaitAsync(TimeSpan.FromSeconds(10), token);
 }
