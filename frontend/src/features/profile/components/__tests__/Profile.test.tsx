@@ -159,7 +159,7 @@ describe("Profile", () => {
             path: { starredUserId: userMock.userId },
         });
 
-        expect(starButton).toHaveTextContent("Unstar");
+        expect(starButton).toHaveTextContent("Starred");
         expect(starCount).toHaveTextContent("3");
 
         await user.click(starButton);
