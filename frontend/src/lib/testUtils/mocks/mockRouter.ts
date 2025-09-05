@@ -1,5 +1,4 @@
 import { useRouter } from "next/navigation";
-import { Mock } from "vitest";
 
 export function mockRouter() {
     const router = {
@@ -10,7 +9,7 @@ export function mockRouter() {
         replace: vi.fn(),
         prefetch: vi.fn(),
     };
-    const routerMock = useRouter as Mock;
+    const routerMock = vi.mocked(useRouter);
     routerMock.mockImplementation(() => router);
 
     return router;
