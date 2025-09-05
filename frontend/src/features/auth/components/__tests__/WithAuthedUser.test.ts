@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import { fetchAuthedUserSession } from "../../lib/getLoggedIn";
 import WithAuthedUser from "../WithAuthedUser";
@@ -15,16 +13,11 @@ describe("WithAuthedUser", () => {
     let sessionMock: { user: PrivateUser; accessToken: string };
 
     const fetchAuthedUserSessionMock = vi.mocked(fetchAuthedUserSession);
-    const redirectMock = vi.mocked(redirect);
     const childrenMock = vi.fn();
 
     beforeEach(() => {
         userMock = createFakePrivateUser();
         sessionMock = { user: userMock, accessToken: "test access token" };
-
-        redirectMock.mockImplementation((url: string) => {
-            throw new Error(`redirect ${url}`);
-        });
     });
 
     it("should render children with session when user is authenticated", async () => {
