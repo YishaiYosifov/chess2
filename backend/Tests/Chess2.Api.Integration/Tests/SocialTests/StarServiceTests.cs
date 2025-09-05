@@ -10,11 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Integration.Tests.SocialTests;
 
-public class FriendServiceTests : BaseIntegrationTest
+public class StarServiceTests : BaseIntegrationTest
 {
     private readonly IStarService _starService;
 
-    public FriendServiceTests(Chess2WebApplicationFactory factory)
+    public StarServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _starService = Scope.ServiceProvider.GetRequiredService<IStarService>();
@@ -128,6 +128,20 @@ public class FriendServiceTests : BaseIntegrationTest
         var result = await _starService.AddStarAsync(user1.Id, user2.Id, CT);
 
         result.FirstError.Should().Be(SocialErrors.AlreadyStarred);
+    }
+
+    [Fact]
+    public async Task AddStartAsync_returns_error_when_trying_to_star_yourself()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _starService.AddStarAsync(user.Id, user.Id, CT);
+
+        result.FirstError.Should().Be(SocialErrors.CannotStar);
+        var dbStars = await DbContext.StarredUsers.AsNoTracking().ToListAsync(CT);
+        dbStars.Should().BeEmpty();
     }
 
     [Fact]
