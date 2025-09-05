@@ -1,28 +1,38 @@
+import WithAuthedUser from "@/features/auth/components/WithAuthedUser";
 import BlockedForm from "@/features/settings/components/social/BlockedForm";
 import PrivacyForm from "@/features/settings/components/social/PrivacyForm";
 import StarsForm from "@/features/settings/components/social/StarsForm";
-import { getPreferences } from "@/lib/apiClient";
+import { getPreferences, getStarredUsers } from "@/lib/apiClient";
+import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import constants from "@/lib/constants";
-import { cookies } from "next/headers";
 
 export const metadata = { title: "Social Settings - Chess 2" };
 
 export default async function SocialPage() {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get(constants.COOKIES.ACCESS_TOKEN);
-    const { error: preferencesError, data: initialPreferences } =
-        await getPreferences({ auth: () => accessToken?.value });
-
-    if (preferencesError || !initialPreferences) {
-        console.error(preferencesError);
-        throw preferencesError;
-    }
-
     return (
-        <>
-            <PrivacyForm initialPreferences={initialPreferences} />
-            <StarsForm />
-            <BlockedForm />
-        </>
+        <WithAuthedUser>
+            {async ({ user, accessToken }) => {
+                const [preferences, stars] = await Promise.all([
+                    dataOrThrow(getPreferences({ auth: () => accessToken })),
+                    dataOrThrow(
+                        getStarredUsers({
+                            query: {
+                                Page: 0,
+                                PageSize: constants.PAGINATION_PAGE_SIZE.STARS,
+                            },
+                            path: { userId: user.userId },
+                        }),
+                    ),
+                ]);
+
+                return (
+                    <>
+                        <PrivacyForm initialPreferences={preferences} />
+                        <StarsForm initialStars={stars} />
+                        <BlockedForm />
+                    </>
+                );
+            }}
+        </WithAuthedUser>
     );
 }

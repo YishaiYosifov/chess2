@@ -165,7 +165,7 @@ const ProfileActions = ({
                 ) : (
                     <StarIconOutline className="h-8 w-8 text-amber-300" />
                 )}
-                {hasStarred ? "Unstar" : "Star"}
+                {hasStarred ? "Starred" : "Star"}
             </Button>
 
             <Button
