@@ -14,7 +14,7 @@ vi.mock("@/lib/apiClient/definition");
 describe("PrivacyForm", () => {
     const preferencesMock: Preferences = {
         challengePreference: InteractionLevel.EVERYONE,
-        chatPreference: InteractionLevel.STARRED,
+        showChat: true,
     };
 
     const getPreferencesMock = vi.mocked(getPreferences);
@@ -35,14 +35,14 @@ describe("PrivacyForm", () => {
         render(<PrivacyForm initialPreferences={preferencesMock} />);
 
         const challengeField = screen.getByTestId("challengePreference");
-        const chatField = screen.getByTestId("chatPreference");
+        const chatField = screen.getByTestId("showChat");
 
         // disabled == selected
         expect(
             challengeField.querySelector("button[disabled]")?.textContent,
         ).toBe("Always");
         expect(chatField.querySelector("button[disabled]")?.textContent).toBe(
-            "Only Stars",
+            "Yes",
         );
 
         expect(screen.getByTestId("submitFormButton")).toBeInTheDocument();
@@ -53,21 +53,21 @@ describe("PrivacyForm", () => {
         render(<PrivacyForm initialPreferences={preferencesMock} />);
 
         const challengeField = screen.getByTestId("challengePreference");
-        const chatField = screen.getByTestId("chatPreference");
+        const chatField = screen.getByTestId("showChat");
         const submitButton = screen.getByTestId("submitFormButton");
 
         const challengeButtons = challengeField.querySelectorAll("button");
         await user.click(challengeButtons[1]); // only Stars
 
         const chatButtons = chatField.querySelectorAll("button");
-        await user.click(chatButtons[2]); // always
+        await user.click(chatButtons[1]); // no
 
         await user.click(submitButton);
 
         expect(setPreferencesMock).toHaveBeenCalledWith({
             body: {
                 challengePreference: InteractionLevel.STARRED,
-                chatPreference: InteractionLevel.EVERYONE,
+                showChat: false,
             },
         });
     });
