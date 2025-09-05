@@ -25,12 +25,12 @@ import useLiveChessEvents from "../hooks/useLiveChessEvents";
 import { StoreApi } from "zustand";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import { GameState } from "@/lib/apiClient";
+import useInvalidateOnNavigate from "@/hooks/useInvalidateOnNavigate";
 import {
     createStoreProps,
     ProcessedGameState,
 } from "../lib/gameStateProcessor";
 import useConst from "@/hooks/useConst";
-import useBackNavigationRefetch from "../hooks/useBackNavigationRefetch";
 
 const LiveChessboard = ({
     gameToken,
@@ -66,8 +66,8 @@ const LiveChessboard = ({
         }),
     );
 
-    useBackNavigationRefetch(chessboardStore, liveChessStore);
     useLiveChessEvents(liveChessStore, chessboardStore, gameOverPopupRef);
+    useInvalidateOnNavigate();
 
     return (
         <LiveChessStoreContext.Provider value={liveChessStore}>

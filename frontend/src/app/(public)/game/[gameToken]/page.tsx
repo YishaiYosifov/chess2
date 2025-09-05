@@ -5,7 +5,6 @@ import WithSession from "@/features/auth/components/WithSession";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import { getGame } from "@/lib/apiClient";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "Live Game - Chess 2" };
 
 export default async function GamePage({
