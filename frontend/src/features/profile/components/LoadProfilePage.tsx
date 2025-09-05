@@ -9,11 +9,11 @@ import {
     PublicUser,
     SessionUser,
 } from "@/lib/apiClient";
-import { notFound } from "next/navigation";
 import constants from "@/lib/constants";
 import EmptyRatingCard from "@/features/profile/components/EmptyRatingCard";
 import GameHistory from "@/features/profile/components/GameHistory";
 import { isAuthed } from "@/features/auth/lib/userGuard";
+import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 
 const LoadProfilePage = async ({
     loggedInUser,
@@ -32,12 +32,13 @@ const LoadProfilePage = async ({
         )
             return loggedInUser;
 
-        const { error, data } = await getUser({
-            path: { username: profileUsername },
-        });
-        if (error || data === undefined) notFound();
+        const profile = await dataOrThrow(
+            getUser({
+                path: { username: profileUsername },
+            }),
+        );
 
-        return data;
+        return profile;
     }
     const profile = await getProfile();
 
@@ -46,13 +47,13 @@ const LoadProfilePage = async ({
     lastMonth.setHours(0, 0, 0, 0);
 
     const [ratings, games, starsCount, hasStarred] = await Promise.all([
-        requireData(
+        dataOrThrow(
             getRatingArchives({
                 path: { userId: profile.userId },
                 query: { since: lastMonth.toLocaleString() },
             }),
         ),
-        requireData(
+        dataOrThrow(
             getGameResults({
                 path: { userId: profile.userId },
                 query: {
@@ -61,7 +62,7 @@ const LoadProfilePage = async ({
                 },
             }),
         ),
-        requireData(
+        dataOrThrow(
             getStarsReceivedCount({
                 path: { starredUserId: profile.userId },
             }),
@@ -70,7 +71,7 @@ const LoadProfilePage = async ({
             if (!accessToken || profile.userId === loggedInUser?.userId)
                 return false;
 
-            return requireData(
+            return dataOrThrow(
                 getHasStarred({
                     path: { starredUserId: profile.userId },
                     auth: () => accessToken,
@@ -108,14 +109,3 @@ const LoadProfilePage = async ({
     );
 };
 export default LoadProfilePage;
-
-async function requireData<T>(
-    promise: Promise<{ error?: unknown; data?: T }>,
-): Promise<T> {
-    const { error, data } = await promise;
-    if (error || data === undefined) {
-        console.error(error);
-        throw error;
-    }
-    return data;
-}

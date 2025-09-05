@@ -1,9 +1,11 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
 import WithSession from "@/features/auth/components/WithSession";
+import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import { getGame } from "@/lib/apiClient";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Live Game - Chess 2" };
 
 export default async function GamePage({
@@ -16,15 +18,12 @@ export default async function GamePage({
             {async ({ user, accessToken }) => {
                 const { gameToken } = await params;
 
-                const { error, data: game } = await getGame({
-                    path: { gameToken },
-                    auth: () => accessToken,
-                });
-
-                if (error || game === undefined) {
-                    console.warn(error);
-                    notFound();
-                }
+                const game = await dataOrThrow(
+                    getGame({
+                        path: { gameToken },
+                        auth: () => accessToken,
+                    }),
+                );
 
                 // if the user is not participating in the game, they shouldn't be here
                 // TODO: allow spectating
