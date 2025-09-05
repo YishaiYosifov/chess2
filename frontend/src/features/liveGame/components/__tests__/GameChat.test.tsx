@@ -44,7 +44,7 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={userMock}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
@@ -54,7 +54,9 @@ describe("GameChat", () => {
         expect(input).toHaveAttribute("placeholder", "Send a Message...");
 
         expect(screen.queryByTestId("gameChatUser")).not.toBeInTheDocument();
-        expect(screen.queryByTestId("gameChatMessage")).not.toBeInTheDocument();
+        expect(
+            screen.queryByTestId("gameChatMessageContent"),
+        ).not.toBeInTheDocument();
     });
 
     it("should disable input when a guest", () => {
@@ -62,12 +64,13 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={guest}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
 
         const input = screen.getByTestId("gameChatInput");
+        expect(input).toBeDisabled();
         expect(input).toHaveAttribute("placeholder", "Sign Up to Chat!");
     });
 
@@ -77,7 +80,7 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={userMock}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
@@ -100,7 +103,7 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={userMock}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
@@ -121,7 +124,7 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={userMock}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
@@ -138,6 +141,7 @@ describe("GameChat", () => {
         await act(() => vi.advanceTimersByTimeAsync(cooldownLeftMs));
 
         expect(input).not.toBeDisabled();
+        expect(input).toHaveAttribute("placeholder", "Send a Message...");
     });
 
     it("should add received chat messages to the list", async () => {
@@ -151,13 +155,14 @@ describe("GameChat", () => {
         render(
             <SessionProvider user={userMock}>
                 <LiveChessStoreContext.Provider value={store}>
-                    <GameChat />
+                    <GameChat initialShowChat={true} />
                 </LiveChessStoreContext.Provider>
             </SessionProvider>,
         );
 
         const userName = "user123";
         const message = "Test message";
+
         act(() => {
             gameEventHandlers["ChatMessageAsync"]?.(userName, message);
         });
@@ -165,10 +170,46 @@ describe("GameChat", () => {
         const messageUser = screen.getByTestId("gameChatUser");
         expect(messageUser).toHaveTextContent(userName);
 
-        const messageValue = screen.getByTestId("gameChatMessage");
-        expect(messageValue).toHaveTextContent("message");
+        const messageValue = screen.getByTestId("gameChatMessageContent");
+        expect(messageValue).toHaveTextContent(message);
 
         await user.click(messageUser);
         expect(push).toHaveBeenNthCalledWith(1, `/profile/${userName}`);
+    });
+
+    it("should show a button to reveal chat when collapsed", async () => {
+        const gameEventHandlers: EventHandlers<GameClientEvents> = {};
+        useGameEventMock.mockImplementation((_token, event, handler) => {
+            gameEventHandlers[event] = handler;
+        });
+
+        render(
+            <SessionProvider user={userMock}>
+                <LiveChessStoreContext.Provider value={store}>
+                    <GameChat initialShowChat={false} />
+                </LiveChessStoreContext.Provider>
+            </SessionProvider>,
+        );
+
+        act(() => {
+            gameEventHandlers["ChatMessageAsync"]?.("user1", "message1");
+        });
+
+        const showButton = screen.getByTestId("showChatMessagesButton");
+        expect(showButton).toBeInTheDocument();
+        expect(showButton).toHaveTextContent(/Received 1 messages, show/i);
+
+        act(() => {
+            gameEventHandlers["ChatMessageAsync"]?.("user2", "message2");
+        });
+        expect(showButton).toHaveTextContent(/Received 2 messages, show/i);
+
+        await userEvent.click(showButton);
+
+        const messages = screen.getAllByTestId("gameChatMessage");
+        expect(messages.map((x) => x.textContent)).toEqual([
+            "user1: message1",
+            "user2: message2",
+        ]);
     });
 });

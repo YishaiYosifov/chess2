@@ -1,15 +1,14 @@
 "use client";
 
 import { useCallback, useRef } from "react";
+import { StoreApi } from "zustand";
 
 import { MoveKey } from "@/features/chessboard/lib/types";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
-import createLiveChessStore, {
-    LiveChessStore,
-} from "@/features/liveGame/stores/liveChessStore";
+import createLiveChessStore, { LiveChessStore } from "../stores/liveChessStore";
 import ChessboardLayout from "@/features/chessboard/components/ChessboardLayout";
 import {
     ChessboardStore,
@@ -22,7 +21,6 @@ import GameChat from "./GameChat";
 import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import useLiveChessEvents from "../hooks/useLiveChessEvents";
-import { StoreApi } from "zustand";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import { GameState, Preferences } from "@/lib/apiClient";
 import useInvalidateOnNavigate from "@/hooks/useInvalidateOnNavigate";
@@ -108,9 +106,7 @@ const LiveChessboard = ({
                     >
                         <MoveHistoryTable />
                         <GameControlsCard />
-                        <GameChat
-                            chatPreferences={preferences.chatPreference}
-                        />
+                        <GameChat initialShowChat={preferences.showChat} />
                     </aside>
                 </div>
             </ChessboardStoreContext.Provider>
