@@ -55,21 +55,17 @@ const PrivacyForm = ({
 
                     <hr className="text-secondary/30" />
 
-                    <FormField label="Show Chat" name="chatPreference">
+                    <FormField label="Show Chat by Default" name="showChat">
                         <Selector
-                            data-testid="chatPreference"
+                            data-testid="showChat"
                             options={[
                                 {
-                                    label: "Never",
-                                    value: InteractionLevel.NO_ONE,
+                                    label: "Yes",
+                                    value: true,
                                 },
                                 {
-                                    label: "Only Stars",
-                                    value: InteractionLevel.STARRED,
-                                },
-                                {
-                                    label: "Always",
-                                    value: InteractionLevel.EVERYONE,
+                                    label: "No",
+                                    value: false,
                                 },
                             ]}
                         />

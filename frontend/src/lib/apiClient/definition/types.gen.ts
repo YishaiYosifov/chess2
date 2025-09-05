@@ -143,7 +143,7 @@ export type UsernameEditRequest = {
 
 export type Preferences = {
     challengePreference: InteractionLevel;
-    chatPreference: InteractionLevel;
+    showChat: boolean;
 };
 
 export enum InteractionLevel {
