@@ -10,25 +10,30 @@ import { useRouter } from "next/navigation";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
 import InputField from "@/components/ui/InputField";
+import Button from "@/components/ui/Button";
 
 interface ChatMessage {
     sender: string;
     message: string;
 }
 
-const GameChat = () => {
+const GameChat = ({ initialShowChat }: { initialShowChat: boolean }) => {
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-    const [message, setMessage] = useState("");
+    const [currentMessage, setCurrentMessage] = useState("");
+
+    const [showChat, setShowChat] = useState(initialShowChat);
+
     const [isOnCooldown, setIsOnCooldown] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const isGuest = useAuthedUser() === null;
+    const canType = !isGuest && !isOnCooldown;
 
     const chatRef = useRef<HTMLDivElement>(null);
     useAutoScroll(chatRef, [chatMessages]);
 
-    const router = useRouter();
     const gameToken = useLiveChessStore((x) => x.gameToken);
     const sendGameEvent = useGameEmitter(gameToken);
+    const router = useRouter();
 
     useGameEvent(gameToken, "ChatMessageDeliveredAsync", (cooldownLeftMs) => {
         setIsSending(false);
@@ -52,12 +57,12 @@ const GameChat = () => {
 
     async function onChatSend(event: React.FormEvent) {
         event.preventDefault();
-
-        if (isSending || !message.trim()) return;
+        if (isSending || !currentMessage.trim()) return;
 
         setIsSending(true);
-        sendGameEvent("SendChatAsync", gameToken, message);
-        setMessage("");
+        sendGameEvent("SendChatAsync", gameToken, currentMessage);
+        setCurrentMessage("");
+        setShowChat(true);
     }
 
     function getPlaceholderMessage(): string {
@@ -72,34 +77,46 @@ const GameChat = () => {
                 className="h-full w-full overflow-auto break-words"
                 ref={chatRef}
             >
-                {chatMessages.map((chatMessage, i) => (
-                    <p key={i}>
-                        <span
-                            data-testid="gameChatUser"
-                            className="cursor-pointer"
-                            onClick={() =>
-                                router.push(`/profile/${chatMessage.sender}`)
-                            }
-                        >
-                            {chatMessage.sender}:
-                        </span>{" "}
-                        <span
-                            data-testid="gameChatMessage"
-                            className="text-gray-400"
-                        >
-                            {chatMessage.message}
-                        </span>
-                    </p>
-                ))}
+                {!showChat && chatMessages.length > 0 && (
+                    <Button
+                        onClick={() => setShowChat(true)}
+                        className="w-full"
+                        data-testid="showChatMessagesButton"
+                    >
+                        Received {chatMessages.length} messages, show?
+                    </Button>
+                )}
+
+                {showChat &&
+                    chatMessages.length > 0 &&
+                    chatMessages.map((message, i) => (
+                        <p key={i} data-testid="gameChatMessage">
+                            <span
+                                data-testid="gameChatUser"
+                                className="cursor-pointer"
+                                onClick={() =>
+                                    router.push(`/profile/${message.sender}`)
+                                }
+                            >
+                                {message.sender}:
+                            </span>{" "}
+                            <span
+                                data-testid="gameChatMessageContent"
+                                className="text-gray-400"
+                            >
+                                {message.message}
+                            </span>
+                        </p>
+                    ))}
             </div>
             <form onSubmit={onChatSend}>
                 <InputField
                     data-testid="gameChatInput"
                     className="bg-white/5 text-white"
-                    value={message}
+                    value={currentMessage}
                     placeholder={getPlaceholderMessage()}
-                    onChange={(e) => setMessage(e.target.value)}
-                    disabled={isGuest || isOnCooldown}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    disabled={!canType}
                     maxLength={200}
                 />
             </form>
