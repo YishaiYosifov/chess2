@@ -94,6 +94,9 @@ public class StarService(
         CancellationToken token = default
     )
     {
+        if (forUserId == starredUserId)
+            return SocialErrors.CannotStar;
+
         var existingStar = await _starRepository.GetStarAsync(forUserId, starredUserId, token);
         if (existingStar is not null)
             return SocialErrors.AlreadyStarred;

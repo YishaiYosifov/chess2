@@ -26,6 +26,7 @@ public static class ErrorCodes
     public const string ProfileSettingOnCooldown = "Profile.Cooldown.Setting";
     public const string ProfileInvalidProfilePicture = "Profile.InvalidProfilePicture";
 
+    public const string SocialCannotStar = "Social.CannotStar";
     public const string SocialAlreadyStarred = "Social.AlreadyStarred";
     public const string SocialNotStarred = "Social.NotStarred";
 
