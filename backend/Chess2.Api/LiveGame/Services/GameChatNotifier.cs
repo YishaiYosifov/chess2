@@ -1,4 +1,6 @@
 ﻿using Chess2.Api.LiveGame.SignalR;
+using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -7,21 +9,21 @@ public interface IGameChatNotifier
 {
     Task JoinChatAsync(
         string gameToken,
-        string connectionId,
+        ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     );
     Task LeaveChatAsync(
         string gameToken,
-        string connectionId,
+        ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     );
     Task SendMessageAsync(
         string gameToken,
-        string userId,
+        UserId userId,
         string userName,
-        string connectionId,
+        ConnectionId connectionId,
         TimeSpan cooldownLeft,
         string message,
         bool isPlaying
@@ -37,7 +39,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 
     public async Task JoinChatAsync(
         string gameToken,
-        string connectionId,
+        ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     )
@@ -48,7 +50,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 
     public async Task LeaveChatAsync(
         string gameToken,
-        string connectionId,
+        ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     )
@@ -59,9 +61,9 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 
     public async Task SendMessageAsync(
         string gameToken,
-        string userId,
+        UserId userId,
         string userName,
-        string connectionId,
+        ConnectionId connectionId,
         TimeSpan cooldownLeft,
         string message,
         bool isPlaying
