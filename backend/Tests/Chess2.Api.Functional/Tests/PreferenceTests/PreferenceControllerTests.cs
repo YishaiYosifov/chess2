@@ -33,14 +33,14 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetPreferences_with_a_guest_user_returns_forbidden()
+    public async Task GetPreferences_with_a_guest_user_returns_default_preferences()
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest123");
 
         var response = await ApiClient.Api.GetPreferencesAsync();
 
-        response.IsSuccessful.Should().BeFalse();
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().BeEquivalentTo(PreferenceDto.Default);
     }
 
     [Fact]

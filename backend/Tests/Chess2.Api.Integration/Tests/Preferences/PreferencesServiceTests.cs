@@ -48,7 +48,6 @@ public class PreferenceServiceTests : BaseIntegrationTest
             .Should()
             .BeEquivalentTo(
                 new PreferenceDto(
-                    AllowFriendRequests: true,
                     ChallengePreference: InteractionLevel.Everyone,
                     ChatPreference: InteractionLevel.Everyone
                 )
@@ -59,12 +58,14 @@ public class PreferenceServiceTests : BaseIntegrationTest
     public async Task UpdatePreferencesAsync_updates_existing_preferences()
     {
         var user = new AuthedUserFaker().Generate();
-        var prefs = new UserPreferencesFaker(user).Generate();
+        var prefs = new UserPreferencesFaker(user)
+            .RuleFor(x => x.ChallengePreference, InteractionLevel.NoOne)
+            .RuleFor(x => x.ChatPreference, InteractionLevel.NoOne)
+            .Generate();
         await DbContext.AddRangeAsync(user, prefs);
         await DbContext.SaveChangesAsync(CT);
 
         PreferenceDto newPrefs = new(
-            AllowFriendRequests: !prefs.AllowFriendRequests,
             ChallengePreference: InteractionLevel.Starred,
             ChatPreference: InteractionLevel.Everyone
         );
@@ -86,7 +87,6 @@ public class PreferenceServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var newDto = new PreferenceDto(
-            AllowFriendRequests: true,
             ChallengePreference: InteractionLevel.Everyone,
             ChatPreference: InteractionLevel.Starred
         );
