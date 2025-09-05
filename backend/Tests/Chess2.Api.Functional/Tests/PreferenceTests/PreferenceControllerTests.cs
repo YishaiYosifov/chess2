@@ -27,7 +27,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
             .BeEquivalentTo(
                 new PreferenceDto(
                     ChallengePreference: preferences.ChallengePreference,
-                    ChatPreference: preferences.ChatPreference
+                    ShowChat: preferences.ShowChat
                 )
             );
     }
@@ -49,7 +49,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
         var user = (await AuthUtils.AuthenticateAsync(ApiClient)).User;
         PreferenceDto newPrefs = new(
             ChallengePreference: InteractionLevel.Starred,
-            ChatPreference: InteractionLevel.NoOne
+            ShowChat: false
         );
 
         var response = await ApiClient.Api.SetPreferencesAsync(newPrefs);
@@ -61,7 +61,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
             .FirstAsync(p => p.UserId == user.Id, CT);
 
         dbPrefs.ChallengePreference.Should().Be(newPrefs.ChallengePreference);
-        dbPrefs.ChatPreference.Should().Be(newPrefs.ChatPreference);
+        dbPrefs.ShowChat.Should().Be(newPrefs.ShowChat);
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
         AuthUtils.AuthenticateGuest(ApiClient, "guest123");
         PreferenceDto newPrefs = new(
             ChallengePreference: InteractionLevel.Everyone,
-            ChatPreference: InteractionLevel.Starred
+            ShowChat: true
         );
 
         var response = await ApiClient.Api.SetPreferencesAsync(newPrefs);

@@ -13,6 +13,6 @@ public class UserPreferencesFaker : Faker<UserPreferences>
         RuleFor(x => x.Id, 0);
         RuleFor(x => x.UserId, user.Id);
         RuleFor(x => x.ChallengePreference, f => f.PickRandom<InteractionLevel>());
-        RuleFor(x => x.ChatPreference, f => f.PickRandom<InteractionLevel>());
+        RuleFor(x => x.ShowChat, f => f.Random.Bool());
     }
 }
