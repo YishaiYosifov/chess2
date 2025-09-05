@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.LiveGame.SignalR;
-using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -21,7 +20,6 @@ public interface IGameChatNotifier
     );
     Task SendMessageAsync(
         string gameToken,
-        UserId userId,
         string userName,
         ConnectionId connectionId,
         TimeSpan cooldownLeft,
@@ -61,7 +59,6 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 
     public async Task SendMessageAsync(
         string gameToken,
-        UserId userId,
         string userName,
         ConnectionId connectionId,
         TimeSpan cooldownLeft,
@@ -70,9 +67,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     )
     {
         var groupName = GetGroupName(gameToken, isPlaying);
-        await _hub
-            .Clients.Group(groupName)
-            .ChatMessageAsync(senderUserId: userId, senderUsername: userName, message);
+        await _hub.Clients.Group(groupName).ChatMessageAsync(userName, message);
 
         await _hub
             .Clients.Client(connectionId)

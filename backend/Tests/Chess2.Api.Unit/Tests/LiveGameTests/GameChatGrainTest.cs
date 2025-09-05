@@ -137,7 +137,6 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(1)
             .SendMessageAsync(
                 TestGameToken,
-                userId,
                 user.UserName!,
                 ConnectionId,
                 cooldown,
@@ -168,7 +167,6 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(2)
             .SendMessageAsync(
                 TestGameToken,
-                WhiteUserId,
                 _whiteUser.UserName!,
                 ConnectionId,
                 TimeSpan.Zero,
@@ -207,7 +205,7 @@ public class GameChatGrainTest : BaseGrainTest
 
         await _gameChatNotifierMock
             .DidNotReceiveWithAnyArgs()
-            .SendMessageAsync(default!, default!, default!, default!, default!, default!, default!);
+            .SendMessageAsync(default!, default!, default!, default!, default!, default!);
     }
 
     [Theory]
@@ -252,7 +250,6 @@ public class GameChatGrainTest : BaseGrainTest
             .Received(1)
             .SendMessageAsync(
                 TestGameToken,
-                _whitePlayer.UserId,
                 _whitePlayer.UserName,
                 ConnectionId,
                 TimeSpan.Zero,
