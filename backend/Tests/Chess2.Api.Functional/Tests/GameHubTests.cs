@@ -128,7 +128,7 @@ public class GameHubTests : BaseFunctionalTest
         foreach (var conn in connections)
         {
             var result = await conn.WaitForMessageAsync(CT);
-            result.Should().BeEquivalentTo((sender.Id, sender.UserName, message));
+            result.Should().BeEquivalentTo((sender.UserName, message));
         }
 
         foreach (var conn in connections)
