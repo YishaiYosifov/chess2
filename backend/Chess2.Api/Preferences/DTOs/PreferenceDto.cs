@@ -15,6 +15,8 @@ public record PreferenceDto(InteractionLevel ChallengePreference, InteractionLev
             ChatPreference: preferences.ChatPreference
         ) { }
 
+    public static PreferenceDto Default => new(new UserPreferences() { UserId = "" });
+
     public void ApplyTo(UserPreferences preferences)
     {
         preferences.ChatPreference = ChatPreference;
