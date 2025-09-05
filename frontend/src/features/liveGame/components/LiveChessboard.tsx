@@ -24,7 +24,7 @@ import LiveChessStoreContext from "../contexts/liveChessContext";
 import useLiveChessEvents from "../hooks/useLiveChessEvents";
 import { StoreApi } from "zustand";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
-import { GameState } from "@/lib/apiClient";
+import { GameState, Preferences } from "@/lib/apiClient";
 import useInvalidateOnNavigate from "@/hooks/useInvalidateOnNavigate";
 import {
     createStoreProps,
@@ -35,9 +35,11 @@ import useConst from "@/hooks/useConst";
 const LiveChessboard = ({
     gameToken,
     gameState,
+    preferences,
 }: {
     gameToken: string;
     gameState: GameState;
+    preferences: Preferences;
 }) => {
     const user = useSessionUser();
     const gameOverPopupRef = useRef<GameOverPopupRef>(null);
@@ -106,7 +108,9 @@ const LiveChessboard = ({
                     >
                         <MoveHistoryTable />
                         <GameControlsCard />
-                        <GameChat />
+                        <GameChat
+                            chatPreferences={preferences.chatPreference}
+                        />
                     </aside>
                 </div>
             </ChessboardStoreContext.Provider>

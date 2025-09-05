@@ -38,17 +38,13 @@ const GameChat = () => {
         setTimeout(() => setIsOnCooldown(false), cooldownLeftMs);
     });
 
-    useGameEvent(
-        gameToken,
-        "ChatMessageAsync",
-        (senderId, senderUsername, message) => {
-            const chatMessage: ChatMessage = {
-                sender: senderUsername,
-                message,
-            };
-            setChatMessages((prev) => [...prev, chatMessage]);
-        },
-    );
+    useGameEvent(gameToken, "ChatMessageAsync", (sender, message) => {
+        const chatMessage: ChatMessage = {
+            sender,
+            message,
+        };
+        setChatMessages((prev) => [...prev, chatMessage]);
+    });
 
     // this event is fired for backend tests, but we don't really care about it
     // this is here to supress the missing event warning

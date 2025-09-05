@@ -69,11 +69,7 @@ export type GameClientEvents = {
 
     DrawStateChangeAsync: [drawState: DrawState];
 
-    ChatMessageAsync: [
-        senderUserId: string,
-        senderUsername: string,
-        message: string,
-    ];
+    ChatMessageAsync: [senderUsername: string, message: string];
     ChatMessageDeliveredAsync: [cooldownLeftMs: number];
     ChatConnectedAsync: [];
 };
