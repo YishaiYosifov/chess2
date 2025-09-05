@@ -24,7 +24,7 @@ public interface IGameHubClient : IChess2HubClient
     Task DrawStateChangeAsync(DrawState drawState);
     Task GameEndedAsync(GameResultData result);
 
-    Task ChatMessageAsync(string senderUserId, string senderUsername, string message);
+    Task ChatMessageAsync(string senderUserName, string message);
     Task ChatConnectedAsync();
     Task ChatMessageDeliveredAsync(double cooldownLeftMs);
 }

@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
-using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 
@@ -81,14 +80,12 @@ public class GameChatNotifierTests
     [Fact]
     public async Task SendMessageAsync_sends_message_to_playing_group_and_acknowledges_sender()
     {
-        UserId userId = "user1";
         string userName = "player1";
         string message = "player message";
         TimeSpan cooldown = TimeSpan.FromSeconds(5);
 
         await _notifier.SendMessageAsync(
             _gameToken,
-            userId,
             userName,
             _connId,
             cooldown,
@@ -97,9 +94,7 @@ public class GameChatNotifierTests
         );
 
         _clientSpectatorsGroupProxyMock.DidNotReceiveWithAnyArgs();
-        await _clientPlayingGroupProxyMock
-            .Received(1)
-            .ChatMessageAsync(senderUserId: userId, senderUsername: userName, message);
+        await _clientPlayingGroupProxyMock.Received(1).ChatMessageAsync(userName, message);
         await _clientConnProxyMock
             .Received(1)
             .ChatMessageDeliveredAsync(cooldown.TotalMilliseconds);
@@ -108,14 +103,12 @@ public class GameChatNotifierTests
     [Fact]
     public async Task SendMessageAsync_sends_message_to_spectators_group_and_acknowledges_sender()
     {
-        UserId userId = "user2";
         string userName = "spectator";
         string message = "spectator message";
         TimeSpan cooldown = TimeSpan.FromSeconds(3);
 
         await _notifier.SendMessageAsync(
             _gameToken,
-            userId,
             userName,
             _connId,
             cooldown,
@@ -124,9 +117,7 @@ public class GameChatNotifierTests
         );
 
         _clientPlayingGroupProxyMock.DidNotReceiveWithAnyArgs();
-        await _clientSpectatorsGroupProxyMock
-            .Received(1)
-            .ChatMessageAsync(senderUserId: userId, senderUsername: userName, message);
+        await _clientSpectatorsGroupProxyMock.Received(1).ChatMessageAsync(userName, message);
         await _clientConnProxyMock
             .Received(1)
             .ChatMessageDeliveredAsync(cooldown.TotalMilliseconds);

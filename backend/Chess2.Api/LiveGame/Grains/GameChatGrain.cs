@@ -125,8 +125,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         var isPlaying = await IsUserPlayingAsync(userId);
         await _gameChatNotifier.SendMessageAsync(
             _gameToken,
-            userId: userId,
-            userName: usernameResult.Value,
+            usernameResult.Value,
             connectionId,
             cooldownLeft,
             message,
