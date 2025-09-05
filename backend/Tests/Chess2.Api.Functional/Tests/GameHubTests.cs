@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -128,7 +128,7 @@ public class GameHubTests : BaseFunctionalTest
         foreach (var conn in connections)
         {
             var result = await conn.WaitForMessageAsync(CT);
-            result.Should().BeEquivalentTo((sender.UserName, message));
+            result.Should().BeEquivalentTo((sender.Id, sender.UserName, message));
         }
 
         foreach (var conn in connections)
