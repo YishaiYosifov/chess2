@@ -25,7 +25,7 @@ public interface IBlockService
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task<bool> IsBlockedAsync(
+    Task<bool> HasBlockedAsync(
         UserId byUserId,
         UserId blockedUserId,
         CancellationToken token = default
@@ -72,7 +72,7 @@ public class BlockService(
         );
     }
 
-    public async Task<bool> IsBlockedAsync(
+    public async Task<bool> HasBlockedAsync(
         UserId byUserId,
         UserId blockedUserId,
         CancellationToken token = default
@@ -87,7 +87,7 @@ public class BlockService(
         if (userId == userIdToBlock)
             return SocialErrors.CannotBlockSelf;
 
-        if (await IsBlockedAsync(userId, userIdToBlock, token))
+        if (await HasBlockedAsync(userId, userIdToBlock, token))
             return SocialErrors.AlreadyBlocked;
 
         var userToBlock = await _userManager.FindByIdAsync(userIdToBlock);
