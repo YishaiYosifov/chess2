@@ -1,14 +1,16 @@
 import { render, screen, waitFor } from "@testing-library/react";
+
 import {
     GameSummary,
     getGameResults,
     PagedResultOfGameSummaryDto,
     PublicUser,
 } from "@/lib/apiClient";
-import GameHistory from "../GameHistory";
-import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
+
+import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import userEvent from "@testing-library/user-event";
+import GameHistory from "../GameHistory";
 import constants from "@/lib/constants";
 
 vi.mock("@/lib/apiClient");
@@ -93,12 +95,10 @@ describe("GameHistory", () => {
             />,
         );
 
-        // click and disable
         expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
         await userEvent.click(screen.getByTestId("paginationPage1"));
         expect(screen.getByTestId("paginationPage1")).toBeDisabled();
 
-        // resolve fetch and reenable
         resolveFetch({ data: initialGameResults, response: new Response() });
         await waitFor(() => expect(getGameResultsMock).toHaveBeenCalled());
         expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
