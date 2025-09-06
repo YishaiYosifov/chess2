@@ -146,12 +146,11 @@ describe("ProfilePage", () => {
     });
 
     it.each([
-        [true, "Unstar"],
+        [true, "Starred"],
         [false, "Star"],
     ])(
         "should set initialHasStarred=%s and render button text '%s'",
         async (hasStarred, expectedText) => {
-            // Mock getHasStarred for this run
             getHasStarredMock.mockResolvedValueOnce({
                 data: hasStarred,
                 response: new Response(),
