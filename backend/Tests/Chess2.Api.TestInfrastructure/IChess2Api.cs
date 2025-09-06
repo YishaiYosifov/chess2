@@ -89,6 +89,20 @@ public interface IChess2Api
 
     [Delete("/api/social/star/{userId}")]
     Task<IApiResponse> RemoveStarAsync(string userId);
+
+    [Get("/api/social/blocked")]
+    Task<IApiResponse<PagedResult<MinimalProfile>>> GetBlockedUsersAsync(
+        [Query] PaginationQuery pagination
+    );
+
+    [Get("/api/social/block/{userId}/exists")]
+    Task<IApiResponse<bool>> GetHasBlockedAsync(string userId);
+
+    [Post("/api/social/block/{userId}")]
+    Task<IApiResponse> BlockUserAsync(string userId);
+
+    [Delete("/api/social/block/{userId}")]
+    Task<IApiResponse> UnblockUserAsync(string userId);
     #endregion
 
     #region Preferences

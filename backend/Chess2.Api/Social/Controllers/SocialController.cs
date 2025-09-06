@@ -16,11 +16,13 @@ namespace Chess2.Api.Social.Controllers;
 [Route("api/[controller]")]
 public class SocialController(
     IStarService starService,
+    IBlockService blockService,
     IAuthService authService,
     IValidator<PaginationQuery> paginationValidator
 ) : ControllerBase
 {
     private readonly IStarService _starService = starService;
+    private readonly IBlockService _blockService = blockService;
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
@@ -72,7 +74,7 @@ public class SocialController(
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
-    [Authorize(AuthPolicies.AuthedUser)]
+    [Authorize]
     public async Task<ActionResult> AddStar(string starredUserId, CancellationToken token)
     {
         var userIdResult = _authService.GetUserId(User);
@@ -90,7 +92,7 @@ public class SocialController(
     [HttpDelete("star/{starredUserId}", Name = nameof(RemoveStar))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize(AuthPolicies.AuthedUser)]
+    [Authorize]
     public async Task<ActionResult> RemoveStar(string starredUserId, CancellationToken token)
     {
         var userIdResult = _authService.GetUserId(User);
@@ -102,6 +104,76 @@ public class SocialController(
             starredUserId,
             token
         );
+        return result.Match(value => NoContent(), errors => errors.ToActionResult());
+    }
+
+    [HttpGet("blocked", Name = nameof(GetBlockedUsers))]
+    [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
+    [Authorize]
+    public async Task<ActionResult<PagedResult<MinimalProfile>>> GetBlockedUsers(
+        [FromQuery] PaginationQuery pagination,
+        CancellationToken token = default
+    )
+    {
+        var validationResult = _paginationValidator.Validate(pagination);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _blockService.GetBlockedUsersAsync(
+            userIdResult.Value,
+            pagination,
+            token
+        );
+        return Ok(result);
+    }
+
+    [HttpGet("block/{blockedUserId}/exists", Name = nameof(GetHasBlocked))]
+    [ProducesResponseType<bool>(StatusCodes.Status200OK)]
+    [Authorize]
+    public async Task<ActionResult<bool>> GetHasBlocked(
+        string blockedUserId,
+        CancellationToken token = default
+    )
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _blockService.HasBlockedAsync(userIdResult.Value, blockedUserId, token);
+        return Ok(result);
+    }
+
+    [HttpPost("block/{blockedUserId}", Name = nameof(BlockUser))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
+    [Authorize]
+    public async Task<ActionResult> BlockUser(string blockedUserId, CancellationToken token)
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _blockService.BlockUserAsync(userIdResult.Value, blockedUserId, token);
+        return result.Match(value => NoContent(), errors => errors.ToActionResult());
+    }
+
+    [HttpDelete("block/{blockedUserid}", Name = nameof(UnblockUser))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
+    public async Task<ActionResult> UnblockUser(string blockedUserId, CancellationToken token)
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var result = await _blockService.UnblockUserAsync(userIdResult.Value, blockedUserId, token);
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 }

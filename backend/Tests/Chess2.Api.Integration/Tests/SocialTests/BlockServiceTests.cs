@@ -21,7 +21,7 @@ public class BlockServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task IsBlockedAsync_returns_true_if_user_has_blocked_another()
+    public async Task HasBlockedAsync_returns_true_if_user_has_blocked_another()
     {
         var user1 = new AuthedUserFaker().Generate();
         var user2 = new AuthedUserFaker().Generate();
@@ -29,20 +29,20 @@ public class BlockServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         await _blockService.BlockUserAsync(user1.Id, user2.Id, CT);
-        var result = await _blockService.IsBlockedAsync(user1.Id, user2.Id, CT);
+        var result = await _blockService.HasBlockedAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeTrue();
     }
 
     [Fact]
-    public async Task IsBlockedAsync_returns_false_if_user_has_not_blocked_another()
+    public async Task HasBlockedAsync_returns_false_if_user_has_not_blocked_another()
     {
         var user1 = new AuthedUserFaker().Generate();
         var user2 = new AuthedUserFaker().Generate();
         await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _blockService.IsBlockedAsync(user1.Id, user2.Id, CT);
+        var result = await _blockService.HasBlockedAsync(user1.Id, user2.Id, CT);
 
         result.Should().BeFalse();
     }
