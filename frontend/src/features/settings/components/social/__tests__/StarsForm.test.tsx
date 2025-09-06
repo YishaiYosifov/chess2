@@ -13,7 +13,7 @@ import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import {
     createFakeMinimalProfile,
     createFakePagedStars,
-} from "@/lib/testUtils/fakers/minimalProfileFAker";
+} from "@/lib/testUtils/fakers/minimalProfileFaker";
 
 vi.mock("@/lib/apiClient/definition");
 
