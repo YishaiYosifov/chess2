@@ -9,10 +9,10 @@ public class PaginationValidatorTests
     private readonly PaginationValidator _validator = new();
 
     [Theory]
-    [InlineData(1)]
+    [InlineData(0)]
     [InlineData(20)]
     [InlineData(100)]
-    public void PaginationValidator_accepts_page_over_one(int page)
+    public void PaginationValidator_accepts_non_negative_page(int page)
     {
         PaginationQuery model = new(page, 10);
         var result = _validator.TestValidate(model);
@@ -20,10 +20,9 @@ public class PaginationValidatorTests
     }
 
     [Theory]
-    [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-100)]
-    public void PaginationValidator_rejects_pages_under_one(int page)
+    public void PaginationValidator_rejects_negative_page(int page)
     {
         PaginationQuery model = new(page, 10);
         var result = _validator.TestValidate(model);
@@ -31,7 +30,7 @@ public class PaginationValidatorTests
     }
 
     [Theory]
-    [InlineData(0)]
+    [InlineData(1)]
     [InlineData(25)]
     [InlineData(50)]
     public void PaginationValidator_accepts_page_size_within_range(int pageSize)
@@ -43,6 +42,7 @@ public class PaginationValidatorTests
 
     [Theory]
     [InlineData(-1)]
+    [InlineData(0)]
     [InlineData(51)]
     [InlineData(100)]
     public void PaginationValidator_rejects_page_size_outside_range(int pageSize)
