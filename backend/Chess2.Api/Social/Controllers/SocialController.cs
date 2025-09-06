@@ -163,7 +163,7 @@ public class SocialController(
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpDelete("block/{blockedUserid}", Name = nameof(UnblockUser))]
+    [HttpDelete("block/{blockedUserId}", Name = nameof(UnblockUser))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize]
