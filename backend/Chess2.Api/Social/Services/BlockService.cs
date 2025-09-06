@@ -20,6 +20,10 @@ public interface IBlockService
         UserId userIdToBlock,
         CancellationToken token = default
     );
+    Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+        UserId forUser,
+        CancellationToken token = default
+    );
     Task<PagedResult<MinimalProfile>> GetBlockedUsersAsync(
         UserId forUser,
         PaginationQuery pagination,
@@ -71,6 +75,11 @@ public class BlockService(
             PageSize: pagination.PageSize
         );
     }
+
+    public Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+        UserId forUser,
+        CancellationToken token = default
+    ) => _blockRepository.GetAllBlockedUserIdsAsync(forUser, token);
 
     public async Task<bool> HasBlockedAsync(
         UserId byUserId,
