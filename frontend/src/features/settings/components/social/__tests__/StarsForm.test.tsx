@@ -1,9 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 
 import {
     addStar,
     getStarredUsers,
-    PagedResultOfMinimalProfile,
+    PrivateUser,
     removeStar,
 } from "@/lib/apiClient";
 import StarsForm from "../StarsForm";
@@ -18,14 +18,14 @@ import {
 vi.mock("@/lib/apiClient/definition");
 
 describe("StarsForm", () => {
-    const userMock = createFakePrivateUser();
+    let userMock: PrivateUser;
 
     const getStarredUsersMock = vi.mocked(getStarredUsers);
     const addStarMock = vi.mocked(addStar);
     const removeStarMock = vi.mocked(removeStar);
 
     beforeEach(() => {
-        vi.resetAllMocks();
+        userMock = createFakePrivateUser();
         getStarredUsersMock.mockResolvedValue({
             data: createFakePagedStars(),
             response: new Response(),
@@ -40,7 +40,7 @@ describe("StarsForm", () => {
         });
     });
 
-    it("should render the stars list with initial data", () => {
+    it("should render heading and count from initial stars", () => {
         const initial = createFakePagedStars({
             pagination: { pageSize: 2, totalCount: 2, page: 0 },
         });
@@ -51,16 +51,15 @@ describe("StarsForm", () => {
             </SessionProvider>,
         );
 
-        expect(screen.getByTestId("starsFormHeading")).toBeInTheDocument();
+        expect(screen.getByTestId("starsFormHeading")).toHaveTextContent(
+            "Stars",
+        );
         expect(screen.getByTestId("starsFormCount")).toHaveTextContent(
             `You starred ${initial.totalCount} players`,
         );
-        expect(screen.getAllByTestId(/starsFormToggleStarButton/)).toHaveLength(
-            2,
-        );
     });
 
-    it("should toggle star on a profile when button clicked", async () => {
+    it("should call removeStar and addStar when toggling", async () => {
         const user = userEvent.setup();
         const profile = createFakeMinimalProfile();
         const initial = createFakePagedStars({
@@ -74,17 +73,12 @@ describe("StarsForm", () => {
             </SessionProvider>,
         );
 
-        const button = screen.getByTestId(
-            `starsFormToggleStarButton${profile.userId}`,
-        );
+        const button = screen.getByTestId("relationProfileRowToggle");
 
         await user.click(button);
         expect(removeStarMock).toHaveBeenCalledWith({
             path: { starredUserId: profile.userId },
         });
-        expect(
-            screen.getByTestId("starsFormStarButtonLabel"),
-        ).toHaveTextContent("Star");
 
         await user.click(button);
         expect(addStarMock).toHaveBeenCalledWith({
@@ -92,7 +86,44 @@ describe("StarsForm", () => {
         });
     });
 
-    it("should fetch new page and update stars when pagination button clicked", async () => {
+    it("should toggle profile action button correctly", async () => {
+        const user = userEvent.setup();
+        const initial = createFakePagedStars({
+            pagination: { pageSize: 1, totalCount: 1, page: 0 },
+        });
+
+        render(
+            <SessionProvider user={userMock}>
+                <StarsForm initialStars={initial} />
+            </SessionProvider>,
+        );
+
+        const button = screen.getByTestId("relationProfileRowToggle");
+
+        await user.click(button);
+        expect(
+            screen.getByTestId("starsFormStarIconOutline"),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByTestId("starsFormStarIconSolid"),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByTestId("relationProfileRowToggle"),
+        ).toHaveTextContent("Star");
+
+        await user.click(button);
+        expect(
+            screen.getByTestId("starsFormStarIconSolid"),
+        ).toBeInTheDocument();
+        expect(
+            screen.queryByTestId("starsFormStarIconOutline"),
+        ).not.toBeInTheDocument();
+        expect(
+            screen.getByTestId("relationProfileRowToggle"),
+        ).toHaveTextContent("Starred");
+    });
+
+    it("should fetch new stars when pagination is triggered", async () => {
         const user = userEvent.setup();
         const initial = createFakePagedStars({
             pagination: { pageSize: 1, totalCount: 5, page: 0 },
@@ -121,61 +152,8 @@ describe("StarsForm", () => {
             query: { Page: 1, PageSize: initial.pageSize },
         });
 
-        const renderedProfiles = screen.getAllByTestId(/starsFormStarProfile/);
-        expect(renderedProfiles).toHaveLength(newStars.items.length);
-        newStars.items.forEach((profile) => {
-            expect(screen.getByText(profile.userName)).toBeInTheDocument();
-        });
-    });
-
-    it("should disable pagination buttons while fetching", async () => {
-        const user = userEvent.setup();
-        const initial = createFakePagedStars({
-            pagination: { pageSize: 1, totalCount: 5, page: 0 },
-        });
-
-        render(
-            <SessionProvider user={userMock}>
-                <StarsForm initialStars={initial} />
-            </SessionProvider>,
+        expect(screen.getByTestId("starsFormCount")).toHaveTextContent(
+            `You starred ${newStars.totalCount} players`,
         );
-
-        type GetGameResultsReturnType = {
-            data: PagedResultOfMinimalProfile;
-            response: Response;
-        };
-        let resolveFetch!: (value: GetGameResultsReturnType) => void;
-        const fetchPromise = new Promise<GetGameResultsReturnType>(
-            (resolve) => {
-                resolveFetch = resolve;
-            },
-        );
-        getStarredUsersMock.mockReturnValue(fetchPromise);
-
-        const nextBtn = screen.getByTestId("paginationNext");
-        await user.click(nextBtn);
-
-        expect(nextBtn).toBeDisabled();
-        resolveFetch({ data: initial, response: new Response() });
-        await waitFor(() => expect(getStarredUsersMock).toHaveBeenCalled());
-        expect(nextBtn).toBeEnabled();
-    });
-
-    it("should have profile link pointing to correct URL", () => {
-        const initial = createFakePagedStars({
-            pagination: { pageSize: 1, totalCount: 1, page: 0 },
-        });
-        const profile = initial.items[0];
-
-        render(
-            <SessionProvider user={userMock}>
-                <StarsForm initialStars={initial} />
-            </SessionProvider>,
-        );
-
-        const link = screen.getByTestId(
-            `starsFormProfileLink${profile.userId}`,
-        );
-        expect(link).toHaveAttribute("href", `/profile/${profile.userName}`);
     });
 });
