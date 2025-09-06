@@ -95,10 +95,9 @@ public class StarService(
     )
     {
         if (forUserId == starredUserId)
-            return SocialErrors.CannotStar;
+            return SocialErrors.CannotStarSelf;
 
-        var existingStar = await _starRepository.GetStarAsync(forUserId, starredUserId, token);
-        if (existingStar is not null)
+        if (await HasStarredAsync(forUserId, starredUserId, token))
             return SocialErrors.AlreadyStarred;
 
         var starredUser = await _userManager.FindByIdAsync(starredUserId);

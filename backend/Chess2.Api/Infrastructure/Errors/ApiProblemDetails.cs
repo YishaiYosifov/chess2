@@ -26,9 +26,12 @@ public static class ErrorCodes
     public const string ProfileSettingOnCooldown = "Profile.Cooldown.Setting";
     public const string ProfileInvalidProfilePicture = "Profile.InvalidProfilePicture";
 
-    public const string SocialCannotStar = "Social.CannotStar";
+    public const string SocialCannotStarSelf = "Social.CannotStarSelf";
     public const string SocialAlreadyStarred = "Social.AlreadyStarred";
     public const string SocialNotStarred = "Social.NotStarred";
+    public const string SocialCannotBlockSelf = "Social.CannotBlockSelf";
+    public const string SocialAlreadyBlocked = "Social.AlreadyBlocked";
+    public const string SocialNotBlocked = "Social.NotBlocked";
 
     public const string AuthTokenMissing = "Auth.TokenMissing";
     public const string AuthTokenInvalid = "Auth.TokenInvalid";
