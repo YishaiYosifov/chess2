@@ -12,8 +12,6 @@ public class StarRepositoryTests : BaseIntegrationTest
 {
     private readonly IStarRepository _repository;
 
-    private const string UserId = "test user";
-
     public StarRepositoryTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
@@ -23,13 +21,14 @@ public class StarRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetPaginatedStarsAsync_applies_pagination()
     {
-        var starredUsers = new StarredUserFaker(forUser: UserId).Generate(5);
+        string userId = "test user";
+        var starredUsers = new StarredUserFaker(forUser: userId).Generate(5);
 
         await DbContext.AddRangeAsync(starredUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
         var result = await _repository.GetPaginatedStarsGivenAsync(
-            UserId,
+            userId,
             new PaginationQuery(Page: 1, PageSize: 2),
             CT
         );
@@ -41,14 +40,15 @@ public class StarRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetStarsGivenCount_returns_correct_number()
     {
-        var starredUsers = new StarredUserFaker(forUser: UserId).Generate(4);
+        string userId = "test user";
+        var starredUsers = new StarredUserFaker(forUser: userId).Generate(4);
         var otherStarred = new StarredUserFaker().Generate();
 
         await DbContext.AddRangeAsync(starredUsers, CT);
         await DbContext.AddRangeAsync(otherStarred);
         await DbContext.SaveChangesAsync(CT);
 
-        var count = await _repository.GetStarsGivenCount(UserId, CT);
+        var count = await _repository.GetStarsGivenCount(userId, CT);
 
         count.Should().Be(starredUsers.Count);
     }

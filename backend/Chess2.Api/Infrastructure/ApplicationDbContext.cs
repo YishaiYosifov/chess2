@@ -33,6 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<StarredUser>().Navigation(x => x.Starred).AutoInclude();
+        builder.Entity<BlockedUser>().Navigation(x => x.Blocked).AutoInclude();
 
         base.OnModelCreating(builder);
     }
