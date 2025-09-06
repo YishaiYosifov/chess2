@@ -38,6 +38,22 @@ public class BlockRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task GetBlockedCountAsync_returns_correct_number()
+    {
+        string userId = "test user";
+        var blockedUsers = new BlockedUserFaker(forUser: userId).Generate(4);
+        var otherBlocked = new BlockedUserFaker().Generate();
+
+        await DbContext.AddRangeAsync(blockedUsers, CT);
+        await DbContext.AddRangeAsync(otherBlocked);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _repository.GetBlockedCountAsync(userId, CT);
+
+        result.Should().Be(blockedUsers.Count);
+    }
+
+    [Fact]
     public async Task GetBlockedUserAsync_returns_block_if_exists()
     {
         var blockedUser = new BlockedUserFaker().Generate();
