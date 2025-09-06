@@ -555,6 +555,29 @@ export type GetHasBlockedResponses = {
 export type GetHasBlockedResponse =
     GetHasBlockedResponses[keyof GetHasBlockedResponses];
 
+export type UnblockUserData = {
+    body?: never;
+    path: {
+        blockedUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/block/{blockedUserId}";
+};
+
+export type UnblockUserErrors = {
+    401: ApiProblemDetails;
+    404: ProblemDetails;
+};
+
+export type UnblockUserError = UnblockUserErrors[keyof UnblockUserErrors];
+
+export type UnblockUserResponses = {
+    204: void;
+};
+
+export type UnblockUserResponse =
+    UnblockUserResponses[keyof UnblockUserResponses];
+
 export type BlockUserData = {
     body?: never;
     path: {
@@ -577,29 +600,6 @@ export type BlockUserResponses = {
 };
 
 export type BlockUserResponse = BlockUserResponses[keyof BlockUserResponses];
-
-export type UnblockUserData = {
-    body?: never;
-    path: {
-        blockedUserId: string;
-    };
-    query?: never;
-    url: "/api/Social/block/{blockedUserid}";
-};
-
-export type UnblockUserErrors = {
-    401: ApiProblemDetails;
-    404: ProblemDetails;
-};
-
-export type UnblockUserError = UnblockUserErrors[keyof UnblockUserErrors];
-
-export type UnblockUserResponses = {
-    204: void;
-};
-
-export type UnblockUserResponse =
-    UnblockUserResponses[keyof UnblockUserResponses];
 
 export type GetSessionUserData = {
     body?: never;
