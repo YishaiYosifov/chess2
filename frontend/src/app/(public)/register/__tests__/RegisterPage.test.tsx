@@ -37,8 +37,8 @@ describe("AuthPage", () => {
     it("should redirect when logged in", async () => {
         mockNextCookies(constants.COOKIES.IS_LOGGED_IN);
 
-        render(await RegisterPage());
+        const act = async () => render(await RegisterPage());
 
-        expect(redirectMock).toHaveBeenCalledExactlyOnceWith("/");
+        await expect(act).rejects.toThrow("redirect /");
     });
 });
