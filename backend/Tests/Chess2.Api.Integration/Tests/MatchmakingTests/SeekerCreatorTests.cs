@@ -16,7 +16,7 @@ namespace Chess2.Api.Integration.Tests.MatchmakingTests;
 
 public class SeekerCreatorTests : BaseIntegrationTest
 {
-    private readonly TimeProvider _timeProvicerMock = Substitute.For<TimeProvider>();
+    private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
     private readonly DateTime _fakeNow = DateTime.UtcNow;
     private readonly SeekerCreator _seekerCreator;
@@ -31,7 +31,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         var timeControlTranslator =
             Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
-        _timeProvicerMock.GetUtcNow().Returns(_fakeNow);
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
         _lobbySettings = settings.Value.Lobby;
         _gameSettings = settings.Value.Game;
@@ -40,7 +40,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
             timeControlTranslator,
             settings,
             blockService,
-            _timeProvicerMock
+            _timeProviderMock
         );
     }
 
