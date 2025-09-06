@@ -24,6 +24,18 @@ import type {
     AddStarData,
     AddStarResponses,
     AddStarErrors,
+    GetBlockedUsersData,
+    GetBlockedUsersResponses,
+    GetBlockedUsersErrors,
+    GetHasBlockedData,
+    GetHasBlockedResponses,
+    GetHasBlockedErrors,
+    BlockUserData,
+    BlockUserResponses,
+    BlockUserErrors,
+    UnblockUserData,
+    UnblockUserResponses,
+    UnblockUserErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -165,6 +177,58 @@ export const addStar = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Social/star/{starredUserId}",
+        ...options,
+    });
+};
+
+export const getBlockedUsers = <ThrowOnError extends boolean = false>(
+    options?: Options<GetBlockedUsersData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetBlockedUsersResponses,
+        GetBlockedUsersErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/blocked",
+        ...options,
+    });
+};
+
+export const getHasBlocked = <ThrowOnError extends boolean = false>(
+    options: Options<GetHasBlockedData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetHasBlockedResponses,
+        GetHasBlockedErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/block/{blockedUserId}/exists",
+        ...options,
+    });
+};
+
+export const blockUser = <ThrowOnError extends boolean = false>(
+    options: Options<BlockUserData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).post<
+        BlockUserResponses,
+        BlockUserErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/block/{blockedUserId}",
+        ...options,
+    });
+};
+
+export const unblockUser = <ThrowOnError extends boolean = false>(
+    options: Options<UnblockUserData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).delete<
+        UnblockUserResponses,
+        UnblockUserErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/block/{blockedUserid}",
         ...options,
     });
 };
