@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -49,8 +51,6 @@ using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -372,6 +372,7 @@ builder.Services.AddSingleton<IValidator<UsernameEditRequest>, UsernameEditValid
 #region Social
 builder.Services.AddScoped<IStarRepository, StarRepository>();
 builder.Services.AddScoped<IStarService, StarService>();
+builder.Services.AddScoped<IBlockRepository, BlockRepository>();
 #endregion
 
 #region Preferences
