@@ -55,6 +55,7 @@ const HEADERS = {
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
     STARS: 5,
+    BLOCKED: 5,
 };
 
 interface TimeControlLabel {
