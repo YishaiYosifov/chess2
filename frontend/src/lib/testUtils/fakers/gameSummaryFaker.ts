@@ -1,7 +1,13 @@
 import { faker } from "@faker-js/faker";
 
-import { GameResult, GameSummary } from "@/lib/apiClient";
+import {
+    GameResult,
+    GameSummary,
+    PagedResultOfGameSummaryDto,
+} from "@/lib/apiClient";
+import { createFakePagedResult, FakePagedResultArgs } from "./pagedResultFaker";
 import { createFakePlayerSummary } from "./playerSummaryFaker";
+import constants from "@/lib/constants";
 
 export function createFakeGameSummary(
     override?: Partial<GameSummary>,
@@ -14,4 +20,20 @@ export function createFakeGameSummary(
         createdAt: Date.now().toLocaleString(),
         ...override,
     };
+}
+
+export function createFakePagedGameSummary({
+    pagination,
+    overrides,
+}: {
+    pagination?: Partial<FakePagedResultArgs>;
+    overrides?: Partial<GameSummary>;
+} = {}): PagedResultOfGameSummaryDto {
+    return createFakePagedResult({
+        pageSize:
+            pagination?.pageSize ?? constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+        totalCount: pagination?.totalCount ?? 20,
+        page: pagination?.page ?? 0,
+        createFakeItem: () => createFakeGameSummary(overrides),
+    });
 }
