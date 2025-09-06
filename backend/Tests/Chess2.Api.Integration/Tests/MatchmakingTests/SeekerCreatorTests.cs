@@ -3,6 +3,7 @@ using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Services;
@@ -26,6 +27,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         : base(factory)
     {
         var ratingService = Scope.ServiceProvider.GetRequiredService<IRatingService>();
+        var blockService = Scope.ServiceProvider.GetRequiredService<IBlockService>();
         var timeControlTranslator =
             Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
@@ -37,6 +39,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
             ratingService,
             timeControlTranslator,
             settings,
+            blockService,
             _timeProvicerMock
         );
     }
@@ -46,12 +49,13 @@ public class SeekerCreatorTests : BaseIntegrationTest
     {
         var user = new AuthedUserFaker().Generate();
         var rating = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
+        var blockedUsers = new BlockedUserFaker(user.Id).Generate(3);
+        await DbContext.AddRangeAsync(blockedUsers, CT);
         await DbContext.AddRangeAsync(user, rating);
         await DbContext.SaveChangesAsync(CT);
 
         var timeControl = new TimeControlSettings { BaseSeconds = 300 };
-
-        var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl);
+        var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl, CT);
 
         SeekerRating expectedRating = new(
             Value: rating.Value,
@@ -61,10 +65,11 @@ public class SeekerCreatorTests : BaseIntegrationTest
         RatedSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName!,
-            BlockedUserIds: [],
+            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             Rating: expectedRating,
             CreatedAt: _fakeNow
         );
+
         seeker.Should().BeEquivalentTo(expectedSeeker);
     }
 
@@ -72,17 +77,19 @@ public class SeekerCreatorTests : BaseIntegrationTest
     public async Task CreateAuthedCasualSeeker_returns_expected_seeker()
     {
         var user = new AuthedUserFaker().Generate();
+        var blockedUsers = new BlockedUserFaker(user.Id).Generate(3);
+        await DbContext.AddRangeAsync(blockedUsers, CT);
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var expectedSeeker = new CasualSeeker(
+        CasualSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: [],
+            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             CreatedAt: _fakeNow
         );
 
-        var seeker = _seekerCreator.CreateAuthedCasualSeeker(user);
+        var seeker = await _seekerCreator.CreateAuthedCasualSeekerAsync(user, CT);
 
         seeker.Should().BeEquivalentTo(expectedSeeker);
     }
@@ -92,7 +99,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
     {
         var userId = Guid.NewGuid().ToString();
 
-        var expectedSeeker = new CasualSeeker(
+        CasualSeeker expectedSeeker = new(
             UserId: userId,
             UserName: "Guest",
             BlockedUserIds: [],
@@ -113,10 +120,12 @@ public class SeekerCreatorTests : BaseIntegrationTest
             user,
             timeControl: TimeControl.Classical
         ).Generate();
+        var blockedUsers = new BlockedUserFaker(user.Id).Generate(3);
         await DbContext.AddRangeAsync(user, blitzRating, classicalRating);
+        await DbContext.AddRangeAsync(blockedUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var seeker = await _seekerCreator.CreateRatedOpenSeekerAsync(user);
+        var seeker = await _seekerCreator.CreateRatedOpenSeekerAsync(user, CT);
 
         Dictionary<TimeControl, int> expectedRatings = new()
         {
@@ -126,10 +135,10 @@ public class SeekerCreatorTests : BaseIntegrationTest
             [TimeControl.Classical] = classicalRating.Value,
         };
 
-        var expectedSeeker = new Matchmaking.Models.OpenRatedSeeker(
+        OpenRatedSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: [],
+            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             Ratings: expectedRatings,
             CreatedAt: _fakeNow
         );
