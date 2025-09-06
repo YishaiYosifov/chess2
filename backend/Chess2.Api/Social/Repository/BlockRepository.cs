@@ -10,6 +10,10 @@ namespace Chess2.Api.Social.Repository;
 public interface IBlockRepository
 {
     Task AddBlockedUserAsync(BlockedUser blockedUser, CancellationToken token = default);
+    Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+        string userId,
+        CancellationToken token = default
+    );
     Task<int> GetBlockedCountAsync(string userId, CancellationToken token = default);
     Task<BlockedUser?> GetBlockedUserAsync(
         string blockedByUserId,
@@ -38,6 +42,16 @@ public class BlockRepository(ApplicationDbContext dbContext) : IBlockRepository
             .Select(x => x.Blocked)
             .Paginate(query)
             .ToListAsync(token);
+
+    public Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+        string userId,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .BlockedUsers.IgnoreAutoIncludes()
+            .Where(x => x.UserId == userId)
+            .Select(x => x.BlockedUserId)
+            .ToHashSetAsync(token);
 
     public Task<int> GetBlockedCountAsync(string userId, CancellationToken token = default) =>
         _dbContext.BlockedUsers.Where(x => x.UserId == userId).CountAsync(token);
