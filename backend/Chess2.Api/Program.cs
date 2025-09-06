@@ -373,6 +373,7 @@ builder.Services.AddSingleton<IValidator<UsernameEditRequest>, UsernameEditValid
 builder.Services.AddScoped<IStarRepository, StarRepository>();
 builder.Services.AddScoped<IStarService, StarService>();
 builder.Services.AddScoped<IBlockRepository, BlockRepository>();
+builder.Services.AddScoped<IBlockService, BlockService>();
 #endregion
 
 #region Preferences

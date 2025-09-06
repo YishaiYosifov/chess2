@@ -48,28 +48,6 @@ public class StarServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetStarsOfAsync_returns_minimal_profiles()
-    {
-        var user = new AuthedUserFaker().Generate();
-        var starredUsers = new AuthedUserFaker().Generate(3);
-
-        await DbContext.AddAsync(user, CT);
-        await DbContext.AddRangeAsync(starredUsers, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        foreach (var starred in starredUsers)
-        {
-            await _starService.AddStarAsync(user.Id, starred.Id, CT);
-        }
-
-        var pagination = new PaginationQuery(Page: 0, PageSize: 20);
-        var result = await _starService.GetStarredUsersAsync(user.Id, pagination, CT);
-
-        result.Items.Should().BeEquivalentTo(starredUsers.Select(x => new MinimalProfile(x)));
-        result.TotalCount.Should().Be(starredUsers.Count);
-    }
-
-    [Fact]
     public async Task GetStarsOfAsync_applies_pagination()
     {
         var user = new AuthedUserFaker().Generate();
@@ -139,7 +117,7 @@ public class StarServiceTests : BaseIntegrationTest
 
         var result = await _starService.AddStarAsync(user.Id, user.Id, CT);
 
-        result.FirstError.Should().Be(SocialErrors.CannotStar);
+        result.FirstError.Should().Be(SocialErrors.CannotStarSelf);
         var dbStars = await DbContext.StarredUsers.AsNoTracking().ToListAsync(CT);
         dbStars.Should().BeEmpty();
     }

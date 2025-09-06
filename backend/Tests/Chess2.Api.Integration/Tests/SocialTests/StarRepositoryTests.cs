@@ -48,9 +48,9 @@ public class StarRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherStarred);
         await DbContext.SaveChangesAsync(CT);
 
-        var count = await _repository.GetStarsGivenCount(userId, CT);
+        var result = await _repository.GetStarsGivenCount(userId, CT);
 
-        count.Should().Be(starredUsers.Count);
+        result.Should().Be(starredUsers.Count);
     }
 
     [Fact]
@@ -64,9 +64,9 @@ public class StarRepositoryTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(otherStars, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var count = await _repository.GetStarsReceivedCountAsync(starredUser.Id, CT);
+        var result = await _repository.GetStarsReceivedCountAsync(starredUser.Id, CT);
 
-        count.Should().Be(3);
+        result.Should().Be(3);
     }
 
     [Fact]
