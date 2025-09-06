@@ -7,6 +7,7 @@ import "../globals.css";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
 import Navbar from "@/components/layout/navbar/Navbar";
+import clsx from "clsx";
 
 const secularOne = Secular_One({
     weight: ["400"],
@@ -22,9 +23,14 @@ export const metadata: Metadata = {
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
         <html lang="en" data-bs-theme="dark">
-            <body className={`${secularOne.className} bg-background text-text`}>
+            <body
+                className={clsx(
+                    "bg-background text-text",
+                    secularOne.className,
+                )}
+            >
                 <SessionProvider user={null}>
-                    <div className="flex min-h-screen max-w-screen flex-col md:flex-row">
+                    <div className="flex min-h-screen max-w-screen min-w-[300px] flex-col md:flex-row">
                         <Navbar />
                         <main className="flex flex-1 overflow-auto">
                             {children}
