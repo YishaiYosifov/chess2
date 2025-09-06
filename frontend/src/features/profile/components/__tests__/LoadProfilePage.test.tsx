@@ -18,8 +18,8 @@ import {
 import LoadProfilePage from "../LoadProfilePage";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import constants from "@/lib/constants";
-import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/pagedGameSummaryFaker";
 import { createFakeRatingOverview } from "@/lib/testUtils/fakers/ratingOverviewFaker";
+import { createFakePagedGameSummary } from "@/lib/testUtils/fakers/gameSummaryFaker";
 
 vi.mock("@/lib/apiClient/definition");
 
