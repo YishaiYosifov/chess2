@@ -346,8 +346,12 @@ export enum ErrorCode {
     PROFILE_NOT_FOUND = "Profile.NotFound",
     PROFILE_COOLDOWN_SETTING = "Profile.Cooldown.Setting",
     PROFILE_INVALID_PROFILE_PICTURE = "Profile.InvalidProfilePicture",
+    SOCIAL_CANNOT_STAR_SELF = "Social.CannotStarSelf",
     SOCIAL_ALREADY_STARRED = "Social.AlreadyStarred",
     SOCIAL_NOT_STARRED = "Social.NotStarred",
+    SOCIAL_CANNOT_BLOCK_SELF = "Social.CannotBlockSelf",
+    SOCIAL_ALREADY_BLOCKED = "Social.AlreadyBlocked",
+    SOCIAL_NOT_BLOCKED = "Social.NotBlocked",
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
@@ -503,6 +507,99 @@ export type AddStarResponses = {
 };
 
 export type AddStarResponse = AddStarResponses[keyof AddStarResponses];
+
+export type GetBlockedUsersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        Page?: number;
+        PageSize?: number;
+    };
+    url: "/api/Social/blocked";
+};
+
+export type GetBlockedUsersErrors = {
+    400: ApiProblemDetails;
+    401: ApiProblemDetails;
+};
+
+export type GetBlockedUsersError =
+    GetBlockedUsersErrors[keyof GetBlockedUsersErrors];
+
+export type GetBlockedUsersResponses = {
+    200: PagedResultOfMinimalProfile;
+};
+
+export type GetBlockedUsersResponse =
+    GetBlockedUsersResponses[keyof GetBlockedUsersResponses];
+
+export type GetHasBlockedData = {
+    body?: never;
+    path: {
+        blockedUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/block/{blockedUserId}/exists";
+};
+
+export type GetHasBlockedErrors = {
+    401: ApiProblemDetails;
+};
+
+export type GetHasBlockedError = GetHasBlockedErrors[keyof GetHasBlockedErrors];
+
+export type GetHasBlockedResponses = {
+    200: boolean;
+};
+
+export type GetHasBlockedResponse =
+    GetHasBlockedResponses[keyof GetHasBlockedResponses];
+
+export type BlockUserData = {
+    body?: never;
+    path: {
+        blockedUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/block/{blockedUserId}";
+};
+
+export type BlockUserErrors = {
+    401: ApiProblemDetails;
+    404: ApiProblemDetails;
+    409: ApiProblemDetails;
+};
+
+export type BlockUserError = BlockUserErrors[keyof BlockUserErrors];
+
+export type BlockUserResponses = {
+    204: void;
+};
+
+export type BlockUserResponse = BlockUserResponses[keyof BlockUserResponses];
+
+export type UnblockUserData = {
+    body?: never;
+    path: {
+        blockedUserId: string;
+    };
+    query?: never;
+    url: "/api/Social/block/{blockedUserid}";
+};
+
+export type UnblockUserErrors = {
+    401: ApiProblemDetails;
+    404: ProblemDetails;
+};
+
+export type UnblockUserError = UnblockUserErrors[keyof UnblockUserErrors];
+
+export type UnblockUserResponses = {
+    204: void;
+};
+
+export type UnblockUserResponse =
+    UnblockUserResponses[keyof UnblockUserResponses];
 
 export type GetSessionUserData = {
     body?: never;
