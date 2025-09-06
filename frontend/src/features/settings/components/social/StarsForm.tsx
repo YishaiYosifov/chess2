@@ -17,6 +17,7 @@ import {
 import clsx from "clsx";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
+import Link from "next/link";
 
 const StarsForm = ({
     initialStars,
@@ -65,9 +66,11 @@ const StarsForm = ({
     }
 
     return (
-        <Card className="gap-3">
-            <h1 className="text-3xl">Stars</h1>
-            <p className="text-text/70">
+        <Card className="gap-3" data-testid="starsFormRoot">
+            <h1 className="text-3xl" data-testid="starsFormHeading">
+                Stars
+            </h1>
+            <p className="text-text/70" data-testid="starsFormCount">
                 You starred {stars.totalCount} players
             </p>
 
@@ -121,28 +124,45 @@ const StarProfile = ({
     return (
         <div
             key={profile.userId}
+            data-testid={`starsFormStarProfile${profile.userId}`}
             className={clsx(
                 "flex w-full items-center justify-between gap-3 rounded-md p-3",
                 index % 2 == 0 ? "bg-white/5" : "bg-white/15",
             )}
         >
-            <div className="flex items-center gap-3">
-                <ProfilePicture
-                    userId={profile.userId}
-                    width={80}
-                    height={80}
-                />
-                <p className="text-lg">{profile.userName}</p>
-            </div>
+            <Link
+                href={`/profile/${profile.userName}`}
+                data-testid={`starsFormProfileLink${profile.userId}`}
+            >
+                <div className="flex items-center gap-3">
+                    <ProfilePicture
+                        userId={profile.userId}
+                        width={80}
+                        height={80}
+                    />
+                    <p className="text-lg">{profile.userName}</p>
+                </div>
+            </Link>
 
-            <Button className="flex items-center gap-1" onClick={toggleStar}>
+            <Button
+                className="flex items-center gap-1"
+                onClick={toggleStar}
+                data-testid={`starsFormToggleStarButton${profile.userId}`}
+            >
                 {hasStarred ? (
-                    <StarIconSolid className="h-8 w-8 text-amber-300" />
+                    <StarIconSolid
+                        className="h-8 w-8 text-amber-300"
+                        data-testid="starsFormStarIconSolid"
+                    />
                 ) : (
-                    <StarIconOutline className="h-8 w-8 text-amber-300" />
+                    <StarIconOutline
+                        className="h-8 w-8 text-amber-300"
+                        data-testid="starsFormStarIconOutline"
+                    />
                 )}
-
-                {hasStarred ? "Starred" : "Star"}
+                <span data-testid="starsFormStarButtonLabel">
+                    {hasStarred ? "Starred" : "Star"}
+                </span>
             </Button>
         </div>
     );
