@@ -30,12 +30,12 @@ import type {
     GetHasBlockedData,
     GetHasBlockedResponses,
     GetHasBlockedErrors,
-    BlockUserData,
-    BlockUserResponses,
-    BlockUserErrors,
     UnblockUserData,
     UnblockUserResponses,
     UnblockUserErrors,
+    BlockUserData,
+    BlockUserResponses,
+    BlockUserErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -207,6 +207,19 @@ export const getHasBlocked = <ThrowOnError extends boolean = false>(
     });
 };
 
+export const unblockUser = <ThrowOnError extends boolean = false>(
+    options: Options<UnblockUserData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).delete<
+        UnblockUserResponses,
+        UnblockUserErrors,
+        ThrowOnError
+    >({
+        url: "/api/Social/block/{blockedUserId}",
+        ...options,
+    });
+};
+
 export const blockUser = <ThrowOnError extends boolean = false>(
     options: Options<BlockUserData, ThrowOnError>,
 ) => {
@@ -216,19 +229,6 @@ export const blockUser = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Social/block/{blockedUserId}",
-        ...options,
-    });
-};
-
-export const unblockUser = <ThrowOnError extends boolean = false>(
-    options: Options<UnblockUserData, ThrowOnError>,
-) => {
-    return (options.client ?? _heyApiClient).delete<
-        UnblockUserResponses,
-        UnblockUserErrors,
-        ThrowOnError
-    >({
-        url: "/api/Social/block/{blockedUserid}",
         ...options,
     });
 };

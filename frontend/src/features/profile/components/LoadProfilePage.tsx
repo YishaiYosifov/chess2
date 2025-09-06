@@ -2,6 +2,7 @@ import RatingCard from "@/features/profile/components/RatingsCard";
 import Profile from "@/features/profile/components/Profile";
 import {
     getGameResults,
+    getHasBlocked,
     getHasStarred,
     getRatingArchives,
     getStarsReceivedCount,
@@ -46,39 +47,51 @@ const LoadProfilePage = async ({
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const [ratings, games, starsCount, hasStarred] = await Promise.all([
-        dataOrThrow(
-            getRatingArchives({
-                path: { userId: profile.userId },
-                query: { since: lastMonth.toLocaleString() },
-            }),
-        ),
-        dataOrThrow(
-            getGameResults({
-                path: { userId: profile.userId },
-                query: {
-                    Page: 0,
-                    PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
-                },
-            }),
-        ),
-        dataOrThrow(
-            getStarsReceivedCount({
-                path: { starredUserId: profile.userId },
-            }),
-        ),
-        (async (): Promise<boolean> => {
-            if (!accessToken || profile.userId === loggedInUser?.userId)
-                return false;
-
-            return dataOrThrow(
-                getHasStarred({
-                    path: { starredUserId: profile.userId },
-                    auth: () => accessToken,
+    const [ratings, games, starsCount, hasStarred, hasBlocked] =
+        await Promise.all([
+            dataOrThrow(
+                getRatingArchives({
+                    path: { userId: profile.userId },
+                    query: { since: lastMonth.toLocaleString() },
                 }),
-            );
-        })(),
-    ]);
+            ),
+            dataOrThrow(
+                getGameResults({
+                    path: { userId: profile.userId },
+                    query: {
+                        Page: 0,
+                        PageSize: constants.PAGINATION_PAGE_SIZE.GAME_SUMMARY,
+                    },
+                }),
+            ),
+            dataOrThrow(
+                getStarsReceivedCount({
+                    path: { starredUserId: profile.userId },
+                }),
+            ),
+            (async (): Promise<boolean> => {
+                if (!accessToken || profile.userId === loggedInUser?.userId)
+                    return false;
+
+                return dataOrThrow(
+                    getHasStarred({
+                        path: { starredUserId: profile.userId },
+                        auth: () => accessToken,
+                    }),
+                );
+            })(),
+            (async (): Promise<boolean> => {
+                if (!accessToken || profile.userId === loggedInUser?.userId)
+                    return false;
+
+                return dataOrThrow(
+                    getHasBlocked({
+                        path: { blockedUserId: profile.userId },
+                        auth: () => accessToken,
+                    }),
+                );
+            })(),
+        ]);
 
     const ratingCards = constants.DISPLAY_TIME_CONTROLS.map((timeControl) => {
         const overview = ratings.find((x) => x.timeControl === timeControl);
@@ -95,6 +108,7 @@ const LoadProfilePage = async ({
                 profile={profile}
                 initialStarCount={starsCount}
                 initialHasStarred={hasStarred}
+                initialHasBlocked={hasBlocked}
             />
 
             <section className="flex flex-shrink-0 gap-5 overflow-x-auto">
