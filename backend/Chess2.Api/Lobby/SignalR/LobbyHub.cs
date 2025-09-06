@@ -55,10 +55,9 @@ public class LobbyHub(
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
     {
-        var seekerResult = await _authService.MatchAuthTypeAsync(
+        var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
             Context.User,
-            whenAuthed: user =>
-                Task.FromResult<Seeker>(_seekerCreator.CreateAuthedCasualSeeker(user)),
+            whenAuthed: async user => await _seekerCreator.CreateAuthedCasualSeekerAsync(user),
             whenGuest: userId =>
                 Task.FromResult<Seeker>(_seekerCreator.CreateGuestCasualSeeker(userId))
         );
