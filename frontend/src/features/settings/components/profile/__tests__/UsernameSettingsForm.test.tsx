@@ -6,7 +6,7 @@ import {
     createSessionStore,
     SessionStore,
 } from "@/features/auth/stores/sessionStore";
-import { editUsername, PrivateUser } from "@/lib/apiClient";
+import { editUsername, ErrorCode, PrivateUser } from "@/lib/apiClient";
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import UsernameSettingsForm from "../UsernameSettingsForm";
 import userEvent from "@testing-library/user-event";
@@ -81,33 +81,51 @@ describe("UsernameSettingsForm", () => {
         );
     });
 
-    it("should display status message on API failure", async () => {
-        const user = userEvent.setup();
-        editUsernameMock.mockResolvedValueOnce({
-            data: undefined,
-            error: { extensions: {}, errors: [] },
-            response: new Response(),
-        });
+    it.each([
+        { errors: [], expectedDescription: "Failed to edit username" },
+        {
+            errors: [
+                {
+                    errorCode: ErrorCode.PROFILE_USER_NAME_TAKEN,
+                    description: "Username Taken",
+                    metadata: {},
+                },
+            ],
+            expectedDescription: "Username Taken",
+        },
+    ])(
+        "should display status message on API failure",
+        async ({ errors, expectedDescription }) => {
+            const user = userEvent.setup();
+            editUsernameMock.mockResolvedValueOnce({
+                data: undefined,
+                error: {
+                    extensions: {},
+                    errors,
+                },
+                response: new Response(),
+            });
 
-        render(
-            <SessionContext.Provider value={store}>
-                <UsernameSettingsForm />
-            </SessionContext.Provider>,
-        );
+            render(
+                <SessionContext.Provider value={store}>
+                    <UsernameSettingsForm />
+                </SessionContext.Provider>,
+            );
 
-        const input = screen.getByTestId<HTMLInputElement>(
-            "usernameSettingField",
-        );
-        const submitButton = screen.getByTestId("submitFormButton");
+            const input = screen.getByTestId<HTMLInputElement>(
+                "usernameSettingField",
+            );
+            const submitButton = screen.getByTestId("submitFormButton");
 
-        await user.clear(input);
-        await user.type(input, "newUsername");
-        await user.click(submitButton);
+            await user.clear(input);
+            await user.type(input, "newUsername");
+            await user.click(submitButton);
 
-        const status = await screen.findByText("Failed to edit username");
-        expect(status).toBeInTheDocument();
-        expect((store.getState().user as PrivateUser).userName).toBe(
-            userMock.userName,
-        );
-    });
+            const status = await screen.findByTestId("fieldError-userName");
+            expect(status).toHaveTextContent(expectedDescription);
+            expect((store.getState().user as PrivateUser).userName).toBe(
+                userMock.userName,
+            );
+        },
+    );
 });
