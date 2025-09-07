@@ -7,6 +7,7 @@ using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
 using Chess2.Api.Profile.Services;
 using ErrorOr;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,8 @@ namespace Chess2.Api.Profile.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class ProfileController(
+    IValidator<ProfileEditRequest> profileEditValidator,
+    IValidator<UsernameEditRequest> usernameEditValidator,
     IProfileSettings profileSettings,
     IAuthService authService,
     IGuestService guestService,
@@ -23,6 +26,8 @@ public class ProfileController(
     IProfilePictureProvider profilePictureProvider
 ) : ControllerBase
 {
+    private readonly IValidator<ProfileEditRequest> _profileEditValidator = profileEditValidator;
+    private readonly IValidator<UsernameEditRequest> _usernameEditValidator = usernameEditValidator;
     private readonly IProfileSettings _profileSettings = profileSettings;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
@@ -69,6 +74,10 @@ public class ProfileController(
     [Authorize]
     public async Task<ActionResult> EditProfileSettings(ProfileEditRequest profileEditRequest)
     {
+        var validationResult = _profileEditValidator.Validate(profileEditRequest);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
@@ -82,11 +91,18 @@ public class ProfileController(
     [Authorize]
     public async Task<ActionResult> EditUsername(UsernameEditRequest usernameEditRequest)
     {
+        var validationResult = _usernameEditValidator.Validate(usernameEditRequest);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
         var user = await _userManager.GetUserAsync(HttpContext.User);
         if (user is null)
             return Error.Unauthorized().ToActionResult();
 
-        var editResult = await _profileSettings.EditUsernameAsync(user, usernameEditRequest);
+        var editResult = await _profileSettings.EditUsernameAsync(
+            user,
+            usernameEditRequest.Username
+        );
         return editResult.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
