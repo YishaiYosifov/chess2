@@ -29,7 +29,7 @@ const FormField = ({
             {cloneElement(children, { id, ...field })}
 
             {meta.error && (
-                <span className="text-error" data-testid="fieldError">
+                <span className="text-error" data-testid={`fieldError-${name}`}>
                     {meta.error}
                 </span>
             )}
