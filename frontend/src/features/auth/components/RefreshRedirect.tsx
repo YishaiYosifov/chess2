@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import constants from "@/lib/constants";
 import { logout, refresh } from "@/lib/apiClient";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import constants from "@/lib/constants";
 
 /**
  * This component is reposible for refreshing the user's access token
@@ -31,13 +30,6 @@ const RefreshRedirect = ({ redirectTo }: { redirectTo: string }) => {
         handleRefresh();
     }, [redirectTo, router]);
 
-    return (
-        <div className="flex h-screen justify-center text-white">
-            <ArrowPathIcon
-                className="w-32 animate-spin"
-                data-testid="seekingSpinner"
-            />
-        </div>
-    );
+    return null;
 };
 export default RefreshRedirect;

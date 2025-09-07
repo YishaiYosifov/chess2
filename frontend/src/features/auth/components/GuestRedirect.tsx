@@ -3,9 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import constants from "@/lib/constants";
 import { createGuestUser } from "@/lib/apiClient";
-import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import constants from "@/lib/constants";
 
 /**
  * Create a guest user and redirect
@@ -26,13 +25,6 @@ const GuestRedirect = ({ redirectTo }: { redirectTo: string }) => {
         handleCreateGuest();
     }, [redirectTo, router]);
 
-    return (
-        <div className="flex h-screen justify-center text-white">
-            <ArrowPathIcon
-                className="w-32 animate-spin"
-                data-testid="seekingSpinner"
-            />
-        </div>
-    );
+    return null;
 };
 export default GuestRedirect;
