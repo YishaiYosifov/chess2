@@ -11,6 +11,9 @@ public static class ProfileErrors
     public static Error SettingOnCooldown =>
         Error.Forbidden(ErrorCodes.ProfileSettingOnCooldown, "Cannot edit a setting, on cooldown");
 
+    public static Error UserNameTaken =>
+        Error.Conflict(ErrorCodes.ProfileUserNameTaken, "User name is already taken");
+
     public static Error InvalidProfilePicture =>
         Error.Validation(
             ErrorCodes.ProfileInvalidProfilePicture,
