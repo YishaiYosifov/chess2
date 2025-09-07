@@ -107,7 +107,7 @@ const ChessboardLayout = ({
             ref={ref}
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
-            // onContextMenu={(e) => e.preventDefault()}
+            onContextMenu={(e) => e.preventDefault()}
         >
             <OverlayRenderer />
             <PieceRenderer />
