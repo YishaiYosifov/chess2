@@ -1,7 +1,7 @@
 ﻿using System.Net;
+using Chess2.Api.Profile.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Profile.DTOs;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -53,5 +53,23 @@ public class EditProfileTests(Chess2WebApplicationFactory factory) : BaseFunctio
         response.IsSuccessful.Should().BeTrue();
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
         dbUser.UserName.Should().Be(newUsername);
+    }
+
+    [Fact]
+    public async Task EditUsername_rejects_invalid_username()
+    {
+        var user = new AuthedUserFaker()
+            .RuleFor(x => x.UsernameLastChanged, (DateTime?)null)
+            .Generate();
+
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+
+        var response = await ApiClient.Api.EditUsernameAsync(new("inv@l$d username"));
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(CT);
+        dbUser.Should().BeEquivalentTo(user);
     }
 }

@@ -49,7 +49,10 @@ public class ProfileSettings(
         if (now - user.UsernameLastChanged < _settings.UsernameEditCooldown)
             return ProfileErrors.SettingOnCooldown;
 
-        var updateResult = await _userManager.SetUserNameAsync(user, usernameEdit.Username);
+        if (await _userManager.FindByNameAsync(newUserName) is not null)
+            return ProfileErrors.UserNameTaken;
+
+        var updateResult = await _userManager.SetUserNameAsync(user, newUserName);
         if (!updateResult.Succeeded)
         {
             _logger.LogWarning("Failed to edit user {UserId}", user.Id);
