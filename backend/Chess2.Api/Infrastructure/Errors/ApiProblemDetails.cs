@@ -24,6 +24,7 @@ public static class ErrorCodes
 {
     public const string ProfileNotFound = "Profile.NotFound";
     public const string ProfileSettingOnCooldown = "Profile.Cooldown.Setting";
+    public const string ProfileUserNameTaken = "Profile.UserNameTaken";
     public const string ProfileInvalidProfilePicture = "Profile.InvalidProfilePicture";
 
     public const string SocialCannotStarSelf = "Social.CannotStarSelf";
