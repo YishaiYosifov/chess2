@@ -4,7 +4,6 @@ using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
 using Chess2.Api.Shared.Models;
 using ErrorOr;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -13,20 +12,16 @@ namespace Chess2.Api.Profile.Services;
 public interface IProfileSettings
 {
     Task<ErrorOr<Updated>> EditProfileAsync(AuthedUser user, ProfileEditRequest profileEdit);
-    Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, UsernameEditRequest usernameEdit);
+    Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string newUserName);
 }
 
 public class ProfileSettings(
-    IValidator<ProfileEditRequest> profileEditValidator,
-    IValidator<UsernameEditRequest> usernameEditValidator,
     UserManager<AuthedUser> userManager,
     IOptions<AppSettings> settings,
     ILogger<ProfileSettings> logger,
     TimeProvider timeProvider
 ) : IProfileSettings
 {
-    private readonly IValidator<ProfileEditRequest> _profileEditValidator = profileEditValidator;
-    private readonly IValidator<UsernameEditRequest> _usernameEditValidator = usernameEditValidator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly AppSettings _settings = settings.Value;
     private readonly ILogger<ProfileSettings> _logger = logger;
@@ -37,10 +32,6 @@ public class ProfileSettings(
         ProfileEditRequest profileEdit
     )
     {
-        var validationResult = _profileEditValidator.Validate(profileEdit);
-        if (!validationResult.IsValid)
-            return validationResult.Errors.ToErrorList();
-
         profileEdit.ApplyTo(user);
         var updateResult = await _userManager.UpdateAsync(user);
         if (!updateResult.Succeeded)
@@ -52,15 +43,8 @@ public class ProfileSettings(
         return Result.Updated;
     }
 
-    public async Task<ErrorOr<Updated>> EditUsernameAsync(
-        AuthedUser user,
-        UsernameEditRequest usernameEdit
-    )
+    public async Task<ErrorOr<Updated>> EditUsernameAsync(AuthedUser user, string newUserName)
     {
-        var validationResult = _usernameEditValidator.Validate(usernameEdit);
-        if (!validationResult.IsValid)
-            return validationResult.Errors.ToErrorList();
-
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         if (now - user.UsernameLastChanged < _settings.UsernameEditCooldown)
             return ProfileErrors.SettingOnCooldown;
