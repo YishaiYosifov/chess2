@@ -46,6 +46,7 @@ const StarsForm = ({
             path: { starredUserId: userId },
         });
         if (error) return console.error(error);
+        setStars((prev) => ({ ...prev, totalCount: prev.totalCount + 1 }));
     }
 
     async function unstar(userId: string): Promise<void> {
@@ -53,10 +54,11 @@ const StarsForm = ({
             path: { starredUserId: userId },
         });
         if (error) return console.error(error);
+        setStars((prev) => ({ ...prev, totalCount: prev.totalCount - 1 }));
     }
 
     return (
-        <Card className="gap-3" data-testid="starsForm">
+        <Card className="gap-3">
             <h1 className="text-3xl" data-testid="starsFormHeading">
                 Stars
             </h1>
