@@ -40,31 +40,30 @@ export const RelationProfileRow = ({
     return (
         <div
             className={clsx(
-                "flex w-full items-center justify-between gap-3 rounded-md p-3",
+                "flex w-full flex-wrap items-center gap-3 rounded-md p-3",
                 index % 2 === 0 ? "bg-white/5" : "bg-white/15",
             )}
         >
             <Link
                 href={`/profile/${profile.userName}`}
+                className="flex items-center gap-3"
                 data-testid="relationProfileRowLink"
             >
-                <div className="flex items-center gap-3">
-                    <ProfilePicture
-                        userId={profile.userId}
-                        width={80}
-                        height={80}
-                    />
-                    <p
-                        className="text-lg"
-                        data-testid="relationProfileRowUsername"
-                    >
-                        {profile.userName}
-                    </p>
-                </div>
+                <ProfilePicture
+                    userId={profile.userId}
+                    width={80}
+                    height={80}
+                />
+                <p
+                    className="truncate text-lg"
+                    data-testid="relationProfileRowUsername"
+                >
+                    {profile.userName}
+                </p>
             </Link>
 
             <Button
-                className="flex items-center gap-1"
+                className="ml-auto flex items-center gap-1"
                 onClick={handleToggle}
                 data-testid="relationProfileRowToggle"
             >
