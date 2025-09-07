@@ -6,7 +6,6 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +33,6 @@ public class ProfileSettingsTests : BaseIntegrationTest
         _timeProviderMock.GetUtcNow().Returns(new DateTimeOffset(_fakeNow));
 
         _profileSettings = new(
-            Scope.ServiceProvider.GetRequiredService<IValidator<ProfileEditRequest>>(),
-            Scope.ServiceProvider.GetRequiredService<IValidator<UsernameEditRequest>>(),
             Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>(),
             settings,
             Scope.ServiceProvider.GetRequiredService<ILogger<ProfileSettings>>(),
@@ -44,7 +41,7 @@ public class ProfileSettingsTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task EditProfileAsync_modifies_user_with_valid_data()
+    public async Task EditProfileAsync_modifies_user()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
@@ -63,22 +60,6 @@ public class ProfileSettingsTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task EditProfileAsync_rejects_invalid_data()
-    {
-        var user = new AuthedUserFaker().Generate();
-        await DbContext.AddAsync(user, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        ProfileEditRequest profileEdit = new(About: "", CountryCode: "XZ");
-
-        var result = await _profileSettings.EditProfileAsync(user, profileEdit);
-
-        result.IsError.Should().BeTrue();
-        var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(x => x.Id == user.Id, CT);
-        dbUser.Should().BeEquivalentTo(user);
-    }
-
-    [Fact]
     public async Task EditUsernameAsync_allows_change_if_never_changed()
     {
         var user = new AuthedUserFaker()
@@ -87,13 +68,13 @@ public class ProfileSettingsTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        UsernameEditRequest usernameEdit = new("new-username");
+        string newUsername = "new-username";
 
-        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, newUsername);
 
         result.IsError.Should().BeFalse();
 
-        user.UserName = usernameEdit.Username;
+        user.UserName = newUsername;
         user.UsernameLastChanged = _fakeNow;
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(x => x.Id == user.Id, CT);
         dbUser.Should().BeEquivalentTo(user);
@@ -112,13 +93,13 @@ public class ProfileSettingsTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        UsernameEditRequest usernameEdit = new("new-username");
+        string newUsername = "new-username";
 
-        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, newUsername);
 
         result.IsError.Should().BeFalse();
 
-        user.UserName = usernameEdit.Username;
+        user.UserName = newUsername;
         user.UsernameLastChanged = _fakeNow;
         var dbUser = await DbContext.Users.AsNoTracking().SingleAsync(x => x.Id == user.Id, CT);
         dbUser.Should().BeEquivalentTo(user);
@@ -137,28 +118,27 @@ public class ProfileSettingsTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        UsernameEditRequest usernameEdit = new("new-username");
+        string newUsername = "new-username";
 
-        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(user, newUsername);
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().BeEquivalentTo(ProfileErrors.SettingOnCooldown);
+        result.FirstError.Should().Be(ProfileErrors.SettingOnCooldown);
     }
 
     [Fact]
-    public async Task EditUsernameAsync_rejects_invalid_usernames()
+    public async Task EditUsernameAsync_rejects_taken_username()
     {
-        var user = new AuthedUserFaker()
+        var userToEdit = new AuthedUserFaker()
             .RuleFor(x => x.UsernameLastChanged, (DateTime?)null)
             .Generate();
-
-        await DbContext.AddAsync(user, CT);
+        var existingUser = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(userToEdit, existingUser);
         await DbContext.SaveChangesAsync(CT);
 
-        UsernameEditRequest usernameEdit = new("inv@l$d username");
-
-        var result = await _profileSettings.EditUsernameAsync(user, usernameEdit);
+        var result = await _profileSettings.EditUsernameAsync(userToEdit, existingUser.UserName!);
 
         result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ProfileErrors.UserNameTaken);
     }
 }
