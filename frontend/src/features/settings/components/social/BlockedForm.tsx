@@ -43,18 +43,16 @@ const BlockedForm = ({
         const { error } = await blockUser({
             path: { blockedUserId: userId },
         });
-        if (error) {
-            console.error(error);
-        }
+        if (error) return console.error(error);
+        setBlocked((prev) => ({ ...prev, totalCount: prev.totalCount + 1 }));
     }
 
     async function unblock(userId: string): Promise<void> {
         const { error } = await unblockUser({
             path: { blockedUserId: userId },
         });
-        if (error) {
-            console.error(error);
-        }
+        if (error) return console.error(error);
+        setBlocked((prev) => ({ ...prev, totalCount: prev.totalCount - 1 }));
     }
 
     return (
