@@ -345,6 +345,7 @@ export type PlayerSummary = {
 export enum ErrorCode {
     PROFILE_NOT_FOUND = "Profile.NotFound",
     PROFILE_COOLDOWN_SETTING = "Profile.Cooldown.Setting",
+    PROFILE_USER_NAME_TAKEN = "Profile.UserNameTaken",
     PROFILE_INVALID_PROFILE_PICTURE = "Profile.InvalidProfilePicture",
     SOCIAL_CANNOT_STAR_SELF = "Social.CannotStarSelf",
     SOCIAL_ALREADY_STARRED = "Social.AlreadyStarred",

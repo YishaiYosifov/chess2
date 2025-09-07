@@ -1,24 +1,39 @@
 import type { FormikErrors } from "formik";
 
-import type { ApiProblemDetails, ErrorCode } from "../apiClient";
+import { ApiProblemDetails, ErrorCode } from "../apiClient";
 
 type ErrorMapping<TValue> = {
-    [K in ErrorCode]?: keyof TValue;
+    [K in keyof TValue]?: {
+        mapping: ErrorCode[];
+        default?: string;
+    };
 };
 
-export function mapErrorsToFormik<TValue>(
+export function mapErrorsToFormik<T>(
     problemDetails: ApiProblemDetails,
-    errors: ErrorMapping<TValue>,
-): FormikErrors<TValue> {
-    const formikErrors: FormikErrors<TValue> = {};
+    mapping: ErrorMapping<T>,
+): FormikErrors<T> {
+    const formikErrors: FormikErrors<T> = {};
     if (!problemDetails.errors) return formikErrors;
 
-    for (const { errorCode, description } of problemDetails.errors) {
-        const resolvedField = errors[errorCode];
-        if (!resolvedField) continue;
+    const errorCodes = new Map(
+        problemDetails.errors.map((e) => [e.errorCode, e.description]),
+    );
 
+    for (const field in mapping) {
+        const fieldConfig = mapping[field];
+        if (!fieldConfig) continue;
+
+        const matched = fieldConfig.mapping.find((code) =>
+            errorCodes.has(code),
+        );
+
+        const description = matched
+            ? errorCodes.get(matched)
+            : fieldConfig.default;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        formikErrors[resolvedField] = description as any;
+        formikErrors[field] = description as any;
     }
+
     return formikErrors;
 }

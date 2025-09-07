@@ -8,12 +8,13 @@ import {
     useAuthedUser,
     useSessionStore,
 } from "@/features/auth/hooks/useSessionUser";
-import { editUsername, PrivateUser } from "@/lib/apiClient";
+import { editUsername, ErrorCode, PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import { UsernameSchema } from "@/lib/validation";
 import { Form, Formik, FormikHelpers } from "formik";
 import InputField from "@/components/ui/InputField";
 import FormField from "@/components/ui/FormField";
+import { mapErrorsToFormik } from "@/lib/utils/errorUtils";
 
 interface UsernameFormValues {
     userName: string;
@@ -50,8 +51,15 @@ const UsernameSettingsForm = () => {
             body: { username: values.userName },
         });
         if (error) {
-            helpers.setStatus("Failed to edit username");
             console.error(error);
+            helpers.setErrors(
+                mapErrorsToFormik<UsernameFormValues>(error, {
+                    userName: {
+                        mapping: [ErrorCode.PROFILE_USER_NAME_TAKEN],
+                        default: "Failed to edit username",
+                    },
+                }),
+            );
             return;
         }
 
@@ -72,22 +80,23 @@ const UsernameSettingsForm = () => {
         >
             <Form>
                 <Card className="gap-5">
+                    <FormField label="Username" name="userName">
+                        <InputField
+                            data-testid="usernameSettingField"
+                            disabled={nextUsernameChangeDate !== null}
+                            maxLength={30}
+                        />
+                    </FormField>
+
                     <div>
-                        <FormField label="Username" name="userName">
-                            <InputField
-                                data-testid="usernameSettingField"
-                                disabled={nextUsernameChangeDate !== null}
-                                maxLength={30}
-                            />
-                        </FormField>
+                        <FormikSubmitButton>Save</FormikSubmitButton>
+
                         <span className="text-text/60 text-sm">
                             {nextUsernameChangeDate
-                                ? `Can changed again on ${nextUsernameChangeDate.toLocaleDateString("en-US")}`
+                                ? `Can be changed again on ${nextUsernameChangeDate.toLocaleDateString("en-US")}`
                                 : "Can only be changed once every 2 weeks"}
                         </span>
                     </div>
-
-                    <FormikSubmitButton>Save</FormikSubmitButton>
                 </Card>
             </Form>
         </Formik>
