@@ -1,7 +1,7 @@
-﻿using Chess2.Api.Shared.Services;
-using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.Profile.Entities;
+﻿using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Services;
+using Chess2.Api.Shared.Services;
+using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
@@ -13,7 +13,7 @@ public class UsernameGeneratorTests : BaseUnitTest
     private readonly UserManager<AuthedUser> _userManagerMock;
     private readonly IUsernameWordsProvider _usernameWordsProviderMock =
         Substitute.For<IUsernameWordsProvider>();
-    private readonly IIRandomProvider _randomMock = Substitute.For<IIRandomProvider>();
+    private readonly IRandomProvider _randomMock = Substitute.For<IRandomProvider>();
 
     private readonly UsernameGenerator _usernameGenerator;
 
@@ -48,8 +48,8 @@ public class UsernameGeneratorTests : BaseUnitTest
     {
         var expectedUsername = $"{_adjectives[0]}-{_nouns[1]}-1234";
 
-        _randomMock.Next(_adjectives.Count).Returns(0);
-        _randomMock.Next(_nouns.Count).Returns(1);
+        _randomMock.NextItem(_adjectives).Returns(_adjectives[0]);
+        _randomMock.NextItem(_nouns).Returns(_nouns[1]);
         _randomMock.Next(1000, 10000).Returns(1234);
 
         _userManagerMock.FindByNameAsync(expectedUsername).Returns((AuthedUser?)null);
@@ -65,8 +65,8 @@ public class UsernameGeneratorTests : BaseUnitTest
         var takenUsername = $"{_adjectives[0]}-{_nouns[0]}-1111";
         var expectedUsername = $"{_adjectives[1]}-{_nouns[1]}-2222";
 
-        _randomMock.Next(_adjectives.Count).Returns(0, 1);
-        _randomMock.Next(_nouns.Count).Returns(0, 1);
+        _randomMock.NextItem(_adjectives).Returns(_adjectives[0], _adjectives[1]);
+        _randomMock.NextItem(_nouns).Returns(_nouns[0], _nouns[1]);
         _randomMock.Next(1000, 10000).Returns(1111, 2222);
 
         var existingUser = new AuthedUserFaker().RuleFor(x => x.UserName, takenUsername).Generate();

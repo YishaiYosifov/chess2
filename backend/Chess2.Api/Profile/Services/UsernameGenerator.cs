@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Shared.Services;
-using Chess2.Api.Profile.Entities;
+﻿using Chess2.Api.Profile.Entities;
+using Chess2.Api.Shared.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Profile.Services;
@@ -12,13 +12,13 @@ public interface IUsernameGenerator
 public class UsernameGenerator(
     IUsernameWordsProvider usernameWordsProvider,
     UserManager<AuthedUser> userManager,
-    IIRandomProvider randomProvider
+    IRandomProvider randomProvider
 ) : IUsernameGenerator
 {
     private readonly IUsernameWordsProvider _usernameWordsProvider = usernameWordsProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
-    private readonly IIRandomProvider _random = randomProvider;
+    private readonly IRandomProvider _random = randomProvider;
 
     public async Task<string> GenerateUniqueUsernameAsync()
     {
@@ -42,12 +42,9 @@ public class UsernameGenerator(
 
     private string GenerateUsername()
     {
-        var adjective = _usernameWordsProvider.Adjectives.ElementAt(
-            _random.Next(_usernameWordsProvider.Adjectives.Count())
-        );
-        var noun = _usernameWordsProvider.Nouns.ElementAt(
-            _random.Next(_usernameWordsProvider.Nouns.Count())
-        );
+        var adjective = _random.NextItem(_usernameWordsProvider.Adjectives);
+        var noun = _random.NextItem(_usernameWordsProvider.Nouns);
+
         var suffix = GenerateNumberSuffix();
         return $"{adjective}-{noun}-{suffix}";
     }

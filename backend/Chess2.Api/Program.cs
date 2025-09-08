@@ -383,7 +383,7 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
-builder.Services.AddSingleton<IIRandomProvider, RandomProvider>();
+builder.Services.AddSingleton<IRandomProvider, RandomProvider>();
 builder.Services.AddTransient<IStopwatchProvider, StopwatchProvider>();
 builder.Services.AddSingleton<IValidator<PaginationQuery>, PaginationValidator>();
 

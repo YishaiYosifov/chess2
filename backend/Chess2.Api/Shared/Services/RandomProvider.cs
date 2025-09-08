@@ -1,15 +1,16 @@
 ﻿namespace Chess2.Api.Shared.Services;
 
-public interface IIRandomProvider
+public interface IRandomProvider
 {
     int Next();
     int Next(int maxValue);
     int Next(int minValue, int maxValue);
     double NextDouble();
     void NextBytes(byte[] buffer);
+    T NextItem<T>(IEnumerable<T> enumerable);
 }
 
-public class RandomProvider : IIRandomProvider
+public class RandomProvider : IRandomProvider
 {
     private readonly Random _random = new();
 
@@ -22,4 +23,7 @@ public class RandomProvider : IIRandomProvider
     public double NextDouble() => _random.NextDouble();
 
     public void NextBytes(byte[] buffer) => _random.NextBytes(buffer);
+
+    public T NextItem<T>(IEnumerable<T> enumerable) =>
+        enumerable.ElementAt(_random.Next(enumerable.Count()));
 }
