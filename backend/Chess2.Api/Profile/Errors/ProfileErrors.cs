@@ -12,7 +12,7 @@ public static class ProfileErrors
         Error.Forbidden(ErrorCodes.ProfileSettingOnCooldown, "Cannot edit a setting, on cooldown");
 
     public static Error UserNameTaken =>
-        Error.Conflict(ErrorCodes.ProfileUserNameTaken, "User name is already taken");
+        Error.Conflict(ErrorCodes.ProfileUserNameTaken, "Username Taken");
 
     public static Error InvalidProfilePicture =>
         Error.Validation(
