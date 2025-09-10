@@ -3,8 +3,8 @@ using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 
@@ -242,11 +242,6 @@ public class GameGrain : Grain<GameGrainState>, IGameGrain, IGrainBase
         var nextPlayer = State.Players.GetPlayerByColor(_core.SideToMove(State.Core));
         var legalMoves = _core.GetLegalMovesOf(nextPlayer.Color, State.Core);
 
-        if (moveResult.EndStatus is not null)
-            await EndGameAsync(moveResult.EndStatus);
-        else
-            await WriteStateAsync();
-
         await _gameNotifier.NotifyMoveMadeAsync(
             gameToken: _token,
             move: moveSnapshot,
@@ -257,6 +252,11 @@ public class GameGrain : Grain<GameGrainState>, IGameGrain, IGrainBase
             encodedLegalMoves: legalMoves.EncodedMoves,
             hasForcedMoves: legalMoves.HasForcedMoves
         );
+
+        if (moveResult.EndStatus is not null)
+            await EndGameAsync(moveResult.EndStatus);
+        else
+            await WriteStateAsync();
 
         return Result.Success;
     }
