@@ -237,12 +237,26 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             var (blackFrom, blackTo) = i % 2 == 0 ? blackMove1 : blackMove2;
 
             await grain.MovePieceAsync(_whitePlayer.UserId, new(whiteFrom, whiteTo));
+            _gameNotifierMock.ClearReceivedCalls();
             await grain.MovePieceAsync(_blackPlayer.UserId, new(blackFrom, blackTo));
         }
 
         // (1 white move + 1 black move) * 4 times - 1 that results in a draw
         _stateStats.Writes.Should().Be(2 * 4 - 1);
         await TestGameEndedAsync(grain, _gameResultDescriber.ThreeFold());
+        // make sure the state was not deleted before the notification
+        await _gameNotifierMock
+            .Received(1)
+            .NotifyMoveMadeAsync(
+                gameToken: TestGameToken,
+                move: Arg.Any<MoveSnapshot>(),
+                moveNumber: 2 * 4,
+                clocks: Arg.Any<ClockSnapshot>(),
+                sideToMove: Arg.Any<GameColor>(),
+                sideToMoveUserId: Arg.Any<string>(),
+                encodedLegalMoves: Arg.Any<IEnumerable<byte>>(),
+                hasForcedMoves: Arg.Any<bool>()
+            );
     }
 
     [Fact]
