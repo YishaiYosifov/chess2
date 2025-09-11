@@ -21,10 +21,12 @@ public class WinConditionTests
         int expectedProgress
     )
     {
-        var snapshot = _snapshot with
-        {
-            ResultData = result.HasValue ? new GameResultDataFaker(result.Value).Generate() : null,
-        };
+        var snapshot = new GameStateFaker()
+            .RuleFor(
+                x => x.ResultData,
+                result.HasValue ? new GameResultDataFaker(result.Value).Generate() : null
+            )
+            .Generate();
 
         var winCondition = new WinCondition(inner: null);
 
@@ -42,7 +44,9 @@ public class WinConditionTests
         bool expectProgress
     )
     {
-        var snapshot = _snapshot with { ResultData = new GameResultDataFaker(result).Generate() };
+        var snapshot = new GameStateFaker()
+            .RuleFor(x => x.ResultData, new GameResultDataFaker(result).Generate())
+            .Generate();
 
         var inner = Substitute.For<IQuestProgressor>();
         inner.EvaluateProgressMade(snapshot, playerColor).Returns(5);
