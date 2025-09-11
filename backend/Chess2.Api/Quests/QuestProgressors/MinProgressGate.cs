@@ -4,7 +4,7 @@ using Chess2.Api.GameSnapshot.Models;
 namespace Chess2.Api.Quests.QuestProgressors;
 
 [GenerateSerializer]
-[Alias("Chess2.Api.Quests.QuestProgressors.MaxProgressGate")]
+[Alias("Chess2.Api.Quests.QuestProgressors.MinProgressGate")]
 public class MinProgressGate(IQuestProgressor inner, int minimumProgress) : IQuestProgressor
 {
     [Id(0)]
