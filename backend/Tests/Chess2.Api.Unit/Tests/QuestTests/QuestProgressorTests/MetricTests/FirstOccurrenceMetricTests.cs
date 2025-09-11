@@ -80,7 +80,7 @@ public class FirstOccurrenceMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_with_predicate_false_for_all_moves_returns_total_and_preserves_moves()
+    public void EvaluateProgressMade_iterates_over_all_moves()
     {
         var moves = new MoveSnapshotFaker().Generate(5);
         var snapshot = new GameStateFaker().RuleFor(x => x.MoveHistory, moves);
