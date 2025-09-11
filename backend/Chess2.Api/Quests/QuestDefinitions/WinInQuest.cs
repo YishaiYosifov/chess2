@@ -9,7 +9,7 @@ public class WinInQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants { get; } =
         [
-            CreateVariant(50, QuestDifficulty.Easy),
+            CreateVariant(35, QuestDifficulty.Easy),
             CreateVariant(25, QuestDifficulty.Medium),
             CreateVariant(15, QuestDifficulty.Hard),
         ];
