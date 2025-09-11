@@ -9,29 +9,18 @@ public class NoCaptureQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants { get; } =
         [
-            new QuestVariant(
-                new WinCondition(
-                    new MaxAllowedGate(new MovesBeforeFirstCaptureMetric(), maxProgress: 7)
-                ),
-                Description: "Win a game without a piece capture in the first 7 moves",
-                Target: 1,
-                Difficulty: QuestDifficulty.Easy
-            ),
-            new QuestVariant(
-                new WinCondition(
-                    new MaxAllowedGate(new MovesBeforeFirstCaptureMetric(), maxProgress: 11)
-                ),
-                Description: "Win a game without a piece capture in the first 11 moves",
-                Target: 1,
-                Difficulty: QuestDifficulty.Medium
-            ),
-            new QuestVariant(
-                new WinCondition(
-                    new MaxAllowedGate(new MovesBeforeFirstCaptureMetric(), maxProgress: 15)
-                ),
-                Description: "Win a game without a piece capture in the first 15 moves",
-                Target: 1,
-                Difficulty: QuestDifficulty.Hard
-            ),
+            CreateVariant(7, QuestDifficulty.Easy),
+            CreateVariant(11, QuestDifficulty.Medium),
+            CreateVariant(15, QuestDifficulty.Hard),
         ];
+
+    private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
+        new(
+            new WinCondition(
+                new MaxAllowedGate(new MovesBeforeFirstCaptureMetric(), maxProgress: maxMoves * 2)
+            ),
+            Description: $"Win a game without a piece capture in the first {maxMoves} moves",
+            Target: 1,
+            Difficulty: difficulty
+        );
 }
