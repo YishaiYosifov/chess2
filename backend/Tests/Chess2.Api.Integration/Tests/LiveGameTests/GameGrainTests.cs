@@ -220,7 +220,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task MovePieceAsync_that_results_in_draw_ends_the_game()
+    public async Task MovePieceAsync_that_results_in_game_over_ends_the_game()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
