@@ -17,7 +17,7 @@ public class NoCaptureQuest : IQuestDefinition
     private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
         new(
             new WinCondition(
-                new MaxAllowedGate(new MovesBeforeFirstCaptureMetric(), maxProgress: maxMoves * 2)
+                new MinAllowedGate(new MovesBeforeFirstCaptureMetric(), minProgress: maxMoves * 2)
             ),
             Description: $"Win a game without a piece capture in the first {maxMoves} moves",
             Target: 1,
