@@ -6,7 +6,7 @@ namespace Chess2.Api.Quests.QuestProgressors;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Quests.QuestProgressors.WinCondition")]
-public class WinCondition(IQuestProgressor? inner) : IQuestProgressor
+public class WinCondition(IQuestProgressor? inner = null) : IQuestProgressor
 {
     [Id(0)]
     private readonly IQuestProgressor? _inner = inner;
