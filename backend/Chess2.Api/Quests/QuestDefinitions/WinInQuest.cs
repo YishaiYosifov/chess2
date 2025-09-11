@@ -9,23 +9,16 @@ public class WinInQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants { get; } =
         [
-            new QuestVariant(
-                new WinCondition(new MaxAllowedGate(new GameLengthMetric(), maxProgress: 50 * 2)),
-                Description: "Win in 50 moves or less",
-                Target: 1,
-                Difficulty: QuestDifficulty.Easy
-            ),
-            new QuestVariant(
-                new WinCondition(new MaxAllowedGate(new GameLengthMetric(), maxProgress: 25 * 2)),
-                Description: "Win in 25 moves or less",
-                Target: 1,
-                Difficulty: QuestDifficulty.Medium
-            ),
-            new QuestVariant(
-                new WinCondition(new MaxAllowedGate(new GameLengthMetric(), maxProgress: 15 * 2)),
-                Description: "Win in 15 moves or less",
-                Target: 1,
-                Difficulty: QuestDifficulty.Hard
-            ),
+            CreateVariant(50, QuestDifficulty.Easy),
+            CreateVariant(25, QuestDifficulty.Medium),
+            CreateVariant(15, QuestDifficulty.Hard),
         ];
+
+    private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
+        new(
+            new WinCondition(new MaxAllowedGate(new GameLengthMetric(), maxProgress: maxMoves * 2)),
+            Description: $"Win in {maxMoves} moves or less",
+            Target: 1,
+            Difficulty: difficulty
+        );
 }
