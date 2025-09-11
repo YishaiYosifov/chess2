@@ -1,11 +1,11 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Quests.QuestProgressors;
+using Chess2.Api.Quests.QuestProgressors.Metrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests;
+namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.MetricTests;
 
-public class GameLengthProgressTests
+public class GameLengthMetricTests
 {
     [Theory]
     [InlineData(0)]
@@ -17,7 +17,7 @@ public class GameLengthProgressTests
             x => x.MoveHistory,
             new MoveSnapshotFaker().Generate(moveCount)
         );
-        GameLengthProgress progressor = new();
+        GameLengthMetric progressor = new();
 
         int progressWhite = progressor.EvaluateProgressMade(snapshot, GameColor.White);
         int progressBlack = progressor.EvaluateProgressMade(snapshot, GameColor.Black);

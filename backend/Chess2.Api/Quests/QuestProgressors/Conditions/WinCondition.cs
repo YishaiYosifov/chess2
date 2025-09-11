@@ -2,10 +2,10 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 
-namespace Chess2.Api.Quests.QuestProgressors;
+namespace Chess2.Api.Quests.QuestProgressors.Conditions;
 
 [GenerateSerializer]
-[Alias("Chess2.Api.Quests.QuestProgressors.WinCondition")]
+[Alias("Chess2.Api.Quests.QuestProgressors.Conditions.WinCondition")]
 public class WinCondition(IQuestProgressor? inner = null) : IQuestProgressor
 {
     [Id(0)]

@@ -5,7 +5,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using NSubstitute;
 
-namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests;
+namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.ConditionTests;
 
 public class WinConditionTests
 {

@@ -1,12 +1,13 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.Quests.QuestProgressors;
+using Chess2.Api.Quests.QuestProgressors.Gates;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using NSubstitute;
 
-namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests;
+namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.GateTests;
 
-public class MaxProgressGateTests
+public class MaxAllowedGateTests
 {
     [Theory]
     [InlineData(0, 0, 1)] // progress == max: 1
@@ -23,7 +24,7 @@ public class MaxProgressGateTests
         var inner = Substitute.For<IQuestProgressor>();
         inner.EvaluateProgressMade(snapshot, GameColor.White).Returns(innerProgress);
 
-        MaxProgressGate gate = new(inner, maxProgress);
+        MaxAllowedGate gate = new(inner, maxProgress);
 
         int progress = gate.EvaluateProgressMade(snapshot, GameColor.White);
 

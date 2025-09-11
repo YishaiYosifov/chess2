@@ -31,6 +31,7 @@ using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Services;
 using Chess2.Api.Profile.Validators;
+using Chess2.Api.Quests.QuestDefinitions;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Repository;
@@ -379,6 +380,11 @@ builder.Services.AddScoped<IBlockService, BlockService>();
 #region Preferences
 builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
+#endregion
+
+#region Quests
+builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
+builder.Services.AddSingleton<IQuestDefinition, NoCaptureQuest>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
