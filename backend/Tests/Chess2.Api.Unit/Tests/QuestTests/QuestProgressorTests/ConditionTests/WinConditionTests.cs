@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Quests.QuestProgressors;
+using Chess2.Api.Quests.QuestProgressors.Conditions;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using NSubstitute;
@@ -9,8 +10,6 @@ namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.ConditionTests;
 
 public class WinConditionTests
 {
-    private readonly GameState _snapshot = new GameStateFaker().Generate();
-
     [Theory]
     [InlineData(null, GameColor.White, 0)]
     [InlineData(GameResult.BlackWin, GameColor.White, 0)] // loss
