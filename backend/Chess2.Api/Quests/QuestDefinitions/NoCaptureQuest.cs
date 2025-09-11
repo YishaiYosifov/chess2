@@ -14,12 +14,15 @@ public class NoCaptureQuest : IQuestDefinition
             CreateVariant(15, QuestDifficulty.Hard),
         ];
 
-    private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
+    private static QuestVariant CreateVariant(int minMoves, QuestDifficulty difficulty) =>
         new(
             new WinCondition(
-                new MinAllowedGate(new MovesBeforeFirstCaptureMetric(), minProgress: maxMoves * 2)
+                new MinAllowedGate(
+                    new FirstOccurrenceMetric((move, _, _) => move.Path.CapturedIdxs?.Count > 0),
+                    minProgress: minMoves * 2
+                )
             ),
-            Description: $"Win a game without a piece capture in the first {maxMoves} moves",
+            Description: $"Win a game without a piece capture in the first {minMoves} moves",
             Target: 1,
             Difficulty: difficulty
         );
