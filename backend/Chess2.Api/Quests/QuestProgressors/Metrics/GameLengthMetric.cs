@@ -1,5 +1,4 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.Quests.Models;
 
 namespace Chess2.Api.Quests.QuestProgressors.Metrics;
 
@@ -7,6 +6,5 @@ namespace Chess2.Api.Quests.QuestProgressors.Metrics;
 [Alias("Chess2.Api.Quests.QuestProgressors.Metrics.GameLengthMetric")]
 public class GameLengthMetric : IQuestProgressor
 {
-    public int EvaluateProgressMade(GameState snapshot, GameColor playerColor) =>
-        snapshot.MoveHistory.Count;
+    public int EvaluateProgressMade(GameQuestSnapshot snapshot) => snapshot.MoveHistory.Count;
 }

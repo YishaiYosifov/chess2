@@ -1,5 +1,4 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.Quests.Models;
 
 namespace Chess2.Api.Quests.QuestProgressors.Gates;
 
@@ -13,6 +12,6 @@ public class MinAllowedGate(IQuestProgressor inner, int minProgress) : IQuestPro
     [Id(1)]
     private readonly int _minProgress = minProgress;
 
-    public int EvaluateProgressMade(GameState snapshot, GameColor playerColor) =>
-        _minProgress <= _inner.EvaluateProgressMade(snapshot, playerColor) ? 1 : 0;
+    public int EvaluateProgressMade(GameQuestSnapshot snapshot) =>
+        _minProgress <= _inner.EvaluateProgressMade(snapshot) ? 1 : 0;
 }
