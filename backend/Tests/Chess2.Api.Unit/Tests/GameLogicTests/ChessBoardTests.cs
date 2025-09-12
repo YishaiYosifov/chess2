@@ -116,7 +116,7 @@ public class ChessBoardTests : BaseUnitTest
 
         Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();
         expectedBoard[move.From] = null;
-        expectedBoard[move.To] = piece with { TimesMoved = 1 };
+        expectedBoard[move.To] = piece with { TimesMoved = piece.TimesMoved + 1 };
 
         board.PlayMove(move);
 
@@ -141,7 +141,7 @@ public class ChessBoardTests : BaseUnitTest
 
         Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();
         expectedBoard[move.From] = null;
-        expectedBoard[move.To] = pieceToMove with { TimesMoved = 1 };
+        expectedBoard[move.To] = pieceToMove with { TimesMoved = pieceToMove.TimesMoved + 1 };
         expectedBoard[new AlgebraicPoint("e5")] = null;
 
         board.PlayMove(move);
