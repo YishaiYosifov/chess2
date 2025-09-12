@@ -36,11 +36,13 @@ public class QuestGrainStorage
 public class QuestGrain(
     IEnumerable<IQuestDefinition> availableQuests,
     UserManager<AuthedUser> userManager,
+    TimeProvider timeProvider,
     IRandomProvider random
 ) : Grain<QuestGrainStorage>, IQuestGrain
 {
     private readonly IEnumerable<IQuestDefinition> _availableQuests = availableQuests;
     private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IRandomProvider _random = random;
 
     public async Task<QuestDto> GetQuestAsync()
@@ -72,7 +74,7 @@ public class QuestGrain(
 
     private async Task<QuestVariant> GetOrSelectQuestAsync()
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
         if (State.Quest is not null && State.Date == today)
             return State.Quest;
 
@@ -91,7 +93,7 @@ public class QuestGrain(
         var quest = _random.NextItem(availableQuests);
         State.Quest = quest;
         State.Progress = 0;
-        State.Date = DateOnly.FromDateTime(DateTime.UtcNow);
+        State.Date = today;
         await WriteStateAsync();
 
         return quest;

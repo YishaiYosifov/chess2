@@ -8,7 +8,7 @@ public interface IRandomProvider
     double NextDouble();
     void NextBytes(byte[] buffer);
     T NextItem<T>(IEnumerable<T> enumerable);
-    T NextWeighted<T>(Dictionary<int, T> items);
+    T NextWeighted<T>(IDictionary<int, T> items);
 }
 
 public class RandomProvider : IRandomProvider
@@ -25,7 +25,7 @@ public class RandomProvider : IRandomProvider
 
     public void NextBytes(byte[] buffer) => _random.NextBytes(buffer);
 
-    public T NextWeighted<T>(Dictionary<int, T> items)
+    public T NextWeighted<T>(IDictionary<int, T> items)
     {
         var sortedItems = items.OrderBy(x => x.Key).ToList();
 

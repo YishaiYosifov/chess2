@@ -385,6 +385,7 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 #region Quests
 builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoCaptureQuest>();
+builder.Services.AddSingleton<IQuestDefinition, CastleCaptureQuest>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
