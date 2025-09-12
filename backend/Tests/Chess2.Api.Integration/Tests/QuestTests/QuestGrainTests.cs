@@ -187,9 +187,10 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var storageStats = GetStorageStats();
         await grain.OnGameOverAsync(snapshot);
 
+        storageStats?.Writes.Should().Be(1); // 1 write for creating the quest
+
         var quest = await grain.GetQuestAsync();
         quest.Progress.Should().Be(0);
-        storageStats?.Writes.Should().Be(0);
     }
 
     [Fact]
