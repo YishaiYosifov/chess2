@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 
 import {
     getGameResults,
+    getHasBlocked,
     getHasStarred,
     getRatingArchives,
     getStarsReceivedCount,
@@ -36,6 +37,7 @@ describe("ProfilePage", () => {
     const getGameResultsMock = vi.mocked(getGameResults);
     const getStarsReceivedCountMock = vi.mocked(getStarsReceivedCount);
     const getHasStarredMock = vi.mocked(getHasStarred);
+    const getHasBlockedMock = vi.mocked(getHasBlocked);
 
     beforeEach(() => {
         vi.resetAllMocks();
@@ -66,6 +68,10 @@ describe("ProfilePage", () => {
             response: new Response(),
         });
         getHasStarredMock.mockResolvedValue({
+            data: false,
+            response: new Response(),
+        });
+        getHasBlockedMock.mockResolvedValue({
             data: false,
             response: new Response(),
         });
@@ -171,7 +177,33 @@ describe("ProfilePage", () => {
         },
     );
 
-    it("should not call getHasStarred if the user is not logged in", async () => {
+    it.each([
+        [true, "Unblock"],
+        [false, "Block"],
+    ])(
+        "should set initialHasBlocked=%s and render button text '%s'",
+        async (hasBlocked, expectedText) => {
+            getHasBlockedMock.mockResolvedValueOnce({
+                data: hasBlocked,
+                response: new Response(),
+            });
+
+            render(
+                <SessionProvider user={ownUser}>
+                    {await LoadProfilePage({
+                        loggedInUser: ownUser,
+                        accessToken: "token",
+                        profileUsername: otherUser.userName,
+                    })}
+                </SessionProvider>,
+            );
+
+            const starButton = screen.getByTestId("profileBlockButton");
+            expect(starButton).toHaveTextContent(expectedText);
+        },
+    );
+
+    it("should not call endpoints that require auth if the user is not logged in", async () => {
         render(
             <SessionProvider user={null} fetchAttempted>
                 {await LoadProfilePage({
@@ -183,5 +215,6 @@ describe("ProfilePage", () => {
         );
 
         expect(getHasStarredMock).not.toHaveBeenCalled();
+        expect(getHasBlockedMock).not.toHaveBeenCalled();
     });
 });
