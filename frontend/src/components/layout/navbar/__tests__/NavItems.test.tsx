@@ -9,6 +9,7 @@ describe("UpperNavItems", () => {
         expect(screen.getByText("Register")).toBeInTheDocument();
         expect(screen.getByText("Play")).toBeInTheDocument();
         expect(screen.getByText("Home")).toBeInTheDocument();
+        expect(screen.getByText("Quests")).toBeInTheDocument();
         // TODO
         //expect(screen.getByText("Donate")).toBeInTheDocument();
     });
@@ -19,6 +20,7 @@ describe("UpperNavItems", () => {
         expect(screen.getByText("Profile")).toBeInTheDocument();
         expect(screen.getByText("Play")).toBeInTheDocument();
         expect(screen.getByText("Home")).toBeInTheDocument();
+        expect(screen.getByText("Quests")).toBeInTheDocument();
         // TODO
         //expect(screen.getByText("Donate")).toBeInTheDocument();
     });
@@ -33,6 +35,10 @@ describe("UpperNavItems", () => {
         expect(screen.getByText("Play").closest("a")).toHaveAttribute(
             "href",
             "/play",
+        );
+        expect(screen.getByText("Quests").closest("a")).toHaveAttribute(
+            "href",
+            "/quests",
         );
         expect(screen.getByText("Home").closest("a")).toHaveAttribute(
             "href",
