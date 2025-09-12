@@ -4,6 +4,7 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Shared.Models;
 using Refit;
 
@@ -111,5 +112,10 @@ public interface IChess2Api
 
     [Put("/api/preference")]
     Task<IApiResponse> SetPreferencesAsync(PreferenceDto preferences);
+    #endregion
+
+    #region Quests
+    [Get("/api/quests")]
+    Task<IApiResponse<QuestDto>> GetDailyQuest();
     #endregion
 }
