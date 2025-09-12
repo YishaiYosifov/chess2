@@ -19,8 +19,6 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
     public RookDefinitionTestData()
     {
         var rook = PieceFactory.White(PieceType.Rook);
-        var friend = PieceFactory.White();
-        var enemy = PieceFactory.Black();
 
         Add(
             PieceTestCase
@@ -106,8 +104,8 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithPieceAt("e7", friend) // blocks beyond e6
-                .WithPieceAt("h5", friend) // blocks beyond g5
+                .WithFriendlyPieceAt("e7") // blocks beyond e6
+                .WithFriendlyPieceAt("h5") // blocks beyond g5
                 // vertical up
                 .GoesTo("e6")
                 // vertical down
@@ -129,8 +127,8 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithPieceAt("e3", enemy) // can capture
-                .WithPieceAt("b5", enemy) // can capture
+                .WithEnemyPieceAt("e3") // can capture
+                .WithEnemyPieceAt("b5") // can capture
                 // vertical up
                 .GoesTo("e6")
                 .GoesTo("e7")
@@ -156,20 +154,20 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithPieceAt("e6", friend)
-                .WithPieceAt("e4", friend)
-                .WithPieceAt("d5", friend)
-                .WithPieceAt("f5", friend)
+                .WithFriendlyPieceAt("e6")
+                .WithFriendlyPieceAt("e4")
+                .WithFriendlyPieceAt("d5")
+                .WithFriendlyPieceAt("f5")
                 .WithDescription("Surrounded by friendly pieces in all directions")
         );
 
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithPieceAt("e6", enemy)
-                .WithPieceAt("e4", enemy)
-                .WithPieceAt("d5", enemy)
-                .WithPieceAt("f5", enemy)
+                .WithEnemyPieceAt("e6")
+                .WithEnemyPieceAt("e4")
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("f5")
                 .GoesTo("e6", captures: ["e6"])
                 .GoesTo("e4", captures: ["e4"])
                 .GoesTo("d5", captures: ["d5"])
