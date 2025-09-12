@@ -11,25 +11,22 @@ namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.ConditionTests;
 public class WinConditionTests
 {
     [Theory]
-    [InlineData(null, GameColor.White, 0)]
     [InlineData(GameResult.BlackWin, GameColor.White, 0)] // loss
     [InlineData(GameResult.WhiteWin, GameColor.White, 1)] // win
     public void EvaluateProgressMade_returns_expected_progress(
-        GameResult? result,
+        GameResult result,
         GameColor playerColor,
         int expectedProgress
     )
     {
-        var snapshot = new GameStateFaker()
-            .RuleFor(
-                x => x.ResultData,
-                result.HasValue ? new GameResultDataFaker(result.Value).Generate() : null
-            )
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleFor(x => x.PlayerColor, playerColor)
+            .RuleFor(x => x.ResultData, new GameResultDataFaker(result).Generate())
             .Generate();
 
         var winCondition = new WinCondition(inner: null);
 
-        int progress = winCondition.EvaluateProgressMade(snapshot, playerColor);
+        int progress = winCondition.EvaluateProgressMade(snapshot);
 
         progress.Should().Be(expectedProgress);
     }
@@ -43,16 +40,17 @@ public class WinConditionTests
         bool expectProgress
     )
     {
-        var snapshot = new GameStateFaker()
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleFor(x => x.PlayerColor, playerColor)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(result).Generate())
             .Generate();
 
         var inner = Substitute.For<IQuestProgressor>();
-        inner.EvaluateProgressMade(snapshot, playerColor).Returns(5);
+        inner.EvaluateProgressMade(snapshot).Returns(5);
 
         var winCondition = new WinCondition(inner);
 
-        int progress = winCondition.EvaluateProgressMade(snapshot, GameColor.White);
+        int progress = winCondition.EvaluateProgressMade(snapshot);
 
         if (expectProgress)
             progress.Should().Be(5);

@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.GameLogic.Extensions;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Quests.Models;
 
@@ -14,9 +13,6 @@ public class WinCondition(IQuestProgressor? inner = null) : IQuestProgressor
 
     public int EvaluateProgressMade(GameQuestSnapshot snapshot)
     {
-        if (snapshot.ResultData is null)
-            return 0;
-
         bool didWin = snapshot.PlayerColor.Match(
             whenWhite: snapshot.ResultData.Result == GameResult.WhiteWin,
             whenBlack: snapshot.ResultData.Result == GameResult.BlackWin

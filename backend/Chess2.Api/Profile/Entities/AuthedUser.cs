@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Profile.Entities;
 
@@ -14,6 +14,7 @@ public class AuthedUser : IdentityUser
     public required string CountryCode { get; set; }
 
     public DateTime? UsernameLastChanged { get; set; }
+    public int QuestPoints { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

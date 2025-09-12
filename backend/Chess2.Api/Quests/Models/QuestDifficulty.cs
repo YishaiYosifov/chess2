@@ -2,7 +2,7 @@
 
 public enum QuestDifficulty
 {
-    Easy,
-    Medium,
-    Hard,
+    Easy = 5,
+    Medium = 10,
+    Hard = 20,
 }

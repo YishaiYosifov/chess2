@@ -13,14 +13,23 @@ public class GameLengthMetricTests
     [InlineData(5)]
     public void EvaluateProgressMade_returns_number_of_moves(int moveCount)
     {
-        var snapshot = new GameStateFaker().RuleFor(
-            x => x.MoveHistory,
-            new MoveSnapshotFaker().Generate(moveCount)
-        );
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(moveCount))
+            .Generate();
         GameLengthMetric progressor = new();
 
-        int progressWhite = progressor.EvaluateProgressMade(snapshot, GameColor.White);
-        int progressBlack = progressor.EvaluateProgressMade(snapshot, GameColor.Black);
+        int progressWhite = progressor.EvaluateProgressMade(
+            snapshot with
+            {
+                PlayerColor = GameColor.White,
+            }
+        );
+        int progressBlack = progressor.EvaluateProgressMade(
+            snapshot with
+            {
+                PlayerColor = GameColor.Black,
+            }
+        );
 
         progressWhite.Should().Be(moveCount);
         progressBlack.Should().Be(moveCount);
