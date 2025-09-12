@@ -34,16 +34,30 @@ describe("Profile", () => {
         });
     });
 
-    it("should render the profile correctly", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
+    function renderProfile({
+        isLoggedOut,
+        starCount,
+    }: {
+        isLoggedOut?: boolean;
+        starCount?: number;
+    } = {}) {
+        return render(
+            <SessionProvider
+                user={isLoggedOut ? null : loggedInUserMock}
+                fetchAttempted
+            >
                 <Profile
                     profile={userMock}
-                    initialStarCount={5}
+                    initialStarCount={starCount ?? 0}
                     initialHasStarred={false}
+                    initialHasBlocked={false}
                 />
             </SessionProvider>,
         );
+    }
+
+    it("should render the profile correctly", () => {
+        renderProfile({ starCount: 5 });
 
         expect(screen.getByAltText("profile picture")).toBeInTheDocument();
         expect(screen.getByTestId("username")).toBeInTheDocument();
@@ -53,15 +67,7 @@ describe("Profile", () => {
     });
 
     it("should display the username and flag correctly", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile();
 
         expect(screen.getByText(userMock.userName!)).toBeInTheDocument();
         const flag = screen.getByTestId("flag");
@@ -72,29 +78,13 @@ describe("Profile", () => {
     });
 
     it("should display the about me text", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile();
 
         expect(screen.getByTestId("aboutMe").textContent).toBe(userMock.about);
     });
 
     it("should render the profile picture correctly", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile();
 
         const profilePicture = screen.getByAltText("profile picture");
         const profilePictureSrc = `${process.env.NEXT_PUBLIC_API_URL}/api/Profile/profile-picture/${userMock.userId}`;
@@ -103,32 +93,18 @@ describe("Profile", () => {
 
     it("should render Edit Profile button for the logged-in user's own profile", () => {
         userMock.userId = loggedInUserMock.userId;
-
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile();
 
         expect(screen.getByTestId("editProfileLink").getAttribute("href")).toBe(
             constants.PATHS.SETTINGS_PROFILE,
         );
+        expect(
+            screen.queryByTestId("profileStarButton"),
+        ).not.toBeInTheDocument();
     });
 
     it("should render Star button for logged in users viewing someone else's profile", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={3}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile({ starCount: 3 });
 
         const starButton = screen.getByTestId("profileStarButton");
         expect(starButton).toBeInTheDocument();
@@ -138,15 +114,7 @@ describe("Profile", () => {
 
     it("should toggle star state when Star button is clicked", async () => {
         const user = userEvent.setup();
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={2}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile({ starCount: 2 });
 
         const starButton = screen.getByTestId("profileStarButton");
         const starCount = screen.getByTestId("profileStarCount");
@@ -171,15 +139,7 @@ describe("Profile", () => {
     });
 
     it("should render only Challenge button for guest users", () => {
-        render(
-            <SessionProvider user={null} fetchAttempted>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile({ isLoggedOut: true });
 
         expect(
             screen.getByTestId("profileChallengeButton"),
@@ -191,15 +151,7 @@ describe("Profile", () => {
     });
 
     it("should display the correct joined date", () => {
-        render(
-            <SessionProvider user={loggedInUserMock}>
-                <Profile
-                    profile={userMock}
-                    initialStarCount={0}
-                    initialHasStarred={false}
-                />
-            </SessionProvider>,
-        );
+        renderProfile();
 
         const createdAtText = new Date(userMock.createdAt).toLocaleDateString(
             "en-US",
@@ -208,6 +160,14 @@ describe("Profile", () => {
 
         expect(screen.getByTestId("profileCreatedAt")).toHaveTextContent(
             createdAtText,
+        );
+    });
+
+    it("should display the correct quest points", () => {
+        renderProfile();
+
+        expect(screen.getByTestId("profileQuestPoints")).toHaveTextContent(
+            userMock.questPoints.toString(),
         );
     });
 });
