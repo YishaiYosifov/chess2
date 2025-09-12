@@ -136,7 +136,7 @@ public class ChessBoardTests : BaseUnitTest
             from: new AlgebraicPoint("e2"),
             to: new AlgebraicPoint("e4"),
             piece: pieceToMove,
-            capturedSquares: [new AlgebraicPoint("e5")]
+            captures: [new MoveCapture(pieceToCapture, new AlgebraicPoint("e5"))]
         );
 
         Dictionary<AlgebraicPoint, Piece?> expectedBoard = board.EnumerateSquares().ToDictionary();

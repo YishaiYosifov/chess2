@@ -21,7 +21,7 @@ public class CaptureOnlyRule(params IMovementBehaviour[] movementBehaviours) : I
                     position,
                     destination,
                     movingPiece,
-                    capturedSquares: [destination]
+                    captures: [new MoveCapture(destination, board)]
                 );
             }
         }

@@ -13,15 +13,21 @@ public class CaptureOnlyRuleTests : MovementBasedPieceRulesTestBase
     {
         ChessBoard board = new();
         var piece = PieceFactory.White();
+        var pieceToCapture = PieceFactory.Black();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(Destinations[0], PieceFactory.Black()); // enemy
+        board.PlacePiece(Destinations[0], pieceToCapture); // enemy
         board.PlacePiece(Destinations[1], PieceFactory.White()); // friend
 
         CaptureOnlyRule behaviour = new(MovementMocks);
         var result = behaviour.Evaluate(board, Origin, piece).ToList();
 
-        Move expectedMove = new(Origin, Destinations[0], piece, capturedSquares: [Destinations[0]]);
+        Move expectedMove = new(
+            Origin,
+            Destinations[0],
+            piece,
+            captures: [new MoveCapture(pieceToCapture, Destinations[0])]
+        );
         result.Should().BeEquivalentTo([expectedMove]);
     }
 

@@ -60,7 +60,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
             position,
             targetPos,
             movingPiece,
-            capturedSquares: [lastMove.To],
+            captures: [new MoveCapture(lastMove.To, board)],
             forcedPriority: ForcedMovePriority.EnPassant
         );
     }
@@ -74,7 +74,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
         var from = pawnEnPassant.From;
         var lastMoveTo = pawnEnPassant.To;
 
-        List<AlgebraicPoint> capturedSquares = [.. pawnEnPassant.CapturedSquares];
+        List<MoveCapture> capturedSquares = [.. pawnEnPassant.Captures];
         while (true)
         {
             var to = lastMoveTo + _direction;
@@ -92,12 +92,12 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
             )
                 yield break;
 
-            capturedSquares.Add(capturePosition);
+            capturedSquares.Add(new MoveCapture(capturePosition, board));
             yield return new Move(
                 from,
                 to,
                 movingPiece,
-                capturedSquares: [.. capturedSquares],
+                captures: [.. capturedSquares],
                 forcedPriority: ForcedMovePriority.EnPassant
             );
 

@@ -79,7 +79,7 @@ public class DrawEvaluatorTests
             from: new("a1"),
             to: new("a2"),
             piece: PieceFactory.White(PieceType.Knook),
-            capturedSquares: [new("b2")]
+            captures: [new MoveCapture(PieceFactory.Black(), new("b2"))]
         );
         TestFiftyMoveReset(captureMove);
     }

@@ -117,7 +117,7 @@ public class CastleRuleTests
             _kingKingsideDestination,
             _king,
             triggerSquares: [new("i1")],
-            capturedSquares: [bishopPosition],
+            captures: [new MoveCapture(bishop, bishopPosition)],
             sideEffects: [new(_rookKingsideOrigin, _rookKingsideDestination, _rook)],
             specialMoveType: SpecialMoveType.KingsideCastle
         );

@@ -36,12 +36,13 @@ public class CaptureRule(
                 if (occupantPiece is not null && !CanCapture(board, movingPiece, occupantPiece))
                     continue;
 
-                var isCapture = occupantPiece is not null;
                 yield return new Move(
                     position,
                     destination,
                     movingPiece,
-                    capturedSquares: isCapture ? [destination] : null
+                    captures: occupantPiece is not null
+                        ? [new MoveCapture(destination, board)]
+                        : null
                 );
             }
         }

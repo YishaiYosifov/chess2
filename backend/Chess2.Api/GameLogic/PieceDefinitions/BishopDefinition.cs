@@ -13,10 +13,7 @@ public class BishopDefinition : IPieceDefinition
         new ForcedMoveRule(
             priority: ForcedMovePriority.UnderagePawn,
             predicate: (board, move) =>
-                move.CapturedSquares.Any(c =>
-                    board.TryGetPieceAt(c, out var capture)
-                    && capture.Type == PieceType.UnderagePawn
-                ),
+                move.Captures.Any(c => c.CapturedPiece.Type == PieceType.UnderagePawn),
             CaptureRule.WithFriendlyFire(
                 allowFriendlyFireWhen: (board, piece) => piece.Type == PieceType.UnderagePawn,
                 new SlideBehaviour(new Offset(X: 1, Y: 1)),

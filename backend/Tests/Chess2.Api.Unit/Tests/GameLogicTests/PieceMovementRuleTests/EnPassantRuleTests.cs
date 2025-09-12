@@ -29,6 +29,7 @@ public class EnPassantRuleTests
         board.PlacePiece(origin, piece);
         board.PlacePiece(enemyOrigin, enemyPiece);
         board.PlayMove(new Move(enemyOrigin, enemyDestination, enemyPiece));
+        enemyPiece = enemyPiece with { TimesMoved = 1 };
 
         EnPassantRule behaviour = new(direction, _nullChain);
 
@@ -38,7 +39,7 @@ public class EnPassantRuleTests
             from: origin,
             to: destination,
             piece: piece,
-            capturedSquares: [enemyDestination],
+            captures: [new MoveCapture(enemyPiece, enemyDestination)],
             forcedPriority: ForcedMovePriority.EnPassant
         );
         result.Should().ContainSingle().Which.Should().BeEquivalentTo(expected);
@@ -118,25 +119,26 @@ public class EnPassantRuleTests
         ChessBoard board = new();
 
         var whitePawn = PieceFactory.White(PieceType.Pawn);
-        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
-        var blackEnemy2 = PieceFactory.Black();
-        var blackEnemy3 = PieceFactory.Black();
-        var friendlyOnChain = PieceFactory.White();
+        var blackPawn = PieceFactory.Black(PieceType.Pawn);
+        var blackEnemy2 = PieceFactory.Black(PieceType.Rook);
+        var blackEnemy3 = PieceFactory.Black(PieceType.Bishop);
+        var friendlyOnChain = PieceFactory.White(PieceType.Antiqueen);
 
         AlgebraicPoint origin = new("e5");
-        AlgebraicPoint blackPawn1Start = new("d7");
-        AlgebraicPoint blackPawn1End = new("d5");
+        AlgebraicPoint blackPawnStart = new("d7");
+        AlgebraicPoint blackPawnEnd = new("d5");
         AlgebraicPoint blackEnemy2Pos = new("c6");
         AlgebraicPoint blackEnemy3Pos = new("b7");
         AlgebraicPoint whiteFriendlyOnChainPos = new("a8");
 
         board.PlacePiece(origin, whitePawn);
-        board.PlacePiece(blackPawn1Start, blackPawn1);
+        board.PlacePiece(blackPawnStart, blackPawn);
         board.PlacePiece(blackEnemy2Pos, blackEnemy2);
         board.PlacePiece(blackEnemy3Pos, blackEnemy3);
         board.PlacePiece(whiteFriendlyOnChainPos, friendlyOnChain);
 
-        board.PlayMove(new Move(blackPawn1Start, blackPawn1End, blackPawn1));
+        board.PlayMove(new Move(blackPawnStart, blackPawnEnd, blackPawn));
+        blackPawn = blackPawn with { TimesMoved = 1 };
 
         EnPassantRule behaviour = new(new Offset(-1, 1), new Offset(0, -1));
 
@@ -144,17 +146,21 @@ public class EnPassantRuleTests
 
         moves.Should().HaveCount(3);
 
-        List<List<AlgebraicPoint>> expectedCapturesList =
+        List<List<MoveCapture>> expectedCapturesList =
         [
-            [blackPawn1End],
-            [blackPawn1End, blackEnemy2Pos],
-            [blackPawn1End, blackEnemy2Pos, blackEnemy3Pos],
+            [new(blackPawn, blackPawnEnd)],
+            [new(blackPawn, blackPawnEnd), new(blackEnemy2, blackEnemy2Pos)],
+            [
+                new(blackPawn, blackPawnEnd),
+                new(blackEnemy2, blackEnemy2Pos),
+                new(blackEnemy3, blackEnemy3Pos),
+            ],
         ];
 
         for (int i = 0; i < moves.Count; i++)
         {
             moves[i].From.Should().Be(origin);
-            moves[i].CapturedSquares.Should().BeEquivalentTo(expectedCapturesList[i]);
+            moves[i].Captures.Should().BeEquivalentTo(expectedCapturesList[i]);
             moves[i].ForcedPriority.Should().Be(ForcedMovePriority.EnPassant);
         }
 
@@ -196,22 +202,23 @@ public class EnPassantRuleTests
         ChessBoard board = new();
 
         var whitePawn = PieceFactory.White(PieceType.Pawn);
-        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
-        var blackEnemy1 = PieceFactory.Black();
+        var blackPawn = PieceFactory.Black(PieceType.Pawn);
+        var blackEnemy1 = PieceFactory.Black(PieceType.Rook);
         var blackBlocker = PieceFactory.Black();
 
         AlgebraicPoint origin = new("e5");
-        AlgebraicPoint blackPawn1Start = new("d7");
-        AlgebraicPoint blackPawn1End = new("d5");
+        AlgebraicPoint blackPawnStart = new("d7");
+        AlgebraicPoint blackPawnEnd = new("d5");
         AlgebraicPoint blackEnemy1Pos = new("c6");
         AlgebraicPoint blackBlockerPos = new("c7");
 
         board.PlacePiece(origin, whitePawn);
-        board.PlacePiece(blackPawn1Start, blackPawn1);
+        board.PlacePiece(blackPawnStart, blackPawn);
         board.PlacePiece(blackEnemy1Pos, blackEnemy1);
         board.PlacePiece(blackBlockerPos, blackBlocker);
 
-        board.PlayMove(new Move(blackPawn1Start, blackPawn1End, blackPawn1));
+        board.PlayMove(new Move(blackPawnStart, blackPawnEnd, blackPawn));
+        blackPawn = blackPawn with { TimesMoved = 1 };
 
         var behaviour = new EnPassantRule(new Offset(-1, 1), new Offset(0, -1));
 
@@ -219,7 +226,7 @@ public class EnPassantRuleTests
 
         moves.Should().HaveCount(1);
         moves[0].To.Should().Be(new AlgebraicPoint("d6"));
-        moves[0].CapturedSquares.Should().BeEquivalentTo([blackPawn1End]);
+        moves[0].Captures.Should().BeEquivalentTo([new MoveCapture(blackPawn, blackPawnEnd)]);
     }
 }
 

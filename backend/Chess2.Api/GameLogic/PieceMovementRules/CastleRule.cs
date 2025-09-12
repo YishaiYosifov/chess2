@@ -65,7 +65,7 @@ public class CastleRule : IPieceMovementRule
         );
 
         List<AlgebraicPoint> trigger = [];
-        List<AlgebraicPoint> captures = [];
+        List<MoveCapture> captures = [];
         for (int x = position.X + directionX; x != rookX; x += directionX)
         {
             AlgebraicPoint currentSquare = new(x, position.Y);
@@ -91,7 +91,7 @@ public class CastleRule : IPieceMovementRule
             if (!isCapturedAllowed || !isCaptureOnLandingSquare)
                 yield break;
 
-            captures.Add(currentSquare);
+            captures.Add(new MoveCapture(currentSquare, board));
         }
 
         MoveSideEffect rookSideEffect = new(
@@ -104,7 +104,7 @@ public class CastleRule : IPieceMovementRule
             targetPosition,
             movingPiece,
             triggerSquares: trigger,
-            capturedSquares: captures,
+            captures: captures,
             sideEffects: [rookSideEffect],
             specialMoveType: moveType
         );
