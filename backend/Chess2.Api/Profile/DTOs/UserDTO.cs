@@ -11,6 +11,7 @@ public record PublicUser(
     string UserName,
     string About,
     string CountryCode,
+    int QuestPoints,
     DateTime CreatedAt
 )
 {
@@ -20,6 +21,7 @@ public record PublicUser(
             UserName: user.UserName ?? "Unknown",
             About: user.About,
             CountryCode: user.CountryCode,
+            QuestPoints: user.QuestPoints,
             CreatedAt: user.CreatedAt
         ) { }
 }
@@ -38,6 +40,7 @@ public record PrivateUser(
     string UserName,
     string About,
     string CountryCode,
+    int QuestPoints,
     DateTime CreatedAt,
     DateTime? UsernameLastChanged
 ) : SessionUser(UserId)
@@ -50,6 +53,7 @@ public record PrivateUser(
             UserName: user.UserName ?? "Unknown",
             About: user.About,
             CountryCode: user.CountryCode,
+            QuestPoints: user.QuestPoints,
             CreatedAt: user.CreatedAt,
             UsernameLastChanged: user.UsernameLastChanged
         ) { }
