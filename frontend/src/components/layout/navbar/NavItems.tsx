@@ -7,6 +7,7 @@ import {
     Cog6ToothIcon,
     UserCircleIcon,
     BoltSlashIcon,
+    CalendarIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -61,6 +62,9 @@ export const UpperNavItems = ({
                 isCollapsed={isCollapsed}
             >
                 Home
+            </NavItem>
+            <NavItem as={Link} href="/quests" icon={<CalendarIcon />}>
+                Quests
             </NavItem>
             {hasAccessCookie ? authedLinks : unauthedLinks}
             {/* <NavItem
