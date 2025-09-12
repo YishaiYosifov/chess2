@@ -75,6 +75,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
     private static GamePlayer CreatePlayerFromArchive(PlayerArchive playerArchive) =>
         new(
             UserId: playerArchive.UserId,
+            IsAuthenticated: playerArchive.IsAuthenticated,
             Color: playerArchive.Color,
             UserName: playerArchive.UserName,
             CountryCode: playerArchive.CountryCode,

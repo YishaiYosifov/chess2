@@ -145,6 +145,7 @@ public class GameArchiveService(
             Color = player.Color,
             UserId = player.UserId,
             UserName = player.UserName,
+            IsAuthenticated = player.IsAuthenticated,
             FinalTimeRemaining = timeRemaining,
             CountryCode = player.CountryCode,
             NewRating = player.Rating + (ratingChange ?? 0),
