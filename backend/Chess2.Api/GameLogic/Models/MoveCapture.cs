@@ -1,5 +1,7 @@
 ﻿namespace Chess2.Api.GameLogic.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.GameLogic.Models.MoveCapture")]
 public record MoveCapture(Piece CapturedPiece, AlgebraicPoint Position)
 {
     public MoveCapture(AlgebraicPoint position, ChessBoard board)
