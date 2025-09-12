@@ -19,8 +19,7 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
     public QueenDefinitionTestData()
     {
         var queen = PieceFactory.White(PieceType.Queen);
-        var friend = PieceFactory.White();
-        var enemy = PieceFactory.Black();
+        Console.WriteLine(queen.TimesMoved);
 
         Add(
             PieceTestCase
@@ -110,8 +109,8 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("a5", queen)
-                .WithPieceAt("a7", friend) // friendly above, blocks beyond a6 vertical up
-                .WithPieceAt("c5", enemy) // enemy right side, can capture at c5 but no further right
+                .WithFriendlyPieceAt("a7") // friendly above, blocks beyond a6 vertical up
+                .WithEnemyPieceAt("c5") // enemy right side, can capture at c5 but no further right
                 // vertical up
                 .GoesTo("a6")
                 // horizontal right
@@ -139,28 +138,28 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", queen)
-                .WithPieceAt("e6", friend)
-                .WithPieceAt("e4", friend)
-                .WithPieceAt("d5", friend)
-                .WithPieceAt("f5", friend)
-                .WithPieceAt("d6", friend)
-                .WithPieceAt("f6", friend)
-                .WithPieceAt("d4", friend)
-                .WithPieceAt("f4", friend)
+                .WithFriendlyPieceAt("e6")
+                .WithFriendlyPieceAt("e4")
+                .WithFriendlyPieceAt("d5")
+                .WithFriendlyPieceAt("f5")
+                .WithFriendlyPieceAt("d6")
+                .WithFriendlyPieceAt("f6")
+                .WithFriendlyPieceAt("d4")
+                .WithFriendlyPieceAt("f4")
                 .WithDescription("Queen surrounded by friendly pieces - no moves")
         );
 
         Add(
             PieceTestCase
                 .From("e5", queen)
-                .WithPieceAt("e6", enemy)
-                .WithPieceAt("e4", enemy)
-                .WithPieceAt("d5", enemy)
-                .WithPieceAt("f5", enemy)
-                .WithPieceAt("d6", enemy)
-                .WithPieceAt("f6", enemy)
-                .WithPieceAt("d4", enemy)
-                .WithPieceAt("f4", enemy)
+                .WithEnemyPieceAt("e6")
+                .WithEnemyPieceAt("e4")
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("f5")
+                .WithEnemyPieceAt("d6")
+                .WithEnemyPieceAt("f6")
+                .WithEnemyPieceAt("d4")
+                .WithEnemyPieceAt("f4")
                 // vertical up
                 .GoesTo("e6", captures: ["e6"])
                 // vertical down

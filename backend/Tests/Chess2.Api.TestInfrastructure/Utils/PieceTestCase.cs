@@ -1,4 +1,9 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using System.Text.Json.Serialization;
+using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.TestInfrastructure.Factories;
+using Chess2.Api.TestInfrastructure.Fakes;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -9,16 +14,36 @@ public class PieceTestCase
     public GameColor MovingPlayer { get; private set; }
 
     public List<Move> ExpectedMoves { get; } = [];
-    public List<(AlgebraicPoint Position, Piece Piece)> BlockedBy { get; } = [];
     public List<Move> PriorMoves { get; } = [];
 
+    [JsonIgnore]
+    public Dictionary<AlgebraicPoint, Piece> BlockedBy { get; } = [];
+
+    [JsonInclude]
+    [JsonPropertyName(nameof(BlockedBy))]
+    public Dictionary<string, Piece> BlockedBySurrogate
+    {
+        get => BlockedBy.ToDictionary(x => x.Key.AsAlgebraic(), x => x.Value);
+        set
+        {
+            BlockedBy.Clear();
+            foreach (var kvp in value)
+                BlockedBy[new AlgebraicPoint(kvp.Key)] = kvp.Value;
+        }
+    }
+
     public string TestDecription { get; private set; } = "";
+
+    private readonly ChessBoard _board;
 
     private PieceTestCase(AlgebraicPoint from, Piece piece)
     {
         Piece = piece;
         Origin = from;
         MovingPlayer = piece.Color ?? GameColor.White;
+
+        _board = new();
+        _board.PlacePiece(from, piece);
     }
 
     public static PieceTestCase From(string from, Piece piece) =>
@@ -35,16 +60,15 @@ public class PieceTestCase
     )
     {
         ExpectedMoves.Add(
-            new Move(
-                Origin,
-                new AlgebraicPoint(to),
-                Piece,
-                triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
-                capturedSquares: captures?.Select(x => new AlgebraicPoint(x)),
-                sideEffects: sideEffects,
-                specialMoveType: specialMoveType,
-                forcedPriority: forcedPriority,
-                promotesTo: promotesTo
+            BuildMove(
+                Origin.AsAlgebraic(),
+                to,
+                trigger,
+                captures,
+                sideEffects,
+                specialMoveType,
+                forcedPriority,
+                promotesTo
             )
         );
         return this;
@@ -61,13 +85,47 @@ public class PieceTestCase
 
     public PieceTestCase WithPieceAt(string position, Piece piece)
     {
-        BlockedBy.Add((new AlgebraicPoint(position), piece));
+        AlgebraicPoint point = new(position);
+        BlockedBy.Add(point, piece);
+        _board.PlacePiece(point, piece);
         return this;
     }
 
-    public PieceTestCase WithPriorMove(Move move)
+    public PieceTestCase WithWhitePieceAt(string position) =>
+        WithPieceAt(position, PieceFactory.White());
+
+    public PieceTestCase WithBlackPieceAt(string position) =>
+        WithPieceAt(position, PieceFactory.Black());
+
+    public PieceTestCase WithFriendlyPieceAt(string position) =>
+        WithPieceAt(position, new PieceFaker(color: Piece.Color).Generate());
+
+    public PieceTestCase WithEnemyPieceAt(string position) =>
+        WithPieceAt(position, new PieceFaker(color: Piece.Color?.Invert()).Generate());
+
+    public PieceTestCase WithPriorMove(
+        string from,
+        string to,
+        IEnumerable<string>? trigger = null,
+        IEnumerable<string>? captures = null,
+        IEnumerable<MoveSideEffect>? sideEffects = null,
+        SpecialMoveType specialMoveType = SpecialMoveType.None,
+        ForcedMovePriority forcedPriority = ForcedMovePriority.None,
+        PieceType? promotesTo = null
+    )
     {
+        var move = BuildMove(
+            from,
+            to,
+            trigger,
+            captures,
+            sideEffects,
+            specialMoveType,
+            forcedPriority,
+            promotesTo
+        );
         PriorMoves.Add(move);
+        _board.PlayMove(move);
         return this;
     }
 
@@ -87,4 +145,40 @@ public class PieceTestCase
         string.IsNullOrWhiteSpace(TestDecription)
             ? $"Piece under test at {Origin}"
             : TestDecription;
+
+    private Move BuildMove(
+        string from,
+        string to,
+        IEnumerable<string>? trigger = null,
+        IEnumerable<string>? captures = null,
+        IEnumerable<MoveSideEffect>? sideEffects = null,
+        SpecialMoveType specialMoveType = SpecialMoveType.None,
+        ForcedMovePriority forcedPriority = ForcedMovePriority.None,
+        PieceType? promotesTo = null
+    )
+    {
+        var moveCaptures = captures?.Select(c =>
+        {
+            AlgebraicPoint pos = new(c);
+            return new MoveCapture(
+                _board.PeekPieceAt(pos)
+                    ?? throw new InvalidOperationException($"No Piece Found at {pos}"),
+                pos
+            );
+        });
+        AlgebraicPoint fromPoint = new(from);
+
+        return new Move(
+            fromPoint,
+            new AlgebraicPoint(to),
+            _board.PeekPieceAt(fromPoint)
+                ?? throw new InvalidOperationException($"No Piece Found at {fromPoint}"),
+            triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
+            captures: moveCaptures,
+            sideEffects: sideEffects,
+            specialMoveType: specialMoveType,
+            forcedPriority: forcedPriority,
+            promotesTo: promotesTo
+        );
+    }
 }

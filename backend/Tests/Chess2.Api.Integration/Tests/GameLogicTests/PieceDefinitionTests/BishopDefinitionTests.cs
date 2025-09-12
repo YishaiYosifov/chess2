@@ -19,8 +19,6 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
     public BishopDefinitionTestData()
     {
         var bishop = PieceFactory.White(PieceType.Bishop);
-        var friend = PieceFactory.White();
-        var enemy = PieceFactory.Black();
 
         Add(
             PieceTestCase
@@ -85,7 +83,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithPieceAt("g7", friend) // blocks beyond f6
+                .WithFriendlyPieceAt("g7") // blocks beyond f6
                 // diagonal up-left
                 .GoesTo("d6")
                 .GoesTo("c7")
@@ -110,8 +108,8 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithPieceAt("g3", enemy) // enemy can be captured, blocks beyond
-                .WithPieceAt("h2", friend) // friendly beyond enemy
+                .WithEnemyPieceAt("g3") // enemy can be captured, blocks beyond
+                .WithFriendlyPieceAt("h2") // friendly beyond enemy
                 // diagonal up-left
                 .GoesTo("d6")
                 .GoesTo("c7")
@@ -138,20 +136,20 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithPieceAt("d6", friend)
-                .WithPieceAt("f6", friend)
-                .WithPieceAt("d4", friend)
-                .WithPieceAt("f4", friend)
+                .WithFriendlyPieceAt("d6")
+                .WithFriendlyPieceAt("f6")
+                .WithFriendlyPieceAt("d4")
+                .WithFriendlyPieceAt("f4")
                 .WithDescription("Bishop surrounded by friendly pieces on all diagonals (no moves)")
         );
 
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithPieceAt("d6", enemy)
-                .WithPieceAt("f6", enemy)
-                .WithPieceAt("d4", enemy)
-                .WithPieceAt("f4", enemy)
+                .WithEnemyPieceAt("d6")
+                .WithEnemyPieceAt("f6")
+                .WithEnemyPieceAt("d4")
+                .WithEnemyPieceAt("f4")
                 .GoesTo("d6", captures: ["d6"])
                 .GoesTo("f6", captures: ["f6"])
                 .GoesTo("d4", captures: ["d4"])

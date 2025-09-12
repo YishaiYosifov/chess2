@@ -8,13 +8,10 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
 {
     protected void AddTestCases(PieceType pawnType, int maxInitialMoveDistance)
     {
-        var whitePawn = PieceFactory.White(pawnType);
-        var blackPawn = PieceFactory.Black(pawnType);
+        var whitePawn = PieceFactory.White(pawnType, timesMoved: 0);
+        var blackPawn = PieceFactory.Black(pawnType, timesMoved: 0);
         var movedWhitePawn = PieceFactory.White(pawnType, timesMoved: 1);
         var movedBlackPawn = PieceFactory.Black(pawnType, timesMoved: 1);
-
-        var whitePiece = PieceFactory.White();
-        var blackPiece = PieceFactory.Black();
 
         #region regular moves
         Add(
@@ -34,8 +31,8 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithPieceAt("d5", blackPiece)
-                .WithPieceAt("f5", blackPiece)
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("f5")
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("f5", captures: ["f5"])
@@ -45,8 +42,8 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e6", movedBlackPawn)
-                .WithPieceAt("d5", whitePiece)
-                .WithPieceAt("f5", whitePiece)
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("f5")
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("f5", captures: ["f5"])
@@ -63,8 +60,8 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithPieceAt("d5", whitePiece)
-                .WithPieceAt("f5", whitePiece)
+                .WithFriendlyPieceAt("d5")
+                .WithFriendlyPieceAt("f5")
                 .GoesTo("e5")
                 .WithDescription("white pawn cannot capture friendly pieces diagonally")
         );
@@ -84,7 +81,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e4", movedWhitePawn)
-                .WithPieceAt("f5", blackPiece)
+                .WithEnemyPieceAt("f5")
                 .GoesTo("e5")
                 .GoesTo("f5", captures: ["f5"])
                 .WithDescription("white pawn can only capture diagonally to the right")
@@ -93,7 +90,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e6", movedBlackPawn)
-                .WithPieceAt("d5", whitePiece)
+                .WithEnemyPieceAt("d5")
                 .GoesTo("e5")
                 .GoesTo("d5", captures: ["d5"])
                 .WithDescription("black pawn can only capture diagonally to the left")
@@ -128,7 +125,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e2", whitePawn)
-                .WithPieceAt("e4", whitePiece)
+                .WithFriendlyPieceAt("e4")
                 .GoesTo("e3")
                 .WithDescription("white pawn is blocked on the first move")
         );
@@ -136,7 +133,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e9", blackPawn)
-                .WithPieceAt("e7", whitePiece)
+                .WithEnemyPieceAt("e7")
                 .GoesTo("e8")
                 .WithDescription("black pawn is blocked on the first move")
         );
@@ -144,9 +141,9 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e2", whitePawn)
-                .WithPieceAt("e3", blackPiece)
-                .WithPieceAt("d3", blackPiece)
-                .WithPieceAt("f3", blackPiece)
+                .WithEnemyPieceAt("e3")
+                .WithEnemyPieceAt("d3")
+                .WithEnemyPieceAt("f3")
                 .GoesTo("d3", captures: ["d3"])
                 .GoesTo("f3", captures: ["f3"])
                 .WithDescription(
@@ -157,9 +154,9 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e9", blackPawn)
-                .WithPieceAt("e8", whitePiece)
-                .WithPieceAt("d8", whitePiece)
-                .WithPieceAt("f8", whitePiece)
+                .WithEnemyPieceAt("e8")
+                .WithEnemyPieceAt("d8")
+                .WithEnemyPieceAt("f8")
                 .GoesTo("d8", captures: ["d8"])
                 .GoesTo("f8", captures: ["f8"])
                 .WithDescription(
@@ -173,7 +170,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e7", movedWhitePawn)
                 .WithPieceAt("d9", blackPawn)
-                .WithPriorMove(new Move(new("d9"), new("d7"), blackPawn))
+                .WithPriorMove(from: "d9", to: "d7")
                 .GoesTo("d8", captures: ["d7"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("e8")
                 .WithDescription("white pawn can capture en passant")
@@ -183,7 +180,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e4", movedBlackPawn)
                 .WithPieceAt("f2", whitePawn)
-                .WithPriorMove(new Move(new("f2"), new("f4"), whitePawn))
+                .WithPriorMove(from: "f2", to: "f4")
                 .GoesTo("f3", captures: ["f4"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("e3")
                 .WithDescription("black pawn can capture en passant")
@@ -193,9 +190,9 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e6", movedWhitePawn)
                 .WithPieceAt("d9", blackPawn)
-                .WithPieceAt("c7", blackPiece)
-                .WithPieceAt("b8", blackPiece)
-                .WithPriorMove(new Move(new("d9"), new("d6"), blackPawn))
+                .WithEnemyPieceAt("c7")
+                .WithEnemyPieceAt("b8")
+                .WithPriorMove(from: "d9", to: "d6")
                 .GoesTo("e7")
                 .GoesTo("d7", captures: ["d6"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("c8", captures: ["d6", "c7"], forcedPriority: ForcedMovePriority.EnPassant)
@@ -211,9 +208,9 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", movedBlackPawn)
                 .WithPieceAt("f2", whitePawn)
-                .WithPieceAt("g4", whitePiece)
-                .WithPieceAt("h3", whitePiece)
-                .WithPriorMove(new Move(new("f2"), new("f5"), whitePawn))
+                .WithEnemyPieceAt("g4")
+                .WithEnemyPieceAt("h3")
+                .WithPriorMove(from: "f2", to: "f5")
                 .GoesTo("e4")
                 .GoesTo("f4", captures: ["f5"], forcedPriority: ForcedMovePriority.EnPassant)
                 .GoesTo("g3", captures: ["f5", "g4"], forcedPriority: ForcedMovePriority.EnPassant)
