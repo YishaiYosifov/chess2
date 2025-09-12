@@ -3,8 +3,8 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.UserRating.Services;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.UserRating.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -49,15 +49,16 @@ public class GameStarter(
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        int? rating = null;
-        if (user is not null)
-            rating = await _ratingService.GetRatingAsync(
+        int? rating = user is null
+            ? null
+            : await _ratingService.GetRatingAsync(
                 user,
                 _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
             );
 
         return new GamePlayer(
             UserId: userId,
+            IsAuthenticated: user is not null,
             Color: color,
             UserName: user?.UserName ?? "Guest",
             CountryCode: user?.CountryCode ?? "XX",

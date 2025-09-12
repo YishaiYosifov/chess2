@@ -10,6 +10,7 @@ public class GamePlayerFaker : RecordFaker<GamePlayer>
     {
         StrictMode(true);
         RuleFor(x => x.UserId, f => user?.Id ?? f.Random.Guid().ToString());
+        RuleFor(x => x.IsAuthenticated, true);
         RuleFor(x => x.Color, color);
         RuleFor(x => x.UserName, f => user?.UserName ?? f.Person.FullName);
         RuleFor(x => x.CountryCode, f => f.Address.CountryCode());
