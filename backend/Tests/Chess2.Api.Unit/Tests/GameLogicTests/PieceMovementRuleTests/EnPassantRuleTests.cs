@@ -94,7 +94,7 @@ public class EnPassantRuleTests
     {
         ChessBoard board = new();
         var pawn = PieceFactory.White(PieceType.Pawn);
-        var enemy = PieceFactory.Black(enemyType);
+        var enemy = PieceFactory.Black(enemyType, timesMoved: 0);
 
         AlgebraicPoint origin = new("e6");
         AlgebraicPoint enemyOrigin = new("d9");
@@ -119,10 +119,10 @@ public class EnPassantRuleTests
         ChessBoard board = new();
 
         var whitePawn = PieceFactory.White(PieceType.Pawn);
-        var blackPawn = PieceFactory.Black(PieceType.Pawn);
-        var blackEnemy2 = PieceFactory.Black(PieceType.Rook);
-        var blackEnemy3 = PieceFactory.Black(PieceType.Bishop);
-        var friendlyOnChain = PieceFactory.White(PieceType.Antiqueen);
+        var blackPawn = PieceFactory.Black(PieceType.Pawn, timesMoved: 0);
+        var blackEnemy2 = PieceFactory.Black();
+        var blackEnemy3 = PieceFactory.Black();
+        var friendlyOnChain = PieceFactory.White();
 
         AlgebraicPoint origin = new("e5");
         AlgebraicPoint blackPawnStart = new("d7");
@@ -175,7 +175,7 @@ public class EnPassantRuleTests
         ChessBoard board = new();
 
         var whitePawn = PieceFactory.White(PieceType.Pawn);
-        var blackPawn1 = PieceFactory.Black(PieceType.Pawn);
+        var blackPawn1 = PieceFactory.Black(PieceType.Pawn, timesMoved: 0);
 
         // near left edge of board
         AlgebraicPoint origin = new("b7");
@@ -202,8 +202,8 @@ public class EnPassantRuleTests
         ChessBoard board = new();
 
         var whitePawn = PieceFactory.White(PieceType.Pawn);
-        var blackPawn = PieceFactory.Black(PieceType.Pawn);
-        var blackEnemy1 = PieceFactory.Black(PieceType.Rook);
+        var blackPawn = PieceFactory.Black(PieceType.Pawn, timesMoved: 0);
+        var blackEnemy1 = PieceFactory.Black();
         var blackBlocker = PieceFactory.Black();
 
         AlgebraicPoint origin = new("e5");
