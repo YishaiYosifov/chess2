@@ -12,7 +12,7 @@ public class OccurrenceCountMetricTests
     public void EvaluateProgressMade_returns_zero_when_predicate_never_matches()
     {
         var moves = new MoveSnapshotFaker().Generate(5);
-        var snapshot = new GameStateFaker().RuleFor(x => x.MoveHistory, moves);
+        var snapshot = new GameStateFaker().RuleFor(x => x.MoveHistory, moves).Generate();
 
         OccurrenceCountMetric metric = new((move, _, _) => false);
 
@@ -30,7 +30,7 @@ public class OccurrenceCountMetricTests
         OccurrenceCountMetric metric = new((move, _, _) => targetMoves.Contains(move));
 
         int progress = metric.EvaluateProgressMade(
-            new GameStateFaker().RuleFor(x => x.MoveHistory, moves),
+            new GameStateFaker().RuleFor(x => x.MoveHistory, moves).Generate(),
             GameColor.White
         );
 
@@ -41,10 +41,10 @@ public class OccurrenceCountMetricTests
     public void EvaluateProgressMade_with_predicate_true_for_all_moves_returns_total_count()
     {
         var moves = new MoveSnapshotFaker().Generate(4);
-        OccurrenceCountMetric metric = new((move, _, _) => true);
+        OccurrenceCountMetric metric = new((_, _, _) => true);
 
         int progress = metric.EvaluateProgressMade(
-            new GameStateFaker().RuleFor(x => x.MoveHistory, moves),
+            new GameStateFaker().RuleFor(x => x.MoveHistory, moves).Generate(),
             GameColor.Black
         );
 
@@ -56,7 +56,7 @@ public class OccurrenceCountMetricTests
     {
         var moves = new MoveSnapshotFaker().Generate(5);
 
-        List<MoveSnapshot> iteratedMoves = [];
+        List<Move> iteratedMoves = [];
         OccurrenceCountMetric metric = new(
             (move, _, _) =>
             {
@@ -66,7 +66,7 @@ public class OccurrenceCountMetricTests
         );
 
         int progress = metric.EvaluateProgressMade(
-            new GameStateFaker().RuleFor(x => x.MoveHistory, moves),
+            new GameStateFaker().RuleFor(x => x.MoveHistory, moves).Generate(),
             GameColor.White
         );
 

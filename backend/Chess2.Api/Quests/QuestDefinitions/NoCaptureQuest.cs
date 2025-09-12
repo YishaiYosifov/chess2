@@ -18,7 +18,7 @@ public class NoCaptureQuest : IQuestDefinition
         new(
             new WinCondition(
                 new MinAllowedGate(
-                    new FirstOccurrenceMetric((move, _, _) => move.Path.CapturedIdxs?.Count > 0),
+                    new FirstOccurrenceMetric((move, _, _) => move.Captures.Count > 0),
                     minProgress: minMoves * 2
                 )
             ),

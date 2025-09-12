@@ -66,7 +66,7 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
 
     private static bool Is50Moves(Move move, AutoDrawState state)
     {
-        if (move.Piece.Type is PieceType.Pawn || move.CapturedSquares.Count != 0)
+        if (move.Piece.Type is PieceType.Pawn || move.Captures.Count != 0)
         {
             state.HalfMoveClock = 0;
             return false;

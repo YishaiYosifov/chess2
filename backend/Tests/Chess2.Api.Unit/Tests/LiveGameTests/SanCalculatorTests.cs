@@ -94,7 +94,11 @@ public class SanCalculatorTests
             new("d4"),
             new("e5"),
             PieceFactory.White(PieceType.Rook),
-            capturedSquares: [new("c4"), new("d5")]
+            captures:
+            [
+                new MoveCapture(PieceFactory.Black(), new("c4")),
+                new MoveCapture(PieceFactory.Black(), new("d5")),
+            ]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -109,7 +113,11 @@ public class SanCalculatorTests
             new("d4"),
             new("d5"),
             PieceFactory.White(PieceType.Rook),
-            capturedSquares: [new("c4"), new("d5")]
+            captures:
+            [
+                new MoveCapture(PieceFactory.Black(), new("c4")),
+                new MoveCapture(PieceFactory.Black(), new("d5")),
+            ]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -126,7 +134,11 @@ public class SanCalculatorTests
             new("e5"),
             new("f6"),
             PieceFactory.White(pawnType),
-            capturedSquares: [new("f5"), new("f6")]
+            captures:
+            [
+                new MoveCapture(PieceFactory.Black(), new("f5")),
+                new MoveCapture(PieceFactory.Black(), new("f6")),
+            ]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -141,7 +153,7 @@ public class SanCalculatorTests
             new("e5"),
             new("f6"),
             PieceFactory.White(PieceType.Pawn),
-            capturedSquares: [new("f6")]
+            captures: [new MoveCapture(PieceFactory.Black(), new("f6"))]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
@@ -174,7 +186,7 @@ public class SanCalculatorTests
             new("a2"),
             PieceFactory.White(PieceType.King),
             specialMoveType: SpecialMoveType.KingsideCastle,
-            capturedSquares: [new("a3")]
+            captures: [new MoveCapture(PieceFactory.Black(), new("a3"))]
         );
 
         var san = _calculator.CalculateSan(move, [move]);
