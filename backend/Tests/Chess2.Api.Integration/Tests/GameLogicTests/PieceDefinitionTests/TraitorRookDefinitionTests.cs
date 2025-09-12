@@ -19,16 +19,14 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
     public TraitorRookDefinitionTestData()
     {
         var traitorRook = PieceFactory.Neutral(PieceType.TraitorRook);
-        var white = PieceFactory.White();
-        var black = PieceFactory.Black();
 
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d6", white)
-                .WithPieceAt("d5", white)
-                .WithPieceAt("d4", black)
-                .WithPieceAt("h5", black) // to capture
+                .WithWhitePieceAt("d6")
+                .WithWhitePieceAt("d5")
+                .WithBlackPieceAt("d4")
+                .WithBlackPieceAt("h5") // to capture
                 .WithMovingPlayer(GameColor.White)
                 // vertical moves
                 .GoesTo("e6")
@@ -50,10 +48,10 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d6", black)
-                .WithPieceAt("d5", black)
-                .WithPieceAt("d4", white)
-                .WithPieceAt("h5", white) // to capture
+                .WithBlackPieceAt("d6")
+                .WithBlackPieceAt("d5")
+                .WithWhitePieceAt("d4")
+                .WithWhitePieceAt("h5") // to capture
                 .WithMovingPlayer(GameColor.Black)
                 // vertical moves
                 .GoesTo("e6")
@@ -75,11 +73,11 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d4", white)
-                .WithPieceAt("d5", white)
-                .WithPieceAt("d6", white)
-                .WithPieceAt("f4", black)
-                .WithPieceAt("f5", black)
+                .WithWhitePieceAt("d4")
+                .WithWhitePieceAt("d5")
+                .WithWhitePieceAt("d6")
+                .WithBlackPieceAt("f4")
+                .WithBlackPieceAt("f5")
                 .WithMovingPlayer(GameColor.Black)
                 .WithDescription("White majority, black player moves, can't move")
         );
@@ -87,11 +85,11 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d4", black)
-                .WithPieceAt("d5", black)
-                .WithPieceAt("d6", black)
-                .WithPieceAt("f4", white)
-                .WithPieceAt("f5", white)
+                .WithBlackPieceAt("d4")
+                .WithBlackPieceAt("d5")
+                .WithBlackPieceAt("d6")
+                .WithWhitePieceAt("f4")
+                .WithWhitePieceAt("f5")
                 .WithMovingPlayer(GameColor.White)
                 .WithDescription("Black majority, white player moves, can't move")
         );
@@ -99,12 +97,12 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d4", white)
-                .WithPieceAt("d5", black)
-                .WithPieceAt("d6", white)
-                .WithPieceAt("f4", black)
-                .WithPieceAt("f5", white)
-                .WithPieceAt("f6", black)
+                .WithWhitePieceAt("d4")
+                .WithBlackPieceAt("d5")
+                .WithWhitePieceAt("d6")
+                .WithBlackPieceAt("f4")
+                .WithWhitePieceAt("f5")
+                .WithBlackPieceAt("f6")
                 .WithMovingPlayer(GameColor.White)
                 // vertical moves
                 .GoesTo("e6")
@@ -129,10 +127,10 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", traitorRook)
-                .WithPieceAt("d5", white)
-                .WithPieceAt("f5", white)
-                .WithPieceAt("e4", white)
-                .WithPieceAt("e6", white)
+                .WithWhitePieceAt("d5")
+                .WithWhitePieceAt("f5")
+                .WithWhitePieceAt("e4")
+                .WithWhitePieceAt("e6")
                 .WithMovingPlayer(GameColor.White)
                 .WithDescription("Surrounded by friendly pieces, can't move")
         );
@@ -140,9 +138,9 @@ public class TraitorRookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("a1", traitorRook)
-                .WithPieceAt("a2", white)
-                .WithPieceAt("b1", black)
-                .WithPieceAt("b2", black)
+                .WithWhitePieceAt("a2")
+                .WithBlackPieceAt("b1")
+                .WithBlackPieceAt("b2")
                 .WithMovingPlayer(GameColor.Black)
                 .GoesTo("a2", captures: ["a2"])
                 .WithDescription("Corner case a1, black majority, black moves")

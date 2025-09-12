@@ -19,8 +19,6 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
     public KnookDefinitionTestData()
     {
         var knook = PieceFactory.White(PieceType.Knook);
-        var friend = PieceFactory.White();
-        var enemy = PieceFactory.Black();
 
         Add(
             PieceTestCase
@@ -107,9 +105,9 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithPieceAt("e7", friend) // blocks beyond e6
-                .WithPieceAt("h5", friend) // blocks beyond g5
-                .WithPieceAt("f7", friend) // blocks horsey part
+                .WithFriendlyPieceAt("e7") // blocks beyond e6
+                .WithFriendlyPieceAt("h5") // blocks beyond g5
+                .WithFriendlyPieceAt("f7") // blocks horsey part
                 // vertical up
                 .GoesTo("e6")
                 // vertical down
@@ -131,37 +129,36 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithPieceAt("e6", friend)
-                .WithPieceAt("e4", friend)
-                .WithPieceAt("d5", friend)
-                .WithPieceAt("f5", friend)
-                .WithPieceAt("f5", friend)
-                .WithPieceAt("d7", friend)
-                .WithPieceAt("f7", friend)
-                .WithPieceAt("c6", friend)
-                .WithPieceAt("g6", friend)
-                .WithPieceAt("c4", friend)
-                .WithPieceAt("g4", friend)
-                .WithPieceAt("d3", friend)
-                .WithPieceAt("f3", friend)
+                .WithFriendlyPieceAt("e6")
+                .WithFriendlyPieceAt("e4")
+                .WithFriendlyPieceAt("d5")
+                .WithFriendlyPieceAt("f5")
+                .WithFriendlyPieceAt("d7")
+                .WithFriendlyPieceAt("f7")
+                .WithFriendlyPieceAt("c6")
+                .WithFriendlyPieceAt("g6")
+                .WithFriendlyPieceAt("c4")
+                .WithFriendlyPieceAt("g4")
+                .WithFriendlyPieceAt("d3")
+                .WithFriendlyPieceAt("f3")
                 .WithDescription("Surrounded by friendly pieces in all directions")
         );
 
         Add(
             PieceTestCase
                 .From("e5", knook)
-                .WithPieceAt("e6", enemy)
-                .WithPieceAt("e4", enemy)
-                .WithPieceAt("d5", enemy)
-                .WithPieceAt("f5", enemy)
-                .WithPieceAt("d7", enemy)
-                .WithPieceAt("f7", enemy)
-                .WithPieceAt("c6", enemy)
-                .WithPieceAt("g6", enemy)
-                .WithPieceAt("c4", enemy)
-                .WithPieceAt("g4", enemy)
-                .WithPieceAt("d3", enemy)
-                .WithPieceAt("f3", enemy)
+                .WithEnemyPieceAt("e6")
+                .WithEnemyPieceAt("e4")
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("f5")
+                .WithEnemyPieceAt("d7")
+                .WithEnemyPieceAt("f7")
+                .WithEnemyPieceAt("c6")
+                .WithEnemyPieceAt("g6")
+                .WithEnemyPieceAt("c4")
+                .WithEnemyPieceAt("g4")
+                .WithEnemyPieceAt("d3")
+                .WithEnemyPieceAt("f3")
                 // only horse movement can capture
                 .GoesTo("d7", captures: ["d7"])
                 .GoesTo("f7", captures: ["f7"])

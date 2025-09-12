@@ -19,8 +19,6 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
     public KingDefinitionTestData()
     {
         var king = PieceFactory.White(PieceType.King);
-        var friend = PieceFactory.White();
-        var enemy = PieceFactory.Black();
 
         Add(
             PieceTestCase
@@ -39,28 +37,28 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("d4", king)
-                .WithPieceAt("d5", friend)
-                .WithPieceAt("e5", friend)
-                .WithPieceAt("e4", friend)
-                .WithPieceAt("e3", friend)
-                .WithPieceAt("d3", friend)
-                .WithPieceAt("c3", friend)
-                .WithPieceAt("c4", friend)
-                .WithPieceAt("c5", friend)
+                .WithFriendlyPieceAt("d5")
+                .WithFriendlyPieceAt("e5")
+                .WithFriendlyPieceAt("e4")
+                .WithFriendlyPieceAt("e3")
+                .WithFriendlyPieceAt("d3")
+                .WithFriendlyPieceAt("c3")
+                .WithFriendlyPieceAt("c4")
+                .WithFriendlyPieceAt("c5")
                 .WithDescription("Surrounded by friendly pieces - no moves")
         );
 
         Add(
             PieceTestCase
                 .From("d4", king)
-                .WithPieceAt("d5", enemy)
-                .WithPieceAt("e5", enemy)
-                .WithPieceAt("e4", enemy)
-                .WithPieceAt("e3", enemy)
-                .WithPieceAt("d3", enemy)
-                .WithPieceAt("c3", enemy)
-                .WithPieceAt("c4", enemy)
-                .WithPieceAt("c5", enemy)
+                .WithEnemyPieceAt("d5")
+                .WithEnemyPieceAt("e5")
+                .WithEnemyPieceAt("e4")
+                .WithEnemyPieceAt("e3")
+                .WithEnemyPieceAt("d3")
+                .WithEnemyPieceAt("c3")
+                .WithEnemyPieceAt("c4")
+                .WithEnemyPieceAt("c5")
                 .GoesTo("d5", captures: ["d5"])
                 .GoesTo("e5", captures: ["e5"])
                 .GoesTo("e4", captures: ["e4"])
@@ -93,8 +91,8 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("h1", king)
-                .WithPieceAt("i2", friend)
-                .WithPieceAt("g2", enemy)
+                .WithFriendlyPieceAt("i2")
+                .WithEnemyPieceAt("g2")
                 .GoesTo("h2") // up
                 // i2 blocked
                 .GoesTo("i1") // right
@@ -103,12 +101,12 @@ public class KingDefinitionTestData : TheoryData<PieceTestCase>
                 .WithDescription("King on h1, friend at i2, enemy at g2")
         );
 
-        var rook = PieceFactory.White(PieceType.Rook);
+        var rook = PieceFactory.White(PieceType.Rook, timesMoved: 0);
         MoveSideEffect rookKingsideCastle = new(new("j1"), new("g1"), rook);
         MoveSideEffect rookQueensideCastle = new(new("a1"), new("e1"), rook);
         Add(
             PieceTestCase
-                .From("f1", king)
+                .From("f1", king with { TimesMoved = 0 })
                 .WithPieceAt("j1", rook) // Kingside rook
                 .WithPieceAt("a1", rook) // Queenside rook
                 .GoesTo(
