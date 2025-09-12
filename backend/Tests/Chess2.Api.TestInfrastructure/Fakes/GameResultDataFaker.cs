@@ -4,7 +4,7 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class GameResultDataFaker : RecordFaker<GameResultData>
 {
-    public GameResultDataFaker(GameResult? result)
+    public GameResultDataFaker(GameResult? result = null)
     {
         StrictMode(true);
         RuleFor(x => x.Result, f => result ?? f.PickRandom<GameResult>());
