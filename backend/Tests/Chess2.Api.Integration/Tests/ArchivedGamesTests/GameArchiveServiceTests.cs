@@ -198,6 +198,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         {
             UserId = player.UserId,
             UserName = player.UserName,
+            IsAuthenticated = player.IsAuthenticated,
             CountryCode = player.CountryCode,
             Color = player.Color,
             NewRating = player.Rating + ratingChange,

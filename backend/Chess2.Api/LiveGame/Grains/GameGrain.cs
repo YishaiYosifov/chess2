@@ -289,7 +289,12 @@ public class GameGrain : Grain<GameGrainState>, IGameGrain, IGrainBase
         _clock.CommitTurn(_core.SideToMove(State.Core), State.ClockState);
         var state = GetGameState();
 
-        State.Result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus);
+        State.Result = await _gameFinalizer.FinalizeGameAsync(
+            _token,
+            state,
+            endStatus,
+            State.Core.Board.Moves
+        );
         await _gameNotifier.NotifyGameEndedAsync(_token, State.Result);
 
         DeactivateOnIdle();
