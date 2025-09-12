@@ -89,6 +89,12 @@ const Profile = ({
                         <span className="text-text/70">Stars</span>
                     </p>
                     <p>
+                        <span data-testid="profileQuestPoints">
+                            {profile.questPoints}
+                        </span>{" "}
+                        <span className="text-text/70">Quest Points</span>
+                    </p>
+                    <p>
                         <span data-testid="profileCreatedAt">
                             {formattedCreatedAt}
                         </span>{" "}
@@ -148,6 +154,7 @@ const ProfileActions = ({
             <Button
                 className="flex flex-1 items-center justify-center gap-2"
                 onClick={toggleStar}
+                data-testid="profileStarButton"
             >
                 {hasStarred ? (
                     <StarIconSolid className="h-6 w-6 text-amber-300" />
