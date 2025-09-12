@@ -67,7 +67,7 @@ describe("FormField", () => {
 
         await user.click(screen.getByTestId("testSubmit"));
 
-        const errorMessage = await screen.findByTestId("fieldError");
+        const errorMessage = await screen.findByTestId("fieldError-testField");
         expect(errorMessage).toBeInTheDocument();
         expect(errorMessage).toHaveTextContent("This field is required");
     });

@@ -165,7 +165,11 @@ const ProfileActions = ({
             </Button>
 
             <Button className="flex-1">Challenge</Button>
-            <Button className="flex-1 bg-neutral-800" onClick={toggleBlock}>
+            <Button
+                className="flex-1 bg-neutral-800"
+                onClick={toggleBlock}
+                data-testid="profileBlockButton"
+            >
                 {hasBlocked ? "Unblock" : "Block"}
             </Button>
         </div>
