@@ -9,7 +9,7 @@ namespace Chess2.Api.Quests.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class QuestController(IGrainFactory grains, IAuthService authService) : Controller
+public class QuestsController(IGrainFactory grains, IAuthService authService) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
