@@ -9,5 +9,5 @@ public record GameQuestSnapshot(
     string GameToken,
     GameColor PlayerColor,
     IReadOnlyList<Move> MoveHistory,
-    GameResultData? ResultData = null
+    GameResultData ResultData
 );

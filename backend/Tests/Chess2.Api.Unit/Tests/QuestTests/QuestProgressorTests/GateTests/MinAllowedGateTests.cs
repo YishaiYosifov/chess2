@@ -1,5 +1,4 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Quests.QuestProgressors;
+﻿using Chess2.Api.Quests.QuestProgressors;
 using Chess2.Api.Quests.QuestProgressors.Gates;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -20,13 +19,13 @@ public class MinAllowedGateTests
         int expectedProgress
     )
     {
-        var snapshot = new GameStateFaker().Generate();
+        var snapshot = new GameQuestSnapshotFaker().Generate();
         var inner = Substitute.For<IQuestProgressor>();
-        inner.EvaluateProgressMade(snapshot, GameColor.White).Returns(innerProgress);
+        inner.EvaluateProgressMade(snapshot).Returns(innerProgress);
 
         MinAllowedGate gate = new(inner, maxProgress);
 
-        int progress = gate.EvaluateProgressMade(snapshot, GameColor.White);
+        int progress = gate.EvaluateProgressMade(snapshot);
 
         progress.Should().Be(expectedProgress);
     }
