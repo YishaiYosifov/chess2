@@ -2,8 +2,10 @@
 
 namespace Chess2.Api.Quests.Models;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.Quests.Models.QuestVariant")]
 public record QuestVariant(
-    IQuestProgressor Quest,
+    IQuestProgressor Progressor,
     string Description,
     int Target,
     QuestDifficulty Difficulty

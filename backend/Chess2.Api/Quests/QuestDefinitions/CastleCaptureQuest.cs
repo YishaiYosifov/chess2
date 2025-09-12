@@ -12,11 +12,11 @@ public class CastleCaptureQuest : IQuestDefinition
             new QuestVariant(
                 new WinCondition(
                     new FirstOccurrenceMetric(
-                        (move, _, currentPlayer) =>
+                        (move, _) =>
                             move.SpecialMoveType
                                 is SpecialMoveType.KingsideCastle
                                     or SpecialMoveType.QueensideCastle
-                            && move.Captures.Count > 0
+                            && move.Captures.Any(x => x.CapturedPiece.Type is PieceType.Bishop)
                     )
                 ),
                 Description: "Win a game after capturing your own bishop while castling",
