@@ -36,6 +36,9 @@ import type {
     BlockUserData,
     BlockUserResponses,
     BlockUserErrors,
+    GetDailyQuestData,
+    GetDailyQuestResponses,
+    GetDailyQuestErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -229,6 +232,19 @@ export const blockUser = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Social/block/{blockedUserId}",
+        ...options,
+    });
+};
+
+export const getDailyQuest = <ThrowOnError extends boolean = false>(
+    options?: Options<GetDailyQuestData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetDailyQuestResponses,
+        GetDailyQuestErrors,
+        ThrowOnError
+    >({
+        url: "/api/Quest",
         ...options,
     });
 };

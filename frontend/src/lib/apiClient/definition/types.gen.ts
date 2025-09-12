@@ -80,6 +80,12 @@ export type MinimalProfile = {
     userName: string;
 };
 
+export type QuestDto = {
+    description: string;
+    progress: number;
+    target: number;
+};
+
 export type SessionUser = {
     userId: string;
     type: string;
@@ -91,6 +97,7 @@ export type PrivateUser = SessionUser & {
     userName: string;
     about: string;
     countryCode: string;
+    questPoints: number;
     createdAt: string;
     usernameLastChanged?: string | null;
     type: string;
@@ -107,6 +114,7 @@ export type PublicUser = {
     userName: string;
     about: string;
     countryCode: string;
+    questPoints: number;
     createdAt: string;
 };
 
@@ -197,6 +205,7 @@ export type TimeControlSettings = {
 
 export type GamePlayer = {
     userId: string;
+    isAuthenticated: boolean;
     color: GameColor;
     userName: string;
     countryCode: string;
@@ -601,6 +610,26 @@ export type BlockUserResponses = {
 };
 
 export type BlockUserResponse = BlockUserResponses[keyof BlockUserResponses];
+
+export type GetDailyQuestData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Quest";
+};
+
+export type GetDailyQuestErrors = {
+    401: ApiProblemDetails;
+};
+
+export type GetDailyQuestError = GetDailyQuestErrors[keyof GetDailyQuestErrors];
+
+export type GetDailyQuestResponses = {
+    200: QuestDto;
+};
+
+export type GetDailyQuestResponse =
+    GetDailyQuestResponses[keyof GetDailyQuestResponses];
 
 export type GetSessionUserData = {
     body?: never;
