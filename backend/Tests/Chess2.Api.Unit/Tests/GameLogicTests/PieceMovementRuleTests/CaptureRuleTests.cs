@@ -39,7 +39,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             Origin,
             Destinations[0],
             piece,
-            capturedSquares: [Destinations[0]]
+            captures: [new MoveCapture(enemy, Destinations[0])]
         );
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[1..])]);
     }
@@ -64,9 +64,10 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
     {
         ChessBoard board = new();
         var piece = PieceFactory.White();
+        var pieceToCapture = PieceFactory.Black();
         board.PlacePiece(Origin, piece);
 
-        board.PlacePiece(Destinations[0], PieceFactory.Black()); // enemy
+        board.PlacePiece(Destinations[0], pieceToCapture); // enemy
         board.PlacePiece(Destinations[1], PieceFactory.White()); // ally
 
         CaptureRule behaviour = new(MovementMocks);
@@ -76,7 +77,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             Origin,
             Destinations[0],
             piece,
-            capturedSquares: [Destinations[0]]
+            captures: [new MoveCapture(pieceToCapture, Destinations[0])]
         );
 
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
@@ -104,7 +105,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             Origin,
             Destinations[0],
             piece,
-            capturedSquares: [Destinations[0]]
+            captures: [new MoveCapture(friendlyAllowed, Destinations[0])]
         );
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
     }
@@ -131,7 +132,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             Origin,
             Destinations[1],
             piece,
-            capturedSquares: [Destinations[1]]
+            captures: [new MoveCapture(capturePiece, Destinations[1])]
         );
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[2..])]);
     }
@@ -153,7 +154,7 @@ public class CaptureRuleTests : MovementBasedPieceRulesTestBase
             Origin,
             Destinations[0],
             piece,
-            capturedSquares: [Destinations[0]]
+            captures: [new MoveCapture(capturePiece, Destinations[0])]
         );
         result.Should().BeEquivalentTo([expectedCapture, .. CreateMoves(piece, Destinations[1..])]);
     }

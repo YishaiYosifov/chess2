@@ -74,12 +74,12 @@ public class GameCore(
             _logger.LogWarning("Could not find move with key {Key}", key);
             return GameErrors.MoveInvalid;
         }
-        bool isKingCapture = IsKingCapture(move, state.Board);
 
         state.Board.PlayMove(move);
         var fen = _fenCalculator.CalculateFen(state.Board);
 
         GameEndStatus? endStatus = null;
+        bool isKingCapture = IsKingCapture(move);
         if (isKingCapture)
         {
             endStatus = _resultDescriber.KingCaptured(by: movingSide);
@@ -138,6 +138,6 @@ public class GameCore(
         );
     }
 
-    private static bool IsKingCapture(Move move, ChessBoard board) =>
-        move.CapturedSquares.Any(capture => board.PeekPieceAt(capture)?.Type is PieceType.King);
+    private static bool IsKingCapture(Move move) =>
+        move.Captures.Any(capture => capture.CapturedPiece.Type is PieceType.King);
 }

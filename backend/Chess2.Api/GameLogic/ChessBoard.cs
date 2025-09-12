@@ -81,9 +81,9 @@ public class ChessBoard
         }
 
         // apply captures first
-        foreach (var capture in move.CapturedSquares)
+        foreach (var capture in move.Captures)
         {
-            _board[capture.Y, capture.X] = null;
+            _board[capture.Position.Y, capture.Position.X] = null;
         }
 
         // then move the pieces

@@ -16,8 +16,8 @@ public record MovePath(
     public static MovePath FromMove(Move move, int boardWidth)
     {
         var captures =
-            move.CapturedSquares.Count != 0
-                ? move.CapturedSquares.Select(c => c.AsIndex(boardWidth)).ToList()
+            move.Captures.Count != 0
+                ? move.Captures.Select(c => c.Position.AsIndex(boardWidth)).ToList()
                 : null;
         var triggers =
             move.TriggerSquares.Count != 0
