@@ -70,7 +70,6 @@ public class GameGrainState
     public GameResultData? Result;
 }
 
-[KeepAlive]
 public class GameGrain : Grain<GameGrainState>, IGameGrain, IGrainBase
 {
     public const string ClockTimerKey = "tickClock";
