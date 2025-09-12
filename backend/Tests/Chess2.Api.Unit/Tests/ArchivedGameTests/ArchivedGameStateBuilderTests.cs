@@ -42,6 +42,7 @@ public class ArchivedGameStateBuilderTests
             ),
             WhitePlayer: new GamePlayer(
                 whitePlayer.UserId,
+                blackPlayer.IsAuthenticated,
                 whitePlayer.Color,
                 whitePlayer.UserName,
                 whitePlayer.CountryCode,
@@ -49,6 +50,7 @@ public class ArchivedGameStateBuilderTests
             ),
             BlackPlayer: new GamePlayer(
                 blackPlayer.UserId,
+                blackPlayer.IsAuthenticated,
                 blackPlayer.Color,
                 blackPlayer.UserName,
                 blackPlayer.CountryCode,

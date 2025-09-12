@@ -21,6 +21,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
             UserName: user.UserName!,
             About: user.About,
             CountryCode: user.CountryCode,
+            QuestPoints: user.QuestPoints,
             CreatedAt: user.CreatedAt,
             UsernameLastChanged: user.UsernameLastChanged
         );

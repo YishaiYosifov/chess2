@@ -1,12 +1,14 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Quests.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
-using Chess2.Api.Profile.Entities;
 using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -17,6 +19,7 @@ public interface IGameFinalizer
         string gameToken,
         GameState state,
         GameEndStatus endStatus,
+        IReadOnlyList<Move> gameMoves,
         CancellationToken token = default
     );
 }
@@ -41,6 +44,7 @@ public class GameFinalizer(
         string gameToken,
         GameState state,
         GameEndStatus endStatus,
+        IReadOnlyList<Move> gameMoves,
         CancellationToken token = default
     )
     {
@@ -52,7 +56,17 @@ public class GameFinalizer(
             ratingChange,
             token
         );
+        await _unitOfWork.CompleteAsync(token);
 
+        GameResultData result = new(
+            Result: endStatus.Result,
+            ResultDescription: endStatus.ResultDescription,
+            WhiteRatingChange: ratingChange?.WhiteChange,
+            BlackRatingChange: ratingChange?.BlackChange
+        );
+
+        await NotifyQuestAsync(gameToken, state.WhitePlayer, gameMoves, result);
+        await NotifyQuestAsync(gameToken, state.BlackPlayer, gameMoves, result);
         await _grainFactory
             .GetGrain<IPlayerSessionGrain>(state.WhitePlayer.UserId)
             .GameEndedAsync(gameToken);
@@ -60,14 +74,7 @@ public class GameFinalizer(
             .GetGrain<IPlayerSessionGrain>(state.BlackPlayer.UserId)
             .GameEndedAsync(gameToken);
 
-        await _unitOfWork.CompleteAsync(token);
-
-        return new(
-            Result: endStatus.Result,
-            ResultDescription: endStatus.ResultDescription,
-            WhiteRatingChange: ratingChange?.WhiteChange,
-            BlackRatingChange: ratingChange?.BlackChange
-        );
+        return result;
     }
 
     private async Task<RatingChange?> UpdateRatingAsync(
@@ -92,5 +99,19 @@ public class GameFinalizer(
             token
         );
         return ratingChange;
+    }
+
+    private async Task NotifyQuestAsync(
+        string gameToken,
+        GamePlayer player,
+        IReadOnlyList<Move> gameMoves,
+        GameResultData result
+    )
+    {
+        if (!player.IsAuthenticated)
+            return;
+
+        var grain = _grainFactory.GetGrain<IQuestGrain>(player.UserId);
+        await grain.OnGameOverAsync(new(gameToken, player.Color, gameMoves, result));
     }
 }
