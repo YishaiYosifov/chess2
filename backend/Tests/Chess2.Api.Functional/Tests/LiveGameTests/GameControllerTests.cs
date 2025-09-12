@@ -3,15 +3,15 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Entities;
-using Chess2.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Functional.Tests;
+namespace Chess2.Api.Functional.Tests.LiveGameTests;
 
 public class GameControllerTests : BaseFunctionalTest
 {
