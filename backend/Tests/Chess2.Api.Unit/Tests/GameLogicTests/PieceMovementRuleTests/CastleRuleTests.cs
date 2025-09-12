@@ -20,8 +20,8 @@ public class CastleRuleTests
     private readonly AlgebraicPoint _kingQueensideDestination = new("d1");
     private readonly AlgebraicPoint _rookQueensideDestination = new("e1");
 
-    private readonly Piece _king = PieceFactory.White(PieceType.King);
-    private readonly Piece _rook = PieceFactory.White(PieceType.Rook);
+    private readonly Piece _king = PieceFactory.White(PieceType.King, timesMoved: 0);
+    private readonly Piece _rook = PieceFactory.White(PieceType.Rook, timesMoved: 0);
 
     [Fact]
     public void Evaluate_returns_nothing_if_king_has_moved()
@@ -215,8 +215,8 @@ public class CastleRuleTests
     {
         var board = new ChessBoard();
 
-        var blackKing = PieceFactory.Black(PieceType.King);
-        var blackRook = PieceFactory.Black(PieceType.Rook);
+        var blackKing = PieceFactory.Black(PieceType.King, timesMoved: 0);
+        var blackRook = PieceFactory.Black(PieceType.Rook, timesMoved: 0);
 
         var blackKingOrigin = new AlgebraicPoint("f10");
 
