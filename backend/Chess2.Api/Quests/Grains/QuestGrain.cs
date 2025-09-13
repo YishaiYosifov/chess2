@@ -137,6 +137,7 @@ public class QuestGrain(
             return;
 
         State.Streak++;
+        State.CanReplace = false;
         user.QuestPoints += (int)quest.Difficulty;
         await _userManager.UpdateAsync(user);
     }
