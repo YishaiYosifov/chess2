@@ -86,7 +86,7 @@ export type Quest = {
     target: number;
     progress: number;
     canReplace: boolean;
-    rewardPending: boolean;
+    rewardCollected: boolean;
     streak: number;
 };
 
@@ -690,7 +690,7 @@ export type CollectQuestRewardError =
     CollectQuestRewardErrors[keyof CollectQuestRewardErrors];
 
 export type CollectQuestRewardResponses = {
-    200: Quest;
+    200: number;
 };
 
 export type CollectQuestRewardResponse =

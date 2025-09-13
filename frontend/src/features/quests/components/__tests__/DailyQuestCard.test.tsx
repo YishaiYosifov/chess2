@@ -2,7 +2,11 @@ import { render, screen } from "@testing-library/react";
 
 import { createFakeQuest } from "@/lib/testUtils/fakers/questFaker";
 import DailyQuestCard from "../DailyQuestCard";
-import { QuestDifficulty, replaceDailyQuest } from "@/lib/apiClient";
+import {
+    collectQuestReward,
+    QuestDifficulty,
+    replaceDailyQuest,
+} from "@/lib/apiClient";
 import userEvent from "@testing-library/user-event";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
@@ -10,6 +14,7 @@ vi.mock("@/lib/apiClient/definition");
 
 describe("DailyQuestCard", () => {
     const replaceDailyQuestMock = vi.mocked(replaceDailyQuest);
+    const collectQuestRewardMock = vi.mocked(collectQuestReward);
 
     it("should render the title and streak", () => {
         const quest = createFakeQuest({ streak: 0 });
@@ -136,5 +141,73 @@ describe("DailyQuestCard", () => {
         expect(
             screen.queryByTestId("dailyQuestReplaceButton"),
         ).not.toBeInTheDocument();
+    });
+
+    it("should render collect reward button when quest is completed and reward not collected", () => {
+        const quest = createFakeQuest({
+            progress: 5,
+            target: 5,
+            rewardCollected: false,
+        });
+        render(<DailyQuestCard initialQuest={quest} />);
+
+        expect(
+            screen.getByTestId("dailyQuestCollectButton"),
+        ).toBeInTheDocument();
+        expect(screen.getByTestId("dailyQuestCollectButton")).toHaveTextContent(
+            "Collect Reward",
+        );
+    });
+
+    it("should call collectQuestReward and update quest on success", async () => {
+        const quest = createFakeQuest({
+            progress: 5,
+            target: 5,
+            rewardCollected: false,
+        });
+
+        const routerMock = mockRouter();
+        collectQuestRewardMock.mockResolvedValue({
+            data: quest.difficulty,
+            error: undefined,
+            response: new Response(),
+        });
+
+        const user = userEvent.setup();
+        render(<DailyQuestCard initialQuest={quest} />);
+        const collectButton = screen.getByTestId("dailyQuestCollectButton");
+
+        await user.click(collectButton);
+
+        expect(collectButton).toBeDisabled();
+        expect(routerMock.refresh).toHaveBeenCalled();
+        expect(
+            screen.queryByText(`+${quest.difficulty} quest points`),
+        ).toBeInTheDocument();
+    });
+
+    it("should display error message if collectQuestReward fails", async () => {
+        const quest = createFakeQuest({
+            progress: 5,
+            target: 5,
+            rewardCollected: false,
+        });
+
+        collectQuestRewardMock.mockResolvedValue({
+            data: undefined,
+            error: { errors: [], extensions: {} },
+            response: new Response(),
+        });
+
+        const user = userEvent.setup();
+        render(<DailyQuestCard initialQuest={quest} />);
+        const collectButton = screen.getByTestId("dailyQuestCollectButton");
+
+        await user.click(collectButton);
+
+        expect(
+            screen.getByText("Failed to collect reward"),
+        ).toBeInTheDocument();
+        expect(collectButton).not.toBeDisabled();
     });
 });
