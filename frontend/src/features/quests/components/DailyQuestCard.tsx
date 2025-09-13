@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/ui/Button";
@@ -10,7 +11,7 @@ import {
     QuestDifficulty,
     replaceDailyQuest,
 } from "@/lib/apiClient";
-import { useRouter } from "next/navigation";
+import NewQuestTimer from "./NewQuestTimer";
 
 const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     const [quest, setQuest] = useState(initialQuest);
@@ -137,7 +138,10 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         </p>
                     )}
                 </div>
-                {error && <span className="text-error">{error}</span>}
+
+                <NewQuestTimer />
+
+                {error && <p className="text-error">{error}</p>}
             </div>
         </Card>
     );
