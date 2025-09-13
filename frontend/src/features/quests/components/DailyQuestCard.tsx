@@ -129,7 +129,12 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         </Button>
                     )}
                     {isCompleted && quest.rewardCollected && (
-                        <p>+{quest.difficulty} quest points</p>
+                        <p
+                            data-testid="dailyQuestCollectedRewardText"
+                            className={difficultyColor[quest.difficulty]}
+                        >
+                            +{quest.difficulty} quest points
+                        </p>
                     )}
                 </div>
                 {error && <span className="text-error">{error}</span>}
