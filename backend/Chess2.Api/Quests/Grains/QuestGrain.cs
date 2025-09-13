@@ -198,6 +198,7 @@ public class QuestGrain(
             Target: quest.Target,
             Progress: State.Progress,
             CanReplace: State.CanReplace,
+            RewardPending: State.RewardPending,
             Streak: State.Streak
         );
 }
