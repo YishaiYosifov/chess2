@@ -60,4 +60,24 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
+
+    [Fact]
+    public async Task CollectQuestReward_disallows_claiming_without_completing_a_quest()
+    {
+        await AuthUtils.AuthenticateAsync(ApiClient);
+
+        var response = await ApiClient.Api.CollectQuestReward();
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task CollectQuestReward_rejects_unauthorized()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+
+        var response = await ApiClient.Api.CollectQuestReward();
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
 }
