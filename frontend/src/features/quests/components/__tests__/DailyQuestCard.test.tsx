@@ -6,14 +6,23 @@ import { QuestDifficulty } from "@/lib/apiClient";
 
 describe("DailyQuestCard", () => {
     it("should render the title and streak", () => {
-        const quest = createFakeQuest({ streak: 7 });
+        const quest = createFakeQuest({ streak: 0 });
         render(<DailyQuestCard quest={quest} />);
 
         expect(screen.getByTestId("dailyQuestTitle")).toHaveTextContent(
             "Daily Quest",
         );
         expect(screen.getByTestId("dailyQuestStreak")).toHaveTextContent(
-            "7 Day Streak",
+            "0 Day Streak",
+        );
+    });
+
+    it("should render the fire emoji when streak > 0", () => {
+        const quest = createFakeQuest({ streak: 7 });
+        render(<DailyQuestCard quest={quest} />);
+
+        expect(screen.getByTestId("dailyQuestStreak")).toHaveTextContent(
+            "🔥 7 Day Streak",
         );
     });
 
