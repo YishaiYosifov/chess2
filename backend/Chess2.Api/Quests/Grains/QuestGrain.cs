@@ -117,8 +117,14 @@ public class QuestGrain(
             }
         );
         var availableQuests = _quests
-            .SelectMany(quest => quest.Variants.Where(x => x.Difficulty == difficulty).ToList())
-            .Where(variant => variant.Description != State.Quest?.Description)
+            .SelectMany(quest =>
+                quest
+                    .Variants.Where(variant =>
+                        variant.Difficulty == difficulty
+                        && variant.Description != State.Quest?.Description
+                    )
+                    .ToList()
+            )
             .ToList();
 
         var quest = _random.NextItem(availableQuests);
