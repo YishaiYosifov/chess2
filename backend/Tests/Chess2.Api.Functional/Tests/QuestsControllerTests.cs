@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using Chess2.Api.Profile.DTOs;
 using Chess2.Api.TestInfrastructure;
+using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
 namespace Chess2.Api.Functional.Tests;
@@ -77,6 +79,52 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
         AuthUtils.AuthenticateGuest(ApiClient, "guest");
 
         var response = await ApiClient.Api.CollectQuestReward();
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task GetQuestLeaderboard_returns_public_users()
+    {
+        var users = new AuthedUserFaker().Generate(3);
+        await DbContext.AddRangeAsync(users, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateAsync(ApiClient);
+
+        var response = await ApiClient.Api.GetQuestLeaderboard();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response
+            .Content.Should()
+            .BeEquivalentTo(
+                users.OrderByDescending(x => x.QuestPoints).Select(u => new PublicUser(u))
+            );
+    }
+
+    [Fact]
+    public async Task GetMyQuestRanking_returns_ok_and_integer_rank_for_authenticated_user()
+    {
+        var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 10).Generate();
+        var higherUsers = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 20).Generate(5);
+        await DbContext.Users.AddAsync(user, CT);
+        await DbContext.Users.AddRangeAsync(higherUsers, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+
+        var response = await ApiClient.Api.GetMyQuestRanking();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Should().BeGreaterThan(higherUsers.Count + 1);
+    }
+
+    [Fact]
+    public async Task GetMyQuestRanking_rejects_unauthorized()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+
+        var response = await ApiClient.Api.GetMyQuestRanking();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
