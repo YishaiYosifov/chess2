@@ -182,8 +182,8 @@ describe("DailyQuestCard", () => {
         expect(collectButton).toBeDisabled();
         expect(routerMock.refresh).toHaveBeenCalled();
         expect(
-            screen.queryByText(`+${quest.difficulty} quest points`),
-        ).toBeInTheDocument();
+            screen.getByTestId("dailyQuestCollectedRewardText"),
+        ).toHaveTextContent(`+${quest.difficulty} quest points`);
     });
 
     it("should display error message if collectQuestReward fails", async () => {
@@ -206,7 +206,7 @@ describe("DailyQuestCard", () => {
         await user.click(collectButton);
 
         expect(
-            screen.getByText("Failed to collect reward"),
+            screen.getByTestId("dailyQuestCollectedRewardText"),
         ).toBeInTheDocument();
         expect(collectButton).not.toBeDisabled();
     });
