@@ -86,6 +86,7 @@ export type Quest = {
     target: number;
     progress: number;
     canReplace: boolean;
+    rewardPending: boolean;
     streak: number;
 };
 
@@ -401,6 +402,7 @@ export enum ErrorCode {
     GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
     QUEST_CANNOT_REPLACE = "Quest.CannotReplace",
+    QUEST_NO_REWARD_TO_COLLECT = "Quest.NoRewardToCollect",
 }
 
 export type GetRatingArchivesData = {
@@ -671,6 +673,28 @@ export type ReplaceDailyQuestResponses = {
 
 export type ReplaceDailyQuestResponse =
     ReplaceDailyQuestResponses[keyof ReplaceDailyQuestResponses];
+
+export type CollectQuestRewardData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Quests/claim";
+};
+
+export type CollectQuestRewardErrors = {
+    401: ApiProblemDetails;
+    404: ApiProblemDetails;
+};
+
+export type CollectQuestRewardError =
+    CollectQuestRewardErrors[keyof CollectQuestRewardErrors];
+
+export type CollectQuestRewardResponses = {
+    200: Quest;
+};
+
+export type CollectQuestRewardResponse =
+    CollectQuestRewardResponses[keyof CollectQuestRewardResponses];
 
 export type GetSessionUserData = {
     body?: never;
