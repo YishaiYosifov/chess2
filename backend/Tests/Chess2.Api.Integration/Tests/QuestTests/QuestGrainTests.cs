@@ -229,13 +229,20 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
             .Generate();
 
         var grain = await CreateGrainAsync(user.Id);
-        await grain.GetQuestAsync();
+        var initialQuest = await grain.GetQuestAsync();
 
         await grain.OnGameOverAsync(snapshot);
 
         var updatedUser = await _userManager.FindByIdAsync(user.Id);
         updatedUser.Should().NotBeNull();
         updatedUser.QuestPoints.Should().Be((int)QuestDifficulty.Easy);
+
+        var questAfterCompletion = await grain.GetQuestAsync();
+        questAfterCompletion.Should().BeEquivalentTo(initialQuest);
+
+        var replaceAttempt = await grain.ReplaceQuestAsync();
+        replaceAttempt.IsError.Should().BeTrue();
+        replaceAttempt.FirstError.Should().Be(QuestErrors.CanotReplace);
     }
 
     [Fact]
