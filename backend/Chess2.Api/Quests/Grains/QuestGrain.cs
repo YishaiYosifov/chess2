@@ -31,16 +31,19 @@ public class QuestGrainStorage
 
     [Id(2)]
     public DateOnly Date { get; set; }
+
+    [Id(3)]
+    public int Streak { get; set; }
 }
 
 public class QuestGrain(
-    IEnumerable<IQuestDefinition> availableQuests,
+    IEnumerable<IQuestDefinition> quests,
     UserManager<AuthedUser> userManager,
     TimeProvider timeProvider,
     IRandomProvider random
 ) : Grain<QuestGrainStorage>, IQuestGrain
 {
-    private readonly IEnumerable<IQuestDefinition> _availableQuests = availableQuests;
+    private readonly IEnumerable<IQuestDefinition> _quests = quests;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IRandomProvider _random = random;
@@ -49,9 +52,11 @@ public class QuestGrain(
     {
         var quest = await GetOrSelectQuestAsync();
         return new QuestDto(
+            Difficulty: quest.Difficulty,
             Description: quest.Description,
             Target: quest.Target,
-            Progress: State.Progress
+            Progress: State.Progress,
+            Streak: State.Streak
         );
     }
 
@@ -75,8 +80,12 @@ public class QuestGrain(
     private async Task<QuestVariant> GetOrSelectQuestAsync()
     {
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
+
         if (State.Quest is not null && State.Date == today)
             return State.Quest;
+
+        if (today.DayNumber - State.Date.DayNumber > 1)
+            State.Streak = 0;
 
         var difficulty = _random.NextWeighted(
             new Dictionary<int, QuestDifficulty>()
@@ -86,9 +95,9 @@ public class QuestGrain(
                 [20] = QuestDifficulty.Hard,
             }
         );
-        var availableQuests = _availableQuests.SelectMany(quest =>
-            quest.Variants.Where(x => x.Difficulty == difficulty).ToList()
-        );
+        var availableQuests = _quests
+            .SelectMany(quest => quest.Variants.Where(x => x.Difficulty == difficulty).ToList())
+            .ToList();
 
         var quest = _random.NextItem(availableQuests);
         State.Quest = quest;
@@ -105,6 +114,7 @@ public class QuestGrain(
         if (user is null)
             return;
 
+        State.Streak++;
         user.QuestPoints += (int)quest.Difficulty;
         await _userManager.UpdateAsync(user);
     }
