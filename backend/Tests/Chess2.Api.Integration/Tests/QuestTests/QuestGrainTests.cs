@@ -230,31 +230,20 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_completes_quest_and_awards_points()
+    public async Task OnGameOverAsync_completes_quest_and_requires_collecting_reward()
     {
-        var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 0).Generate();
-        await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-
         MockWinQuest(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
             .Generate();
 
-        var grain = await CreateGrainAsync(user.Id);
+        var grain = await CreateGrainAsync();
         var initialQuest = await grain.GetQuestAsync();
 
         await grain.OnGameOverAsync(snapshot);
 
-        var updatedUser = await _userManager.FindByIdAsync(user.Id);
-        updatedUser.Should().NotBeNull();
-        updatedUser.QuestPoints.Should().Be((int)QuestDifficulty.Easy);
-
-        SetupNextVariant(QuestDifficulty.Easy);
-        var questAfterCompletion = await grain.GetQuestAsync();
-        questAfterCompletion.Description.Should().Be(initialQuest.Description);
-
+        // quest replacement should still fail until a new quest is selected
         var replaceAttempt = await grain.ReplaceQuestAsync();
         replaceAttempt.IsError.Should().BeTrue();
         replaceAttempt.FirstError.Should().Be(QuestErrors.CanotReplace);
@@ -263,17 +252,13 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task OnGameOverAsync_increments_streak_across_multiple_days()
     {
-        var user = new AuthedUserFaker().Generate();
-        await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-
         MockWinQuest(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
             .Generate();
 
-        var grain = await CreateGrainAsync(user.Id);
+        var grain = await CreateGrainAsync();
 
         // day 1
         await grain.GetQuestAsync();
@@ -293,17 +278,13 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task Streak_resets_if_a_day_is_missed()
     {
-        var user = new AuthedUserFaker().Generate();
-        await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-
         MockWinQuest(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
             .Generate();
 
-        var grain = await CreateGrainAsync(user.Id);
+        var grain = await CreateGrainAsync();
 
         // day 1 complete quest
         await grain.GetQuestAsync();
@@ -385,5 +366,44 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var questAfterReset = await grain.GetQuestAsync();
         questAfterReset.Should().NotBe(replacement);
         questAfterReset.CanReplace.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CollectRewardAsync_fails_if_no_reward_pending()
+    {
+        var grain = await CreateGrainAsync();
+        var result = await grain.CollectRewardAsync();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(QuestErrors.NoRewardToCollect);
+    }
+
+    [Fact]
+    public async Task CollectRewardAsync_applies_reward_once()
+    {
+        var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 0).Generate();
+        await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
+        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
+
+        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
+            .Generate();
+
+        var grain = await CreateGrainAsync(user.Id);
+        await grain.OnGameOverAsync(snapshot);
+
+        var userAfterGameOver = await _userManager.FindByIdAsync(user.Id);
+        userAfterGameOver?.QuestPoints.Should().Be(0);
+
+        var reward = await grain.CollectRewardAsync();
+        reward.Value.Should().Be((int)QuestDifficulty.Easy);
+
+        var userAfterClaim = await _userManager.FindByIdAsync(user.Id);
+        userAfterClaim?.QuestPoints.Should().Be((int)QuestDifficulty.Easy);
+
+        var secondAttempt = await grain.CollectRewardAsync();
+        secondAttempt.IsError.Should().BeTrue();
+        secondAttempt.FirstError.Should().Be(QuestErrors.NoRewardToCollect);
     }
 }

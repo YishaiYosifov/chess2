@@ -13,6 +13,9 @@ namespace Chess2.Api.Quests.Grains;
 [Alias("Chess2.Api.Quests.Grains.IQuestGrain")]
 public interface IQuestGrain : IGrainWithStringKey
 {
+    [Alias("CollectRewardAsync")]
+    Task<ErrorOr<int>> CollectRewardAsync();
+
     [Alias("GetGuestAsync")]
     Task<QuestDto> GetQuestAsync();
 
@@ -41,7 +44,46 @@ public class QuestGrainStorage
     public bool CanReplace { get; set; } = true;
 
     [Id(4)]
+    public bool RewardPending { get; set; }
+
+    [Id(5)]
     public int Streak { get; set; }
+
+    public void CompleteQuest()
+    {
+        if (Quest is null)
+            return;
+
+        Progress = Quest.Target;
+        Streak++;
+        CanReplace = false;
+        RewardPending = true;
+    }
+
+    public void ResetProgressForNewQuest(QuestVariant quest, DateOnly today)
+    {
+        Quest = quest;
+        Progress = 0;
+        Date = today;
+        CanReplace = true;
+        RewardPending = false;
+    }
+
+    public void IncrementProgress(int amount)
+    {
+        if (Quest is null)
+            return;
+
+        Progress = Math.Min(Quest.Target, Progress + amount);
+    }
+
+    public void ResetStreakIfMissedDay(DateOnly today)
+    {
+        if (today.DayNumber - Date.DayNumber > 1)
+            Streak = 0;
+    }
+
+    public void MarkRewardCollected() => RewardPending = false;
 }
 
 public class QuestGrain(
@@ -76,6 +118,24 @@ public class QuestGrain(
         return ToDto(quest);
     }
 
+    public async Task<ErrorOr<int>> CollectRewardAsync()
+    {
+        if (!State.RewardPending || State.Quest is null)
+            return QuestErrors.NoRewardToCollect;
+
+        var user = await _userManager.FindByIdAsync(this.GetPrimaryKeyString());
+        if (user is null)
+            return QuestErrors.NoRewardToCollect;
+
+        user.QuestPoints += (int)State.Quest.Difficulty;
+        await _userManager.UpdateAsync(user);
+
+        State.MarkRewardCollected();
+        await WriteStateAsync();
+
+        return (int)State.Quest.Difficulty;
+    }
+
     public async Task OnGameOverAsync(GameQuestSnapshot snapshot)
     {
         var quest = GetOrSelectQuest();
@@ -86,9 +146,9 @@ public class QuestGrain(
         if (progressMade <= 0)
             return;
 
-        State.Progress = Math.Min(quest.Target, State.Progress + progressMade);
+        State.IncrementProgress(progressMade);
         if (State.Progress >= quest.Target)
-            await CompleteQuestAsync(quest);
+            State.CompleteQuest();
 
         await WriteStateAsync();
     }
@@ -104,10 +164,6 @@ public class QuestGrain(
 
     private QuestVariant SelectNewQuest()
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        if (today.DayNumber - State.Date.DayNumber > 1)
-            State.Streak = 0;
-
         var difficulty = _random.NextWeighted(
             new Dictionary<int, QuestDifficulty>()
             {
@@ -126,26 +182,13 @@ public class QuestGrain(
                     .ToList()
             )
             .ToList();
-
         var quest = _random.NextItem(availableQuests);
-        State.Quest = quest;
-        State.Progress = 0;
-        State.Date = today;
-        State.CanReplace = true;
+
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
+        State.ResetStreakIfMissedDay(today);
+        State.ResetProgressForNewQuest(quest, today);
 
         return quest;
-    }
-
-    private async Task CompleteQuestAsync(QuestVariant quest)
-    {
-        var user = await _userManager.FindByIdAsync(this.GetPrimaryKeyString());
-        if (user is null)
-            return;
-
-        State.Streak++;
-        State.CanReplace = false;
-        user.QuestPoints += (int)quest.Difficulty;
-        await _userManager.UpdateAsync(user);
     }
 
     private QuestDto ToDto(QuestVariant quest) =>
