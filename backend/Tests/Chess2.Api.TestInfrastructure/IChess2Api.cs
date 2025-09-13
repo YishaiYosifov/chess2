@@ -118,10 +118,16 @@ public interface IChess2Api
     [Get("/api/quests")]
     Task<IApiResponse<QuestDto>> GetDailyQuest();
 
-    [Get("/api/quests/replace")]
+    [Post("/api/quests/replace")]
     Task<IApiResponse<QuestDto>> ReplaceDailyQuest();
 
     [Post("/api/quests/claim")]
     Task<IApiResponse<QuestDto>> CollectQuestReward();
+
+    [Get("/api/quests/leaderboard")]
+    Task<IApiResponse<PublicUser>> GetQuestLeaderboard();
+
+    [Get("/api/quests/leaderboard/me")]
+    Task<IApiResponse<int>> GetMyQuestRanking();
     #endregion
 }
