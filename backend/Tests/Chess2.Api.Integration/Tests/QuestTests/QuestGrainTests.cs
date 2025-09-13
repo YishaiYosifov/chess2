@@ -141,7 +141,8 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Target: variant.Target,
                     Progress: 0,
                     CanReplace: true,
-                    Streak: 0
+                    Streak: 0,
+                    RewardPending: false
                 )
             );
 
@@ -184,7 +185,8 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Target: variant2.Target,
                     Progress: 0,
                     CanReplace: true,
-                    Streak: 0
+                    Streak: 0,
+                    RewardPending: false
                 )
             );
     }
@@ -242,6 +244,12 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var initialQuest = await grain.GetQuestAsync();
 
         await grain.OnGameOverAsync(snapshot);
+
+        SetupNextVariant(QuestDifficulty.Medium);
+        var questAfterCompletion = await grain.GetQuestAsync();
+        questAfterCompletion.Description.Should().Be(initialQuest.Description);
+        questAfterCompletion.CanReplace.Should().BeFalse();
+        questAfterCompletion.RewardPending.Should().BeTrue();
 
         // quest replacement should still fail until a new quest is selected
         var replaceAttempt = await grain.ReplaceQuestAsync();
@@ -321,6 +329,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Target: variant2.Target,
                     Progress: 0,
                     CanReplace: false,
+                    RewardPending: false,
                     Streak: 0
                 )
             );
