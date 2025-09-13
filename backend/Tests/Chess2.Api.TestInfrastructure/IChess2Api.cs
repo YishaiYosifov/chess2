@@ -120,5 +120,8 @@ public interface IChess2Api
 
     [Get("/api/quests/replace")]
     Task<IApiResponse<QuestDto>> ReplaceDailyQuest();
+
+    [Post("/api/quests/claim")]
+    Task<IApiResponse<QuestDto>> CollectQuestReward();
     #endregion
 }

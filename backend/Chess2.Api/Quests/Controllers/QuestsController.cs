@@ -43,4 +43,20 @@ public class QuestsController(IGrainFactory grains, IAuthService authService) : 
             .ReplaceQuestAsync();
         return replaceResult.Match(Ok, errors => errors.ToActionResult());
     }
+
+    [HttpPost("claim", Name = nameof(CollectQuestReward))]
+    [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [Authorize]
+    public async Task<ActionResult<int>> CollectQuestReward()
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var replaceResult = await _grains
+            .GetGrain<IQuestGrain>(userIdResult.Value)
+            .CollectRewardAsync();
+        return replaceResult.Match(value => Ok(value), errors => errors.ToActionResult());
+    }
 }
