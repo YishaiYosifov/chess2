@@ -80,11 +80,28 @@ export type MinimalProfile = {
     userName: string;
 };
 
-export type QuestDto = {
+export type Quest = {
+    difficulty: QuestDifficulty;
     description: string;
     progress: number;
     target: number;
+    streak: number;
 };
+
+export enum QuestDifficulty {
+    /**
+     * Easy
+     */
+    EASY = 5,
+    /**
+     * Medium
+     */
+    MEDIUM = 10,
+    /**
+     * Hard
+     */
+    HARD = 20,
+}
 
 export type SessionUser = {
     userId: string;
@@ -615,7 +632,7 @@ export type GetDailyQuestData = {
     body?: never;
     path?: never;
     query?: never;
-    url: "/api/Quest";
+    url: "/api/Quests";
 };
 
 export type GetDailyQuestErrors = {
@@ -625,7 +642,7 @@ export type GetDailyQuestErrors = {
 export type GetDailyQuestError = GetDailyQuestErrors[keyof GetDailyQuestErrors];
 
 export type GetDailyQuestResponses = {
-    200: QuestDto;
+    200: Quest;
 };
 
 export type GetDailyQuestResponse =
