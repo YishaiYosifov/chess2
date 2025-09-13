@@ -39,6 +39,9 @@ import type {
     GetDailyQuestData,
     GetDailyQuestResponses,
     GetDailyQuestErrors,
+    ReplaceDailyQuestData,
+    ReplaceDailyQuestResponses,
+    ReplaceDailyQuestErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -245,6 +248,19 @@ export const getDailyQuest = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Quests",
+        ...options,
+    });
+};
+
+export const replaceDailyQuest = <ThrowOnError extends boolean = false>(
+    options?: Options<ReplaceDailyQuestData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        ReplaceDailyQuestResponses,
+        ReplaceDailyQuestErrors,
+        ThrowOnError
+    >({
+        url: "/api/Quests/replace",
         ...options,
     });
 };
