@@ -244,7 +244,7 @@ export const getDailyQuest = <ThrowOnError extends boolean = false>(
         GetDailyQuestErrors,
         ThrowOnError
     >({
-        url: "/api/Quest",
+        url: "/api/Quests",
         ...options,
     });
 };
