@@ -4,13 +4,18 @@ import { useState } from "react";
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import { Quest, QuestDifficulty, replaceDailyQuest } from "@/lib/apiClient";
+import {
+    collectQuestReward,
+    Quest,
+    QuestDifficulty,
+    replaceDailyQuest,
+} from "@/lib/apiClient";
 import { useRouter } from "next/navigation";
 
 const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     const [quest, setQuest] = useState(initialQuest);
     const [error, setError] = useState("");
-    const [isReplacing, setIsReplacing] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     const router = useRouter();
 
     const percentDone = (quest.progress / quest.target) * 100;
@@ -26,7 +31,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     };
 
     async function replaceQuest() {
-        setIsReplacing(true);
+        setIsFetching(true);
 
         try {
             const { error, data: newQuest } = await replaceDailyQuest();
@@ -39,7 +44,24 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
             setQuest(newQuest);
             router.refresh();
         } finally {
-            setIsReplacing(false);
+            setIsFetching(false);
+        }
+    }
+
+    async function collectReward() {
+        setIsFetching(true);
+        try {
+            const { error } = await collectQuestReward();
+            if (error) {
+                setError("Failed to collect reward");
+                console.error(error);
+                return;
+            }
+
+            setQuest({ ...quest, rewardCollected: true });
+            router.refresh();
+        } finally {
+            setIsFetching(false);
         }
     }
 
@@ -92,10 +114,22 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         <Button
                             data-testid="dailyQuestReplaceButton"
                             onClick={replaceQuest}
-                            disabled={isReplacing}
+                            disabled={isFetching}
                         >
                             Replace
                         </Button>
+                    )}
+                    {isCompleted && !quest.rewardCollected && (
+                        <Button
+                            data-testid="dailyQuestCollectButton"
+                            onClick={collectReward}
+                            disabled={isFetching}
+                        >
+                            Collect Reward
+                        </Button>
+                    )}
+                    {isCompleted && quest.rewardCollected && (
+                        <p>+{quest.difficulty} quest points</p>
                     )}
                 </div>
                 {error && <span className="text-error">{error}</span>}
