@@ -28,7 +28,7 @@ export default async function QuestsPage() {
                             0.5/1
                         </p>
 
-                        <Button className="flex-none">Replace</Button>
+                        <Button>Replace</Button>
                     </div>
                 </div>
             </Card>
