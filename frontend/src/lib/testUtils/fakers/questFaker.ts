@@ -10,6 +10,7 @@ export function createFakeQuest(overrides?: Partial<Quest>): Quest {
         target,
         streak: faker.number.int({ min: 1, max: 10 }),
         canReplace: true,
+        rewardPending: false,
         ...overrides,
     };
 }

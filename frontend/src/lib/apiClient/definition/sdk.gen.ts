@@ -42,6 +42,9 @@ import type {
     ReplaceDailyQuestData,
     ReplaceDailyQuestResponses,
     ReplaceDailyQuestErrors,
+    CollectQuestRewardData,
+    CollectQuestRewardResponses,
+    CollectQuestRewardErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -261,6 +264,19 @@ export const replaceDailyQuest = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Quests/replace",
+        ...options,
+    });
+};
+
+export const collectQuestReward = <ThrowOnError extends boolean = false>(
+    options?: Options<CollectQuestRewardData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).post<
+        CollectQuestRewardResponses,
+        CollectQuestRewardErrors,
+        ThrowOnError
+    >({
+        url: "/api/Quests/claim",
         ...options,
     });
 };
