@@ -9,7 +9,8 @@ namespace Chess2.Api.Quests.DTOs;
 public record QuestDto(
     QuestDifficulty Difficulty,
     string Description,
-    int Progress,
     int Target,
+    int Progress,
+    bool CanReplace,
     int Streak
 );

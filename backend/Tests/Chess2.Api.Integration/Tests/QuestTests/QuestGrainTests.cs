@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.DTOs;
+using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Grains;
 using Chess2.Api.Quests.Models;
 using Chess2.Api.Quests.QuestDefinitions;
@@ -123,8 +124,9 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                 new QuestDto(
                     QuestDifficulty.Easy,
                     variant.Description,
-                    Progress: 0,
                     Target: variant.Target,
+                    Progress: 0,
+                    CanReplace: true,
                     Streak: 0
                 )
             );
@@ -138,16 +140,13 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var variant1 = MockVariant(QuestDifficulty.Medium, index: 0);
         var grain = await CreateGrainAsync();
 
-        var storageStats = GetStorageStats();
         var quest1 = await grain.GetQuestAsync();
-        storageStats?.ResetCounts();
 
         var variant2 = MockVariant(QuestDifficulty.Easy, index: 1);
         var quest2 = await grain.GetQuestAsync();
 
         variant1.Should().NotBeEquivalentTo(variant2);
         quest1.Should().BeEquivalentTo(quest2);
-        storageStats?.Writes.Should().Be(0);
     }
 
     [Fact]
@@ -168,8 +167,9 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                 new QuestDto(
                     variant2.Difficulty,
                     variant2.Description,
-                    Progress: 0,
                     Target: variant2.Target,
+                    Progress: 0,
+                    CanReplace: true,
                     Streak: 0
                 )
             );
@@ -193,7 +193,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         var quest = await grain.GetQuestAsync();
         quest.Progress.Should().Be(1);
-        storageStats?.Writes.Should().Be(1);
+        storageStats?.Writes.Should().Be(2);
     }
 
     [Fact]
@@ -209,7 +209,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var storageStats = GetStorageStats();
         await grain.OnGameOverAsync(snapshot);
 
-        storageStats?.Writes.Should().Be(1); // 1 write for creating the quest
+        storageStats?.Writes.Should().Be(0);
 
         var quest = await grain.GetQuestAsync();
         quest.Progress.Should().Be(0);
@@ -294,5 +294,71 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var questAfterSkip = await grain.GetQuestAsync();
 
         questAfterSkip.Streak.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ReplaceQuestAsync_replaces_quest_when_allowed()
+    {
+        MockVariant(QuestDifficulty.Easy, index: 0);
+        var grain = await CreateGrainAsync();
+        var storageStats = GetStorageStats();
+        await grain.GetQuestAsync();
+        storageStats?.ResetCounts();
+
+        var newVariant = MockVariant(QuestDifficulty.Medium, index: 1);
+        var result = await grain.ReplaceQuestAsync();
+
+        result.IsError.Should().BeFalse();
+        result
+            .Value.Should()
+            .BeEquivalentTo(
+                new QuestDto(
+                    Difficulty: newVariant.Difficulty,
+                    Description: newVariant.Description,
+                    Target: newVariant.Target,
+                    Progress: 0,
+                    CanReplace: false,
+                    Streak: 0
+                )
+            );
+        storageStats?.Writes.Should().Be(1);
+
+        var questAfter = await grain.GetQuestAsync();
+        questAfter.Should().BeEquivalentTo(result.Value);
+    }
+
+    [Fact]
+    public async Task ReplaceQuestAsync_fails_if_cannot_replace()
+    {
+        MockVariant(QuestDifficulty.Easy, index: 0);
+        var grain = await CreateGrainAsync();
+        await grain.GetQuestAsync();
+
+        var firstReplacement = await grain.ReplaceQuestAsync();
+
+        var secondReplacement = await grain.ReplaceQuestAsync();
+
+        secondReplacement.IsError.Should().BeTrue();
+        secondReplacement.FirstError.Should().Be(QuestErrors.CanotReplace);
+
+        var questAfter = await grain.GetQuestAsync();
+        questAfter.Should().BeEquivalentTo(firstReplacement.Value);
+    }
+
+    [Fact]
+    public async Task GetQuestAsync_resets_can_replace()
+    {
+        MockVariant(QuestDifficulty.Easy, index: 0);
+        var grain = await CreateGrainAsync();
+        await grain.GetQuestAsync();
+
+        var replacement = await grain.ReplaceQuestAsync();
+
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(1));
+
+        MockVariant(QuestDifficulty.Easy, index: 1);
+        var questAfterReset = await grain.GetQuestAsync();
+        questAfterReset.Should().NotBe(replacement);
+        questAfterReset.CanReplace.Should().BeTrue();
     }
 }

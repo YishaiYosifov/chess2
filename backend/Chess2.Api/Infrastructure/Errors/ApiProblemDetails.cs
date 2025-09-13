@@ -59,4 +59,6 @@ public static class ErrorCodes
     public const string GameChatInvalidUser = "GameChat.InvalidUser";
     public const string GameChatInvalidMessage = "GameChat.InvalidMessage";
     public const string GameChatOnCooldown = "GameChat.OnCooldown";
+
+    public const string QuestCannotReplace = "Quest.CannotReplace";
 }
