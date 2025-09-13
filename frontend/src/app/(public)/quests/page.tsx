@@ -5,6 +5,8 @@ import DailyQuestCardLoggedOut from "@/features/quests/components/DailyQuestCard
 import { getDailyQuest, Quest } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 
+export const metadata = { title: "Quests - Chess 2" };
+
 export default async function QuestsPage() {
     return (
         <WithOptionalAuthedUser>
