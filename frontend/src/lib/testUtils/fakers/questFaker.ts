@@ -9,6 +9,7 @@ export function createFakeQuest(overrides?: Partial<Quest>): Quest {
         progress: faker.number.int({ min: 0, max: target - 1 }),
         target,
         streak: faker.number.int({ min: 1, max: 10 }),
+        canReplace: true,
         ...overrides,
     };
 }
