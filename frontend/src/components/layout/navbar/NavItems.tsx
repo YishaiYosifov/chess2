@@ -63,7 +63,12 @@ export const UpperNavItems = ({
             >
                 Home
             </NavItem>
-            <NavItem as={Link} href="/quests" icon={<CalendarIcon />}>
+            <NavItem
+                as={Link}
+                href="/quests"
+                icon={<CalendarIcon />}
+                isCollapsed={isCollapsed}
+            >
                 Quests
             </NavItem>
             {hasAccessCookie ? authedLinks : unauthedLinks}
