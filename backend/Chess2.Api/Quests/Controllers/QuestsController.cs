@@ -45,7 +45,7 @@ public class QuestsController(IGrainFactory grains, IAuthService authService) : 
     }
 
     [HttpPost("claim", Name = nameof(CollectQuestReward))]
-    [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize]
     public async Task<ActionResult<int>> CollectQuestReward()
