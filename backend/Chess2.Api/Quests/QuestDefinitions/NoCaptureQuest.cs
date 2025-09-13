@@ -22,7 +22,7 @@ public class NoCaptureQuest : IQuestDefinition
                     minProgress: minMoves * 2
                 )
             ),
-            Description: $"Win 5 games without a piece capture in the first {minMoves} moves (must last at least that many moves)",
+            Description: $"Win 5 games without a piece capture in the first {minMoves} moves (game must last at least that many moves)",
             Target: 5,
             Difficulty: difficulty
         );
