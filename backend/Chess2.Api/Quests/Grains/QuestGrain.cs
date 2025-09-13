@@ -1,8 +1,10 @@
 ﻿using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.DTOs;
+using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Models;
 using Chess2.Api.Quests.QuestDefinitions;
 using Chess2.Api.Shared.Services;
+using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Orleans.Concurrency;
 
@@ -17,6 +19,9 @@ public interface IQuestGrain : IGrainWithStringKey
     [OneWay]
     [Alias("OnGameOverAsync")]
     Task OnGameOverAsync(GameQuestSnapshot snapshot);
+
+    [Alias("ReplaceQuestAsync")]
+    Task<ErrorOr<QuestDto>> ReplaceQuestAsync();
 }
 
 [GenerateSerializer]
@@ -33,6 +38,9 @@ public class QuestGrainStorage
     public DateOnly Date { get; set; }
 
     [Id(3)]
+    public bool CanReplace { get; set; }
+
+    [Id(4)]
     public int Streak { get; set; }
 }
 
@@ -50,19 +58,27 @@ public class QuestGrain(
 
     public async Task<QuestDto> GetQuestAsync()
     {
-        var quest = await GetOrSelectQuestAsync();
-        return new QuestDto(
-            Difficulty: quest.Difficulty,
-            Description: quest.Description,
-            Target: quest.Target,
-            Progress: State.Progress,
-            Streak: State.Streak
-        );
+        var quest = GetOrSelectQuest();
+        await WriteStateAsync();
+
+        return ToDto(quest);
+    }
+
+    public async Task<ErrorOr<QuestDto>> ReplaceQuestAsync()
+    {
+        if (!State.CanReplace)
+            return QuestErrors.CanotReplace;
+
+        var quest = SelectNewQuest();
+        State.CanReplace = false;
+        await WriteStateAsync();
+
+        return ToDto(quest);
     }
 
     public async Task OnGameOverAsync(GameQuestSnapshot snapshot)
     {
-        var quest = await GetOrSelectQuestAsync();
+        var quest = GetOrSelectQuest();
         if (State.Progress >= quest.Target)
             return;
 
@@ -77,13 +93,18 @@ public class QuestGrain(
         await WriteStateAsync();
     }
 
-    private async Task<QuestVariant> GetOrSelectQuestAsync()
+    private QuestVariant GetOrSelectQuest()
     {
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-
         if (State.Quest is not null && State.Date == today)
             return State.Quest;
 
+        return SelectNewQuest();
+    }
+
+    private QuestVariant SelectNewQuest()
+    {
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
         if (today.DayNumber - State.Date.DayNumber > 1)
             State.Streak = 0;
 
@@ -103,7 +124,7 @@ public class QuestGrain(
         State.Quest = quest;
         State.Progress = 0;
         State.Date = today;
-        await WriteStateAsync();
+        State.CanReplace = true;
 
         return quest;
     }
@@ -118,4 +139,14 @@ public class QuestGrain(
         user.QuestPoints += (int)quest.Difficulty;
         await _userManager.UpdateAsync(user);
     }
+
+    private QuestDto ToDto(QuestVariant quest) =>
+        new(
+            Difficulty: quest.Difficulty,
+            Description: quest.Description,
+            Target: quest.Target,
+            Progress: State.Progress,
+            CanReplace: State.CanReplace,
+            Streak: State.Streak
+        );
 }

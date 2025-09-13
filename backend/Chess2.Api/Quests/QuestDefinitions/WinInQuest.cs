@@ -17,8 +17,8 @@ public class WinInQuest : IQuestDefinition
     private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
         new(
             new WinCondition(new MaxAllowedGate(new GameLengthMetric(), maxProgress: maxMoves * 2)),
-            Description: $"Win in {maxMoves} moves or less",
-            Target: 1,
+            Description: $"Win 5 games in {maxMoves} moves or less",
+            Target: 5,
             Difficulty: difficulty
         );
 }
