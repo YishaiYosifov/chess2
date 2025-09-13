@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Auth.Services;
+using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Grains;
@@ -25,5 +26,21 @@ public class QuestsController(IGrainFactory grains, IAuthService authService) : 
 
         var quest = await _grains.GetGrain<IQuestGrain>(userIdResult.Value).GetQuestAsync();
         return Ok(quest);
+    }
+
+    [HttpGet("replace", Name = nameof(ReplaceDailyQuest))]
+    [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
+    [Authorize]
+    public async Task<ActionResult<QuestDto>> ReplaceDailyQuest()
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+
+        var replaceResult = await _grains
+            .GetGrain<IQuestGrain>(userIdResult.Value)
+            .ReplaceQuestAsync();
+        return replaceResult.Match(Ok, errors => errors.ToActionResult());
     }
 }
