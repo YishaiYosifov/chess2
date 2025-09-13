@@ -17,33 +17,50 @@ const DailyQuestCard = ({ quest }: { quest: Quest }) => {
     return (
         <Card className="h-fit w-full max-w-3xl gap-6 p-6">
             <div className="flex flex-col justify-between sm:flex-row">
-                <h1 className="text-4xl">Daily Quest</h1>
-                <p className="text-text/70 font-medium">
+                <h1 className="text-4xl" data-testid="dailyQuestTitle">
+                    Daily Quest
+                </h1>
+                <p
+                    className="text-text/70 font-medium"
+                    data-testid="dailyQuestStreak"
+                >
                     {quest.streak} Day Streak
                 </p>
             </div>
 
             <div className="flex flex-col gap-2">
-                <p className="text-lg">
-                    <span className={difficultyColor[quest.difficulty]}>
+                <p className="text-lg" data-testid="dailyQuestDescription">
+                    <span
+                        className={difficultyColor[quest.difficulty]}
+                        data-testid="dailyQuestDifficulty"
+                    >
                         {difficultyText}:
                     </span>{" "}
                     {quest.description}
                 </p>
 
                 <div className="flex items-center gap-3">
-                    <div className="bg-primary h-4 flex-1 overflow-hidden rounded-full">
+                    <div
+                        className="bg-primary h-4 flex-1 overflow-hidden rounded-full"
+                        data-testid="dailyQuestProgressBar"
+                    >
                         <div
                             className="bg-secondary h-4 rounded-full"
                             style={{ width: `${percentDone}%` }}
+                            data-testid="dailyQuestProgressFill"
                         />
                     </div>
 
-                    <p className="text-text/70 min-w-[40px] text-center text-sm font-medium">
+                    <p
+                        className="text-text/70 min-w-[40px] text-center text-sm font-medium"
+                        data-testid="dailyQuestProgressText"
+                    >
                         {quest.progress}/{quest.target}
                     </p>
 
-                    <Button>Replace</Button>
+                    <Button data-testid="dailyQuestReplaceButton">
+                        Replace
+                    </Button>
                 </div>
             </div>
         </Card>
