@@ -21,7 +21,7 @@ export default async function QuestsPage() {
                 return (
                     <div className="flex w-full flex-col items-center gap-6 p-5">
                         {dailyQuest ? (
-                            <DailyQuestCard quest={dailyQuest} />
+                            <DailyQuestCard initialQuest={dailyQuest} />
                         ) : (
                             <DailyQuestCardLoggedOut />
                         )}

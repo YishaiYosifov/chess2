@@ -83,8 +83,9 @@ export type MinimalProfile = {
 export type Quest = {
     difficulty: QuestDifficulty;
     description: string;
-    progress: number;
     target: number;
+    progress: number;
+    canReplace: boolean;
     streak: number;
 };
 
@@ -399,6 +400,7 @@ export enum ErrorCode {
     GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
     GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
+    QUEST_CANNOT_REPLACE = "Quest.CannotReplace",
 }
 
 export type GetRatingArchivesData = {
@@ -647,6 +649,28 @@ export type GetDailyQuestResponses = {
 
 export type GetDailyQuestResponse =
     GetDailyQuestResponses[keyof GetDailyQuestResponses];
+
+export type ReplaceDailyQuestData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Quests/replace";
+};
+
+export type ReplaceDailyQuestErrors = {
+    401: ApiProblemDetails;
+    403: ApiProblemDetails;
+};
+
+export type ReplaceDailyQuestError =
+    ReplaceDailyQuestErrors[keyof ReplaceDailyQuestErrors];
+
+export type ReplaceDailyQuestResponses = {
+    200: Quest;
+};
+
+export type ReplaceDailyQuestResponse =
+    ReplaceDailyQuestResponses[keyof ReplaceDailyQuestResponses];
 
 export type GetSessionUserData = {
     body?: never;
