@@ -61,4 +61,5 @@ public static class ErrorCodes
     public const string GameChatOnCooldown = "GameChat.OnCooldown";
 
     public const string QuestCannotReplace = "Quest.CannotReplace";
+    public const string QuestNoRewardToCollect = "Quest.NoRewardToCollect";
 }
