@@ -117,5 +117,8 @@ public interface IChess2Api
     #region Quests
     [Get("/api/quests")]
     Task<IApiResponse<QuestDto>> GetDailyQuest();
+
+    [Get("/api/quests/replace")]
+    Task<IApiResponse<QuestDto>> ReplaceDailyQuest();
     #endregion
 }

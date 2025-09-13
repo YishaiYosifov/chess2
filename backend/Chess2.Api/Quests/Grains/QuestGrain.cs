@@ -38,7 +38,7 @@ public class QuestGrainStorage
     public DateOnly Date { get; set; }
 
     [Id(3)]
-    public bool CanReplace { get; set; }
+    public bool CanReplace { get; set; } = true;
 
     [Id(4)]
     public int Streak { get; set; }
