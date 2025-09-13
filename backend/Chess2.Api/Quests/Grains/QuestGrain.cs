@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Profile.Entities;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Models;
@@ -44,10 +45,13 @@ public class QuestGrainStorage
     public bool CanReplace { get; set; } = true;
 
     [Id(4)]
-    public bool RewardPending { get; set; }
+    public bool RewardCollected { get; set; }
 
     [Id(5)]
     public int Streak { get; set; }
+
+    [MemberNotNullWhen(true, nameof(Quest))]
+    public bool IsQuestCompleted => Quest is not null && Progress >= Quest.Target;
 
     public void CompleteQuest()
     {
@@ -57,7 +61,6 @@ public class QuestGrainStorage
         Progress = Quest.Target;
         Streak++;
         CanReplace = false;
-        RewardPending = true;
     }
 
     public void ResetProgressForNewQuest(QuestVariant quest, DateOnly today)
@@ -66,7 +69,7 @@ public class QuestGrainStorage
         Progress = 0;
         Date = today;
         CanReplace = true;
-        RewardPending = false;
+        RewardCollected = false;
     }
 
     public void IncrementProgress(int amount)
@@ -83,7 +86,7 @@ public class QuestGrainStorage
             Streak = 0;
     }
 
-    public void MarkRewardCollected() => RewardPending = false;
+    public void MarkRewardCollected() => RewardCollected = true;
 }
 
 public class QuestGrain(
@@ -120,7 +123,7 @@ public class QuestGrain(
 
     public async Task<ErrorOr<int>> CollectRewardAsync()
     {
-        if (!State.RewardPending || State.Quest is null)
+        if (State.RewardCollected || !State.IsQuestCompleted)
             return QuestErrors.NoRewardToCollect;
 
         var user = await _userManager.FindByIdAsync(this.GetPrimaryKeyString());
@@ -198,7 +201,7 @@ public class QuestGrain(
             Target: quest.Target,
             Progress: State.Progress,
             CanReplace: State.CanReplace,
-            RewardPending: State.RewardPending,
+            RewardCollected: State.RewardCollected,
             Streak: State.Streak
         );
 }

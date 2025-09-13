@@ -142,7 +142,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Progress: 0,
                     CanReplace: true,
                     Streak: 0,
-                    RewardPending: false
+                    RewardCollected: false
                 )
             );
 
@@ -186,7 +186,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Progress: 0,
                     CanReplace: true,
                     Streak: 0,
-                    RewardPending: false
+                    RewardCollected: false
                 )
             );
     }
@@ -232,7 +232,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_completes_quest_and_requires_collecting_reward()
+    public async Task OnGameOverAsync_completes_quest_and_updates_state()
     {
         MockWinQuest(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
@@ -249,7 +249,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var questAfterCompletion = await grain.GetQuestAsync();
         questAfterCompletion.Description.Should().Be(initialQuest.Description);
         questAfterCompletion.CanReplace.Should().BeFalse();
-        questAfterCompletion.RewardPending.Should().BeTrue();
+        questAfterCompletion.RewardCollected.Should().BeFalse();
 
         // quest replacement should still fail until a new quest is selected
         var replaceAttempt = await grain.ReplaceQuestAsync();
@@ -329,7 +329,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Target: variant2.Target,
                     Progress: 0,
                     CanReplace: false,
-                    RewardPending: false,
+                    RewardCollected: false,
                     Streak: 0
                 )
             );

@@ -12,6 +12,6 @@ public record QuestDto(
     int Target,
     int Progress,
     bool CanReplace,
-    bool RewardPending,
+    bool RewardCollected,
     int Streak
 );
