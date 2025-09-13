@@ -24,6 +24,7 @@ const DailyQuestCard = ({ quest }: { quest: Quest }) => {
                     className="text-text/70 font-medium"
                     data-testid="dailyQuestStreak"
                 >
+                    {quest.streak > 0 && "🔥 "}
                     {quest.streak} Day Streak
                 </p>
             </div>
