@@ -105,6 +105,19 @@ export enum QuestDifficulty {
     HARD = 20,
 }
 
+export type PagedResultOfQuestPointsDto = {
+    items: Array<UserQuestPoints>;
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+};
+
+export type UserQuestPoints = {
+    profile: MinimalProfile;
+    questPoints: number;
+};
+
 export type SessionUser = {
     userId: string;
     type: string;
@@ -695,6 +708,44 @@ export type CollectQuestRewardResponses = {
 
 export type CollectQuestRewardResponse =
     CollectQuestRewardResponses[keyof CollectQuestRewardResponses];
+
+export type GetQuestLeaderboardData = {
+    body?: never;
+    path?: never;
+    query?: {
+        Page?: number;
+        PageSize?: number;
+    };
+    url: "/api/Quests/leaderboard";
+};
+
+export type GetQuestLeaderboardResponses = {
+    200: PagedResultOfQuestPointsDto;
+};
+
+export type GetQuestLeaderboardResponse =
+    GetQuestLeaderboardResponses[keyof GetQuestLeaderboardResponses];
+
+export type GetMyQuestRankingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Quests/leaderboard/me";
+};
+
+export type GetMyQuestRankingErrors = {
+    401: ApiProblemDetails;
+};
+
+export type GetMyQuestRankingError =
+    GetMyQuestRankingErrors[keyof GetMyQuestRankingErrors];
+
+export type GetMyQuestRankingResponses = {
+    200: number;
+};
+
+export type GetMyQuestRankingResponse =
+    GetMyQuestRankingResponses[keyof GetMyQuestRankingResponses];
 
 export type GetSessionUserData = {
     body?: never;
