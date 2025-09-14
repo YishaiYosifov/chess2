@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Mock } from "vitest";
 
 import { createFakeMinimalProfile } from "@/lib/testUtils/fakers/minimalProfileFaker";
 import MinimalProfileAction from "../MinimalProfileAction";
@@ -8,8 +9,8 @@ import constants from "@/lib/constants";
 
 describe("MinimalProfileAction", () => {
     let profileMock: MinimalProfile;
-    let activate: ReturnType<typeof vi.fn>;
-    let deactivate: ReturnType<typeof vi.fn>;
+    let activate: Mock;
+    let deactivate: Mock;
 
     beforeEach(() => {
         profileMock = createFakeMinimalProfile();
