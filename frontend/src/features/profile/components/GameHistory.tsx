@@ -1,14 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
 import {
     getGameResults,
     PagedResultOfGameSummaryDto,
     PublicUser,
 } from "@/lib/apiClient";
-import PaginationStrip from "@/features/pagination/components/PaginationStrip";
 import GamesTable from "./GamesTable";
+import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
 
 const GameHistory = ({
     initialGameResults,
@@ -17,42 +15,24 @@ const GameHistory = ({
     initialGameResults: PagedResultOfGameSummaryDto;
     profileViewpoint: PublicUser;
 }) => {
-    const [gameResults, setPagedGames] = useState(initialGameResults);
-    const [isFetching, setIsFetching] = useState(false);
-
-    async function fetchGamesForPage(pageNumber: number): Promise<void> {
-        try {
-            setIsFetching(true);
-            const { data: games, error } = await getGameResults({
-                path: { userId: profileViewpoint.userId },
-                query: {
-                    Page: pageNumber,
-                    PageSize: gameResults.pageSize,
-                },
-            });
-            if (error || games === undefined) {
-                console.error(error);
-                return;
-            }
-
-            setPagedGames(games);
-        } finally {
-            setIsFetching(false);
-        }
-    }
-
     return (
         <div className="flex w-full flex-col gap-3">
-            <GamesTable
-                profileViewpoint={profileViewpoint}
-                games={gameResults.items}
-            />
-            <PaginationStrip
-                currentPage={gameResults.page}
-                totalPages={gameResults.totalPages}
-                isFetching={isFetching}
-                fetchItemsForPage={fetchGamesForPage}
-            />
+            <PaginatedItemsRenderer
+                initialPaged={initialGameResults}
+                fetchItems={({ query }) =>
+                    getGameResults({
+                        path: { userId: profileViewpoint.userId },
+                        query,
+                    })
+                }
+            >
+                {({ items }) => (
+                    <GamesTable
+                        profileViewpoint={profileViewpoint}
+                        games={items}
+                    />
+                )}
+            </PaginatedItemsRenderer>
         </div>
     );
 };

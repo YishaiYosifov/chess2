@@ -16,8 +16,8 @@ export const RelationProfileRow = ({
 }: {
     index: number;
     profile: MinimalProfile;
-    activate: () => Promise<void>;
-    deactivate: () => Promise<void>;
+    activate: () => Promise<unknown>;
+    deactivate: () => Promise<unknown>;
     buttonLabel: (isActive: boolean) => string;
     buttonIcon?: (isActive: boolean) => React.ReactNode;
 }) => {

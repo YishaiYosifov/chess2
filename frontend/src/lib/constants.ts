@@ -54,6 +54,7 @@ const HEADERS = {
 
 const PAGINATION_PAGE_SIZE = {
     GAME_SUMMARY: 10,
+    QUEST_LEADERBOARD: 10,
     STARS: 5,
     BLOCKED: 5,
 };

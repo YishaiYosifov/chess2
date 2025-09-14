@@ -1,36 +1,67 @@
 import { useState } from "react";
 import PaginationStrip from "./PaginationStrip";
+import { Renderable, renderRenderable } from "@/lib/utils/renderable";
+import { PagedResult } from "../lib/types";
+
+interface PaginatedItemsRendererChildren<TItem> extends PagedResult<TItem> {
+    incrementTotalCount(): void;
+    decrementTotalCount(): void;
+}
 
 const PaginatedItemsRenderer = <TItem,>({
-    page,
-    totalPages,
-    items,
-    paginatedItem,
-    fetchItemsForPage,
+    initialPaged,
+    children,
+    fetchItems,
 }: {
-    page: number;
-    totalPages: number;
-    items: TItem[];
-    paginatedItem: (item: TItem, index: number) => React.ReactNode;
-    fetchItemsForPage: (pageNumber: number) => Promise<void>;
+    initialPaged: PagedResult<TItem>;
+    children: Renderable<PaginatedItemsRendererChildren<TItem>>;
+    fetchItems: (args: {
+        query: { Page: number; PageSize: number };
+    }) => Promise<{ data: PagedResult<TItem> | undefined; error: unknown }>;
 }) => {
     const [isFetching, setIsFetching] = useState(false);
+    const [pagedResult, setPagedResult] = useState(initialPaged);
 
     async function handleFetch(pageNumber: number) {
         setIsFetching(true);
         try {
-            await fetchItemsForPage(pageNumber);
+            const { data, error } = await fetchItems({
+                query: { Page: pageNumber, PageSize: pagedResult.pageSize },
+            });
+            if (error || data === undefined) {
+                console.error(error);
+                return;
+            }
+
+            setPagedResult(data);
         } finally {
             setIsFetching(false);
         }
     }
 
+    function incrementTotalCount() {
+        setPagedResult((prev) => ({
+            ...prev,
+            totalCount: prev.totalCount + 1,
+        }));
+    }
+    function decrementTotalCount() {
+        setPagedResult((prev) => ({
+            ...prev,
+            totalCount: prev.totalCount - 1,
+        }));
+    }
+
     return (
         <>
-            {items.map((item, i) => paginatedItem(item, i))}
+            {renderRenderable(children, {
+                ...pagedResult,
+                incrementTotalCount,
+                decrementTotalCount,
+            })}
             <PaginationStrip
-                currentPage={page}
-                totalPages={totalPages}
+                currentPage={pagedResult.page}
+                totalPages={pagedResult.totalPages}
                 isFetching={isFetching}
                 fetchItemsForPage={handleFetch}
             />
