@@ -1,5 +1,7 @@
 ﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -36,7 +38,10 @@ public class QuestLeaderboardServiceTests : BaseIntegrationTest
 
         var result = await _questLeaderboardService.GetPaginatedLeaderboardAsync(pagination, CT);
 
-        result.Items.Should().BeEquivalentTo(users[..3]);
+        var expected = users[..3]
+            .Select(x => new QuestPointsDto(new MinimalProfile(x), x.QuestPoints))
+            .ToList();
+        result.Items.Should().BeEquivalentTo(expected);
         result.TotalCount.Should().Be(users.Count);
         result.Page.Should().Be(pagination.Page);
         result.PageSize.Should().Be(pagination.PageSize);
