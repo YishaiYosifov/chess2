@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Quests.QuestProgressors;
-using Chess2.Api.Quests.QuestProgressors.Gates;
+﻿using Chess2.Api.Quests.QuestConditions;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using NSubstitute;
@@ -20,10 +20,10 @@ public class GreaterThanEqualGateTests
     )
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
-        var inner = Substitute.For<IQuestProgressor>();
-        inner.EvaluateProgressMade(snapshot).Returns(innerProgress);
+        var inner = Substitute.For<IQuestMetric>();
+        inner.Evaluate(snapshot).Returns(innerProgress);
 
-        GreaterThanEqualGate gate = new(inner, greaterThanEqualProgress);
+        GreaterThanEqualCondition gate = new(inner, greaterThanEqualProgress);
 
         int progress = gate.EvaluateProgressMade(snapshot);
 

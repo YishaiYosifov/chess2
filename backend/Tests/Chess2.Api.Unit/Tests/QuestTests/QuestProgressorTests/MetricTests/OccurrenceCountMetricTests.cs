@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Quests.QuestProgressors.Metrics;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -13,7 +13,7 @@ public class OccurrenceCountMetricTests
         var snapshot = new GameQuestSnapshotFaker().Generate();
         OccurrenceCountMetric metric = new((move, _) => false);
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(0);
     }
@@ -26,7 +26,7 @@ public class OccurrenceCountMetricTests
 
         OccurrenceCountMetric metric = new((move, _) => targetMoves.Contains(move));
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(2);
     }
@@ -37,7 +37,7 @@ public class OccurrenceCountMetricTests
         var snapshot = new GameQuestSnapshotFaker().Generate();
         OccurrenceCountMetric metric = new((_, _) => true);
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(snapshot.MoveHistory.Count);
     }
@@ -56,7 +56,7 @@ public class OccurrenceCountMetricTests
             }
         );
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(0);
         iteratedMoves.Should().BeEquivalentTo(iteratedMoves);

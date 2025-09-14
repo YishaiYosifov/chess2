@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Quests.QuestProgressors.Metrics;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -18,18 +18,8 @@ public class GameLengthMetricTests
             .Generate();
         GameLengthMetric progressor = new();
 
-        int progressWhite = progressor.EvaluateProgressMade(
-            snapshot with
-            {
-                PlayerColor = GameColor.White,
-            }
-        );
-        int progressBlack = progressor.EvaluateProgressMade(
-            snapshot with
-            {
-                PlayerColor = GameColor.Black,
-            }
-        );
+        int progressWhite = progressor.Evaluate(snapshot with { PlayerColor = GameColor.White });
+        int progressBlack = progressor.Evaluate(snapshot with { PlayerColor = GameColor.Black });
 
         progressWhite.Should().Be(moveCount);
         progressBlack.Should().Be(moveCount);

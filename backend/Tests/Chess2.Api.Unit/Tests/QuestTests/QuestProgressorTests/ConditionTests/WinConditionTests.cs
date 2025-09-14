@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Quests.QuestProgressors;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.Quests.QuestProgressors.Conditions;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -45,8 +45,8 @@ public class WinConditionTests
             .RuleFor(x => x.ResultData, new GameResultDataFaker(result).Generate())
             .Generate();
 
-        var inner = Substitute.For<IQuestProgressor>();
-        inner.EvaluateProgressMade(snapshot).Returns(5);
+        var inner = Substitute.For<IQuestMetric>();
+        inner.Evaluate(snapshot).Returns(5);
 
         var winCondition = new WinCondition(inner);
 

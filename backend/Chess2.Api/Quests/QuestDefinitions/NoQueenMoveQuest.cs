@@ -5,19 +5,19 @@ using Chess2.Api.Quests.QuestMetrics;
 
 namespace Chess2.Api.Quests.QuestDefinitions;
 
-public class NoKingMoveQuest : IQuestDefinition
+public class NoQueenMoveQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants =>
         [
             new(
-                Description: "Win a game that lasts at least 30 moves without moving your king",
+                Description: "Win a game that lasts at least 30 moves without moving your queen",
                 Difficulty: QuestDifficulty.Medium,
                 Target: 1,
                 Conditions:
                 [
                     new WinCondition(),
                     new GreaterThanEqualCondition(new GameLengthMetric(), 30),
-                    new NotCondition(new PlayerPieceMovedCondition(PieceType.King)),
+                    new NotCondition(new PlayerPieceMovedCondition(PieceType.Queen)),
                 ]
             ),
         ];
