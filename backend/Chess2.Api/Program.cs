@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -33,6 +31,7 @@ using Chess2.Api.Profile.Services;
 using Chess2.Api.Profile.Validators;
 using Chess2.Api.Quests.QuestDefinitions;
 using Chess2.Api.Quests.Repositories;
+using Chess2.Api.Quests.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Repository;
@@ -53,6 +52,8 @@ using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -385,6 +386,7 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 
 #region Quests
 builder.Services.AddScoped<IQuestLeaderboardRepository, QuestLeaderboardRepository>();
+builder.Services.AddScoped<IQuestLeaderboardService, QuestLeaderboardService>();
 
 builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoCaptureQuest>();
