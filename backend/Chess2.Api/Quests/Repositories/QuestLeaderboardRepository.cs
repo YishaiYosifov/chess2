@@ -1,4 +1,6 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Pagination.Extensions;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,8 +8,12 @@ namespace Chess2.Api.Quests.Repositories;
 
 public interface IQuestLeaderboardRepository
 {
-    Task<List<AuthedUser>> GetTopQuestPointsAsync(int top, CancellationToken token = default);
-    Task<int> GetUserRankingAsync(AuthedUser user, CancellationToken token = default);
+    Task<List<AuthedUser>> GetPaginatedLeaderboardAsync(
+        PaginationQuery pagination,
+        CancellationToken token = default
+    );
+    Task<int> GetRankingAsync(AuthedUser user, CancellationToken token = default);
+    Task<int> GetTotalCountAsync(CancellationToken token = default);
 }
 
 public class QuestLeaderboardRepository(ApplicationDbContext dbContext)
@@ -15,13 +21,22 @@ public class QuestLeaderboardRepository(ApplicationDbContext dbContext)
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public Task<List<AuthedUser>> GetTopQuestPointsAsync(
-        int top,
+    public Task<List<AuthedUser>> GetPaginatedLeaderboardAsync(
+        PaginationQuery pagination,
         CancellationToken token = default
-    ) => _dbContext.Users.OrderByDescending(x => x.QuestPoints).Take(top).ToListAsync(token);
+    ) =>
+        _dbContext
+            .Users.Where(x => x.QuestPoints > 0)
+            .OrderByDescending(x => x.QuestPoints)
+            .Paginate(pagination)
+            .ToListAsync(token);
 
-    public async Task<int> GetUserRankingAsync(
-        AuthedUser user,
-        CancellationToken token = default
-    ) => await _dbContext.Users.CountAsync(u => u.QuestPoints > user.QuestPoints, token) + 1;
+    public Task<int> GetTotalCountAsync(CancellationToken token = default) =>
+        _dbContext.Users.CountAsync(x => x.QuestPoints > 0, token);
+
+    public async Task<int> GetRankingAsync(AuthedUser user, CancellationToken token = default) =>
+        await _dbContext.Users.CountAsync(
+            x => x.QuestPoints > 0 && x.QuestPoints > user.QuestPoints,
+            token
+        ) + 1;
 }
