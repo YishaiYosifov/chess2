@@ -19,7 +19,7 @@ describe("NewQuestTimer", () => {
         render(<NewQuestTimer />);
 
         expect(screen.getByTestId("newQuestText")).toHaveTextContent(
-            "New Quest in 00:00:10",
+            "New quest in 00:00:10",
         );
     });
 
@@ -34,7 +34,7 @@ describe("NewQuestTimer", () => {
         });
 
         expect(screen.getByTestId("newQuestText")).toHaveTextContent(
-            "New Quest in 00:00:07",
+            "New quest in 00:00:07",
         );
     });
 
