@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.Quests.Models;
-using Chess2.Api.Quests.QuestProgressors.Conditions;
-using Chess2.Api.Quests.QuestProgressors.Gates;
-using Chess2.Api.Quests.QuestProgressors.Metrics;
+using Chess2.Api.Quests.QuestConditions;
+using Chess2.Api.Quests.QuestMetrics;
 
 namespace Chess2.Api.Quests.QuestDefinitions;
 
@@ -16,11 +15,13 @@ public class WinInQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
         new(
-            new WinCondition(
-                new LessThanEqualGate(new GameLengthMetric(), lessThanEqual: maxMoves * 2)
-            ),
             Description: $"Win 5 games in {maxMoves} moves or less",
+            Difficulty: difficulty,
             Target: 5,
-            Difficulty: difficulty
+            Conditions:
+            [
+                new WinCondition(),
+                new LessThanEqualCondition(new GameLengthMetric(), lessThanEqual: maxMoves * 2),
+            ]
         );
 }

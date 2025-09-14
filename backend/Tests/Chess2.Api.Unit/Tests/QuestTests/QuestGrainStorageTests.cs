@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Quests.Grains;
 using Chess2.Api.Quests.Models;
-using Chess2.Api.Quests.QuestProgressors;
+using Chess2.Api.Quests.QuestMetrics;
 using FluentAssertions;
 using NSubstitute;
 
@@ -9,7 +9,7 @@ namespace Chess2.Api.Unit.Tests.QuestTests;
 public class QuestGrainStorageTests
 {
     private readonly QuestVariant SampleQuest = new(
-        Progressor: Substitute.For<IQuestProgressor>(),
+        Progressor: Substitute.For<IQuestMetric>(),
         Description: "test quest",
         Target: 5,
         Difficulty: QuestDifficulty.Easy
@@ -87,7 +87,7 @@ public class QuestGrainStorageTests
         };
 
         QuestVariant newQuest = new(
-            Progressor: Substitute.For<IQuestProgressor>(),
+            Progressor: Substitute.For<IQuestMetric>(),
             Description: "New Quest",
             Target: 10,
             Difficulty: QuestDifficulty.Medium

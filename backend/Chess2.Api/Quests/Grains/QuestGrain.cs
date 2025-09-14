@@ -145,7 +145,7 @@ public class QuestGrain(
         if (State.Progress >= quest.Target)
             return;
 
-        var progressMade = quest.Progressor.EvaluateProgressMade(snapshot);
+        var progressMade = quest.Progressors.EvaluateProgressMade(snapshot);
         if (progressMade <= 0)
             return;
 
