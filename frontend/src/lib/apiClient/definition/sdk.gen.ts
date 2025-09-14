@@ -45,6 +45,11 @@ import type {
     CollectQuestRewardData,
     CollectQuestRewardResponses,
     CollectQuestRewardErrors,
+    GetQuestLeaderboardData,
+    GetQuestLeaderboardResponses,
+    GetMyQuestRankingData,
+    GetMyQuestRankingResponses,
+    GetMyQuestRankingErrors,
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
@@ -258,7 +263,7 @@ export const getDailyQuest = <ThrowOnError extends boolean = false>(
 export const replaceDailyQuest = <ThrowOnError extends boolean = false>(
     options?: Options<ReplaceDailyQuestData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).get<
+    return (options?.client ?? _heyApiClient).post<
         ReplaceDailyQuestResponses,
         ReplaceDailyQuestErrors,
         ThrowOnError
@@ -277,6 +282,32 @@ export const collectQuestReward = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Quests/claim",
+        ...options,
+    });
+};
+
+export const getQuestLeaderboard = <ThrowOnError extends boolean = false>(
+    options?: Options<GetQuestLeaderboardData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetQuestLeaderboardResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/Quests/leaderboard",
+        ...options,
+    });
+};
+
+export const getMyQuestRanking = <ThrowOnError extends boolean = false>(
+    options?: Options<GetMyQuestRankingData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).get<
+        GetMyQuestRankingResponses,
+        GetMyQuestRankingErrors,
+        ThrowOnError
+    >({
+        url: "/api/Quests/leaderboard/me",
         ...options,
     });
 };

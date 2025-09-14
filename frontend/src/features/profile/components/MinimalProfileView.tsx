@@ -16,13 +16,13 @@ const MinimalProfileView = ({
     return (
         <div
             className={clsx(
-                "flex w-full flex-wrap items-center gap-3 rounded-md p-3",
+                "flex w-full min-w-0 flex-wrap items-center gap-3 rounded-md p-3",
                 index % 2 === 0 ? "bg-white/5" : "bg-white/15",
             )}
         >
             <Link
                 href={`${constants.PATHS.PROFILE}/${profile.userName}`}
-                className="flex items-center gap-3"
+                className="flex min-w-0 items-center gap-3"
                 data-testid="minimalProfileRowLink"
             >
                 <ProfilePicture
