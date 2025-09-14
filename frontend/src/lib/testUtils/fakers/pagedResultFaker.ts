@@ -1,10 +1,4 @@
-interface PagedResult<TItem> {
-    totalCount: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-    items: TItem[];
-}
+import { PagedResult } from "@/features/pagination/lib/types";
 
 export interface FakePagedResultArgs {
     pageSize: number;
