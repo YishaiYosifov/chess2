@@ -20,16 +20,23 @@ const QuestLeaderboard = ({
 }) => {
     return (
         <Card className="w-full gap-5 p-6">
-            <h1 className="text-3xl" data-testid="questLeaderboardTitle">
-                Leaderboard
-            </h1>
+            <div>
+                <h1 className="text-3xl" data-testid="questLeaderboardTitle">
+                    Leaderboard
+                </h1>
 
-            {myQuestRanking && (
-                <p className="text-text/70" data-testid="myQuestRankingDisplay">
-                    You are ranked{" "}
-                    <span className="text-amber-400">#{myQuestRanking}</span>
-                </p>
-            )}
+                {myQuestRanking && (
+                    <p
+                        className="text-text/70"
+                        data-testid="myQuestRankingDisplay"
+                    >
+                        You are ranked{" "}
+                        <span className="text-amber-400">
+                            #{myQuestRanking}
+                        </span>
+                    </p>
+                )}
+            </div>
 
             <PaginatedItemsRenderer
                 fetchItems={getQuestLeaderboard}
