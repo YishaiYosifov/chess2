@@ -19,16 +19,13 @@ const QuestLeaderboard = ({
     myQuestRanking?: number;
 }) => {
     return (
-        <Card className="w-full max-w-3xl">
+        <Card className="w-full gap-5">
             <h1 className="text-3xl" data-testid="questLeaderboardTitle">
                 Leaderboard
             </h1>
 
             {myQuestRanking && (
-                <p
-                    className="text-text/70 mb-3"
-                    data-testid="myQuestRankingDisplay"
-                >
+                <p className="text-text/70" data-testid="myQuestRankingDisplay">
                     You are ranked{" "}
                     <span className="text-amber-400">#{myQuestRanking}</span>
                 </p>
