@@ -91,7 +91,10 @@ describe("DailyQuestCard", () => {
 
     it("should call replaceDailyQuest and update quest on success", async () => {
         const initialQuest = createFakeQuest({ canReplace: true });
-        const newQuest = createFakeQuest({ description: "New quest" });
+        const newQuest = createFakeQuest({
+            description: "New quest",
+            canReplace: false,
+        });
 
         const routerMock = mockRouter();
         replaceDailyQuestMock.mockResolvedValue({
@@ -105,7 +108,7 @@ describe("DailyQuestCard", () => {
 
         await user.click(replaceButton);
 
-        expect(replaceButton).toBeDisabled();
+        expect(replaceButton).not.toBeInTheDocument();
 
         expect(screen.getByTestId("dailyQuestDescription")).toHaveTextContent(
             newQuest.description,
@@ -130,7 +133,9 @@ describe("DailyQuestCard", () => {
 
         await user.click(replaceButton);
 
-        expect(screen.getByText("Faled to replace quest")).toBeInTheDocument();
+        expect(screen.getByTestId("dailyQueryError")).toHaveTextContent(
+            "Failed to replace quest",
+        );
         expect(replaceButton).not.toBeDisabled();
     });
 
@@ -179,7 +184,7 @@ describe("DailyQuestCard", () => {
 
         await user.click(collectButton);
 
-        expect(collectButton).toBeDisabled();
+        expect(collectButton).not.toBeInTheDocument();
         expect(routerMock.refresh).toHaveBeenCalled();
         expect(
             screen.getByTestId("dailyQuestCollectedRewardText"),
@@ -205,9 +210,12 @@ describe("DailyQuestCard", () => {
 
         await user.click(collectButton);
 
+        expect(screen.getByTestId("dailyQueryError")).toHaveTextContent(
+            "Failed to collect reward",
+        );
         expect(
-            screen.getByTestId("dailyQuestCollectedRewardText"),
-        ).toBeInTheDocument();
+            screen.queryByTestId("dailyQuestCollectedRewardText"),
+        ).not.toBeInTheDocument();
         expect(collectButton).not.toBeDisabled();
     });
 });
