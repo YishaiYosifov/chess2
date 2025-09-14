@@ -2,7 +2,11 @@ import WithOptionalAuthedUser from "@/features/auth/components/WithOptionalAuthe
 import DailyQuestCard from "@/features/quests/components/DailyQuestCard";
 import DailyQuestCardLoggedOut from "@/features/quests/components/DailyQuestCardLoggedOut";
 import QuestLeaderboard from "@/features/quests/components/QuestLeaderboard";
-import { getDailyQuest, getQuestLeaderboard } from "@/lib/apiClient";
+import {
+    getDailyQuest,
+    getMyQuestRanking,
+    getQuestLeaderboard,
+} from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import constants from "@/lib/constants";
 
@@ -12,31 +16,35 @@ export default async function QuestsPage() {
     return (
         <WithOptionalAuthedUser>
             {async ({ accessToken }) => {
-                const [leaderboard, dailyQuest] = await Promise.all([
-                    dataOrThrow(
-                        getQuestLeaderboard({
-                            query: {
-                                Page: 0,
-                                PageSize:
-                                    constants.PAGINATION_PAGE_SIZE
-                                        .QUEST_LEADERBOARD,
-                            },
-                        }),
-                    ),
-                    (async () => {
-                        if (!accessToken) return;
-
-                        return await dataOrThrow(
-                            getDailyQuest({
-                                auth: () => accessToken,
+                const [leaderboard, dailyQuest, myQuestRanking] =
+                    await Promise.all([
+                        dataOrThrow(
+                            getQuestLeaderboard({
+                                query: {
+                                    Page: 0,
+                                    PageSize:
+                                        constants.PAGINATION_PAGE_SIZE
+                                            .QUEST_LEADERBOARD,
+                                },
                             }),
-                        );
-                    })(),
-                ]);
+                        ),
+                        (async () => {
+                            if (!accessToken) return;
 
-                for (let i = 0; i < 10; i++) {
-                    leaderboard.items.push(leaderboard.items[0]);
-                }
+                            return await dataOrThrow(
+                                getDailyQuest({
+                                    auth: () => accessToken,
+                                }),
+                            );
+                        })(),
+                        (async () => {
+                            if (!accessToken) return;
+
+                            return await dataOrThrow(
+                                getMyQuestRanking({ auth: () => accessToken }),
+                            );
+                        })(),
+                    ]);
 
                 return (
                     <div className="flex w-full flex-col items-center gap-6 p-5">
@@ -46,7 +54,10 @@ export default async function QuestsPage() {
                             <DailyQuestCardLoggedOut />
                         )}
 
-                        <QuestLeaderboard initialLeaderboard={leaderboard} />
+                        <QuestLeaderboard
+                            initialLeaderboard={leaderboard}
+                            myQuestRanking={myQuestRanking}
+                        />
                     </div>
                 );
             }}
