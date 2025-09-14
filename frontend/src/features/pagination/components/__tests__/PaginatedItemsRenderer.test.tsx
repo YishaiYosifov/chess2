@@ -1,26 +1,36 @@
 import { render, screen, waitFor } from "@testing-library/react";
-
 import userEvent from "@testing-library/user-event";
+
 import PaginatedItemsRenderer from "../PaginatedItemsRenderer";
+import { PagedResult } from "../../lib/types";
 
 describe("PaginatedItemsRenderer", () => {
-    const fetchItemsForPage = vi.fn();
+    const fetchItems = vi.fn();
 
-    it("should render items using the paginatedItem function", () => {
-        const items = ["a", "b", "c"];
+    const initialPaged: PagedResult<string> = {
+        items: ["a", "b", "c"],
+        totalCount: 3,
+        page: 0,
+        pageSize: 10,
+        totalPages: 2,
+    };
 
+    it("should render items using the children function", () => {
         render(
             <PaginatedItemsRenderer
-                page={0}
-                totalPages={1}
-                items={items}
-                fetchItemsForPage={fetchItemsForPage}
-                paginatedItem={(item, i) => (
-                    <div key={i} data-testid={`item-${i}`}>
-                        {item}
+                initialPaged={initialPaged}
+                fetchItems={fetchItems}
+            >
+                {({ items }) => (
+                    <div>
+                        {items.map((item, i) => (
+                            <div key={i} data-testid={`item-${i}`}>
+                                {item}
+                            </div>
+                        ))}
                     </div>
                 )}
-            />,
+            </PaginatedItemsRenderer>,
         );
 
         expect(screen.getByTestId("item-0")).toHaveTextContent("a");
@@ -28,48 +38,102 @@ describe("PaginatedItemsRenderer", () => {
         expect(screen.getByTestId("item-2")).toHaveTextContent("c");
     });
 
-    it("should call fetchItemsForPage when handleFetch is triggered", async () => {
+    it("should call fetchItems when pagination is triggered", async () => {
         const user = userEvent.setup();
+        fetchItems.mockResolvedValue({ data: initialPaged, error: null });
 
         render(
             <PaginatedItemsRenderer
-                page={0}
-                totalPages={2}
-                items={["x"]}
-                fetchItemsForPage={fetchItemsForPage}
-                paginatedItem={(_, i) => <div key={i} />}
-            />,
+                initialPaged={initialPaged}
+                fetchItems={fetchItems}
+            >
+                {({ items }) => (
+                    <div>
+                        {items.map((item, i) => (
+                            <div key={i}>{item}</div>
+                        ))}
+                    </div>
+                )}
+            </PaginatedItemsRenderer>,
         );
 
         const nextButton = screen.getByTestId("paginationNext");
         await user.click(nextButton);
 
-        expect(fetchItemsForPage).toHaveBeenCalledWith(1);
+        expect(fetchItems).toHaveBeenCalledWith({
+            query: {
+                Page: initialPaged.page + 1,
+                PageSize: initialPaged.pageSize,
+            },
+        });
     });
 
     it("should disable pagination buttons while loading", async () => {
+        const user = userEvent.setup();
+
         let resolveFetch!: () => void;
-        const fetchPromise = new Promise<void>((resolve) => {
-            resolveFetch = resolve;
+        const fetchPromise = new Promise<{
+            data: typeof initialPaged;
+            error: unknown;
+        }>((resolve) => {
+            resolveFetch = () => resolve({ data: initialPaged, error: null });
         });
-        fetchItemsForPage.mockReturnValue(fetchPromise);
+        fetchItems.mockReturnValue(fetchPromise);
 
         render(
             <PaginatedItemsRenderer
-                page={0}
-                totalPages={2}
-                items={["y"]}
-                fetchItemsForPage={fetchItemsForPage}
-                paginatedItem={(_, i) => <div key={i} />}
-            />,
+                initialPaged={initialPaged}
+                fetchItems={fetchItems}
+            >
+                {({ items }) => (
+                    <div>
+                        {items.map((item, i) => (
+                            <div key={i}>{item}</div>
+                        ))}
+                    </div>
+                )}
+            </PaginatedItemsRenderer>,
         );
 
-        expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
-        await userEvent.click(screen.getByTestId("paginationPage1"));
-        expect(screen.getByTestId("paginationPage1")).toBeDisabled();
+        const page1Button = screen.getByTestId("paginationPage1");
+        expect(page1Button).not.toBeDisabled();
+
+        await user.click(page1Button);
+        expect(page1Button).toBeDisabled();
 
         resolveFetch();
-        await waitFor(() => expect(fetchItemsForPage).toHaveBeenCalled());
-        expect(screen.getByTestId("paginationPage1")).not.toBeDisabled();
+        await waitFor(() => expect(fetchItems).toHaveBeenCalled());
+        expect(page1Button).not.toBeDisabled();
+    });
+
+    it("should increment and decrement totalCount correctly", async () => {
+        const user = userEvent.setup();
+
+        render(
+            <PaginatedItemsRenderer
+                initialPaged={initialPaged}
+                fetchItems={fetchItems}
+            >
+                {({ totalCount, incrementTotalCount, decrementTotalCount }) => (
+                    <div>
+                        <span data-testid="count">{totalCount}</span>
+                        <button onClick={incrementTotalCount}>+</button>
+                        <button onClick={decrementTotalCount}>-</button>
+                    </div>
+                )}
+            </PaginatedItemsRenderer>,
+        );
+
+        const count = screen.getByTestId("count");
+        const incrementBtn = screen.getByText("+");
+        const decrementBtn = screen.getByText("-");
+
+        expect(count).toHaveTextContent("3");
+
+        await user.click(incrementBtn);
+        expect(count).toHaveTextContent("4");
+
+        await user.click(decrementBtn);
+        expect(count).toHaveTextContent("3");
     });
 });
