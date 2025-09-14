@@ -5,7 +5,7 @@ namespace Chess2.Api.Quests.QuestProgressors.Metrics;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Quests.QuestProgressors.Metrics.FirstOccurrenceMetric")]
-public class FirstOccurrenceMetric(Func<Move, GameQuestSnapshot, bool> predicate) : IQuestProgressor
+public class FirstOccurrenceMetric(Func<Move, GameQuestSnapshot, bool> predicate) : IQuestMetric
 {
     [Id(0)]
     private readonly Func<Move, GameQuestSnapshot, bool> _predicate = predicate;
