@@ -34,7 +34,7 @@ public class NoKingMoveQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(1);
     }
 
@@ -62,7 +62,7 @@ public class NoKingMoveQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 
@@ -74,7 +74,7 @@ public class NoKingMoveQuestTests
             .RuleFor(x => x.MoveHistory, [.. new MoveFaker().Generate(MinMoves - 1)])
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 
@@ -86,7 +86,7 @@ public class NoKingMoveQuestTests
             .RuleFor(x => x.MoveHistory, [.. new MoveFaker().Generate(MinMoves)])
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 

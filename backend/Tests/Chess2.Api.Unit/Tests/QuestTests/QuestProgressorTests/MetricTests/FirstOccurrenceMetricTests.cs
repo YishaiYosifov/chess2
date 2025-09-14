@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Quests.QuestProgressors.Metrics;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -14,18 +14,8 @@ public class FirstOccurrenceMetricTests
 
         FirstOccurrenceMetric metric = new((_, _) => false);
 
-        int progressWhite = metric.EvaluateProgressMade(
-            snapshot with
-            {
-                PlayerColor = GameColor.White,
-            }
-        );
-        int progressBlack = metric.EvaluateProgressMade(
-            snapshot with
-            {
-                PlayerColor = GameColor.Black,
-            }
-        );
+        int progressWhite = metric.Evaluate(snapshot with { PlayerColor = GameColor.White });
+        int progressBlack = metric.Evaluate(snapshot with { PlayerColor = GameColor.Black });
 
         progressWhite.Should().Be(snapshot.MoveHistory.Count);
         progressBlack.Should().Be(snapshot.MoveHistory.Count);
@@ -38,7 +28,7 @@ public class FirstOccurrenceMetricTests
 
         FirstOccurrenceMetric metric = new((move, _) => move == snapshot.MoveHistory[0]);
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(0);
     }
@@ -50,7 +40,7 @@ public class FirstOccurrenceMetricTests
 
         FirstOccurrenceMetric metric = new((move, _) => move == snapshot.MoveHistory[3]);
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(3);
     }
@@ -64,7 +54,7 @@ public class FirstOccurrenceMetricTests
             (move, _) => move == snapshot.MoveHistory[2] || move == snapshot.MoveHistory[3]
         );
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(2);
     }
@@ -83,7 +73,7 @@ public class FirstOccurrenceMetricTests
             }
         );
 
-        int progress = metric.EvaluateProgressMade(snapshot);
+        int progress = metric.Evaluate(snapshot);
 
         progress.Should().Be(snapshot.MoveHistory.Count);
         iteratedMoves.Should().BeEquivalentTo(snapshot.MoveHistory);

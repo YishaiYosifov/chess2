@@ -19,7 +19,7 @@ public class WinInQuestTests
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
-        var progress = variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(1);
     }
 
@@ -33,7 +33,7 @@ public class WinInQuestTests
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
-        var progress = variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 
@@ -47,7 +47,7 @@ public class WinInQuestTests
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
-        var progress = variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 

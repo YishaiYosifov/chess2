@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Quests.QuestProgressors;
-using Chess2.Api.Quests.QuestProgressors.Gates;
+﻿using Chess2.Api.Quests.QuestConditions;
+using Chess2.Api.Quests.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using NSubstitute;
@@ -22,11 +22,11 @@ public class AndGateTests
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
-        var left = Substitute.For<IQuestProgressor>();
-        left.EvaluateProgressMade(snapshot).Returns(leftProgress);
+        var left = Substitute.For<IQuestMetric>();
+        left.Evaluate(snapshot).Returns(leftProgress);
 
-        var right = Substitute.For<IQuestProgressor>();
-        right.EvaluateProgressMade(snapshot).Returns(rightProgress);
+        var right = Substitute.For<IQuestMetric>();
+        right.Evaluate(snapshot).Returns(rightProgress);
 
         AndGate gate = new(left, right);
 
@@ -40,16 +40,16 @@ public class AndGateTests
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
-        var left = Substitute.For<IQuestProgressor>();
-        left.EvaluateProgressMade(snapshot).Returns(0);
+        var left = Substitute.For<IQuestMetric>();
+        left.Evaluate(snapshot).Returns(0);
 
-        var right = Substitute.For<IQuestProgressor>();
+        var right = Substitute.For<IQuestMetric>();
 
         AndGate gate = new(left, right);
 
         int progress = gate.EvaluateProgressMade(snapshot);
 
         progress.Should().Be(0);
-        right.DidNotReceive().EvaluateProgressMade(snapshot);
+        right.DidNotReceive().Evaluate(snapshot);
     }
 }

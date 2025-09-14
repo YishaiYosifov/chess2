@@ -38,7 +38,7 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(1);
     }
 
@@ -56,7 +56,7 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 
@@ -79,7 +79,7 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressor.EvaluateProgressMade(snapshot);
+        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
         progress.Should().Be(0);
     }
 
