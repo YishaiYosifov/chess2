@@ -125,7 +125,9 @@ public interface IChess2Api
     Task<IApiResponse<QuestDto>> CollectQuestReward();
 
     [Get("/api/quests/leaderboard")]
-    Task<IApiResponse<PublicUser>> GetQuestLeaderboard();
+    Task<IApiResponse<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
+        [Query] PaginationQuery pagination
+    );
 
     [Get("/api/quests/leaderboard/me")]
     Task<IApiResponse<int>> GetMyQuestRanking();
