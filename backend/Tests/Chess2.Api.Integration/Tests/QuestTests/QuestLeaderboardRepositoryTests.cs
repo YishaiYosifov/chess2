@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Profile.Entities;
+﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -18,46 +19,66 @@ public class QuestLeaderboardRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetTopQuestPointsAsync_finds_top_users()
+    public async Task GetPaginatedLeaderboardAsync_returns_correct_page_of_top_users()
     {
-        List<AuthedUser> users = [];
-        for (var i = 10; i > 0; i--)
-        {
-            users.Add(new AuthedUserFaker().RuleFor(x => x.QuestPoints, i));
-        }
-        await DbContext.AddRangeAsync(users, CT);
-        await DbContext.SaveChangesAsync(CT);
+        int page = 1;
+        int pageSize = 3;
+        var users = await CreateHoleyUsersAsync();
 
-        var result = await _repository.GetTopQuestPointsAsync(top: 5, CT);
+        var result = await _repository.GetPaginatedLeaderboardAsync(
+            new PaginationQuery(Page: page, PageSize: pageSize),
+            CT
+        );
 
-        result.Should().BeEquivalentTo(users[..5]);
+        var expected = users
+            .Where(x => x.QuestPoints > 0)
+            .OrderByDescending(x => x.QuestPoints)
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        result.Should().HaveCount(expected.Count);
+        result.Should().BeEquivalentTo(expected);
     }
 
     [Fact]
-    public async Task GetTopQuestPointAsync_returns_everyone_if_not_enough_users()
+    public async Task GetTotalCountAsync_returns_the_number_of_users_with_quest_points()
     {
-        var users = new AuthedUserFaker().Generate(5);
-        await DbContext.AddRangeAsync(users, CT);
-        await DbContext.SaveChangesAsync(CT);
+        var users = await CreateHoleyUsersAsync();
 
-        var result = await _repository.GetTopQuestPointsAsync(10, CT);
+        var result = await _repository.GetTotalCountAsync(CT);
 
-        result.Should().BeEquivalentTo(users);
+        result.Should().Be(users.Count(x => x.QuestPoints > 0));
     }
 
     [Fact]
     public async Task GetUserRankingAsync_finds_user_position()
     {
         List<AuthedUser> users = [];
-        for (var i = 10; i > 0; i--)
+        for (var i = 10; i >= 0; i--)
         {
             users.Add(new AuthedUserFaker().RuleFor(x => x.QuestPoints, i));
         }
         await DbContext.AddRangeAsync(users, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _repository.GetUserRankingAsync(users[3], CT);
+        var result = await _repository.GetRankingAsync(users[3], CT);
 
         result.Should().Be(4);
+    }
+
+    private async Task<List<AuthedUser>> CreateHoleyUsersAsync()
+    {
+        var users = new List<AuthedUser>();
+        for (int i = 1; i <= 10; i++)
+        {
+            // every 3rd user has 0 points
+            int points = i % 3 == 0 ? 0 : i;
+            users.Add(new AuthedUserFaker().RuleFor(x => x.QuestPoints, points));
+        }
+        await DbContext.AddRangeAsync(users, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        return users;
     }
 }
