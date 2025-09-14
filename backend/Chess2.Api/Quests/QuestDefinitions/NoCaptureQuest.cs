@@ -17,9 +17,9 @@ public class NoCaptureQuest : IQuestDefinition
     private static QuestVariant CreateVariant(int minMoves, QuestDifficulty difficulty) =>
         new(
             new WinCondition(
-                new MinAllowedGate(
+                new GreaterThanEqualGate(
                     new FirstOccurrenceMetric((move, _) => move.Captures.Count > 0),
-                    minProgress: minMoves * 2
+                    greaterThanEqual: minMoves * 2
                 )
             ),
             Description: $"Win 5 games without a piece capture in the first {minMoves} moves (game must last at least that many moves)",
