@@ -82,7 +82,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         ];
     }
 
-    private QuestVariant SetupNextVariant(QuestDifficulty difficulty)
+    private QuestVariant SetupSelectableVariant(QuestDifficulty difficulty)
     {
         MockDifficulty(difficulty);
 
@@ -101,7 +101,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         return selectedVariant;
     }
 
-    private void MockWinQuest(QuestDifficulty difficulty, int target)
+    private void SetupWinVariant(QuestDifficulty difficulty, int target)
     {
         MockDifficulty(difficulty);
 
@@ -126,7 +126,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task GetQuestAsync_returns_a_quest()
     {
-        var variant = SetupNextVariant(QuestDifficulty.Easy);
+        var variant = SetupSelectableVariant(QuestDifficulty.Easy);
 
         var grain = await CreateGrainAsync();
         var storageStats = GetStorageStats();
@@ -152,12 +152,12 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task GetQuestAsync_returns_same_quest_if_already_selected_today()
     {
-        var variant1 = SetupNextVariant(QuestDifficulty.Medium);
+        var variant1 = SetupSelectableVariant(QuestDifficulty.Medium);
         var grain = await CreateGrainAsync();
 
         var quest1 = await grain.GetQuestAsync();
 
-        var variant2 = SetupNextVariant(QuestDifficulty.Easy);
+        var variant2 = SetupSelectableVariant(QuestDifficulty.Easy);
         var quest2 = await grain.GetQuestAsync();
 
         variant1.Should().NotBeEquivalentTo(variant2);
@@ -167,12 +167,12 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task GetQuestAsync_returns_a_new_quest_the_next_day()
     {
-        SetupNextVariant(QuestDifficulty.Hard);
+        SetupSelectableVariant(QuestDifficulty.Hard);
         var grain = await CreateGrainAsync();
         var quest1 = await grain.GetQuestAsync();
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(1));
-        var variant2 = SetupNextVariant(QuestDifficulty.Easy);
+        var variant2 = SetupSelectableVariant(QuestDifficulty.Easy);
         var quest2 = await grain.GetQuestAsync();
 
         quest1.Should().NotBeEquivalentTo(quest2);
@@ -194,7 +194,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task OnGameOverAsync_increments_progress()
     {
-        MockWinQuest(QuestDifficulty.Easy, target: 2);
+        SetupWinVariant(QuestDifficulty.Easy, target: 2);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
@@ -215,7 +215,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task OnGameOverAsync_does_nothing_if_progressor_returns_zero()
     {
-        MockWinQuest(QuestDifficulty.Easy, target: 2);
+        SetupWinVariant(QuestDifficulty.Easy, target: 2);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.Black)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
@@ -234,7 +234,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task OnGameOverAsync_completes_quest_and_updates_state()
     {
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
@@ -245,7 +245,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         await grain.OnGameOverAsync(snapshot);
 
-        SetupNextVariant(QuestDifficulty.Medium);
+        SetupSelectableVariant(QuestDifficulty.Medium);
         var questAfterCompletion = await grain.GetQuestAsync();
         questAfterCompletion.Description.Should().Be(initialQuest.Description);
         questAfterCompletion.CanReplace.Should().BeFalse();
@@ -260,7 +260,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task OnGameOverAsync_increments_streak_across_multiple_days()
     {
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
@@ -276,7 +276,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         // day 2
         _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(1));
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         await grain.GetQuestAsync();
         await grain.OnGameOverAsync(snapshot);
         var quest2 = await grain.GetQuestAsync();
@@ -286,7 +286,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task Streak_resets_if_a_day_is_missed()
     {
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
@@ -301,7 +301,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         // skip a day
         _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(2));
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var questAfterSkip = await grain.GetQuestAsync();
 
         questAfterSkip.Streak.Should().Be(0);
@@ -310,13 +310,13 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task ReplaceQuestAsync_replaces_quest_when_allowed()
     {
-        SetupNextVariant(QuestDifficulty.Easy);
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var grain = await CreateGrainAsync();
         var storageStats = GetStorageStats();
         await grain.GetQuestAsync();
         storageStats?.ResetCounts();
 
-        var variant2 = SetupNextVariant(QuestDifficulty.Medium);
+        var variant2 = SetupSelectableVariant(QuestDifficulty.Medium);
         var result = await grain.ReplaceQuestAsync();
 
         result.IsError.Should().BeFalse();
@@ -342,14 +342,14 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task ReplaceQuestAsync_fails_if_cannot_replace()
     {
-        SetupNextVariant(QuestDifficulty.Easy);
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync();
 
-        SetupNextVariant(QuestDifficulty.Easy);
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var firstReplacement = await grain.ReplaceQuestAsync();
 
-        SetupNextVariant(QuestDifficulty.Hard);
+        SetupSelectableVariant(QuestDifficulty.Hard);
         var secondReplacement = await grain.ReplaceQuestAsync();
 
         secondReplacement.IsError.Should().BeTrue();
@@ -362,16 +362,16 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task GetQuestAsync_resets_can_replace()
     {
-        SetupNextVariant(QuestDifficulty.Easy);
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync();
 
-        SetupNextVariant(QuestDifficulty.Medium);
+        SetupSelectableVariant(QuestDifficulty.Medium);
         var replacement = await grain.ReplaceQuestAsync();
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(1));
 
-        SetupNextVariant(QuestDifficulty.Medium);
+        SetupSelectableVariant(QuestDifficulty.Medium);
         var questAfterReset = await grain.GetQuestAsync();
         questAfterReset.Should().NotBe(replacement);
         questAfterReset.CanReplace.Should().BeTrue();
@@ -393,7 +393,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
-        MockWinQuest(QuestDifficulty.Easy, target: 1);
+        SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
