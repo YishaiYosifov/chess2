@@ -6,16 +6,16 @@ using NSubstitute;
 
 namespace Chess2.Api.Unit.Tests.QuestTests.QuestProgressorTests.GateTests;
 
-public class MaxAllowedGateTests
+public class GreaterThanEqualGateTests
 {
     [Theory]
-    [InlineData(0, 0, 1)] // progress == max: 1
-    [InlineData(5, 10, 1)] // progress < max: 1
-    [InlineData(10, 10, 1)] // progress == max: 1
-    [InlineData(15, 10, 0)] // progress > max: 0
-    public void EvaluateProgressMade_returns_1_if_bellow_or_equal_to_max(
+    [InlineData(0, 0, 1)] // progress == value: 1
+    [InlineData(5, 10, 0)] // progress < value: 0
+    [InlineData(10, 10, 1)] // progress == value: 0
+    [InlineData(15, 10, 1)] // progress > value: 1
+    public void EvaluateProgressMade_returns_1_if_above_or_equal_to_max(
         int innerProgress,
-        int maxProgress,
+        int greaterThanEqualProgress,
         int expectedProgress
     )
     {
@@ -23,7 +23,7 @@ public class MaxAllowedGateTests
         var inner = Substitute.For<IQuestProgressor>();
         inner.EvaluateProgressMade(snapshot).Returns(innerProgress);
 
-        MaxAllowedGate gate = new(inner, maxProgress);
+        GreaterThanEqualGate gate = new(inner, greaterThanEqualProgress);
 
         int progress = gate.EvaluateProgressMade(snapshot);
 
