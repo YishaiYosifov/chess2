@@ -13,8 +13,10 @@ import React from "react";
 
 const QuestLeaderboard = ({
     initialLeaderboard,
+    myQuestRanking,
 }: {
     initialLeaderboard: PagedResultOfQuestPointsDto;
+    myQuestRanking?: number;
 }) => {
     return (
         <Card className="w-full max-w-3xl">
@@ -22,68 +24,81 @@ const QuestLeaderboard = ({
                 Leaderboard
             </h1>
 
+            {myQuestRanking && (
+                <p
+                    className="text-text/70 mb-3"
+                    data-testid="myQuestRankingDisplay"
+                >
+                    You are ranked{" "}
+                    <span className="text-amber-400">#{myQuestRanking}</span>
+                </p>
+            )}
+
             <PaginatedItemsRenderer
                 fetchItems={getQuestLeaderboard}
                 initialPaged={initialLeaderboard}
             >
-                {QuestLeaderboardItemRenderer}
+                {({ items, page, pageSize }) => (
+                    <div className="grid grid-cols-[max-content_1fr] gap-3">
+                        {items.map((profileQuestPoints, index) => (
+                            <QuestLeaderboardItem
+                                profileQuestPoints={profileQuestPoints}
+                                index={index}
+                                overallPosition={page * pageSize + index + 1}
+                                key={profileQuestPoints.profile.userId}
+                            />
+                        ))}
+                    </div>
+                )}
             </PaginatedItemsRenderer>
         </Card>
     );
 };
 export default QuestLeaderboard;
 
-const QuestLeaderboardItemRenderer = ({
-    items,
-    page,
-    pageSize,
+const QuestLeaderboardItem = ({
+    index,
+    profileQuestPoints,
+    overallPosition,
 }: {
-    items: UserQuestPoints[];
-    page: number;
-    pageSize: number;
+    index: number;
+    profileQuestPoints: UserQuestPoints;
+    overallPosition: number;
 }) => {
-    const podiumColors = ["bg-yellow-400", "bg-slate-300", "bg-orange-400"];
+    const podiumColors = ["bg-amber-400", "bg-slate-300", "bg-orange-400"];
     const podiumIcon = ["🥇", "🥈", "🥉"];
+    const colorClass =
+        overallPosition <= podiumColors.length
+            ? podiumColors[overallPosition - 1]
+            : "bg-text/70";
+    const rankDisplay =
+        overallPosition <= podiumIcon.length
+            ? podiumIcon[overallPosition - 1]
+            : `#${overallPosition}`;
 
     return (
-        <div className="grid grid-cols-[max-content_1fr] gap-3">
-            {items.map((profileQuestPoints, index) => {
-                const overallPosition = page * pageSize + index + 1;
-                const colorClass =
-                    overallPosition <= podiumColors.length
-                        ? podiumColors[overallPosition - 1]
-                        : "bg-text/70";
-                const rankDisplay =
-                    overallPosition <= podiumIcon.length
-                        ? podiumIcon[overallPosition - 1]
-                        : `#${overallPosition}`;
+        <>
+            <span
+                className={clsx(
+                    "flex h-full items-center justify-center rounded-md p-2 text-black",
+                    colorClass,
+                )}
+                data-testid={`questLeaderboardRankDisplay-${profileQuestPoints.profile.userId}`}
+            >
+                {rankDisplay}
+            </span>
 
-                return (
-                    <React.Fragment key={profileQuestPoints.profile.userId}>
-                        <span
-                            className={clsx(
-                                "flex h-full items-center justify-center rounded-md p-2 text-black",
-                                colorClass,
-                            )}
-                            data-testid={`questLeaderboardRankDisplay-${profileQuestPoints.profile.userId}`}
-                        >
-                            {rankDisplay}
-                        </span>
-
-                        <MinimalProfileView
-                            profile={profileQuestPoints.profile}
-                            index={index}
-                        >
-                            <p
-                                className="ml-auto flex items-center gap-2"
-                                data-testid={`questLeaderboardPoints-${profileQuestPoints.profile.userId}`}
-                            >
-                                {profileQuestPoints.questPoints} points
-                            </p>
-                        </MinimalProfileView>
-                    </React.Fragment>
-                );
-            })}
-        </div>
+            <MinimalProfileView
+                profile={profileQuestPoints.profile}
+                index={index}
+            >
+                <p
+                    className="ml-auto flex items-center gap-2"
+                    data-testid={`questLeaderboardPoints-${profileQuestPoints.profile.userId}`}
+                >
+                    {profileQuestPoints.questPoints} points
+                </p>
+            </MinimalProfileView>
+        </>
     );
 };

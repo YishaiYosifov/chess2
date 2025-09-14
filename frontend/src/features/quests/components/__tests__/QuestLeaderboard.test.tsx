@@ -11,9 +11,7 @@ describe("QuestLeaderboard", () => {
     const getQuestLeaderboardMock = vi.mocked(getQuestLeaderboard);
 
     it("should render heading and initial leaderboard items", () => {
-        const initialLeaderboard = createFakePagedUserQuestPoints({
-            pagination: { pageSize: 1 },
-        });
+        const initialLeaderboard = createFakePagedUserQuestPoints();
         const firstItem = initialLeaderboard.items[0];
 
         render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
@@ -34,17 +32,14 @@ describe("QuestLeaderboard", () => {
     });
 
     it("should apply podium colors and icons correctly", () => {
-        const initialLeaderboard = createFakePagedUserQuestPoints({
-            pagination: { pageSize: 4 },
-        });
-        const items = initialLeaderboard.items;
+        const initialLeaderboard = createFakePagedUserQuestPoints();
 
         render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
 
-        const podiumColors = ["bg-yellow-400", "bg-slate-300", "bg-orange-400"];
+        const podiumColors = ["bg-amber-400", "bg-slate-300", "bg-orange-400"];
         const podiumIcons = ["🥇", "🥈", "🥉"];
 
-        items.forEach((item, index) => {
+        initialLeaderboard.items.forEach((item, index) => {
             const rankEl = screen.getByTestId(
                 `questLeaderboardRankDisplay-${item.profile.userId}`,
             );
@@ -92,5 +87,33 @@ describe("QuestLeaderboard", () => {
                 `questLeaderboardRankDisplay-${newItem.profile.userId}`,
             ),
         ).toBeInTheDocument();
+    });
+
+    it("should display the user's rank when myQuestRanking is provided", () => {
+        const initialLeaderboard = createFakePagedUserQuestPoints();
+        const myRank = 5;
+
+        render(
+            <QuestLeaderboard
+                initialLeaderboard={initialLeaderboard}
+                myQuestRanking={myRank}
+            />,
+        );
+
+        const rankDisplay = screen.getByTestId("myQuestRankingDisplay");
+        expect(rankDisplay).toBeInTheDocument();
+        expect(rankDisplay).toHaveTextContent(`You are ranked #${myRank}`);
+    });
+
+    it("should not display the user's rank when myQuestRanking is not provided", () => {
+        const initialLeaderboard = createFakePagedUserQuestPoints({
+            pagination: { pageSize: 1 },
+        });
+
+        render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
+
+        expect(
+            screen.queryByTestId("myQuestRankingDisplay"),
+        ).not.toBeInTheDocument();
     });
 });
