@@ -37,7 +37,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
         try {
             const { error, data: newQuest } = await replaceDailyQuest();
             if (error || !newQuest) {
-                setError("Faled to replace quest");
+                setError("Failed to replace quest");
                 console.error(error);
                 return;
             }
@@ -141,7 +141,11 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
 
                 <NewQuestTimer />
 
-                {error && <p className="text-error">{error}</p>}
+                {error && (
+                    <p className="text-error" data-testid="dailyQueryError">
+                        {error}
+                    </p>
+                )}
             </div>
         </Card>
     );
