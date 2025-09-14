@@ -1,10 +1,12 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Grains;
-using Chess2.Api.Quests.Repositories;
+using Chess2.Api.Quests.Services;
+using Chess2.Api.Shared.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,12 +17,14 @@ namespace Chess2.Api.Quests.Controllers;
 public class QuestsController(
     IGrainFactory grains,
     IAuthService authService,
-    IQuestLeaderboardRepository questLeaderboard
+    IQuestLeaderboardService questLeaderboard,
+    IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
-    private readonly IQuestLeaderboardRepository _questLeaderboard = questLeaderboard;
+    private readonly IQuestLeaderboardService _questLeaderboard = questLeaderboard;
+    private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet(Name = nameof(GetDailyQuest))]
     [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
@@ -68,13 +72,18 @@ public class QuestsController(
     }
 
     [HttpGet("leaderboard", Name = nameof(GetQuestLeaderboard))]
-    [ProducesResponseType<List<PublicUser>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<List<PublicUser>>> GetQuestLeaderboard(
+    [ProducesResponseType<PagedResult<QuestPointsDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
+        [FromQuery] PaginationQuery pagination,
         CancellationToken token = default
     )
     {
-        var leaderboard = await _questLeaderboard.GetTopQuestPointsAsync(top: 50, token);
-        return Ok(leaderboard.Select(x => new PublicUser(x)));
+        var validationResult = _paginationValidator.Validate(pagination);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
+        var leaderboard = await _questLeaderboard.GetPaginatedLeaderboardAsync(pagination, token);
+        return Ok(leaderboard);
     }
 
     [HttpGet("leaderboard/me", Name = nameof(GetMyQuestRanking))]
@@ -86,7 +95,7 @@ public class QuestsController(
         if (userResult.IsError)
             return userResult.Errors.ToActionResult();
 
-        var ranking = await _questLeaderboard.GetUserRankingAsync(userResult.Value, token);
+        var ranking = await _questLeaderboard.GetRankingAsync(userResult.Value, token);
         return Ok(ranking);
     }
 }

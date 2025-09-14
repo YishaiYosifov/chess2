@@ -1,8 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Profile.DTOs;
+﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Entities;
+using Chess2.Api.Quests.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
@@ -86,24 +88,46 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetQuestLeaderboard_returns_public_users()
     {
-        var users = new AuthedUserFaker().Generate(3);
+        List<AuthedUser> users =
+        [
+            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 4),
+            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 3),
+            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 2),
+            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 1),
+        ];
         await DbContext.AddRangeAsync(users, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await AuthUtils.AuthenticateAsync(ApiClient);
+        PaginationQuery pagination = new(Page: 0, PageSize: 3);
 
-        var response = await ApiClient.Api.GetQuestLeaderboard();
+        var response = await ApiClient.Api.GetQuestLeaderboard(
+            new PaginationQuery(Page: 0, PageSize: 3)
+        );
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().NotBeNull();
+        response.Content.TotalCount.Should().Be(users.Count);
         response
-            .Content.Should()
-            .BeEquivalentTo(
-                users.OrderByDescending(x => x.QuestPoints).Select(u => new PublicUser(u))
-            );
+            .Content.Items.Should()
+            .BeEquivalentTo(users[..3].Select(x => new QuestPointsDto(new(x), x.QuestPoints)));
     }
 
     [Fact]
-    public async Task GetMyQuestRanking_returns_ok_and_integer_rank_for_authenticated_user()
+    public async Task GetQuestLeaderboard_returns_bad_request_for_invalid_pagination()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetQuestLeaderboard(
+            new PaginationQuery(Page: 0, PageSize: -1)
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetMyQuestRanking_returns_user_ranking()
     {
         var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 10).Generate();
         var higherUsers = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 20).Generate(5);
@@ -115,8 +139,8 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
 
         var response = await ApiClient.Api.GetMyQuestRanking();
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        response.Content.Should().BeGreaterThan(higherUsers.Count + 1);
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().Be(higherUsers.Count + 1);
     }
 
     [Fact]
