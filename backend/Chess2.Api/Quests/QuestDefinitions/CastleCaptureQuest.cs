@@ -12,15 +12,16 @@ public class CastleCaptureQuest : IQuestDefinition
         [
             new QuestVariant(
                 new WinCondition(
-                    new MinAllowedGate(
+                    new GreaterThanEqualGate(
                         new OccurrenceCountMetric(
-                            (move, _) =>
-                                move.SpecialMoveType
+                            (move, snapshot) =>
+                                move.Piece.Color == snapshot.PlayerColor
+                                && move.SpecialMoveType
                                     is SpecialMoveType.KingsideCastle
                                         or SpecialMoveType.QueensideCastle
                                 && move.Captures.Any(x => x.CapturedPiece.Type is PieceType.Bishop)
                         ),
-                        1
+                        greaterThanEqual: 1
                     )
                 ),
                 Description: "Win 2 games after capturing your own bishop while castling",
