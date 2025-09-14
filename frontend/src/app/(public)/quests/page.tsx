@@ -1,9 +1,10 @@
-import Card from "@/components/ui/Card";
 import WithOptionalAuthedUser from "@/features/auth/components/WithOptionalAuthedUser";
 import DailyQuestCard from "@/features/quests/components/DailyQuestCard";
 import DailyQuestCardLoggedOut from "@/features/quests/components/DailyQuestCardLoggedOut";
-import { getDailyQuest, Quest } from "@/lib/apiClient";
+import QuestLeaderboard from "@/features/quests/components/QuestLeaderboard";
+import { getDailyQuest, getQuestLeaderboard } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
+import constants from "@/lib/constants";
 
 export const metadata = { title: "Quests - Chess 2" };
 
@@ -11,13 +12,30 @@ export default async function QuestsPage() {
     return (
         <WithOptionalAuthedUser>
             {async ({ accessToken }) => {
-                let dailyQuest: Quest | null = null;
-                if (accessToken) {
-                    dailyQuest = await dataOrThrow(
-                        getDailyQuest({
-                            auth: () => accessToken,
+                const [leaderboard, dailyQuest] = await Promise.all([
+                    dataOrThrow(
+                        getQuestLeaderboard({
+                            query: {
+                                Page: 0,
+                                PageSize:
+                                    constants.PAGINATION_PAGE_SIZE
+                                        .QUEST_LEADERBOARD,
+                            },
                         }),
-                    );
+                    ),
+                    (async () => {
+                        if (!accessToken) return;
+
+                        return await dataOrThrow(
+                            getDailyQuest({
+                                auth: () => accessToken,
+                            }),
+                        );
+                    })(),
+                ]);
+
+                for (let i = 0; i < 10; i++) {
+                    leaderboard.items.push(leaderboard.items[0]);
                 }
 
                 return (
@@ -28,9 +46,7 @@ export default async function QuestsPage() {
                             <DailyQuestCardLoggedOut />
                         )}
 
-                        <Card className="w-full max-w-3xl">
-                            <h2 className="text-3xl">Leaderboard</h2>
-                        </Card>
+                        <QuestLeaderboard initialLeaderboard={leaderboard} />
                     </div>
                 );
             }}
