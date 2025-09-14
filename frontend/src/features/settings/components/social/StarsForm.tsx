@@ -3,16 +3,17 @@
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 
-import Card from "@/components/ui/Card";
-import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
 import {
     addStar,
     getStarredUsers,
     PagedResultOfMinimalProfile,
     removeStar,
 } from "@/lib/apiClient";
-import { RelationProfileRow } from "./RelationProfileRow";
+
 import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
+import MinimalProfileAction from "@/features/profile/components/MinimalProfileAction";
+import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
+import Card from "@/components/ui/Card";
 
 const StarsForm = ({
     initialStars,
@@ -66,7 +67,7 @@ const StarsForm = ({
                     </p>
 
                     {items.map((profile, i) => (
-                        <RelationProfileRow
+                        <MinimalProfileAction
                             key={profile.userId}
                             index={i}
                             profile={profile}

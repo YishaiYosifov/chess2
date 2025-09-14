@@ -8,7 +8,7 @@ import {
 } from "@/lib/apiClient";
 
 import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
-import { RelationProfileRow } from "./RelationProfileRow";
+import MinimalProfileAction from "@/features/profile/components/MinimalProfileAction";
 import Card from "@/components/ui/Card";
 
 const BlockedForm = ({
@@ -56,7 +56,7 @@ const BlockedForm = ({
                     </p>
 
                     {items.map((profile, i) => (
-                        <RelationProfileRow
+                        <MinimalProfileAction
                             key={profile.userId}
                             index={i}
                             profile={profile}

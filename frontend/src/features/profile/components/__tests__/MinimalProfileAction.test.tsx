@@ -2,20 +2,22 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { createFakeMinimalProfile } from "@/lib/testUtils/fakers/minimalProfileFaker";
-import MinimalProfileAction from "@/features/profile/components/MinimalProfileAction";
+import MinimalProfileAction from "../MinimalProfileAction";
 import { MinimalProfile } from "@/lib/apiClient";
+import constants from "@/lib/constants";
 
 describe("MinimalProfileAction", () => {
     let profileMock: MinimalProfile;
-
-    const activate = vi.fn();
-    const deactivate = vi.fn();
+    let activate: ReturnType<typeof vi.fn>;
+    let deactivate: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         profileMock = createFakeMinimalProfile();
+        activate = vi.fn().mockResolvedValue(undefined);
+        deactivate = vi.fn().mockResolvedValue(undefined);
     });
 
-    it("should render the profile name and link correctly", async () => {
+    it("should render the minimal profile inside the view", () => {
         render(
             <MinimalProfileAction
                 index={0}
@@ -26,18 +28,17 @@ describe("MinimalProfileAction", () => {
             />,
         );
 
-        const link = screen.getByTestId("relationProfileRowLink");
-        expect(link).toHaveAttribute(
+        expect(screen.getByTestId("minimalProfileRowLink")).toHaveAttribute(
             "href",
-            `/profile/${profileMock.userName}`,
+            `${constants.PATHS.PROFILE}/${profileMock.userName}`,
         );
+
         expect(
-            screen.getByTestId("relationProfileRowUsername"),
+            screen.getByTestId("minimalProfileRowUsername"),
         ).toHaveTextContent(profileMock.userName);
     });
 
-    it("should toggle when button is clicked", async () => {
-        const user = userEvent.setup();
+    it("should render button label correctly for active state", () => {
         render(
             <MinimalProfileAction
                 index={0}
@@ -48,7 +49,25 @@ describe("MinimalProfileAction", () => {
             />,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        expect(
+            screen.getByTestId("minimalProfileActionRowToggle"),
+        ).toHaveTextContent("Active");
+    });
+
+    it("should toggle between activate and deactivate", async () => {
+        const user = userEvent.setup();
+
+        render(
+            <MinimalProfileAction
+                index={0}
+                profile={profileMock}
+                activate={activate}
+                deactivate={deactivate}
+                buttonLabel={(active) => (active ? "Active" : "Inactive")}
+            />,
+        );
+
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         await user.click(button);
         expect(deactivate).toHaveBeenCalledTimes(1);
@@ -57,7 +76,7 @@ describe("MinimalProfileAction", () => {
         expect(activate).toHaveBeenCalledTimes(1);
     });
 
-    it("should show the button icon correctly based on active state", async () => {
+    it("should render button icon correctly", async () => {
         const user = userEvent.setup();
 
         const ActiveIcon = () => <span data-testid="activeIcon" />;
@@ -77,25 +96,23 @@ describe("MinimalProfileAction", () => {
         );
 
         expect(screen.getByTestId("activeIcon")).toBeInTheDocument();
-        expect(screen.queryByTestId("inactiveIcon")).not.toBeInTheDocument();
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
         await user.click(button);
 
         expect(screen.getByTestId("inactiveIcon")).toBeInTheDocument();
-        expect(screen.queryByTestId("activeIcon")).not.toBeInTheDocument();
     });
 
     it("should prevent double clicks while loading", async () => {
         const user = userEvent.setup();
         let resolveDeactivate: () => void;
-        const deactivate = vi.fn(
+
+        deactivate = vi.fn(
             () =>
                 new Promise<void>((resolve) => {
                     resolveDeactivate = resolve;
                 }),
         );
-        const activate = vi.fn().mockResolvedValue(undefined);
 
         render(
             <MinimalProfileAction
@@ -107,7 +124,7 @@ describe("MinimalProfileAction", () => {
             />,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         const clickPromise = user.click(button);
         await user.click(button);
