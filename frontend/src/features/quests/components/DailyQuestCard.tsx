@@ -67,7 +67,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     }
 
     return (
-        <Card className="h-fit w-full max-w-3xl gap-6 p-6">
+        <Card className="h-fit w-full gap-6 p-6">
             <div className="flex flex-col justify-between sm:flex-row">
                 <h1 className="text-4xl" data-testid="dailyQuestTitle">
                     Daily Quest

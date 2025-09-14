@@ -47,7 +47,7 @@ export default async function QuestsPage() {
                     ]);
 
                 return (
-                    <div className="flex w-full flex-col items-center gap-6 p-5">
+                    <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 p-5">
                         {dailyQuest ? (
                             <DailyQuestCard initialQuest={dailyQuest} />
                         ) : (

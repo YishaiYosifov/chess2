@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const DailyQuestCardLoggedOut = () => {
     return (
-        <Card className="h-fit w-full max-w-3xl gap-6 p-6">
+        <Card className="h-fit w-full gap-6 p-6">
             <h1 className="text-4xl" data-testid="dailyQuestTitle">
                 Daily Quest
             </h1>
