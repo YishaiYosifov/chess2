@@ -48,7 +48,7 @@ const NewQuestTimer = () => {
 
     return (
         <p className="text-text/70" data-testid="newQuestText">
-            New Quest in {newQuestIn}
+            New quest in {newQuestIn}
         </p>
     );
 };
