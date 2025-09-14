@@ -19,7 +19,7 @@ const QuestLeaderboard = ({
     myQuestRanking?: number;
 }) => {
     return (
-        <Card className="w-full gap-5">
+        <Card className="w-full gap-5 p-6">
             <h1 className="text-3xl" data-testid="questLeaderboardTitle">
                 Leaderboard
             </h1>
