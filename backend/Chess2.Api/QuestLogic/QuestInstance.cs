@@ -38,10 +38,11 @@ public class QuestInstance(
 
     public bool IsCompleted => Progress >= Target;
 
-    public void ApplySnapshot(GameQuestSnapshot snapshot)
+    public int ApplySnapshot(GameQuestSnapshot snapshot)
     {
         var progressMade = EvaluateProgressMade(snapshot);
         Progress = Math.Min(Progress + progressMade, Target);
+        return progressMade;
     }
 
     private int EvaluateProgressMade(GameQuestSnapshot snapshot)

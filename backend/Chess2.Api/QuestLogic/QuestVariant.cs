@@ -12,6 +12,13 @@ public record QuestVariant(
     Func<IReadOnlyCollection<IQuestMetric>>? Progressors = null
 )
 {
-    public QuestInstance CreateInstance(DateOnly creationDate) =>
-        new(Description, Difficulty, Target, creationDate, Conditions(), Progressors?.Invoke());
+    public QuestInstance CreateInstance(DateOnly? creationDate = null) =>
+        new(
+            Description,
+            Difficulty,
+            Target,
+            creationDate ?? new DateOnly(),
+            Conditions(),
+            Progressors?.Invoke()
+        );
 }
