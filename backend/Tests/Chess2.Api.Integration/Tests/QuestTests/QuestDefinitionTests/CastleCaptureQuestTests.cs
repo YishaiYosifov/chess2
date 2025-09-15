@@ -10,12 +10,11 @@ namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 
 public class CastleCaptureQuestTests
 {
-    private readonly CastleCaptureQuest _quest = new();
-    private readonly QuestVariant _variant;
+    private readonly QuestInstance _quest;
 
     public CastleCaptureQuestTests()
     {
-        _variant = _quest.Variants.First();
+        _quest = new CastleCaptureQuest().Variants.First().CreateInstance();
     }
 
     [Theory]
@@ -39,7 +38,7 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(1);
     }
 
@@ -57,7 +56,7 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }
 
@@ -80,14 +79,14 @@ public class CastleCaptureQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }
 
     [Fact]
     public void QuestVariants_has_correct_metadata()
     {
-        _variant.Target.Should().Be(2);
-        _variant.Difficulty.Should().Be(QuestDifficulty.Medium);
+        _quest.Target.Should().Be(2);
+        _quest.Difficulty.Should().Be(QuestDifficulty.Medium);
     }
 }

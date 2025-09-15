@@ -10,13 +10,12 @@ namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 
 public class NoKingMoveQuestTests
 {
-    private readonly NoKingMoveQuest _quest = new();
-    private readonly QuestVariant _variant;
+    private readonly QuestInstance _quest;
     private const int MinMoves = 30 * 2;
 
     public NoKingMoveQuestTests()
     {
-        _variant = _quest.Variants.First();
+        _quest = new NoKingMoveQuest().Variants.First().CreateInstance();
     }
 
     [Fact]
@@ -35,7 +34,7 @@ public class NoKingMoveQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(1);
     }
 
@@ -63,7 +62,7 @@ public class NoKingMoveQuestTests
             )
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }
 
@@ -75,7 +74,7 @@ public class NoKingMoveQuestTests
             .RuleFor(x => x.MoveHistory, [.. new MoveFaker().Generate(MinMoves - 1)])
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }
 
@@ -87,14 +86,14 @@ public class NoKingMoveQuestTests
             .RuleFor(x => x.MoveHistory, [.. new MoveFaker().Generate(MinMoves)])
             .Generate();
 
-        var progress = _variant.Progressors.EvaluateProgressMade(snapshot);
+        var progress = _quest.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }
 
     [Fact]
     public void QuestVariants_has_correct_metadata()
     {
-        _variant.Target.Should().Be(1);
-        _variant.Difficulty.Should().Be(QuestDifficulty.Medium);
+        _quest.Target.Should().Be(1);
+        _quest.Difficulty.Should().Be(QuestDifficulty.Medium);
     }
 }
