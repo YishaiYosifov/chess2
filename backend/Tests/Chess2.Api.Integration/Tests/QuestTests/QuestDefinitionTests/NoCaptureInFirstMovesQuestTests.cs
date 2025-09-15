@@ -77,7 +77,7 @@ public class NoCaptureInFirstMovesQuestTests
     )
     {
         var variant = _quest.Variants.ElementAt(variantIdx);
-        variant.Target.Should().Be(5);
+        variant.Target.Should().Be(3);
         variant.Difficulty.Should().Be(expectedDifficulty);
     }
 
