@@ -8,7 +8,7 @@ namespace Chess2.Api.Unit.Tests.QuestLogicTests.MetricTests;
 public class FirstOccurrenceMetricTests
 {
     [Fact]
-    public void EvaluateProgressMade_returns_total_moves_when_predicate_never_matches()
+    public void EvaluateProgressMade_returns_max_value_when_predicate_never_matches()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
@@ -17,8 +17,8 @@ public class FirstOccurrenceMetricTests
         int progressWhite = metric.Evaluate(snapshot with { PlayerColor = GameColor.White });
         int progressBlack = metric.Evaluate(snapshot with { PlayerColor = GameColor.Black });
 
-        progressWhite.Should().Be(snapshot.MoveHistory.Count);
-        progressBlack.Should().Be(snapshot.MoveHistory.Count);
+        progressWhite.Should().Be(int.MaxValue);
+        progressBlack.Should().Be(int.MaxValue);
     }
 
     [Fact]
@@ -75,7 +75,7 @@ public class FirstOccurrenceMetricTests
 
         int progress = metric.Evaluate(snapshot);
 
-        progress.Should().Be(snapshot.MoveHistory.Count);
+        progress.Should().Be(int.MaxValue);
         iteratedMoves.Should().BeEquivalentTo(snapshot.MoveHistory);
     }
 }
