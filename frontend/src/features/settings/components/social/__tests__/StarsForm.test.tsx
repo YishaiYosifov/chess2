@@ -73,7 +73,7 @@ describe("StarsForm", () => {
             </SessionProvider>,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         await user.click(button);
         expect(removeStarMock).toHaveBeenCalledWith({
@@ -98,7 +98,7 @@ describe("StarsForm", () => {
             </SessionProvider>,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         await user.click(button);
         expect(
@@ -108,7 +108,7 @@ describe("StarsForm", () => {
             screen.queryByTestId("starsFormStarIconSolid"),
         ).not.toBeInTheDocument();
         expect(
-            screen.getByTestId("relationProfileRowToggle"),
+            screen.getByTestId("minimalProfileActionRowToggle"),
         ).toHaveTextContent("Star");
 
         await user.click(button);
@@ -119,7 +119,7 @@ describe("StarsForm", () => {
             screen.queryByTestId("starsFormStarIconOutline"),
         ).not.toBeInTheDocument();
         expect(
-            screen.getByTestId("relationProfileRowToggle"),
+            screen.getByTestId("minimalProfileActionRowToggle"),
         ).toHaveTextContent("Starred");
     });
 

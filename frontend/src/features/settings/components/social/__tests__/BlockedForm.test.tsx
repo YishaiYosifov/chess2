@@ -72,7 +72,7 @@ describe("BlockedForm", () => {
             </SessionProvider>,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         await user.click(button);
         expect(unblockUserMock).toHaveBeenCalledWith({
@@ -97,16 +97,16 @@ describe("BlockedForm", () => {
             </SessionProvider>,
         );
 
-        const button = screen.getByTestId("relationProfileRowToggle");
+        const button = screen.getByTestId("minimalProfileActionRowToggle");
 
         await user.click(button);
         expect(
-            screen.getByTestId("relationProfileRowToggle"),
+            screen.getByTestId("minimalProfileActionRowToggle"),
         ).toHaveTextContent("Block");
 
         await user.click(button);
         expect(
-            screen.getByTestId("relationProfileRowToggle"),
+            screen.getByTestId("minimalProfileActionRowToggle"),
         ).toHaveTextContent("Unblock");
     });
 
