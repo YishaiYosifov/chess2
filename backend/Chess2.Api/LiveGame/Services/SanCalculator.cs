@@ -23,6 +23,9 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
             case SpecialMoveType.QueensideCastle:
                 NotateCastle(move, isKingside: false, sb);
                 break;
+            case SpecialMoveType.IlVaticano:
+                NotateIlVaticano(sb);
+                break;
             default:
                 NotateRegularMove(move, legalMoves, sb);
                 break;
@@ -67,6 +70,8 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
             sb.Append(capture.Position.AsAlgebraic());
         }
     }
+
+    private static void NotateIlVaticano(StringBuilder sb) => sb.Append("B-O-O-B");
 
     private static void DisambiguatePosition(
         Move move,
