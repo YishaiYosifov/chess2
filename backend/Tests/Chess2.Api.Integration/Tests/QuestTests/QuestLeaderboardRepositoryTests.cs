@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Entities;
-using Chess2.Api.QuestLogic.Repositories;
+using Chess2.Api.Quests.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
