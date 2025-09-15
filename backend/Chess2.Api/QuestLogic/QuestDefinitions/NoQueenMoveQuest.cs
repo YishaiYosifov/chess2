@@ -10,7 +10,7 @@ public class NoQueenMoveQuest : IQuestDefinition
     public IEnumerable<QuestVariant> Variants =>
         [
             new(
-                Description: "Win 2 games that lasts at least 30 moves without moving your queen",
+                Description: "Win 2 games that last at least 30 moves without moving your queen",
                 Difficulty: QuestDifficulty.Medium,
                 Target: 2,
                 Conditions: () =>
