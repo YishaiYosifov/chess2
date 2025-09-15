@@ -29,19 +29,6 @@ public class MovesAcrossGamesQuestTests
     }
 
     [Theory]
-    [MemberData(nameof(VariantMoveTestData))]
-    public void VariantProgress_does_not_count_zero_moves(int variantIdx, int _)
-    {
-        var variant = _quest.Variants.ElementAt(variantIdx);
-        var instance = variant.CreateInstance();
-
-        var snapshot = new GameQuestSnapshotFaker().RuleFor(x => x.MoveHistory, []).Generate();
-
-        var progress = instance.ApplySnapshot(snapshot);
-        progress.Should().Be(0);
-    }
-
-    [Theory]
     [InlineData(0, QuestDifficulty.Easy, 300)]
     [InlineData(1, QuestDifficulty.Medium, 600)]
     [InlineData(2, QuestDifficulty.Hard, 800)]

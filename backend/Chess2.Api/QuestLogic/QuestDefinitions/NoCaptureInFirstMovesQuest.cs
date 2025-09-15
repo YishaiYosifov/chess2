@@ -23,7 +23,10 @@ public class NoCaptureInFirstMovesQuest : IQuestDefinition
                 [
                     new WinCondition(),
                     new GreaterThanEqualCondition(
-                        new FirstOccurrenceMetric((move, _) => move.Captures.Count > 0),
+                        new FirstOccurrenceMetric(
+                            (move, snapshot) =>
+                                move.Piece.Color == snapshot.PlayerColor && move.Captures.Count > 0
+                        ),
                         greaterThanEqual: minMoves * 2
                     ),
                 ]
