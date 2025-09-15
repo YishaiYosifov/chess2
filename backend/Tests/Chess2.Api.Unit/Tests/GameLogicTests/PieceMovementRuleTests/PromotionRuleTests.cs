@@ -1,5 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameLogic.PieceMovementRules;
+﻿using Chess2.Api.GameLogic.PieceMovementRules;
+using Chess2.Api.LiveGame;
 using FluentAssertions;
 using NSubstitute;
 
@@ -7,12 +7,6 @@ namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
 public class PromotionRuleTests : RuleBasedPieceRuleTestBase
 {
-    private readonly List<PieceType> _expectedPromotionTargets =
-    [
-        .. Enum.GetValues<PieceType>()
-            .Where(p => p != PieceType.King && p != PieceType.Pawn && p != PieceType.UnderagePawn),
-    ];
-
     [Fact]
     public void Evaluate_yields_non_promotion_moves_unchanged()
     {
@@ -20,14 +14,17 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().HaveCount(Moves.Length - 1 + _expectedPromotionTargets.Count);
+        result.Should().HaveCount(Moves.Length - 1 + GameConstants.PromotablePieces.Count);
         result.Should().Contain([Moves[0], .. Moves[2..]]);
 
         var promotionMoves = result
             .Where(m => m.To == Moves[1].To && m.PromotesTo != null)
             .ToList();
 
-        promotionMoves.Select(m => m.PromotesTo).Should().BeEquivalentTo(_expectedPromotionTargets);
+        promotionMoves
+            .Select(m => m.PromotesTo)
+            .Should()
+            .BeEquivalentTo(GameConstants.PromotablePieces);
     }
 
     [Fact]
