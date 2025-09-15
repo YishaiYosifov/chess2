@@ -394,6 +394,7 @@ builder.Services.AddSingleton<IQuestDefinition, CastleCaptureQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoKingMoveQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoQueenMoveQuest>();
 builder.Services.AddSingleton<IQuestDefinition, LongPassantCaptureQuest>();
+builder.Services.AddSingleton<IQuestDefinition, MinimumGameLengthQuest>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
