@@ -8,38 +8,28 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class GameQuestSnapshotFaker : RecordFaker<GameQuestSnapshot>
 {
-    public GameQuestSnapshotFaker()
+    public GameQuestSnapshotFaker(GameColor? playerColor = null)
     {
         StrictMode(true);
         RuleFor(x => x.GameToken, f => f.Random.Guid().ToString()[..16]);
-        RuleFor(x => x.PlayerColor, f => f.PickRandom<GameColor>());
+        RuleFor(x => x.PlayerColor, f => playerColor ?? f.PickRandom<GameColor>());
         RuleFor(x => x.MoveHistory, f => new MoveFaker().Generate(5));
         RuleFor(x => x.ResultData, f => new GameResultDataFaker().Generate());
     }
 
     public static Faker<GameQuestSnapshot> Win(GameColor playerColor) =>
-        new GameQuestSnapshotFaker()
-            .RuleFor(x => x.PlayerColor, playerColor)
-            .RuleFor(
-                x => x.ResultData,
-                f => new GameResultDataFaker(
-                    playerColor.Match(
-                        whenWhite: GameResult.WhiteWin,
-                        whenBlack: GameResult.BlackWin
-                    )
-                )
-            );
+        new GameQuestSnapshotFaker(playerColor).RuleFor(
+            x => x.ResultData,
+            f => new GameResultDataFaker(
+                playerColor.Match(whenWhite: GameResult.WhiteWin, whenBlack: GameResult.BlackWin)
+            )
+        );
 
     public static Faker<GameQuestSnapshot> Loss(GameColor playerColor) =>
-        new GameQuestSnapshotFaker()
-            .RuleFor(x => x.PlayerColor, playerColor)
-            .RuleFor(
-                x => x.ResultData,
-                f => new GameResultDataFaker(
-                    playerColor.Match(
-                        whenWhite: GameResult.BlackWin,
-                        whenBlack: GameResult.WhiteWin
-                    )
-                )
-            );
+        new GameQuestSnapshotFaker(playerColor).RuleFor(
+            x => x.ResultData,
+            f => new GameResultDataFaker(
+                playerColor.Match(whenWhite: GameResult.BlackWin, whenBlack: GameResult.WhiteWin)
+            )
+        );
 }

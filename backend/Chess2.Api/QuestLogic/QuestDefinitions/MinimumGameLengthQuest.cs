@@ -13,7 +13,7 @@ public class MinimumGameLengthQuest : IQuestDefinition
             CreateVariant(130, QuestDifficulty.Hard),
         ];
 
-    public static QuestVariant CreateVariant(int gameLength, QuestDifficulty difficulty) =>
+    private static QuestVariant CreateVariant(int gameLength, QuestDifficulty difficulty) =>
         new(
             Description: $"Win a game that lasts at least {gameLength} moves",
             Difficulty: difficulty,
