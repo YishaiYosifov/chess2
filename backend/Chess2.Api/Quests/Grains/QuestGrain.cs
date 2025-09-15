@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.QuestLogic;
+using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
-using Chess2.Api.Quests.Models;
-using Chess2.Api.Quests.QuestDefinitions;
 using Chess2.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
@@ -145,7 +146,7 @@ public class QuestGrain(
         if (State.Progress >= quest.Target)
             return;
 
-        var progressMade = quest.Progressors.EvaluateProgressMade(snapshot);
+        var progressMade = quest.Progressors.Evaluate(snapshot); // needs to be changed!!
         if (progressMade <= 0)
             return;
 

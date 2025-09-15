@@ -2,7 +2,7 @@
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Quests.Models;
+using Chess2.Api.QuestLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 

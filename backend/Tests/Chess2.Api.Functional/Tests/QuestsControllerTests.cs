@@ -1,10 +1,10 @@
-﻿using Chess2.Api.Pagination.Models;
+﻿using System.Net;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Entities;
-using Chess2.Api.Quests.DTOs;
+using Chess2.Api.QuestLogic.DTOs;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 

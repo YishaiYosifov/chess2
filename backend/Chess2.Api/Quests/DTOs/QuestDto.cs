@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Chess2.Api.Quests.Models;
+using Chess2.Api.QuestLogic.Models;
 
 namespace Chess2.Api.Quests.DTOs;
 
