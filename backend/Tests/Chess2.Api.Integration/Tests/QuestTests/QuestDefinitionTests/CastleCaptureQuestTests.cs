@@ -43,6 +43,29 @@ public class CastleCaptureQuestTests
     }
 
     [Fact]
+    public void VariantProgress_does_not_progress_when_done_by_opponent()
+    {
+        var snapshot = GameQuestSnapshotFaker
+            .Win(GameColor.White)
+            .RuleFor(
+                x => x.MoveHistory,
+                [
+                    MoveFaker
+                        .Capture(
+                            GameColor.Black,
+                            captureType: PieceType.Bishop,
+                            pieceType: PieceType.King
+                        )
+                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
+                ]
+            )
+            .Generate();
+
+        var progress = _quest.ApplySnapshot(snapshot);
+        progress.Should().Be(0);
+    }
+
+    [Fact]
     public void VariantProgress_does_not_progress_without_castle_capture()
     {
         var snapshot = GameQuestSnapshotFaker
