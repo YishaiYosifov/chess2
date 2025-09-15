@@ -10,6 +10,7 @@ public class QuestInstance(
     string description,
     QuestDifficulty difficulty,
     int target,
+    DateOnly creationDate,
     IReadOnlyCollection<IQuestCondition> conditions,
     IReadOnlyCollection<IQuestMetric>? metrics
 )
@@ -32,7 +33,18 @@ public class QuestInstance(
     [Id(5)]
     public int Progress { get; private set; } = 0;
 
-    public int Evaluate(GameQuestSnapshot snapshot)
+    [Id(6)]
+    public DateOnly CreationDate { get; } = creationDate;
+
+    public bool IsCompleted => Progress >= Target;
+
+    public void ApplySnapshot(GameQuestSnapshot snapshot)
+    {
+        var progressMade = EvaluateProgressMade(snapshot);
+        Progress = Math.Min(Progress + progressMade, Target);
+    }
+
+    private int EvaluateProgressMade(GameQuestSnapshot snapshot)
     {
         if (!_conditions.All(condition => condition.Evaluate(snapshot)))
             return 0;
