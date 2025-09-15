@@ -17,7 +17,7 @@ public class NoKingMoveQuest : IQuestDefinition
 
                     [
                         new WinCondition(),
-                        new GreaterThanEqualCondition(new GameLengthMetric(), 30),
+                        new GreaterThanEqualCondition(new GameLengthMetric(), 30 * 2),
                         new NotCondition(new PlayerPieceMovedCondition(PieceType.King)),
                     ]
             ),

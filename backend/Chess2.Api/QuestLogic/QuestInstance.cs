@@ -47,6 +47,7 @@ public class QuestInstance(
 
     private int EvaluateProgressMade(GameQuestSnapshot snapshot)
     {
+        _conditions.ToList()[1].Evaluate(snapshot);
         if (!_conditions.All(condition => condition.Evaluate(snapshot)))
             return 0;
 
