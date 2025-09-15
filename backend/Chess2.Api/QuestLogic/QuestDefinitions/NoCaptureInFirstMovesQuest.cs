@@ -4,7 +4,7 @@ using Chess2.Api.QuestLogic.QuestMetrics;
 
 namespace Chess2.Api.QuestLogic.QuestDefinitions;
 
-public class NoCaptureQuest : IQuestDefinition
+public class NoCaptureInFirstMovesQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants { get; } =
         [

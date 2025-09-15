@@ -6,9 +6,9 @@ using FluentAssertions;
 
 namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 
-public class NoCaptureQuestTests
+public class NoCaptureInFirstMovesQuestTests
 {
-    private readonly NoCaptureQuest _quest = new();
+    private readonly NoCaptureInFirstMovesQuest _quest = new();
 
     [Theory]
     [MemberData(nameof(VariantMoveNumTestData))]
