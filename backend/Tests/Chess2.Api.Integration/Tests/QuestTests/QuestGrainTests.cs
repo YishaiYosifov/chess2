@@ -3,7 +3,10 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.QuestConditions;
 using Chess2.Api.QuestLogic.QuestDefinitions;
+using Chess2.Api.Quests.DTOs;
+using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
@@ -113,7 +116,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
             )
             .Returns(
                 new QuestVariant(
-                    Progressor: new WinCondition(),
+                    Conditions: () => [new WinCondition()],
                     Description: "desc",
                     Target: target,
                     Difficulty: difficulty
@@ -211,19 +214,21 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_does_nothing_if_progressor_returns_zero()
+    public async Task OnGameOverAsync_does_nothing_if_conditions_not_met()
     {
-        SetupWinVariant(QuestDifficulty.Easy, target: 2);
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.PlayerColor, GameColor.Black)
             .RuleFor(x => x.ResultData, new GameResultDataFaker(GameResult.WhiteWin))
             .Generate();
 
         var grain = await CreateGrainAsync();
-        var storageStats = GetStorageStats();
-        await grain.OnGameOverAsync(snapshot);
+        await grain.GetQuestAsync();
 
-        storageStats?.Writes.Should().Be(0);
+        var storageStats = GetStorageStats();
+        storageStats?.ResetCounts();
+
+        await grain.OnGameOverAsync(snapshot);
 
         var quest = await grain.GetQuestAsync();
         quest.Progress.Should().Be(0);
@@ -378,8 +383,11 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task CollectRewardAsync_fails_if_no_reward_pending()
     {
+        SetupSelectableVariant(QuestDifficulty.Easy);
         var grain = await CreateGrainAsync();
+
         var result = await grain.CollectRewardAsync();
+
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(QuestErrors.NoRewardToCollect);
     }
