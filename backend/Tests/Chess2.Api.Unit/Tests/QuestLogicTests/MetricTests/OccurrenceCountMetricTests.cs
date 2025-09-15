@@ -8,7 +8,7 @@ namespace Chess2.Api.Unit.Tests.QuestLogicTests.MetricTests;
 public class OccurrenceCountMetricTests
 {
     [Fact]
-    public void EvaluateProgressMade_returns_zero_when_predicate_never_matches()
+    public void Evaluate_returns_zero_when_predicate_never_matches()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
         OccurrenceCountMetric metric = new((move, _) => false);
@@ -19,7 +19,7 @@ public class OccurrenceCountMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_counts_all_matching_moves()
+    public void Evaluate_counts_all_matching_moves()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
         HashSet<Move> targetMoves = [snapshot.MoveHistory[1], snapshot.MoveHistory[3]];
@@ -32,7 +32,7 @@ public class OccurrenceCountMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_with_predicate_true_for_all_moves_returns_total_count()
+    public void Evaluate_with_predicate_true_for_all_moves_returns_total_count()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
         OccurrenceCountMetric metric = new((_, _) => true);
@@ -43,7 +43,7 @@ public class OccurrenceCountMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_iterrates_over_all_moves()
+    public void Evaluate_iterrates_over_all_moves()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
