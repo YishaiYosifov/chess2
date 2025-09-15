@@ -15,9 +15,9 @@ public class NoCaptureInFirstMovesQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int minMoves, QuestDifficulty difficulty) =>
         new(
-            Description: $"Win 5 games without a piece capture in the first {minMoves} moves (game must last at least that many moves)",
+            Description: $"Win 3 games without a piece capture in the first {minMoves} moves (game must last at least that many moves)",
             Difficulty: difficulty,
-            Target: 5,
+            Target: 3,
             Conditions: () =>
 
                 [

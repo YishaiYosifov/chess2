@@ -15,9 +15,9 @@ public class WinInQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int maxMoves, QuestDifficulty difficulty) =>
         new(
-            Description: $"Win 5 games in {maxMoves} moves or less",
+            Description: $"Win 3 games in {maxMoves} moves or less",
             Difficulty: difficulty,
-            Target: 5,
+            Target: 3,
             Conditions: () =>
 
                 [
