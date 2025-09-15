@@ -10,5 +10,5 @@ public class NoQueenMoveQuestTests()
         allowedPiece: PieceType.Horsey,
         minMoves: 30 * 2,
         expectedDifficulty: QuestDifficulty.Medium,
-        target: 1
+        target: 2
     );
