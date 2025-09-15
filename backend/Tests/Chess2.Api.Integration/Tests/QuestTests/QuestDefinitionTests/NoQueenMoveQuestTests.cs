@@ -4,9 +4,9 @@ using Chess2.Api.QuestLogic.QuestDefinitions;
 
 namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 
-public class NoKingMoveQuestTests()
-    : NoPieceMoveQuestTestBase<NoKingMoveQuest>(
-        forbiddenPiece: PieceType.King,
+public class NoQueenMoveQuestTests()
+    : NoPieceMoveQuestTestBase<NoQueenMoveQuest>(
+        forbiddenPiece: PieceType.Queen,
         allowedPiece: PieceType.Horsey,
         minMoves: 30 * 2,
         expectedDifficulty: QuestDifficulty.Medium,

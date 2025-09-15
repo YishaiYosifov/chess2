@@ -24,14 +24,21 @@ public class CastleCaptureQuestTests
     {
         var snapshot = GameQuestSnapshotFaker
             .Win()
+            .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
                     new MoveFaker()
+                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
                         .RuleFor(x => x.SpecialMoveType, moveType)
                         .RuleFor(
                             x => x.Captures,
-                            [new MoveCapture(PieceFactory.White(PieceType.Bishop), new())]
+                            [
+                                new MoveCapture(
+                                    PieceFactory.White(PieceType.Bishop),
+                                    new AlgebraicPoint()
+                                ),
+                            ]
                         ),
                     .. new MoveFaker().Generate(2),
                 ]
@@ -47,10 +54,13 @@ public class CastleCaptureQuestTests
     {
         var snapshot = GameQuestSnapshotFaker
             .Win()
+            .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker().RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
+                    new MoveFaker()
+                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
+                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
                     .. new MoveFaker().Generate(2),
                 ]
             )
@@ -65,10 +75,12 @@ public class CastleCaptureQuestTests
     {
         var snapshot = GameQuestSnapshotFaker
             .Loss()
+            .RuleFor(x => x.PlayerColor, GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
                     new MoveFaker()
+                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
                         .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle)
                         .RuleFor(
                             x => x.Captures,
