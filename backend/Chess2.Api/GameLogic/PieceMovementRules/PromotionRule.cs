@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.LiveGame;
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
@@ -9,17 +10,6 @@ public class PromotionRule(
 {
     private readonly IPieceMovementRule[] _pieceRules = pieceRules;
     private readonly Func<ChessBoard, Move, bool> _predicate = predicate;
-
-    private static readonly HashSet<PieceType> _cantPromoteTo =
-    [
-        PieceType.King,
-        PieceType.Pawn,
-        PieceType.UnderagePawn,
-    ];
-    private static readonly List<PieceType> _promotesTo =
-    [
-        .. Enum.GetValues<PieceType>().Where(p => !_cantPromoteTo.Contains(p)),
-    ];
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
@@ -33,7 +23,7 @@ public class PromotionRule(
                     continue;
                 }
 
-                foreach (var pieceType in _promotesTo)
+                foreach (var pieceType in GameConstants.PromotablePieces)
                 {
                     yield return move with
                     {
