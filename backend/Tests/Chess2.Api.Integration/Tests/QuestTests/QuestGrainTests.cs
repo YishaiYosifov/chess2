@@ -11,7 +11,6 @@ using Chess2.Api.Quests.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
-using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -90,15 +89,8 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var variants = GetFilteredVariants(difficulty);
         var selectedVariant = variants[0];
         _usedVariantDescriptions.Add(selectedVariant.Description);
-        var descriptions = variants.Select(x => x.Description);
 
-        _randomMock
-            .NextItem(
-                Arg.Is<IEnumerable<QuestVariant>>(variants =>
-                    variants.Select(variant => variant.Description).SequenceEqual(descriptions)
-                )
-            )
-            .Returns(selectedVariant);
+        SetupVariantRandom(variants, selectedVariant);
 
         return selectedVariant;
     }
@@ -108,21 +100,27 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         MockDifficulty(difficulty);
 
         var variants = GetFilteredVariants(difficulty);
+        SetupVariantRandom(
+            variants,
+            new QuestVariant(
+                Conditions: () => [new WinCondition()],
+                Description: "desc",
+                Target: target,
+                Difficulty: difficulty
+            )
+        );
+    }
 
+    private void SetupVariantRandom(IEnumerable<QuestVariant> variants, QuestVariant returnVariant)
+    {
+        var descriptions = variants.Select(x => x.Description);
         _randomMock
             .NextItem(
-                ArgEx.FluentAssert<IEnumerable<QuestVariant>>(x =>
-                    x.Should().BeEquivalentTo(variants)
+                Arg.Is<IEnumerable<QuestVariant>>(variants =>
+                    variants.Select(variant => variant.Description).SequenceEqual(descriptions)
                 )
             )
-            .Returns(
-                new QuestVariant(
-                    Conditions: () => [new WinCondition()],
-                    Description: "desc",
-                    Target: target,
-                    Difficulty: difficulty
-                )
-            );
+            .Returns(returnVariant);
     }
 
     [Fact]
