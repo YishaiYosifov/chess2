@@ -37,6 +37,22 @@ public class MoveFaker : RecordFaker<Move>
 
     public static Faker<Move> Capture(
         GameColor forColor,
+        PieceType[] captureTypes,
+        PieceType? pieceType = null
+    ) =>
+        new MoveFaker(forColor, pieceType).RuleFor(
+            x => x.Captures,
+            f =>
+                [
+                    .. captureTypes.Select(capture => new MoveCapture(
+                        new PieceFaker(forColor.Invert(), capture).Generate(),
+                        new AlgebraicPoint(X: f.Random.Number(0, 9), Y: f.Random.Number(0, 9))
+                    )),
+                ]
+        );
+
+    public static Faker<Move> Capture(
+        GameColor forColor,
         PieceType? captureType = null,
         PieceType? pieceType = null
     ) =>

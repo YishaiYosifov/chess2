@@ -391,6 +391,9 @@ builder.Services.AddScoped<IQuestLeaderboardService, QuestLeaderboardService>();
 builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoCaptureQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CastleCaptureQuest>();
+builder.Services.AddSingleton<IQuestDefinition, NoKingMoveQuest>();
+builder.Services.AddSingleton<IQuestDefinition, NoQueenMoveQuest>();
+builder.Services.AddSingleton<IQuestDefinition, LongPassantCaptureQuest>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
