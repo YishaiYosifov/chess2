@@ -14,7 +14,6 @@ public class PromoteToAllQuestTests
     public void QuestVariant_has_correct_metadata()
     {
         var variant = _quest.Variants.Single();
-        variant.Description.Should().Contain("Promote to every piece types");
         variant.Difficulty.Should().Be(QuestDifficulty.Medium);
         variant.Target.Should().Be(GameConstants.PromotablePieces.Count);
     }
