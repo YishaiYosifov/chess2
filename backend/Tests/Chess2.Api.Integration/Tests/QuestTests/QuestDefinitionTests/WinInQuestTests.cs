@@ -1,5 +1,5 @@
-﻿using Chess2.Api.Quests.Models;
-using Chess2.Api.Quests.QuestDefinitions;
+﻿using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 

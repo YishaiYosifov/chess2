@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -29,7 +31,7 @@ using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Services;
 using Chess2.Api.Profile.Validators;
-using Chess2.Api.Quests.QuestDefinitions;
+using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.Quests.Repositories;
 using Chess2.Api.Quests.Services;
 using Chess2.Api.Shared.Models;
@@ -52,8 +54,6 @@ using Orleans.Configuration;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
