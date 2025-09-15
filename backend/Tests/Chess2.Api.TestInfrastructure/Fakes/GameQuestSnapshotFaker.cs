@@ -17,27 +17,29 @@ public class GameQuestSnapshotFaker : RecordFaker<GameQuestSnapshot>
         RuleFor(x => x.ResultData, f => new GameResultDataFaker().Generate());
     }
 
-    public static Faker<GameQuestSnapshot> Win() =>
-        new GameQuestSnapshotFaker().RuleFor(
-            x => x.ResultData,
-            (f, x) =>
-                new GameResultDataFaker(
-                    x.PlayerColor.Match(
+    public static Faker<GameQuestSnapshot> Win(GameColor playerColor) =>
+        new GameQuestSnapshotFaker()
+            .RuleFor(x => x.PlayerColor, playerColor)
+            .RuleFor(
+                x => x.ResultData,
+                f => new GameResultDataFaker(
+                    playerColor.Match(
                         whenWhite: GameResult.WhiteWin,
                         whenBlack: GameResult.BlackWin
                     )
                 )
-        );
+            );
 
-    public static Faker<GameQuestSnapshot> Loss() =>
-        new GameQuestSnapshotFaker().RuleFor(
-            x => x.ResultData,
-            (f, x) =>
-                new GameResultDataFaker(
-                    x.PlayerColor.Match(
+    public static Faker<GameQuestSnapshot> Loss(GameColor playerColor) =>
+        new GameQuestSnapshotFaker()
+            .RuleFor(x => x.PlayerColor, playerColor)
+            .RuleFor(
+                x => x.ResultData,
+                f => new GameResultDataFaker(
+                    playerColor.Match(
                         whenWhite: GameResult.BlackWin,
                         whenBlack: GameResult.WhiteWin
                     )
                 )
-        );
+            );
 }

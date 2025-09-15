@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
-using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -16,15 +15,12 @@ public class NoCaptureQuestTests
     public void VariantProgress_positive_snapshot(int variantIdx, int numOfMoves)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
                     .. new MoveFaker().Generate(numOfMoves * 2),
-                    new MoveFaker().RuleFor(
-                        x => x.Captures,
-                        [new MoveCapture(PieceFactory.White(), new())]
-                    ),
+                    MoveFaker.Capture(forColor: GameColor.White),
                 ]
             )
             .Generate();
@@ -42,14 +38,11 @@ public class NoCaptureQuestTests
     )
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker().RuleFor(
-                        x => x.Captures,
-                        [new MoveCapture(PieceFactory.White(), new())]
-                    ),
+                    MoveFaker.Capture(forColor: GameColor.Black),
                     .. new MoveFaker().Generate(numOfMoves * 2),
                 ]
             )
@@ -65,17 +58,8 @@ public class NoCaptureQuestTests
     public void VariantProgress_does_not_progress_on_loss(int variantIdx, int numOfMoves)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Loss()
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    new MoveFaker().RuleFor(
-                        x => x.Captures,
-                        [new MoveCapture(PieceFactory.White(), new())]
-                    ),
-                    .. new MoveFaker().Generate(numOfMoves * 2),
-                ]
-            )
+            .Loss(GameColor.White)
+            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(numOfMoves * 2))
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);

@@ -2,7 +2,6 @@
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
-using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -29,13 +28,10 @@ public abstract class NoPieceMoveQuestTestBase<TQuest>(
     public void VariantProgress_positive_snapshot()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
-                new MoveFaker()
-                    .RuleFor(x => x.Piece, PieceFactory.White(_allowedPiece))
-                    .Generate(_minMoves)
+                new MoveFaker(GameColor.White, _allowedPiece).Generate(_minMoves)
             )
             .Generate();
 
@@ -47,14 +43,11 @@ public abstract class NoPieceMoveQuestTestBase<TQuest>(
     public void VariantProgress_does_not_progress_if_forbidden_piece_moves()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker()
-                        .RuleFor(x => x.Piece, PieceFactory.White(_forbiddenPiece))
-                        .Generate(),
+                    new MoveFaker(GameColor.White, _forbiddenPiece).Generate(),
                     .. new MoveFaker().Generate(_minMoves),
                 ]
             )
@@ -68,13 +61,10 @@ public abstract class NoPieceMoveQuestTestBase<TQuest>(
     public void VariantProgress_does_not_progress_if_too_short()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
-                new MoveFaker()
-                    .RuleFor(x => x.Piece, PieceFactory.White(_allowedPiece))
-                    .Generate(_minMoves - 1)
+                new MoveFaker(GameColor.White, _allowedPiece).Generate(_minMoves - 1)
             )
             .Generate();
 
@@ -86,13 +76,10 @@ public abstract class NoPieceMoveQuestTestBase<TQuest>(
     public void VariantProgress_does_not_progress_on_loss()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Loss()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Loss(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
-                new MoveFaker()
-                    .RuleFor(x => x.Piece, PieceFactory.White(_allowedPiece))
-                    .Generate(_minMoves)
+                new MoveFaker(GameColor.White, _allowedPiece).Generate(_minMoves)
             )
             .Generate();
 

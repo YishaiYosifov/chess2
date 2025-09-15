@@ -1,10 +1,12 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Bogus;
+using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class MoveFaker : RecordFaker<Move>
 {
-    public MoveFaker()
+    public MoveFaker(GameColor? forColor = null, PieceType? pieceType = null)
     {
         StrictMode(true);
 
@@ -20,7 +22,8 @@ public class MoveFaker : RecordFaker<Move>
             x => x.Piece,
             f =>
                 new PieceFaker(
-                    color: f.IndexFaker % 2 == 0 ? GameColor.White : GameColor.Black
+                    color: forColor ?? (f.IndexFaker % 2 == 0 ? GameColor.White : GameColor.Black),
+                    piece: pieceType
                 ).Generate()
         );
 
@@ -31,4 +34,20 @@ public class MoveFaker : RecordFaker<Move>
         RuleFor(x => x.ForcedPriority, ForcedMovePriority.None);
         RuleFor(x => x.PromotesTo, (PieceType?)null);
     }
+
+    public static Faker<Move> Capture(
+        GameColor forColor,
+        PieceType? captureType = null,
+        PieceType? pieceType = null
+    ) =>
+        new MoveFaker(forColor, pieceType).RuleFor(
+            x => x.Captures,
+            f =>
+                [
+                    new MoveCapture(
+                        new PieceFaker(forColor.Invert(), captureType).Generate(),
+                        new AlgebraicPoint(X: f.Random.Number(0, 9), Y: f.Random.Number(0, 9))
+                    ),
+                ]
+        );
 }

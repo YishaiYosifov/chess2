@@ -1,4 +1,5 @@
-﻿using Chess2.Api.QuestLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -14,7 +15,7 @@ public class WinInQuestTests
     public void VariantProgress_positive_snapshot(int variantIdx, int maxMoves)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
+            .Win(GameColor.Black)
             .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(maxMoves * 2))
             .Generate();
 
@@ -28,7 +29,7 @@ public class WinInQuestTests
     public void VariantProgress_does_not_progress_when_too_long(int variantIdx, int maxMoves)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
+            .Win(GameColor.Black)
             .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(maxMoves * 2 + 1))
             .Generate();
 
@@ -42,7 +43,7 @@ public class WinInQuestTests
     public void VariantProgress_does_not_progress_on_loss(int variantIdx, int maxMoves)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Loss()
+            .Loss(GameColor.White)
             .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(maxMoves * 2))
             .Generate();
 
