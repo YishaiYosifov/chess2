@@ -20,7 +20,11 @@ public class BishopDefinition : IPieceDefinition
                 new SlideBehaviour(new Offset(X: 1, Y: -1)),
                 new SlideBehaviour(new Offset(X: -1, Y: 1)),
                 new SlideBehaviour(new Offset(X: -1, Y: -1))
-            )
+            ),
+            new IlVaticanoRule(new Offset(-1, 0)),
+            new IlVaticanoRule(new Offset(1, 0)),
+            new IlVaticanoRule(new Offset(0, -1)),
+            new IlVaticanoRule(new Offset(0, 1))
         ),
     ];
 

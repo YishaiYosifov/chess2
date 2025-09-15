@@ -6,4 +6,5 @@ public enum SpecialMoveType
     KingsideCastle,
     QueensideCastle,
     EnPassant,
+    IlVaticano,
 }
