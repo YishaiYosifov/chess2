@@ -11,7 +11,7 @@ public class WinConditionTests
     [Theory]
     [InlineData(GameResult.BlackWin, GameColor.White, false)]
     [InlineData(GameResult.WhiteWin, GameColor.White, true)]
-    public void EvaluateProgressMade_returns_expected_progress(
+    public void Evaluate_returns_expected_progress(
         GameResult result,
         GameColor playerColor,
         bool expectedResult

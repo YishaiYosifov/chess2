@@ -8,7 +8,7 @@ namespace Chess2.Api.Unit.Tests.QuestLogicTests.MetricTests;
 public class FirstOccurrenceMetricTests
 {
     [Fact]
-    public void EvaluateProgressMade_returns_max_value_when_predicate_never_matches()
+    public void Evaluate_returns_max_value_when_predicate_never_matches()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
@@ -22,7 +22,7 @@ public class FirstOccurrenceMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_returns_zero_when_first_move_matches()
+    public void Evaluate_returns_zero_when_first_move_matches()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
@@ -34,7 +34,7 @@ public class FirstOccurrenceMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_returns_index_of_first_matching_move_in_middle()
+    public void Evaluate_returns_index_of_first_matching_move_in_middle()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
@@ -46,7 +46,7 @@ public class FirstOccurrenceMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_returns_index_of_first_matching_move_when_multiple_matches()
+    public void Evaluate_returns_index_of_first_matching_move_when_multiple_matches()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
@@ -60,7 +60,7 @@ public class FirstOccurrenceMetricTests
     }
 
     [Fact]
-    public void EvaluateProgressMade_iterates_over_all_moves()
+    public void Evaluate_iterates_over_all_moves()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
 
