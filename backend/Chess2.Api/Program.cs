@@ -398,6 +398,7 @@ builder.Services.AddSingleton<IQuestDefinition, MinimumGameLengthQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CaptureAcrossGamesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, MovesAcrossGamesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CappedCapturesQuest>();
+builder.Services.AddSingleton<IQuestDefinition, PromoteToAllQuest>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
