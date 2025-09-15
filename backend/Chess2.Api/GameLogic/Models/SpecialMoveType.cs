@@ -5,4 +5,5 @@ public enum SpecialMoveType
     None,
     KingsideCastle,
     QueensideCastle,
+    EnPassant,
 }
