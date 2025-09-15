@@ -89,7 +89,6 @@ public class CappedCapturesQuestTests
         var variant = _quest.Variants.ElementAt(variantIdx);
         var instance = variant.CreateInstance();
 
-        // Opponent captures shouldn't count → quest should still complete
         var progress = instance.ApplySnapshot(snapshot);
         progress.Should().Be(1);
     }
