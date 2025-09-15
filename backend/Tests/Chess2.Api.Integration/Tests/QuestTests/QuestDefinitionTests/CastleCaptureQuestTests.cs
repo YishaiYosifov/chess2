@@ -2,7 +2,6 @@
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
-using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -23,23 +22,17 @@ public class CastleCaptureQuestTests
     public void VariantProgress_positive_snapshot(SpecialMoveType moveType)
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker()
-                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
-                        .RuleFor(x => x.SpecialMoveType, moveType)
-                        .RuleFor(
-                            x => x.Captures,
-                            [
-                                new MoveCapture(
-                                    PieceFactory.White(PieceType.Bishop),
-                                    new AlgebraicPoint()
-                                ),
-                            ]
-                        ),
+                    MoveFaker
+                        .Capture(
+                            GameColor.White,
+                            captureType: PieceType.Bishop,
+                            pieceType: PieceType.King
+                        )
+                        .RuleFor(x => x.SpecialMoveType, moveType),
                     .. new MoveFaker().Generate(2),
                 ]
             )
@@ -53,14 +46,14 @@ public class CastleCaptureQuestTests
     public void VariantProgress_does_not_progress_without_castle_capture()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Win()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker()
-                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
+                    new MoveFaker(GameColor.White, PieceType.King).RuleFor(
+                        x => x.SpecialMoveType,
+                        SpecialMoveType.KingsideCastle
+                    ),
                     .. new MoveFaker().Generate(2),
                 ]
             )
@@ -74,19 +67,17 @@ public class CastleCaptureQuestTests
     public void VariantProgress_does_not_progress_on_loss()
     {
         var snapshot = GameQuestSnapshotFaker
-            .Loss()
-            .RuleFor(x => x.PlayerColor, GameColor.White)
+            .Loss(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    new MoveFaker()
-                        .RuleFor(x => x.Piece, PieceFactory.White(PieceType.King))
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle)
-                        .RuleFor(
-                            x => x.Captures,
-                            [new MoveCapture(PieceFactory.White(PieceType.Bishop), new())]
-                        ),
-                    .. new MoveFaker().Generate(2),
+                    MoveFaker
+                        .Capture(
+                            GameColor.White,
+                            captureType: PieceType.Bishop,
+                            pieceType: PieceType.King
+                        )
+                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
                 ]
             )
             .Generate();
