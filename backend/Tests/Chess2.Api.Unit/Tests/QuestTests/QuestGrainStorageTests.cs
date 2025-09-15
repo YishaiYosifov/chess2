@@ -1,6 +1,7 @@
-﻿using Chess2.Api.Quests.Grains;
-using Chess2.Api.Quests.Models;
-using Chess2.Api.Quests.QuestMetrics;
+﻿using Chess2.Api.QuestLogic;
+using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.QuestMetrics;
+using Chess2.Api.Quests.Grains;
 using FluentAssertions;
 using NSubstitute;
 
