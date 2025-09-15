@@ -9,6 +9,7 @@ namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 public class CappedCapturesQuestTests
 {
     private readonly CappedCapturesQuest _quest = new();
+    private const int MinMoves = 30 * 2;
 
     [Theory]
     [MemberData(nameof(VariantCaptureCapTestData))]
@@ -20,7 +21,7 @@ public class CappedCapturesQuestTests
                 x => x.MoveHistory,
                 [
                     .. MoveFaker.Capture(GameColor.White).Generate(maxCaptures),
-                    .. new MoveFaker().Generate(20 * 2),
+                    .. new MoveFaker().Generate(MinMoves),
                 ]
             )
             .Generate();
@@ -45,7 +46,7 @@ public class CappedCapturesQuestTests
                 x => x.MoveHistory,
                 [
                     .. MoveFaker.Capture(GameColor.White).Generate(maxCaptures + 1),
-                    .. new MoveFaker().Generate(20 * 2),
+                    .. new MoveFaker().Generate(MinMoves),
                 ]
             )
             .Generate();
@@ -111,8 +112,8 @@ public class CappedCapturesQuestTests
     public static TheoryData<int, int> VariantCaptureCapTestData =>
         new()
         {
-            { 0, 13 },
-            { 1, 10 },
-            { 2, 8 },
+            { 0, 10 },
+            { 1, 7 },
+            { 2, 5 },
         };
 }

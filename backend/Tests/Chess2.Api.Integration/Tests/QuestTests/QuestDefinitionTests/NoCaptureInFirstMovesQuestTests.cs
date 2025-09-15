@@ -32,6 +32,26 @@ public class NoCaptureInFirstMovesQuestTests
 
     [Theory]
     [MemberData(nameof(VariantMoveNumTestData))]
+    public void VariantProgress_ignores_opponent_captures(int variantIdx, int numOfMoves)
+    {
+        var snapshot = GameQuestSnapshotFaker
+            .Win(GameColor.White)
+            .RuleFor(
+                x => x.MoveHistory,
+                [
+                    MoveFaker.Capture(forColor: GameColor.Black),
+                    .. new MoveFaker().Generate(numOfMoves * 2),
+                ]
+            )
+            .Generate();
+
+        var variant = _quest.Variants.ElementAt(variantIdx);
+        var progress = variant.CreateInstance().ApplySnapshot(snapshot);
+        progress.Should().Be(1);
+    }
+
+    [Theory]
+    [MemberData(nameof(VariantMoveNumTestData))]
     public void VariantProgress_does_not_progress_with_capture_before_allowed(
         int variantIdx,
         int numOfMoves
