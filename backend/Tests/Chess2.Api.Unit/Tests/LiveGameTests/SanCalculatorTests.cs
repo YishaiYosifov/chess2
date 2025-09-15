@@ -238,4 +238,19 @@ public class SanCalculatorTests
 
         san.Should().Be(expectedSan);
     }
+
+    [Fact]
+    public void CalculateSan_handles_il_vaticano()
+    {
+        Move move = new(
+            new("c4"),
+            new("f4"),
+            PieceFactory.White(PieceType.Bishop),
+            specialMoveType: SpecialMoveType.IlVaticano
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("B-O-O-B");
+    }
 }

@@ -1,7 +1,10 @@
-﻿namespace Chess2.Api.GameLogic.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Chess2.Api.GameLogic.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.GameLogic.Models.Move")]
+[method: JsonConstructor]
 public record Move(
     AlgebraicPoint From,
     AlgebraicPoint To,
