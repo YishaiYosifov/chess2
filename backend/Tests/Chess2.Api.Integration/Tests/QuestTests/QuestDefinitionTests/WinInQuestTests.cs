@@ -30,7 +30,7 @@ public class WinInQuestTests
     {
         var snapshot = GameQuestSnapshotFaker
             .Win(GameColor.Black)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(maxMoves * 2 + 1))
+            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(maxMoves * 2 + 2))
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
