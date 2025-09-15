@@ -20,7 +20,7 @@ public class CaptureAcrossGamesQuestTests
         var variant = _quest.Variants.ElementAt(variantIdx);
         var instance = variant.CreateInstance();
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 2; i++)
         {
             var snapshot = new GameQuestSnapshotFaker(GameColor.White)
                 .RuleFor(
@@ -31,7 +31,7 @@ public class CaptureAcrossGamesQuestTests
                             captureType: PieceType.Pawn,
                             pieceType: PieceType.Pawn
                         )
-                        .Generate((int)Math.Ceiling(requiredCaptures / 3.0))
+                        .Generate((int)Math.Ceiling(requiredCaptures / 2.0))
                 )
                 .Generate();
 

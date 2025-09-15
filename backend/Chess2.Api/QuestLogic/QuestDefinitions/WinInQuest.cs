@@ -22,7 +22,7 @@ public class WinInQuest : IQuestDefinition
 
                 [
                     new WinCondition(),
-                    new LessThanEqualCondition(new GameLengthMetric(), lessThanEqual: maxMoves * 2),
+                    new LessThanEqualCondition(new MoveCountMetric(), lessThanEqual: maxMoves),
                 ]
         );
 }
