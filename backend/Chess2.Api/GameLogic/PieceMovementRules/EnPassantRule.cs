@@ -61,6 +61,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
             targetPos,
             movingPiece,
             captures: [new MoveCapture(lastMove.To, board)],
+            specialMoveType: SpecialMoveType.EnPassant,
             forcedPriority: ForcedMovePriority.EnPassant
         );
     }
@@ -98,6 +99,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
                 to,
                 movingPiece,
                 captures: [.. capturedSquares],
+                specialMoveType: SpecialMoveType.EnPassant,
                 forcedPriority: ForcedMovePriority.EnPassant
             );
 
