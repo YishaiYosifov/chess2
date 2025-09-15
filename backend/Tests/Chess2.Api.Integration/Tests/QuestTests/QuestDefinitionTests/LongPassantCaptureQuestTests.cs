@@ -17,7 +17,7 @@ public class LongPassantCaptureQuestTests
     }
 
     [Fact]
-    public void VariantProgress_positive_snapshot_with_long_passant()
+    public void VariantProgress_positive_snapshot()
     {
         var snapshot = GameQuestSnapshotFaker
             .Win(GameColor.White)

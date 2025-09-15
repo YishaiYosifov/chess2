@@ -11,7 +11,7 @@ public class MovesAcrossGamesQuestTests
 
     [Theory]
     [MemberData(nameof(VariantMoveTestData))]
-    public void VariantProgress_accumulates_moves_across_games(int variantIdx, int requiredPlies)
+    public void VariantProgress_positive_snapshot(int variantIdx, int requiredPlies)
     {
         var variant = _quest.Variants.ElementAt(variantIdx);
         var instance = variant.CreateInstance();
