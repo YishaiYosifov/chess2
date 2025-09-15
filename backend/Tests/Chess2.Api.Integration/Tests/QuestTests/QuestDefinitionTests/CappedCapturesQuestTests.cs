@@ -82,7 +82,7 @@ public class CappedCapturesQuestTests
             .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
-                MoveFaker.Capture(GameColor.Black).Generate(maxCaptures + 50)
+                MoveFaker.Capture(GameColor.Black).Generate(maxCaptures + MinMoves)
             )
             .Generate();
 

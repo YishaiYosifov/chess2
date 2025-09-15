@@ -62,7 +62,7 @@ public class NoCaptureInFirstMovesQuestTests
             .RuleFor(
                 x => x.MoveHistory,
                 [
-                    MoveFaker.Capture(forColor: GameColor.Black),
+                    MoveFaker.Capture(forColor: GameColor.White),
                     .. new MoveFaker().Generate(numOfMoves * 2),
                 ]
             )
