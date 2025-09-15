@@ -40,6 +40,7 @@ public class EnPassantRuleTests
             to: destination,
             piece: piece,
             captures: [new MoveCapture(enemyPiece, enemyDestination)],
+            specialMoveType: SpecialMoveType.EnPassant,
             forcedPriority: ForcedMovePriority.EnPassant
         );
         result.Should().ContainSingle().Which.Should().BeEquivalentTo(expected);
@@ -161,6 +162,7 @@ public class EnPassantRuleTests
         {
             moves[i].From.Should().Be(origin);
             moves[i].Captures.Should().BeEquivalentTo(expectedCapturesList[i]);
+            moves[i].SpecialMoveType.Should().Be(SpecialMoveType.EnPassant);
             moves[i].ForcedPriority.Should().Be(ForcedMovePriority.EnPassant);
         }
 

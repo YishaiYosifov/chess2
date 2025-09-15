@@ -171,7 +171,12 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .From("e7", movedWhitePawn)
                 .WithPieceAt("d9", blackPawn)
                 .WithPriorMove(from: "d9", to: "d7")
-                .GoesTo("d8", captures: ["d7"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo(
+                    "d8",
+                    captures: ["d7"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
                 .GoesTo("e8")
                 .WithDescription("white pawn can capture en passant")
         );
@@ -181,7 +186,12 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .From("e4", movedBlackPawn)
                 .WithPieceAt("f2", whitePawn)
                 .WithPriorMove(from: "f2", to: "f4")
-                .GoesTo("f3", captures: ["f4"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo(
+                    "f3",
+                    captures: ["f4"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
                 .GoesTo("e3")
                 .WithDescription("black pawn can capture en passant")
         );
@@ -194,12 +204,23 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .WithEnemyPieceAt("b8")
                 .WithPriorMove(from: "d9", to: "d6")
                 .GoesTo("e7")
-                .GoesTo("d7", captures: ["d6"], forcedPriority: ForcedMovePriority.EnPassant)
-                .GoesTo("c8", captures: ["d6", "c7"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo(
+                    "d7",
+                    captures: ["d6"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
+                .GoesTo(
+                    "c8",
+                    captures: ["d6", "c7"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
                 .GoesTo(
                     "b9",
                     captures: ["d6", "c7", "b8"],
-                    forcedPriority: ForcedMovePriority.EnPassant
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
                 )
                 .WithDescription("white pawn can capture long passant")
         );
@@ -212,14 +233,25 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .WithEnemyPieceAt("h3")
                 .WithPriorMove(from: "f2", to: "f5")
                 .GoesTo("e4")
-                .GoesTo("f4", captures: ["f5"], forcedPriority: ForcedMovePriority.EnPassant)
-                .GoesTo("g3", captures: ["f5", "g4"], forcedPriority: ForcedMovePriority.EnPassant)
+                .GoesTo(
+                    "f4",
+                    captures: ["f5"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
+                .GoesTo(
+                    "g3",
+                    captures: ["f5", "g4"],
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
+                )
                 .GoesTo(
                     "h2",
                     captures: ["f5", "g4", "h3"],
-                    forcedPriority: ForcedMovePriority.EnPassant
+                    forcedPriority: ForcedMovePriority.EnPassant,
+                    specialMoveType: SpecialMoveType.EnPassant
                 )
-                .WithDescription("black pawn can capture en passant")
+                .WithDescription("black pawn can capture long passant")
         );
         #endregion
 
