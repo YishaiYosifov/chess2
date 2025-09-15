@@ -16,12 +16,12 @@ public class GameLengthMetricTests
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(moveCount))
             .Generate();
-        GameLengthMetric progressor = new();
+        MoveCountMetric progressor = new();
 
         int progressWhite = progressor.Evaluate(snapshot with { PlayerColor = GameColor.White });
         int progressBlack = progressor.Evaluate(snapshot with { PlayerColor = GameColor.Black });
 
-        progressWhite.Should().Be(moveCount);
-        progressBlack.Should().Be(moveCount);
+        progressWhite.Should().Be(moveCount / 2);
+        progressBlack.Should().Be(moveCount / 2);
     }
 }

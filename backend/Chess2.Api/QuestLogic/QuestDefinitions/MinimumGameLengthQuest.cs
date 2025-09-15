@@ -23,8 +23,8 @@ public class MinimumGameLengthQuest : IQuestDefinition
                 [
                     new WinCondition(),
                     new GreaterThanEqualCondition(
-                        new GameLengthMetric(),
-                        greaterThanEqual: gameLength * 2
+                        new MoveCountMetric(),
+                        greaterThanEqual: gameLength
                     ),
                 ]
         );
