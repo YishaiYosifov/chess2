@@ -31,7 +31,7 @@ public class PlayerPieceMovedConditionTests
             .RuleFor(x => x.MoveHistory, [move])
             .Generate();
 
-        var condition = new PlayerPieceMovedCondition(PieceType.King);
+        PlayerPieceMovedCondition condition = new(PieceType.King);
 
         condition.Evaluate(snapshot).Should().BeFalse();
     }
@@ -47,7 +47,7 @@ public class PlayerPieceMovedConditionTests
             .RuleFor(x => x.MoveHistory, [move])
             .Generate();
 
-        var condition = new PlayerPieceMovedCondition(PieceType.King);
+        PlayerPieceMovedCondition condition = new(PieceType.King);
 
         condition.Evaluate(snapshot).Should().BeFalse();
     }
@@ -57,7 +57,7 @@ public class PlayerPieceMovedConditionTests
     {
         var snapshot = new GameQuestSnapshotFaker().RuleFor(x => x.MoveHistory, []).Generate();
 
-        var condition = new PlayerPieceMovedCondition(PieceType.Horsey);
+        PlayerPieceMovedCondition condition = new(PieceType.Horsey);
 
         condition.Evaluate(snapshot).Should().BeFalse();
     }
