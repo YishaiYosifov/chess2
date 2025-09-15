@@ -90,11 +90,12 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var variants = GetFilteredVariants(difficulty);
         var selectedVariant = variants[0];
         _usedVariantDescriptions.Add(selectedVariant.Description);
+        var descriptions = variants.Select(x => x.Description);
 
         _randomMock
             .NextItem(
-                ArgEx.FluentAssert<IEnumerable<QuestVariant>>(x =>
-                    x.Should().BeEquivalentTo(variants)
+                Arg.Is<IEnumerable<QuestVariant>>(variants =>
+                    variants.Select(variant => variant.Description).SequenceEqual(descriptions)
                 )
             )
             .Returns(selectedVariant);
