@@ -31,7 +31,10 @@ public abstract class NoPieceMoveQuestTestBase<TQuest>(
             .Win(GameColor.White)
             .RuleFor(
                 x => x.MoveHistory,
-                new MoveFaker(GameColor.White, _allowedPiece).Generate(_minMoves)
+                [
+                    .. new MoveFaker(GameColor.White, _allowedPiece).Generate(_minMoves - 1),
+                    new MoveFaker(GameColor.Black, _forbiddenPiece).Generate(),
+                ]
             )
             .Generate();
 
