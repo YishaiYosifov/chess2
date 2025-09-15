@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.Profile.Entities;
+﻿using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Errors;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
@@ -34,13 +34,7 @@ public interface IQuestGrain : IGrainWithStringKey
 public class QuestGrainStorage
 {
     [Id(0)]
-    public QuestVariant? Quest { get; set; }
-
-    [Id(1)]
-    public int Progress { get; set; }
-
-    [Id(2)]
-    public DateOnly Date { get; set; }
+    public QuestInstance? Quest { get; set; }
 
     [Id(3)]
     public bool CanReplace { get; set; } = true;
@@ -51,39 +45,25 @@ public class QuestGrainStorage
     [Id(5)]
     public int Streak { get; set; }
 
-    [MemberNotNullWhen(true, nameof(Quest))]
-    public bool IsQuestCompleted => Quest is not null && Progress >= Quest.Target;
-
     public void CompleteQuest()
     {
         if (Quest is null)
             return;
 
-        Progress = Quest.Target;
         Streak++;
         CanReplace = false;
     }
 
-    public void ResetProgressForNewQuest(QuestVariant quest, DateOnly today)
+    public void ResetProgressForNewQuest(QuestInstance quest)
     {
         Quest = quest;
-        Progress = 0;
-        Date = today;
         CanReplace = true;
         RewardCollected = false;
     }
 
-    public void IncrementProgress(int amount)
-    {
-        if (Quest is null)
-            return;
-
-        Progress = Math.Min(Quest.Target, Progress + amount);
-    }
-
     public void ResetStreakIfMissedDay(DateOnly today)
     {
-        if (today.DayNumber - Date.DayNumber > 1)
+        if (today.DayNumber - Quest?.CreationDate.DayNumber > 1)
             Streak = 0;
     }
 
@@ -124,49 +104,49 @@ public class QuestGrain(
 
     public async Task<ErrorOr<int>> CollectRewardAsync()
     {
-        if (State.RewardCollected || !State.IsQuestCompleted)
+        if (State.RewardCollected)
+            return QuestErrors.NoRewardToCollect;
+
+        var quest = GetOrSelectQuest();
+        if (!quest.IsCompleted)
             return QuestErrors.NoRewardToCollect;
 
         var user = await _userManager.FindByIdAsync(this.GetPrimaryKeyString());
         if (user is null)
-            return QuestErrors.NoRewardToCollect;
+            return ProfileErrors.NotFound;
 
-        user.QuestPoints += (int)State.Quest.Difficulty;
+        user.QuestPoints += (int)quest.Difficulty;
         await _userManager.UpdateAsync(user);
 
         State.MarkRewardCollected();
         await WriteStateAsync();
 
-        return (int)State.Quest.Difficulty;
+        return (int)quest.Difficulty;
     }
 
     public async Task OnGameOverAsync(GameQuestSnapshot snapshot)
     {
         var quest = GetOrSelectQuest();
-        if (State.Progress >= quest.Target)
+        if (quest.IsCompleted)
             return;
 
-        var progressMade = quest.Progressors.Evaluate(snapshot); // needs to be changed!!
-        if (progressMade <= 0)
-            return;
-
-        State.IncrementProgress(progressMade);
-        if (State.Progress >= quest.Target)
+        quest.ApplySnapshot(snapshot);
+        if (quest.IsCompleted)
             State.CompleteQuest();
 
         await WriteStateAsync();
     }
 
-    private QuestVariant GetOrSelectQuest()
+    private QuestInstance GetOrSelectQuest()
     {
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        if (State.Quest is not null && State.Date == today)
+        if (State.Quest is not null && State.Quest.CreationDate == today)
             return State.Quest;
 
         return SelectNewQuest();
     }
 
-    private QuestVariant SelectNewQuest()
+    private QuestInstance SelectNewQuest()
     {
         var difficulty = _random.NextWeighted(
             new Dictionary<int, QuestDifficulty>()
@@ -176,7 +156,7 @@ public class QuestGrain(
                 [20] = QuestDifficulty.Hard,
             }
         );
-        var availableQuests = _quests
+        var availableQuestVariants = _quests
             .SelectMany(quest =>
                 quest
                     .Variants.Where(variant =>
@@ -186,21 +166,23 @@ public class QuestGrain(
                     .ToList()
             )
             .ToList();
-        var quest = _random.NextItem(availableQuests);
+        var questVariant = _random.NextItem(availableQuestVariants);
 
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        State.ResetStreakIfMissedDay(today);
-        State.ResetProgressForNewQuest(quest, today);
+        var questInstance = questVariant.CreateInstance(today);
 
-        return quest;
+        State.ResetStreakIfMissedDay(today);
+        State.ResetProgressForNewQuest(questInstance);
+
+        return questInstance;
     }
 
-    private QuestDto ToDto(QuestVariant quest) =>
+    private QuestDto ToDto(QuestInstance quest) =>
         new(
             Difficulty: quest.Difficulty,
             Description: quest.Description,
             Target: quest.Target,
-            Progress: State.Progress,
+            Progress: quest.Progress,
             CanReplace: State.CanReplace,
             RewardCollected: State.RewardCollected,
             Streak: State.Streak

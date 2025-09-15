@@ -4,8 +4,6 @@ using Chess2.Api.QuestLogic.QuestMetrics;
 
 namespace Chess2.Api.QuestLogic;
 
-[GenerateSerializer]
-[Alias("Chess2.Api.QuestLogic.QuestVariant")]
 public record QuestVariant(
     string Description,
     QuestDifficulty Difficulty,
@@ -14,6 +12,6 @@ public record QuestVariant(
     Func<IReadOnlyCollection<IQuestMetric>>? Progressors = null
 )
 {
-    public QuestInstance CreateInstance() =>
-        new(Description, Difficulty, Target, Conditions(), Progressors?.Invoke());
+    public QuestInstance CreateInstance(DateOnly creationDate) =>
+        new(Description, Difficulty, Target, creationDate, Conditions(), Progressors?.Invoke());
 }
