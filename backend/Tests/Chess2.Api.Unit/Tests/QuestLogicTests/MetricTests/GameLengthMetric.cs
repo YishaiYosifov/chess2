@@ -11,7 +11,7 @@ public class GameLengthMetricTests
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(5)]
-    public void EvaluateProgressMade_returns_number_of_moves(int moveCount)
+    public void Evaluate_returns_number_of_moves(int moveCount)
     {
         var snapshot = new GameQuestSnapshotFaker()
             .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(moveCount))
