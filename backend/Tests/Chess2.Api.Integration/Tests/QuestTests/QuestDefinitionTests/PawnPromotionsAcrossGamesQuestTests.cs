@@ -21,9 +21,8 @@ public class PawnPromotionsAcrossGamesQuestTests
         for (int i = 0; i < 2; i++)
         {
             var snapshot = new GameQuestSnapshotFaker(GameColor.White)
-                .RuleFor(
-                    x => x.MoveHistory,
-                    new MoveFaker(GameColor.White)
+                .RuleForMoves(
+                    whiteMoves: new MoveFaker(GameColor.White)
                         .RuleFor(m => m.PromotesTo, PieceType.Queen)
                         .Generate(perSnapshot)
                 )
@@ -42,18 +41,16 @@ public class PawnPromotionsAcrossGamesQuestTests
         int requiredPromotions
     )
     {
-        var variant = _quest.Variants.ElementAt(variantIdx);
-        var instance = variant.CreateInstance();
-
         var snapshot = new GameQuestSnapshotFaker(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                new MoveFaker(GameColor.Black)
+            .RuleForMoves(
+                blackMoves: new MoveFaker(GameColor.Black)
                     .RuleFor(m => m.PromotesTo, PieceType.Queen)
                     .Generate(requiredPromotions)
             )
             .Generate();
 
+        var variant = _quest.Variants.ElementAt(variantIdx);
+        var instance = variant.CreateInstance();
         int progress = instance.ApplySnapshot(snapshot);
         progress.Should().Be(0);
     }

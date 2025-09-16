@@ -19,7 +19,7 @@ public class MovesAcrossGamesQuestTests
         for (int i = 0; i < 2; i++)
         {
             var snapshot = new GameQuestSnapshotFaker()
-                .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(requiredPlies))
+                .RuleForMoves(totalPlies: requiredPlies)
                 .Generate();
 
             instance.ApplySnapshot(snapshot);

@@ -24,9 +24,8 @@ public class CaptureAcrossGamesQuestTests
         for (int i = 0; i < 2; i++)
         {
             var snapshot = new GameQuestSnapshotFaker(GameColor.White)
-                .RuleFor(
-                    x => x.MoveHistory,
-                    MoveFaker
+                .RuleForMoves(
+                    whiteMoves: MoveFaker
                         .Capture(
                             GameColor.White,
                             captureType: PieceType.Pawn,
@@ -53,7 +52,7 @@ public class CaptureAcrossGamesQuestTests
         var instance = variant.CreateInstance();
 
         var snapshot = new GameQuestSnapshotFaker()
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(requiredCaptures))
+            .RuleForMoves(totalPlies: requiredCaptures)
             .Generate();
 
         var progress = instance.ApplySnapshot(snapshot);
