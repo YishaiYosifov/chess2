@@ -385,8 +385,8 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 #endregion
 
 #region Quests
-builder.Services.AddScoped<IQuestLeaderboardRepository, QuestLeaderboardRepository>();
-builder.Services.AddScoped<IQuestLeaderboardService, QuestLeaderboardService>();
+builder.Services.AddScoped<IQuestRepository, QuestRepository>();
+builder.Services.AddScoped<IQuestService, QuestService>();
 
 builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoCaptureInFirstMovesQuest>();

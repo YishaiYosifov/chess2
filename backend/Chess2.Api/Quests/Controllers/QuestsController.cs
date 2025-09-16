@@ -17,13 +17,13 @@ namespace Chess2.Api.Quests.Controllers;
 public class QuestsController(
     IGrainFactory grains,
     IAuthService authService,
-    IQuestLeaderboardService questLeaderboard,
+    IQuestService questLeaderboard,
     IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
-    private readonly IQuestLeaderboardService _questLeaderboard = questLeaderboard;
+    private readonly IQuestService _questLeaderboard = questLeaderboard;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet(Name = nameof(GetDailyQuest))]
@@ -91,11 +91,11 @@ public class QuestsController(
     [Authorize]
     public async Task<ActionResult<int>> GetMyQuestRanking(CancellationToken token = default)
     {
-        var userResult = await _authService.GetLoggedInUserAsync(User);
-        if (userResult.IsError)
-            return userResult.Errors.ToActionResult();
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
 
-        var ranking = await _questLeaderboard.GetRankingAsync(userResult.Value, token);
+        var ranking = await _questLeaderboard.GetRankingAsync(userIdResult.Value, token);
         return Ok(ranking);
     }
 }
