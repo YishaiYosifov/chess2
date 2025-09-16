@@ -32,13 +32,11 @@ public interface IQuestService
 public class QuestService(
     IQuestRepository questRepository,
     UserManager<AuthedUser> userManager,
-    TimeProvider timeProvider,
     IUnitOfWork unitOfWork
 ) : IQuestService
 {
     private readonly IQuestRepository _questRepository = questRepository;
     private readonly UserManager<AuthedUser> _userManager = userManager;
-    private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<PagedResult<QuestPointsDto>> GetPaginatedLeaderboardAsync(
@@ -63,7 +61,6 @@ public class QuestService(
     public async Task<int> GetRankingAsync(UserId userId, CancellationToken token = default)
     {
         var questPoints = await _questRepository.GetUserPointsAsync(userId, token);
-
         var position = await _questRepository.GetRankingAsync(questPoints?.Points ?? 0, token);
         return position;
     }
@@ -80,11 +77,9 @@ public class QuestService(
         CancellationToken token = default
     )
     {
-        var today = _timeProvider.GetUtcNow().UtcDateTime;
         var userQuestPoints = await _questRepository.GetUserPointsAsync(userId, token);
         if (userQuestPoints is not null)
         {
-            userQuestPoints.LastQuestAt = today;
             userQuestPoints.Points += incrementBy;
             await _unitOfWork.CompleteAsync(token);
             return Result.Updated;
@@ -100,7 +95,6 @@ public class QuestService(
                 UserId = user.Id,
                 User = user,
                 Points = incrementBy,
-                LastQuestAt = today,
             },
             token
         );

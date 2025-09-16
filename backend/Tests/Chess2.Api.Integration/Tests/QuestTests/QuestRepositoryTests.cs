@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.Pagination.Models;
-using Chess2.Api.Quests.Entities;
 using Chess2.Api.Quests.Repositories;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -24,17 +23,16 @@ public class QuestRepositoryTests : BaseIntegrationTest
     {
         int page = 1;
         int pageSize = 3;
-        var asOfMonth = DateTime.UtcNow;
-        var users = await CreateHoleyUsersAsync(asOfMonth);
+        var questPoints = new UserQuestPointsFaker().Generate(10);
+        await DbContext.AddRangeAsync(questPoints, CT);
+        await DbContext.SaveChangesAsync(CT);
 
         var result = await _repository.GetPaginatedLeaderboardAsync(
             new PaginationQuery(Page: page, PageSize: pageSize),
-            asOfMonth,
             CT
         );
 
-        var expected = users
-            .Where(x => x.Points > 0)
+        var expected = questPoints
             .OrderByDescending(x => x.Points)
             .Skip(page * pageSize)
             .Take(pageSize)
@@ -45,76 +43,28 @@ public class QuestRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetPaginatedLeaderboardAsync_filters_by_asOfMonth()
-    {
-        var targetMonth = DateTime.UtcNow;
-        var otherMonth = targetMonth.AddMonths(-1);
-
-        var inMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, targetMonth)
-            .Generate(5);
-
-        var outMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, otherMonth)
-            .Generate(3);
-
-        await DbContext.AddRangeAsync(inMonthUsers.Concat(outMonthUsers), CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _repository.GetPaginatedLeaderboardAsync(
-            new PaginationQuery(Page: 0, PageSize: 10),
-            targetMonth,
-            CT
-        );
-
-        result.Should().HaveCount(inMonthUsers.Count);
-        result.Should().BeEquivalentTo(inMonthUsers.OrderByDescending(x => x.Points));
-    }
-
-    [Fact]
     public async Task GetTotalCountAsync_returns_the_number_of_users_with_quest_points()
     {
-        var targetMonth = DateTime.UtcNow;
-        var otherMonth = targetMonth.AddMonths(-1);
-
-        var inMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, targetMonth)
-            .Generate(4);
-
-        var outMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, otherMonth)
-            .Generate(3);
-
-        await DbContext.AddRangeAsync(inMonthUsers.Concat(outMonthUsers), CT);
+        var questPoints = new UserQuestPointsFaker().Generate(4);
+        await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _repository.GetTotalCountAsync(targetMonth, CT);
-        result.Should().Be(inMonthUsers.Count);
+        var result = await _repository.GetTotalCountAsync(CT);
+        result.Should().Be(questPoints.Count);
     }
 
     [Fact]
     public async Task GetUserRankingAsync_finds_user_position()
     {
-        var targetMonth = DateTime.UtcNow;
-        var otherMonth = targetMonth.AddMonths(-1);
+        var questPoints = new UserQuestPointsFaker().Generate(5);
 
-        var inMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, targetMonth)
-            .Generate(5);
-
-        var outMonthUser = new UserQuestPointsFaker()
-            .RuleFor(x => x.Points, 999) // high score but wrong month
-            .RuleFor(x => x.LastQuestAt, otherMonth)
-            .Generate();
-
-        await DbContext.AddRangeAsync(inMonthUsers, CT);
-        await DbContext.AddAsync(outMonthUser, CT);
+        await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var testPoints = inMonthUsers[2];
-        var result = await _repository.GetRankingAsync(testPoints.Points, targetMonth, CT);
+        var testPoints = questPoints[2];
+        var result = await _repository.GetRankingAsync(testPoints.Points, CT);
 
-        result.Should().Be(inMonthUsers.Count(u => u.Points > testPoints.Points) + 1);
+        result.Should().Be(questPoints.Count(u => u.Points > testPoints.Points) + 1);
     }
 
     [Fact]
@@ -124,23 +74,9 @@ public class QuestRepositoryTests : BaseIntegrationTest
         await DbContext.AddAsync(points, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _repository.GetUserPointsAsync(points.UserId, points.LastQuestAt, CT);
+        var result = await _repository.GetUserPointsAsync(points.UserId, CT);
         result.Should().NotBeNull();
         result.Should().BeEquivalentTo(points, options => options.Excluding(x => x.Id));
-    }
-
-    [Fact]
-    public async Task GetUserPointsAsync_filters_out_by_month()
-    {
-        var today = DateTime.UtcNow;
-        var points = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, today.AddMonths(-1))
-            .Generate();
-        await DbContext.AddAsync(points, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _repository.GetUserPointsAsync(points.UserId, today, CT);
-        result.Should().BeNull();
     }
 
     [Fact]
@@ -158,22 +94,16 @@ public class QuestRepositoryTests : BaseIntegrationTest
             .BeEquivalentTo(newPoints, options => options.Excluding(x => x.Id));
     }
 
-    private async Task<List<UserQuestPoints>> CreateHoleyUsersAsync(DateTime month)
+    [Fact]
+    public async Task DeleteAll_removes_all_points()
     {
-        var userPoints = new List<UserQuestPoints>();
-        for (int i = 1; i <= 10; i++)
-        {
-            // every 3rd user has 0 points
-            int points = i % 3 == 0 ? 0 : i;
-            userPoints.Add(
-                new UserQuestPointsFaker()
-                    .RuleFor(x => x.Points, points)
-                    .RuleFor(x => x.LastQuestAt, month)
-            );
-        }
-        await DbContext.AddRangeAsync(userPoints, CT);
+        var questPoints = new UserQuestPointsFaker().Generate(5);
+        await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        return userPoints;
+        _repository.DeleteAll();
+        await DbContext.SaveChangesAsync(CT);
+
+        (await DbContext.QuestPoints.AsNoTracking().ToListAsync(CT)).Should().BeEmpty();
     }
 }

@@ -1,39 +1,24 @@
 ﻿using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
-using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Entities;
-using Chess2.Api.Quests.Repositories;
 using Chess2.Api.Quests.Services;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.QuestTests;
 
 public class QuestServiceTests : BaseIntegrationTest
 {
-    private readonly QuestService _questService;
-    private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
-
-    private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
+    private readonly IQuestService _questService;
 
     public QuestServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-
-        _questService = new(
-            Scope.ServiceProvider.GetRequiredService<IQuestRepository>(),
-            _timeProviderMock,
-            Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>(),
-            Scope.ServiceProvider.GetRequiredService<IUnitOfWork>()
-        );
+        _questService = Scope.ServiceProvider.GetRequiredService<IQuestService>();
     }
 
     [Fact]
@@ -65,23 +50,14 @@ public class QuestServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetRankingAsync_finds_correct_ranking()
     {
-        var inMonthUsers = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, _fakeNow.UtcDateTime)
-            .Generate(5);
-
-        var outMonthUser = new UserQuestPointsFaker()
-            .RuleFor(x => x.Points, 999)
-            .RuleFor(x => x.LastQuestAt, _fakeNow.UtcDateTime.AddMonths(-1))
-            .Generate();
-
-        await DbContext.AddRangeAsync(inMonthUsers, CT);
-        await DbContext.AddAsync(outMonthUser, CT);
+        var questPoints = new UserQuestPointsFaker().Generate(5);
+        await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var testPoints = inMonthUsers[2];
+        var testPoints = questPoints[2];
         var result = await _questService.GetRankingAsync(testPoints.UserId, CT);
 
-        result.Should().Be(inMonthUsers.Count(u => u.Points > testPoints.Points) + 1);
+        result.Should().Be(questPoints.Count(u => u.Points > testPoints.Points) + 1);
     }
 
     [Fact]
@@ -99,9 +75,7 @@ public class QuestServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetQuestPointsAsync_returns_zero_when_no_points()
     {
-        var existing = new UserQuestPointsFaker()
-            .RuleFor(x => x.LastQuestAt, _fakeNow.UtcDateTime.AddMonths(-1))
-            .Generate();
+        var existing = new UserQuestPointsFaker().Generate();
         await DbContext.AddAsync(existing, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -132,7 +106,6 @@ public class QuestServiceTests : BaseIntegrationTest
                     UserId = user.Id,
                     User = user,
                     Points = points,
-                    LastQuestAt = _fakeNow.DateTime,
                 },
                 options => options.Excluding(x => x.Id)
             );
@@ -165,9 +138,20 @@ public class QuestServiceTests : BaseIntegrationTest
                     UserId = existing.UserId,
                     User = existing.User,
                     Points = expectedPoints,
-                    LastQuestAt = _fakeNow.DateTime,
                 },
                 options => options.Excluding(x => x.Id)
             );
+    }
+
+    [Fact]
+    public async Task ResetAllQuestPointsAsync_deletes_all()
+    {
+        var questPoints = new UserQuestPointsFaker().Generate(5);
+        await DbContext.AddRangeAsync(questPoints, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await _questService.ResetAllQuestPointsAsync(CT);
+
+        (await DbContext.QuestPoints.AsNoTracking().ToListAsync(CT)).Should().BeEmpty();
     }
 }
