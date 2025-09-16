@@ -15,10 +15,9 @@ public class LongPassantCaptureQuest : IQuestDefinition
                 Conditions: () =>
 
                     [
-                        new MoveOccurredCondition(
+                        new OwnMoveOccurredCondition(
                             (move, snapshot) =>
-                                move.Piece.Color == snapshot.PlayerColor
-                                && move.SpecialMoveType is SpecialMoveType.EnPassant
+                                move.SpecialMoveType is SpecialMoveType.EnPassant
                                 && move.Captures.Count >= 2
                         ),
                     ]

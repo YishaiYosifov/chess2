@@ -24,10 +24,7 @@ public class CappedCapturesQuest : IQuestDefinition
                     new WinCondition(),
                     new GreaterThanEqualCondition(new MoveCountMetric(), greaterThanEqual: 30),
                     new LessThanEqualCondition(
-                        new OccurrenceCountMetric(
-                            (move, snapshot) =>
-                                move.Piece.Color == snapshot.PlayerColor && move.Captures.Count > 0
-                        ),
+                        new OwnMoveCountMetric((move, snapshot) => move.Captures.Count > 0),
                         lessThanEqual: maxCaptures
                     ),
                 ]

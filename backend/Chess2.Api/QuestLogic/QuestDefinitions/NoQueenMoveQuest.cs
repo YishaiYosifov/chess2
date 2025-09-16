@@ -18,7 +18,11 @@ public class NoQueenMoveQuest : IQuestDefinition
                     [
                         new WinCondition(),
                         new GreaterThanEqualCondition(new MoveCountMetric(), 30),
-                        new NotCondition(new PlayerPieceMovedCondition(PieceType.Queen)),
+                        new NotCondition(
+                            new OwnMoveOccurredCondition(
+                                (move, _) => move.Piece.Type is PieceType.Queen
+                            )
+                        ),
                     ]
             ),
         ];

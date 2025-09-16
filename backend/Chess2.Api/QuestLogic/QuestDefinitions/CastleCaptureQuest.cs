@@ -16,10 +16,9 @@ public class CastleCaptureQuest : IQuestDefinition
 
                     [
                         new WinCondition(),
-                        new MoveOccurredCondition(
+                        new OwnMoveOccurredCondition(
                             (move, snapshot) =>
-                                move.Piece.Color == snapshot.PlayerColor
-                                && move.SpecialMoveType
+                                move.SpecialMoveType
                                     is SpecialMoveType.KingsideCastle
                                         or SpecialMoveType.QueensideCastle
                                 && move.Captures.Any(x => x.CapturedPiece.Type is PieceType.Bishop)
