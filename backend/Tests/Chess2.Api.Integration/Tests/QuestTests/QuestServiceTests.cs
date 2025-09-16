@@ -71,7 +71,7 @@ public class QuestServiceTests : BaseIntegrationTest
 
         var outMonthUser = new UserQuestPointsFaker()
             .RuleFor(x => x.Points, 999)
-            .RuleFor(x => x.LastQuestAt, _fakeNow.UtcDateTime.AddMinutes(-1))
+            .RuleFor(x => x.LastQuestAt, _fakeNow.UtcDateTime.AddMonths(-1))
             .Generate();
 
         await DbContext.AddRangeAsync(inMonthUsers, CT);
@@ -146,6 +146,7 @@ public class QuestServiceTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         int incrementBy = 100;
+        int expectedPoints = existing.Points + incrementBy;
 
         var result = await _questService.IncrementQuestPointsAsync(
             existing.UserId,
@@ -163,7 +164,7 @@ public class QuestServiceTests : BaseIntegrationTest
                 {
                     UserId = existing.UserId,
                     User = existing.User,
-                    Points = existing.Points + incrementBy,
+                    Points = expectedPoints,
                     LastQuestAt = _fakeNow.DateTime,
                 },
                 options => options.Excluding(x => x.Id)
