@@ -30,10 +30,10 @@ public class QuestRepository(ApplicationDbContext dbContext) : IQuestRepository
 
     private static Expression<Func<UserQuestPoints, bool>> FilterByMonth(DateTime asOfMonth)
     {
-        var start = asOfMonth;
-        var end = start.AddMonths(1);
+        var month = asOfMonth.Month;
+        var year = asOfMonth.Year;
 
-        return x => x.LastQuestAt >= start && x.LastQuestAt < end;
+        return x => x.LastQuestAt.Month == month && x.LastQuestAt.Year == year;
     }
 
     public Task<List<UserQuestPoints>> GetPaginatedLeaderboardAsync(
