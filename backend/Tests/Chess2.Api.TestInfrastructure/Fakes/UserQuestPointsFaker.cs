@@ -10,7 +10,7 @@ public class UserQuestPointsFaker : Faker<UserQuestPoints>
     {
         StrictMode(true);
         RuleFor(x => x.Id, 0);
-        RuleFor(x => x.User, user ?? new AuthedUserFaker().Generate());
+        RuleFor(x => x.User, f => user ?? new AuthedUserFaker().Generate());
         RuleFor(x => x.UserId, (f, x) => x.User.Id);
         RuleFor(x => x.Points, f => f.IndexFaker + 1);
         RuleFor(x => x.LastQuestAt, f => DateTime.UtcNow);
