@@ -32,6 +32,7 @@ using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Services;
 using Chess2.Api.Profile.Validators;
 using Chess2.Api.QuestLogic.QuestDefinitions;
+using Chess2.Api.Quests.Grains;
 using Chess2.Api.Quests.Repositories;
 using Chess2.Api.Quests.Services;
 using Chess2.Api.Shared.Models;
@@ -314,6 +315,20 @@ builder.Host.UseOrleans(siloBuilder =>
             TimeSpan.FromMinutes(5);
     });
     siloBuilder.AddMemoryGrainStorageAsDefault();
+
+    siloBuilder.UseAdoNetReminderService(options =>
+    {
+        options.ConnectionString = appSettings.DatabaseConnString;
+        options.Invariant = "Npgsql";
+    });
+    siloBuilder.AddStartupTask(
+        async (services, token) =>
+        {
+            var grainFactory = services.GetRequiredService<IGrainFactory>();
+            var grain = grainFactory.GetGrain<IQuestSeasonResetterGrain>(0);
+            await grain.InitializeAsync();
+        }
+    );
 });
 
 #region Matchmaking
