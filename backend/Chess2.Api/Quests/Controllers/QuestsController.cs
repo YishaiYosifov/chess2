@@ -17,13 +17,13 @@ namespace Chess2.Api.Quests.Controllers;
 public class QuestsController(
     IGrainFactory grains,
     IAuthService authService,
-    IQuestService questLeaderboard,
+    IQuestService questService,
     IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
-    private readonly IQuestService _questLeaderboard = questLeaderboard;
+    private readonly IQuestService _questService = questService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet(Name = nameof(GetDailyQuest))]
@@ -71,6 +71,17 @@ public class QuestsController(
         return replaceResult.Match(value => Ok(value), errors => errors.ToActionResult());
     }
 
+    [HttpGet("points/{userId}", Name = nameof(GetUserQuestPoints))]
+    [ProducesResponseType<int>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<int>> GetUserQuestPoints(
+        string userId,
+        CancellationToken token = default
+    )
+    {
+        var points = await _questService.GetQuestPointsAsync(userId, token);
+        return Ok(points);
+    }
+
     [HttpGet("leaderboard", Name = nameof(GetQuestLeaderboard))]
     [ProducesResponseType<PagedResult<QuestPointsDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
@@ -82,7 +93,7 @@ public class QuestsController(
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList().ToActionResult();
 
-        var leaderboard = await _questLeaderboard.GetPaginatedLeaderboardAsync(pagination, token);
+        var leaderboard = await _questService.GetPaginatedLeaderboardAsync(pagination, token);
         return Ok(leaderboard);
     }
 
@@ -95,7 +106,7 @@ public class QuestsController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var ranking = await _questLeaderboard.GetRankingAsync(userIdResult.Value, token);
+        var ranking = await _questService.GetRankingAsync(userIdResult.Value, token);
         return Ok(ranking);
     }
 }

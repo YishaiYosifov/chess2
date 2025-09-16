@@ -124,6 +124,9 @@ public interface IChess2Api
     [Post("/api/quests/claim")]
     Task<IApiResponse<QuestDto>> CollectQuestReward();
 
+    [Get("/api/quests/points/{userId}")]
+    Task<IApiResponse<int>> GetUserQuestPoints(string userId);
+
     [Get("/api/quests/leaderboard")]
     Task<IApiResponse<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
         [Query] PaginationQuery pagination
