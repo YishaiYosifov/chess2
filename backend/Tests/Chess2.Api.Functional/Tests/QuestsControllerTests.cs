@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Chess2.Api.Pagination.Models;
-using Chess2.Api.Profile.Entities;
 using Chess2.Api.Quests.DTOs;
+using Chess2.Api.Quests.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -86,16 +86,30 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task GetUserQuestPoints_returns_correct_points()
+    {
+        var questPoints = new UserQuestPointsFaker().Generate();
+        var otherQuestPoints = new UserQuestPointsFaker().Generate();
+        await DbContext.AddRangeAsync(questPoints, otherQuestPoints);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetUserQuestPoints(questPoints.UserId);
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().Be(questPoints.Points);
+    }
+
+    [Fact]
     public async Task GetQuestLeaderboard_returns_public_users()
     {
-        List<AuthedUser> users =
+        List<UserQuestPoints> questPoints =
         [
-            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 4),
-            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 3),
-            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 2),
-            new AuthedUserFaker().RuleFor(x => x.QuestPoints, 1),
+            new UserQuestPointsFaker().RuleFor(x => x.Points, 4),
+            new UserQuestPointsFaker().RuleFor(x => x.Points, 3),
+            new UserQuestPointsFaker().RuleFor(x => x.Points, 2),
+            new UserQuestPointsFaker().RuleFor(x => x.Points, 1),
         ];
-        await DbContext.AddRangeAsync(users, CT);
+        await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
         PaginationQuery pagination = new(Page: 0, PageSize: 3);
@@ -106,10 +120,12 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().NotBeNull();
-        response.Content.TotalCount.Should().Be(users.Count);
+        response.Content.TotalCount.Should().Be(questPoints.Count);
         response
             .Content.Items.Should()
-            .BeEquivalentTo(users[..3].Select(x => new QuestPointsDto(new(x), x.QuestPoints)));
+            .BeEquivalentTo(
+                questPoints[..3].Select(x => new QuestPointsDto(new(x.User), x.Points))
+            );
     }
 
     [Fact]
@@ -129,18 +145,18 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetMyQuestRanking_returns_user_ranking()
     {
-        var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 10).Generate();
-        var higherUsers = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 20).Generate(5);
-        await DbContext.Users.AddAsync(user, CT);
-        await DbContext.Users.AddRangeAsync(higherUsers, CT);
+        var questPoints = new UserQuestPointsFaker().RuleFor(x => x.Points, 10).Generate();
+        var higherPoints = new UserQuestPointsFaker().RuleFor(x => x.Points, 20).Generate(5);
+        await DbContext.AddAsync(questPoints, CT);
+        await DbContext.AddRangeAsync(higherPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, user);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, questPoints.User);
 
         var response = await ApiClient.Api.GetMyQuestRanking();
 
         response.IsSuccessful.Should().BeTrue();
-        response.Content.Should().Be(higherUsers.Count + 1);
+        response.Content.Should().Be(higherPoints.Count + 1);
     }
 
     [Fact]
