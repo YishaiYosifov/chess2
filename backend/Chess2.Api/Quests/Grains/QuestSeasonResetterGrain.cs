@@ -40,6 +40,6 @@ public class QuestSeasonResetterGrain(
         var nextMonth = new DateTime(now.Year, now.Month, 1).AddMonths(1);
         var dueTime = nextMonth - now;
 
-        await this.RegisterOrUpdateReminder(ReminderName, dueTime, TimeSpan.FromMilliseconds(-1));
+        await this.RegisterOrUpdateReminder(ReminderName, dueTime, period: TimeSpan.MaxValue);
     }
 }
