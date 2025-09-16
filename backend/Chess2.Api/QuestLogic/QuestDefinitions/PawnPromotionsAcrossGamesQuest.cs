@@ -19,12 +19,6 @@ public class PawnPromotionsAcrossGamesQuest : IQuestDefinition
             Target: promotions,
             Conditions: () => [],
             Progressors: () =>
-
-                [
-                    new OccurrenceCountMetric(
-                        (move, snapshot) =>
-                            move.Piece.Color == snapshot.PlayerColor && move.PromotesTo is not null
-                    ),
-                ]
+                [new OwnMoveCountMetric((move, snapshot) => move.PromotesTo is not null)]
         );
 }

@@ -18,7 +18,6 @@ public class CaptureAcrossGamesQuest : IQuestDefinition
             Difficulty: difficulty,
             Target: captures,
             Conditions: () => [],
-            Progressors: () =>
-                [new OccurrenceCountMetric((move, snapshot) => move.Captures.Count > 0)]
+            Progressors: () => [new OwnMoveCountMetric((move, snapshot) => move.Captures.Count > 0)]
         );
 }
