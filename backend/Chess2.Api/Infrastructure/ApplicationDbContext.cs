@@ -3,6 +3,7 @@ using Chess2.Api.Auth.Entities;
 using Chess2.Api.LiveGame.Entities;
 using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Quests.Entities;
 using Chess2.Api.Social.Entities;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -30,10 +31,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<MoveArchive> MoveArchives { get; set; }
     public required DbSet<MoveSideEffectArchive> MoveSideEffectArchives { get; set; }
 
+    public required DbSet<UserQuestPoints> QuestPoints { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<StarredUser>().Navigation(x => x.Starred).AutoInclude();
         builder.Entity<BlockedUser>().Navigation(x => x.Blocked).AutoInclude();
+
+        builder.Entity<UserQuestPoints>().Navigation(x => x.User).AutoInclude();
 
         base.OnModelCreating(builder);
     }
