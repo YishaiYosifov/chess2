@@ -13,5 +13,4 @@ public class UserQuestPoints
     public required AuthedUser User { get; set; }
 
     public int Points { get; set; }
-    public DateTime LastQuestAt { get; set; }
 }
