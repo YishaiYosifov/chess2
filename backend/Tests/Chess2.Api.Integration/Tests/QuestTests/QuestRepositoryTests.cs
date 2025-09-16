@@ -114,7 +114,7 @@ public class QuestRepositoryTests : BaseIntegrationTest
         var testPoints = inMonthUsers[2];
         var result = await _repository.GetRankingAsync(testPoints.Points, targetMonth, CT);
 
-        result.Should().Be(2 + 1);
+        result.Should().Be(inMonthUsers.Count(u => u.Points > testPoints.Points) + 1);
     }
 
     [Fact]

@@ -81,7 +81,7 @@ public class QuestServiceTests : BaseIntegrationTest
         var testPoints = inMonthUsers[2];
         var result = await _questService.GetRankingAsync(testPoints.UserId, CT);
 
-        result.Should().Be(5 - 2);
+        result.Should().Be(inMonthUsers.Count(u => u.Points > testPoints.Points));
     }
 
     [Fact]
