@@ -19,31 +19,40 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
     public BishopDefinitionTestData()
     {
         var bishop = PieceFactory.White(PieceType.Bishop);
+        var friendyUnderagePawn = PieceFactory.White(PieceType.UnderagePawn);
+
+        var enemyUnderagePawn = PieceFactory.Black(PieceType.UnderagePawn);
+        var enemyPawn = PieceFactory.Black(PieceType.Pawn);
+
+        string[] openE5Moves =
+        [
+            // diagonal up-left
+            "d6",
+            "c7",
+            "b8",
+            "a9",
+            // diagonal up-right
+            "f6",
+            "g7",
+            "h8",
+            "i9",
+            "j10",
+            // diagonal down-left
+            "d4",
+            "c3",
+            "b2",
+            "a1",
+            // diagonal down-right
+            "f4",
+            "g3",
+            "h2",
+            "i1",
+        ];
 
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                // diagonal up-left
-                .GoesTo("d6")
-                .GoesTo("c7")
-                .GoesTo("b8")
-                .GoesTo("a9")
-                // diagonal up-right
-                .GoesTo("f6")
-                .GoesTo("g7")
-                .GoesTo("h8")
-                .GoesTo("i9")
-                .GoesTo("j10")
-                // diagonal down-left
-                .GoesTo("d4")
-                .GoesTo("c3")
-                .GoesTo("b2")
-                .GoesTo("a1")
-                // diagonal down-right
-                .GoesTo("f4")
-                .GoesTo("g3")
-                .GoesTo("h2")
-                .GoesTo("i1")
+                .GoesTo(openE5Moves)
                 .WithDescription("Open board from e5")
         );
 
@@ -159,7 +168,6 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 )
         );
 
-        var friendyUnderagePawn = PieceFactory.White(PieceType.UnderagePawn);
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -184,7 +192,6 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithDescription("Forced friendly underage pawn capture")
         );
 
-        var enemyUnderagePawn = PieceFactory.Black(PieceType.UnderagePawn);
         Add(
             PieceTestCase
                 .From("e5", bishop)
@@ -207,6 +214,107 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f4")
                 .GoesTo("g3", captures: ["g3"], forcedPriority: ForcedMovePriority.UnderagePawn)
                 .WithDescription("Forced enemy underage pawn capture")
+        );
+
+        var partnerIlVaticano = PieceFactory.White(PieceType.Bishop);
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("h5", partnerIlVaticano)
+                .WithPieceAt("f5", enemyPawn)
+                .WithPieceAt("g5", enemyPawn)
+                .GoesTo(openE5Moves)
+                .GoesTo(
+                    "g5",
+                    trigger: ["f5", "g5"],
+                    captures: ["f5", "g5"],
+                    sideEffects:
+                    [
+                        new MoveSideEffect(From: new("h5"), To: new("f5"), partnerIlVaticano),
+                    ],
+                    specialMoveType: SpecialMoveType.IlVaticano
+                )
+                .WithDescription("Il vaticano right moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("b5", partnerIlVaticano)
+                .WithPieceAt("c5", enemyPawn)
+                .WithPieceAt("d5", enemyPawn)
+                .GoesTo(openE5Moves)
+                .GoesTo(
+                    "c5",
+                    trigger: ["c5", "d5"],
+                    captures: ["c5", "d5"],
+                    sideEffects:
+                    [
+                        new MoveSideEffect(From: new("b5"), To: new("d5"), partnerIlVaticano),
+                    ],
+                    specialMoveType: SpecialMoveType.IlVaticano
+                )
+                .WithDescription("Il vaticano left moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("e8", partnerIlVaticano)
+                .WithPieceAt("e7", enemyPawn)
+                .WithPieceAt("e6", enemyPawn)
+                .GoesTo(openE5Moves)
+                .GoesTo(
+                    "e7",
+                    trigger: ["e6", "e7"],
+                    captures: ["e6", "e7"],
+                    sideEffects:
+                    [
+                        new MoveSideEffect(From: new("e8"), To: new("e6"), partnerIlVaticano),
+                    ],
+                    specialMoveType: SpecialMoveType.IlVaticano
+                )
+                .WithDescription("Il vaticano up moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("e2", partnerIlVaticano)
+                .WithPieceAt("e3", enemyPawn)
+                .WithPieceAt("e4", enemyPawn)
+                .GoesTo(openE5Moves)
+                .GoesTo(
+                    "e3",
+                    trigger: ["e4", "e3"],
+                    captures: ["e4", "e3"],
+                    sideEffects:
+                    [
+                        new MoveSideEffect(From: new("e2"), To: new("e4"), partnerIlVaticano),
+                    ],
+                    specialMoveType: SpecialMoveType.IlVaticano
+                )
+                .WithDescription("Il vaticano down moves")
+        );
+
+        Add(
+            PieceTestCase
+                .From("e5", bishop)
+                .WithPieceAt("h5", partnerIlVaticano)
+                .WithPieceAt("f5", enemyPawn)
+                .WithPieceAt("g5", enemyUnderagePawn)
+                .GoesTo(
+                    "g5",
+                    trigger: ["f5", "g5"],
+                    captures: ["f5", "g5"],
+                    sideEffects:
+                    [
+                        new MoveSideEffect(From: new("b5"), To: new("d5"), partnerIlVaticano),
+                    ],
+                    forcedPriority: ForcedMovePriority.UnderagePawn,
+                    specialMoveType: SpecialMoveType.IlVaticano
+                )
+                .WithDescription("Forced il vaticano with underage pawn")
         );
     }
 }
