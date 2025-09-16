@@ -13,9 +13,7 @@ public class GameLengthMetricTests
     [InlineData(5)]
     public void Evaluate_returns_number_of_moves(int moveCount)
     {
-        var snapshot = new GameQuestSnapshotFaker()
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(moveCount))
-            .Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForMoves(totalPlies: moveCount).Generate();
         MoveCountMetric progressor = new();
 
         int progressWhite = progressor.Evaluate(snapshot with { PlayerColor = GameColor.White });

@@ -30,7 +30,7 @@ public class OwnMoveOccurredConditionTests
     [Fact]
     public void Evaluate_handles_empty_move_history()
     {
-        var snapshot = new GameQuestSnapshotFaker().RuleFor(x => x.MoveHistory, []).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForMoves(totalPlies: 0).Generate();
 
         OwnMoveOccurredCondition condition = new((_, _) => true);
 
@@ -47,7 +47,7 @@ public class OwnMoveOccurredConditionTests
     )
     {
         var snapshot = new GameQuestSnapshotFaker(playerColor)
-            .RuleFor(x => x.MoveHistory, f => new MoveFaker().Generate(numOfMoves))
+            .RuleForMoves(totalPlies: numOfMoves)
             .Generate();
 
         List<Move> seenMoves = [];
