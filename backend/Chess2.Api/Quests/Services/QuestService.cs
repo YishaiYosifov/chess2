@@ -26,18 +26,19 @@ public interface IQuestService
         int points,
         CancellationToken token = default
     );
+    Task ResetAllQuestPointsAsync(CancellationToken token = default);
 }
 
 public class QuestService(
     IQuestRepository questRepository,
-    TimeProvider timeProvider,
     UserManager<AuthedUser> userManager,
+    TimeProvider timeProvider,
     IUnitOfWork unitOfWork
 ) : IQuestService
 {
     private readonly IQuestRepository _questRepository = questRepository;
-    private readonly TimeProvider _timeProvider = timeProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<PagedResult<QuestPointsDto>> GetPaginatedLeaderboardAsync(
@@ -45,13 +46,8 @@ public class QuestService(
         CancellationToken token = default
     )
     {
-        var today = _timeProvider.GetUtcNow().UtcDateTime;
-        var questPoints = await _questRepository.GetPaginatedLeaderboardAsync(
-            pagination,
-            asOfMonth: today,
-            token
-        );
-        var totalCount = await _questRepository.GetTotalCountAsync(today, token);
+        var questPoints = await _questRepository.GetPaginatedLeaderboardAsync(pagination, token);
+        var totalCount = await _questRepository.GetTotalCountAsync(token);
 
         return new(
             Items: questPoints.Select(questPoint => new QuestPointsDto(
@@ -66,21 +62,15 @@ public class QuestService(
 
     public async Task<int> GetRankingAsync(UserId userId, CancellationToken token = default)
     {
-        var today = _timeProvider.GetUtcNow().UtcDateTime;
-        var questPoints = await _questRepository.GetUserPointsAsync(userId, today, token);
+        var questPoints = await _questRepository.GetUserPointsAsync(userId, token);
 
-        var position = await _questRepository.GetRankingAsync(
-            questPoints?.Points ?? 0,
-            today,
-            token
-        );
+        var position = await _questRepository.GetRankingAsync(questPoints?.Points ?? 0, token);
         return position;
     }
 
     public async Task<int> GetQuestPointsAsync(UserId userId, CancellationToken token = default)
     {
-        var today = _timeProvider.GetUtcNow().UtcDateTime;
-        var questPoints = await _questRepository.GetUserPointsAsync(userId, today, token);
+        var questPoints = await _questRepository.GetUserPointsAsync(userId, token);
         return questPoints?.Points ?? 0;
     }
 
@@ -91,7 +81,7 @@ public class QuestService(
     )
     {
         var today = _timeProvider.GetUtcNow().UtcDateTime;
-        var userQuestPoints = await _questRepository.GetUserPointsAsync(userId, today, token);
+        var userQuestPoints = await _questRepository.GetUserPointsAsync(userId, token);
         if (userQuestPoints is not null)
         {
             userQuestPoints.LastQuestAt = today;
@@ -116,5 +106,11 @@ public class QuestService(
         );
         await _unitOfWork.CompleteAsync(token);
         return Result.Updated;
+    }
+
+    public async Task ResetAllQuestPointsAsync(CancellationToken token = default)
+    {
+        _questRepository.DeleteAll();
+        await _unitOfWork.CompleteAsync(token);
     }
 }
