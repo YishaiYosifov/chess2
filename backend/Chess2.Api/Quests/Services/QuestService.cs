@@ -21,7 +21,7 @@ public interface IQuestService
     );
     Task<int> GetQuestPointsAsync(UserId userId, CancellationToken token = default);
     Task<int> GetRankingAsync(UserId userId, CancellationToken token = default);
-    Task<ErrorOr<Updated>> SetQuestPointsAsync(
+    Task<ErrorOr<Updated>> IncrementQuestPointsAsync(
         UserId userId,
         int points,
         CancellationToken token = default
@@ -84,9 +84,9 @@ public class QuestService(
         return questPoints?.Points ?? 0;
     }
 
-    public async Task<ErrorOr<Updated>> SetQuestPointsAsync(
+    public async Task<ErrorOr<Updated>> IncrementQuestPointsAsync(
         UserId userId,
-        int points,
+        int incrementBy,
         CancellationToken token = default
     )
     {
@@ -95,7 +95,7 @@ public class QuestService(
         if (userQuestPoints is not null)
         {
             userQuestPoints.LastQuestAt = today;
-            userQuestPoints.Points = points;
+            userQuestPoints.Points += incrementBy;
             await _unitOfWork.CompleteAsync(token);
             return Result.Updated;
         }
@@ -109,7 +109,7 @@ public class QuestService(
             {
                 UserId = user.Id,
                 User = user,
-                Points = points,
+                Points = incrementBy,
                 LastQuestAt = today,
             },
             token
