@@ -303,6 +303,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("h5", partnerIlVaticano)
                 .WithPieceAt("f5", enemyPawn)
                 .WithPieceAt("g5", enemyUnderagePawn)
+                .GoesTo(openE5Moves)
                 .GoesTo(
                     "g5",
                     trigger: ["f5", "g5"],
