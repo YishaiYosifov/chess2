@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Profile.Entities;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestConditions;
@@ -7,11 +6,11 @@ using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Grains;
+using Chess2.Api.Quests.Services;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Orleans.TestKit.Storage;
@@ -23,7 +22,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     private readonly IRandomProvider _randomMock = Substitute.For<IRandomProvider>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly IEnumerable<IQuestDefinition> _quests;
-    private readonly UserManager<AuthedUser> _userManager;
+    private readonly IQuestService _questService;
 
     private readonly HashSet<string> _usedVariantDescriptions = [];
     private readonly DateTimeOffset _fakeNow;
@@ -31,9 +30,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public QuestGrainTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _userManager = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
-            UserManager<AuthedUser>
-        >();
+        _questService = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IQuestService>();
         _quests = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
             IEnumerable<IQuestDefinition>
         >();
@@ -43,7 +40,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         Silo.ServiceProvider.AddService(_quests);
         Silo.ServiceProvider.AddService(_randomMock);
-        Silo.ServiceProvider.AddService(_userManager);
+        Silo.ServiceProvider.AddService(_questService);
         Silo.ServiceProvider.AddService(_timeProviderMock);
     }
 
@@ -378,24 +375,30 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task CollectRewardAsync_applies_reward_once()
     {
-        var user = new AuthedUserFaker().RuleFor(x => x.QuestPoints, 0).Generate();
-        await ApiTestBase.DbContext.AddAsync(user, ApiTestBase.CT);
+        var questPoints = new UserQuestPointsFaker().Generate();
+        await ApiTestBase.DbContext.AddAsync(questPoints, ApiTestBase.CT);
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
         var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
-        var grain = await CreateGrainAsync(user.Id);
+        var grain = await CreateGrainAsync(questPoints.UserId);
         await grain.OnGameOverAsync(snapshot);
 
-        var userAfterGameOver = await _userManager.FindByIdAsync(user.Id);
-        userAfterGameOver?.QuestPoints.Should().Be(0);
+        var pointsGameOver = await _questService.GetQuestPointsAsync(
+            questPoints.UserId,
+            ApiTestBase.CT
+        );
+        pointsGameOver.Should().Be(0);
 
         var reward = await grain.CollectRewardAsync();
         reward.Value.Should().Be((int)QuestDifficulty.Easy);
 
-        var userAfterClaim = await _userManager.FindByIdAsync(user.Id);
-        userAfterClaim?.QuestPoints.Should().Be((int)QuestDifficulty.Easy);
+        var pointsAfterClaim = await _questService.GetQuestPointsAsync(
+            questPoints.UserId,
+            ApiTestBase.CT
+        );
+        pointsAfterClaim.Should().Be((int)QuestDifficulty.Easy);
 
         var secondAttempt = await grain.CollectRewardAsync();
         secondAttempt.IsError.Should().BeTrue();
