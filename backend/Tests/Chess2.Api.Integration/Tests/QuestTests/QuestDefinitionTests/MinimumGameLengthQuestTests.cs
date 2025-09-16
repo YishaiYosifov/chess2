@@ -14,9 +14,9 @@ public class MinimumGameLengthQuestTests
     [MemberData(nameof(VariantMoveNumTestData))]
     public void VariantProgress_positive_snapshot(int variantIdx, int gameLength)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.Black)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(gameLength * 2))
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.Black)
+            .RuleForMoves(totalPlies: gameLength * 2)
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
@@ -31,9 +31,9 @@ public class MinimumGameLengthQuestTests
         int gameLength
     )
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.Black)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(gameLength * 2 - 1))
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.Black)
+            .RuleForMoves(totalPlies: gameLength * 2 - 1)
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
@@ -45,9 +45,9 @@ public class MinimumGameLengthQuestTests
     [MemberData(nameof(VariantMoveNumTestData))]
     public void VariantProgress_does_not_progress_on_loss(int variantIdx, int gameLength)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Loss(GameColor.White)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(gameLength * 2))
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForLoss(GameColor.White)
+            .RuleForMoves(totalPlies: gameLength * 2)
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);

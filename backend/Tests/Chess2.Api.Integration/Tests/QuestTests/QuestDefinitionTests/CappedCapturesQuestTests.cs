@@ -9,20 +9,17 @@ namespace Chess2.Api.Integration.Tests.QuestTests.QuestDefinitionTests;
 public class CappedCapturesQuestTests
 {
     private readonly CappedCapturesQuest _quest = new();
-    private const int MinMoves = 30 * 2;
+    private const int MinPlies = 30 * 2;
 
     [Theory]
     [MemberData(nameof(VariantCaptureCapTestData))]
     public void VariantProgress_positive_snapshot(int variantIdx, int maxCaptures)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    .. MoveFaker.Capture(GameColor.White).Generate(maxCaptures),
-                    .. new MoveFaker().Generate(MinMoves),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker.Capture(GameColor.White).Generate(maxCaptures),
+                totalPlies: MinPlies
             )
             .Generate();
 
@@ -40,14 +37,11 @@ public class CappedCapturesQuestTests
         int maxCaptures
     )
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    .. MoveFaker.Capture(GameColor.White).Generate(maxCaptures + 1),
-                    .. new MoveFaker().Generate(MinMoves),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker.Capture(GameColor.White).Generate(maxCaptures + 1),
+                totalPlies: MinPlies
             )
             .Generate();
 
@@ -62,9 +56,9 @@ public class CappedCapturesQuestTests
     [MemberData(nameof(VariantCaptureCapTestData))]
     public void VariantProgress_does_not_count_if_too_short_game(int variantIdx, int _)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(3))
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(totalPlies: 3)
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
@@ -78,11 +72,11 @@ public class CappedCapturesQuestTests
     [MemberData(nameof(VariantCaptureCapTestData))]
     public void VariantProgress_does_not_count_opponent_captures(int variantIdx, int maxCaptures)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                MoveFaker.Capture(GameColor.Black).Generate(maxCaptures + MinMoves)
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                blackMoves: MoveFaker.Capture(GameColor.Black).Generate(maxCaptures),
+                totalPlies: MinPlies
             )
             .Generate();
 

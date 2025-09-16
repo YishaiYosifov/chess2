@@ -194,7 +194,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_increments_progress()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 2);
-        var snapshot = GameQuestSnapshotFaker.Win(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
         var storageStats = GetStorageStats();
@@ -212,7 +212,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_does_nothing_if_conditions_not_met()
     {
         SetupSelectableVariant(QuestDifficulty.Easy);
-        var snapshot = GameQuestSnapshotFaker.Loss(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForLoss(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync();
@@ -230,7 +230,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_completes_quest_and_updates_state()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = GameQuestSnapshotFaker.Win(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
         var initialQuest = await grain.GetQuestAsync();
@@ -253,7 +253,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_increments_streak_across_multiple_days()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = GameQuestSnapshotFaker.Win(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
 
@@ -276,7 +276,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task Streak_resets_if_a_day_is_missed()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = GameQuestSnapshotFaker.Win(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
 
@@ -383,7 +383,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = GameQuestSnapshotFaker.Win(GameColor.White).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync(user.Id);
         await grain.OnGameOverAsync(snapshot);

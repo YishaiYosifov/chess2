@@ -21,20 +21,17 @@ public class CastleCaptureQuestTests
     [InlineData(SpecialMoveType.QueensideCastle)]
     public void VariantProgress_positive_snapshot(SpecialMoveType moveType)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.White,
-                            captureType: PieceType.Bishop,
-                            pieceType: PieceType.King
-                        )
-                        .RuleFor(x => x.SpecialMoveType, moveType),
-                    .. new MoveFaker().Generate(2),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker
+                    .Capture(
+                        GameColor.White,
+                        captureType: PieceType.Bishop,
+                        pieceType: PieceType.King
+                    )
+                    .RuleFor(x => x.SpecialMoveType, moveType)
+                    .Generate(1)
             )
             .Generate();
 
@@ -45,19 +42,17 @@ public class CastleCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_when_done_by_opponent()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.Black,
-                            captureType: PieceType.Bishop,
-                            pieceType: PieceType.King
-                        )
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                blackMoves: MoveFaker
+                    .Capture(
+                        GameColor.Black,
+                        captureType: PieceType.Bishop,
+                        pieceType: PieceType.King
+                    )
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle)
+                    .Generate(1)
             )
             .Generate();
 
@@ -68,17 +63,12 @@ public class CastleCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_without_castle_capture()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    new MoveFaker(GameColor.White, PieceType.King).RuleFor(
-                        x => x.SpecialMoveType,
-                        SpecialMoveType.KingsideCastle
-                    ),
-                    .. new MoveFaker().Generate(2),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: new MoveFaker(GameColor.White, PieceType.King)
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle)
+                    .Generate(1)
             )
             .Generate();
 
@@ -89,19 +79,17 @@ public class CastleCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_on_loss()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Loss(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.White,
-                            captureType: PieceType.Bishop,
-                            pieceType: PieceType.King
-                        )
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForLoss(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker
+                    .Capture(
+                        GameColor.White,
+                        captureType: PieceType.Bishop,
+                        pieceType: PieceType.King
+                    )
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.KingsideCastle)
+                    .Generate(1)
             )
             .Generate();
 

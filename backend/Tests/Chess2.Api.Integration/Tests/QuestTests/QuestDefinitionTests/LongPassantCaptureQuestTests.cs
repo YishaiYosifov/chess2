@@ -19,20 +19,17 @@ public class LongPassantCaptureQuestTests
     [Fact]
     public void VariantProgress_positive_snapshot()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.White,
-                            captureTypes: [PieceType.Pawn, PieceType.Pawn],
-                            pieceType: PieceType.Pawn
-                        )
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant),
-                    .. new MoveFaker().Generate(2),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker
+                    .Capture(
+                        GameColor.White,
+                        captureTypes: [PieceType.Pawn, PieceType.Pawn],
+                        pieceType: PieceType.Pawn
+                    )
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant)
+                    .Generate(1)
             )
             .Generate();
 
@@ -43,19 +40,17 @@ public class LongPassantCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_when_done_by_opponent()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.Black,
-                            captureTypes: [PieceType.Pawn, PieceType.Pawn],
-                            pieceType: PieceType.Pawn
-                        )
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                blackMoves: MoveFaker
+                    .Capture(
+                        GameColor.Black,
+                        captureTypes: [PieceType.Pawn, PieceType.Pawn],
+                        pieceType: PieceType.Pawn
+                    )
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant)
+                    .Generate(1)
             )
             .Generate();
 
@@ -66,17 +61,16 @@ public class LongPassantCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_without_en_passant_capture()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker.Capture(
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker
+                    .Capture(
                         GameColor.White,
                         captureTypes: [PieceType.Pawn, PieceType.Pawn],
                         pieceType: PieceType.Pawn
-                    ),
-                ]
+                    )
+                    .Generate(1)
             )
             .Generate();
 
@@ -87,19 +81,17 @@ public class LongPassantCaptureQuestTests
     [Fact]
     public void VariantProgress_does_not_progress_if_capture_count_less_than_two()
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker
-                        .Capture(
-                            GameColor.White,
-                            captureType: PieceType.Pawn,
-                            pieceType: PieceType.Pawn
-                        )
-                        .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant),
-                ]
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves: MoveFaker
+                    .Capture(
+                        GameColor.White,
+                        captureType: PieceType.Pawn,
+                        pieceType: PieceType.Pawn
+                    )
+                    .RuleFor(x => x.SpecialMoveType, SpecialMoveType.EnPassant)
+                    .Generate(1)
             )
             .Generate();
 

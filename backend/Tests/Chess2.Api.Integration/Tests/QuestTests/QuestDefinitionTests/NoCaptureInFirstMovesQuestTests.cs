@@ -14,12 +14,12 @@ public class NoCaptureInFirstMovesQuestTests
     [MemberData(nameof(VariantMoveNumTestData))]
     public void VariantProgress_positive_snapshot(int variantIdx, int numOfMoves)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves:
                 [
-                    .. new MoveFaker().Generate(numOfMoves * 2),
+                    .. new MoveFaker(GameColor.White).Generate(numOfMoves),
                     MoveFaker.Capture(forColor: GameColor.White),
                 ]
             )
@@ -32,17 +32,11 @@ public class NoCaptureInFirstMovesQuestTests
 
     [Theory]
     [MemberData(nameof(VariantMoveNumTestData))]
-    public void VariantProgress_ignores_opponent_captures(int variantIdx, int numOfMoves)
+    public void VariantProgress_ignores_opponent_captures(int variantIdx, int _)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
-                [
-                    MoveFaker.Capture(forColor: GameColor.Black),
-                    .. new MoveFaker().Generate(numOfMoves * 2),
-                ]
-            )
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(blackMoves: MoveFaker.Capture(forColor: GameColor.Black).Generate(1))
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
@@ -57,10 +51,10 @@ public class NoCaptureInFirstMovesQuestTests
         int numOfMoves
     )
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Win(GameColor.White)
-            .RuleFor(
-                x => x.MoveHistory,
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForWin(GameColor.White)
+            .RuleForMoves(
+                whiteMoves:
                 [
                     MoveFaker.Capture(forColor: GameColor.White),
                     .. new MoveFaker().Generate(numOfMoves * 2),
@@ -77,9 +71,9 @@ public class NoCaptureInFirstMovesQuestTests
     [MemberData(nameof(VariantMoveNumTestData))]
     public void VariantProgress_does_not_progress_on_loss(int variantIdx, int numOfMoves)
     {
-        var snapshot = GameQuestSnapshotFaker
-            .Loss(GameColor.White)
-            .RuleFor(x => x.MoveHistory, new MoveFaker().Generate(numOfMoves * 2))
+        var snapshot = new GameQuestSnapshotFaker()
+            .RuleForLoss(GameColor.White)
+            .RuleForMoves(totalPlies: numOfMoves * 2)
             .Generate();
 
         var variant = _quest.Variants.ElementAt(variantIdx);
