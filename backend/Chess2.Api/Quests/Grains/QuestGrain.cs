@@ -1,13 +1,11 @@
-﻿using Chess2.Api.Profile.Entities;
-using Chess2.Api.Profile.Errors;
-using Chess2.Api.QuestLogic;
+﻿using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
+using Chess2.Api.Quests.Services;
 using Chess2.Api.Shared.Services;
 using ErrorOr;
-using Microsoft.AspNetCore.Identity;
 using Orleans.Concurrency;
 
 namespace Chess2.Api.Quests.Grains;
@@ -72,13 +70,13 @@ public class QuestGrainStorage
 
 public class QuestGrain(
     IEnumerable<IQuestDefinition> quests,
-    UserManager<AuthedUser> userManager,
+    IQuestService questService,
     TimeProvider timeProvider,
     IRandomProvider random
 ) : Grain<QuestGrainStorage>, IQuestGrain
 {
     private readonly IEnumerable<IQuestDefinition> _quests = quests;
-    private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly IQuestService _questService = questService;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly IRandomProvider _random = random;
 
@@ -111,12 +109,8 @@ public class QuestGrain(
         if (!quest.IsCompleted)
             return QuestErrors.NoRewardToCollect;
 
-        var user = await _userManager.FindByIdAsync(this.GetPrimaryKeyString());
-        if (user is null)
-            return ProfileErrors.NotFound;
-
-        user.QuestPoints += (int)quest.Difficulty;
-        await _userManager.UpdateAsync(user);
+        var userId = this.GetPrimaryKeyString();
+        await _questService.IncrementQuestPointsAsync(userId, (int)quest.Difficulty);
 
         State.MarkRewardCollected();
         await WriteStateAsync();
