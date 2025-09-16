@@ -22,7 +22,7 @@ public class OwnMoveCountMetricTests
     public void Evaluate_counts_only_matching_player_moves(GameColor playerColor, int[] indices)
     {
         var snapshot = new GameQuestSnapshotFaker(playerColor)
-            .RuleFor(x => x.MoveHistory, f => new MoveFaker().Generate(6))
+            .RuleForMoves(totalPlies: 6)
             .Generate();
 
         var targetMoves = indices.Select(i => snapshot.MoveHistory[i]).ToHashSet();
@@ -35,7 +35,7 @@ public class OwnMoveCountMetricTests
     [Fact]
     public void Evaluate_returns_zero_for_empty_history()
     {
-        var snapshot = new GameQuestSnapshotFaker().RuleFor(x => x.MoveHistory, []).Generate();
+        var snapshot = new GameQuestSnapshotFaker().RuleForMoves(totalPlies: 0).Generate();
 
         OwnMoveCountMetric metric = new((_, _) => true);
 
@@ -52,7 +52,7 @@ public class OwnMoveCountMetricTests
     )
     {
         var snapshot = new GameQuestSnapshotFaker(playerColor)
-            .RuleFor(x => x.MoveHistory, f => new MoveFaker().Generate(numOfMoves))
+            .RuleForMoves(totalPlies: numOfMoves)
             .Generate();
 
         List<Move> seenMoves = [];
