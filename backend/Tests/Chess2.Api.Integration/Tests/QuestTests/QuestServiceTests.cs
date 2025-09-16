@@ -111,14 +111,14 @@ public class QuestServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task SetQuestPointsAsync_adds_when_not_found()
+    public async Task IncrementQuestPointsAsync_adds_when_not_found()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
         int points = 123;
 
-        var result = await _questService.SetQuestPointsAsync(user.Id, points, CT);
+        var result = await _questService.IncrementQuestPointsAsync(user.Id, points, CT);
 
         result.IsError.Should().BeFalse();
 
@@ -139,15 +139,19 @@ public class QuestServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task SetQuestPointsAsync_updates_when_found()
+    public async Task IncrementQuestPointsAsync_updates_when_found()
     {
         var existing = new UserQuestPointsFaker().Generate();
         await DbContext.AddAsync(existing, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        int newPoints = existing.Points + 100;
+        int incrementBy = 100;
 
-        var result = await _questService.SetQuestPointsAsync(existing.UserId, newPoints, CT);
+        var result = await _questService.IncrementQuestPointsAsync(
+            existing.UserId,
+            incrementBy,
+            CT
+        );
 
         result.IsError.Should().BeFalse();
         var inDb = await DbContext.QuestPoints.AsNoTracking().ToListAsync(CT);
@@ -159,7 +163,7 @@ public class QuestServiceTests : BaseIntegrationTest
                 {
                     UserId = existing.UserId,
                     User = existing.User,
-                    Points = newPoints,
+                    Points = existing.Points + incrementBy,
                     LastQuestAt = _fakeNow.DateTime,
                 },
                 options => options.Excluding(x => x.Id)
