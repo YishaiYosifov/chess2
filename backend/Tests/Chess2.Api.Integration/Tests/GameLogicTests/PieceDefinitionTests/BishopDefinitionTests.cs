@@ -310,7 +310,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                     captures: ["f5", "g5"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("b5"), To: new("d5"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("h5"), To: new("f5"), partnerIlVaticano),
                     ],
                     forcedPriority: ForcedMovePriority.UnderagePawn,
                     specialMoveType: SpecialMoveType.IlVaticano
