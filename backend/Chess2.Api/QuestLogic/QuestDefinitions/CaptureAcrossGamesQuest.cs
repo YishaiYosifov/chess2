@@ -14,7 +14,7 @@ public class CaptureAcrossGamesQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int captures, QuestDifficulty difficulty) =>
         new(
-            Description: $"Capture {captures} pieces across multiple games",
+            Description: $"Capture a total of {captures} pieces across multiple games",
             Difficulty: difficulty,
             Target: captures,
             Conditions: () => [],
