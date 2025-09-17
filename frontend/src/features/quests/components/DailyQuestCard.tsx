@@ -69,7 +69,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     }
 
     return (
-        <Card className="h-fit w-full gap-4 p-6">
+        <Card className="h-fit w-full gap-6 p-6">
             {/* header */}
             <h1
                 className="text-center text-4xl text-balance sm:text-start"
@@ -138,7 +138,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                             data-testid="dailyQuestCollectedRewardText"
                             className={difficultyColor[quest.difficulty]}
                         >
-                            +{quest.difficulty} quest points
+                            +{quest.difficulty} points
                         </p>
                     )}
                 </div>

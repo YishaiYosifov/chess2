@@ -187,7 +187,7 @@ describe("DailyQuestCard", () => {
         expect(routerMock.refresh).toHaveBeenCalled();
         expect(
             screen.getByTestId("dailyQuestCollectedRewardText"),
-        ).toHaveTextContent(`+${quest.difficulty} quest points`);
+        ).toHaveTextContent(`+${quest.difficulty} points`);
     });
 
     it("should display error message if collectQuestReward fails", async () => {
