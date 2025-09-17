@@ -1,16 +1,19 @@
 "use client";
 
-import CountdownText from "@/components/CountdownText";
-import Card from "@/components/ui/Card";
-import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
-import MinimalProfileView from "@/features/profile/components/MinimalProfileView";
+import React from "react";
+import clsx from "clsx";
+
 import {
     getQuestLeaderboard,
     PagedResultOfQuestPointsDto,
     UserQuestPoints,
 } from "@/lib/apiClient";
-import clsx from "clsx";
-import React from "react";
+
+import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
+import MinimalProfileView from "@/features/profile/components/MinimalProfileView";
+import Card from "@/components/ui/Card";
+
+import LeaderboardResetCountdown from "./LeaderboardResetCountdown";
 
 const QuestLeaderboard = ({
     initialLeaderboard,
@@ -26,23 +29,9 @@ const QuestLeaderboard = ({
                     Leaderboard
                 </h1>
 
-                <CountdownText
-                    getTimeUntil={() => {
-                        const now = new Date();
-                        return new Date(
-                            Date.UTC(
-                                now.getUTCFullYear(),
-                                now.getUTCMonth() + 1,
-                            ),
-                        );
-                    }}
-                >
-                    {({ countdown }) => (
-                        <p className="">Leaderboard resets in {countdown}</p>
-                    )}
-                </CountdownText>
+                <LeaderboardResetCountdown />
 
-                {myQuestRanking && (
+                {/* {myQuestRanking && (
                     <p
                         className="text-text/70"
                         data-testid="myQuestRankingDisplay"
@@ -52,7 +41,7 @@ const QuestLeaderboard = ({
                             #{myQuestRanking}
                         </span>
                     </p>
-                )}
+                )} */}
             </div>
 
             <PaginatedItemsRenderer
