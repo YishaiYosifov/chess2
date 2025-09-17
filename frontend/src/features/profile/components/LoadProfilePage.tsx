@@ -7,6 +7,7 @@ import {
     getRatingArchives,
     getStarsReceivedCount,
     getUser,
+    getUserQuestPoints,
     PublicUser,
     SessionUser,
 } from "@/lib/apiClient";
@@ -47,7 +48,7 @@ const LoadProfilePage = async ({
     lastMonth.setMonth(lastMonth.getMonth() - 1);
     lastMonth.setHours(0, 0, 0, 0);
 
-    const [ratings, games, starsCount, hasStarred, hasBlocked] =
+    const [ratings, games, starsCount, questPoints, hasStarred, hasBlocked] =
         await Promise.all([
             dataOrThrow(
                 getRatingArchives({
@@ -69,6 +70,12 @@ const LoadProfilePage = async ({
                     path: { starredUserId: profile.userId },
                 }),
             ),
+            dataOrThrow(
+                getUserQuestPoints({
+                    path: { userId: profile.userId },
+                }),
+            ),
+
             (async (): Promise<boolean> => {
                 if (!accessToken || profile.userId === loggedInUser?.userId)
                     return false;
@@ -106,6 +113,7 @@ const LoadProfilePage = async ({
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-6">
             <Profile
                 profile={profile}
+                questPoints={questPoints}
                 initialStarCount={starsCount}
                 initialHasStarred={hasStarred}
                 initialHasBlocked={hasBlocked}
