@@ -7,6 +7,7 @@ import {
     getRatingArchives,
     getStarsReceivedCount,
     getUser,
+    getUserQuestPoints,
     PagedResultOfGameSummaryDto,
     PrivateUser,
     PublicUser,
@@ -31,11 +32,13 @@ describe("ProfilePage", () => {
     let rating: RatingOverview;
 
     const starsReceived = 5;
+    const questPoints = 69;
 
     const getUserMock = vi.mocked(getUser);
     const getRatingArchivesMock = vi.mocked(getRatingArchives);
     const getGameResultsMock = vi.mocked(getGameResults);
     const getStarsReceivedCountMock = vi.mocked(getStarsReceivedCount);
+    const getUserQuestPointsMock = vi.mocked(getUserQuestPoints);
     const getHasStarredMock = vi.mocked(getHasStarred);
     const getHasBlockedMock = vi.mocked(getHasBlocked);
 
@@ -67,6 +70,10 @@ describe("ProfilePage", () => {
             data: starsReceived,
             response: new Response(),
         });
+        getUserQuestPointsMock.mockResolvedValue({
+            data: questPoints,
+            response: new Response(),
+        });
         getHasStarredMock.mockResolvedValue({
             data: false,
             response: new Response(),
@@ -91,6 +98,9 @@ describe("ProfilePage", () => {
         expect(screen.getByTestId("profileUsername")).toHaveTextContent(
             ownUser.userName,
         );
+        expect(screen.getByTestId("profileQuestPoints")).toHaveTextContent(
+            questPoints.toString(),
+        );
         expect(getUserMock).not.toHaveBeenCalled();
     });
 
@@ -110,6 +120,9 @@ describe("ProfilePage", () => {
         });
         expect(screen.getByTestId("profileUsername")).toHaveTextContent(
             otherUser.userName,
+        );
+        expect(screen.getByTestId("profileQuestPoints")).toHaveTextContent(
+            questPoints.toString(),
         );
     });
 

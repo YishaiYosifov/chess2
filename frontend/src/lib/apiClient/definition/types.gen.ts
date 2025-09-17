@@ -129,7 +129,6 @@ export type PrivateUser = SessionUser & {
     userName: string;
     about: string;
     countryCode: string;
-    questPoints: number;
     createdAt: string;
     usernameLastChanged?: string | null;
     type: string;
@@ -146,7 +145,6 @@ export type PublicUser = {
     userName: string;
     about: string;
     countryCode: string;
-    questPoints: number;
     createdAt: string;
 };
 
@@ -708,6 +706,22 @@ export type CollectQuestRewardResponses = {
 
 export type CollectQuestRewardResponse =
     CollectQuestRewardResponses[keyof CollectQuestRewardResponses];
+
+export type GetUserQuestPointsData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: "/api/Quests/points/{userId}";
+};
+
+export type GetUserQuestPointsResponses = {
+    200: number;
+};
+
+export type GetUserQuestPointsResponse =
+    GetUserQuestPointsResponses[keyof GetUserQuestPointsResponses];
 
 export type GetQuestLeaderboardData = {
     body?: never;
