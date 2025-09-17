@@ -14,6 +14,7 @@ import NewQuestCountdown from "./NewQuestCountdown";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
+import ProgressBar from "@/components/ui/ProgressBar";
 
 const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     const [quest, setQuest] = useState(initialQuest);
@@ -95,16 +96,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                 </p>
 
                 <div className="flex items-center gap-3">
-                    <div
-                        className="bg-primary h-4 flex-1 overflow-hidden rounded-full"
-                        data-testid="dailyQuestProgressBar"
-                    >
-                        <div
-                            className="bg-secondary h-4 rounded-full"
-                            style={{ width: `${percentDone}%` }}
-                            data-testid="dailyQuestProgressFill"
-                        />
-                    </div>
+                    <ProgressBar percent={percentDone} />
 
                     <p
                         className="text-text/70 min-w-[40px] text-center text-sm font-medium"

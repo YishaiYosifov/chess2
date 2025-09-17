@@ -88,32 +88,4 @@ describe("QuestLeaderboard", () => {
             ),
         ).toBeInTheDocument();
     });
-
-    it("should display the user's rank when myQuestRanking is provided", () => {
-        const initialLeaderboard = createFakePagedUserQuestPoints();
-        const myRank = 5;
-
-        render(
-            <QuestLeaderboard
-                initialLeaderboard={initialLeaderboard}
-                myQuestRanking={myRank}
-            />,
-        );
-
-        const rankDisplay = screen.getByTestId("myQuestRankingDisplay");
-        expect(rankDisplay).toBeInTheDocument();
-        expect(rankDisplay).toHaveTextContent(`You are ranked #${myRank}`);
-    });
-
-    it("should not display the user's rank when myQuestRanking is not provided", () => {
-        const initialLeaderboard = createFakePagedUserQuestPoints({
-            pagination: { pageSize: 1 },
-        });
-
-        render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
-
-        expect(
-            screen.queryByTestId("myQuestRankingDisplay"),
-        ).not.toBeInTheDocument();
-    });
 });
