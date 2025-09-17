@@ -1,5 +1,6 @@
 "use client";
 
+import CountdownText from "@/components/CountdownText";
 import Card from "@/components/ui/Card";
 import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
 import MinimalProfileView from "@/features/profile/components/MinimalProfileView";
@@ -24,6 +25,22 @@ const QuestLeaderboard = ({
                 <h1 className="text-3xl" data-testid="questLeaderboardTitle">
                     Leaderboard
                 </h1>
+
+                <CountdownText
+                    getTimeUntil={() => {
+                        const now = new Date();
+                        return new Date(
+                            Date.UTC(
+                                now.getUTCFullYear(),
+                                now.getUTCMonth() + 1,
+                            ),
+                        );
+                    }}
+                >
+                    {({ countdown }) => (
+                        <p className="">Leaderboard resets in {countdown}</p>
+                    )}
+                </CountdownText>
 
                 {myQuestRanking && (
                     <p

@@ -3,15 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import {
     collectQuestReward,
     Quest,
     QuestDifficulty,
     replaceDailyQuest,
 } from "@/lib/apiClient";
-import NewQuestTimer from "./NewQuestTimer";
+
+import NewQuestCountdown from "./NewQuestCountdown";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     const [quest, setQuest] = useState(initialQuest);
@@ -139,7 +140,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                     )}
                 </div>
 
-                <NewQuestTimer />
+                <NewQuestCountdown />
 
                 {error && (
                     <p className="text-error" data-testid="dailyQueryError">
