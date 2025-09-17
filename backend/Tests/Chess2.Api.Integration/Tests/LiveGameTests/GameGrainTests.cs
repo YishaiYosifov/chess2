@@ -429,8 +429,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
                 ArgEx.FluentAssert<GameResultData>(
                     (x) =>
                     {
-                        x.Result.Should().Be(expectedEndStatus.Result);
-                        x.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+                        x?.Result.Should().Be(expectedEndStatus.Result);
+                        x?.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
                     }
                 )
             );
