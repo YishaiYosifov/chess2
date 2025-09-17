@@ -14,7 +14,7 @@ describe("NewQuestCountdown", () => {
         render(<NewQuestCountdown />);
 
         expect(screen.getByTestId("newQuestText")).toHaveTextContent(
-            "New quest in 00:00:10",
+            "New Quest in 00:00:10",
         );
     });
 
