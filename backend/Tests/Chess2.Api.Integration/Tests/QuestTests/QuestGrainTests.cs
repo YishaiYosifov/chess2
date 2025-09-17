@@ -65,20 +65,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
             .Returns(difficulty);
     }
 
-    private List<QuestVariant> GetFilteredVariants(QuestDifficulty difficulty)
-    {
-        return
-        [
-            .. _quests.SelectMany(quest =>
-                quest.Variants.Where(variant =>
-                    variant.Difficulty == difficulty
-                    && !_usedVariantDescriptions.Contains(variant.Description)
-                )
-            ),
-        ];
-    }
-
-    private QuestVariant SetupSelectableVariant(QuestDifficulty difficulty)
+    private QuestVariant SetupSelectableVariant(DayOfWeek day)
     {
         MockDifficulty(difficulty);
 
@@ -94,6 +81,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     private void SetupWinVariant(QuestDifficulty difficulty, int target)
     {
         MockDifficulty(difficulty);
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow with { DayOfWeek = DayOfWeek.Monday });
 
         var variants = GetFilteredVariants(difficulty);
         SetupVariantRandom(
@@ -107,8 +95,17 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         );
     }
 
-    private void SetupVariantRandom(IEnumerable<QuestVariant> variants, QuestVariant returnVariant)
+    private void SetupVariantRandom(
+        IEnumerable<QuestVariant> variants,
+        QuestVariant returnVariant,
+        DayOfWeek day
+    )
     {
+        // monday
+        var baseDate = new DateTimeOffset(2024, 9, 16, 12, 0, 0, TimeSpan.Zero);
+        var targetDate = baseDate.AddDays((int)day - (int)baseDate.DayOfWeek);
+        _timeProviderMock.GetUtcNow().Returns(targetDate);
+
         var descriptions = variants.Select(x => x.Description);
         _randomMock
             .NextItem(

@@ -1,10 +1,8 @@
 ﻿using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
-using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Services;
-using Chess2.Api.Shared.Services;
 using ErrorOr;
 using Orleans.Concurrency;
 
@@ -69,16 +67,14 @@ public class QuestGrainStorage
 }
 
 public class QuestGrain(
-    IEnumerable<IQuestDefinition> quests,
     IQuestService questService,
-    TimeProvider timeProvider,
-    IRandomProvider random
+    IRandomQuestProvider questProvider,
+    TimeProvider timeProvider
 ) : Grain<QuestGrainStorage>, IQuestGrain
 {
-    private readonly IEnumerable<IQuestDefinition> _quests = quests;
     private readonly IQuestService _questService = questService;
+    private readonly IRandomQuestProvider _questProvider = questProvider;
     private readonly TimeProvider _timeProvider = timeProvider;
-    private readonly IRandomProvider _random = random;
 
     public async Task<QuestDto> GetQuestAsync()
     {
@@ -142,33 +138,12 @@ public class QuestGrain(
 
     private QuestInstance SelectNewQuest()
     {
-        var difficulty = _random.NextWeighted(
-            new Dictionary<int, QuestDifficulty>()
-            {
-                [50] = QuestDifficulty.Easy,
-                [30] = QuestDifficulty.Medium,
-                [20] = QuestDifficulty.Hard,
-            }
-        );
-        var availableQuestVariants = _quests
-            .SelectMany(quest =>
-                quest
-                    .Variants.Where(variant =>
-                        variant.Difficulty == difficulty
-                        && variant.Description != State.Quest?.Description
-                    )
-                    .ToList()
-            )
-            .ToList();
-        var questVariant = _random.NextItem(availableQuestVariants);
-
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        var questInstance = questVariant.CreateInstance(today);
-
+        var quest = _questProvider.GetRandomQuestInstance(except: State.Quest);
         State.ResetStreakIfMissedDay(today);
-        State.ResetProgressForNewQuest(questInstance);
+        State.ResetProgressForNewQuest(quest);
 
-        return questInstance;
+        return quest;
     }
 
     private QuestDto ToDto(QuestInstance quest) =>

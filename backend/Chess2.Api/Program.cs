@@ -402,6 +402,7 @@ builder.Services.AddScoped<IPreferenceService, PreferenceService>();
 #region Quests
 builder.Services.AddScoped<IQuestRepository, QuestRepository>();
 builder.Services.AddScoped<IQuestService, QuestService>();
+builder.Services.AddSingleton<IRandomQuestProvider, RandomQuestProvider>();
 
 builder.Services.AddSingleton<IQuestDefinition, WinInQuest>();
 builder.Services.AddSingleton<IQuestDefinition, NoCaptureInFirstMovesQuest>();
