@@ -69,19 +69,59 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
         }
     }
 
+    const renderActionButton = () => {
+        if (!isCompleted && quest.canReplace)
+            return (
+                <Button
+                    data-testid="dailyQuestReplaceButton"
+                    onClick={replaceQuest}
+                    className="py-1"
+                    disabled={isFetching}
+                >
+                    Replace
+                </Button>
+            );
+
+        if (isCompleted && !quest.rewardCollected)
+            return (
+                <Button
+                    data-testid="dailyQuestCollectButton"
+                    onClick={collectReward}
+                    className="py-1"
+                    disabled={isFetching}
+                >
+                    Collect Reward
+                </Button>
+            );
+
+        if (isCompleted && quest.rewardCollected)
+            return (
+                <p
+                    data-testid="dailyQuestCollectedRewardText"
+                    className={difficultyColor[quest.difficulty]}
+                >
+                    +{quest.difficulty} points
+                </p>
+            );
+
+        return null;
+    };
+
     return (
-        <Card className="h-fit w-full gap-6 p-6">
+        <Card className="h-fit w-full gap-5 p-6">
             {/* header */}
             <h1
-                className="text-center text-4xl text-balance sm:text-start"
+                className="text-center text-4xl text-balance"
                 data-testid="dailyQuestTitle"
             >
                 Daily Quest:{" "}
                 {constants.QUEST_WEEKDAY_NAMES[new Date().getDay()]}
             </h1>
 
-            {/* description */}
-            <div className="flex flex-col">
+            <hr className="text-secondary/50" />
+
+            {/* quest */}
+            <div className="flex flex-col gap-2">
                 <p
                     className="text-center text-lg text-balance sm:text-start"
                     data-testid="dailyQuestDescription"
@@ -105,34 +145,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         {quest.progress}/{quest.target}
                     </p>
 
-                    {!isCompleted && quest.canReplace && (
-                        <Button
-                            data-testid="dailyQuestReplaceButton"
-                            onClick={replaceQuest}
-                            className="py-1"
-                            disabled={isFetching}
-                        >
-                            Replace
-                        </Button>
-                    )}
-                    {isCompleted && !quest.rewardCollected && (
-                        <Button
-                            data-testid="dailyQuestCollectButton"
-                            onClick={collectReward}
-                            className="py-1"
-                            disabled={isFetching}
-                        >
-                            Collect Reward
-                        </Button>
-                    )}
-                    {isCompleted && quest.rewardCollected && (
-                        <p
-                            data-testid="dailyQuestCollectedRewardText"
-                            className={difficultyColor[quest.difficulty]}
-                        >
-                            +{quest.difficulty} points
-                        </p>
-                    )}
+                    {renderActionButton()}
                 </div>
 
                 {error && (
@@ -140,16 +153,16 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         {error}
                     </p>
                 )}
-            </div>
 
-            {/* footer */}
-            <div className="text-text/70 flex flex-wrap justify-center gap-x-3 sm:justify-between">
-                <NewQuestCountdown />
+                {/* footer */}
+                <div className="text-text/70 flex flex-wrap justify-center gap-x-3 sm:justify-between">
+                    <NewQuestCountdown />
 
-                <span data-testid="dailyQuestStreak">
-                    {quest.streak > 0 && "🔥"}
-                    {quest.streak} Day{quest.streak == 1 ? "" : "s"} Streak
-                </span>
+                    <span data-testid="dailyQuestStreak">
+                        {quest.streak > 0 && "🔥"}
+                        {quest.streak} Day{quest.streak == 1 ? "" : "s"} Streak
+                    </span>
+                </div>
             </div>
         </Card>
     );
