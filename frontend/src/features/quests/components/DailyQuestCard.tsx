@@ -13,6 +13,7 @@ import {
 import NewQuestCountdown from "./NewQuestCountdown";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import constants from "@/lib/constants";
 
 const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     const [quest, setQuest] = useState(initialQuest);
@@ -68,22 +69,19 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     }
 
     return (
-        <Card className="h-fit w-full gap-6 p-6">
-            <div className="flex flex-col justify-between sm:flex-row">
-                <h1 className="text-4xl" data-testid="dailyQuestTitle">
-                    Daily Quest
-                </h1>
-                <p
-                    className="text-text/70 font-medium"
-                    data-testid="dailyQuestStreak"
-                >
-                    {quest.streak > 0 && "🔥 "}
-                    {quest.streak} Day Streak
-                </p>
-            </div>
+        <Card className="h-fit w-full gap-4 p-6">
+            {/* header */}
+            <h1 className="text-center text-4xl text-balance sm:text-start">
+                Daily Quest:{" "}
+                {constants.QUEST_WEEKDAY_NAMES[new Date().getDay()]}
+            </h1>
 
-            <div className="flex flex-col gap-2">
-                <p className="text-lg" data-testid="dailyQuestDescription">
+            {/* description */}
+            <div className="flex flex-col">
+                <p
+                    className="text-center text-lg text-balance sm:text-start"
+                    data-testid="dailyQuestDescription"
+                >
                     <span
                         className={difficultyColor[quest.difficulty]}
                         data-testid="dailyQuestDifficulty"
@@ -116,6 +114,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         <Button
                             data-testid="dailyQuestReplaceButton"
                             onClick={replaceQuest}
+                            className="py-1"
                             disabled={isFetching}
                         >
                             Replace
@@ -125,6 +124,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                         <Button
                             data-testid="dailyQuestCollectButton"
                             onClick={collectReward}
+                            className="py-1"
                             disabled={isFetching}
                         >
                             Collect Reward
@@ -140,13 +140,21 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
                     )}
                 </div>
 
-                <NewQuestCountdown />
-
                 {error && (
                     <p className="text-error" data-testid="dailyQueryError">
                         {error}
                     </p>
                 )}
+            </div>
+
+            {/* footer */}
+            <div className="text-text/70 flex flex-wrap justify-center gap-x-3 sm:justify-between">
+                <NewQuestCountdown />
+
+                <span className="text-text/70">
+                    {quest.streak > 0 && "🔥"}
+                    {quest.streak} Day{quest.streak == 1 ? "" : "s"} Streak
+                </span>
             </div>
         </Card>
     );
