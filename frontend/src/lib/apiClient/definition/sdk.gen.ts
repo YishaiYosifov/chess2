@@ -45,6 +45,8 @@ import type {
     CollectQuestRewardData,
     CollectQuestRewardResponses,
     CollectQuestRewardErrors,
+    GetUserQuestPointsData,
+    GetUserQuestPointsResponses,
     GetQuestLeaderboardData,
     GetQuestLeaderboardResponses,
     GetMyQuestRankingData,
@@ -282,6 +284,19 @@ export const collectQuestReward = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Quests/claim",
+        ...options,
+    });
+};
+
+export const getUserQuestPoints = <ThrowOnError extends boolean = false>(
+    options: Options<GetUserQuestPointsData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetUserQuestPointsResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/Quests/points/{userId}",
         ...options,
     });
 };

@@ -15,11 +15,13 @@ import Flag from "./Flag";
 
 const Profile = ({
     profile,
+    questPoints,
     initialStarCount,
     initialHasStarred,
     initialHasBlocked,
 }: {
     profile: PublicUser;
+    questPoints: number;
     initialStarCount: number;
     initialHasStarred: boolean;
     initialHasBlocked: boolean;
@@ -90,7 +92,7 @@ const Profile = ({
                     </p>
                     <p>
                         <span data-testid="profileQuestPoints">
-                            {profile.questPoints}
+                            {questPoints}
                         </span>{" "}
                         <span className="text-text/70">Quest Points</span>
                     </p>

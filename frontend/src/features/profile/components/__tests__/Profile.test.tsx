@@ -37,9 +37,11 @@ describe("Profile", () => {
     function renderProfile({
         isLoggedOut,
         starCount,
+        questPoints,
     }: {
         isLoggedOut?: boolean;
         starCount?: number;
+        questPoints?: number;
     } = {}) {
         return render(
             <SessionProvider
@@ -48,6 +50,7 @@ describe("Profile", () => {
             >
                 <Profile
                     profile={userMock}
+                    questPoints={questPoints ?? 0}
                     initialStarCount={starCount ?? 0}
                     initialHasStarred={false}
                     initialHasBlocked={false}
@@ -164,10 +167,10 @@ describe("Profile", () => {
     });
 
     it("should display the correct quest points", () => {
-        renderProfile();
+        renderProfile({ questPoints: 123 });
 
         expect(screen.getByTestId("profileQuestPoints")).toHaveTextContent(
-            userMock.questPoints.toString(),
+            "123",
         );
     });
 });
