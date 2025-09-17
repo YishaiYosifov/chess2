@@ -71,7 +71,10 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
     return (
         <Card className="h-fit w-full gap-4 p-6">
             {/* header */}
-            <h1 className="text-center text-4xl text-balance sm:text-start">
+            <h1
+                className="text-center text-4xl text-balance sm:text-start"
+                data-testid="dailyQuestTitle"
+            >
                 Daily Quest:{" "}
                 {constants.QUEST_WEEKDAY_NAMES[new Date().getDay()]}
             </h1>
@@ -151,7 +154,7 @@ const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
             <div className="text-text/70 flex flex-wrap justify-center gap-x-3 sm:justify-between">
                 <NewQuestCountdown />
 
-                <span className="text-text/70">
+                <span data-testid="dailyQuestStreak">
                     {quest.streak > 0 && "🔥"}
                     {quest.streak} Day{quest.streak == 1 ? "" : "s"} Streak
                 </span>

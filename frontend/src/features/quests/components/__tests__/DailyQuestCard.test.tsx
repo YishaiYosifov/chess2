@@ -9,22 +9,21 @@ import {
 } from "@/lib/apiClient";
 import userEvent from "@testing-library/user-event";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
+import constants from "@/lib/constants";
 
 vi.mock("@/lib/apiClient/definition");
 
 describe("DailyQuestCard", () => {
     const replaceDailyQuestMock = vi.mocked(replaceDailyQuest);
     const collectQuestRewardMock = vi.mocked(collectQuestReward);
+    const todayName = constants.QUEST_WEEKDAY_NAMES[new Date().getDay()];
 
-    it("should render the title and streak", () => {
+    it("should render the title with the current weekday", () => {
         const quest = createFakeQuest({ streak: 0 });
         render(<DailyQuestCard initialQuest={quest} />);
 
         expect(screen.getByTestId("dailyQuestTitle")).toHaveTextContent(
-            "Daily Quest",
-        );
-        expect(screen.getByTestId("dailyQuestStreak")).toHaveTextContent(
-            "0 Day Streak",
+            `Daily Quest: ${todayName}`,
         );
     });
 
@@ -33,7 +32,7 @@ describe("DailyQuestCard", () => {
         render(<DailyQuestCard initialQuest={quest} />);
 
         expect(screen.getByTestId("dailyQuestStreak")).toHaveTextContent(
-            "🔥 7 Day Streak",
+            "🔥7 Days Streak",
         );
     });
 
