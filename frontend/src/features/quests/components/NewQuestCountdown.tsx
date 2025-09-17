@@ -19,9 +19,7 @@ const NewQuestCountdown = () => {
             onDateReached={() => router.refresh()}
         >
             {({ countdown }) => (
-                <p className="text-text/70" data-testid="newQuestText">
-                    New quest in {countdown}
-                </p>
+                <p data-testid="newQuestText">New Quest in {countdown}</p>
             )}
         </CountdownText>
     );
