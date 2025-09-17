@@ -54,7 +54,7 @@ describe("DailyQuestCard", () => {
         const quest = createFakeQuest({ progress: 3, target: 6 });
         render(<DailyQuestCard initialQuest={quest} />);
 
-        expect(screen.getByTestId("dailyQuestProgressFill")).toHaveStyle({
+        expect(screen.getByTestId("progressBarFill")).toHaveStyle({
             width: "50%",
         });
     });
