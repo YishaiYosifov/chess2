@@ -13,9 +13,9 @@ const LeaderboardResetCountdown = () => {
             {({ countdown }) => (
                 <p
                     data-testid="leaderboardResetCountdown"
-                    className="text-text/70"
+                    className="text-text/70 text-lg"
                 >
-                    Leaderboard resets in {countdown}
+                    resets in {countdown}
                 </p>
             )}
         </CountdownText>
