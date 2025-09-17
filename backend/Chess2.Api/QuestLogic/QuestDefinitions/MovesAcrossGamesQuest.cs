@@ -14,7 +14,7 @@ public class MovesAcrossGamesQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int numOfMoves, QuestDifficulty difficulty) =>
         new(
-            Description: $"Make {numOfMoves} moves across all games",
+            Description: $"Make a total of {numOfMoves} moves across all games",
             Difficulty: difficulty,
             Target: numOfMoves,
             Conditions: () => [],

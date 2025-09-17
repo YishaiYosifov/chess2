@@ -14,7 +14,7 @@ public class PawnPromotionsAcrossGamesQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int promotions, QuestDifficulty difficulty) =>
         new(
-            Description: $"Promote {promotions} pawns across all games",
+            Description: $"Promote a total of {promotions} pawns across all games",
             Difficulty: difficulty,
             Target: promotions,
             Conditions: () => [],
