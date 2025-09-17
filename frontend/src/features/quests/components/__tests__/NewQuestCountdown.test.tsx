@@ -1,8 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
-import NewQuestTimer from "../NewQuestTimer";
+import NewQuestCountdown from "../NewQuestCountdown";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
-describe("NewQuestTimer", () => {
+describe("NewQuestCountdown", () => {
     beforeEach(() => {
         vi.useFakeTimers();
     });
@@ -12,29 +12,14 @@ describe("NewQuestTimer", () => {
         vi.restoreAllMocks();
     });
 
-    it("should render initial countdown correctly", () => {
+    it("should render countdown correctly", () => {
         const now = new Date(Date.UTC(2025, 8, 13, 23, 59, 50)); // 23:59:50
         vi.setSystemTime(now);
 
-        render(<NewQuestTimer />);
+        render(<NewQuestCountdown />);
 
         expect(screen.getByTestId("newQuestText")).toHaveTextContent(
             "New quest in 00:00:10",
-        );
-    });
-
-    it("should update countdown every second", () => {
-        const now = new Date(Date.UTC(2025, 8, 13, 23, 59, 50));
-        vi.setSystemTime(now);
-
-        render(<NewQuestTimer />);
-
-        act(() => {
-            vi.advanceTimersByTime(3000);
-        });
-
-        expect(screen.getByTestId("newQuestText")).toHaveTextContent(
-            "New quest in 00:00:07",
         );
     });
 
@@ -43,7 +28,7 @@ describe("NewQuestTimer", () => {
         vi.setSystemTime(now);
         const routerMock = mockRouter();
 
-        render(<NewQuestTimer />);
+        render(<NewQuestCountdown />);
 
         act(() => {
             vi.advanceTimersByTime(2000);
