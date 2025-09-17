@@ -31,7 +31,9 @@ const QuestLeaderboard = ({
 
                 <LeaderboardResetCountdown />
 
-                {/* {myQuestRanking && (
+                {/*
+                temporarily commented out because this looks really bad
+                {myQuestRanking && (
                     <p
                         className="text-text/70"
                         data-testid="myQuestRankingDisplay"

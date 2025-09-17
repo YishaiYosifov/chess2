@@ -174,6 +174,16 @@ const DEFAULT_CHESS_BOARD: PieceMap = new Map([
     ["39", { position: logicalPoint({ x: 9, y: 9 }), type: PieceType.ROOK, color: GameColor.BLACK }],
 ]);
 
+const QUEST_WEEKDAY_NAMES: Record<number, string> = {
+    0: "Mundane Monday",
+    1: "Tame Tuesday",
+    2: "Wild Wednesday",
+    3: "Thrilling Thursday",
+    4: "Fiery Friday",
+    5: "Strenuous Saturday",
+    6: "Savage Sunday",
+};
+
 const constants = {
     USERNAME_EDIT_EVERY_MS,
     BOARD_WIDTH,
@@ -194,5 +204,6 @@ const constants = {
     DEFAULT_CHESS_BOARD,
     SIGNALR_PATHS,
     PAGINATION_PAGE_SIZE,
+    QUEST_WEEKDAY_NAMES,
 } as const;
 export default constants;
