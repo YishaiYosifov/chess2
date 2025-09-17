@@ -17,10 +17,8 @@ import LeaderboardResetCountdown from "./LeaderboardResetCountdown";
 
 const QuestLeaderboard = ({
     initialLeaderboard,
-    myQuestRanking,
 }: {
     initialLeaderboard: PagedResultOfQuestPointsDto;
-    myQuestRanking?: number;
 }) => {
     return (
         <Card className="w-full gap-5 p-6">
@@ -30,20 +28,6 @@ const QuestLeaderboard = ({
                 </h1>
 
                 <LeaderboardResetCountdown />
-
-                {/*
-                temporarily commented out because this looks really bad
-                {myQuestRanking && (
-                    <p
-                        className="text-text/70"
-                        data-testid="myQuestRankingDisplay"
-                    >
-                        You are ranked{" "}
-                        <span className="text-amber-400">
-                            #{myQuestRanking}
-                        </span>
-                    </p>
-                )} */}
             </div>
 
             <PaginatedItemsRenderer
