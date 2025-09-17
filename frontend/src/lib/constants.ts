@@ -175,13 +175,13 @@ const DEFAULT_CHESS_BOARD: PieceMap = new Map([
 ]);
 
 const QUEST_WEEKDAY_NAMES: Record<number, string> = {
-    0: "Mundane Monday",
-    1: "Tame Tuesday",
-    2: "Wild Wednesday",
-    3: "Thrilling Thursday",
-    4: "Fiery Friday",
-    5: "Strenuous Saturday",
-    6: "Savage Sunday",
+    0: "Savage Sunday",
+    1: "Mundane Monday",
+    2: "Tame Tuesday",
+    3: "Wild Wednesday",
+    4: "Thrilling Thursday",
+    5: "Fiery Friday",
+    6: "Strenuous Saturday",
 };
 
 const constants = {
