@@ -22,9 +22,12 @@ const QuestLeaderboard = ({
 }) => {
     return (
         <Card className="w-full gap-5 p-6">
-            <div>
-                <h1 className="text-3xl" data-testid="questLeaderboardTitle">
-                    Leaderboard
+            <div
+                className="flex flex-col flex-wrap items-center justify-center gap-2 sm:flex-row
+                    sm:justify-between"
+            >
+                <h1 className="text-2xl" data-testid="questLeaderboardTitle">
+                    Quest Leaderboard
                 </h1>
 
                 <LeaderboardResetCountdown />

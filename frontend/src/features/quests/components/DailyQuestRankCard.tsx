@@ -19,7 +19,7 @@ const DailyQuestRankCard = ({
 
     const percentile = ((totalPlayers - currentRank) / totalPlayers) * 100;
     return (
-        <Card className="flex w-full items-center justify-between p-4 sm:flex-row">
+        <Card className="w-full items-center justify-between sm:flex-row">
             <MinimalProfileView profile={user}>
                 <p className="ml-auto" data-testid="dailyQuestRankPoints">
                     {questPoints} points

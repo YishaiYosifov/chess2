@@ -14,6 +14,6 @@ describe("LeaderboardResetCountdown", () => {
 
         expect(
             screen.getByTestId("leaderboardResetCountdown"),
-        ).toHaveTextContent("Leaderboard resets in 17:00:00:10");
+        ).toHaveTextContent("resets in 17:00:00:10");
     });
 });
