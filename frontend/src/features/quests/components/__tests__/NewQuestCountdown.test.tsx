@@ -7,11 +7,6 @@ describe("NewQuestCountdown", () => {
         vi.useFakeTimers();
     });
 
-    afterEach(() => {
-        vi.useRealTimers();
-        vi.restoreAllMocks();
-    });
-
     it("should render countdown correctly", () => {
         const now = new Date(Date.UTC(2025, 8, 13, 23, 59, 50)); // 23:59:50
         vi.setSystemTime(now);
