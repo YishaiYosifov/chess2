@@ -38,7 +38,6 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("a1", horsey)
-                // only 2 valid moves
                 .GoesTo("b3") // up 2, right 1
                 .GoesTo("c2") // up 1, right 2
                 .WithDescription("Corner case: horsey at a1")
@@ -47,7 +46,6 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("j10", horsey)
-                // only 2 valid moves
                 .GoesTo("h9") // down 1, left 2
                 .GoesTo("i8") // down 2, left 1
                 .WithDescription("Corner case: horsey at j10")
@@ -56,7 +54,6 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("a5", horsey)
-                // 4 valid moves
                 .GoesTo("b7") // up 2, right 1
                 .GoesTo("c6") // up 1, right 2
                 .GoesTo("c4") // down 1, right 2
@@ -105,7 +102,6 @@ public class HorseyDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("b2", horsey)
-                // only 4 valid moves
                 .GoesTo("a4") // up 2, left 1
                 .GoesTo("c4") // up 2, right 1
                 .GoesTo("d3") // up 1, right 2

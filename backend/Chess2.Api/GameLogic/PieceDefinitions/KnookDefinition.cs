@@ -10,8 +10,8 @@ public class KnookDefinition : IPieceDefinition
 
     private readonly IPieceMovementRule[] _behaviours =
     [
-        // horsey part
-        new CaptureOnlyRule(
+        new CaptureRule(
+            // horsey part
             new StepBehaviour(new Offset(X: 1, Y: 2)),
             new StepBehaviour(new Offset(X: -1, Y: 2)),
             new StepBehaviour(new Offset(X: 1, Y: -2)),
@@ -19,14 +19,12 @@ public class KnookDefinition : IPieceDefinition
             new StepBehaviour(new Offset(X: 2, Y: 1)),
             new StepBehaviour(new Offset(X: -2, Y: 1)),
             new StepBehaviour(new Offset(X: 2, Y: -1)),
-            new StepBehaviour(new Offset(X: -2, Y: -1))
-        ),
-        // rook part
-        new NoCaptureRule(
-            new SlideBehaviour(new Offset(X: 0, Y: 1)),
-            new SlideBehaviour(new Offset(X: 0, Y: -1)),
-            new SlideBehaviour(new Offset(X: 1, Y: 0)),
-            new SlideBehaviour(new Offset(X: -1, Y: 0))
+            new StepBehaviour(new Offset(X: -2, Y: -1)),
+            // rook part
+            new SlideBehaviour(new Offset(X: 0, Y: 1), max: 2),
+            new SlideBehaviour(new Offset(X: 0, Y: -1), max: 2),
+            new SlideBehaviour(new Offset(X: 1, Y: 0), max: 2),
+            new SlideBehaviour(new Offset(X: -1, Y: 0), max: 2)
         ),
     ];
 
