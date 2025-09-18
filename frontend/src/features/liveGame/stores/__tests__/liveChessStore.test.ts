@@ -10,6 +10,7 @@ import { createFakeClock } from "@/lib/testUtils/fakers/clockFaker";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
 import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 describe("LiveChessStore", () => {
     let store: StoreApi<LiveChessStore>;
@@ -56,6 +57,21 @@ describe("LiveChessStore", () => {
                 );
 
             expect(store.getState().viewingMoveNumber).toBe(oldView);
+        });
+    });
+
+    describe("resetLegalMovesForOpponentTurn", () => {
+        it("should reset latestMoveOptions", () => {
+            const testMoveOptions = createMoveOptions({
+                legalMoves: createFakeLegalMoveMap(),
+            });
+            store.setState({ latestMoveOptions: testMoveOptions });
+
+            store.getState().resetLegalMovesForOpponentTurn();
+
+            expect(store.getState().latestMoveOptions).toEqual(
+                createMoveOptions(),
+            );
         });
     });
 

@@ -8,7 +8,6 @@ import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
-import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,
@@ -28,25 +27,6 @@ export default function useLiveChessEvents(
         }
     }
 
-    function addCurrentPosition(
-        move: MoveSnapshot,
-        clocks: Clocks,
-        sideToMove: GameColor,
-    ) {
-        const { receiveMove } = liveChessStore.getState();
-
-        const pieces = chessboardStore.getState().pieces;
-        const position: Position = {
-            san: move.san,
-            pieces,
-            clocks: {
-                whiteClock: clocks.whiteClock,
-                blackClock: clocks.blackClock,
-            },
-        };
-        receiveMove(position, clocks, sideToMove);
-    }
-
     useGameEvent(
         gameToken,
         "MoveMadeAsync",
@@ -60,7 +40,8 @@ export default function useLiveChessEvents(
                 positionHistory,
                 isPendingMoveAck,
                 viewer,
-                receiveLegalMoves,
+                receiveMove,
+                resetLegalMovesForOpponentTurn,
             } = liveChessStore.getState();
             const { applyMove, disableMovement } = chessboardStore.getState();
 
@@ -72,14 +53,24 @@ export default function useLiveChessEvents(
 
             if (viewer.playerColor !== sideToMove) {
                 disableMovement();
-                receiveLegalMoves(createMoveOptions());
+                resetLegalMovesForOpponentTurn();
             }
             if (!isPendingMoveAck) {
                 jumpForwards();
                 const decoded = decodePath(move.path, boardDimensions.width);
                 applyMove(decoded);
             }
-            addCurrentPosition(move, clocks, sideToMove);
+
+            const pieces = chessboardStore.getState().pieces;
+            const position: Position = {
+                san: move.san,
+                pieces,
+                clocks: {
+                    whiteClock: clocks.whiteClock,
+                    blackClock: clocks.blackClock,
+                },
+            };
+            receiveMove(position, clocks, sideToMove);
         },
     );
 
