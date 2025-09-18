@@ -67,11 +67,13 @@ public class QuestGrainStorage
 }
 
 public class QuestGrain(
+    [PersistentState("quest", "questState")] IPersistentState<QuestGrainStorage> state,
     IQuestService questService,
     IRandomQuestProvider questProvider,
     TimeProvider timeProvider
-) : Grain<QuestGrainStorage>, IQuestGrain
+) : Grain, IQuestGrain
 {
+    private readonly IPersistentState<QuestGrainStorage> _state = state;
     private readonly IQuestService _questService = questService;
     private readonly IRandomQuestProvider _questProvider = questProvider;
     private readonly TimeProvider _timeProvider = timeProvider;
@@ -79,26 +81,25 @@ public class QuestGrain(
     public async Task<QuestDto> GetQuestAsync()
     {
         var quest = GetOrSelectQuest();
-        await WriteStateAsync();
-
+        await _state.WriteStateAsync();
         return ToDto(quest);
     }
 
     public async Task<ErrorOr<QuestDto>> ReplaceQuestAsync()
     {
-        if (!State.CanReplace)
+        if (!_state.State.CanReplace)
             return QuestErrors.CanotReplace;
 
         var quest = SelectNewQuest();
-        State.CanReplace = false;
-        await WriteStateAsync();
+        _state.State.CanReplace = false;
+        await _state.WriteStateAsync();
 
         return ToDto(quest);
     }
 
     public async Task<ErrorOr<int>> CollectRewardAsync()
     {
-        if (State.RewardCollected)
+        if (_state.State.RewardCollected)
             return QuestErrors.NoRewardToCollect;
 
         var quest = GetOrSelectQuest();
@@ -108,8 +109,8 @@ public class QuestGrain(
         var userId = this.GetPrimaryKeyString();
         await _questService.IncrementQuestPointsAsync(userId, (int)quest.Difficulty);
 
-        State.MarkRewardCollected();
-        await WriteStateAsync();
+        _state.State.MarkRewardCollected();
+        await _state.WriteStateAsync();
 
         return (int)quest.Difficulty;
     }
@@ -122,16 +123,16 @@ public class QuestGrain(
 
         quest.ApplySnapshot(snapshot);
         if (quest.IsCompleted)
-            State.CompleteQuest();
+            _state.State.CompleteQuest();
 
-        await WriteStateAsync();
+        await _state.WriteStateAsync();
     }
 
     private QuestInstance GetOrSelectQuest()
     {
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        if (State.Quest is not null && State.Quest.CreationDate == today)
-            return State.Quest;
+        if (_state.State.Quest is not null && _state.State.Quest.CreationDate == today)
+            return _state.State.Quest;
 
         return SelectNewQuest();
     }
@@ -139,9 +140,9 @@ public class QuestGrain(
     private QuestInstance SelectNewQuest()
     {
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
-        var quest = _questProvider.GetRandomQuestInstance(except: State.Quest);
-        State.ResetStreakIfMissedDay(today);
-        State.ResetProgressForNewQuest(quest);
+        var quest = _questProvider.GetRandomQuestInstance(except: _state.State.Quest);
+        _state.State.ResetStreakIfMissedDay(today);
+        _state.State.ResetProgressForNewQuest(quest);
 
         return quest;
     }
@@ -152,8 +153,8 @@ public class QuestGrain(
             Description: quest.Description,
             Target: quest.Target,
             Progress: quest.Progress,
-            CanReplace: State.CanReplace,
-            RewardCollected: State.RewardCollected,
-            Streak: State.Streak
+            CanReplace: _state.State.CanReplace,
+            RewardCollected: _state.State.RewardCollected,
+            Streak: _state.State.Streak
         );
 }
