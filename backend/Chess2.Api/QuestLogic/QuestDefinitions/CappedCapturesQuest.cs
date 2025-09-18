@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestConditions;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
@@ -24,7 +25,7 @@ public class CappedCapturesQuest : IQuestDefinition
                     new WinCondition(),
                     new GreaterThanEqualCondition(new MoveCountMetric(), greaterThanEqual: 30),
                     new LessThanEqualCondition(
-                        new OwnMoveCountMetric((move, snapshot) => move.Captures.Count > 0),
+                        new OwnMoveCountMetric(new IsMoveCapture()),
                         lessThanEqual: maxCaptures
                     ),
                 ]

@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestConditions;
 
 namespace Chess2.Api.QuestLogic.QuestDefinitions;
@@ -16,9 +17,8 @@ public class LongPassantCaptureQuest : IQuestDefinition
 
                     [
                         new OwnMoveOccurredCondition(
-                            (move, snapshot) =>
-                                move.SpecialMoveType is SpecialMoveType.EnPassant
-                                && move.Captures.Count >= 2
+                            new IsMoveOfType(SpecialMoveType.EnPassant),
+                            new IsMoveCapture(ofAtLeast: 2)
                         ),
                     ]
             ),

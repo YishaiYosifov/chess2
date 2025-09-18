@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestConditions;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
@@ -19,9 +20,7 @@ public class NoKingMoveQuest : IQuestDefinition
                         new WinCondition(),
                         new GreaterThanEqualCondition(new MoveCountMetric(), 30),
                         new NotCondition(
-                            new OwnMoveOccurredCondition(
-                                (move, _) => move.Piece.Type is PieceType.King
-                            )
+                            new OwnMoveOccurredCondition(new IsMoveOfPiece(PieceType.King))
                         ),
                     ]
             ),
