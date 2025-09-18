@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestConditions;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
@@ -23,10 +24,7 @@ public class NoCaptureInFirstMovesQuest : IQuestDefinition
                 [
                     new WinCondition(),
                     new GreaterThanEqualCondition(
-                        new FirstOccurrenceMetric(
-                            (move, snapshot) =>
-                                move.Piece.Color == snapshot.PlayerColor && move.Captures.Count > 0
-                        ),
+                        new FirstOwnMoveOccurredMetric(new IsMoveCapture()),
                         greaterThanEqual: minMoves * 2
                     ),
                 ]
