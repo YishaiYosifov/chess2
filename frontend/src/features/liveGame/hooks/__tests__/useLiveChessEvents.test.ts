@@ -176,6 +176,9 @@ describe("useLiveChessEvents", () => {
             async (ourColor, newSideToMove) => {
                 liveChessStore.setState({
                     viewer: { userId: "test id", playerColor: ourColor },
+                    latestMoveOptions: createMoveOptions({
+                        legalMoves: createFakeLegalMoveMap(),
+                    }),
                 });
                 chessboardStore.setState({
                     moveOptions: createMoveOptions({
@@ -198,10 +201,16 @@ describe("useLiveChessEvents", () => {
                 );
 
                 const moveOptions = chessboardStore.getState().moveOptions;
+                const latestPositionMoveOptions =
+                    liveChessStore.getState().latestMoveOptions;
                 if (ourColor !== newSideToMove) {
                     expect(moveOptions.legalMoves.size).toBe(0);
+                    expect(latestPositionMoveOptions.legalMoves.size).toBe(0);
                 } else {
                     expect(moveOptions.legalMoves.size).not.toBe(0);
+                    expect(latestPositionMoveOptions.legalMoves.size).not.toBe(
+                        0,
+                    );
                 }
             },
         );
