@@ -1,4 +1,5 @@
-﻿using Chess2.Api.QuestLogic;
+﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
@@ -67,12 +68,15 @@ public class QuestGrainStorage
 }
 
 public class QuestGrain(
-    [PersistentState("quest", "questState")] IPersistentState<QuestGrainStorage> state,
+    [PersistentState(QuestGrain.StateName, StorageNames.QuestState)]
+        IPersistentState<QuestGrainStorage> state,
     IQuestService questService,
     IRandomQuestProvider questProvider,
     TimeProvider timeProvider
 ) : Grain, IQuestGrain
 {
+    public const string StateName = "quest";
+
     private readonly IPersistentState<QuestGrainStorage> _state = state;
     private readonly IQuestService _questService = questService;
     private readonly IRandomQuestProvider _questProvider = questProvider;

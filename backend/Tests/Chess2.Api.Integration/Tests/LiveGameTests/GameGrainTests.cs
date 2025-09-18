@@ -66,8 +66,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         Silo.ServiceProvider.AddService(gameFinalizer);
         Silo.ServiceProvider.AddService(settings);
 
-        _state = Silo.State<GameGrain, GameGrainState>();
-        _stateStats = Silo.StorageManager.GetStorageStats<GameGrain, GameGrainState>()!;
+        _state = Silo.StorageManager.GetStorage<GameGrainState>(GameGrain.StateName).State;
+        _stateStats = Silo.StorageManager.GetStorageStats(GameGrain.StateName)!;
     }
 
     private async Task<IGameGrain> CreateGrainAsync() =>
