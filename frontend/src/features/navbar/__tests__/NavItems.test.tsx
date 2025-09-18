@@ -15,6 +15,10 @@ describe("UpperNavItems", () => {
             "href",
             constants.PATHS.PLAY,
         );
+        expect(screen.getByText("Play").closest("a")).toHaveAttribute(
+            "home",
+            "",
+        );
         expect(screen.getByText("Quests").closest("a")).toHaveAttribute(
             "href",
             constants.PATHS.QUESTS,

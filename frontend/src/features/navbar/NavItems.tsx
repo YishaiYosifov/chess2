@@ -7,6 +7,7 @@ import {
     UserCircleIcon,
     BoltSlashIcon,
     CalendarIcon,
+    HomeIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -54,6 +55,14 @@ export const UpperNavItems = ({
                 isCollapsed={isCollapsed}
             >
                 Play
+            </NavItem>
+            <NavItem
+                as={Link}
+                href="/"
+                icon={<HomeIcon />}
+                isCollapsed={isCollapsed}
+            >
+                Home
             </NavItem>
             <NavItem
                 as={Link}
