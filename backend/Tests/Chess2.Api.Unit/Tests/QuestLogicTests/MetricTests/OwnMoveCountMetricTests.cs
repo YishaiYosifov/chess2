@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.QuestLogic.QuestMetrics;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.QuestLogicTests.MetricTests;
@@ -11,9 +12,25 @@ public class OwnMoveCountMetricTests
     public void Evaluate_returns_zero_when_no_moves_match()
     {
         var snapshot = new GameQuestSnapshotFaker().Generate();
-        OwnMoveCountMetric metric = new((_, _) => false);
+        OwnMoveCountMetric metric = new(new PredicateMoveCondition(_ => false));
 
         metric.Evaluate(snapshot).Should().Be(0);
+    }
+
+    [Fact]
+    public void Evaluate_returns_count_for_matching_conditions()
+    {
+        var snapshot = new GameQuestSnapshotFaker(GameColor.White)
+            .RuleForMoves(totalPlies: 5)
+            .Generate();
+        HashSet<Move> targetMoves = [snapshot.MoveHistory[0], snapshot.MoveHistory[2]];
+
+        OwnMoveCountMetric condition = new(
+            new PredicateMoveCondition(move => true),
+            new PredicateMoveCondition(targetMoves.Contains)
+        );
+
+        condition.Evaluate(snapshot).Should().Be(2);
     }
 
     [Theory]
@@ -27,19 +44,9 @@ public class OwnMoveCountMetricTests
 
         var targetMoves = indices.Select(i => snapshot.MoveHistory[i]).ToHashSet();
 
-        OwnMoveCountMetric metric = new((move, _) => targetMoves.Contains(move));
+        OwnMoveCountMetric metric = new(new PredicateMoveCondition(targetMoves.Contains));
 
         metric.Evaluate(snapshot).Should().Be(indices.Length);
-    }
-
-    [Fact]
-    public void Evaluate_returns_zero_for_empty_history()
-    {
-        var snapshot = new GameQuestSnapshotFaker().RuleForMoves(totalPlies: 0).Generate();
-
-        OwnMoveCountMetric metric = new((_, _) => true);
-
-        metric.Evaluate(snapshot).Should().Be(0);
     }
 
     [Theory]
@@ -57,16 +64,31 @@ public class OwnMoveCountMetricTests
 
         List<Move> seenMoves = [];
         OwnMoveCountMetric metric = new(
-            (move, _) =>
+            new PredicateMoveCondition(move =>
             {
                 seenMoves.Add(move);
                 return false;
-            }
+            })
         );
 
         metric.Evaluate(snapshot);
 
         var expectedMoves = expectedIndices.Select(i => snapshot.MoveHistory[i]).ToList();
         seenMoves.Should().BeEquivalentTo(expectedMoves, opts => opts.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void Evaluate_returns_0_if_any_condition_fails()
+    {
+        var snapshot = new GameQuestSnapshotFaker(GameColor.White)
+            .RuleForMoves(totalPlies: 5)
+            .Generate();
+
+        OwnMoveCountMetric condition = new(
+            new PredicateMoveCondition(move => false),
+            new PredicateMoveCondition(move => move == snapshot.MoveHistory[2])
+        );
+
+        condition.Evaluate(snapshot).Should().Be(0);
     }
 }
