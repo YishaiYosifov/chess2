@@ -32,6 +32,8 @@ const PATHS = {
     REFRESH: "/refresh",
     GUEST: "/guest",
     GAME: "/game",
+    PLAY: "/play",
+    QUESTS: "/quests",
     PROFILE: "/profile",
     SETTINGS_BASE: "/settings",
     SETTINGS_PROFILE: "/settings/profile",
