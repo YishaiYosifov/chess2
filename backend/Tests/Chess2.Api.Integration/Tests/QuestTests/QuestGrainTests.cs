@@ -25,6 +25,8 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     private readonly IQuestService _questService;
     private readonly List<QuestVariant> _questVariants;
 
+    private readonly TestStorageStats _stateStats;
+
     private DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
     private int _usedVariantIdx = 0;
     private QuestInstance? _lastInstance;
@@ -45,13 +47,13 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         Silo.ServiceProvider.AddService(_randomQuestProviderMock);
         Silo.ServiceProvider.AddService(_questService);
         Silo.ServiceProvider.AddService(_timeProviderMock);
+
+        Silo.StorageManager.GetStorage<QuestGrainStorage>(QuestGrain.StateName);
+        _stateStats = Silo.StorageManager.GetStorageStats(QuestGrain.StateName)!;
     }
 
     private async Task<IQuestGrain> CreateGrainAsync(string userId = "user1") =>
         await Silo.CreateGrainAsync<QuestGrain>(userId);
-
-    private TestStorageStats? GetStorageStats() =>
-        Silo.StorageManager.GetStorageStats<QuestGrain, QuestGrainStorage>();
 
     private QuestVariant SetupSelectableVariant(DateTimeOffset? date = null)
     {
@@ -94,7 +96,6 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var variant = SetupSelectableVariant();
 
         var grain = await CreateGrainAsync();
-        var storageStats = GetStorageStats();
         var quest = await grain.GetQuestAsync();
 
         quest
@@ -111,7 +112,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                 )
             );
 
-        storageStats?.Writes.Should().Be(1);
+        _stateStats.Writes.Should().Be(1);
     }
 
     [Fact]
@@ -163,15 +164,14 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
         var grain = await CreateGrainAsync();
-        var storageStats = GetStorageStats();
         await grain.GetQuestAsync();
-        storageStats?.ResetCounts();
+        _stateStats.ResetCounts();
 
         await grain.OnGameOverAsync(snapshot);
 
         var quest = await grain.GetQuestAsync();
         quest.Progress.Should().Be(1);
-        storageStats?.Writes.Should().Be(2);
+        _stateStats.Writes.Should().Be(2);
     }
 
     [Fact]
@@ -182,9 +182,6 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync();
-
-        var storageStats = GetStorageStats();
-        storageStats?.ResetCounts();
 
         await grain.OnGameOverAsync(snapshot);
 
@@ -265,9 +262,9 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     {
         SetupSelectableVariant();
         var grain = await CreateGrainAsync();
-        var storageStats = GetStorageStats();
+
         await grain.GetQuestAsync();
-        storageStats?.ResetCounts();
+        _stateStats.ResetCounts();
 
         var variant2 = SetupSelectableVariant();
         var result = await grain.ReplaceQuestAsync();
@@ -286,7 +283,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                     Streak: 0
                 )
             );
-        storageStats?.Writes.Should().Be(1);
+        _stateStats.Writes.Should().Be(1);
 
         var questAfter = await grain.GetQuestAsync();
         questAfter.Should().BeEquivalentTo(result.Value);

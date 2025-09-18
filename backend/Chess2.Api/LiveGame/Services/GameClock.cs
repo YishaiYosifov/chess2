@@ -11,13 +11,18 @@ public interface IGameClock
     ClockSnapshot ToSnapshot(GameClockState state);
 }
 
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Services.GameClockState")]
 public class GameClockState
 {
+    [Id(0)]
     public Dictionary<GameColor, double> Clocks { get; set; } =
         new() { [GameColor.White] = 0, [GameColor.Black] = 0 };
 
+    [Id(1)]
     public TimeControlSettings TimeControl { get; set; } = new();
 
+    [Id(2)]
     public long LastUpdated { get; set; }
 }
 

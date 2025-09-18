@@ -325,18 +325,8 @@ builder.Host.UseOrleans(siloBuilder =>
             ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
         );
     });
-    siloBuilder.AddMemoryGrainStorage(
-        "questState",
-        options =>
-        {
-            options.Configure<IGrainStorageSerializer>(
-                (options, serializer) =>
-                {
-                    options.GrainStorageSerializer = serializer;
-                }
-            );
-        }
-    );
+    siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
+    siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
 
     siloBuilder.UseAdoNetReminderService(options =>
     {
