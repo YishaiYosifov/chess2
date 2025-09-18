@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestConditions;
 
 namespace Chess2.Api.QuestLogic.QuestDefinitions;
@@ -17,11 +18,11 @@ public class CastleCaptureQuest : IQuestDefinition
                     [
                         new WinCondition(),
                         new OwnMoveOccurredCondition(
-                            (move, snapshot) =>
-                                move.SpecialMoveType
-                                    is SpecialMoveType.KingsideCastle
-                                        or SpecialMoveType.QueensideCastle
-                                && move.Captures.Any(x => x.CapturedPiece.Type is PieceType.Bishop)
+                            new IsMoveOfType(
+                                SpecialMoveType.KingsideCastle,
+                                SpecialMoveType.QueensideCastle
+                            ),
+                            new IsMoveCaptureOf(PieceType.Bishop)
                         ),
                     ]
             ),

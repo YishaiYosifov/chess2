@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
 namespace Chess2.Api.QuestLogic.QuestDefinitions;
@@ -18,6 +19,6 @@ public class CaptureAcrossGamesQuest : IQuestDefinition
             Difficulty: difficulty,
             Target: captures,
             Conditions: () => [],
-            Progressors: () => [new OwnMoveCountMetric((move, snapshot) => move.Captures.Count > 0)]
+            Progressors: () => [new OwnMoveCountMetric(new IsMoveCapture())]
         );
 }

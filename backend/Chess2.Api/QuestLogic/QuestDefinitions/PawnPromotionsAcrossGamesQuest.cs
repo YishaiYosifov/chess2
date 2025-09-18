@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.QuestLogic.Models;
+using Chess2.Api.QuestLogic.MoveConditions;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
 namespace Chess2.Api.QuestLogic.QuestDefinitions;
@@ -18,7 +19,6 @@ public class PawnPromotionsAcrossGamesQuest : IQuestDefinition
             Difficulty: difficulty,
             Target: promotions,
             Conditions: () => [],
-            Progressors: () =>
-                [new OwnMoveCountMetric((move, snapshot) => move.PromotesTo is not null)]
+            Progressors: () => [new OwnMoveCountMetric(new IsMovePromotion())]
         );
 }
