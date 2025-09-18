@@ -314,7 +314,26 @@ builder.Host.UseOrleans(siloBuilder =>
         options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
             TimeSpan.FromMinutes(5);
     });
-    siloBuilder.AddMemoryGrainStorageAsDefault();
+
+    siloBuilder.ConfigureServices(services =>
+    {
+        services.AddSingleton<IGrainStorageSerializer, OrleansGrainStorageSerializer>();
+        services.TryAddEnumerable(
+            ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
+        );
+    });
+    siloBuilder.AddMemoryGrainStorage(
+        "questState",
+        options =>
+        {
+            options.Configure<IGrainStorageSerializer>(
+                (options, serializer) =>
+                {
+                    options.GrainStorageSerializer = serializer;
+                }
+            );
+        }
+    );
 
     siloBuilder.UseAdoNetReminderService(options =>
     {
