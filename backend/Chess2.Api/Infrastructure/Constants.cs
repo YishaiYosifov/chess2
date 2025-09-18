@@ -5,6 +5,12 @@ public static class Streaming
     public const string StreamProvider = "InMemoryProvider";
 }
 
+public static class StorageNames
+{
+    public const string GameState = "gameState";
+    public const string QuestState = "questState";
+}
+
 public static class AuthPolicies
 {
     public const string AuthedUser = "AuthedUser";
