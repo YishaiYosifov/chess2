@@ -47,6 +47,7 @@ export interface LiveChessStore extends LiveChessStoreProps {
         clocks: Clocks,
         sideToMove: GameColor,
     ): void;
+    resetLegalMovesForOpponentTurn(): void;
     receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
     drawStateChange(drawState: DrawState): void;
     markPendingMoveAck(): void;
@@ -86,6 +87,11 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
                     state.clocks = clocks;
                     state.sideToMove = sideToMove;
                     state.isPendingMoveAck = false;
+                });
+            },
+            resetLegalMovesForOpponentTurn() {
+                set((state) => {
+                    state.latestMoveOptions = createMoveOptions();
                 });
             },
             receiveLegalMoves(moveOptions) {
