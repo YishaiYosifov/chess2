@@ -23,107 +23,63 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", knook)
-                // vertical up
+                // up
                 .GoesTo("e6")
                 .GoesTo("e7")
-                .GoesTo("e8")
-                .GoesTo("e9")
-                .GoesTo("e10")
-                // vertical down
+                // down
                 .GoesTo("e4")
                 .GoesTo("e3")
-                .GoesTo("e2")
-                .GoesTo("e1")
-                // horizontal left
+                // left
                 .GoesTo("d5")
                 .GoesTo("c5")
-                .GoesTo("b5")
-                .GoesTo("a5")
-                // horizontal right
+                // right
                 .GoesTo("f5")
                 .GoesTo("g5")
-                .GoesTo("h5")
-                .GoesTo("i5")
-                .GoesTo("j5")
-                // no horsey moves as there are no captures
+                // horsey
+                .GoesTo("d7")
+                .GoesTo("f7")
+                .GoesTo("c6")
+                .GoesTo("g6")
+                .GoesTo("c4")
+                .GoesTo("g4")
+                .GoesTo("d3")
+                .GoesTo("f3")
                 .WithDescription("Open board from e5")
         );
 
         Add(
             PieceTestCase
                 .From("a1", knook)
-                // vertical up
+                // up
                 .GoesTo("a2")
                 .GoesTo("a3")
-                .GoesTo("a4")
-                .GoesTo("a5")
-                .GoesTo("a6")
-                .GoesTo("a7")
-                .GoesTo("a8")
-                .GoesTo("a9")
-                .GoesTo("a10")
-                // horizontal right
+                // right
                 .GoesTo("b1")
                 .GoesTo("c1")
-                .GoesTo("d1")
-                .GoesTo("e1")
-                .GoesTo("f1")
-                .GoesTo("g1")
-                .GoesTo("h1")
-                .GoesTo("i1")
-                .GoesTo("j1")
+                // horsey
+                .GoesTo("b3")
+                .GoesTo("c2")
                 .WithDescription("Corner case: knook at a1")
         );
 
         Add(
             PieceTestCase
                 .From("a5", knook)
-                // vertical up
+                // up
                 .GoesTo("a6")
                 .GoesTo("a7")
-                .GoesTo("a8")
-                .GoesTo("a9")
-                .GoesTo("a10")
-                // vertical down
+                // down
                 .GoesTo("a4")
                 .GoesTo("a3")
-                .GoesTo("a2")
-                .GoesTo("a1")
-                // horizontal right
+                // right
                 .GoesTo("b5")
                 .GoesTo("c5")
-                .GoesTo("d5")
-                .GoesTo("e5")
-                .GoesTo("f5")
-                .GoesTo("g5")
-                .GoesTo("h5")
-                .GoesTo("i5")
-                .GoesTo("j5")
+                // horsey
+                .GoesTo("b7")
+                .GoesTo("c6")
+                .GoesTo("c4")
+                .GoesTo("b3")
                 .WithDescription("Edge case: knook at a5")
-        );
-
-        Add(
-            PieceTestCase
-                .From("e5", knook)
-                .WithFriendlyPieceAt("e7") // blocks beyond e6
-                .WithFriendlyPieceAt("h5") // blocks beyond g5
-                .WithFriendlyPieceAt("f7") // blocks horsey part
-                // vertical up
-                .GoesTo("e6")
-                // vertical down
-                .GoesTo("e4")
-                .GoesTo("e3")
-                .GoesTo("e2")
-                .GoesTo("e1")
-                // horizontal left
-                .GoesTo("d5")
-                .GoesTo("c5")
-                .GoesTo("b5")
-                .GoesTo("a5")
-                // horizontal right
-                .GoesTo("f5")
-                .GoesTo("g5")
-                .WithDescription("Blocked by friendly")
         );
 
         Add(
@@ -159,7 +115,10 @@ public class KnookDefinitionTestData : TheoryData<PieceTestCase>
                 .WithEnemyPieceAt("g4")
                 .WithEnemyPieceAt("d3")
                 .WithEnemyPieceAt("f3")
-                // only horse movement can capture
+                .GoesTo("e6", captures: ["e6"])
+                .GoesTo("e4", captures: ["e4"])
+                .GoesTo("d5", captures: ["d5"])
+                .GoesTo("f5", captures: ["f5"])
                 .GoesTo("d7", captures: ["d7"])
                 .GoesTo("f7", captures: ["f7"])
                 .GoesTo("c6", captures: ["c6"])
