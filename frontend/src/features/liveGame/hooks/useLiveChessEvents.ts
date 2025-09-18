@@ -8,6 +8,7 @@ import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
+import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,
@@ -55,8 +56,12 @@ export default function useLiveChessEvents(
             moveNumber: number,
             clocks: Clocks,
         ) => {
-            const { positionHistory, isPendingMoveAck, viewer } =
-                liveChessStore.getState();
+            const {
+                positionHistory,
+                isPendingMoveAck,
+                viewer,
+                receiveLegalMoves,
+            } = liveChessStore.getState();
             const { applyMove, disableMovement } = chessboardStore.getState();
 
             // we missed a move... we need to refetch the state
@@ -67,6 +72,7 @@ export default function useLiveChessEvents(
 
             if (viewer.playerColor !== sideToMove) {
                 disableMovement();
+                receiveLegalMoves(createMoveOptions());
             }
             if (!isPendingMoveAck) {
                 jumpForwards();

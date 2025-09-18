@@ -7,7 +7,7 @@ vi.mock("../NavItems");
 describe("NavMobile Component", () => {
     it("should render the mobile navbar with logo", () => {
         render(<NavMobile isLoggedIn />);
-        const navbar = screen.getByTestId("navbarMobile");
+        const navbar = screen.getByTestId("navMobile");
         const logo = screen.getByAltText("logo");
 
         expect(navbar).toBeInTheDocument();
@@ -19,7 +19,7 @@ describe("NavMobile Component", () => {
         render(<NavMobile isLoggedIn />);
 
         const toggleButton = screen.getByRole("button");
-        const mobileNav = screen.getByTestId("navbarMobileOpened");
+        const mobileNav = screen.getByTestId("navMobileOpened");
 
         // Initially, the mobile nav should be hidden
         expect(mobileNav).toHaveClass("hidden");
@@ -38,7 +38,7 @@ describe("NavMobile Component", () => {
     it("should close the mobile menu when clicking inside the nav", () => {
         render(<NavMobile isLoggedIn />);
         const toggleButton = screen.getByRole("button");
-        const mobileNav = screen.getByTestId("navbarMobileOpened");
+        const mobileNav = screen.getByTestId("navMobileOpened");
 
         // Open the menu
         fireEvent.click(toggleButton);

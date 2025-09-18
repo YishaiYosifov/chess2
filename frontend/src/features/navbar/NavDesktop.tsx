@@ -10,6 +10,7 @@ import LogoText from "@public/assets/logo-text.svg";
 import Logo from "@public/assets/logo-no-bg.svg";
 import NavItem from "./NavItem";
 import useCollapseState from "./useCollapseState";
+import Link from "next/link";
 
 const NavDesktop = ({
     isLoggedIn,
@@ -33,21 +34,27 @@ const NavDesktop = ({
                     isCollapsed && "items-center",
                     width,
                 )}
-                data-testid="navbarDesktop"
+                data-testid="navDesktop"
                 data-is-collapsed={isCollapsed}
                 aria-label="sidebar"
             >
-                {isCollapsed ? (
-                    <Image src={Logo} alt="Logo" width={60} height={60} />
-                ) : (
-                    <Image
-                        src={LogoText}
-                        alt="Logo with text"
-                        height={60}
-                        width={200}
-                        className="self-center"
-                    />
-                )}
+                <Link
+                    href="/"
+                    className="flex justify-center"
+                    data-testid="navDesktopLogo"
+                >
+                    {isCollapsed ? (
+                        <Image src={Logo} alt="Logo" width={60} height={60} />
+                    ) : (
+                        <Image
+                            src={LogoText}
+                            alt="Logo with text"
+                            height={60}
+                            width={200}
+                            className="self-center"
+                        />
+                    )}
+                </Link>
                 <ul className="flex flex-col gap-6">
                     <UpperNavItems
                         hasAccessCookie={isLoggedIn}
@@ -68,7 +75,7 @@ const NavDesktop = ({
                     <NavItem
                         as="button"
                         className="hidden cursor-pointer lg:flex"
-                        data-testid="collapseButton"
+                        data-testid="navDesktopCollapseButton"
                         icon={
                             isCollapsed ? <ArrowRightIcon /> : <ArrowLeftIcon />
                         }

@@ -26,13 +26,13 @@ describe("NavDesktop", () => {
             <NavDesktop isLoggedIn={true} isCollapsedInitialState={false} />,
         );
 
-        const aside = screen.getByTestId("navbarDesktop");
+        const aside = screen.getByTestId("navDesktop");
         expect(aside).toHaveAttribute("data-is-collapsed", "true");
         expect(screen.getByAltText("Logo")).toBeInTheDocument();
         expect(screen.getByText("UpperNavItems")).toBeInTheDocument();
         expect(screen.getByText("LowerNavItems")).toBeInTheDocument();
 
-        const collapseButton = screen.getByTestId("collapseButton");
+        const collapseButton = screen.getByTestId("navDesktopCollapseButton");
         expect(collapseButton).toBeInTheDocument();
         expect(collapseButton).toHaveTextContent("");
     });
@@ -41,25 +41,35 @@ describe("NavDesktop", () => {
         isCollapsed = false;
         render(<NavDesktop isLoggedIn={true} isCollapsedInitialState={true} />);
 
-        const aside = screen.getByTestId("navbarDesktop");
+        const aside = screen.getByTestId("navDesktop");
         expect(aside).toHaveAttribute("data-is-collapsed", "false");
 
         expect(screen.getByAltText("Logo with text")).toBeInTheDocument();
         expect(screen.getByText("UpperNavItems")).toBeInTheDocument();
         expect(screen.getByText("LowerNavItems")).toBeInTheDocument();
 
-        const collapseButton = screen.getByTestId("collapseButton");
+        const collapseButton = screen.getByTestId("navDesktopCollapseButton");
         expect(collapseButton).toBeInTheDocument();
         expect(collapseButton).toHaveTextContent("Collapse");
     });
 
     it("should call toggleCollapse when collapse button is clicked", async () => {
         isCollapsed = false;
-
         const user = userEvent.setup();
         render(<NavDesktop isLoggedIn={true} isCollapsedInitialState={true} />);
-        const button = screen.getByTestId("collapseButton");
+        const button = screen.getByTestId("navDesktopCollapseButton");
         await user.click(button);
         expect(toggleCollapse).toHaveBeenCalled();
+    });
+
+    it("should navigate to home when clicking on logo", () => {
+        render(
+            <NavDesktop isLoggedIn={false} isCollapsedInitialState={false} />,
+        );
+
+        expect(screen.getByTestId("navDesktopLogo")).toHaveAttribute(
+            "href",
+            "/",
+        );
     });
 });

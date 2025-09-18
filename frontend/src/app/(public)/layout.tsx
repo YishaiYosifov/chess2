@@ -6,7 +6,7 @@ import "../globals.css";
 
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
-import Navbar from "@/components/layout/navbar/Navbar";
+import Navbar from "@/features/navbar/Navbar";
 import clsx from "clsx";
 
 const secularOne = Secular_One({

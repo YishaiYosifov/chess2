@@ -6,6 +6,7 @@ import Image from "next/image";
 
 import { LowerNavItems, UpperNavItems } from "./NavItems";
 import LogoText from "@public/assets/logo-text.svg";
+import Link from "next/link";
 
 const NavMobile = ({
     isLoggedIn: hasAccessCookie,
@@ -26,15 +27,17 @@ const NavMobile = ({
             <section
                 className="bg-navbar border-secondary/50 flex h-full w-full max-w-4xl items-center
                     justify-between border-b p-5"
-                data-testid="navbarMobile"
+                data-testid="navMobile"
             >
-                <Image
-                    src={LogoText}
-                    alt="logo"
-                    height={40}
-                    width={147}
-                    className="inline-block rounded align-top"
-                />
+                <Link href="/">
+                    <Image
+                        src={LogoText}
+                        alt="logo"
+                        height={40}
+                        width={147}
+                        className="inline-block rounded align-top"
+                    />
+                </Link>
 
                 <button
                     className="relative h-8 w-8 text-3xl md:hidden"
@@ -57,7 +60,7 @@ const NavMobile = ({
                     items-center gap-5 overflow-auto pt-10 text-6xl md:hidden"
                 ref={mobileNav}
                 onClick={toggleMenu}
-                data-testid="navbarMobileOpened"
+                data-testid="navMobileOpened"
             >
                 <UpperNavItems hasAccessCookie={hasAccessCookie} />
                 <LowerNavItems hasAccessCookie={hasAccessCookie} />

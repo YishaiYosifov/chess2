@@ -15,8 +15,8 @@ describe("Navbar Component", () => {
         const page = await Navbar();
         render(page);
 
-        expect(screen.getByTestId("navbarMobile")).toBeInTheDocument();
-        expect(screen.getByTestId("navbarDesktop")).toBeInTheDocument();
+        expect(screen.getByTestId("navMobile")).toBeInTheDocument();
+        expect(screen.getByTestId("navDesktop")).toBeInTheDocument();
     });
 
     it.each([true, false])(
@@ -30,7 +30,7 @@ describe("Navbar Component", () => {
             const page = await Navbar();
             render(page);
 
-            const navDesktop = screen.getByTestId("navbarDesktop");
+            const navDesktop = screen.getByTestId("navDesktop");
             expect(navDesktop).toHaveAttribute(
                 "data-is-collapsed",
                 isCollapsed.toString(),

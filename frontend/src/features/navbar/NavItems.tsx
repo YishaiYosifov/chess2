@@ -2,7 +2,6 @@
 
 import {
     PlayIcon,
-    HomeIcon,
     PlusIcon,
     Cog6ToothIcon,
     UserCircleIcon,
@@ -13,6 +12,7 @@ import {
 import Link from "next/link";
 
 import NavItem from "./NavItem";
+import constants from "@/lib/constants";
 
 export const UpperNavItems = ({
     hasAccessCookie,
@@ -49,7 +49,7 @@ export const UpperNavItems = ({
         <>
             <NavItem
                 as={Link}
-                href="/play"
+                href={constants.PATHS.PLAY}
                 icon={<PlayIcon />}
                 isCollapsed={isCollapsed}
             >
@@ -57,15 +57,7 @@ export const UpperNavItems = ({
             </NavItem>
             <NavItem
                 as={Link}
-                href="/"
-                icon={<HomeIcon />}
-                isCollapsed={isCollapsed}
-            >
-                Home
-            </NavItem>
-            <NavItem
-                as={Link}
-                href="/quests"
+                href={constants.PATHS.QUESTS}
                 icon={<CalendarIcon />}
                 isCollapsed={isCollapsed}
             >
@@ -95,7 +87,7 @@ export const LowerNavItems = ({
         <>
             <NavItem
                 as={Link}
-                href="/settings"
+                href={constants.PATHS.SETTINGS_BASE}
                 icon={<Cog6ToothIcon />}
                 isCollapsed={isCollapsed}
             >
@@ -104,7 +96,7 @@ export const LowerNavItems = ({
 
             <NavItem
                 as={Link}
-                href="/logout"
+                href={constants.PATHS.LOGOUT}
                 icon={<BoltSlashIcon />}
                 isCollapsed={isCollapsed}
             >
