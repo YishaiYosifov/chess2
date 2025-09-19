@@ -14,7 +14,7 @@ public static class GameConstants
         [new AlgebraicPoint("e1")] = new Piece(PieceType.Queen, GameColor.White),
         [new AlgebraicPoint("f1")] = new Piece(PieceType.King, GameColor.White),
         [new AlgebraicPoint("g1")] = new Piece(PieceType.Bishop, GameColor.White),
-        //[new AlgebraicPoint("h1")] = new Piece(PieceType.Antiqueen, GameColor.White),
+        [new AlgebraicPoint("h1")] = new Piece(PieceType.Checker, GameColor.White),
         [new AlgebraicPoint("i1")] = new Piece(PieceType.Antiqueen, GameColor.White),
         [new AlgebraicPoint("j1")] = new Piece(PieceType.Rook, GameColor.White),
 
@@ -52,7 +52,7 @@ public static class GameConstants
         [new AlgebraicPoint("e10")] = new Piece(PieceType.Queen, GameColor.Black),
         [new AlgebraicPoint("f10")] = new Piece(PieceType.King, GameColor.Black),
         [new AlgebraicPoint("g10")] = new Piece(PieceType.Bishop, GameColor.Black),
-        //[new AlgebraicPoint("h10")] = new Piece(PieceType.Antiqueen, GameColor.Black),
+        [new AlgebraicPoint("h10")] = new Piece(PieceType.Checker, GameColor.Black),
         [new AlgebraicPoint("i10")] = new Piece(PieceType.Antiqueen, GameColor.Black),
         [new AlgebraicPoint("j10")] = new Piece(PieceType.Rook, GameColor.Black),
         #endregion

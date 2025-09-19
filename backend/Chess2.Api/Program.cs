@@ -376,13 +376,14 @@ builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, PawnDefinition>();
-builder.Services.AddSingleton<IPieceDefinition, UnderagePawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, RookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, UnderagePawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, AntiqueenDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, TraitorRookDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, CheckerDefinition>();
 #endregion
 
 #region Game Chat
