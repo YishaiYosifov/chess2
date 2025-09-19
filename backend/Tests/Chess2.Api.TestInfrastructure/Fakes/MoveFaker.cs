@@ -29,6 +29,7 @@ public class MoveFaker : RecordFaker<Move>
 
         RuleFor(x => x.TriggerSquares, []);
         RuleFor(x => x.Captures, []);
+        RuleFor(x => x.IntermediateSquares, []);
         RuleFor(x => x.SideEffects, []);
         RuleFor(x => x.SpecialMoveType, SpecialMoveType.None);
         RuleFor(x => x.ForcedPriority, ForcedMovePriority.None);

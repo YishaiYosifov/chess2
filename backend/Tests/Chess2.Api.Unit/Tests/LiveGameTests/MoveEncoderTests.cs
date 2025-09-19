@@ -36,6 +36,7 @@ public class MoveEncoderTests
                 CapturedIdxs: [4, 5, 6],
                 TriggerIdxs: [7, 8, 9],
                 SideEffects: [new(FromIdx: 10, ToIdx: 11), new(FromIdx: 12, ToIdx: 13)],
+                IntermediateIdxs: [14, 15, 16],
                 PromotesTo: PieceType.Queen
             ),
             new(
@@ -43,6 +44,7 @@ public class MoveEncoderTests
                 ToIdx: 2,
                 CapturedIdxs: null,
                 TriggerIdxs: null,
+                IntermediateIdxs: null,
                 SideEffects: null,
                 PromotesTo: null
             ),

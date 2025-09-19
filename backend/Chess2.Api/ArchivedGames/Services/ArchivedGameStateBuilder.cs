@@ -67,6 +67,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
             ToIdx: move.ToIdx,
             CapturedIdxs: [.. move.Captures],
             TriggerIdxs: [.. move.Triggers],
+            IntermediateIdxs: [.. move.Intermediates],
             SideEffects: sideEffects,
             PromotesTo: move.PromotesTo
         );

@@ -91,6 +91,7 @@ public class ArchivedGameStateBuilderTests
             ToIdx: moveArchive.ToIdx,
             CapturedIdxs: [.. moveArchive.Captures],
             TriggerIdxs: [.. moveArchive.Triggers],
+            IntermediateIdxs: [.. moveArchive.Intermediates],
             SideEffects: sideEffects,
             PromotesTo: moveArchive.PromotesTo
         );

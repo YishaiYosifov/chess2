@@ -14,6 +14,7 @@ public class MoveArchive
     public required byte ToIdx { get; set; }
     public required ICollection<byte> Captures { get; set; } = [];
     public required ICollection<byte> Triggers { get; set; } = [];
+    public required ICollection<byte> Intermediates { get; set; } = [];
     public required ICollection<MoveSideEffectArchive> SideEffects { get; set; } = [];
     public required PieceType? PromotesTo { get; set; }
 }

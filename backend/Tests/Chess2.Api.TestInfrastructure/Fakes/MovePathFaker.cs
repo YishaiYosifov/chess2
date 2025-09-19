@@ -13,6 +13,7 @@ public class MovePathFaker : RecordFaker<MovePath>
         RuleFor(x => x.ToIdx, f => (byte)f.Random.Number(0, 99));
         RuleFor(x => x.CapturedIdxs, MoveData.RandomIdxs);
         RuleFor(x => x.TriggerIdxs, MoveData.RandomIdxs);
+        RuleFor(x => x.IntermediateIdxs, MoveData.RandomIdxs);
         RuleFor(
             x => x.SideEffects,
             f => new MoveSideEffectPathFaker().Generate(f.Random.Number(1, 5))
