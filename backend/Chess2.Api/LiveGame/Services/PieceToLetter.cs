@@ -21,6 +21,7 @@ public class PieceToLetter : IPieceToLetter
         [PieceType.Knook] = "n",
         [PieceType.Antiqueen] = "a",
         [PieceType.TraitorRook] = "+",
+        [PieceType.Checker] = "c",
     };
 
     public string GetLetter(PieceType piece) => _pieceToLetterMap.GetValueOrDefault(piece, "?");
