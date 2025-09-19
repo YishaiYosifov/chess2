@@ -12,7 +12,7 @@ import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import { logicalPoint } from "@/lib/utils/pointUtils";
-import { decodePathIntoMap } from "../moveDecoder";
+import { decodePath, decodePathIntoMap } from "../moveDecoder";
 
 describe("createStoreProps", () => {
     it("should return the complete and correct store props object", () => {
@@ -105,24 +105,28 @@ describe("createStoreProps", () => {
             {
                 from: logicalPoint({ x: 5, y: 1 }),
                 to: logicalPoint({ x: 5, y: 4 }),
+                decoded: decodePath(gameState.moveHistory[0].path, 10),
                 clocks: { whiteClock: 100, blackClock: baseMs },
                 san: "f5",
             },
             {
                 from: logicalPoint({ x: 5, y: 8 }),
                 to: logicalPoint({ x: 5, y: 5 }),
+                decoded: decodePath(gameState.moveHistory[1].path, 10),
                 clocks: { whiteClock: 100, blackClock: 100 },
                 san: "f6",
             },
             {
                 from: logicalPoint({ x: 8, y: 0 }),
                 to: logicalPoint({ x: 7, y: 2 }),
+                decoded: decodePath(gameState.moveHistory[2].path, 10),
                 clocks: { whiteClock: 50, blackClock: 100 },
                 san: "Hh3",
             },
             {
                 from: logicalPoint({ x: 1, y: 9 }),
                 to: logicalPoint({ x: 2, y: 7 }),
+                decoded: decodePath(gameState.moveHistory[3].path, 10),
                 clocks: { whiteClock: 50, blackClock: 50 },
                 san: "Hc8",
             },
@@ -132,6 +136,7 @@ describe("createStoreProps", () => {
             applyMove(move.from, move.to);
             positionHistory.push({
                 pieces,
+                move: move.decoded,
                 clocks: move.clocks,
                 san: move.san,
             });
