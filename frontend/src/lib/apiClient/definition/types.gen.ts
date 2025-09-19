@@ -270,6 +270,7 @@ export type MovePath = {
     toIdx: number;
     capturedIdxs?: Array<number> | null;
     triggerIdxs?: Array<number> | null;
+    intermediateIdxs?: Array<number> | null;
     sideEffects?: Array<MoveSideEffectPath> | null;
     promotesTo?: PieceType | null;
 };

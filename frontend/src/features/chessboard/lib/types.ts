@@ -27,6 +27,7 @@ export interface Move {
 
     triggers: LogicalPoint[];
     captures: LogicalPoint[];
+    intermediates: LogicalPoint[];
     sideEffects: MoveSideEffect[];
     promotesTo: PieceType | null;
 }

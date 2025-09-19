@@ -29,6 +29,7 @@ export function createFakeMove(override?: Partial<Move>): Move {
         to: createRandomPoint(),
         triggers: [createRandomPoint(), createRandomPoint()],
         captures: [createRandomPoint()],
+        intermediates: [createRandomPoint()],
         sideEffects: [],
         promotesTo: null,
         ...override,
