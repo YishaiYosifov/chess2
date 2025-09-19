@@ -10,7 +10,6 @@ export function createFakeUser(override?: Partial<PublicUser>): PublicUser {
         about: faker.lorem.paragraph(),
         countryCode: "XX",
         createdAt: new Date().toISOString(),
-        questPoints: faker.number.int({ min: 1, max: 20 }),
         ...override,
     };
 }

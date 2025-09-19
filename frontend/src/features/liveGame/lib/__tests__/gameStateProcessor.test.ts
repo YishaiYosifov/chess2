@@ -82,6 +82,7 @@ describe("createStoreProps", () => {
                 to,
                 captures: [],
                 triggers: [],
+                intermediates: [],
                 sideEffects: [],
                 promotesTo: null,
             });

@@ -31,6 +31,10 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
     const captures =
         path.capturedIdxs?.map((idx) => idxToLogicalPoint(idx, boardWidth)) ??
         [];
+    const intermediates =
+        path.intermediateIdxs?.map((idx) =>
+            idxToLogicalPoint(idx, boardWidth),
+        ) ?? [];
     const sideEffects =
         path.sideEffects?.map((m) => sideEffectToMove(m, boardWidth)) ?? [];
 
@@ -39,6 +43,7 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
         to,
         triggers,
         captures,
+        intermediates,
         sideEffects,
         promotesTo: path.promotesTo ?? null,
     };
