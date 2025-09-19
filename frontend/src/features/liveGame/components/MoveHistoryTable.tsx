@@ -3,9 +3,9 @@ import React, { useEffect, useMemo, useRef } from "react";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import Card from "@/components/ui/Card";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
-import { BoardState } from "../lib/types";
 import clsx from "clsx";
 import useAutoScroll from "@/hooks/useAutoScroll";
+import { HistoryStep } from "../lib/types";
 
 const MoveHistoryTable = () => {
     const {
@@ -19,7 +19,7 @@ const MoveHistoryTable = () => {
         teleportToMove: x.teleportToMove,
         teleportToLastMove: x.teleportToLastMove,
     }));
-    const setPosition = useChessboardStore((x) => x.setPosition);
+    const goToPosition = useChessboardStore((x) => x.goToPosition);
 
     const tableRef = useRef<HTMLDivElement | null>(null);
     useAutoScroll(tableRef, [positionHistory]);
@@ -46,21 +46,33 @@ const MoveHistoryTable = () => {
     }, [positionHistory]);
 
     useEffect(() => {
-        function onKeyDown(event: KeyboardEvent): void {
-            let newPosition: BoardState | undefined;
-            if (event.key === "ArrowLeft") newPosition = shiftMoveViewBy(-1);
-            else if (event.key === "ArrowRight")
-                newPosition = shiftMoveViewBy(1);
-            else if (event.key === "ArrowUp") newPosition = teleportToMove(0);
-            else if (event.key === "ArrowDown")
-                newPosition = teleportToLastMove();
+        async function onKeyDown(event: KeyboardEvent): Promise<void> {
+            let historyStep: HistoryStep | undefined;
+            switch (event.key) {
+                case "ArrowLeft":
+                    historyStep = shiftMoveViewBy(-1);
+                    break;
+                case "ArrowRight":
+                    historyStep = shiftMoveViewBy(1);
+                    break;
+                case "ArrowUp":
+                    historyStep = teleportToMove(0);
+                    break;
+                case "ArrowDown":
+                    historyStep = teleportToLastMove();
+                    break;
+            }
+            if (!historyStep) return;
 
-            setPosition(newPosition);
+            await goToPosition(historyStep.state, {
+                animateIntermediates:
+                    historyStep.isOneStepForward && !event.repeat,
+            });
         }
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [shiftMoveViewBy, setPosition, teleportToMove, teleportToLastMove]);
+    }, [goToPosition, shiftMoveViewBy, teleportToMove, teleportToLastMove]);
 
     return (
         <Card
@@ -94,7 +106,16 @@ const MoveRow = ({
             isViewingBlack: x.viewingMoveNumber === blackMoveIdx,
         }));
 
-    const setPosition = useChessboardStore((x) => x.setPosition);
+    const goToPosition = useChessboardStore((x) => x.goToPosition);
+
+    async function handleClick(moveIdx: number): Promise<void> {
+        const historyStep = teleportToMove(moveIdx);
+        if (!historyStep) return;
+
+        await goToPosition(historyStep.state, {
+            animateIntermediates: historyStep.isOneStepForward,
+        });
+    }
 
     const color = index % 2 === 0 ? "bg-white/10" : "";
     const selectedClass = "bg-blue-300/30";
@@ -106,7 +127,7 @@ const MoveRow = ({
                     "cursor-pointer overflow-x-auto p-3",
                     isViewingWhite && selectedClass,
                 )}
-                onClick={() => setPosition(teleportToMove(whiteMoveIdx))}
+                onClick={() => handleClick(whiteMoveIdx)}
             >
                 <div className="overflow-x-auto">{moveWhite}</div>
             </td>
@@ -115,7 +136,7 @@ const MoveRow = ({
                     "cursor-pointer overflow-x-auto p-3",
                     isViewingBlack && selectedClass,
                 )}
-                onClick={() => setPosition(teleportToMove(blackMoveIdx))}
+                onClick={() => handleClick(blackMoveIdx)}
             >
                 <div className="overflow-x-auto">{moveBlack}</div>
             </td>

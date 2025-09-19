@@ -4,10 +4,10 @@ import { PieceID } from "./types";
 import { Move } from "./types";
 import { PieceMap } from "./types";
 
-export function simulateMove(
-    pieces: PieceMap,
-    move: Move,
-): { newPieces: PieceMap; movedPieceIds: Set<PieceID> } {
+interface MoveResult {
+    newPieces: PieceMap;
+
+export function simulateMove(pieces: PieceMap, move: Move): MoveResult {
     const movedPieceIds = new Set<PieceID>();
     const newPieces = new Map(pieces);
 
@@ -38,6 +38,30 @@ export function simulateMove(
     }
 
     return { newPieces, movedPieceIds };
+}
+
+export function simulateMoveWithIntermediates(
+    pieces: PieceMap,
+    move: Move,
+): MoveResult[] {
+    const fromId = pointToPiece(pieces, move.from);
+    if (!fromId) return [];
+
+    const results: MoveResult[] = [];
+    const currentPieces = new Map(pieces);
+    for (const intermediate of move.intermediates) {
+        const piece = { ...currentPieces.get(fromId)! };
+        piece.position = intermediate;
+        currentPieces.set(fromId, piece);
+
+        results.push({
+            newPieces: new Map(currentPieces),
+            movedPieceIds: new Set([fromId]),
+        });
+    }
+
+    results.push(simulateMove(pieces, move));
+    return results;
 }
 
 export function pointToPiece(

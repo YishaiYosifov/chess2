@@ -38,6 +38,7 @@ import {
 import { logicalPoint } from "@/lib/utils/pointUtils";
 import { brotliCompressSync } from "zlib";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
+import { decodePath } from "../../lib/moveDecoder";
 
 vi.mock("@/features/signalr/hooks/useSignalRHubs");
 vi.mock("@/features/liveGame/lib/gameStateProcessor");
@@ -95,7 +96,7 @@ describe("useLiveChessEvents", () => {
             path: { fromIdx: 11, toIdx: 12 },
         });
         await act(async () => {
-            gameEventHandlers.MoveMadeAsync?.(
+            await gameEventHandlers.MoveMadeAsync?.(
                 move,
                 sideToMove,
                 moveNumber,
@@ -159,6 +160,7 @@ describe("useLiveChessEvents", () => {
                     liveChessStore.getState().positionHistory[1],
                 ).toEqual<Position>({
                     san: move.san,
+                    move: decodePath(move.path, 10),
                     pieces: piecesAfter,
                     clocks: {
                         whiteClock: clocks.whiteClock,

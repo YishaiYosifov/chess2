@@ -119,6 +119,7 @@ function getPositionHistory(gameState: GameState): Position[] {
         const { newPieces } = simulateMove(pieces, move);
 
         const position: Position = {
+            move,
             san: moveSnapshot.san,
             pieces: newPieces,
             clocks: { ...clockSnapshot },
