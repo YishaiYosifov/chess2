@@ -7,8 +7,9 @@ namespace Chess2.Api.GameSnapshot.Models;
 public record MovePath(
     byte FromIdx,
     byte ToIdx,
-    IReadOnlyList<byte>? CapturedIdxs,
-    IReadOnlyList<byte>? TriggerIdxs,
+    IReadOnlyCollection<byte>? CapturedIdxs,
+    IReadOnlyCollection<byte>? TriggerIdxs,
+    IReadOnlyCollection<byte>? IntermediateIdxs,
     IReadOnlyList<MoveSideEffectPath>? SideEffects,
     PieceType? PromotesTo
 )
@@ -23,6 +24,10 @@ public record MovePath(
             move.TriggerSquares.Count != 0
                 ? move.TriggerSquares.Select(t => t.AsIndex(boardWidth)).ToList()
                 : null;
+        var intermediates =
+            move.IntermediateSquares.Count != 0
+                ? move.IntermediateSquares.Select(i => i.AsIndex(boardWidth)).ToList()
+                : null;
         var sideEffects =
             move.SideEffects.Count != 0
                 ? move
@@ -35,6 +40,7 @@ public record MovePath(
             ToIdx: move.To.AsIndex(boardWidth),
             CapturedIdxs: captures,
             TriggerIdxs: triggers,
+            IntermediateIdxs: intermediates,
             SideEffects: sideEffects,
             PromotesTo: move.PromotesTo
         );
