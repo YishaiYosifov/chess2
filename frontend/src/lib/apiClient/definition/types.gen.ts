@@ -320,6 +320,10 @@ export enum PieceType {
      * TraitorRook
      */
     TRAITOR_ROOK = 9,
+    /**
+     * Checker
+     */
+    CHECKER = 10,
 }
 
 export type MoveOptions = {
