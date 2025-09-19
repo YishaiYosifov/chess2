@@ -10,6 +10,7 @@ vi.mock("brotli/compress");
 const emptyMove = {
     triggers: [],
     captures: [],
+    intermediates: [],
     sideEffects: [],
     promotesTo: null,
 };
@@ -22,7 +23,8 @@ describe("decodePathIntoMap", () => {
                 toIdx: 1,
                 triggerIdxs: [2],
                 capturedIdxs: [3],
-                sideEffects: [{ fromIdx: 4, toIdx: 5 }],
+                intermediateIdxs: [4],
+                sideEffects: [{ fromIdx: 5, toIdx: 6 }],
                 promotesTo: PieceType.BISHOP,
             },
         ];
@@ -40,10 +42,11 @@ describe("decodePathIntoMap", () => {
             to: logicalPoint({ x: 1, y: 0 }),
             triggers: [logicalPoint({ x: 2, y: 0 })],
             captures: [logicalPoint({ x: 3, y: 0 })],
+            intermediates: [logicalPoint({ x: 4, y: 0 })],
             sideEffects: [
                 {
-                    from: logicalPoint({ x: 4, y: 0 }),
-                    to: logicalPoint({ x: 5, y: 0 }),
+                    from: logicalPoint({ x: 5, y: 0 }),
+                    to: logicalPoint({ x: 6, y: 0 }),
                 },
             ],
             promotesTo: PieceType.BISHOP,
@@ -81,7 +84,8 @@ describe("decodeEncodedMovesIntoMap", () => {
                 toIdx: 1,
                 triggerIdxs: [2],
                 capturedIdxs: [3],
-                sideEffects: [{ fromIdx: 4, toIdx: 5 }],
+                intermediateIdxs: [4],
+                sideEffects: [{ fromIdx: 5, toIdx: 6 }],
             },
             {
                 fromIdx: 10,
@@ -102,10 +106,11 @@ describe("decodeEncodedMovesIntoMap", () => {
                 to: logicalPoint({ x: 1, y: 0 }),
                 triggers: [logicalPoint({ x: 2, y: 0 })],
                 captures: [logicalPoint({ x: 3, y: 0 })],
+                intermediates: [logicalPoint({ x: 4, y: 0 })],
                 sideEffects: [
                     {
-                        from: logicalPoint({ x: 4, y: 0 }),
-                        to: logicalPoint({ x: 5, y: 0 }),
+                        from: logicalPoint({ x: 5, y: 0 }),
+                        to: logicalPoint({ x: 6, y: 0 }),
                     },
                 ],
                 promotesTo: null,

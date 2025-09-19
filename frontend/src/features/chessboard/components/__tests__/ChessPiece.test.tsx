@@ -205,6 +205,7 @@ describe("ChessPiece", () => {
             to: destinationPos,
             triggers: [],
             captures: [],
+            intermediates: [],
             sideEffects: [],
             promotesTo: null,
         };
@@ -250,6 +251,7 @@ describe("ChessPiece", () => {
             to: destinationPos,
             triggers: [],
             captures: [],
+            intermediates: [],
             sideEffects: [],
             promotesTo: null,
         };
