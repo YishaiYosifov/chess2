@@ -6,6 +6,8 @@ import { PieceMap } from "./types";
 
 interface MoveResult {
     newPieces: PieceMap;
+    movedPieceIds: Set<PieceID>;
+}
 
 export function simulateMove(pieces: PieceMap, move: Move): MoveResult {
     const movedPieceIds = new Set<PieceID>();
