@@ -1,17 +1,15 @@
-import {
-    PieceMap,
-    ProcessedMoveOptions,
-} from "@/features/chessboard/lib/types";
+import { BoardState, Move, PieceMap } from "@/features/chessboard/lib/types";
 
 export interface Position {
+    move?: Move;
     san?: string;
     pieces: PieceMap;
     clocks: ClockSnapshot;
 }
 
-export interface BoardState {
-    pieces: PieceMap;
-    moveOptions: ProcessedMoveOptions;
+export interface HistoryStep {
+    state: BoardState;
+    isOneStepForward: boolean;
 }
 
 export interface ClockSnapshot {

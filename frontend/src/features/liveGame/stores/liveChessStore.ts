@@ -11,9 +11,11 @@ import {
 } from "@/lib/apiClient";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
-import { BoardState } from "../lib/types";
-import { Position } from "../lib/types";
-import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
+import { HistoryStep, Position } from "../lib/types";
+import {
+    BoardState,
+    ProcessedMoveOptions,
+} from "@/features/chessboard/lib/types";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 
 export interface LiveChessViewer {
@@ -52,9 +54,9 @@ export interface LiveChessStore extends LiveChessStoreProps {
     drawStateChange(drawState: DrawState): void;
     markPendingMoveAck(): void;
 
-    teleportToMove(number: number): BoardState | undefined;
-    shiftMoveViewBy(amount: number): BoardState | undefined;
-    teleportToLastMove(): BoardState;
+    teleportToMove(number: number): HistoryStep | undefined;
+    shiftMoveViewBy(amount: number): HistoryStep | undefined;
+    teleportToLastMove(): HistoryStep;
 
     endGame(resultData: GameResultData): void;
     resetState(initState: LiveChessStoreProps): void;
@@ -111,20 +113,32 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
             },
 
             teleportToMove(number) {
-                const { positionHistory, latestMoveOptions: latestLegalMoves } =
-                    get();
+                const {
+                    positionHistory,
+                    latestMoveOptions: latestLegalMoves,
+                    viewingMoveNumber,
+                } = get();
                 if (number < 0 || number >= positionHistory.length) return;
+
+                const isLatestPosition = number === positionHistory.length - 1;
+                const position = positionHistory[number];
+                const isOneStepForward = number === viewingMoveNumber + 1;
 
                 set((state) => {
                     state.viewingMoveNumber = number;
                 });
 
-                const isLatestPosition = number === positionHistory.length - 1;
-                return {
-                    pieces: positionHistory[number].pieces,
+                const state: BoardState = {
                     moveOptions: isLatestPosition
                         ? latestLegalMoves
                         : createMoveOptions(),
+                    pieces: position.pieces,
+                    casuedByMove: position.move,
+                };
+
+                return {
+                    state,
+                    isOneStepForward,
                 };
             },
 

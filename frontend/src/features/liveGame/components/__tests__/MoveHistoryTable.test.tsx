@@ -145,7 +145,7 @@ describe("MoveHistoryTable", () => {
         await user.keyboard("{ArrowRight}");
         expectPosition(move3, latestMoveOptions);
 
-        // go back to move2
+        // go back to move 2
         await user.keyboard("{ArrowLeft}");
         expectPosition(move2, emptyMoveOptions);
 
@@ -179,5 +179,96 @@ describe("MoveHistoryTable", () => {
 
         await user.click(screen.getByText("e6"));
         expectPosition(move4, latestMoveOptions);
+    });
+
+    it("should call goToPosition with correct animateIntermediates for arrow keys", async () => {
+        const move1 = createFakePosition({ san: undefined });
+        const move2 = createFakePosition();
+        const move3 = createFakePosition();
+        const goToPositionMock = vi.fn();
+
+        liveStore.setState({
+            latestMoveOptions,
+            viewingMoveNumber: 0,
+            positionHistory: [move1, move2, move3],
+        });
+        chessboardStore.setState({
+            goToPosition: goToPositionMock,
+        });
+
+        const user = userEvent.setup();
+        renderWithCtx();
+
+        // 1
+        await user.keyboard("{ArrowRight}");
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move2.pieces }),
+            { animateIntermediates: true },
+        );
+
+        // 2
+        await user.keyboard("{ArrowRight}");
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move3.pieces }),
+            { animateIntermediates: true },
+        );
+
+        // 1
+        await user.keyboard("{ArrowLeft}");
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move2.pieces }),
+            { animateIntermediates: false },
+        );
+
+        // 2
+        await user.keyboard("{ArrowDown}");
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move3.pieces }),
+            { animateIntermediates: true },
+        );
+
+        // 0
+        await user.keyboard("{ArrowUp}");
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move1.pieces }),
+            { animateIntermediates: false },
+        );
+    });
+
+    it("should call goToPosition with correct animateIntermediates when clicking on a move", async () => {
+        const move1 = createFakePosition({ san: undefined });
+        const move2 = createFakePosition({ san: "e4" });
+        const move3 = createFakePosition({ san: "e5" });
+        const move4 = createFakePosition({ san: "e6" });
+        const goToPositionMock = vi.fn();
+
+        liveStore.setState({
+            positionHistory: [move1, move2, move3, move4],
+            viewingMoveNumber: 0,
+        });
+        chessboardStore.setState({
+            goToPosition: goToPositionMock,
+        });
+
+        const user = userEvent.setup();
+        renderWithCtx();
+
+        await user.click(screen.getByText("e5"));
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move1.pieces }),
+            { animateIntermediates: false },
+        );
+
+        await user.click(screen.getByText("e6"));
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move3.pieces }),
+            { animateIntermediates: true },
+        );
+
+        await user.click(screen.getByText("e4"));
+        expect(goToPositionMock).toHaveBeenLastCalledWith(
+            expect.objectContaining({ pieces: move1.pieces }),
+            { animateIntermediates: false },
+        );
     });
 });

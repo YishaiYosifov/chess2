@@ -46,7 +46,7 @@ const ProfilePictureForm = () => {
     async function clearProfilePicture(): Promise<void> {
         const { error } = await deleteProfilePicture();
         if (error) {
-            console.log(error);
+            console.error(error);
             setError("Failed to clear profile picture");
             return;
         }

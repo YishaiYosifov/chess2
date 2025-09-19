@@ -1,14 +1,18 @@
 import { LogicalPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
-import { PieceID } from "../lib/types";
-import { BoardState } from "@/features/liveGame/lib/types";
+import { BoardState, PieceID } from "../lib/types";
 import { Move } from "../lib/types";
 import { PieceMap } from "../lib/types";
 import { MoveKey } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
-import { pointToPiece, simulateMove } from "../lib/simulateMove";
+import {
+    pointToPiece,
+    simulateMove,
+    simulateMoveWithIntermediates,
+} from "../lib/simulateMove";
+import AsyncLock from "@/lib/asyncLock";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
@@ -32,12 +36,19 @@ export interface PiecesSlice {
         mousePoint: ScreenPoint;
         isDrag: boolean;
     }): Promise<boolean>;
-    applyMove(move: Move): void;
-    setPosition(boardSnapshot?: BoardState): void;
 
-    addAnimatingPiece(pieceId: PieceID): void;
+    applyMove(move: Move): Promise<void>;
+    applyMoveWithIntermediates(move: Move): Promise<void>;
+    goToPosition(
+        boardState: BoardState,
+        options?: { animateIntermediates?: boolean },
+    ): Promise<void>;
+
+    addAnimatingPiece(pieceId: PieceID): Promise<void>;
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
+
+const animationLock = new AsyncLock();
 
 export function createPiecesSlice(
     initState: PieceSliceProps,
@@ -63,19 +74,31 @@ export function createPiecesSlice(
             });
         },
 
-        /**
-         * Applies a move on the board by updating piece positions and removing captured pieces.
-         * Animates the moving piece, and recursively applies any side effects of the move.
-         *
-         * @param move - The move to apply on the board.
-         */
-        applyMove(move) {
-            const { addAnimatingPiece, pieces } = get();
-            const { newPieces, movedPieceIds } = simulateMove(pieces, move);
+        async applyMoveWithIntermediates(move) {
+            await animationLock.acquire(async () => {
+                const { addAnimatingPiece, pieces } = get();
+                const positions = simulateMoveWithIntermediates(pieces, move);
 
-            movedPieceIds.forEach(addAnimatingPiece);
-            set((state) => {
-                state.pieces = newPieces;
+                for (const { movedPieceIds, newPieces } of positions) {
+                    set((state) => {
+                        state.pieces = newPieces;
+                    });
+                    await Promise.all(
+                        movedPieceIds.values().map(addAnimatingPiece),
+                    );
+                }
+            });
+        },
+
+        async applyMove(move) {
+            await animationLock.acquire(() => {
+                const { addAnimatingPiece, pieces } = get();
+                const { newPieces, movedPieceIds } = simulateMove(pieces, move);
+
+                movedPieceIds.forEach(addAnimatingPiece);
+                set((state) => {
+                    state.pieces = newPieces;
+                });
             });
         },
 
@@ -105,14 +128,13 @@ export function createPiecesSlice(
             if (!move) return false;
 
             disableMovement();
-            applyMove(move);
+            await applyMove(move);
 
-            const key: MoveKey = {
+            await onPieceMovement?.({
                 from: move.from,
                 to: move.to,
                 promotesTo: move.promotesTo,
-            };
-            await onPieceMovement?.(key);
+            });
 
             return true;
         },
@@ -140,10 +162,15 @@ export function createPiecesSlice(
             return didMove;
         },
 
-        setPosition(boardState) {
-            if (!boardState) return;
+        async goToPosition(boardState, options) {
+            const { addAnimatingPiece, applyMoveWithIntermediates, pieces } =
+                get();
 
-            const { addAnimatingPiece, pieces } = get();
+            if (options?.animateIntermediates && boardState.casuedByMove) {
+                await applyMoveWithIntermediates(boardState.casuedByMove);
+                return;
+            }
+
             const movedPieces: PieceID[] = [];
             for (const [id, newPiece] of boardState.pieces) {
                 const piece = pieces.get(id);
@@ -152,12 +179,14 @@ export function createPiecesSlice(
                     movedPieces.push(id);
             }
 
-            movedPieces.forEach(addAnimatingPiece);
-            set((state) => {
-                state.pieces = boardState.pieces;
-                state.moveOptions = boardState.moveOptions;
-                state.highlightedLegalMoves = [];
-                state.selectedPieceId = null;
+            await animationLock.acquire(() => {
+                movedPieces.forEach(addAnimatingPiece);
+                set((state) => {
+                    state.pieces = boardState.pieces;
+                    state.moveOptions = boardState.moveOptions;
+                    state.highlightedLegalMoves = [];
+                    state.selectedPieceId = null;
+                });
             });
         },
 
@@ -173,12 +202,13 @@ export function createPiecesSlice(
                     state.animatingPieces.add(pieceId);
             });
 
-            setTimeout(
-                () =>
+            return new Promise((resolve) =>
+                setTimeout(() => {
                     set((state) => {
                         state.animatingPieces.delete(pieceId);
-                    }),
-                100,
+                    });
+                    resolve();
+                }, 100),
             );
         },
 

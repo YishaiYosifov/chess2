@@ -23,7 +23,7 @@ describe("PiecesSlice", () => {
 
     beforeEach(() => {
         store = createChessboardStore();
-        vi.useFakeTimers();
+        vi.useFakeTimers({ shouldAdvanceTime: true });
     });
 
     function expectPieces(
@@ -37,6 +37,74 @@ describe("PiecesSlice", () => {
         const newPieces = store.getState().pieces;
         expect(newPieces).toEqual(expectedPieces);
     }
+
+    describe("applyMoveWithIntermediates", () => {
+        it("should apply all intermediate steps and final move", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const otherPiece = createFakePiece({
+                position: logicalPoint({ x: 5, y: 5 }),
+            });
+            store.setState({
+                pieces: createFakePieceMapFromPieces(piece, otherPiece),
+            });
+
+            const intermediates = [
+                logicalPoint({ x: 1, y: 1 }),
+                logicalPoint({ x: 2, y: 2 }),
+            ];
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 3, y: 3 }),
+                intermediates,
+            });
+
+            await store.getState().applyMoveWithIntermediates(move);
+
+            expectPieces(
+                { id: "0", position: move.to, piece },
+                { id: "1", position: otherPiece.position, piece: otherPiece },
+            );
+        });
+
+        it("should add animation to all intermediates", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const otherPiece = createFakePiece({
+                position: logicalPoint({ x: 5, y: 5 }),
+            });
+            store.setState({
+                pieces: createFakePieceMapFromPieces(piece, otherPiece),
+            });
+
+            const intermediates = [
+                logicalPoint({ x: 1, y: 1 }),
+                logicalPoint({ x: 2, y: 2 }),
+            ];
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 3, y: 3 }),
+                intermediates,
+            });
+
+            const addAnimatingPieceMock = vi.fn();
+            store.setState({ addAnimatingPiece: addAnimatingPieceMock });
+
+            await store.getState().applyMoveWithIntermediates(move);
+
+            // it should call addAnimatingPiece for every intermediate + final move
+            expect(addAnimatingPieceMock).toHaveBeenCalledTimes(
+                intermediates.length + 1,
+            );
+
+            expectPieces(
+                { id: "0", position: move.to, piece },
+                { id: "1", position: otherPiece.position, piece: otherPiece },
+            );
+        });
+    });
 
     describe("applyMove", () => {
         it("should return if no piece at move.from", () => {
@@ -246,6 +314,54 @@ describe("PiecesSlice", () => {
                 expectPieces({ id: "0", position: expectedPosition, piece });
             },
         );
+    });
+
+    describe("goToPosition", () => {
+        it("should call applyMoveWithIntermediates in goToPosition when animateIntermediates=true", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+
+            const applyMoveWithIntermediatesMock = vi.fn();
+            store.setState({
+                applyMoveWithIntermediates: applyMoveWithIntermediatesMock,
+            });
+
+            const boardState = {
+                pieces: createFakePieceMapFromPieces(piece),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                casuedByMove: move,
+            };
+
+            await store
+                .getState()
+                .goToPosition(boardState, { animateIntermediates: true });
+
+            expect(applyMoveWithIntermediatesMock).toHaveBeenCalledWith(move);
+        });
+
+        it("should directly set pieces in goToPosition without animateIntermediates", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const newPos = logicalPoint({ x: 1, y: 1 });
+
+            const boardState = {
+                pieces: createFakePieceMapFromPieces({
+                    ...piece,
+                    position: newPos,
+                }),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+            };
+
+            await store.getState().goToPosition(boardState);
+
+            expect(store.getState().pieces).toEqual(boardState.pieces);
+        });
     });
 
     describe("addAnimatingPiece", () => {

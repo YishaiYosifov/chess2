@@ -17,13 +17,13 @@ export default function useLiveChessEvents(
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
     const gameToken = useStore(liveChessStore, (x) => x.gameToken);
 
-    function jumpForwards() {
+    async function jumpForwards() {
         const { positionHistory, viewingMoveNumber, teleportToLastMove } =
             liveChessStore.getState();
-        const { setPosition } = chessboardStore.getState();
+        const { goToPosition } = chessboardStore.getState();
         if (viewingMoveNumber !== positionHistory.length - 1) {
             const position = teleportToLastMove();
-            setPosition(position);
+            await goToPosition(position.state);
         }
     }
 
@@ -43,7 +43,8 @@ export default function useLiveChessEvents(
                 receiveMove,
                 resetLegalMovesForOpponentTurn,
             } = liveChessStore.getState();
-            const { applyMove, disableMovement } = chessboardStore.getState();
+            const { applyMoveWithIntermediates, disableMovement } =
+                chessboardStore.getState();
 
             // we missed a move... we need to refetch the state
             if (moveNumber != positionHistory.length) {
@@ -55,15 +56,17 @@ export default function useLiveChessEvents(
                 disableMovement();
                 resetLegalMovesForOpponentTurn();
             }
+
+            const decodedMove = decodePath(move.path, boardDimensions.width);
             if (!isPendingMoveAck) {
-                jumpForwards();
-                const decoded = decodePath(move.path, boardDimensions.width);
-                applyMove(decoded);
+                await jumpForwards();
+                await applyMoveWithIntermediates(decodedMove);
             }
 
             const pieces = chessboardStore.getState().pieces;
             const position: Position = {
                 san: move.san,
+                move: decodedMove,
                 pieces,
                 clocks: {
                     whiteClock: clocks.whiteClock,

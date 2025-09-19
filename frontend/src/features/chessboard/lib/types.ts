@@ -32,6 +32,12 @@ export interface Move {
     promotesTo: PieceType | null;
 }
 
+export interface BoardState {
+    pieces: PieceMap;
+    moveOptions: ProcessedMoveOptions;
+    casuedByMove?: Move;
+}
+
 export interface MoveSideEffect {
     from: LogicalPoint;
     to: LogicalPoint;
