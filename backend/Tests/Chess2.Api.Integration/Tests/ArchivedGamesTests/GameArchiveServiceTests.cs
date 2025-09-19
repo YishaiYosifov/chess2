@@ -220,6 +220,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     ToIdx = move.Path.ToIdx,
                     Captures = move.Path.CapturedIdxs?.ToList() ?? [],
                     Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
+                    Intermediates = move.Path.IntermediateIdxs?.ToList() ?? [],
                     SideEffects =
                         move.Path.SideEffects?.Select(se => new MoveSideEffectArchive
                             {
