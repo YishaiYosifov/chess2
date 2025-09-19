@@ -163,11 +163,17 @@ export function createPiecesSlice(
         },
 
         async goToPosition(boardState, options) {
-            const { addAnimatingPiece, applyMoveWithIntermediates, pieces } =
-                get();
+            const {
+                addAnimatingPiece,
+                applyMoveWithIntermediates,
+                setLegalMoves,
+                pieces,
+            } = get();
+            setLegalMoves(boardState.moveOptions);
 
             if (options?.animateIntermediates && boardState.casuedByMove) {
                 await applyMoveWithIntermediates(boardState.casuedByMove);
+
                 return;
             }
 
@@ -183,7 +189,6 @@ export function createPiecesSlice(
                 movedPieces.forEach(addAnimatingPiece);
                 set((state) => {
                     state.pieces = boardState.pieces;
-                    state.moveOptions = boardState.moveOptions;
                     state.highlightedLegalMoves = [];
                     state.selectedPieceId = null;
                 });

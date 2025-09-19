@@ -1,6 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import {
+    createFakeLegalMoveMap,
     createFakeLegalMoveMapFromPieces,
     createFakeMove,
     createFakePiece,
@@ -325,6 +326,7 @@ describe("PiecesSlice", () => {
                 from: piece.position,
                 to: logicalPoint({ x: 2, y: 2 }),
             });
+            const legalMoves = createFakeLegalMoveMap();
 
             const applyMoveWithIntermediatesMock = vi.fn();
             store.setState({
@@ -333,7 +335,7 @@ describe("PiecesSlice", () => {
 
             const boardState = {
                 pieces: createFakePieceMapFromPieces(piece),
-                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                moveOptions: { legalMoves, hasForcedMoves: false },
                 casuedByMove: move,
             };
 
@@ -342,6 +344,9 @@ describe("PiecesSlice", () => {
                 .goToPosition(boardState, { animateIntermediates: true });
 
             expect(applyMoveWithIntermediatesMock).toHaveBeenCalledWith(move);
+            expect(store.getState().moveOptions).toEqual(
+                boardState.moveOptions,
+            );
         });
 
         it("should directly set pieces in goToPosition without animateIntermediates", async () => {
@@ -361,6 +366,9 @@ describe("PiecesSlice", () => {
             await store.getState().goToPosition(boardState);
 
             expect(store.getState().pieces).toEqual(boardState.pieces);
+            expect(store.getState().moveOptions).toEqual(
+                boardState.moveOptions,
+            );
         });
     });
 
