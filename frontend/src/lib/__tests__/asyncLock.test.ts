@@ -1,10 +1,10 @@
-import AsyncLock from "../asyncLock";
+import LastOneWinsAsyncLock from "../lastOneWinsAsyncLock";
 
-describe("AsyncLock", () => {
-    let lock: AsyncLock;
+describe("LastOneWinsAsyncLock", () => {
+    let lock: LastOneWinsAsyncLock;
 
     beforeEach(() => {
-        lock = new AsyncLock();
+        lock = new LastOneWinsAsyncLock();
     });
 
     it("should acquire the lock and run a single async function", async () => {
@@ -12,7 +12,7 @@ describe("AsyncLock", () => {
         expect(result).toBe(123);
     });
 
-    it("should run multiple async functions in sequence", async () => {
+    it("should run the first task immediately and only the last queued while locked", async () => {
         const results: number[] = [];
 
         const asyncFunc = (value: number) =>
@@ -23,7 +23,8 @@ describe("AsyncLock", () => {
 
         await Promise.all([asyncFunc(1), asyncFunc(2), asyncFunc(3)]);
 
-        expect(results).toEqual([1, 2, 3]);
+        // first task runs immediately, last queued while locked runs after
+        expect(results).toEqual([1, 3]);
     });
 
     it("should propagate errors thrown inside the callback", async () => {
@@ -34,7 +35,7 @@ describe("AsyncLock", () => {
         ).rejects.toThrow("fail");
     });
 
-    it("should not block other functions after an error", async () => {
+    it("should not block subsequent tasks after an error", async () => {
         const results: string[] = [];
 
         const failingFunc = () =>
@@ -42,7 +43,9 @@ describe("AsyncLock", () => {
                 throw new Error("fail");
             });
         const succeedingFunc = () =>
-            lock.acquire(() => results.push("success"));
+            lock.acquire(async () => {
+                results.push("success");
+            });
 
         await expect(failingFunc()).rejects.toThrow("fail");
         await succeedingFunc();
@@ -50,21 +53,23 @@ describe("AsyncLock", () => {
         expect(results).toEqual(["success"]);
     });
 
-    it("should process queued functions in order", async () => {
-        const order: number[] = [];
+    it("should skip intermediate queued functions and resolve their promises immediately", async () => {
+        const results: number[] = [];
 
-        await Promise.all([
-            lock.acquire(async () => {
-                order.push(1);
-            }),
-            lock.acquire(async () => {
-                order.push(2);
-            }),
-            lock.acquire(async () => {
-                order.push(3);
-            }),
-        ]);
+        const task1 = lock.acquire(async () => {
+            results.push(1);
+            await new Promise((res) => setTimeout(res, 10));
+        });
+        const task2 = lock.acquire(async () => {
+            results.push(2);
+        });
+        const task3 = lock.acquire(async () => {
+            results.push(3);
+        });
 
-        expect(order).toEqual([1, 2, 3]);
+        await Promise.all([task1, task2, task3]);
+
+        // only task1 and task3 actually run
+        expect(results).toEqual([1, 3]);
     });
 });

@@ -7,12 +7,12 @@ import { MoveKey } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
+import LastOneWinsAsyncLock from "@/lib/lastOneWinsAsyncLock";
 import {
     pointToPiece,
     simulateMove,
     simulateMoveWithIntermediates,
 } from "../lib/simulateMove";
-import AsyncLock from "@/lib/asyncLock";
 
 export interface PieceSliceProps {
     pieces: PieceMap;
@@ -54,7 +54,7 @@ export interface PiecesSlice {
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
 
-const animationLock = new AsyncLock();
+const animationLock = new LastOneWinsAsyncLock();
 
 export function createPiecesSlice(
     initState: PieceSliceProps,
@@ -97,7 +97,7 @@ export function createPiecesSlice(
         },
 
         async applyMove(move) {
-            await animationLock.acquire(() => {
+            await animationLock.acquire(async () => {
                 const { addAnimatingPiece, pieces } = get();
                 const { newPieces, movedPieceIds } = simulateMove(pieces, move);
 
@@ -135,15 +135,14 @@ export function createPiecesSlice(
             if (!move) return false;
 
             disableMovement();
-
-            if (isDrag) await applyMove(move);
-            else await applyMoveWithIntermediates(move);
-
             await onPieceMovement?.({
                 from: move.from,
                 to: move.to,
                 promotesTo: move.promotesTo,
             });
+
+            if (isDrag) await applyMove(move);
+            else await applyMoveWithIntermediates(move);
 
             return true;
         },
@@ -201,7 +200,7 @@ export function createPiecesSlice(
                     movedPieces.push(id);
             }
 
-            await animationLock.acquire(() => {
+            await animationLock.acquire(async () => {
                 movedPieces.forEach(addAnimatingPiece);
                 set((state) => {
                     state.pieces = boardState.pieces;
