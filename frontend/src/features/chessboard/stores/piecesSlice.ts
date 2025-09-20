@@ -21,7 +21,6 @@ export interface PieceSliceProps {
 
 export interface PiecesSlice {
     pieces: PieceMap;
-    piecesCache: Map<number, PieceMap>;
     animatingPieces: Set<PieceID>;
     selectedPieceId: PieceID | null;
 
@@ -67,7 +66,6 @@ export function createPiecesSlice(
     return (set, get) => ({
         ...initState,
 
-        piecesCache: new Map([[0, initState.pieces]]),
         selectedPieceId: null,
         animatingPieces: new Set(),
 
