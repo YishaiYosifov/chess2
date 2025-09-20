@@ -10,7 +10,11 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
     [Fact]
     public void Evaluate_yields_non_promotion_moves_unchanged()
     {
-        PromotionRule rule = new((board, move) => move == Moves[1], RuleMocks);
+        PromotionRule rule = new(
+            (board, move) => move == Moves[1],
+            GameConstants.PromotablePieces,
+            RuleMocks
+        );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
@@ -30,7 +34,7 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
     [Fact]
     public void Evaluate_yields_moves_unchanged_when_predicate_fails()
     {
-        var rule = new PromotionRule((_, _) => false, RuleMocks);
+        var rule = new PromotionRule((_, _) => false, GameConstants.PromotablePieces, RuleMocks);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
@@ -43,7 +47,7 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
         var emptyBaseRule = Substitute.For<IPieceMovementRule>();
         emptyBaseRule.Evaluate(Board, Origin, Piece).Returns([]);
 
-        var rule = new PromotionRule((_, _) => true, emptyBaseRule);
+        var rule = new PromotionRule((_, _) => true, GameConstants.PromotablePieces, emptyBaseRule);
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
