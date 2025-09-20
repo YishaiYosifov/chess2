@@ -28,7 +28,13 @@ export interface PiecesSlice {
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 
     selectPiece(piece: PieceID): void;
-    tryApplySelectedMove(dest: LogicalPoint): Promise<boolean>;
+    tryApplySelectedMove({
+        dest,
+        isDrag,
+    }: {
+        dest: LogicalPoint;
+        isDrag: boolean;
+    }): Promise<boolean>;
     handleMousePieceDrop({
         mousePoint,
         isDrag,
@@ -102,12 +108,13 @@ export function createPiecesSlice(
             });
         },
 
-        async tryApplySelectedMove(dest) {
+        async tryApplySelectedMove({ dest, isDrag }) {
             const {
                 selectedPieceId,
                 getLegalMove,
                 onPieceMovement,
                 applyMove,
+                applyMoveWithIntermediates,
                 pieces,
                 disableMovement,
             } = get();
@@ -128,7 +135,9 @@ export function createPiecesSlice(
             if (!move) return false;
 
             disableMovement();
-            await applyMove(move);
+
+            if (isDrag) await applyMove(move);
+            else await applyMoveWithIntermediates(move);
 
             await onPieceMovement?.({
                 from: move.from,
@@ -155,9 +164,16 @@ export function createPiecesSlice(
             const logicalPoint = screenToLogicalPoint(mousePoint);
             if (!logicalPoint) return false;
 
-            const didMove = await tryApplySelectedMove(logicalPoint);
-            if (isDrag && !didMove && moveOptions.hasForcedMoves)
-                flashLegalMoves();
+            const didMove = await tryApplySelectedMove({
+                dest: logicalPoint,
+                isDrag,
+            });
+
+            const shouldFlashLegalMoves =
+                moveOptions.hasForcedMoves &&
+                isDrag && // player tried to phyically move the piece, not just click and click somewhere else
+                !didMove;
+            if (shouldFlashLegalMoves) flashLegalMoves();
 
             return didMove;
         },
