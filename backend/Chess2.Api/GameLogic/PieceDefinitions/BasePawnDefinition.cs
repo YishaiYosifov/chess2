@@ -2,6 +2,7 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.GameLogic.PieceMovementRules;
+using Chess2.Api.LiveGame;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
@@ -30,6 +31,7 @@ public abstract class BasePawnDefinition : IPieceDefinition
         int promotionY = color.Match(whenWhite: board.Height - 1, whenBlack: 0);
         yield return new PromotionRule(
             (_, move) => move.To.Y == promotionY,
+            promotesTo: GameConstants.PromotablePieces,
             new NoCaptureRule(
                 new ConditionalBehaviour(
                     (board, pos, piece) => piece.TimesMoved == 0,
