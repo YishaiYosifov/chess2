@@ -105,6 +105,40 @@ describe("PiecesSlice", () => {
                 { id: "1", position: otherPiece.position, piece: otherPiece },
             );
         });
+
+        it("should set pieces to final and intermediatePieces to first step before awaiting animations", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const otherPiece = createFakePiece({
+                position: logicalPoint({ x: 5, y: 5 }),
+            });
+            store.setState({
+                pieces: createFakePieceMapFromPieces(piece, otherPiece),
+            });
+
+            const intermediates = [
+                logicalPoint({ x: 1, y: 1 }),
+                logicalPoint({ x: 2, y: 2 }),
+            ];
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 3, y: 3 }),
+                intermediates,
+            });
+
+            // don't await
+            store.getState().applyMoveWithIntermediates(move);
+
+            const state = store.getState();
+            expectPieces(
+                { id: "0", position: move.to, piece }, // final pieces already set
+                { id: "1", position: otherPiece.position, piece: otherPiece },
+            );
+            expect(state.intermediatePieces!.get("0")!.position).toEqual(
+                intermediates[0],
+            );
+        });
     });
 
     describe("applyMove", () => {
