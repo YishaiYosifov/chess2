@@ -6,7 +6,7 @@ import {
 import {
     pointToPiece,
     simulateMove,
-    simulateMoveWithIntermediates,
+    simulateMoveIntermediates,
 } from "../simulateMove";
 import { PieceMap } from "../types";
 import { logicalPoint } from "@/lib/utils/pointUtils";
@@ -114,7 +114,7 @@ describe("simulateMoveWithIntermediates", () => {
             captures: [],
         });
 
-        const results = simulateMoveWithIntermediates(pieces, move);
+        const results = simulateMoveIntermediates(pieces, move);
 
         const expected1 = new Map(pieces);
         expected1.set("0", { ...piece, position: intermediates[0] });

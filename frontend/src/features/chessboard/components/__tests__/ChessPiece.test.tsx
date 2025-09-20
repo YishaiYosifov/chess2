@@ -288,4 +288,34 @@ describe("ChessPiece", () => {
         });
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
+
+    it("should prioritize intermediatePieces over regular pieces", () => {
+        const pieceId = "0";
+        const normalPiece = createFakePiece({
+            position: logicalPoint({ x: 0, y: 0 }),
+        });
+        const intermediatePiece = createFakePiece({
+            position: logicalPoint({ x: 7, y: 3 }),
+        });
+
+        const pieces: PieceMap = new Map([[pieceId, normalPiece]]);
+        const intermediatePieces: PieceMap = new Map([
+            [pieceId, intermediatePiece],
+        ]);
+
+        store.setState({
+            pieces,
+            intermediatePieces,
+        });
+
+        const { piece } = renderPiece({
+            logicalPosition: normalPiece.position,
+        });
+
+        const expectedTransform = getExpectedTransform({
+            percentPosition: { x: 700, y: 600 }, // based on intermediate position { x: 7, y: 3 }
+        });
+
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+    });
 });
