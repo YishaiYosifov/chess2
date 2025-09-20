@@ -209,4 +209,72 @@ public class GameCoreTests
         state.LegalMoves.Should().BeEquivalentTo(expectedLegalMoves);
         _gameCore.SideToMove(state).Should().Be(GameColor.Black);
     }
+
+    [Fact]
+    public void MakeMove_results_in_defeat_only_when_last_king_is_captured()
+    {
+        ChessBoard board = new();
+        GameCoreState state = new() { Board = board };
+        var blackKing = PieceFactory.Black(PieceType.King);
+        var whiteKing = PieceFactory.White(PieceType.King);
+
+        board.PlacePiece(new AlgebraicPoint("a1"), blackKing);
+        board.PlacePiece(new AlgebraicPoint("b1"), whiteKing);
+
+        Move move = new(
+            from: new AlgebraicPoint("b1"),
+            to: new AlgebraicPoint("a1"),
+            piece: whiteKing,
+            captures: [new MoveCapture(blackKing, new AlgebraicPoint("a1"))]
+        );
+        MoveKey key = new(From: move.From, To: move.To);
+
+        state.LegalMoves = new(
+            MovesMap: new Dictionary<MoveKey, Move>() { [key] = move },
+            MovePaths: [MovePath.FromMove(move, GameConstants.BoardWidth)],
+            EncodedMoves: [1, 2, 3],
+            HasForcedMoves: false
+        );
+
+        var result = _gameCore.MakeMove(key, state);
+
+        result.IsError.Should().BeFalse();
+        result.Value.EndStatus.Should().NotBeNull();
+        result.Value.EndStatus.Result.Should().Be(GameResult.WhiteWin);
+    }
+
+    [Fact]
+    public void MakeMove_does_not_result_in_defeat_if_other_king_exists()
+    {
+        ChessBoard board = new();
+        GameCoreState state = new() { Board = board };
+        var blackKing1 = PieceFactory.Black(PieceType.King);
+        var blackKing2 = PieceFactory.Black(PieceType.King);
+        var whiteKing = PieceFactory.White(PieceType.King);
+
+        // place two black kings and one white king on the board
+        board.PlacePiece(new AlgebraicPoint("a1"), blackKing1);
+        board.PlacePiece(new AlgebraicPoint("b1"), blackKing2);
+        board.PlacePiece(new AlgebraicPoint("c1"), whiteKing);
+
+        Move move = new(
+            from: new AlgebraicPoint("c1"),
+            to: new AlgebraicPoint("a1"),
+            piece: whiteKing,
+            captures: [new MoveCapture(blackKing1, new AlgebraicPoint("a1"))]
+        );
+        MoveKey key = new(From: move.From, To: move.To);
+
+        state.LegalMoves = new(
+            MovesMap: new Dictionary<MoveKey, Move>() { [key] = move },
+            MovePaths: [MovePath.FromMove(move, GameConstants.BoardWidth)],
+            EncodedMoves: [1, 2, 3],
+            HasForcedMoves: false
+        );
+
+        var result = _gameCore.MakeMove(key, state);
+
+        result.IsError.Should().BeFalse();
+        result.Value.EndStatus.Should().BeNull();
+    }
 }

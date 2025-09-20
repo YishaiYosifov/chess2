@@ -79,7 +79,7 @@ public class GameCore(
         var fen = _fenCalculator.CalculateFen(state.Board);
 
         GameEndStatus? endStatus = null;
-        bool isKingCapture = IsKingCapture(move);
+        bool isKingCapture = !HasKingSurvivedMove(move, state.Board);
         if (isKingCapture)
         {
             endStatus = _resultDescriber.KingCaptured(by: movingSide);
@@ -138,6 +138,20 @@ public class GameCore(
         );
     }
 
-    private static bool IsKingCapture(Move move) =>
-        move.Captures.Any(capture => capture.CapturedPiece.Type is PieceType.King);
+    private static bool HasKingSurvivedMove(Move move, ChessBoard board)
+    {
+        if (
+            move.Captures is null
+            || !move.Captures.Any(x => x.CapturedPiece.Type is PieceType.King)
+        )
+            return true;
+
+        var test = board.EnumerateSquares().Where(x => x.Occupant is not null).ToList();
+        var sideToCheck = board.SideToMove;
+        return board
+            .EnumerateSquares()
+            .Any(square =>
+                square.Occupant?.Type is PieceType.King && square.Occupant.Color == sideToCheck
+            );
+    }
 }
