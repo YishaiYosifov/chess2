@@ -16,6 +16,7 @@ public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
                 currentPosition: position,
                 movingPiece,
                 visited: [],
+                intermediates: [],
                 captured: [],
                 currentOffset: offset
             )
@@ -29,6 +30,7 @@ public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
         AlgebraicPoint currentPosition,
         Piece movingPiece,
         HashSet<AlgebraicPoint> visited,
+        HashSet<AlgebraicPoint> intermediates,
         HashSet<MoveCapture> captured,
         Offset currentOffset
     )
@@ -43,6 +45,7 @@ public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
 
         if (encounteredPiece.Color != movingPiece.Color)
             captured.Add(new MoveCapture(currentPosition, board));
+        var capturePosition = currentPosition;
 
         currentPosition += currentOffset;
         if (
@@ -51,7 +54,14 @@ public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
         )
             yield break;
 
-        yield return new Move(origin, currentPosition, movingPiece, captures: captured);
+        yield return new Move(
+            origin,
+            currentPosition,
+            movingPiece,
+            captures: captured,
+            intermediateSquares: intermediates,
+            triggerSquares: [capturePosition]
+        );
 
         foreach (var offset in _offsets)
         foreach (
@@ -60,8 +70,9 @@ public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
                 origin,
                 currentPosition,
                 movingPiece,
-                [.. visited],
-                [.. captured],
+                visited: [.. visited],
+                intermediates: [.. intermediates, currentPosition],
+                captured: [.. captured],
                 offset
             )
         )

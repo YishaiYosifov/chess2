@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.GameLogic.PieceMovementRules;
 
@@ -31,5 +32,16 @@ public class CheckerDefinition : IPieceDefinition
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer
-    ) => _behaviours;
+    )
+    {
+        if (movingPiece.Color is null)
+            yield break;
+
+        int promotionY = movingPiece.Color.Value.Match(whenWhite: board.Height - 1, whenBlack: 0);
+        yield return new PromotionRule(
+            (_, move) => move.To.Y == promotionY,
+            promotesTo: [PieceType.King],
+            _behaviours
+        );
+    }
 }
