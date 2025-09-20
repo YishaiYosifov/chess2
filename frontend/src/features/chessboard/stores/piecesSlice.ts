@@ -188,7 +188,6 @@ export function createPiecesSlice(
 
             if (options?.animateIntermediates && boardState.casuedByMove) {
                 await applyMoveWithIntermediates(boardState.casuedByMove);
-
                 return;
             }
 
