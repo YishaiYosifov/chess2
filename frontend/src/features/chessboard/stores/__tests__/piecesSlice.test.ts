@@ -170,7 +170,11 @@ describe("PiecesSlice", () => {
             const pieces = createFakePieceMap();
             store.setState({ pieces });
 
-            store.getState().tryApplySelectedMove(logicalPoint({ x: 6, y: 9 }));
+            await store.getState().tryApplySelectedMove({
+                dest: logicalPoint({ x: 6, y: 9 }),
+                isDrag: false,
+            });
+
             const newPieces = store.getState().pieces;
             expect(newPieces).toEqual(pieces);
         });
@@ -194,42 +198,49 @@ describe("PiecesSlice", () => {
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
-            await store
-                .getState()
-                .tryApplySelectedMove(logicalPoint({ x: 9, y: 9 }));
+            await store.getState().tryApplySelectedMove({
+                dest: logicalPoint({ x: 9, y: 9 }),
+                isDrag: false,
+            });
+
             expect(store.getState().pieces).toEqual(pieces);
         });
 
-        it("should move the piece if the move is found", async () => {
-            const position = logicalPoint({ x: 3, y: 3 });
-            const moveTo = logicalPoint({ x: 4, y: 4 });
-            const piece = createFakePiece({ position });
+        it.each([true, false])(
+            "should move the piece if the move is found",
+            async (isDrag) => {
+                const position = logicalPoint({ x: 3, y: 3 });
+                const moveTo = logicalPoint({ x: 4, y: 4 });
+                const piece = createFakePiece({ position });
 
-            const move = createFakeMove({ from: position, to: moveTo });
-            const legalMoves: LegalMoveMap = new Map([
-                [pointToStr(position), [move]],
-            ]);
+                const move = createFakeMove({ from: position, to: moveTo });
+                const legalMoves: LegalMoveMap = new Map([
+                    [pointToStr(position), [move]],
+                ]);
 
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map([["0", piece]]),
-                moveOptions: { legalMoves, hasForcedMoves: true },
-            });
+                store.setState({
+                    selectedPieceId: "0",
+                    pieces: new Map([["0", piece]]),
+                    moveOptions: { legalMoves, hasForcedMoves: true },
+                });
 
-            await store.getState().tryApplySelectedMove(move.to);
+                await store
+                    .getState()
+                    .tryApplySelectedMove({ dest: move.to, isDrag });
 
-            expectPieces({ id: "0", position: move.to, piece });
-            const {
-                moveOptions: newMoveOptions,
-                highlightedLegalMoves,
-                selectedPieceId,
-            } = store.getState();
-            expect(newMoveOptions).toEqual<ProcessedMoveOptions>(
-                createMoveOptions(),
-            );
-            expect(highlightedLegalMoves.length).toBe(0);
-            expect(selectedPieceId).toBeNull();
-        });
+                expectPieces({ id: "0", position: move.to, piece });
+                const {
+                    moveOptions: newMoveOptions,
+                    highlightedLegalMoves,
+                    selectedPieceId,
+                } = store.getState();
+                expect(newMoveOptions).toEqual<ProcessedMoveOptions>(
+                    createMoveOptions(),
+                );
+                expect(highlightedLegalMoves.length).toBe(0);
+                expect(selectedPieceId).toBeNull();
+            },
+        );
 
         it("should call onPieceMovement with correct MoveKey after a valid move", async () => {
             const position = logicalPoint({ x: 3, y: 3 });
@@ -241,23 +252,75 @@ describe("PiecesSlice", () => {
                 [pointToStr(position), [move]],
             ]);
 
-            const onPieceMovement = vi.fn();
+            const onPieceMovementMock = vi.fn();
 
             store.setState({
                 selectedPieceId: "0",
                 pieces: new Map([["0", piece]]),
                 moveOptions: { legalMoves, hasForcedMoves: false },
-                onPieceMovement,
+                onPieceMovement: onPieceMovementMock,
             });
 
-            await store.getState().tryApplySelectedMove(moveTo);
+            await store
+                .getState()
+                .tryApplySelectedMove({ dest: moveTo, isDrag: false });
 
-            expect(onPieceMovement).toHaveBeenCalledTimes(1);
-            expect(onPieceMovement).toHaveBeenCalledWith({
+            expect(onPieceMovementMock).toHaveBeenCalledTimes(1);
+            expect(onPieceMovementMock).toHaveBeenCalledWith({
                 from: move.from,
                 to: move.to,
                 promotesTo: move.promotesTo,
             });
+        });
+
+        it("should use applyMove when isDrag = true", async () => {
+            const position = logicalPoint({ x: 3, y: 3 });
+            const moveTo = logicalPoint({ x: 4, y: 4 });
+            const piece = createFakePiece({ position });
+
+            const move = createFakeMove({ from: position, to: moveTo });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(position), [move]],
+            ]);
+
+            const applyMoveMock = vi.fn();
+            store.setState({
+                selectedPieceId: "0",
+                pieces: new Map([["0", piece]]),
+                moveOptions: { legalMoves, hasForcedMoves: false },
+                applyMove: applyMoveMock,
+            });
+
+            await store
+                .getState()
+                .tryApplySelectedMove({ dest: moveTo, isDrag: true });
+
+            expect(applyMoveMock).toHaveBeenCalledWith(move);
+        });
+
+        it("should use applyMoveWithIntermediates when isDrag = false", async () => {
+            const position = logicalPoint({ x: 3, y: 3 });
+            const moveTo = logicalPoint({ x: 4, y: 4 });
+            const piece = createFakePiece({ position });
+
+            const move = createFakeMove({ from: position, to: moveTo });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(position), [move]],
+            ]);
+
+            const applyMoveWithIntermediatesMock = vi.fn();
+            store.setState({
+                selectedPieceId: "0",
+                pieces: new Map([["0", piece]]),
+                moveOptions: { legalMoves, hasForcedMoves: false },
+                applyMoveWithIntermediates: applyMoveWithIntermediatesMock,
+            });
+
+            await store
+                .getState()
+                .tryApplySelectedMove({ dest: moveTo, isDrag: false });
+
+            expect(applyMoveWithIntermediatesMock).toHaveBeenCalledWith(move);
         });
     });
 
