@@ -18,12 +18,10 @@ public class CheckerDefinition : IPieceDefinition
             new SlideBehaviour(new Offset(X: -1, Y: -1), max: 2)
         ),
         new CheckerCaptureRule(
-            [
-                new Offset(X: 1, Y: 1),
-                new Offset(X: -1, Y: 1),
-                new Offset(X: 1, Y: -1),
-                new Offset(X: -1, Y: -1),
-            ]
+            new Offset(X: 1, Y: 1),
+            new Offset(X: -1, Y: 1),
+            new Offset(X: 1, Y: -1),
+            new Offset(X: -1, Y: -1)
         ),
     ];
 

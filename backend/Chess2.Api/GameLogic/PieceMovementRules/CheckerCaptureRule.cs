@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
-public class CheckerCaptureRule(Offset[] offsets) : IPieceMovementRule
+public class CheckerCaptureRule(params Offset[] offsets) : IPieceMovementRule
 {
     private readonly Offset[] _offsets = offsets;
 
