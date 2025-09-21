@@ -176,7 +176,7 @@ describe("createStoreProps", () => {
                 resultData: null,
             },
             board: {
-                pieces,
+                pieceMap: pieces,
                 moveOptions: latestMoveOptions,
                 boardDimensions: {
                     width: constants.BOARD_WIDTH,
