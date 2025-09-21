@@ -45,7 +45,6 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
 
         if (encounteredPiece.Color != movingPiece.Color)
             captured.Add(new MoveCapture(currentPosition, board));
-        var capturePosition = currentPosition;
 
         currentPosition += currentOffset;
         if (
@@ -59,8 +58,7 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
             currentPosition,
             movingPiece,
             captures: captured,
-            intermediateSquares: intermediates,
-            triggerSquares: [capturePosition]
+            intermediateSquares: intermediates
         );
 
         foreach (var offset in _offsets)
