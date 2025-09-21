@@ -83,9 +83,9 @@ describe("ChessPiece", () => {
         legalMoves ??= new Map();
 
         const pieceInfo = createFakePiece({ position: logicalPosition });
-        const pieces: PieceMap = new Map([["0", pieceInfo]]);
+        const pieceMap: PieceMap = new Map([["0", pieceInfo]]);
         store.setState({
-            pieces,
+            pieceMap,
             moveOptions: createMoveOptions({ legalMoves }),
         });
 
@@ -233,8 +233,8 @@ describe("ChessPiece", () => {
         ]);
         vi.advanceTimersToNextFrame();
 
-        const pieces = store.getState().pieces;
-        expect(pieces.get("0")?.position).toEqual(move.to);
+        const pieceMap = store.getState().pieceMap;
+        expect(pieceMap.get("0")?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 700, y: 400 },
         });
@@ -281,31 +281,31 @@ describe("ChessPiece", () => {
         ]);
         vi.advanceTimersToNextFrame();
 
-        const pieces = store.getState().pieces;
-        expect(pieces.get("0")?.position).toEqual(move.to);
+        const pieceMap = store.getState().pieceMap;
+        expect(pieceMap.get("0")?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 200, y: 600 },
         });
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 
-    it("should prioritize intermediatePieces over regular pieces", () => {
+    it("should prioritize animatingPieceMap over regular pieces", () => {
         const pieceId = "0";
         const normalPiece = createFakePiece({
             position: logicalPoint({ x: 0, y: 0 }),
         });
-        const intermediatePiece = createFakePiece({
+        const animatingPiece = createFakePiece({
             position: logicalPoint({ x: 7, y: 3 }),
         });
 
-        const pieces: PieceMap = new Map([[pieceId, normalPiece]]);
-        const intermediatePieces: PieceMap = new Map([
-            [pieceId, intermediatePiece],
+        const pieceMap: PieceMap = new Map([[pieceId, normalPiece]]);
+        const animatingPieceMap: PieceMap = new Map([
+            [pieceId, animatingPiece],
         ]);
 
         store.setState({
-            pieces,
-            intermediatePieces,
+            pieceMap,
+            animatingPieceMap,
         });
 
         const { piece } = renderPiece({

@@ -177,7 +177,7 @@ describe("LegalMoveSlice", () => {
 
     describe("showLegalMoves", () => {
         it("should do nothing if no piece found by ID", () => {
-            store.setState({ pieces: new Map([["123", createFakePiece()]]) });
+            store.setState({ pieceMap: new Map([["123", createFakePiece()]]) });
 
             store.getState().showLegalMoves("1");
 
@@ -208,7 +208,7 @@ describe("LegalMoveSlice", () => {
             ]);
 
             store.setState({
-                pieces: createFakePieceMapFromPieces(piece),
+                pieceMap: createFakePieceMapFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 

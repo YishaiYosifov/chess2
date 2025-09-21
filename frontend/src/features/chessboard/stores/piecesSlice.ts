@@ -14,13 +14,13 @@ import {
 } from "../lib/simulateMove";
 
 export interface PieceSliceProps {
-    pieces: PieceMap;
+    pieceMap: PieceMap;
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 }
 
 export interface PiecesSlice {
-    pieces: PieceMap;
-    intermediatePieces: PieceMap | null;
+    pieceMap: PieceMap;
+    animatingPieceMap: PieceMap | null;
     animatingPieces: Set<PieceID>;
     selectedPieceId: PieceID | null;
 
@@ -64,7 +64,7 @@ export function createPiecesSlice(
     return (set, get) => ({
         ...initState,
 
-        intermediatePieces: null,
+        animatingPieceMap: null,
         selectedPieceId: null,
         animatingPieces: new Set(),
 
@@ -78,12 +78,12 @@ export function createPiecesSlice(
         },
 
         async applyMoveWithIntermediates(move) {
-            const { addAnimatingPiece, pieces } = get();
+            const { addAnimatingPiece, pieceMap } = get();
 
-            const positions = simulateMoveWithIntermediates(pieces, move);
+            const positions = simulateMoveWithIntermediates(pieceMap, move);
             const lastPosition = positions[positions.length - 1];
             set((state) => {
-                state.pieces = lastPosition.newPieces;
+                state.pieceMap = lastPosition.newPieces;
             });
 
             for (const { movedPieceIds, newPieces } of positions) {
@@ -91,22 +91,22 @@ export function createPiecesSlice(
                     .values()
                     .map(addAnimatingPiece);
                 set((state) => {
-                    state.intermediatePieces = newPieces;
+                    state.animatingPieceMap = newPieces;
                 });
                 await Promise.all(animatingPromises);
             }
             set((state) => {
-                state.intermediatePieces = null;
+                state.animatingPieceMap = null;
             });
         },
 
         applyMove(move) {
-            const { addAnimatingPiece, pieces } = get();
-            const { newPieces, movedPieceIds } = simulateMove(pieces, move);
+            const { addAnimatingPiece, pieceMap } = get();
+            const { newPieces, movedPieceIds } = simulateMove(pieceMap, move);
 
             movedPieceIds.forEach(addAnimatingPiece);
             set((state) => {
-                state.pieces = newPieces;
+                state.pieceMap = newPieces;
             });
         },
 
@@ -117,7 +117,7 @@ export function createPiecesSlice(
                 onPieceMovement,
                 applyMove,
                 applyMoveWithIntermediates,
-                pieces,
+                pieceMap,
                 disableMovement,
             } = get();
             if (!selectedPieceId) {
@@ -128,7 +128,7 @@ export function createPiecesSlice(
                 return false;
             }
 
-            const selectedPiece = pieces.get(selectedPieceId)!;
+            const selectedPiece = pieceMap.get(selectedPieceId)!;
             const move = await getLegalMove(
                 selectedPiece.position,
                 dest,
@@ -184,7 +184,7 @@ export function createPiecesSlice(
                 addAnimatingPiece,
                 applyMoveWithIntermediates,
                 setLegalMoves,
-                pieces,
+                pieceMap,
             } = get();
             setLegalMoves(boardState.moveOptions);
 
@@ -195,7 +195,7 @@ export function createPiecesSlice(
 
             const movedPieces: PieceID[] = [];
             for (const [id, newPiece] of boardState.pieces) {
-                const piece = pieces.get(id);
+                const piece = pieceMap.get(id);
                 if (!piece) continue;
                 if (!pointEquals(piece.position, newPiece.position))
                     movedPieces.push(id);
@@ -203,7 +203,7 @@ export function createPiecesSlice(
 
             movedPieces.forEach(addAnimatingPiece);
             set((state) => {
-                state.pieces = boardState.pieces;
+                state.pieceMap = boardState.pieces;
                 state.highlightedLegalMoves = [];
                 state.selectedPieceId = null;
             });
@@ -232,12 +232,12 @@ export function createPiecesSlice(
         },
 
         screenPointToPiece(point) {
-            const { screenToLogicalPoint, pieces } = get();
+            const { screenToLogicalPoint, pieceMap } = get();
 
             const logicalPoint = screenToLogicalPoint(point);
             if (!logicalPoint) return;
 
-            return pointToPiece(pieces, logicalPoint);
+            return pointToPiece(pieceMap, logicalPoint);
         },
     });
 }

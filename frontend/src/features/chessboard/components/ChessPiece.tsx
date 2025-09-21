@@ -19,7 +19,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
         selectPiece,
         handleMousePieceDrop,
     } = useChessboardStore((x) => ({
-        piece: x.intermediatePieces?.get(id) ?? x.pieces.get(id),
+        piece: x.animatingPieceMap?.get(id) ?? x.pieceMap.get(id),
         isSelected: x.selectedPieceId === id,
         isAnimating: x.animatingPieces.has(id),
         screenPointToPiece: x.screenPointToPiece,

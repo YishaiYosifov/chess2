@@ -79,8 +79,8 @@ export function createLegalMovesSlice(
          * @param pieceId - The ID of the piece for which to show legal moves.
          */
         showLegalMoves(pieceId) {
-            const { moveOptions, pieces } = get();
-            const piece = pieces.get(pieceId);
+            const { moveOptions, pieceMap } = get();
+            const piece = pieceMap.get(pieceId);
             if (!piece) {
                 console.warn(
                     `Cannot show legal moves, no piece was found with id ${pieceId}`,

@@ -44,7 +44,7 @@ const StaticChessboard = ({
 }: ChessboardProps) => {
     const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
         createChessboardStore({
-            pieces: startingPieces,
+            pieceMap: startingPieces,
             boardDimensions: { width: boardWidth, height: boardHeight },
             moveOptions: createMoveOptions(),
             viewingFrom,

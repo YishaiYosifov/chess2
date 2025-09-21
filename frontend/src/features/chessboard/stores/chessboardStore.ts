@@ -36,7 +36,7 @@ const defaultChessboardState: ChessboardProps = {
         width: constants.BOARD_WIDTH,
         height: constants.BOARD_HEIGHT,
     },
-    pieces: new Map(),
+    pieceMap: new Map(),
     moveOptions: createMoveOptions(),
 };
 

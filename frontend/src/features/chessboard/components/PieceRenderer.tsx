@@ -6,7 +6,7 @@ import PromotionPrompt from "./PromotionPrompt";
 
 const PieceRenderer = () => {
     const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
-        pieces: x.pieces,
+        pieces: x.pieceMap,
         highlightedLegalMoves: x.highlightedLegalMoves,
     }));
 
