@@ -4,7 +4,7 @@ import { MoveSideEffect } from "@/features/chessboard/lib/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
 import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
-import { idxToLogicalPoint, pointToStr } from "@/lib/utils/pointUtils";
+import { idxToLogicalPoint, pointToStr } from "@/features/point/pointUtils";
 
 export function decodePathIntoMap(
     paths: MovePath[],

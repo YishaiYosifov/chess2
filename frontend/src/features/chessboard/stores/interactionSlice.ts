@@ -5,7 +5,7 @@ import React from "react";
 import type { ChessboardStore } from "./chessboardStore";
 import { ScreenPoint } from "@/features/point/types";
 import { EventBus } from "@/lib/eventBus";
-import { screenPoint } from "@/lib/utils/pointUtils";
+import { screenPoint } from "@/features/point/pointUtils";
 
 export interface InteractionInfo {
     point: ScreenPoint;

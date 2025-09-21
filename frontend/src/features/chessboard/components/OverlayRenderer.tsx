@@ -4,7 +4,7 @@ import { useChessboardStore } from "../hooks/useChessboard";
 import { ViewPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
 import { OverlayItem } from "../stores/overlaySlice";
-import { pointEquals } from "@/lib/utils/pointUtils";
+import { pointEquals } from "@/features/point/pointUtils";
 import useBoardInteraction from "../hooks/useBoardInteraction";
 
 const COLOR = "#5e3b59";

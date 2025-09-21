@@ -6,7 +6,7 @@ import {
     createChessboardStore,
 } from "../../stores/chessboardStore";
 import { StoreApi } from "zustand";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import { GameColor, PieceType } from "@/lib/apiClient";
 import userEvent from "@testing-library/user-event";
 

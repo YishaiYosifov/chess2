@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { PieceMap } from "../../lib/types";
 import StaticChessboard from "../StaticChessboard";
 import { GameColor, PieceType } from "@/lib/apiClient";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 const mockBoard: PieceMap = new Map([
     [

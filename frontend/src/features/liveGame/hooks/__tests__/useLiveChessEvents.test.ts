@@ -35,7 +35,7 @@ import {
     createFakePieceMapFromPieces,
     createRandomPoint,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import { brotliCompressSync } from "zlib";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { decodePath } from "../../lib/moveDecoder";

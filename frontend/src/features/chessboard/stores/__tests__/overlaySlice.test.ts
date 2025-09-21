@@ -1,7 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { OverlayItem } from "../overlaySlice";
-import { viewPoint } from "@/lib/utils/pointUtils";
+import { viewPoint } from "@/features/point/pointUtils";
 
 describe("OverlaySlice", () => {
     let store: StoreApi<ChessboardStore>;
