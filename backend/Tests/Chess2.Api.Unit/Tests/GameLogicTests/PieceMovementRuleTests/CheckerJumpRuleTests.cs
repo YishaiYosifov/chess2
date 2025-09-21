@@ -6,7 +6,7 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;
 
-public class CheckerCaptureRuleTests
+public class CheckerJumpRuleTests
 {
     [Fact]
     public void Evaluate_returns_no_moves_when_there_are_no_pieces_to_capture()
@@ -16,7 +16,7 @@ public class CheckerCaptureRuleTests
         AlgebraicPoint origin = new("e6");
         board.PlacePiece(origin, piece);
 
-        CheckerCaptureRule rule = new(new Offset(1, 1));
+        CheckerJumpRule rule = new(new Offset(1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
@@ -37,7 +37,7 @@ public class CheckerCaptureRuleTests
         board.PlacePiece(origin, piece);
         board.PlacePiece(enemyPosition, enemy);
 
-        CheckerCaptureRule rule = new(new Offset(-1, 1));
+        CheckerJumpRule rule = new(new Offset(-1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
@@ -67,7 +67,7 @@ public class CheckerCaptureRuleTests
         board.PlacePiece(origin, piece);
         board.PlacePiece(friendlyPosition, friendly);
 
-        CheckerCaptureRule rule = new(new Offset(-1, 1));
+        CheckerJumpRule rule = new(new Offset(-1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
@@ -101,7 +101,7 @@ public class CheckerCaptureRuleTests
         board.PlacePiece(enemyLeftPosition, enemyLeft);
         board.PlacePiece(enemyRightPosition, enemyRight);
 
-        CheckerCaptureRule rule = new(new Offset(-1, 1), new Offset(1, 1));
+        CheckerJumpRule rule = new(new Offset(-1, 1), new Offset(1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
@@ -148,7 +148,7 @@ public class CheckerCaptureRuleTests
         board.PlacePiece(branchEnemy1Position, branchEnemy1);
         board.PlacePiece(branchEnemy2Position, branchEnemy2);
 
-        CheckerCaptureRule rule = new(new Offset(-1, 1), new Offset(1, 1));
+        CheckerJumpRule rule = new(new Offset(-1, 1), new Offset(1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
@@ -208,7 +208,7 @@ public class CheckerCaptureRuleTests
         board.PlacePiece(friendlyPosition, friendly);
         board.PlacePiece(enemyPosition, enemy);
 
-        CheckerCaptureRule rule = new(new Offset(1, 1));
+        CheckerJumpRule rule = new(new Offset(1, 1));
 
         var moves = rule.Evaluate(board, origin, piece).ToList();
 
