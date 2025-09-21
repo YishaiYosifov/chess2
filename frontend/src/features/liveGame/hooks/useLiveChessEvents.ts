@@ -63,7 +63,7 @@ export default function useLiveChessEvents(
                 await applyMoveWithIntermediates(decodedMove);
             }
 
-            const pieces = chessboardStore.getState().pieces;
+            const pieces = chessboardStore.getState().pieceMap;
             const position: Position = {
                 san: move.san,
                 move: decodedMove,

@@ -73,7 +73,7 @@ export function createStoreProps(
         resultData: gameState.resultData ?? null,
     };
     const board: ChessboardProps = {
-        pieces: positionHistory.at(-1)?.pieces ?? new Map(),
+        pieceMap: positionHistory.at(-1)?.pieces ?? new Map(),
         moveOptions: latestMoveOptions,
 
         boardDimensions: { width: boardWidth, height: boardHeight },

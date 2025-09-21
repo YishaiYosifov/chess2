@@ -76,7 +76,7 @@ describe("useLiveChessEvents", () => {
             position: logicalPoint({ x: 1, y: 1 }),
         });
         chessboardStore.setState({
-            pieces: createFakePieceMapFromPieces(piece),
+            pieceMap: createFakePieceMapFromPieces(piece),
         });
         liveChessStore.setState({
             viewingMoveNumber: 0,
@@ -137,7 +137,7 @@ describe("useLiveChessEvents", () => {
                 renderLiveChessEvents();
 
                 const clocks = createFakeClock();
-                const piecesBefore = chessboardStore.getState().pieces;
+                const piecesBefore = chessboardStore.getState().pieceMap;
                 const positionHistoryBefore =
                     liveChessStore.getState().positionHistory;
                 if (awaitingAck) liveChessStore.getState().markPendingMoveAck();
@@ -149,7 +149,7 @@ describe("useLiveChessEvents", () => {
                     positionHistoryBefore.length + 1,
                 );
 
-                const piecesAfter = chessboardStore.getState().pieces;
+                const piecesAfter = chessboardStore.getState().pieceMap;
                 if (!awaitingAck) {
                     expect(piecesAfter).not.toEqual(piecesBefore);
                 } else {

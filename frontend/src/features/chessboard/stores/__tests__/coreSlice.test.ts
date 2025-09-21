@@ -30,7 +30,7 @@ describe("CoreSlice", () => {
                     width: 6,
                     height: 9,
                 },
-                pieces: createFakePieceMap(),
+                pieceMap: createFakePieceMap(),
                 moveOptions: createMoveOptions({
                     legalMoves: createFakeLegalMoveMap(),
                     hasForcedMoves: true,
