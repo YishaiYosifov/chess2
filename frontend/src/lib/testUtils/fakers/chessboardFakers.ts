@@ -1,5 +1,5 @@
 import { GameColor, PieceType } from "@/lib/apiClient";
-import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
+import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { LogicalPoint } from "@/features/point/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";

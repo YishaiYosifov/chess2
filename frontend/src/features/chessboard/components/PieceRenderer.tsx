@@ -1,7 +1,7 @@
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { pointToStr } from "@/features/point/pointUtils";
 import PromotionPrompt from "./PromotionPrompt";
 
 const PieceRenderer = () => {

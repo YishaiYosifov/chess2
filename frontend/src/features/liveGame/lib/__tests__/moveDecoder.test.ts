@@ -3,7 +3,7 @@ import brotliCompress from "brotli/compress";
 import { MovePath, PieceType } from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
 import { Move } from "@/features/chessboard/lib/types";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 vi.mock("brotli/compress");
 

@@ -2,7 +2,7 @@ import { PieceMap } from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { GameColor, PieceType } from "@/lib/apiClient";
 import { decodeFen } from "../fenDecoder";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 describe("decodeFen", () => {
     it("should parse a standard starting position correctly", () => {

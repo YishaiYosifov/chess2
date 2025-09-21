@@ -2,7 +2,7 @@ import clsx from "clsx";
 import { useChessboardStore } from "../hooks/useChessboard";
 import ChessSquare from "./ChessSquare";
 import { PieceType } from "@/lib/apiClient";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import getPieceImage from "../lib/pieceImage";
 import { PromotionRequest } from "../stores/promotionSlice";
 

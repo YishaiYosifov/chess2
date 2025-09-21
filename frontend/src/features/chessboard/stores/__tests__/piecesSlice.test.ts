@@ -15,7 +15,11 @@ import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "../../lib/types";
 import { PieceMap } from "../../lib/types";
 import { Piece } from "../../lib/types";
-import { logicalPoint, pointToStr, screenPoint } from "@/lib/utils/pointUtils";
+import {
+    logicalPoint,
+    pointToStr,
+    screenPoint,
+} from "@/features/point/pointUtils";
 import { GameColor } from "@/lib/apiClient";
 import { createMoveOptions } from "../../lib/moveOptions";
 

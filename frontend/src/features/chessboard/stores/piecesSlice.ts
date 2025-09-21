@@ -6,7 +6,7 @@ import { PieceMap } from "../lib/types";
 import { MoveKey } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
-import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
+import { pointEquals, pointToStr } from "@/features/point/pointUtils";
 import {
     pointToPiece,
     simulateMove,

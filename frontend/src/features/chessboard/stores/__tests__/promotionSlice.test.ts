@@ -1,4 +1,4 @@
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { StoreApi } from "zustand";
 import { PieceType } from "@/lib/apiClient";
