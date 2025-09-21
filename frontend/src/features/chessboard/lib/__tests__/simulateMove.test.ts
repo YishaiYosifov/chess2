@@ -9,7 +9,7 @@ import {
     simulateMoveIntermediates,
 } from "../simulateMove";
 import { PieceMap } from "../types";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 describe("simulateMove", () => {
     it("should move a piece without captures", () => {

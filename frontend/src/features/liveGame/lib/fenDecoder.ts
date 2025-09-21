@@ -1,7 +1,7 @@
 import { PieceID } from "@/features/chessboard/lib/types";
 import { PieceMap } from "@/features/chessboard/lib/types";
 import { GameColor } from "@/lib/apiClient";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import constants from "@/lib/constants";
 
 /**

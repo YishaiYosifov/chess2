@@ -12,7 +12,7 @@ import { GameColor } from "@/lib/apiClient";
 import { createMoveOptions } from "../../lib/moveOptions";
 import { LogicalPoint } from "@/features/point/types";
 import { PieceID } from "../../lib/types";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 describe("CoreSlice", () => {
     let store: StoreApi<ChessboardStore>;

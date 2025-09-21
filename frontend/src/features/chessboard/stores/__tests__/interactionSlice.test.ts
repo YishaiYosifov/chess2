@@ -1,7 +1,7 @@
 import { StoreApi } from "zustand";
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { InteractionInfo } from "../interactionSlice";
-import { screenPoint } from "@/lib/utils/pointUtils";
+import { screenPoint } from "@/features/point/pointUtils";
 
 describe("InteractionSlice", () => {
     let store: StoreApi<ChessboardStore>;

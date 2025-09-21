@@ -11,7 +11,7 @@ import { Position } from "../types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 import { decodePath, decodePathIntoMap } from "../moveDecoder";
 
 describe("createStoreProps", () => {

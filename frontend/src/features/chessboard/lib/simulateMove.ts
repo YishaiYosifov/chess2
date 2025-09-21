@@ -1,4 +1,4 @@
-import { pointEquals } from "@/lib/utils/pointUtils";
+import { pointEquals } from "@/features/point/pointUtils";
 import { LogicalPoint } from "@/features/point/types";
 import { PieceID } from "./types";
 import { Move } from "./types";

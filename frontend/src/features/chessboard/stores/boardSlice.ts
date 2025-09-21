@@ -6,7 +6,7 @@ import { LogicalPoint } from "@/features/point/types";
 import { ViewPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
-import { logicalPoint, viewPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint, viewPoint } from "@/features/point/pointUtils";
 
 export interface BoardDimensions {
     width: number;

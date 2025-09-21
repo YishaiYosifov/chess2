@@ -5,7 +5,7 @@ import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
 import { StateCreator } from "zustand";
 import { ChessboardStore } from "./chessboardStore";
-import { pointEquals, pointToStr } from "@/lib/utils/pointUtils";
+import { pointEquals, pointToStr } from "@/features/point/pointUtils";
 import { PieceType } from "@/lib/apiClient";
 
 export interface LegalMovesSliceProps {

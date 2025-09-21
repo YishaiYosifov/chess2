@@ -7,7 +7,7 @@ import {
     ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
-import { logicalPoint } from "@/lib/utils/pointUtils";
+import { logicalPoint } from "@/features/point/pointUtils";
 
 describe("HighlightedLegalMove", () => {
     let store: StoreApi<ChessboardStore>;

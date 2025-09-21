@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { InteractionInfo } from "../stores/interactionSlice";
 import { useChessboardStore } from "./useChessboard";
-import { screenPoint } from "@/lib/utils/pointUtils";
+import { screenPoint } from "@/features/point/pointUtils";
 import { ScreenPoint } from "@/features/point/types";
 import { MaybePromise } from "@/types/types";
 

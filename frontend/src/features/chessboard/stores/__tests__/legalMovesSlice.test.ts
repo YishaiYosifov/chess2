@@ -6,7 +6,7 @@ import {
     createFakePieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, Piece } from "../../lib/types";
-import { logicalPoint, pointToStr } from "@/lib/utils/pointUtils";
+import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { createMoveOptions } from "../../lib/moveOptions";
 import { PieceType } from "@/lib/apiClient";
 

@@ -5,7 +5,7 @@ import {
     TimeControl,
     TimeControlSettings,
 } from "./apiClient/definition/types.gen";
-import { logicalPoint } from "./utils/pointUtils";
+import { logicalPoint } from "../features/point/pointUtils";
 
 const USERNAME_EDIT_EVERY_MS = 1000 * 60 * 60 * 24 * 7 * 2;
 

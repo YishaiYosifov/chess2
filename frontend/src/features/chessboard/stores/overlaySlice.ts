@@ -2,7 +2,7 @@ import { StateCreator } from "zustand";
 import type { ChessboardStore } from "./chessboardStore";
 import { ViewPoint } from "@/features/point/types";
 import { StrPoint } from "@/features/point/types";
-import { pointToStr } from "@/lib/utils/pointUtils";
+import { pointToStr } from "@/features/point/pointUtils";
 
 type OverlayItemId = `${StrPoint}-${StrPoint}`;
 
