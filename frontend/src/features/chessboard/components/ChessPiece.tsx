@@ -68,7 +68,7 @@ export const ChessPiece = ({ id }: { id: PieceID }) => {
             pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
         async onPress(info) {
-            if (!isSelected) return;
+            if (!isSelected || info.button != 0) return;
 
             const didMove = await handleMousePieceDrop({
                 mousePoint: info.point,
