@@ -88,11 +88,6 @@ export const createIntermediateSlice: StateCreator<
                     },
                 );
 
-                set((state) => {
-                    state.nextIntermediates = [];
-                    state.resolveNextIntermediate = null;
-                });
-
                 // if move cancelled
                 if (!choice) return null;
 
@@ -110,6 +105,10 @@ export const createIntermediateSlice: StateCreator<
                 visited.push(choice);
             }
         } finally {
+            set((state) => {
+                state.nextIntermediates = [];
+                state.resolveNextIntermediate = null;
+            });
             clearAnimation();
         }
     },
