@@ -11,7 +11,6 @@ import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { createMoveOptions } from "../../lib/moveOptions";
 import { PieceType } from "@/lib/apiClient";
 import { waitFor } from "@testing-library/react";
-import { ScreenPoint } from "@/features/point/types";
 
 describe("LegalMovesSlice", () => {
     let store: StoreApi<ChessboardStore>;
