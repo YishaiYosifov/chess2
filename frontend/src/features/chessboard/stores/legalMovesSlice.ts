@@ -19,10 +19,11 @@ export interface LegalMovesSlice {
     getLegalMove(
         origin: LogicalPoint,
         dest: LogicalPoint,
+        pieceId: PieceID,
         piece: Piece,
     ): Promise<Move | undefined>;
 
-    showLegalMoves(pieceId: PieceID): void;
+    showLegalMoves(piece: Piece): void;
     flashLegalMoves(): void;
 
     setLegalMoves(moveOptions: ProcessedMoveOptions): void;
@@ -40,7 +41,7 @@ export function createLegalMovesSlice(
         ...initState,
         highlightedLegalMoves: [],
 
-        async getLegalMove(origin, dest, piece) {
+        async getLegalMove(origin, dest, pieceId, piece) {
             const { moveOptions, promptPromotion, disambiguateDestination } =
                 get();
 
@@ -52,6 +53,8 @@ export function createLegalMovesSlice(
             const movesToDest = await disambiguateDestination(
                 dest,
                 movesFromOrigin,
+                pieceId,
+                piece,
             );
             if (!movesToDest) return;
 
@@ -77,15 +80,8 @@ export function createLegalMovesSlice(
          *
          * @param pieceId - The ID of the piece for which to show legal moves.
          */
-        showLegalMoves(pieceId) {
-            const { moveOptions, pieceMap } = get();
-            const piece = pieceMap.get(pieceId);
-            if (!piece) {
-                console.warn(
-                    `Cannot show legal moves, no piece was found with id ${pieceId}`,
-                );
-                return;
-            }
+        showLegalMoves(piece) {
+            const { moveOptions } = get();
 
             const positionStr = pointToStr(piece.position);
             const moves = moveOptions.legalMoves.get(positionStr) ?? [];
