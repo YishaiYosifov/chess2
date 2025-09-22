@@ -25,7 +25,9 @@ export interface PiecesSlice {
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 
     selectPiece(pieceId: PieceID): void;
-    tryApplySelectedMove(dest: LogicalPoint): Promise<boolean>;
+    getMoveForSelection(dest: LogicalPoint): Promise<Move | null>;
+
+    applyMoveTurn(move: Move): Promise<void>;
     handleMousePieceDrop({
         mousePoint,
         isDrag,
@@ -102,42 +104,16 @@ export function createPiecesSlice(
             });
         },
 
-        async tryApplySelectedMove(dest) {
-            const {
-                selectedPieceId,
-                getLegalMove,
-                onPieceMovement,
-                applyMove,
-                pieceMap,
-                disableMovement,
-            } = get();
-            if (!selectedPieceId) {
-                console.warn(
-                    `Could not execute piece movement to ${pointToStr(dest)} ` +
-                        "because no piece was selected",
-                );
-                return false;
-            }
-
-            const selectedPiece = pieceMap.get(selectedPieceId)!;
-            const move = await getLegalMove(
-                selectedPiece.position,
-                dest,
-                selectedPieceId,
-                selectedPiece,
-            );
-            if (!move) return false;
+        async applyMoveTurn(move) {
+            const { applyMove, disableMovement, onPieceMovement } = get();
 
             applyMove(move);
-
             disableMovement();
             await onPieceMovement?.({
                 from: move.from,
                 to: move.to,
                 promotesTo: move.promotesTo,
             });
-
-            return true;
         },
 
         /**
@@ -147,23 +123,50 @@ export function createPiecesSlice(
          */
         async handleMousePieceDrop({ mousePoint, isDrag }) {
             const {
-                tryApplySelectedMove,
+                applyMoveTurn,
                 screenToLogicalPoint,
                 flashLegalMoves,
+                getMoveForSelection,
                 moveOptions,
             } = get();
 
             const dest = screenToLogicalPoint(mousePoint);
             if (!dest) return false;
 
-            const didMove = await tryApplySelectedMove(dest);
-            const shouldFlashLegalMoves =
-                moveOptions.hasForcedMoves &&
-                isDrag && // player tried to phyically move the piece, not just click and click somewhere else
-                !didMove;
-            if (shouldFlashLegalMoves) flashLegalMoves();
+            const move = await getMoveForSelection(dest);
+            if (move) {
+                await applyMoveTurn(move);
+                return true;
+            }
 
-            return didMove;
+            if (
+                moveOptions.hasForcedMoves &&
+                isDrag // player tried to phyically move the piece, not just click and click somewhere else
+            ) {
+                flashLegalMoves();
+            }
+
+            return false;
+        },
+
+        async getMoveForSelection(dest) {
+            const { selectedPieceId, getLegalMove, pieceMap } = get();
+            if (!selectedPieceId) {
+                console.warn(
+                    `Could not execute piece movement to ${pointToStr(dest)} ` +
+                        "because no piece was selected",
+                );
+                return null;
+            }
+
+            const selectedPiece = pieceMap.get(selectedPieceId)!;
+            const move = await getLegalMove(
+                selectedPiece.position,
+                dest,
+                selectedPieceId,
+                selectedPiece,
+            );
+            return move;
         },
 
         async goToPosition(boardState, options) {
