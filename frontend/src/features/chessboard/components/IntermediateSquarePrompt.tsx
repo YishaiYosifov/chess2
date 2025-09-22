@@ -28,10 +28,9 @@ const IntermediateSquarePrompt = () => {
                         e.stopPropagation();
                         resolveNextIntermediate?.(point);
                     }}
-                    className="z-30 animate-[fadeIn_0.15s_ease-out] cursor-pointer rounded-sm
-                        bg-[radial-gradient(circle_at_center,_rgba(255,215,0,0.6)_25%,_rgba(0,0,0,0)_30%)]
-                        bg-[length:100%_100%] bg-center bg-no-repeat transition-colors duration-100
-                        ease-out hover:border-4 hover:border-yellow-400 hover:bg-[rgba(255,215,0,0.2)]"
+                    className="z-30 animate-[fadeIn_0.15s_ease-out] cursor-pointer rounded-sm border-4
+                        border-yellow-400 bg-[length:100%_100%] bg-center bg-no-repeat transition-colors
+                        duration-100 ease-out hover:bg-[rgba(255,215,0,0.2)]"
                 />
             ))}
         </div>
