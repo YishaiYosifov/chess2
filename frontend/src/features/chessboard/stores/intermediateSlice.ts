@@ -40,7 +40,7 @@ export const createIntermediateSlice: StateCreator<
         const visited: LogicalPoint[] = [dest];
         try {
             while (true) {
-                moves = filterMovesByVisited(moves, visited);
+                moves = filterMovesByVisited(moves, visited, dest);
                 if (moves.length === 0) return null;
 
                 const canDisambiguateFurther = movesAreIndistinguishable(moves);
@@ -87,10 +87,19 @@ export const createIntermediateSlice: StateCreator<
     },
 });
 
-function filterMovesByVisited(moves: Move[], visited: LogicalPoint[]): Move[] {
-    return moves.filter((move) =>
-        pointArrayStartsWith([...move.intermediates, move.to], visited),
-    );
+function filterMovesByVisited(
+    moves: Move[],
+    visited: LogicalPoint[],
+    dest: LogicalPoint,
+): Move[] {
+    return moves.filter((move) => {
+        if (
+            pointEquals(move.to, dest) ||
+            move.triggers.some((p) => pointEquals(p, dest))
+        )
+            return true;
+        return pointArrayStartsWith(move.intermediates, visited);
+    });
 }
 
 function movesAreIndistinguishable(moves: Move[]): boolean {

@@ -103,6 +103,29 @@ describe("LegalMovesSlice", () => {
             expect(result).toEqual(triggerMove);
         });
 
+        it("should return a move that matches via trigger even if trigger wasn't used", async () => {
+            const origin = logicalPoint({ x: 4, y: 4 });
+            const trigger = logicalPoint({ x: 6, y: 6 });
+            const dest = logicalPoint({ x: 9, y: 9 });
+
+            const triggerMove = createFakeMove({
+                from: origin,
+                to: dest,
+                triggers: [trigger],
+            });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(origin), [triggerMove]],
+            ]);
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store
+                .getState()
+                .getLegalMove(origin, dest, "0", piece);
+            expect(result).toEqual(triggerMove);
+        });
+
         it("should return null if multiple moves match but promotion is cancelled", async () => {
             const origin = logicalPoint({ x: 0, y: 1 });
             const dest = logicalPoint({ x: 0, y: 7 });
