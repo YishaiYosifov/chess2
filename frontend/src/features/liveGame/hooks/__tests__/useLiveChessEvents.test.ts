@@ -93,7 +93,7 @@ describe("useLiveChessEvents", () => {
     ): Promise<MoveSnapshot> {
         const move = createFakeMoveSnapshot({
             san: "test san",
-            path: { fromIdx: 11, toIdx: 12 },
+            path: { fromIdx: 11, toIdx: 12, moveKey: "0" },
         });
         await act(async () => {
             await gameEventHandlers.MoveMadeAsync?.(
@@ -228,7 +228,7 @@ describe("useLiveChessEvents", () => {
 
             const move = createFakeMoveSnapshot({
                 san: "test san",
-                path: { fromIdx: 11, toIdx: 12 },
+                path: { fromIdx: 11, toIdx: 12, moveKey: "0" },
             });
             const clocks = createFakeClock();
 
@@ -269,6 +269,7 @@ describe("useLiveChessEvents", () => {
                 {
                     fromIdx: 0,
                     toIdx: 1,
+                    moveKey: "1",
                     triggerIdxs: [2],
                     capturedIdxs: [3],
                     sideEffects: [{ fromIdx: 4, toIdx: 5 }],
@@ -277,6 +278,7 @@ describe("useLiveChessEvents", () => {
                 {
                     fromIdx: 10,
                     toIdx: 11,
+                    moveKey: "2",
                 },
             ];
             const encodedMoves = encodeMoves(fakeMoves);

@@ -21,10 +21,11 @@ describe("decodePathIntoMap", () => {
             {
                 fromIdx: 0,
                 toIdx: 1,
-                triggerIdxs: [2],
-                capturedIdxs: [3],
-                intermediateIdxs: [4],
-                sideEffects: [{ fromIdx: 5, toIdx: 6 }],
+                moveKey: "2",
+                triggerIdxs: [3],
+                capturedIdxs: [4],
+                intermediateIdxs: [5],
+                sideEffects: [{ fromIdx: 6, toIdx: 7 }],
                 promotesTo: PieceType.BISHOP,
             },
         ];
@@ -40,13 +41,14 @@ describe("decodePathIntoMap", () => {
         expect(move).toEqual<Move>({
             from: logicalPoint({ x: 0, y: 0 }),
             to: logicalPoint({ x: 1, y: 0 }),
-            triggers: [logicalPoint({ x: 2, y: 0 })],
-            captures: [logicalPoint({ x: 3, y: 0 })],
-            intermediates: [logicalPoint({ x: 4, y: 0 })],
+            moveKey: "2",
+            triggers: [logicalPoint({ x: 3, y: 0 })],
+            captures: [logicalPoint({ x: 4, y: 0 })],
+            intermediates: [logicalPoint({ x: 5, y: 0 })],
             sideEffects: [
                 {
-                    from: logicalPoint({ x: 5, y: 0 }),
-                    to: logicalPoint({ x: 6, y: 0 }),
+                    from: logicalPoint({ x: 6, y: 0 }),
+                    to: logicalPoint({ x: 7, y: 0 }),
                 },
             ],
             promotesTo: PieceType.BISHOP,
@@ -55,8 +57,8 @@ describe("decodePathIntoMap", () => {
 
     it("should group multiple moves from the same fromIdx", () => {
         const paths: MovePath[] = [
-            { fromIdx: 0, toIdx: 1 },
-            { fromIdx: 0, toIdx: 2 },
+            { fromIdx: 0, toIdx: 1, moveKey: "2" },
+            { fromIdx: 0, toIdx: 2, moveKey: "3" },
         ];
         const boardWidth = 10;
 
@@ -65,8 +67,18 @@ describe("decodePathIntoMap", () => {
         expect(result.size).toBe(1);
         const moves = result.get("0,0");
         expect(moves).toEqual([
-            { ...emptyMove, from: { x: 0, y: 0 }, to: { x: 1, y: 0 } },
-            { ...emptyMove, from: { x: 0, y: 0 }, to: { x: 2, y: 0 } },
+            {
+                ...emptyMove,
+                from: { x: 0, y: 0 },
+                to: { x: 1, y: 0 },
+                moveKey: 2,
+            },
+            {
+                ...emptyMove,
+                from: { x: 0, y: 0 },
+                to: { x: 2, y: 0 },
+                moveKey: 3,
+            },
         ]);
     });
 
@@ -86,10 +98,12 @@ describe("decodeEncodedMovesIntoMap", () => {
                 capturedIdxs: [3],
                 intermediateIdxs: [4],
                 sideEffects: [{ fromIdx: 5, toIdx: 6 }],
+                moveKey: "1",
             },
             {
                 fromIdx: 10,
                 toIdx: 11,
+                moveKey: "5",
             },
         ];
 
@@ -104,6 +118,7 @@ describe("decodeEncodedMovesIntoMap", () => {
             {
                 from: logicalPoint({ x: 0, y: 0 }),
                 to: logicalPoint({ x: 1, y: 0 }),
+                moveKey: "1",
                 triggers: [logicalPoint({ x: 2, y: 0 })],
                 captures: [logicalPoint({ x: 3, y: 0 })],
                 intermediates: [logicalPoint({ x: 4, y: 0 })],
@@ -120,6 +135,7 @@ describe("decodeEncodedMovesIntoMap", () => {
             {
                 from: logicalPoint({ x: 0, y: 1 }),
                 to: logicalPoint({ x: 1, y: 1 }),
+                moveKey: "5",
                 ...emptyMove,
             },
         ]);

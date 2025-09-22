@@ -3,7 +3,6 @@
 import { useCallback, useRef } from "react";
 import { StoreApi } from "zustand";
 
-import { MoveKey } from "@/features/chessboard/lib/types";
 import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
@@ -29,6 +28,7 @@ import {
     ProcessedGameState,
 } from "../lib/gameStateProcessor";
 import useConst from "@/hooks/useConst";
+import { Move } from "@/features/chessboard/lib/types";
 
 const LiveChessboard = ({
     gameToken,
@@ -52,9 +52,9 @@ const LiveChessboard = ({
 
     const sendGameEvent = useGameEmitter(gameToken);
     const sendMove = useCallback(
-        async (key: MoveKey) => {
+        async (move: Move) => {
             liveChessStore.getState().markPendingMoveAck();
-            await sendGameEvent("MovePieceAsync", gameToken, key);
+            await sendGameEvent("MovePieceAsync", gameToken, move.moveKey);
         },
         [sendGameEvent, gameToken, liveChessStore],
     );
