@@ -21,7 +21,7 @@ export interface LegalMovesSlice {
         dest: LogicalPoint,
         pieceId: PieceID,
         piece: Piece,
-    ): Promise<Move | undefined>;
+    ): Promise<Move | null>;
 
     showLegalMoves(piece: Piece): void;
     flashLegalMoves(): void;
@@ -48,7 +48,7 @@ export function createLegalMovesSlice(
             const movesFromOrigin = moveOptions.legalMoves.get(
                 pointToStr(origin),
             );
-            if (!movesFromOrigin) return;
+            if (!movesFromOrigin) return null;
 
             const movesToDest = await disambiguateDestination(
                 dest,
@@ -56,9 +56,9 @@ export function createLegalMovesSlice(
                 pieceId,
                 piece,
             );
+            if (!movesToDest || movesToDest.length === 0) return null;
 
-            if (!movesToDest || movesToDest.length === 0) return;
-            else if (movesToDest.length === 1) return movesToDest[0];
+            if (movesToDest.length === 1) return movesToDest[0];
 
             // multiple moves to the same destination, must be a promotion
             const availablePromotions = new Map<PieceType | null, Move>();
@@ -71,7 +71,7 @@ export function createLegalMovesSlice(
                 pieces: [...availablePromotions.keys()],
                 piece,
             });
-            return availablePromotions.get(promoteTo);
+            return availablePromotions.get(promoteTo) ?? null;
         },
 
         showLegalMoves(piece) {
@@ -82,17 +82,18 @@ export function createLegalMovesSlice(
 
             const toHighlightPoints = new Map<StrPoint, LogicalPoint>();
             for (const move of moves) {
-                for (const trigger of move.triggers) {
-                    toHighlightPoints.set(pointToStr(trigger), trigger);
-                }
-                if (move.intermediates.length == 0) {
-                    toHighlightPoints.set(pointToStr(move.to), move.to);
-                } else {
+                if (move.intermediates.length != 0) {
                     toHighlightPoints.set(
                         pointToStr(move.intermediates[0]),
                         move.intermediates[0],
                     );
+                    continue;
                 }
+
+                for (const trigger of move.triggers) {
+                    toHighlightPoints.set(pointToStr(trigger), trigger);
+                }
+                toHighlightPoints.set(pointToStr(move.to), move.to);
             }
 
             set((state) => {
