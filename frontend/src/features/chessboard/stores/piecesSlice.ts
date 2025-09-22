@@ -20,20 +20,12 @@ export interface PieceSliceProps {
 
 export interface PiecesSlice {
     pieceMap: PieceMap;
-    animatingPieceMap: PieceMap | null;
-    animatingPieces: Set<PieceID>;
     selectedPieceId: PieceID | null;
 
     onPieceMovement?: (key: MoveKey) => Promise<void>;
 
-    selectPiece(piece: PieceID): void;
-    tryApplySelectedMove({
-        dest,
-        isDrag,
-    }: {
-        dest: LogicalPoint;
-        isDrag: boolean;
-    }): Promise<boolean>;
+    selectPiece(pieceId: PieceID): void;
+    tryApplySelectedMove(dest: LogicalPoint): Promise<boolean>;
     handleMousePieceDrop({
         mousePoint,
         isDrag,
@@ -49,7 +41,6 @@ export interface PiecesSlice {
         options?: { animateIntermediates?: boolean },
     ): Promise<void>;
 
-    addAnimatingPiece(pieceId: PieceID): Promise<void>;
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
 
@@ -68,17 +59,24 @@ export function createPiecesSlice(
         selectedPieceId: null,
         animatingPieces: new Set(),
 
-        selectPiece(piece) {
-            const { showLegalMoves } = get();
+        selectPiece(pieceId) {
+            const { showLegalMoves, pieceMap } = get();
+            const piece = pieceMap.get(pieceId);
+            if (!piece) {
+                console.warn(
+                    `Cannot show legal moves, no piece was found with id ${pieceId}`,
+                );
+                return;
+            }
 
             showLegalMoves(piece);
             set((state) => {
-                state.selectedPieceId = piece;
+                state.selectedPieceId = pieceId;
             });
         },
 
         async applyMoveWithIntermediates(move) {
-            const { addAnimatingPiece, pieceMap } = get();
+            const { setAnimatingPieceMap, pieceMap } = get();
 
             const positions = simulateMoveWithIntermediates(pieceMap, move);
             const lastPosition = positions[positions.length - 1];
@@ -87,13 +85,7 @@ export function createPiecesSlice(
             });
 
             for (const { movedPieceIds, newPieces } of positions) {
-                const animatingPromises = movedPieceIds
-                    .values()
-                    .map(addAnimatingPiece);
-                set((state) => {
-                    state.animatingPieceMap = newPieces;
-                });
-                await Promise.all(animatingPromises);
+                await setAnimatingPieceMap(newPieces, movedPieceIds);
             }
             set((state) => {
                 state.animatingPieceMap = null;
@@ -110,13 +102,12 @@ export function createPiecesSlice(
             });
         },
 
-        async tryApplySelectedMove({ dest, isDrag }) {
+        async tryApplySelectedMove(dest) {
             const {
                 selectedPieceId,
                 getLegalMove,
                 onPieceMovement,
                 applyMove,
-                applyMoveWithIntermediates,
                 pieceMap,
                 disableMovement,
             } = get();
@@ -132,12 +123,12 @@ export function createPiecesSlice(
             const move = await getLegalMove(
                 selectedPiece.position,
                 dest,
+                selectedPieceId,
                 selectedPiece,
             );
             if (!move) return false;
 
-            if (isDrag) applyMove(move);
-            else applyMoveWithIntermediates(move);
+            applyMove(move);
 
             disableMovement();
             await onPieceMovement?.({
@@ -162,14 +153,10 @@ export function createPiecesSlice(
                 moveOptions,
             } = get();
 
-            const logicalPoint = screenToLogicalPoint(mousePoint);
-            if (!logicalPoint) return false;
+            const dest = screenToLogicalPoint(mousePoint);
+            if (!dest) return false;
 
-            const didMove = await tryApplySelectedMove({
-                dest: logicalPoint,
-                isDrag,
-            });
-
+            const didMove = await tryApplySelectedMove(dest);
             const shouldFlashLegalMoves =
                 moveOptions.hasForcedMoves &&
                 isDrag && // player tried to phyically move the piece, not just click and click somewhere else
@@ -207,28 +194,6 @@ export function createPiecesSlice(
                 state.highlightedLegalMoves = [];
                 state.selectedPieceId = null;
             });
-        },
-
-        /**
-         * Adds a piece ID to the set of currently animating pieces,
-         * then removes it after a short delay to control animation lifecycle.
-         *
-         * @param pieceId - The ID of the piece to animate.
-         */
-        addAnimatingPiece(pieceId) {
-            set((state) => {
-                if (!state.animatingPieces.has(pieceId))
-                    state.animatingPieces.add(pieceId);
-            });
-
-            return new Promise((resolve) =>
-                setTimeout(() => {
-                    set((state) => {
-                        state.animatingPieces.delete(pieceId);
-                    });
-                    resolve();
-                }, 100),
-            );
         },
 
         screenPointToPiece(point) {
