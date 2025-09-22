@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
+using System.Text;
 
 namespace Chess2.Api.LiveGame.Services;
 
@@ -57,6 +57,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
             sb.Append(FileLetter(move.From.X));
 
         DisambiguatePosition(move, legalMoves, sb);
+        NotateIntermediateSquares(move, sb);
         NotateDestination(move, sb);
         NotateSideCaptures(move, sb);
     }
@@ -96,6 +97,15 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
         if (isCapture)
             sb.Append('x');
         sb.Append(move.To.AsAlgebraic());
+    }
+
+    private static void NotateIntermediateSquares(Move move, StringBuilder sb)
+    {
+        foreach (var square in move.IntermediateSquares)
+        {
+            sb.Append('~');
+            sb.Append(square.AsAlgebraic());
+        }
     }
 
     private static void NotateSideCaptures(Move move, StringBuilder sb)

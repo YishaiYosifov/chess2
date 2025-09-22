@@ -253,4 +253,19 @@ public class SanCalculatorTests
 
         san.Should().Be("B-O-O-B");
     }
+
+    [Fact]
+    public void CalculateSan_appends_intermediate_squares()
+    {
+        Move move = new(
+            new("a1"),
+            new("g6"),
+            PieceFactory.White(PieceType.Checker),
+            intermediateSquares: [new("b2"), new("d4"), new("f6")]
+        );
+
+        var san = _calculator.CalculateSan(move, [move]);
+
+        san.Should().Be("C~b2~d4~f6g6");
+    }
 }
