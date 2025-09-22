@@ -193,13 +193,14 @@ describe("useLiveChessEvents", () => {
 
                 const move = createFakeMoveSnapshot();
                 const clocks = createFakeClock();
-                await act(async () =>
-                    gameEventHandlers.MoveMadeAsync?.(
-                        move,
-                        newSideToMove,
-                        1,
-                        clocks,
-                    ),
+                await act(
+                    async () =>
+                        await gameEventHandlers.MoveMadeAsync?.(
+                            move,
+                            newSideToMove,
+                            1,
+                            clocks,
+                        ),
                 );
 
                 const moveOptions = chessboardStore.getState().moveOptions;

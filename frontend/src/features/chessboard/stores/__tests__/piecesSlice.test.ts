@@ -253,11 +253,7 @@ describe("PiecesSlice", () => {
             await store.getState().applyMoveTurn(move);
 
             expectPieces({ id: "0", position: move.to, piece });
-            expect(onPieceMovementMock).toHaveBeenCalledWith({
-                from: move.from,
-                to: move.to,
-                promotesTo: move.promotesTo,
-            });
+            expect(onPieceMovementMock).toHaveBeenCalledWith(move);
         });
     });
 

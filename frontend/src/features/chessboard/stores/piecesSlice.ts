@@ -80,7 +80,9 @@ export function createPiecesSlice(
             const { setAnimatingPieceMap, pieceMap } = get();
 
             const positions = simulateMoveWithIntermediates(pieceMap, move);
-            const lastPosition = positions[positions.length - 1];
+            const lastPosition = positions.at(-1);
+            if (!lastPosition) return;
+
             set((state) => {
                 state.pieceMap = lastPosition.newPieces;
             });
