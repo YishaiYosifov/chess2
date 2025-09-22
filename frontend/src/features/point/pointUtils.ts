@@ -33,3 +33,23 @@ export function screenPoint(point: Point): ScreenPoint {
 export function pointEquals(a: Point, b: Point): boolean {
     return a.x === b.x && a.y === b.y;
 }
+
+export function pointArraysEqual(a: Point[], b: Point[]): boolean {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (!pointEquals(a[i], b[i])) return false;
+    }
+    return true;
+}
+
+export function pointWithinArray(point: Point, arr: Point[]): boolean {
+    return arr.some((p) => pointEquals(p, point));
+}
+
+export function pointArrayStartsWith(arr: Point[], prefix: Point[]): boolean {
+    if (prefix.length > arr.length) return false;
+    for (let i = 0; i < prefix.length; i++) {
+        if (!pointEquals(arr[i], prefix[i])) return false;
+    }
+    return true;
+}

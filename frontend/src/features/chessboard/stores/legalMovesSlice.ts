@@ -5,7 +5,7 @@ import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
 import { StateCreator } from "zustand";
 import { ChessboardStore } from "./chessboardStore";
-import { pointEquals, pointToStr } from "@/features/point/pointUtils";
+import { pointToStr } from "@/features/point/pointUtils";
 import { PieceType } from "@/lib/apiClient";
 
 export interface LegalMovesSliceProps {
@@ -41,20 +41,19 @@ export function createLegalMovesSlice(
         highlightedLegalMoves: [],
 
         async getLegalMove(origin, dest, piece) {
-            const { moveOptions, promptPromotion } = get();
+            const { moveOptions, promptPromotion, disambiguateDestination } =
+                get();
 
             const movesFromOrigin = moveOptions.legalMoves.get(
                 pointToStr(origin),
             );
             if (!movesFromOrigin) return;
 
-            const movesToDest = movesFromOrigin?.filter(
-                (candidateMove) =>
-                    pointEquals(candidateMove.to, dest) ||
-                    candidateMove.triggers.some((triggerPoint) =>
-                        pointEquals(triggerPoint, dest),
-                    ),
+            const movesToDest = await disambiguateDestination(
+                dest,
+                movesFromOrigin,
             );
+            if (!movesToDest) return;
 
             if (movesToDest.length === 0) return;
             else if (movesToDest.length === 1) return movesToDest[0];
@@ -93,9 +92,16 @@ export function createLegalMovesSlice(
 
             const toHighlightPoints = new Map<StrPoint, LogicalPoint>();
             for (const move of moves) {
-                toHighlightPoints.set(pointToStr(move.to), move.to);
                 for (const trigger of move.triggers) {
                     toHighlightPoints.set(pointToStr(trigger), trigger);
+                }
+                if (move.intermediates.length == 0) {
+                    toHighlightPoints.set(pointToStr(move.to), move.to);
+                } else {
+                    toHighlightPoints.set(
+                        pointToStr(move.intermediates[0]),
+                        move.intermediates[0],
+                    );
                 }
             }
 
