@@ -63,14 +63,14 @@ public class GameCoreTests
         var whiteMoves = _gameCore.GetLegalMovesOf(GameColor.White, state);
         var blackMoves = _gameCore.GetLegalMovesOf(GameColor.Black, state);
 
-        whiteMoves.MovesMap.Should().HaveCount(2);
+        whiteMoves.MoveMap.Should().HaveCount(2);
         whiteMoves
-            .MovesMap.Should()
+            .MoveMap.Should()
             .ContainKey(new MoveKey(m1.From, m1.To))
             .WhoseValue.Should()
             .Be(m1);
         whiteMoves
-            .MovesMap.Should()
+            .MoveMap.Should()
             .ContainKey(new MoveKey(m2.From, m2.To))
             .WhoseValue.Should()
             .Be(m2);
@@ -78,7 +78,7 @@ public class GameCoreTests
         whiteMoves.EncodedMoves.Should().BeEquivalentTo(movesEnc);
         whiteMoves.HasForcedMoves.Should().BeFalse();
 
-        blackMoves.MovesMap.Should().BeEmpty();
+        blackMoves.MoveMap.Should().BeEmpty();
         blackMoves.MovePaths.Should().BeEmpty();
         blackMoves.EncodedMoves.Should().BeEmpty();
 
@@ -132,7 +132,7 @@ public class GameCoreTests
     {
         GameCoreState state = new();
         Move move = new(new("e2"), new("e4"), PieceFactory.White());
-        MoveKey key = new(From: new("e2"), To: new("e4"));
+        MoveKey key = new(from: new("e2"), to: new("e4"));
 
         List<Move> expectedMoves = [move];
         _legalMoveCalculatorMock
@@ -162,7 +162,7 @@ public class GameCoreTests
     {
         GameCoreState state = new();
         Move whiteMove = new(new("e2"), new("e4"), PieceFactory.White());
-        MoveKey key = new(From: new("e2"), To: new("e4"));
+        MoveKey key = new(from: new("e2"), to: new("e4"));
 
         Move blackMove1 = new(new("e7"), new("e5"), PieceFactory.Black());
         Move blackMove2 = new(new("d7"), new("d5"), PieceFactory.Black());
@@ -200,7 +200,7 @@ public class GameCoreTests
         };
 
         LegalMoveSet expectedLegalMoves = new(
-            MovesMap: expectedMovesMap,
+            MoveMap: expectedMovesMap,
             MovePaths: blackMovePaths,
             EncodedMoves: encodedBlackMoves,
             HasForcedMoves: false
@@ -227,10 +227,10 @@ public class GameCoreTests
             piece: whiteKing,
             captures: [new MoveCapture(blackKing, new AlgebraicPoint("a1"))]
         );
-        MoveKey key = new(From: move.From, To: move.To);
+        MoveKey key = new(from: move.From, to: move.To);
 
         state.LegalMoves = new(
-            MovesMap: new Dictionary<MoveKey, Move>() { [key] = move },
+            MoveMap: new Dictionary<MoveKey, Move>() { [key] = move },
             MovePaths: [MovePath.FromMove(move, GameConstants.BoardWidth)],
             EncodedMoves: [1, 2, 3],
             HasForcedMoves: false
@@ -263,10 +263,10 @@ public class GameCoreTests
             piece: whiteKing,
             captures: [new MoveCapture(blackKing1, new AlgebraicPoint("a1"))]
         );
-        MoveKey key = new(From: move.From, To: move.To);
+        MoveKey key = new(from: move.From, to: move.To);
 
         state.LegalMoves = new(
-            MovesMap: new Dictionary<MoveKey, Move>() { [key] = move },
+            MoveMap: new Dictionary<MoveKey, Move>() { [key] = move },
             MovePaths: [MovePath.FromMove(move, GameConstants.BoardWidth)],
             EncodedMoves: [1, 2, 3],
             HasForcedMoves: false

@@ -213,7 +213,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         var result = await grain.MovePieceAsync(
             _whitePlayer.UserId,
-            new(From: new AlgebraicPoint("e2"), To: new AlgebraicPoint("e8"))
+            new(from: new AlgebraicPoint("e2"), to: new AlgebraicPoint("e8"))
         );
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.MoveInvalid);
@@ -392,7 +392,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     private Move GetLegalMoveFor(GamePlayer player) =>
-        _gameCore.GetLegalMovesOf(player.Color, _state.Core).MovesMap.First().Value;
+        _gameCore.GetLegalMovesOf(player.Color, _state.Core).MoveMap.First().Value;
 
     private async Task<Move> MakeLegalMoveAsync(IGameGrain grain, GamePlayer player)
     {

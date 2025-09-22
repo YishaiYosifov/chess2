@@ -30,7 +30,7 @@ public class GameCoreTests : BaseIntegrationTest
         _gameCore.SideToMove(_state).Should().Be(GameColor.Black);
 
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.Black, _state);
-        legalMoves.MovesMap.Should().NotBeEmpty();
+        legalMoves.MoveMap.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class GameCoreTests : BaseIntegrationTest
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state);
         legalMoves.HasForcedMoves.Should().BeTrue();
         legalMoves.MovePaths.Should().ContainSingle();
-        legalMoves.MovesMap.Should().ContainSingle();
+        legalMoves.MoveMap.Should().ContainSingle();
     }
 
     [Fact]

@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.LiveGame.Models;
 
 namespace Chess2.Api.GameSnapshot.Models;
 
@@ -7,6 +8,7 @@ namespace Chess2.Api.GameSnapshot.Models;
 public record MovePath(
     byte FromIdx,
     byte ToIdx,
+    string MoveKey,
     IReadOnlyCollection<byte>? CapturedIdxs,
     IReadOnlyCollection<byte>? TriggerIdxs,
     IReadOnlyCollection<byte>? IntermediateIdxs,
@@ -14,7 +16,7 @@ public record MovePath(
     PieceType? PromotesTo
 )
 {
-    public static MovePath FromMove(Move move, int boardWidth)
+    public static MovePath FromMove(Move move, int boardWidth, MoveKey? moveKey = null)
     {
         var captures =
             move.Captures.Count != 0
@@ -42,7 +44,8 @@ public record MovePath(
             TriggerIdxs: triggers,
             IntermediateIdxs: intermediates,
             SideEffects: sideEffects,
-            PromotesTo: move.PromotesTo
+            PromotesTo: move.PromotesTo,
+            MoveKey: moveKey ?? new MoveKey(move)
         );
     }
 }
