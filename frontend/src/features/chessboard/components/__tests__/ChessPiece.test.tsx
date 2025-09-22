@@ -203,6 +203,7 @@ describe("ChessPiece", () => {
         const move: Move = {
             from: startPos,
             to: destinationPos,
+            moveKey: "0",
             triggers: [],
             captures: [],
             intermediates: [],
@@ -249,6 +250,7 @@ describe("ChessPiece", () => {
         const move: Move = {
             from: startPos,
             to: destinationPos,
+            moveKey: "0",
             triggers: [],
             captures: [],
             intermediates: [],

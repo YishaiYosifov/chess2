@@ -4,7 +4,6 @@ import useSignalREvent, { signalREventHookFactory } from "./useSignalREvent";
 import useSignalREmitter, {
     signalREmitterHookFactory,
 } from "./useSignalREmitter";
-import { MoveKey } from "@/features/chessboard/lib/types";
 import {
     Clocks,
     DrawState,
@@ -75,7 +74,7 @@ export type GameClientEvents = {
 };
 
 type GameHubEvents = {
-    MovePieceAsync: [gameToken: string, key: MoveKey];
+    MovePieceAsync: [gameToken: string, key: string];
 
     EndGameAsync: [gameToken: string];
     RequestDrawAsync: [gameToken: string];

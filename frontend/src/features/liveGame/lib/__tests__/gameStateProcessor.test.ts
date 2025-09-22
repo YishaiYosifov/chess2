@@ -24,6 +24,7 @@ describe("createStoreProps", () => {
                     path: {
                         fromIdx: 15,
                         toIdx: 45,
+                        moveKey: "0",
                     },
                     san: "f5",
                     timeLeft: 100,
@@ -32,6 +33,7 @@ describe("createStoreProps", () => {
                     path: {
                         fromIdx: 85,
                         toIdx: 55,
+                        moveKey: "1",
                     },
                     san: "f6",
                     timeLeft: 100,
@@ -40,6 +42,7 @@ describe("createStoreProps", () => {
                     path: {
                         fromIdx: 8,
                         toIdx: 27,
+                        moveKey: "2",
                     },
                     san: "Hh3",
                     timeLeft: 50,
@@ -48,6 +51,7 @@ describe("createStoreProps", () => {
                     path: {
                         fromIdx: 91,
                         toIdx: 72,
+                        moveKey: "3",
                     },
                     san: "Hc8",
                     timeLeft: 50,
@@ -55,8 +59,8 @@ describe("createStoreProps", () => {
             ],
             moveOptions: {
                 legalMoves: [
-                    { fromIdx: 0, toIdx: 1 },
-                    { fromIdx: 2, toIdx: 3 },
+                    { fromIdx: 0, toIdx: 1, moveKey: "0" },
+                    { fromIdx: 2, toIdx: 3, moveKey: "1" },
                 ],
                 hasForcedMoves: true,
             },
@@ -80,6 +84,7 @@ describe("createStoreProps", () => {
             const { newPieces } = simulateMove(pieces, {
                 from,
                 to,
+                moveKey: "",
                 captures: [],
                 triggers: [],
                 intermediates: [],

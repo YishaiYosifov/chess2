@@ -3,7 +3,6 @@ import { ScreenPoint } from "@/features/point/types";
 import { BoardState, PieceID } from "../lib/types";
 import { Move } from "../lib/types";
 import { PieceMap } from "../lib/types";
-import { MoveKey } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals, pointToStr } from "@/features/point/pointUtils";
@@ -15,14 +14,14 @@ import {
 
 export interface PieceSliceProps {
     pieceMap: PieceMap;
-    onPieceMovement?: (key: MoveKey) => Promise<void>;
+    onPieceMovement?: (move: Move) => Promise<void>;
 }
 
 export interface PiecesSlice {
     pieceMap: PieceMap;
     selectedPieceId: PieceID | null;
 
-    onPieceMovement?: (key: MoveKey) => Promise<void>;
+    onPieceMovement?: (move: Move) => Promise<void>;
 
     selectPiece(pieceId: PieceID): void;
     getMoveForSelection(dest: LogicalPoint): Promise<Move | null>;
@@ -109,11 +108,7 @@ export function createPiecesSlice(
 
             applyMove(move);
             disableMovement();
-            await onPieceMovement?.({
-                from: move.from,
-                to: move.to,
-                promotesTo: move.promotesTo,
-            });
+            await onPieceMovement?.(move);
         },
 
         /**
