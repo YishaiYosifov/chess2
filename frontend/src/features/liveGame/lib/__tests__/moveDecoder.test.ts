@@ -71,13 +71,13 @@ describe("decodePathIntoMap", () => {
                 ...emptyMove,
                 from: { x: 0, y: 0 },
                 to: { x: 1, y: 0 },
-                moveKey: 2,
+                moveKey: "2",
             },
             {
                 ...emptyMove,
                 from: { x: 0, y: 0 },
                 to: { x: 2, y: 0 },
-                moveKey: 3,
+                moveKey: "3",
             },
         ]);
     });
