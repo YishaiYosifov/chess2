@@ -65,6 +65,7 @@ public class ArchivedGameStateBuilder : IArchivedGameStateBuilder
         return new MovePath(
             FromIdx: move.FromIdx,
             ToIdx: move.ToIdx,
+            MoveKey: move.MoveKey,
             CapturedIdxs: [.. move.Captures],
             TriggerIdxs: [.. move.Triggers],
             IntermediateIdxs: [.. move.Intermediates],

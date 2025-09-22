@@ -89,6 +89,7 @@ public class ArchivedGameStateBuilderTests
         return new(
             FromIdx: moveArchive.FromIdx,
             ToIdx: moveArchive.ToIdx,
+            MoveKey: moveArchive.MoveKey,
             CapturedIdxs: [.. moveArchive.Captures],
             TriggerIdxs: [.. moveArchive.Triggers],
             IntermediateIdxs: [.. moveArchive.Intermediates],

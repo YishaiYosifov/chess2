@@ -1,6 +1,4 @@
-﻿using System.IO.Compression;
-using System.Text;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Services;
 using FluentAssertions;
@@ -8,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.IO.Compression;
+using System.Text;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
@@ -33,6 +33,7 @@ public class MoveEncoderTests
             new(
                 FromIdx: 1,
                 ToIdx: 2,
+                MoveKey: "move1",
                 CapturedIdxs: [4, 5, 6],
                 TriggerIdxs: [7, 8, 9],
                 SideEffects: [new(FromIdx: 10, ToIdx: 11), new(FromIdx: 12, ToIdx: 13)],
@@ -42,6 +43,7 @@ public class MoveEncoderTests
             new(
                 FromIdx: 1,
                 ToIdx: 2,
+                MoveKey: "move2",
                 CapturedIdxs: null,
                 TriggerIdxs: null,
                 IntermediateIdxs: null,
