@@ -1,9 +1,9 @@
-﻿using System.Text.Json.Serialization;
-using Chess2.Api.GameLogic;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
+using System.Text.Json.Serialization;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -53,6 +53,7 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
+        IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
@@ -65,6 +66,7 @@ public class PieceTestCase
                 to,
                 trigger,
                 captures,
+                intermediates,
                 sideEffects,
                 specialMoveType,
                 forcedPriority,
@@ -108,6 +110,7 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
+        IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
@@ -119,6 +122,7 @@ public class PieceTestCase
             to,
             trigger,
             captures,
+            intermediates,
             sideEffects,
             specialMoveType,
             forcedPriority,
@@ -151,6 +155,7 @@ public class PieceTestCase
         string to,
         IEnumerable<string>? trigger = null,
         IEnumerable<string>? captures = null,
+        IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
@@ -174,6 +179,7 @@ public class PieceTestCase
             _board.PeekPieceAt(fromPoint)
                 ?? throw new InvalidOperationException($"No Piece Found at {fromPoint}"),
             triggerSquares: trigger?.Select(x => new AlgebraicPoint(x)),
+            intermediateSquares: intermediates?.Select(x => new AlgebraicPoint(x)),
             captures: moveCaptures,
             sideEffects: sideEffects,
             specialMoveType: specialMoveType,
