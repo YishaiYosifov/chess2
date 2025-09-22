@@ -16,7 +16,7 @@ const PromotionPrompt = () => {
     return (
         <div
             data-testid="promotionPromptOverlay"
-            className="absolute inset-0 z-50 flex cursor-auto bg-black/60"
+            className="absolute inset-0 z-50 flex cursor-auto bg-black/50"
             onMouseDown={() => resolvePromotion?.(null)}
         >
             {pendingPromotion.pieces.map((piece, i) => (

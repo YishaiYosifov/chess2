@@ -3,6 +3,7 @@ import ChessPiece from "./ChessPiece";
 import HighlightedLegalMove from "./HighlightedLegalMove";
 import { pointToStr } from "@/features/point/pointUtils";
 import PromotionPrompt from "./PromotionPrompt";
+import IntermediateSquarePrompt from "./IntermediateSquarePrompt";
 
 const PieceRenderer = () => {
     const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
@@ -24,6 +25,7 @@ const PieceRenderer = () => {
             ))}
 
             <PromotionPrompt />
+            <IntermediateSquarePrompt />
         </>
     );
 };
