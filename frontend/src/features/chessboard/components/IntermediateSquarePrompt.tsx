@@ -21,6 +21,7 @@ const IntermediateSquarePrompt = () => {
         >
             {nextIntermediates.map((point, i) => (
                 <ChessSquare
+                    data-testid="intermediateSquare"
                     position={point}
                     key={i}
                     onMouseDown={(e) => e.stopPropagation()}
