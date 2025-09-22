@@ -53,3 +53,7 @@ export function pointArrayStartsWith(arr: Point[], prefix: Point[]): boolean {
     }
     return true;
 }
+
+export function sortPoints(points: LogicalPoint[]): LogicalPoint[] {
+    return [...points].sort((a, b) => a.x - b.x || a.y - b.y);
+}
