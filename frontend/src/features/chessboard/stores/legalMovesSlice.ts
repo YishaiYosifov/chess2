@@ -56,11 +56,11 @@ export function createLegalMovesSlice(
                 pieceId,
                 piece,
             );
-            if (!movesToDest) return;
 
-            if (movesToDest.length === 0) return;
+            if (!movesToDest || movesToDest.length === 0) return;
             else if (movesToDest.length === 1) return movesToDest[0];
 
+            // multiple moves to the same destination, must be a promotion
             const availablePromotions = new Map<PieceType | null, Move>();
             for (const move of movesToDest) {
                 availablePromotions.set(move.promotesTo, move);
@@ -74,12 +74,6 @@ export function createLegalMovesSlice(
             return availablePromotions.get(promoteTo);
         },
 
-        /**
-         * Highlights the legal moves available for the specified piece.
-         * Updates the state to reflect these highlighted moves
-         *
-         * @param pieceId - The ID of the piece for which to show legal moves.
-         */
         showLegalMoves(piece) {
             const { moveOptions } = get();
 
