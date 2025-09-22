@@ -268,6 +268,7 @@ export type MoveSnapshot = {
 export type MovePath = {
     fromIdx: number;
     toIdx: number;
+    moveKey: number;
     capturedIdxs?: Array<number> | null;
     triggerIdxs?: Array<number> | null;
     intermediateIdxs?: Array<number> | null;
