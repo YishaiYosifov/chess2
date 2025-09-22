@@ -37,7 +37,6 @@ export const createIntermediateSlice: StateCreator<
             return null;
 
         const { animatePiece, clearAnimation } = get();
-
         const visited: LogicalPoint[] = [dest];
         try {
             while (true) {
