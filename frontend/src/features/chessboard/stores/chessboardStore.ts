@@ -18,6 +18,10 @@ import constants from "@/lib/constants";
 import { createInteractionSlice, InteractionSlice } from "./interactionSlice";
 import { createMoveOptions } from "../lib/moveOptions";
 import { createPromotionSlice, PromotionSlice } from "./promotionSlice";
+import {
+    createIntermediateSlice,
+    IntermediateSlice,
+} from "./intermediateSlice";
 
 export type ChessboardStore = BoardSlice &
     PiecesSlice &
@@ -25,6 +29,7 @@ export type ChessboardStore = BoardSlice &
     LegalMovesSlice &
     OverlaySlice &
     InteractionSlice &
+    IntermediateSlice &
     CoreSlice;
 export type ChessboardProps = BoardSliceProps &
     PieceSliceProps &
@@ -53,6 +58,7 @@ export function createChessboardStore(
                 ...createLegalMovesSlice(initState)(...a),
                 ...createOverlaySlice(...a),
                 ...createInteractionSlice(...a),
+                ...createIntermediateSlice(...a),
                 ...createCoreSlice(...a),
             })),
             { name: "chessboardStore" },
