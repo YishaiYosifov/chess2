@@ -4,12 +4,6 @@ import { LogicalPoint, StrPoint } from "@/features/point/types";
 export type PieceMap = Map<PieceID, Piece>;
 export type LegalMoveMap = Map<StrPoint, Move[]>;
 
-export interface MoveKey {
-    from: LogicalPoint;
-    to: LogicalPoint;
-    promotesTo: PieceType | null;
-}
-
 export interface Piece {
     type: PieceType;
     color: GameColor | null;
@@ -24,6 +18,7 @@ export interface ProcessedMoveOptions {
 export interface Move {
     from: LogicalPoint;
     to: LogicalPoint;
+    moveKey: string;
 
     triggers: LogicalPoint[];
     captures: LogicalPoint[];

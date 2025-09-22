@@ -6,6 +6,7 @@ export function createFakeMovePath(override?: Partial<MovePath>): MovePath {
     return {
         fromIdx: faker.number.int({ min: 0, max: 99 }),
         toIdx: faker.number.int({ min: 0, max: 99 }),
+        moveKey: faker.string.alpha(10),
         capturedIdxs: Array.from({
             length: faker.number.int({ min: 1, max: 5 }),
         }).map(() => faker.number.int({ min: 0, max: 99 })),

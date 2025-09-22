@@ -41,6 +41,7 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
     return {
         from,
         to,
+        moveKey: path.moveKey,
         triggers,
         captures,
         intermediates,
