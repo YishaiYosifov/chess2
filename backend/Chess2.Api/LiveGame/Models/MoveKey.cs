@@ -1,15 +1,50 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using System.Text;
 
 namespace Chess2.Api.LiveGame.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.LiveGame.Models.MoveKey")]
-public readonly record struct MoveKey(
-    AlgebraicPoint From,
-    AlgebraicPoint To,
-    PieceType? PromotesTo = null
-)
+public readonly record struct MoveKey(string Value)
 {
-    public override string ToString() =>
-        PromotesTo is null ? $"{From}->{To}" : $"{From}->{To}={PromotesTo}";
+    public MoveKey(Move move)
+        : this(move.From, move.To, move.PromotesTo, move.IntermediateSquares) { }
+
+    public MoveKey(
+        AlgebraicPoint from,
+        AlgebraicPoint to,
+        PieceType? promotesTo = null,
+        IEnumerable<AlgebraicPoint>? intermediateSquares = null
+    )
+        : this(FromParts(from, to, promotesTo, intermediateSquares)) { }
+
+    public static implicit operator string(MoveKey id) => id.Value;
+
+    public static implicit operator MoveKey(string value) => new(value);
+
+    public override string ToString() => Value;
+
+    private static string FromParts(
+        AlgebraicPoint from,
+        AlgebraicPoint to,
+        PieceType? promotesTo,
+        IEnumerable<AlgebraicPoint>? intermediateSquares
+    )
+    {
+        StringBuilder sb = new();
+        sb.Append(from);
+        sb.Append('-');
+        sb.Append(to);
+        if (promotesTo.HasValue)
+        {
+            sb.Append('=');
+            sb.Append(promotesTo);
+        }
+        foreach (var square in intermediateSquares ?? [])
+        {
+            sb.Append('~');
+            sb.Append(square.ToString());
+        }
+        return sb.ToString();
+    }
 }

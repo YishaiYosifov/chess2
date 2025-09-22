@@ -168,6 +168,7 @@ public class GameArchiveService(
             MoveNumber = moveNumber,
             San = moveSnapshot.San,
             TimeLeft = moveSnapshot.TimeLeft,
+            MoveKey = path.MoveKey,
             FromIdx = path.FromIdx,
             ToIdx = path.ToIdx,
             Captures = path.CapturedIdxs?.ToList() ?? [],

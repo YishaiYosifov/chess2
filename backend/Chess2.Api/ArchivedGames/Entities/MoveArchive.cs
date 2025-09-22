@@ -10,6 +10,7 @@ public class MoveArchive
     public required string San { get; set; }
     public required double TimeLeft { get; set; }
 
+    public required string MoveKey { get; set; }
     public required byte FromIdx { get; set; }
     public required byte ToIdx { get; set; }
     public required ICollection<byte> Captures { get; set; } = [];

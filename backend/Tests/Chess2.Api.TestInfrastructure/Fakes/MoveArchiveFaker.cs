@@ -14,6 +14,7 @@ public class MoveArchiveFaker : Faker<MoveArchive>
         RuleFor(x => x.MoveNumber, f => f.IndexFaker);
         RuleFor(x => x.San, f => f.PickRandom(MoveData.SanMoves));
         RuleFor(x => x.TimeLeft, f => f.Random.Double(1000, 10000));
+        RuleFor(x => x.MoveKey, f => f.Random.String2(10));
         RuleFor(x => x.FromIdx, f => (byte)f.Random.Number(0, 99));
         RuleFor(x => x.ToIdx, f => (byte)f.Random.Number(0, 99));
         RuleFor(x => x.Captures, MoveData.RandomIdxs);

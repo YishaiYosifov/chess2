@@ -69,7 +69,7 @@ public class GameCore(
     public ErrorOr<MoveResult> MakeMove(MoveKey key, GameCoreState state)
     {
         var movingSide = state.Board.SideToMove;
-        if (!state.LegalMoves.MovesMap.TryGetValue(key, out var move))
+        if (!state.LegalMoves.MoveMap.TryGetValue(key, out var move))
         {
             _logger.LogWarning("Could not find move with key {Key}", key);
             return GameErrors.MoveInvalid;
@@ -113,25 +113,19 @@ public class GameCore(
             allMoves.Count != 0 ? allMoves.Max(m => m.ForcedPriority) : ForcedMovePriority.None;
         var legalMoves = allMoves.Where(m => m.ForcedPriority == maxPriority).ToList();
 
-        var movePaths = legalMoves.Select(move => MovePath.FromMove(move, board.Width)).ToList();
-        var encodedMoves = _moveEncoder.EncodeMoves(movePaths);
-
-        Dictionary<MoveKey, Move> groupedMoves = [];
+        Dictionary<MoveKey, Move> moveMap = [];
+        List<MovePath> movePaths = [];
         foreach (var move in legalMoves)
         {
-            MoveKey key = new(From: move.From, To: move.To, PromotesTo: move.PromotesTo);
-            if (!groupedMoves.TryAdd(key, move))
-            {
-                _logger.LogWarning(
-                    "Duplicate move found from {From} to {To}. This should never happen",
-                    move.From,
-                    move.To
-                );
-                continue;
-            }
+            MoveKey key = new(move);
+
+            movePaths.Add(MovePath.FromMove(move, board.Width, moveKey: key));
+            moveMap[key] = move;
         }
+
+        var encodedMoves = _moveEncoder.EncodeMoves(movePaths);
         return new(
-            MovesMap: groupedMoves,
+            MoveMap: moveMap,
             MovePaths: movePaths,
             EncodedMoves: encodedMoves,
             HasForcedMoves: maxPriority > ForcedMovePriority.None

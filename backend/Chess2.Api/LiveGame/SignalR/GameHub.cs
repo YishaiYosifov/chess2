@@ -3,7 +3,6 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.LiveGame.Grains;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +38,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
     private readonly IGrainFactory _grains = grains;
     private readonly IGameNotifier _gameNotifier = gameNotifier;
 
-    public async Task MovePieceAsync(string gameToken, MoveKey key)
+    public async Task MovePieceAsync(string gameToken, string key)
     {
         if (!TryGetUserId(out var userId))
         {

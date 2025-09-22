@@ -86,7 +86,7 @@ public class GameGrainTests : BaseGrainTest
         AssertRejectsForInvalidPlayerAsync(async grain =>
             await grain.MovePieceAsync(
                 _blackPlayer.UserId,
-                new(From: new AlgebraicPoint("a2"), To: new AlgebraicPoint("c4"))
+                new(from: new AlgebraicPoint("a2"), to: new AlgebraicPoint("c4"))
             )
         );
 
@@ -95,7 +95,7 @@ public class GameGrainTests : BaseGrainTest
         AssertRejectsForNotPlayingAsync(async grain =>
             await grain.MovePieceAsync(
                 _whitePlayer.UserId,
-                new(From: new AlgebraicPoint("a2"), To: new AlgebraicPoint("c4"))
+                new(from: new AlgebraicPoint("a2"), to: new AlgebraicPoint("c4"))
             )
         );
 
