@@ -15,7 +15,7 @@ export interface IntermediateSlice {
 
     resolveNextIntermediate: ((move: LogicalPoint | null) => void) | null;
     disambiguateDestination(
-        at: LogicalPoint,
+        dest: LogicalPoint,
         moves: Move[],
         pieceId: PieceID,
         piece: Piece,
@@ -43,8 +43,9 @@ export const createIntermediateSlice: StateCreator<
                 moves = filterMovesByVisited(moves, visited, dest);
                 if (moves.length === 0) return null;
 
-                const canDisambiguateFurther = movesAreIndistinguishable(moves);
-                if (canDisambiguateFurther) return moves;
+                const cantDisambiguateFurther =
+                    movesAreIndistinguishable(moves);
+                if (cantDisambiguateFurther) return moves;
 
                 const nextIntermediates = computeNextIntermediates(moves, dest);
                 if (nextIntermediates.length === 0) return moves;
@@ -53,9 +54,7 @@ export const createIntermediateSlice: StateCreator<
                 const choice = await new Promise<LogicalPoint | null>(
                     (resolve) => {
                         set((state) => {
-                            state.nextIntermediates = [
-                                ...nextIntermediates.values(),
-                            ];
+                            state.nextIntermediates = nextIntermediates;
                             state.resolveNextIntermediate = resolve;
                         });
                     },
@@ -94,19 +93,21 @@ function filterMovesByVisited(
 ): Move[] {
     return moves.filter((move) => {
         if (
-            pointEquals(move.to, dest) ||
+            (move.intermediates.length === 0 && pointEquals(move.to, dest)) ||
             move.triggers.some((p) => pointEquals(p, dest))
         )
             return true;
-        return pointArrayStartsWith(move.intermediates, visited);
+        return pointArrayStartsWith([...move.intermediates, move.to], visited);
     });
 }
 
 function movesAreIndistinguishable(moves: Move[]): boolean {
     return (
         moves.length === 1 ||
-        moves.every((move) =>
-            pointArraysEqual(move.intermediates, moves[0].intermediates),
+        moves.every(
+            (move) =>
+                pointArraysEqual(move.intermediates, moves[0].intermediates) &&
+                pointEquals(move.to, moves[0].to),
         )
     );
 }
