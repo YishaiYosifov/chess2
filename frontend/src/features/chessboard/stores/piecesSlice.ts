@@ -35,7 +35,7 @@ export interface PiecesSlice {
         isDrag: boolean;
     }): Promise<boolean>;
 
-    applyMove(move: Move): void;
+    applyMove(move: Move): Promise<void>;
     applyMoveWithIntermediates(move: Move): Promise<void>;
     goToPosition(
         boardState: BoardState,
@@ -89,14 +89,14 @@ export function createPiecesSlice(
             await playAnimationBatch(positions);
         },
 
-        applyMove(move) {
+        async applyMove(move) {
             const { playAnimationBatch, pieceMap } = get();
             const { newPieces, movedPieceIds } = simulateMove(pieceMap, move);
 
-            playAnimationBatch([{ newPieces, movedPieceIds }]);
             set((state) => {
                 state.pieceMap = newPieces;
             });
+            await playAnimationBatch([{ newPieces, movedPieceIds }]);
         },
 
         async applyMoveTurn(move) {
