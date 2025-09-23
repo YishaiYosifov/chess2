@@ -39,3 +39,8 @@ export interface MoveSideEffect {
 }
 
 export type PieceID = `${number}`;
+
+export interface MoveAnimation {
+    newPieces: PieceMap;
+    movedPieceIds: PieceID[];
+}

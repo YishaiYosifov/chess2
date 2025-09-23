@@ -1,63 +1,101 @@
 import { StateCreator } from "zustand";
 import type { ChessboardStore } from "./chessboardStore";
-import { Piece, PieceID, PieceMap } from "../lib/types";
+import { MoveAnimation, Piece, PieceID, PieceMap } from "../lib/types";
 import { LogicalPoint } from "@/features/point/types";
-import { MoveResult } from "../lib/simulateMove";
-import LastOneWinsAsyncLock from "@/lib/lastOneWinsAsyncLock";
-import { Draft } from "immer";
 
 export interface AnimationSlice {
     animatingPieceMap: PieceMap | null;
     animatingPieces: Set<PieceID>;
 
-    cycleAnimatingPieceMap(positions: MoveResult[]): Promise<void>;
+    playAnimationBatch(positions: MoveAnimation[]): Promise<void>;
     animatePiece(
         pieceId: PieceID,
         piece: Piece,
         newPosition: LogicalPoint,
     ): Promise<void>;
     clearAnimation(): void;
-    addAnimatingPieces(...pieceIds: PieceID[]): Promise<void>;
 }
-
 export const createAnimationSlice: StateCreator<
     ChessboardStore,
     [["zustand/immer", never], never],
     [],
     AnimationSlice
-> = (set, get) => {
-    const animationLock = new LastOneWinsAsyncLock();
+> = (set) => {
+    let currentAnimationCancelToken: { canceled: boolean } | null = null;
+
+    async function processMoveAnimation(
+        animation: MoveAnimation[],
+        persistent: boolean = false,
+    ) {
+        if (currentAnimationCancelToken) {
+            currentAnimationCancelToken.canceled = true;
+        }
+
+        const cancelToken = { canceled: false };
+        currentAnimationCancelToken = cancelToken;
+
+        for (const { movedPieceIds, newPieces } of animation) {
+            if (cancelToken.canceled) break;
+
+            set((state) => {
+                state.animatingPieceMap = newPieces;
+            });
+            await markPiecesAsAnimating(movedPieceIds);
+        }
+
+        if (!cancelToken.canceled && !persistent) {
+            set((state) => {
+                state.animatingPieceMap = null;
+            });
+        }
+
+        if (currentAnimationCancelToken === cancelToken) {
+            currentAnimationCancelToken = null;
+        }
+    }
+
+    async function markPiecesAsAnimating(pieceIds: PieceID[]) {
+        set((state) => {
+            for (const pieceId of pieceIds) state.animatingPieces.add(pieceId);
+        });
+
+        await new Promise<void>((resolve) =>
+            setTimeout(() => {
+                set((state) => {
+                    for (const pieceId of pieceIds)
+                        state.animatingPieces.delete(pieceId);
+                });
+                resolve();
+            }, 100),
+        );
+    }
 
     return {
         animatingPieceMap: null,
         animatingPieces: new Set(),
 
-        async cycleAnimatingPieceMap(positions) {
-            const { clearAnimation } = get();
-
-            await animationLock.acquire(async () => {
-                for (const { movedPieceIds, newPieces } of positions) {
-                    set((state) => {
-                        state.animatingPieceMap = newPieces;
-                    });
-
-                    await animateOnePiece(set, ...movedPieceIds);
-                }
-                clearAnimation();
-            });
+        async playAnimationBatch(positions) {
+            await processMoveAnimation(positions);
         },
 
         async animatePiece(pieceId, piece, newPosition) {
-            const { addAnimatingPieces: addAnimatingPiece } = get();
-
-            set((state) => {
-                state.animatingPieceMap ??= new Map();
-                state.animatingPieceMap.set(pieceId, {
-                    ...piece,
-                    position: newPosition,
-                });
-            });
-            await addAnimatingPiece(pieceId);
+            await processMoveAnimation(
+                [
+                    {
+                        newPieces: new Map([
+                            [
+                                pieceId,
+                                {
+                                    ...piece,
+                                    position: newPosition,
+                                },
+                            ],
+                        ]),
+                        movedPieceIds: [pieceId],
+                    },
+                ],
+                true,
+            );
         },
 
         clearAnimation() {
@@ -65,38 +103,5 @@ export const createAnimationSlice: StateCreator<
                 state.animatingPieceMap = null;
             });
         },
-
-        addAnimatingPieces(...pieceIds) {
-            ensureAnimatingPieces(set, ...pieceIds);
-            return animationLock.acquire(() =>
-                animateOnePiece(set, ...pieceIds),
-            );
-        },
     };
 };
-
-async function animateOnePiece(
-    set: (fn: (state: Draft<ChessboardStore>) => void) => void,
-    ...pieceIds: PieceID[]
-) {
-    ensureAnimatingPieces(set, ...pieceIds);
-
-    await new Promise<void>((resolve) =>
-        setTimeout(() => {
-            set((state) => {
-                for (const pieceId of pieceIds)
-                    state.animatingPieces.delete(pieceId);
-            });
-            resolve();
-        }, 100),
-    );
-}
-
-function ensureAnimatingPieces(
-    set: (fn: (state: Draft<ChessboardStore>) => void) => void,
-    ...pieceIds: PieceID[]
-) {
-    set((state) => {
-        for (const pieceId of pieceIds) state.animatingPieces.add(pieceId);
-    });
-}
