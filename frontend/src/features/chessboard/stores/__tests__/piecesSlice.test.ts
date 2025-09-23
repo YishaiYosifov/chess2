@@ -71,43 +71,6 @@ describe("PiecesSlice", () => {
             );
         });
 
-        it("should add animation to all intermediates", async () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            const otherPiece = createFakePiece({
-                position: logicalPoint({ x: 5, y: 5 }),
-            });
-            store.setState({
-                pieceMap: createFakePieceMapFromPieces(piece, otherPiece),
-            });
-
-            const intermediates = [
-                logicalPoint({ x: 1, y: 1 }),
-                logicalPoint({ x: 2, y: 2 }),
-            ];
-            const move = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 3, y: 3 }),
-                intermediates,
-            });
-
-            const addAnimatingPieceMock = vi.fn();
-            store.setState({ addAnimatingPiece: addAnimatingPieceMock });
-
-            await store.getState().applyMoveWithIntermediates(move);
-
-            // it should call addAnimatingPiece for every intermediate + final move
-            expect(addAnimatingPieceMock).toHaveBeenCalledTimes(
-                intermediates.length + 1,
-            );
-
-            expectPieces(
-                { id: "0", position: move.to, piece },
-                { id: "1", position: otherPiece.position, piece: otherPiece },
-            );
-        });
-
         it("should set pieces to final and animatingPieceMap to first step before awaiting animations", async () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),

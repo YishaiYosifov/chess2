@@ -238,5 +238,18 @@ describe("LegalMovesSlice", () => {
 
             expect(store.getState().moveOptions).toBe(newMoveOptions);
         });
+
+        it("should remove highlight legal moves", () => {
+            store.setState({
+                highlightedLegalMoves: [
+                    logicalPoint({ x: 1, y: 2 }),
+                    logicalPoint({ x: 3, y: 4 }),
+                ],
+            });
+
+            store.getState().setLegalMoves(createMoveOptions());
+
+            expect(store.getState().highlightedLegalMoves.length).toBe(0);
+        });
     });
 });

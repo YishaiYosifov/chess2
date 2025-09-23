@@ -123,6 +123,7 @@ export function createLegalMovesSlice(
         setLegalMoves(moveOptions): void {
             set((state) => {
                 state.moveOptions = moveOptions;
+                state.highlightedLegalMoves = [];
             });
         },
     });
