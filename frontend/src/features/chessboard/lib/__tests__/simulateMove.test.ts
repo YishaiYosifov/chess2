@@ -32,7 +32,7 @@ describe("simulateMove", () => {
 
         const result = simulateMove(pieces, move);
         expect(result.newPieces).toEqual(expected);
-        expect(result.movedPieceIds).toEqual(new Set(["0"]));
+        expect(result.movedPieceIds).toEqual(["0"]);
     });
 
     it("should remove captured pieces", () => {
@@ -59,7 +59,7 @@ describe("simulateMove", () => {
 
         const result = simulateMove(pieces, move);
         expect(result.newPieces).toEqual(expected);
-        expect(result.movedPieceIds).toEqual(new Set(["0"]));
+        expect(result.movedPieceIds).toEqual(["0"]);
     });
 
     it("should apply side effects", () => {
@@ -92,7 +92,7 @@ describe("simulateMove", () => {
 
         const result = simulateMove(pieces, move);
         expect(result.newPieces).toEqual(expected);
-        expect(result.movedPieceIds).toEqual(new Set(["0", "1"]));
+        expect(result.movedPieceIds).toEqual(["0", "1"]);
     });
 });
 
@@ -128,7 +128,9 @@ describe("simulateMoveWithIntermediates", () => {
         expectedFinal.set("0", { ...piece, position: move.to });
         expect(results[2].newPieces).toEqual(expectedFinal);
 
-        expect(results.every((r) => r.movedPieceIds.has("0"))).toBe(true);
+        results.forEach((r) => {
+            expect(r.movedPieceIds).toEqual(["0"]);
+        });
     });
 });
 
