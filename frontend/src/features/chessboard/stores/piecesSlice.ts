@@ -77,7 +77,7 @@ export function createPiecesSlice(
         },
 
         async applyMoveWithIntermediates(move) {
-            const { setAnimatingPieceMap, pieceMap } = get();
+            const { cycleAnimatingPieceMap, pieceMap } = get();
 
             const positions = simulateMoveWithIntermediates(pieceMap, move);
             const lastPosition = positions.at(-1);
@@ -86,20 +86,14 @@ export function createPiecesSlice(
             set((state) => {
                 state.pieceMap = lastPosition.newPieces;
             });
-
-            for (const { movedPieceIds, newPieces } of positions) {
-                await setAnimatingPieceMap(newPieces, movedPieceIds);
-            }
-            set((state) => {
-                state.animatingPieceMap = null;
-            });
+            await cycleAnimatingPieceMap(positions);
         },
 
         applyMove(move) {
-            const { addAnimatingPiece, pieceMap } = get();
+            const { addAnimatingPieces, pieceMap } = get();
             const { newPieces, movedPieceIds } = simulateMove(pieceMap, move);
 
-            movedPieceIds.forEach(addAnimatingPiece);
+            addAnimatingPieces(...movedPieceIds);
             set((state) => {
                 state.pieceMap = newPieces;
             });
@@ -168,7 +162,7 @@ export function createPiecesSlice(
 
         async goToPosition(boardState, options) {
             const {
-                addAnimatingPiece,
+                addAnimatingPieces,
                 applyMoveWithIntermediates,
                 setLegalMoves,
                 pieceMap,
@@ -188,12 +182,11 @@ export function createPiecesSlice(
                     movedPieces.push(id);
             }
 
-            movedPieces.forEach(addAnimatingPiece);
             set((state) => {
                 state.pieceMap = boardState.pieces;
-                state.highlightedLegalMoves = [];
                 state.selectedPieceId = null;
             });
+            await addAnimatingPieces(...movedPieces);
         },
 
         screenPointToPiece(point) {

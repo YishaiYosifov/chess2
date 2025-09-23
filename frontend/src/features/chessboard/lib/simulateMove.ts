@@ -4,7 +4,7 @@ import { PieceID } from "./types";
 import { Move } from "./types";
 import { PieceMap } from "./types";
 
-interface MoveResult {
+export interface MoveResult {
     newPieces: PieceMap;
     movedPieceIds: Set<PieceID>;
 }
