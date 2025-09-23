@@ -1,9 +1,8 @@
 import { StoreApi } from "zustand";
-import { PieceID, PieceMap } from "../../lib/types";
+import { MoveAnimation } from "../../lib/types";
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/features/point/pointUtils";
-import { MoveResult } from "../../lib/simulateMove";
 
 describe("AnimationSlice", () => {
     let store: StoreApi<ChessboardStore>;
@@ -13,111 +12,91 @@ describe("AnimationSlice", () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
     });
 
-    function expectAnimatingPieces(...ids: PieceID[]) {
-        const animatingSet = store.getState().animatingPieces;
-        expect(Array.from(animatingSet).sort()).toEqual(ids.sort());
-    }
+    describe("playAnimationBatch", () => {
+        it("should set animatingPieceMap and animatingPieces during animation and clear after", async () => {
+            const pieceId = "1";
+            const animation: MoveAnimation[] = [
+                {
+                    newPieces: new Map([[pieceId, createFakePiece()]]),
+                    movedPieceIds: [pieceId],
+                },
+            ];
 
-    describe("addAnimatingPieces", () => {
-        it("should add pieceIds to animatingPieces and remove them after 100ms", async () => {
-            const pieceIds: PieceID[] = ["1", "2"];
+            const promise = store.getState().playAnimationBatch(animation);
 
-            store.getState().addAnimatingPieces(...pieceIds);
-            expectAnimatingPieces(...pieceIds);
+            expect(store.getState().animatingPieceMap).toEqual(
+                animation[0].newPieces,
+            );
+            expect(store.getState().animatingPieces).toEqual(new Set(pieceId));
 
-            vi.advanceTimersByTime(100);
-            expectAnimatingPieces();
+            await promise;
+
+            expect(store.getState().animatingPieceMap).toBeNull();
+            expect(store.getState().animatingPieces.size).toBe(0);
         });
 
-        it("should not add the same pieceId multiple times", async () => {
-            const pieceId = "1";
+        it("should cancel a previous animation when a new one starts", async () => {
+            const firstAnimation: MoveAnimation[] = [
+                {
+                    newPieces: new Map([["1", createFakePiece()]]),
+                    movedPieceIds: ["1"],
+                },
+            ];
+            const secondAnimation: MoveAnimation[] = [
+                {
+                    newPieces: new Map([["2", createFakePiece()]]),
+                    movedPieceIds: ["2"],
+                },
+            ];
 
-            store.getState().addAnimatingPieces(pieceId);
-            store.getState().addAnimatingPieces(pieceId);
+            const firstPromise = store
+                .getState()
+                .playAnimationBatch(firstAnimation);
 
-            expect(store.getState().animatingPieces.size).toBe(1);
+            vi.advanceTimersByTime(50);
+
+            const secondPromise = store
+                .getState()
+                .playAnimationBatch(secondAnimation);
+
+            expect(store.getState().animatingPieceMap).toEqual(
+                secondAnimation[0].newPieces,
+            );
+
+            vi.advanceTimersByTime(100);
+            await Promise.all([firstPromise, secondPromise]);
+
+            expect(store.getState().animatingPieceMap).toBeNull();
+            expect(store.getState().animatingPieces.size).toBe(0);
         });
     });
 
     describe("animatePiece", () => {
-        it("should set animatingPieceMap for a single piece and add it to animatingPieces", async () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
+        it("should animate a single piece and persist animatingPieceMap", async () => {
+            const piece = createFakePiece();
+            const pieceId = "1";
             const newPosition = logicalPoint({ x: 2, y: 2 });
 
-            await store.getState().animatePiece("0", piece, newPosition);
+            await store.getState().animatePiece(pieceId, piece, newPosition);
 
-            expect(
-                store.getState().animatingPieceMap!.get("0")!.position,
-            ).toEqual(newPosition);
+            const animatingMap = store.getState().animatingPieceMap!;
+            expect(animatingMap.get(pieceId)?.position).toEqual(newPosition);
 
-            vi.advanceTimersByTime(100);
-            expectAnimatingPieces();
-        });
-
-        it("should initialize animatingPieceMap if it was null", async () => {
-            expect(store.getState().animatingPieceMap).toBeNull();
-
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            await store
-                .getState()
-                .animatePiece("0", piece, logicalPoint({ x: 1, y: 1 }));
-
-            expect(store.getState().animatingPieceMap).not.toBeNull();
-            expect(
-                store.getState().animatingPieceMap!.get("0")!.position,
-            ).toEqual(logicalPoint({ x: 1, y: 1 }));
-        });
-    });
-
-    describe("cycleAnimatingPieceMap", () => {
-        it("should set animatingPieceMap and animate all moved pieces in sequence", async () => {
-            const pieceA = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            const pieceB = createFakePiece({
-                position: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            const positions: MoveResult[] = [
-                {
-                    movedPieceIds: new Set(["0", "1"]),
-                    newPieces: new Map([
-                        ["0", pieceA],
-                        ["1", pieceB],
-                    ]),
-                },
-            ];
-
-            const promise = store.getState().cycleAnimatingPieceMap(positions);
-
-            expect(store.getState().animatingPieceMap).toEqual(
-                positions[0].newPieces,
-            );
-            expectAnimatingPieces("0", "1");
-
-            vi.advanceTimersByTime(100);
-            await promise;
-
-            expectAnimatingPieces();
-            expect(store.getState().animatingPieceMap).toBeNull();
+            expect(Array.from(store.getState().animatingPieces)).toEqual([]);
         });
     });
 
     describe("clearAnimation", () => {
         it("should clear animatingPieceMap", () => {
-            const pieceMap: PieceMap = new Map([
-                [
-                    "0",
-                    createFakePiece({ position: logicalPoint({ x: 0, y: 0 }) }),
-                ],
-            ]);
-            store.setState({ animatingPieceMap: pieceMap });
+            const piece = createFakePiece();
+            const pieceId = "1";
+
+            store.setState({
+                animatingPieceMap: new Map([[pieceId, piece]]),
+            });
 
             store.getState().clearAnimation();
+
             expect(store.getState().animatingPieceMap).toBeNull();
         });
     });

@@ -77,7 +77,7 @@ export function createPiecesSlice(
         },
 
         async applyMoveWithIntermediates(move) {
-            const { cycleAnimatingPieceMap, pieceMap } = get();
+            const { playAnimationBatch, pieceMap } = get();
 
             const positions = simulateMoveWithIntermediates(pieceMap, move);
             const lastPosition = positions.at(-1);
@@ -86,14 +86,14 @@ export function createPiecesSlice(
             set((state) => {
                 state.pieceMap = lastPosition.newPieces;
             });
-            await cycleAnimatingPieceMap(positions);
+            await playAnimationBatch(positions);
         },
 
         applyMove(move) {
-            const { addAnimatingPieces, pieceMap } = get();
+            const { playAnimationBatch, pieceMap } = get();
             const { newPieces, movedPieceIds } = simulateMove(pieceMap, move);
 
-            addAnimatingPieces(...movedPieceIds);
+            playAnimationBatch([{ newPieces, movedPieceIds }]);
             set((state) => {
                 state.pieceMap = newPieces;
             });
@@ -162,7 +162,7 @@ export function createPiecesSlice(
 
         async goToPosition(boardState, options) {
             const {
-                addAnimatingPieces,
+                playAnimationBatch,
                 applyMoveWithIntermediates,
                 setLegalMoves,
                 pieceMap,
@@ -186,7 +186,9 @@ export function createPiecesSlice(
                 state.pieceMap = boardState.pieces;
                 state.selectedPieceId = null;
             });
-            await addAnimatingPieces(...movedPieces);
+            await playAnimationBatch([
+                { newPieces: boardState.pieces, movedPieceIds: movedPieces },
+            ]);
         },
 
         screenPointToPiece(point) {

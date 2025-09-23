@@ -1,15 +1,10 @@
 import { pointEquals } from "@/features/point/pointUtils";
 import { LogicalPoint } from "@/features/point/types";
-import { PieceID } from "./types";
+import { MoveAnimation, PieceID } from "./types";
 import { Move } from "./types";
 import { PieceMap } from "./types";
 
-export interface MoveResult {
-    newPieces: PieceMap;
-    movedPieceIds: Set<PieceID>;
-}
-
-export function simulateMove(pieces: PieceMap, move: Move): MoveResult {
+export function simulateMove(pieces: PieceMap, move: Move): MoveAnimation {
     const movedPieceIds = new Set<PieceID>();
     const newPieces = new Map(pieces);
 
@@ -39,17 +34,17 @@ export function simulateMove(pieces: PieceMap, move: Move): MoveResult {
         movedPieceIds.add(sideEffectId);
     }
 
-    return { newPieces, movedPieceIds };
+    return { newPieces, movedPieceIds: [...movedPieceIds] };
 }
 
 export function simulateMoveWithIntermediates(
     pieces: PieceMap,
     move: Move,
-): MoveResult[] {
+): MoveAnimation[] {
     const fromId = pointToPiece(pieces, move.from);
     if (!fromId) return [];
 
-    const results: MoveResult[] = [];
+    const results: MoveAnimation[] = [];
     const currentPieces = new Map(pieces);
     for (const intermediate of move.intermediates) {
         const piece = { ...currentPieces.get(fromId)! };
@@ -58,7 +53,7 @@ export function simulateMoveWithIntermediates(
 
         results.push({
             newPieces: new Map(currentPieces),
-            movedPieceIds: new Set([fromId]),
+            movedPieceIds: [fromId],
         });
     }
 
