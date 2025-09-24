@@ -94,6 +94,47 @@ describe("simulateMove", () => {
         expect(result.newPieces).toEqual(expected);
         expect(result.movedPieceIds).toEqual(["0", "1"]);
     });
+
+    it("should not delete a side-effected piece that moves away from the destination square", () => {
+        const mainPiece = createFakePiece({
+            position: logicalPoint({ x: 0, y: 0 }),
+        });
+        const sideEffectPiece = createFakePiece({
+            position: logicalPoint({ x: 1, y: 1 }),
+        });
+        const anotherPiece = createFakePiece({
+            position: logicalPoint({ x: 2, y: 2 }),
+        });
+        const pieces = createFakePieceMapFromPieces(
+            mainPiece,
+            sideEffectPiece,
+            anotherPiece,
+        );
+
+        const move = createFakeMoveFromPieces(pieces, {
+            from: mainPiece.position,
+            to: sideEffectPiece.position,
+            sideEffects: [
+                {
+                    from: sideEffectPiece.position,
+                    to: logicalPoint({ x: 2, y: 2 }),
+                },
+            ],
+            captures: [],
+        });
+
+        const expected = new Map(pieces);
+        expected.set("0", { ...mainPiece, position: move.to });
+        expected.set("1", {
+            ...sideEffectPiece,
+            position: logicalPoint({ x: 2, y: 2 }),
+        });
+
+        const result = simulateMove(pieces, move);
+        // make sure it's still the same order
+        expect([...result.newPieces]).toEqual([...expected]);
+        expect(result.movedPieceIds).toEqual(["0", "1"]);
+    });
 });
 
 describe("simulateMoveWithIntermediates", () => {
