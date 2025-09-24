@@ -6,7 +6,7 @@ import {
     createChessboardStore,
 } from "../../stores/chessboardStore";
 import { StoreApi } from "zustand";
-import { logicalPoint } from "@/features/point/pointUtils";
+import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { GameColor, PieceType } from "@/lib/apiClient";
 import userEvent from "@testing-library/user-event";
 
@@ -138,11 +138,11 @@ describe("PromotionPrompt", () => {
 
         expect(first).toHaveAttribute(
             "data-position",
-            logicalPoint({ x: 2, y: 6 }).toString(),
+            pointToStr({ x: 2, y: 6 }),
         );
         expect(second).toHaveAttribute(
             "data-position",
-            logicalPoint({ x: 2, y: 5 }).toString(),
+            pointToStr({ x: 2, y: 5 }),
         );
     });
 
@@ -169,11 +169,11 @@ describe("PromotionPrompt", () => {
 
         expect(first).toHaveAttribute(
             "data-position",
-            logicalPoint({ x: 5, y: 2 }).toString(),
+            pointToStr({ x: 5, y: 2 }),
         );
         expect(second).toHaveAttribute(
             "data-position",
-            logicalPoint({ x: 5, y: 3 }).toString(),
+            pointToStr({ x: 5, y: 3 }),
         );
     });
 });
