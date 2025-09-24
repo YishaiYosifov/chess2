@@ -12,6 +12,7 @@ import { twMerge } from "tailwind-merge";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { LogicalPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
+import { pointToStr } from "@/features/point/pointUtils";
 
 type ChessSquareProps = {
     position: LogicalPoint;
@@ -68,7 +69,7 @@ const ChessSquare: ForwardRefRenderFunction<
 
     return (
         <div
-            data-position={position}
+            data-position={pointToStr(position)}
             className={twMerge(
                 "absolute transform will-change-transform",
                 className,
