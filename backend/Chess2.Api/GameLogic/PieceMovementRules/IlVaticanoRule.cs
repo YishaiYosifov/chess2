@@ -9,10 +9,10 @@ public class IlVaticanoRule(Offset stepOffset, int partnerDistance = 3) : IPiece
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
-        var target = position + (_stepOffset * _partnerDistance);
+        var partnerPiecePosition = position + (_stepOffset * _partnerDistance);
         if (
-            !board.IsWithinBoundaries(target)
-            || !board.TryGetPieceAt(target, out var partnerPiece)
+            !board.IsWithinBoundaries(partnerPiecePosition)
+            || !board.TryGetPieceAt(partnerPiecePosition, out var partnerPiece)
             || partnerPiece.Type != movingPiece.Type
             || partnerPiece.Color != movingPiece.Color
         )
@@ -36,13 +36,12 @@ public class IlVaticanoRule(Offset stepOffset, int partnerDistance = 3) : IPiece
             triggers.Add(stepPoint);
         }
 
-        // move the piece we're performing il vaticano with
-        // to the square right after our starting position
-        MoveSideEffect sideEffect = new(From: target, To: position + _stepOffset, partnerPiece);
+        // move the piece we're performing il vaticano with to our starting square
+        MoveSideEffect sideEffect = new(From: partnerPiecePosition, To: position, partnerPiece);
 
         yield return new Move(
             from: position,
-            to: stepPoint,
+            to: partnerPiecePosition,
             piece: movingPiece,
             triggerSquares: triggers,
             captures: captures,
