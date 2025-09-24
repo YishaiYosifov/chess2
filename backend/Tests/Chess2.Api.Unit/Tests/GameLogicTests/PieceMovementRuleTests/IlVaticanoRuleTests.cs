@@ -39,11 +39,11 @@ public class IlVaticanoRuleTests
             new MoveCapture(intermediatePawn2, intermediate2),
         ];
         List<AlgebraicPoint> triggers = [intermediate1, intermediate2];
-        MoveSideEffect sideEffect = new(From: partnerSquare, To: intermediate1, partnerPiece);
+        MoveSideEffect sideEffect = new(From: partnerSquare, To: origin, partnerPiece);
 
         Move expected = new(
             from: origin,
-            to: intermediate2,
+            to: partnerSquare,
             piece: movingPiece,
             triggerSquares: triggers,
             captures: expectedCaptures,

@@ -225,12 +225,12 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("g5", enemyPawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
-                    "g5",
+                    "h5",
                     trigger: ["f5", "g5"],
                     captures: ["f5", "g5"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("h5"), To: new("f5"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("h5"), To: new("e5"), partnerIlVaticano),
                     ],
                     specialMoveType: SpecialMoveType.IlVaticano
                 )
@@ -245,12 +245,12 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("d5", enemyPawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
-                    "c5",
+                    "b5",
                     trigger: ["c5", "d5"],
                     captures: ["c5", "d5"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("b5"), To: new("d5"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("b5"), To: new("e5"), partnerIlVaticano),
                     ],
                     specialMoveType: SpecialMoveType.IlVaticano
                 )
@@ -265,12 +265,12 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("e6", enemyPawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
-                    "e7",
+                    "e8",
                     trigger: ["e6", "e7"],
                     captures: ["e6", "e7"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("e8"), To: new("e6"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("e8"), To: new("e5"), partnerIlVaticano),
                     ],
                     specialMoveType: SpecialMoveType.IlVaticano
                 )
@@ -285,12 +285,12 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("e4", enemyPawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
-                    "e3",
+                    "e2",
                     trigger: ["e4", "e3"],
                     captures: ["e4", "e3"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("e2"), To: new("e4"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("e2"), To: new("e5"), partnerIlVaticano),
                     ],
                     specialMoveType: SpecialMoveType.IlVaticano
                 )
@@ -305,12 +305,12 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
                 .WithPieceAt("g5", enemyUnderagePawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
-                    "g5",
+                    "h5",
                     trigger: ["f5", "g5"],
                     captures: ["f5", "g5"],
                     sideEffects:
                     [
-                        new MoveSideEffect(From: new("h5"), To: new("f5"), partnerIlVaticano),
+                        new MoveSideEffect(From: new("h5"), To: new("e5"), partnerIlVaticano),
                     ],
                     forcedPriority: ForcedMovePriority.UnderagePawn,
                     specialMoveType: SpecialMoveType.IlVaticano
