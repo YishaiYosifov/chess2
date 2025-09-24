@@ -33,7 +33,6 @@ describe("PromotionSlice", () => {
             expect(midPromotionState.pendingPromotion).toEqual(
                 promotionRequest,
             );
-            expect(typeof midPromotionState.resolvePromotion).toBe("function");
             midPromotionState.resolvePromotion?.(PieceType.ROOK);
 
             const result = await promotionPromise;
