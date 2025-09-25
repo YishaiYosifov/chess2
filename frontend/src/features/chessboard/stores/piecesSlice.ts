@@ -80,7 +80,7 @@ export function createPiecesSlice(
             const { playAnimationBatch, pieceMap } = get();
 
             const positions = simulateMoveWithIntermediates(pieceMap, move);
-            const lastPosition = positions.at(-1);
+            const lastPosition = positions.steps.at(-1);
             if (!lastPosition) return;
 
             set((state) => {
@@ -90,13 +90,13 @@ export function createPiecesSlice(
         },
 
         async applyMove(move) {
-            const { playAnimationBatch, pieceMap } = get();
-            const { newPieces, movedPieceIds } = simulateMove(pieceMap, move);
+            const { playAnimation, pieceMap } = get();
+            const animation = simulateMove(pieceMap, move);
 
             set((state) => {
-                state.pieceMap = newPieces;
+                state.pieceMap = animation.newPieces;
             });
-            await playAnimationBatch([{ newPieces, movedPieceIds }]);
+            await playAnimation(animation);
         },
 
         async applyMoveTurn(move) {
@@ -150,19 +150,13 @@ export function createPiecesSlice(
                 return null;
             }
 
-            const selectedPiece = pieceMap.get(selectedPieceId)!;
-            const move = await getLegalMove(
-                selectedPiece.position,
-                dest,
-                selectedPieceId,
-                selectedPiece,
-            );
+            const move = await getLegalMove(dest, selectedPieceId, pieceMap);
             return move;
         },
 
         async goToPosition(boardState, options) {
             const {
-                playAnimationBatch,
+                playAnimation,
                 applyMoveWithIntermediates,
                 setLegalMoves,
                 pieceMap,
@@ -186,9 +180,10 @@ export function createPiecesSlice(
                 state.pieceMap = boardState.pieces;
                 state.selectedPieceId = null;
             });
-            await playAnimationBatch([
-                { newPieces: boardState.pieces, movedPieceIds: movedPieces },
-            ]);
+            await playAnimation({
+                newPieces: boardState.pieces,
+                movedPieceIds: movedPieces,
+            });
         },
 
         screenPointToPiece(point) {

@@ -15,6 +15,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         piece,
         isSelected,
         isAnimating,
+        isRemoving,
         screenPointToPiece,
         selectPiece,
         handleMousePieceDrop,
@@ -22,6 +23,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         piece: x.animatingPieceMap?.get(id) ?? x.pieceMap.get(id),
         isSelected: x.selectedPieceId === id,
         isAnimating: x.animatingPieces.has(id),
+        isRemoving: x.removingPieces.has(id),
         screenPointToPiece: x.screenPointToPiece,
         selectPiece: x.selectPiece,
         handleMousePieceDrop: x.handleMousePieceDrop,
@@ -90,6 +92,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
                 select-none`,
                 isAnimating && "transition-transform duration-100 ease-out",
                 isDragging && "z-30",
+                isRemoving && "opacity-50",
             )}
             ref={pieceRef}
             style={{

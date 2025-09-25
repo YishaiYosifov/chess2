@@ -1,5 +1,5 @@
 import { LogicalPoint } from "@/features/point/types";
-import { PieceID, ProcessedMoveOptions } from "../lib/types";
+import { PieceID, PieceMap, ProcessedMoveOptions } from "../lib/types";
 import { Move } from "../lib/types";
 import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
@@ -17,10 +17,9 @@ export interface LegalMovesSlice {
     highlightedLegalMoves: LogicalPoint[];
 
     getLegalMove(
-        origin: LogicalPoint,
         dest: LogicalPoint,
         pieceId: PieceID,
-        piece: Piece,
+        pieceMap: PieceMap,
     ): Promise<Move | null>;
 
     showLegalMoves(piece: Piece): void;
@@ -41,12 +40,20 @@ export function createLegalMovesSlice(
         ...initState,
         highlightedLegalMoves: [],
 
-        async getLegalMove(origin, dest, pieceId, piece) {
+        async getLegalMove(dest, pieceId, pieceMap) {
             const { moveOptions, promptPromotion, disambiguateDestination } =
                 get();
 
+            const piece = pieceMap.get(pieceId);
+            if (!piece) {
+                console.warn(
+                    `Could not get legal moves for ${pieceId}, no piece was found`,
+                );
+                return null;
+            }
+
             const movesFromOrigin = moveOptions.legalMoves.get(
-                pointToStr(origin),
+                pointToStr(piece.position),
             );
             if (!movesFromOrigin) return null;
 
@@ -54,7 +61,7 @@ export function createLegalMovesSlice(
                 dest,
                 movesFromOrigin,
                 pieceId,
-                piece,
+                pieceMap,
             );
             if (!movesToDest || movesToDest.length === 0) return null;
 

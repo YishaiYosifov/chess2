@@ -25,6 +25,9 @@ describe("LegalMovesSlice", () => {
         it("should return null if no legal moves exist for the origin", async () => {
             const origin = logicalPoint({ x: 1, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             store.setState({
                 moveOptions: createMoveOptions({ legalMoves: new Map() }),
@@ -32,13 +35,16 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(origin, dest, "0", piece);
+                .getLegalMove(dest, "0", pieceMap);
             expect(result).toBeNull();
         });
 
         it("should return null if no move matches the destination", async () => {
             const origin = logicalPoint({ x: 1, y: 1 });
             const dest = logicalPoint({ x: 5, y: 5 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             const move = createFakeMove({
                 from: origin,
@@ -54,13 +60,16 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(origin, dest, "0", piece);
+                .getLegalMove(dest, "0", pieceMap);
             expect(result).toBeNull();
         });
 
         it("should return the single matching move if only one matches", async () => {
             const origin = logicalPoint({ x: 2, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             const move = createFakeMove({ from: origin, to: dest });
             const legalMoves: LegalMoveMap = new Map([
@@ -73,7 +82,7 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(origin, dest, "0", piece);
+                .getLegalMove(dest, "0", pieceMap);
             expect(result).toEqual(move);
         });
 
@@ -81,6 +90,9 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             const triggerMove = createFakeMove({
                 from: origin,
@@ -99,7 +111,7 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(origin, trigger, "0", piece);
+                .getLegalMove(trigger, "0", pieceMap);
             expect(result).toEqual(triggerMove);
         });
 
@@ -107,6 +119,9 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             const triggerMove = createFakeMove({
                 from: origin,
@@ -122,13 +137,16 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(origin, dest, "0", piece);
+                .getLegalMove(dest, "0", pieceMap);
             expect(result).toEqual(triggerMove);
         });
 
         it("should return null if multiple moves match but promotion is cancelled", async () => {
             const origin = logicalPoint({ x: 0, y: 1 });
             const dest = logicalPoint({ x: 0, y: 7 });
+            const pieceMap = createFakePieceMapFromPieces(
+                createFakePiece({ position: origin }),
+            );
 
             const queenMove = createFakeMove({
                 from: origin,
@@ -151,9 +169,7 @@ describe("LegalMovesSlice", () => {
                 resolvePromotion: null,
             });
 
-            const promise = store
-                .getState()
-                .getLegalMove(origin, dest, "0", piece);
+            const promise = store.getState().getLegalMove(dest, "0", pieceMap);
 
             await waitFor(() => {
                 const state = store.getState();

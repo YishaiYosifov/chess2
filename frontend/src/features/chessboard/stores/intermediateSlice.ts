@@ -1,6 +1,6 @@
 import type { ChessboardStore } from "./chessboardStore";
 import { LogicalPoint, StrPoint } from "@/features/point/types";
-import { Move, Piece, PieceID } from "../lib/types";
+import { Move, PieceID, PieceMap } from "../lib/types";
 import { StateCreator } from "zustand";
 import {
     pointArraysEqual,
@@ -18,7 +18,7 @@ export interface IntermediateSlice {
         dest: LogicalPoint,
         moves: Move[],
         pieceId: PieceID,
-        piece: Piece,
+        pieceMap: PieceMap,
     ): Promise<Move[] | null>;
 }
 
@@ -32,7 +32,7 @@ export const createIntermediateSlice: StateCreator<
     intermediateVisited: [],
     resolveNextIntermediate: null,
 
-    async disambiguateDestination(dest, moves, pieceId, piece) {
+    async disambiguateDestination(dest, moves, pieceId, pieceMap) {
         if (moves.length == 0 || get().nextIntermediates.length > 0)
             return null;
 
@@ -50,7 +50,7 @@ export const createIntermediateSlice: StateCreator<
                 const nextIntermediates = computeNextIntermediates(moves, dest);
                 if (nextIntermediates.length === 0) return moves;
 
-                animatePiece(pieceId, piece, dest);
+                animatePiece(pieceId, dest, pieceMap);
                 const choice = await new Promise<LogicalPoint | null>(
                     (resolve) => {
                         set((state) => {
