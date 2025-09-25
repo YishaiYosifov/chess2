@@ -1,17 +1,19 @@
 import { StateCreator } from "zustand";
 import type { ChessboardStore } from "./chessboardStore";
-import { MoveAnimation, Piece, PieceID, PieceMap } from "../lib/types";
+import { AnimationStep, MoveAnimation, PieceID, PieceMap } from "../lib/types";
 import { LogicalPoint } from "@/features/point/types";
 
 export interface AnimationSlice {
     animatingPieceMap: PieceMap | null;
     animatingPieces: Set<PieceID>;
+    removingPieces: Set<PieceID>;
 
-    playAnimationBatch(positions: MoveAnimation[]): Promise<void>;
+    playAnimationBatch(animation: MoveAnimation): Promise<void>;
+    playAnimation(animation: AnimationStep): Promise<void>;
     animatePiece(
         pieceId: PieceID,
-        piece: Piece,
         newPosition: LogicalPoint,
+        pieceMap: PieceMap,
     ): Promise<void>;
     clearAnimation(): void;
 }
@@ -24,7 +26,7 @@ export const createAnimationSlice: StateCreator<
     let currentAnimationCancelToken: { canceled: boolean } | null = null;
 
     async function processMoveAnimation(
-        animation: MoveAnimation[],
+        animation: MoveAnimation,
         persistent: boolean = false,
     ) {
         if (currentAnimationCancelToken) {
@@ -34,7 +36,11 @@ export const createAnimationSlice: StateCreator<
         const cancelToken = { canceled: false };
         currentAnimationCancelToken = cancelToken;
 
-        for (const { movedPieceIds, newPieces } of animation) {
+        set((state) => {
+            state.removingPieces = new Set(animation.removedPieceIds);
+        });
+
+        for (const { movedPieceIds, newPieces } of animation.steps) {
             if (cancelToken.canceled) break;
 
             set((state) => {
@@ -46,6 +52,7 @@ export const createAnimationSlice: StateCreator<
         if (!cancelToken.canceled && !persistent) {
             set((state) => {
                 state.animatingPieceMap = null;
+                state.removingPieces = new Set();
             });
         }
 
@@ -73,27 +80,35 @@ export const createAnimationSlice: StateCreator<
     return {
         animatingPieceMap: null,
         animatingPieces: new Set(),
+        removingPieces: new Set(),
 
-        async playAnimationBatch(positions) {
-            await processMoveAnimation(positions);
+        async playAnimationBatch(animation) {
+            await processMoveAnimation(animation);
         },
 
-        async animatePiece(pieceId, piece, newPosition) {
+        async playAnimation(animation) {
+            await processMoveAnimation({
+                steps: [animation],
+                removedPieceIds: [],
+            });
+        },
+
+        async animatePiece(pieceId, newPosition, pieceMap) {
+            const newPieces = new Map(pieceMap);
+            const piece = newPieces.get(pieceId);
+            if (!piece) return;
+
+            newPieces.set(pieceId, { ...piece, position: newPosition });
             await processMoveAnimation(
-                [
-                    {
-                        newPieces: new Map([
-                            [
-                                pieceId,
-                                {
-                                    ...piece,
-                                    position: newPosition,
-                                },
-                            ],
-                        ]),
-                        movedPieceIds: [pieceId],
-                    },
-                ],
+                {
+                    steps: [
+                        {
+                            newPieces,
+                            movedPieceIds: [pieceId],
+                        },
+                    ],
+                    removedPieceIds: [],
+                },
                 true,
             );
         },

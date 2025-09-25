@@ -40,7 +40,12 @@ export interface MoveSideEffect {
 
 export type PieceID = `${number}`;
 
-export interface MoveAnimation {
+export interface AnimationStep {
     newPieces: PieceMap;
     movedPieceIds: PieceID[];
+}
+
+export interface MoveAnimation {
+    steps: AnimationStep[];
+    removedPieceIds: PieceID[];
 }

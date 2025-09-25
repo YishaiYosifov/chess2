@@ -159,19 +159,50 @@ describe("simulateMoveWithIntermediates", () => {
 
         const expected1 = new Map(pieces);
         expected1.set("0", { ...piece, position: intermediates[0] });
-        expect(results[0].newPieces).toEqual(expected1);
+        expect(results.steps[0].newPieces).toEqual(expected1);
 
         const expected2 = new Map(pieces);
         expected2.set("0", { ...piece, position: intermediates[1] });
-        expect(results[1].newPieces).toEqual(expected2);
+        expect(results.steps[1].newPieces).toEqual(expected2);
 
         const expectedFinal = new Map(pieces);
         expectedFinal.set("0", { ...piece, position: move.to });
-        expect(results[2].newPieces).toEqual(expectedFinal);
+        expect(results.steps[2].newPieces).toEqual(expectedFinal);
 
-        results.forEach((r) => {
+        results.steps.forEach((r) => {
             expect(r.movedPieceIds).toEqual(["0"]);
         });
+    });
+
+    it("should include removedPieceIds from the final move", () => {
+        const piece1 = createFakePiece({
+            position: logicalPoint({ x: 0, y: 0 }),
+        });
+        const piece2 = createFakePiece({
+            position: logicalPoint({ x: 1, y: 1 }),
+        });
+        const pieces = createFakePieceMapFromPieces(piece1, piece2);
+
+        const intermediates = [
+            logicalPoint({ x: 0, y: 1 }),
+            logicalPoint({ x: 1, y: 0 }),
+        ];
+        const move = createFakeMoveFromPieces(pieces, {
+            from: piece1.position,
+            to: piece2.position,
+            intermediates,
+            captures: [], // no explicit captures, but destination has piece2
+        });
+
+        const result = simulateMoveWithIntermediates(pieces, move);
+
+        expect(result.removedPieceIds).toEqual(["1"]);
+
+        expect(result.steps[0].newPieces.has("1")).toBe(true);
+        expect(result.steps[1].newPieces.has("1")).toBe(true);
+
+        // the final step should reflect piece2 being removed
+        expect(result.steps[2].newPieces.has("1")).toBe(false);
     });
 });
 
