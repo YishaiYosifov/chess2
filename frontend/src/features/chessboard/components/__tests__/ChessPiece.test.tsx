@@ -320,4 +320,24 @@ describe("ChessPiece", () => {
 
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
+
+    it.each([true, false])(
+        "should set opacity to 50% when the piece is being removed",
+        (isRemoving) => {
+            const piece = createFakePiece();
+            const pieceId = "0";
+
+            store.setState({
+                removingPieces: isRemoving ? new Set([pieceId]) : new Set(),
+            });
+
+            const { piece: renderedPiece } = renderPiece({
+                logicalPosition: piece.position,
+            });
+
+            expect(renderedPiece.classList.contains("opacity-50")).toBe(
+                isRemoving,
+            );
+        },
+    );
 });

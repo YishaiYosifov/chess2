@@ -7,7 +7,8 @@ import IntermediateSquarePrompt from "./IntermediateSquarePrompt";
 
 const PieceRenderer = () => {
     const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
-        pieces: x.pieceMap,
+        pieces: x.animatingPieceMap ?? x.pieceMap,
+        removingPieces: x.removingPieces,
         highlightedLegalMoves: x.highlightedLegalMoves,
     }));
 

@@ -1,7 +1,7 @@
 import { logicalPoint, sortPoints } from "@/features/point/pointUtils";
 import {
     createFakeMove,
-    createFakePiece,
+    createFakePieceMap,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LogicalPoint } from "@/features/point/types";
 import { StoreApi } from "zustand";
@@ -37,7 +37,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 0, y: 0 }),
                 [],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
         expect(result).toBeNull();
     });
@@ -52,7 +52,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 0, y: 0 }),
                 [createFakeMove()],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
         expect(result).toBeNull();
     });
@@ -64,7 +64,12 @@ describe("IntermediateSlice", () => {
 
         const result = await store
             .getState()
-            .disambiguateDestination(move.to, [move], "0", createFakePiece());
+            .disambiguateDestination(
+                move.to,
+                [move],
+                "0",
+                createFakePieceMap(1),
+            );
         expect(result).toEqual([move]);
         expect(store.getState().nextIntermediates).toEqual([]);
     });
@@ -88,7 +93,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 1 }),
                 moves,
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
         expect(result).toEqual(moves);
     });
@@ -115,7 +120,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 0 }),
                 [move1, move2],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
 
         // nextIntermediates should include all unique next points
@@ -155,7 +160,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 1 }),
                 [move1, move2],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
 
         const resolve = store.getState().resolveNextIntermediate!;
@@ -182,7 +187,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 1 }),
                 [move1, move2],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
 
         const resolve = store.getState().resolveNextIntermediate!;
@@ -214,7 +219,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 1 }),
                 [move1, move2],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
 
         expectVisitedAnimating("0", logicalPoint({ x: 1, y: 1 }));
@@ -239,7 +244,7 @@ describe("IntermediateSlice", () => {
                 logicalPoint({ x: 1, y: 1 }),
                 [move],
                 "0",
-                createFakePiece(),
+                createFakePieceMap(1),
             );
         expect(result).toEqual([move]);
     });
