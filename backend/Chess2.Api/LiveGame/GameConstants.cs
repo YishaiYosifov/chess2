@@ -69,6 +69,6 @@ public static class GameConstants
         PieceType.Horsey,
         PieceType.Knook,
         PieceType.Antiqueen,
-        PieceType.TraitorRook,
+        PieceType.Checker,
     ];
 }

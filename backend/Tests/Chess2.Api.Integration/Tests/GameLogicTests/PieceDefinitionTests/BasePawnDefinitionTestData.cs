@@ -265,7 +265,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f10", promotesTo: PieceType.Horsey)
                 .GoesTo("f10", promotesTo: PieceType.Knook)
                 .GoesTo("f10", promotesTo: PieceType.Antiqueen)
-                .GoesTo("f10", promotesTo: PieceType.TraitorRook)
+                .GoesTo("f10", promotesTo: PieceType.Checker)
                 .WithDescription("white pawn can promote")
         );
 
@@ -278,7 +278,7 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f1", promotesTo: PieceType.Horsey)
                 .GoesTo("f1", promotesTo: PieceType.Knook)
                 .GoesTo("f1", promotesTo: PieceType.Antiqueen)
-                .GoesTo("f1", promotesTo: PieceType.TraitorRook)
+                .GoesTo("f1", promotesTo: PieceType.Checker)
                 .WithDescription("black pawn can promote")
         );
         #endregion
