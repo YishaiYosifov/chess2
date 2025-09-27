@@ -25,7 +25,7 @@ export interface ChessSquareRef {
 /**
  * Render an element in a specific location on the chess board
  */
-const ChessSquare: ForwardRefRenderFunction<ChessSquareRef, ChessCoordProps> = (
+const CoordSquare: ForwardRefRenderFunction<ChessSquareRef, ChessCoordProps> = (
     { position, children, className, style, ...divProps },
     ref,
 ) => {
@@ -66,11 +66,11 @@ const ChessSquare: ForwardRefRenderFunction<ChessSquareRef, ChessCoordProps> = (
     return (
         <div
             data-position={pointToStr(position)}
+            data-testid="coordSquare"
             className={twMerge(
                 "absolute transform will-change-transform",
                 className,
             )}
-            // tailwind doesn't work well with dynamic values
             style={{
                 width: `${tileWidth}%`,
                 height: `${tileHeight}%`,
@@ -84,4 +84,4 @@ const ChessSquare: ForwardRefRenderFunction<ChessSquareRef, ChessCoordProps> = (
         </div>
     );
 };
-export default memo(forwardRef(ChessSquare));
+export default memo(forwardRef(CoordSquare));
