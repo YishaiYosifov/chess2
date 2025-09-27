@@ -11,6 +11,9 @@ import ChessboardStoreContext from "../../contexts/chessboardStoreContext";
 describe("Coords", () => {
     let store: StoreApi<ChessboardStore>;
 
+    const files = "abcdefghij".split("");
+    const ranks = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+
     beforeEach(() => {
         store = createChessboardStore();
     });
@@ -25,7 +28,6 @@ describe("Coords", () => {
     it("should render all file labels", () => {
         renderWithStore();
 
-        const files = "abcdefghij".split("");
         for (const file of files) {
             expect(screen.getByTestId(`coordsFile-${file}`)).toHaveTextContent(
                 file,
@@ -36,21 +38,20 @@ describe("Coords", () => {
     it("should render all rank labels", () => {
         renderWithStore();
 
-        for (let rank = 1; rank <= 10; rank++) {
+        for (const rank of ranks) {
             expect(screen.getByTestId(`coordsRank-${rank}`)).toHaveTextContent(
                 rank.toString(),
             );
         }
     });
 
-    it("should position file labels along the bottom row", () => {
+    it("should position file labels along the top row", () => {
         renderWithStore();
 
-        const files = "abcdefghij".split("");
         files.forEach((file, x) => {
             expect(screen.getByTestId(`coordsFile-${file}`)).toHaveAttribute(
                 "data-position",
-                pointToStr({ x, y: 0 }),
+                pointToStr({ x, y: 9 }),
             );
         });
     });
@@ -58,19 +59,17 @@ describe("Coords", () => {
     it("should position rank labels along the right column", () => {
         renderWithStore();
 
-        for (let y = 0; y < 10; y++) {
-            const rank = y + 1;
+        ranks.forEach((rank, y) => {
             expect(screen.getByTestId(`coordsRank-${rank}`)).toHaveAttribute(
                 "data-position",
                 pointToStr({ x: 9, y }),
             );
-        }
+        });
     });
 
     it("should apply alternating colors for file labels", () => {
         renderWithStore();
 
-        const files = "abcdefghij".split("");
         files.forEach((file, x) => {
             const el = screen.getByTestId(`coordsFile-${file}`);
             if (x % 2 === 0) {
@@ -84,14 +83,18 @@ describe("Coords", () => {
     it("should apply alternating colors for rank labels", () => {
         renderWithStore();
 
-        for (let y = 0; y < 10; y++) {
-            const rank = y + 1;
+        ranks.forEach((rank, y) => {
             const el = screen.getByTestId(`coordsRank-${rank}`);
             if (y % 2 === 0) {
-                expect(el.className).toContain("text-[#f0d9b5]");
-            } else {
                 expect(el.className).toContain("text-[#b58863]");
+            } else {
+                expect(el.className).toContain("text-[#f0d9b5]");
             }
-        }
+        });
+    });
+
+    it("should render 20 squares total", () => {
+        renderWithStore();
+        expect(screen.getAllByTestId(/coords(File|Rank)-/)).toHaveLength(20);
     });
 });
