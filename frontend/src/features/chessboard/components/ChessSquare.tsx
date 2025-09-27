@@ -9,6 +9,7 @@ import {
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { LogicalPoint } from "@/features/point/types";
 import CoordSquare, { ChessSquareRef } from "./CoordSquare";
+import { pointToStr } from "@/features/point/pointUtils";
 
 type ChessSquareProps = {
     position: LogicalPoint;
@@ -29,6 +30,14 @@ const ChessSquare: ForwardRefRenderFunction<
     }));
     const viewPosition = logicalPointToViewPoint(position);
 
-    return <CoordSquare position={viewPosition} {...props} ref={ref} />;
+    return (
+        <CoordSquare
+            data-position={pointToStr(position)}
+            data-testid="chessSquare"
+            position={viewPosition}
+            {...props}
+            ref={ref}
+        />
+    );
 };
 export default memo(forwardRef(ChessSquare));
