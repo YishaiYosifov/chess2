@@ -9,6 +9,7 @@ import PieceRenderer from "./PieceRenderer";
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
 import OverlayRenderer from "./OverlayRenderer";
+import Coords from "./Coords";
 
 export interface PaddingOffset {
     width: number;
@@ -111,6 +112,7 @@ const ChessboardLayout = ({
         >
             <OverlayRenderer />
             <PieceRenderer />
+            <Coords />
         </div>
     );
 };
