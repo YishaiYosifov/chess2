@@ -106,35 +106,27 @@ describe("CoordSquare", () => {
         );
     });
 
-    it("should support ref methods", () => {
+    it("should calculate correct transform based on position and offset", () => {
+        store.setState({ boardDimensions: { width: 10, height: 10 } });
+
         const ref = React.createRef<ChessSquareRef>();
         renderWithStore(
             <CoordSquare
-                position={viewPoint({ x: 0, y: 0 })}
-                ref={ref}
-                data-testid="coordSquare"
-            />,
-        );
-
-        expect(ref.current).toBeDefined();
-        expect(typeof ref.current?.updateDraggingOffset).toBe("function");
-        expect(typeof ref.current?.getBoundingClientRect).toBe("function");
-    });
-
-    it("should update transform when updateDraggingOffset is called", () => {
-        const ref = React.createRef<ChessSquareRef>();
-        renderWithStore(
-            <CoordSquare
-                position={viewPoint({ x: 2, y: 2 })}
+                position={viewPoint({ x: 2, y: 3 })}
                 ref={ref}
                 data-testid="coordSquare"
             />,
         );
 
         const el = screen.getByTestId("coordSquare");
-        const originalTransform = el.style.transform;
+
+        expect(el.style.transform.replace(/\s/g, "")).toBe(
+            "translate(clamp(0%,calc(200%+0px),900%),clamp(0%,calc(300%+0px),900%))",
+        );
 
         ref.current?.updateDraggingOffset({ x: 15, y: -10 });
-        expect(el.style.transform).not.toBe(originalTransform);
+        expect(el.style.transform.replace(/\s/g, "")).toBe(
+            "translate(clamp(0%,calc(200%+15px),900%),clamp(0%,calc(300%+-10px),900%))",
+        );
     });
 });
