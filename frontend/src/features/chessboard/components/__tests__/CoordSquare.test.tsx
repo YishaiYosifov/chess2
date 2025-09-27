@@ -25,10 +25,7 @@ describe("CoordSquare", () => {
 
     it("should render children", () => {
         renderWithStore(
-            <CoordSquare
-                position={viewPoint({ x: 0, y: 0 })}
-                data-testid="coordSquare"
-            >
+            <CoordSquare position={viewPoint({ x: 0, y: 0 })}>
                 <span data-testid="child">henlo</span>
             </CoordSquare>,
         );
@@ -41,12 +38,7 @@ describe("CoordSquare", () => {
             boardDimensions: { width: 10, height: 10 },
         });
 
-        renderWithStore(
-            <CoordSquare
-                position={viewPoint({ x: 0, y: 0 })}
-                data-testid="coordSquare"
-            />,
-        );
+        renderWithStore(<CoordSquare position={viewPoint({ x: 0, y: 0 })} />);
 
         const el = screen.getByTestId("coordSquare");
         expect(el).toHaveStyle({
@@ -60,12 +52,7 @@ describe("CoordSquare", () => {
             boardDimensions: { width: 10, height: 10 },
         });
 
-        renderWithStore(
-            <CoordSquare
-                position={viewPoint({ x: 3, y: 4 })}
-                data-testid="coordSquare"
-            />,
-        );
+        renderWithStore(<CoordSquare position={viewPoint({ x: 3, y: 4 })} />);
 
         const el = screen.getByTestId("coordSquare");
         expect(el.getAttribute("style")).toContain("translate(");
@@ -73,9 +60,7 @@ describe("CoordSquare", () => {
 
     it("should include data-position attribute", () => {
         const pos = viewPoint({ x: 2, y: 5 });
-        renderWithStore(
-            <CoordSquare position={pos} data-testid="coordSquare" />,
-        );
+        renderWithStore(<CoordSquare position={pos} />);
         expect(screen.getByTestId("coordSquare")).toHaveAttribute(
             "data-position",
             pointToStr(pos),
@@ -87,7 +72,6 @@ describe("CoordSquare", () => {
             <CoordSquare
                 position={viewPoint({ x: 1, y: 1 })}
                 className="custom"
-                data-testid="coordSquare"
             />,
         );
         expect(screen.getByTestId("coordSquare").className).toContain("custom");
@@ -98,7 +82,6 @@ describe("CoordSquare", () => {
             <CoordSquare
                 position={viewPoint({ x: 0, y: 0 })}
                 style={{ backgroundColor: "red" }}
-                data-testid="coordSquare"
             />,
         );
         expect(screen.getByTestId("coordSquare").style.backgroundColor).toBe(
@@ -111,11 +94,7 @@ describe("CoordSquare", () => {
 
         const ref = React.createRef<ChessSquareRef>();
         renderWithStore(
-            <CoordSquare
-                position={viewPoint({ x: 2, y: 3 })}
-                ref={ref}
-                data-testid="coordSquare"
-            />,
+            <CoordSquare position={viewPoint({ x: 2, y: 3 })} ref={ref} />,
         );
 
         const el = screen.getByTestId("coordSquare");
