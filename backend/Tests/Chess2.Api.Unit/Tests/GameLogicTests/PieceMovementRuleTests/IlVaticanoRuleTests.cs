@@ -21,12 +21,12 @@ public class IlVaticanoRuleTests
         ChessBoard board = new();
         Piece movingPiece = PieceFactory.White(PieceType.Bishop);
         Piece partnerPiece = PieceFactory.White(PieceType.Bishop);
-        Piece intermediatePawn1 = PieceFactory.Black(PieceType.Pawn);
-        Piece intermediatePawn2 = PieceFactory.Black(PieceType.UnderagePawn);
+        Piece intermediatePiece1 = PieceFactory.Black();
+        Piece intermediatePiece2 = PieceFactory.Black();
 
         board.PlacePiece(origin, movingPiece);
-        board.PlacePiece(intermediate1, intermediatePawn1);
-        board.PlacePiece(intermediate2, intermediatePawn2);
+        board.PlacePiece(intermediate1, intermediatePiece1);
+        board.PlacePiece(intermediate2, intermediatePiece2);
         board.PlacePiece(partnerSquare, partnerPiece);
 
         IlVaticanoRule rule = new(stepOffset);
@@ -35,8 +35,8 @@ public class IlVaticanoRuleTests
 
         List<MoveCapture> expectedCaptures =
         [
-            new MoveCapture(intermediatePawn1, intermediate1),
-            new MoveCapture(intermediatePawn2, intermediate2),
+            new MoveCapture(intermediatePiece1, intermediate1),
+            new MoveCapture(intermediatePiece2, intermediate2),
         ];
         List<AlgebraicPoint> triggers = [intermediate1, intermediate2];
         MoveSideEffect sideEffect = new(From: partnerSquare, To: origin, partnerPiece);
@@ -77,16 +77,14 @@ public class IlVaticanoRuleTests
     {
         var board = CreateIlVaticanoBoard(
             new("d4"),
-            new Piece(PieceType.Bishop, GameColor.White),
-            (new("e4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black))
+            PieceFactory.White(PieceType.Bishop),
+            (new("e4"), PieceFactory.Black()),
+            (new("f4"), PieceFactory.Black())
         // partner is missing
         );
 
         var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
+        rule.Evaluate(board, new("d4"), PieceFactory.White(PieceType.Bishop)).Should().BeEmpty();
     }
 
     [Fact]
@@ -94,16 +92,14 @@ public class IlVaticanoRuleTests
     {
         var board = CreateIlVaticanoBoard(
             new("d4"),
-            new Piece(PieceType.Pawn, GameColor.White),
-            (new("e4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black)),
+            PieceFactory.White(PieceType.Bishop),
+            (new("e4"), PieceFactory.Black()),
+            (new("f4"), PieceFactory.Black()),
             (new("g4"), new Piece(PieceType.Rook, GameColor.White))
         );
 
         var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
+        rule.Evaluate(board, new("d4"), PieceFactory.White(PieceType.Bishop)).Should().BeEmpty();
     }
 
     [Fact]
@@ -111,16 +107,14 @@ public class IlVaticanoRuleTests
     {
         var board = CreateIlVaticanoBoard(
             new("d4"),
-            new Piece(PieceType.Pawn, GameColor.White),
-            (new("e4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("g4"), new Piece(PieceType.Pawn, GameColor.Black))
+            PieceFactory.White(PieceType.Bishop),
+            (new("e4"), PieceFactory.Black()),
+            (new("f4"), PieceFactory.Black()),
+            (new("g4"), PieceFactory.Black(PieceType.Bishop))
         );
 
         var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
+        rule.Evaluate(board, new("d4"), PieceFactory.White(PieceType.Bishop)).Should().BeEmpty();
     }
 
     [Fact]
@@ -128,16 +122,14 @@ public class IlVaticanoRuleTests
     {
         var board = CreateIlVaticanoBoard(
             new("d4"),
-            new Piece(PieceType.Pawn, GameColor.White),
+            PieceFactory.White(PieceType.Bishop),
             (new("e4"), null), // intermediate1 is empty
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("g4"), new Piece(PieceType.Pawn, GameColor.White))
+            (new("f4"), PieceFactory.Black()),
+            (new("g4"), PieceFactory.White(PieceType.Bishop))
         );
 
         var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
+        rule.Evaluate(board, new("d4"), PieceFactory.White(PieceType.Bishop)).Should().BeEmpty();
     }
 
     [Fact]
@@ -145,33 +137,14 @@ public class IlVaticanoRuleTests
     {
         var board = CreateIlVaticanoBoard(
             new("d4"),
-            new Piece(PieceType.Pawn, GameColor.White),
-            (new("e4"), new Piece(PieceType.Pawn, GameColor.White)),
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("g4"), new Piece(PieceType.Pawn, GameColor.White))
+            PieceFactory.White(PieceType.Bishop),
+            (new("e4"), PieceFactory.White()),
+            (new("f4"), PieceFactory.Black()),
+            (new("g4"), PieceFactory.White(PieceType.Bishop))
         );
 
         var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
-    }
-
-    [Fact]
-    public void Evaluate_returns_nothing_if_intermediate_has_wrong_type()
-    {
-        var board = CreateIlVaticanoBoard(
-            new("d4"),
-            new Piece(PieceType.Pawn, GameColor.White),
-            (new("e4"), new Piece(PieceType.Rook, GameColor.Black)),
-            (new("f4"), new Piece(PieceType.Pawn, GameColor.Black)),
-            (new("g4"), new Piece(PieceType.Pawn, GameColor.White))
-        );
-
-        var rule = new IlVaticanoRule(new Offset(1, 0));
-        rule.Evaluate(board, new("d4"), new Piece(PieceType.Pawn, GameColor.White))
-            .Should()
-            .BeEmpty();
+        rule.Evaluate(board, new("d4"), PieceFactory.White(PieceType.Bishop)).Should().BeEmpty();
     }
 }
 
