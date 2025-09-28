@@ -27,7 +27,6 @@ public class IlVaticanoRule(Offset stepOffset, int partnerDistance = 3) : IPiece
             if (
                 !board.IsWithinBoundaries(stepPoint)
                 || !board.TryGetPieceAt(stepPoint, out var capturePiece)
-                || capturePiece.Type is not (PieceType.Pawn or PieceType.UnderagePawn)
                 || capturePiece.Color == movingPiece.Color
             )
                 yield break;

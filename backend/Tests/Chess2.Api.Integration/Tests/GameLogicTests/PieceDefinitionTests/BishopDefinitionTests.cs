@@ -20,9 +20,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
     {
         var bishop = PieceFactory.White(PieceType.Bishop);
         var friendyUnderagePawn = PieceFactory.White(PieceType.UnderagePawn);
-
         var enemyUnderagePawn = PieceFactory.Black(PieceType.UnderagePawn);
-        var enemyPawn = PieceFactory.Black(PieceType.Pawn);
 
         string[] openE5Moves =
         [
@@ -217,12 +215,13 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         );
 
         var partnerIlVaticano = PieceFactory.White(PieceType.Bishop);
+        var resgularEnemy = PieceFactory.Black(PieceType.Rook);
         Add(
             PieceTestCase
                 .From("e5", bishop)
                 .WithPieceAt("h5", partnerIlVaticano)
-                .WithPieceAt("f5", enemyPawn)
-                .WithPieceAt("g5", enemyPawn)
+                .WithPieceAt("f5", resgularEnemy)
+                .WithPieceAt("g5", resgularEnemy)
                 .GoesTo(openE5Moves)
                 .GoesTo(
                     "h5",
@@ -241,8 +240,8 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", bishop)
                 .WithPieceAt("b5", partnerIlVaticano)
-                .WithPieceAt("c5", enemyPawn)
-                .WithPieceAt("d5", enemyPawn)
+                .WithPieceAt("c5", resgularEnemy)
+                .WithPieceAt("d5", resgularEnemy)
                 .GoesTo(openE5Moves)
                 .GoesTo(
                     "b5",
@@ -261,8 +260,8 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", bishop)
                 .WithPieceAt("e8", partnerIlVaticano)
-                .WithPieceAt("e7", enemyPawn)
-                .WithPieceAt("e6", enemyPawn)
+                .WithPieceAt("e7", resgularEnemy)
+                .WithPieceAt("e6", resgularEnemy)
                 .GoesTo(openE5Moves)
                 .GoesTo(
                     "e8",
@@ -281,8 +280,8 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", bishop)
                 .WithPieceAt("e2", partnerIlVaticano)
-                .WithPieceAt("e3", enemyPawn)
-                .WithPieceAt("e4", enemyPawn)
+                .WithPieceAt("e3", resgularEnemy)
+                .WithPieceAt("e4", resgularEnemy)
                 .GoesTo(openE5Moves)
                 .GoesTo(
                     "e2",
@@ -301,7 +300,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", bishop)
                 .WithPieceAt("h5", partnerIlVaticano)
-                .WithPieceAt("f5", enemyPawn)
+                .WithPieceAt("f5", resgularEnemy)
                 .WithPieceAt("g5", enemyUnderagePawn)
                 .GoesTo(openE5Moves)
                 .GoesTo(
