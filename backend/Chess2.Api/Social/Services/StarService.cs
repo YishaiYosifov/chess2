@@ -31,8 +31,8 @@ public interface IStarService
         CancellationToken token = default
     );
     Task<bool> HasStarredAsync(
-        UserId userId,
-        UserId starredUser,
+        UserId byUserId,
+        UserId starredUserId,
         CancellationToken token = default
     );
     Task<int> GetStarsReceivedCountAsync(UserId starredUserId, CancellationToken token = default);
@@ -49,12 +49,12 @@ public class StarService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<bool> HasStarredAsync(
-        UserId userId,
-        UserId starredUser,
+        UserId byUserId,
+        UserId starredUserId,
         CancellationToken token = default
     )
     {
-        var star = await _starRepository.GetStarAsync(userId, starredUser, token);
+        var star = await _starRepository.GetStarAsync(byUserId, starredUserId, token);
         return star is not null;
     }
 
