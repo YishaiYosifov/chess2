@@ -1,11 +1,10 @@
-using System.Security.Claims;
-using System.Text;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Challenges.SignalR;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.PieceDefinitions;
@@ -58,6 +57,8 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -464,6 +465,7 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
+app.MapHub<ChallengeHub>("/api/hub/challenge");
 app.MapHub<OpenSeekHub>("/api/hub/openseek");
 app.MapHub<LobbyHub>("/api/hub/lobby");
 app.MapHub<GameHub>("/api/hub/game");
