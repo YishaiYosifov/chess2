@@ -1,0 +1,36 @@
+﻿using Chess2.Api.Challenges.Models;
+
+namespace Chess2.Api.Challenges.Grains;
+
+[Alias("Chess2.Api.Challenges.Grains.IChallengeInboxGrain")]
+public interface IChallengeInboxGrain : IGrainWithStringKey
+{
+    [Alias("GetIncomingChallengesAsync")]
+    Task<List<IncomingChallenge>> GetIncomingChallengesAsync();
+
+    [Alias("UserChallengedAsync")]
+    Task UserChallengedAsync(IncomingChallenge challenge);
+
+    [Alias("ChallengeCanceledAsync")]
+    Task ChallengeCanceledAsync(ChallengeId challengeId);
+}
+
+public class ChallengeInboxGrain : Grain, IChallengeInboxGrain
+{
+    private readonly Dictionary<ChallengeId, IncomingChallenge> _incomingChallenges = [];
+
+    public Task<List<IncomingChallenge>> GetIncomingChallengesAsync() =>
+        Task.FromResult(_incomingChallenges.Values.ToList());
+
+    public Task UserChallengedAsync(IncomingChallenge challenge)
+    {
+        _incomingChallenges[challenge.ChallengeId] = challenge;
+        return Task.CompletedTask;
+    }
+
+    public Task ChallengeCanceledAsync(ChallengeId challengeId)
+    {
+        _incomingChallenges.Remove(challengeId);
+        return Task.CompletedTask;
+    }
+}
