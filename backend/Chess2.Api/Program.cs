@@ -411,6 +411,7 @@ builder.Services.AddScoped<IBlockService, BlockService>();
 #region Preferences
 builder.Services.AddScoped<IPreferenceRepository, PreferenceRepository>();
 builder.Services.AddScoped<IPreferenceService, PreferenceService>();
+builder.Services.AddScoped<IInteractionLevelGate, InteractionLevelGate>();
 #endregion
 
 #region Quests
