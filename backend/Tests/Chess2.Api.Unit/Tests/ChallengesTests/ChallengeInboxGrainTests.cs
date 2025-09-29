@@ -10,7 +10,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     private const string UserId = "user-123";
 
     [Fact]
-    public async Task UserChallengedAsync_adds_challenge_to_inbox()
+    public async Task ChallengeCreatedAsync_adds_challenge_to_inbox()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
@@ -20,14 +20,14 @@ public class ChallengeInboxGrainTests : BaseGrainTest
             DateTime.UtcNow.AddMinutes(5)
         );
 
-        await grain.UserChallengedAsync(challenge);
+        await grain.ChallengeCreatedAsync(challenge);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(challenge);
     }
 
     [Fact]
-    public async Task UserChallengedAsync_overwrites_existing_challenge()
+    public async Task ChallengeCreatedAsync_overwrites_existing_challenge()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
@@ -43,8 +43,8 @@ public class ChallengeInboxGrainTests : BaseGrainTest
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        await grain.UserChallengedAsync(challenge1);
-        await grain.UserChallengedAsync(challenge2); // overwrite
+        await grain.ChallengeCreatedAsync(challenge1);
+        await grain.ChallengeCreatedAsync(challenge2); // overwrite
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(challenge2);
@@ -66,8 +66,8 @@ public class ChallengeInboxGrainTests : BaseGrainTest
             DateTime.UtcNow
         );
 
-        await grain.UserChallengedAsync(challenge);
-        await grain.UserChallengedAsync(someOtherChallenge);
+        await grain.ChallengeCreatedAsync(challenge);
+        await grain.ChallengeCreatedAsync(someOtherChallenge);
         await grain.ChallengeCanceledAsync(challenge.ChallengeId);
 
         var incoming = await grain.GetIncomingChallengesAsync();
@@ -102,8 +102,8 @@ public class ChallengeInboxGrainTests : BaseGrainTest
             DateTime.UtcNow.AddMinutes(10)
         );
 
-        await grain.UserChallengedAsync(challenge1);
-        await grain.UserChallengedAsync(challenge2);
+        await grain.ChallengeCreatedAsync(challenge1);
+        await grain.ChallengeCreatedAsync(challenge2);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().BeEquivalentTo([challenge1, challenge2]);
