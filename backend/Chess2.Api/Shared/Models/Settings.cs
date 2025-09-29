@@ -7,6 +7,7 @@ public class AppSettings
     public required LobbySettings Lobby { get; set; }
     public required GameSettings Game { get; set; }
     public required JwtSettings Jwt { get; set; }
+    public required ChallengeSettings Challenge { get; set; }
 
     public required string OAuthRedirectUrl { get; set; }
 
@@ -17,6 +18,11 @@ public class AppSettings
     public required string BlobStorageConnString { get; set; }
 
     public TimeSpan UsernameEditCooldown { get; set; }
+}
+
+public class ChallengeSettings
+{
+    public TimeSpan ChallengeLifetime { get; set; }
 }
 
 public class LobbySettings
