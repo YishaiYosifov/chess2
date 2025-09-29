@@ -8,8 +8,8 @@ public interface IChallengeInboxGrain : IGrainWithStringKey
     [Alias("GetIncomingChallengesAsync")]
     Task<List<IncomingChallenge>> GetIncomingChallengesAsync();
 
-    [Alias("UserChallengedAsync")]
-    Task UserChallengedAsync(IncomingChallenge challenge);
+    [Alias("ChallengeCreatedAsync")]
+    Task ChallengeCreatedAsync(IncomingChallenge challenge);
 
     [Alias("ChallengeCanceledAsync")]
     Task ChallengeCanceledAsync(ChallengeId challengeId);
@@ -22,7 +22,7 @@ public class ChallengeInboxGrain : Grain, IChallengeInboxGrain
     public Task<List<IncomingChallenge>> GetIncomingChallengesAsync() =>
         Task.FromResult(_incomingChallenges.Values.ToList());
 
-    public Task UserChallengedAsync(IncomingChallenge challenge)
+    public Task ChallengeCreatedAsync(IncomingChallenge challenge)
     {
         _incomingChallenges[challenge.ChallengeId] = challenge;
         return Task.CompletedTask;
