@@ -33,9 +33,12 @@ public interface IChallengeGrain : IGrainWithStringKey
 public class ChallengeState
 {
     [Id(0)]
-    public UserId? RecipientId { get; set; }
+    public UserId? RequesterId { get; set; }
 
     [Id(1)]
+    public UserId? RecipientId { get; set; }
+
+    [Id(2)]
     public TimeControlSettings TimeControl { get; set; }
 }
 
@@ -44,9 +47,9 @@ public class ChallengeGrain(
     [PersistentState(ChallengeGrain.StateName, StorageNames.ChallengeState)]
         IPersistentState<ChallengeState> state,
     IOptions<AppSettings> settings,
-    TimeProvider timeProvider,
+    IInteractionLevelGate interactionLevelGate,
     UserManager<AuthedUser> userManager,
-    IInteractionLevelGate interactionLevelGate
+    TimeProvider timeProvider
 ) : Grain, IChallengeGrain, IRemindable
 {
     public const string TimeoutReminderName = "ChallengeTimeoutReminder";
@@ -54,10 +57,11 @@ public class ChallengeGrain(
 
     private readonly ILogger<ChallengeGrain> _logger = logger;
     private readonly IPersistentState<ChallengeState> _state = state;
-    private readonly TimeProvider _timeProvider = timeProvider;
-    private readonly UserManager<AuthedUser> _userManager = userManager;
-    private readonly IInteractionLevelGate _interactionLevelGate = interactionLevelGate;
     private readonly ChallengeSettings _settings = settings.Value.Challenge;
+
+    private readonly IInteractionLevelGate _interactionLevelGate = interactionLevelGate;
+    private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<ErrorOr<Created>> CreateAsync(
         UserId requesterId,
@@ -91,6 +95,7 @@ public class ChallengeGrain(
             period: TimeSpan.Zero
         );
 
+        _state.State.RequesterId = requesterId;
         _state.State.RecipientId = recipientId;
         _state.State.TimeControl = timeControl;
         await _state.WriteStateAsync();
