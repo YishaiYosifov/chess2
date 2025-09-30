@@ -4,6 +4,7 @@ using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Repositories;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
+using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic;
@@ -432,6 +433,10 @@ builder.Services.AddSingleton<IQuestDefinition, MovesAcrossGamesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CappedCapturesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PromoteToAllQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>();
+#endregion
+
+#region Challenges
+builder.Services.AddSingleton<IChallengeNotifier, ChallengeNotifier>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
