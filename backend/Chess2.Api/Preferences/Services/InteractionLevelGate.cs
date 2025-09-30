@@ -9,8 +9,8 @@ public interface IInteractionLevelGate
 {
     Task<bool> CanInteractWithAsync(
         Func<PreferenceDto, InteractionLevel> getInteractionLevel,
-        UserId requester,
-        UserId recipient
+        UserId requesterId,
+        UserId recipientId
     );
 }
 
@@ -26,21 +26,24 @@ public class InteractionLevelGate(
 
     public async Task<bool> CanInteractWithAsync(
         Func<PreferenceDto, InteractionLevel> getInteractionLevel,
-        UserId requester,
-        UserId recipient
+        UserId requesterId,
+        UserId recipientId
     )
     {
-        var preference = await _preferenceService.GetPreferencesAsync(recipient);
+        var preference = await _preferenceService.GetPreferencesAsync(recipientId);
         var interactionLevel = getInteractionLevel(preference);
         if (interactionLevel is InteractionLevel.NoOne)
             return false;
 
-        if (await _blockService.HasBlockedAsync(byUserId: recipient, blockedUserId: requester))
+        if (await _blockService.HasBlockedAsync(byUserId: recipientId, blockedUserId: requesterId))
             return false;
 
         if (
             interactionLevel is InteractionLevel.Starred
-            && !await _starService.HasStarredAsync(byUserId: recipient, starredUserId: requester)
+            && !await _starService.HasStarredAsync(
+                byUserId: recipientId,
+                starredUserId: requesterId
+            )
         )
             return false;
 
