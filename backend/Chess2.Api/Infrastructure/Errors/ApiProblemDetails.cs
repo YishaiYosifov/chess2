@@ -62,4 +62,7 @@ public static class ErrorCodes
 
     public const string QuestCannotReplace = "Quest.CannotReplace";
     public const string QuestNoRewardToCollect = "Quest.NoRewardToCollect";
+
+    public const string ChallengeRecipientNotAccepting = "Challenge.RecipientNotAccepting";
+    public const string ChallengeCannotChallengeSelf = "Challenge.CannotChallengeSelf";
 }

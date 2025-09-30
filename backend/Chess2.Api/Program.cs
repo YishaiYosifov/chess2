@@ -326,6 +326,7 @@ builder.Host.UseOrleans(siloBuilder =>
             ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
         );
     });
+    siloBuilder.AddMemoryGrainStorage(StorageNames.ChallengeState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
 
