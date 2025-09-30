@@ -1,7 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.Infrastructure.Extensions;
+﻿using Chess2.Api.Infrastructure.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Infrastructure.SignalR;
 
