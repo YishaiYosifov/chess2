@@ -33,8 +33,22 @@ public class ChallengeHub(IGrainFactory grains, IChallengeNotifier challengeNoti
         }
 
         var id = Guid.NewGuid().ToString()[..16];
-        var challengeGrain = _grains.GetGrain<ChallengeGrain>(id);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);
         var result = await challengeGrain.CreateAsync(requesterId, recipientId, pool);
+        if (result.IsError)
+            await HandleErrors(result.Errors);
+    }
+
+    public async Task CancelChallengeAsync(ChallengeId challengeId)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
+        var result = await challengeGrain.CancelAsync(cancelledBy: userId);
         if (result.IsError)
             await HandleErrors(result.Errors);
     }
