@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Challenges.Models;
+using Orleans.Concurrency;
 
 namespace Chess2.Api.Challenges.Grains;
 
@@ -9,9 +10,11 @@ public interface IChallengeInboxGrain : IGrainWithStringKey
     Task<List<IncomingChallenge>> GetIncomingChallengesAsync();
 
     [Alias("ChallengeCreatedAsync")]
+    [OneWay]
     Task ChallengeCreatedAsync(IncomingChallenge challenge);
 
     [Alias("ChallengeCanceledAsync")]
+    [OneWay]
     Task ChallengeCanceledAsync(ChallengeId challengeId);
 }
 
