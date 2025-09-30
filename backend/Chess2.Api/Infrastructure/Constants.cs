@@ -7,8 +7,9 @@ public static class Streaming
 
 public static class StorageNames
 {
-    public const string GameState = "gameState";
+    public const string ChallengeState = "challengeState";
     public const string QuestState = "questState";
+    public const string GameState = "gameState";
 }
 
 public static class AuthPolicies
