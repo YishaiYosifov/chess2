@@ -1,7 +1,9 @@
 ﻿using Chess2.Api.Challenges.Errors;
 using Chess2.Api.Challenges.Models;
-using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
@@ -18,14 +20,13 @@ namespace Chess2.Api.Challenges.Grains;
 public interface IChallengeGrain : IGrainWithStringKey
 {
     [Alias("CreateAsync")]
-    Task<ErrorOr<Created>> CreateAsync(
-        UserId requester,
-        UserId recipient,
-        TimeControlSettings timeControl
-    );
+    Task<ErrorOr<Created>> CreateAsync(UserId requester, UserId recipient, PoolKey poolKey);
 
     [Alias("CancelAsync")]
     Task CancelAsync();
+
+    [Alias("AcceptAsync")]
+    Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy);
 }
 
 [GenerateSerializer]
@@ -33,40 +34,54 @@ public interface IChallengeGrain : IGrainWithStringKey
 public class ChallengeState
 {
     [Id(0)]
-    public UserId? RequesterId { get; set; }
-
-    [Id(1)]
-    public UserId? RecipientId { get; set; }
-
-    [Id(2)]
-    public TimeControlSettings TimeControl { get; set; }
+    public ChallengeRequest? Request { get; set; }
 }
 
-public class ChallengeGrain(
-    ILogger<ChallengeGrain> logger,
-    [PersistentState(ChallengeGrain.StateName, StorageNames.ChallengeState)]
-        IPersistentState<ChallengeState> state,
-    IOptions<AppSettings> settings,
-    IInteractionLevelGate interactionLevelGate,
-    UserManager<AuthedUser> userManager,
-    TimeProvider timeProvider
-) : Grain, IChallengeGrain, IRemindable
+public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 {
     public const string TimeoutReminderName = "ChallengeTimeoutReminder";
     public const string StateName = "challenge";
 
-    private readonly ILogger<ChallengeGrain> _logger = logger;
-    private readonly IPersistentState<ChallengeState> _state = state;
-    private readonly ChallengeSettings _settings = settings.Value.Challenge;
+    private readonly ChallengeId _challengeId;
 
-    private readonly IInteractionLevelGate _interactionLevelGate = interactionLevelGate;
-    private readonly UserManager<AuthedUser> _userManager = userManager;
-    private readonly TimeProvider _timeProvider = timeProvider;
+    private readonly ILogger<ChallengeGrain> _logger;
+    private readonly IPersistentState<ChallengeState> _state;
+    private readonly ChallengeSettings _settings;
+
+    private readonly IChallengeNotifier _challengeNotifier;
+    private readonly IInteractionLevelGate _interactionLevelGate;
+    private readonly UserManager<AuthedUser> _userManager;
+    private readonly IGameStarter _gameStarter;
+    private readonly TimeProvider _timeProvider;
+
+    public ChallengeGrain(
+        ILogger<ChallengeGrain> logger,
+        [PersistentState(StateName, StorageNames.ChallengeState)]
+            IPersistentState<ChallengeState> state,
+        IOptions<AppSettings> settings,
+        IChallengeNotifier challengeNotifier,
+        IInteractionLevelGate interactionLevelGate,
+        UserManager<AuthedUser> userManager,
+        IGameStarter gameStarter,
+        TimeProvider timeProvider
+    )
+    {
+        _logger = logger;
+        _state = state;
+        _settings = settings.Value.Challenge;
+        _challengeNotifier = challengeNotifier;
+        _interactionLevelGate = interactionLevelGate;
+        _userManager = userManager;
+        _gameStarter = gameStarter;
+        _timeProvider = timeProvider;
+
+        _challengeId = this.GetPrimaryKeyString();
+    }
 
     public async Task<ErrorOr<Created>> CreateAsync(
         UserId requesterId,
         UserId recipientId,
-        TimeControlSettings timeControl
+        PoolKey poolKey
     )
     {
         if (requesterId == recipientId)
@@ -95,20 +110,20 @@ public class ChallengeGrain(
             period: TimeSpan.Zero
         );
 
-        _state.State.RequesterId = requesterId;
-        _state.State.RecipientId = recipientId;
-        _state.State.TimeControl = timeControl;
-        await _state.WriteStateAsync();
-
-        IncomingChallenge challenge = new(
-            ChallengeId: this.GetPrimaryKeyString(),
+        ChallengeRequest challenge = new(
+            ChallengeId: _challengeId,
             Requester: new MinimalProfile(requester),
-            TimeControl: timeControl,
+            Recipient: new MinimalProfile(recipient),
+            Pool: poolKey,
             ExpiresAt: expiresAt
         );
+        _state.State.Request = challenge;
+        await _state.WriteStateAsync();
+
+        await _challengeNotifier.NotifyChallengeReceived(recipientId: recipientId, challenge);
         await GrainFactory
             .GetGrain<IChallengeInboxGrain>(recipientId)
-            .ChallengeCreatedAsync(challenge);
+            .RecordChallengeCreatedAsync(challenge);
 
         _logger.LogInformation(
             "Challenge {ChallengeId} created by {RequesterId} for {RecipientId}, expires at {ExpiresAt}",
@@ -123,17 +138,40 @@ public class ChallengeGrain(
 
     public async Task CancelAsync()
     {
-        if (_state.State.RecipientId is null)
+        if (_state.State.Request is null)
             return;
 
         await GrainFactory
-            .GetGrain<IChallengeInboxGrain>(_state.State.RecipientId)
-            .ChallengeCanceledAsync(this.GetPrimaryKeyString());
+            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
+            .RecordChallengeRemovedAsync(_challengeId);
+        await _challengeNotifier.NotifyChallengeCancelled(
+            _state.State.Request.Requester.UserId,
+            _state.State.Request.Recipient.UserId,
+            _challengeId
+        );
         await _state.ClearStateAsync();
+        await StopExpirationReminderAsync();
+    }
 
-        var reminder = await this.GetReminder(TimeoutReminderName);
-        if (reminder is not null)
-            await this.UnregisterReminder(reminder);
+    public async Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy)
+    {
+        if (acceptedBy.Value != _state.State.Request?.Recipient.UserId)
+            return ChallengeErrors.CannotAccept;
+
+        var gameToken = await _gameStarter.StartGameAsync(
+            _state.State.Request.Requester.UserId,
+            _state.State.Request.Recipient.UserId,
+            _state.State.Request.Pool
+        );
+        await _challengeNotifier.NotifyChallengeAccepted(
+            _state.State.Request.Requester.UserId,
+            gameToken,
+            _challengeId
+        );
+
+        await _state.ClearStateAsync();
+        await StopExpirationReminderAsync();
+        return Result.Success;
     }
 
     public async Task ReceiveReminder(string reminderName, TickStatus status)
@@ -141,5 +179,12 @@ public class ChallengeGrain(
         if (reminderName != TimeoutReminderName)
             return;
         await CancelAsync();
+    }
+
+    private async Task StopExpirationReminderAsync()
+    {
+        var reminder = await this.GetReminder(TimeoutReminderName);
+        if (reminder is not null)
+            await this.UnregisterReminder(reminder);
     }
 }
