@@ -13,4 +13,7 @@ public static class ChallengeErrors
 
     public static Error CannotChallengeSelf =>
         Error.Validation(ErrorCodes.ChallengeCannotChallengeSelf, "You cannot challenge yourself");
+
+    public static Error CannotAccept =>
+        Error.Forbidden(ErrorCodes.ChallengeCannotAccept, "You cannot accept this challenge");
 }
