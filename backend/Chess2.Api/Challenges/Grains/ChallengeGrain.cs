@@ -23,7 +23,7 @@ public interface IChallengeGrain : IGrainWithStringKey
     Task<ErrorOr<Created>> CreateAsync(UserId requester, UserId recipient, PoolKey poolKey);
 
     [Alias("CancelAsync")]
-    Task CancelAsync();
+    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
     [Alias("AcceptAsync")]
     Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy);
@@ -136,21 +136,22 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Created;
     }
 
-    public async Task CancelAsync()
+    public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
     {
-        if (_state.State.Request is null)
-            return;
+        if (
+            cancelledBy.Value != _state.State.Request?.Recipient.UserId
+            && cancelledBy.Value != _state.State.Request?.Requester.UserId
+        )
+            return ChallengeErrors.CannotCancel;
 
-        await GrainFactory
-            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
-            .RecordChallengeRemovedAsync(_challengeId);
-        await _challengeNotifier.NotifyChallengeCancelled(
-            _state.State.Request.Requester.UserId,
-            _state.State.Request.Recipient.UserId,
-            _challengeId
+        _logger.LogInformation(
+            "Challenge {ChallengeId} cancelled by {CancelledBy}",
+            _challengeId,
+            cancelledBy
         );
-        await _state.ClearStateAsync();
-        await StopExpirationReminderAsync();
+
+        await ApplyCancellationAsync();
+        return Result.Deleted;
     }
 
     public async Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy)
@@ -171,6 +172,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
         await _state.ClearStateAsync();
         await StopExpirationReminderAsync();
+        _logger.LogInformation("Challenge {ChallengeId} accepted", _challengeId);
         return Result.Success;
     }
 
@@ -178,7 +180,26 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     {
         if (reminderName != TimeoutReminderName)
             return;
-        await CancelAsync();
+
+        _logger.LogInformation("Challenge {ChallengeId} expired", _challengeId);
+        await ApplyCancellationAsync();
+    }
+
+    private async Task ApplyCancellationAsync()
+    {
+        if (_state.State.Request is null)
+            return;
+
+        await GrainFactory
+            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
+            .RecordChallengeRemovedAsync(_challengeId);
+        await _challengeNotifier.NotifyChallengeCancelled(
+            _state.State.Request.Requester.UserId,
+            _state.State.Request.Recipient.UserId,
+            _challengeId
+        );
+        await _state.ClearStateAsync();
+        await StopExpirationReminderAsync();
     }
 
     private async Task StopExpirationReminderAsync()
