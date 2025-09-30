@@ -14,11 +14,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        IncomingChallenge challenge = new(
-            new ChallengeId("challenge-1"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(5)
-        );
+        var challenge = new IncomingChallengeFaker().Generate();
 
         await grain.ChallengeCreatedAsync(challenge);
 
@@ -31,17 +27,10 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        IncomingChallenge challenge1 = new(
-            new ChallengeId("challenge-1"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(5)
-        );
-
-        IncomingChallenge challenge2 = new(
-            new ChallengeId("challenge-1"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(10)
-        );
+        var challenge1 = new IncomingChallengeFaker().Generate();
+        var challenge2 = new IncomingChallengeFaker()
+            .RuleFor(x => x.ChallengeId, challenge1.ChallengeId)
+            .Generate();
 
         await grain.ChallengeCreatedAsync(challenge1);
         await grain.ChallengeCreatedAsync(challenge2); // overwrite
@@ -55,16 +44,8 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        IncomingChallenge challenge = new(
-            new ChallengeId("challenge-1"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(5)
-        );
-        IncomingChallenge someOtherChallenge = new(
-            new ChallengeId("something"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow
-        );
+        var challenge = new IncomingChallengeFaker().Generate();
+        var someOtherChallenge = new IncomingChallengeFaker().Generate();
 
         await grain.ChallengeCreatedAsync(challenge);
         await grain.ChallengeCreatedAsync(someOtherChallenge);
@@ -90,17 +71,8 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        IncomingChallenge challenge1 = new(
-            new ChallengeId("challenge-1"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(5)
-        );
-
-        IncomingChallenge challenge2 = new(
-            new ChallengeId("challenge-2"),
-            new MinimalProfileFaker().Generate(),
-            DateTime.UtcNow.AddMinutes(10)
-        );
+        IncomingChallenge challenge1 = new IncomingChallengeFaker().Generate();
+        IncomingChallenge challenge2 = new IncomingChallengeFaker().Generate();
 
         await grain.ChallengeCreatedAsync(challenge1);
         await grain.ChallengeCreatedAsync(challenge2);
