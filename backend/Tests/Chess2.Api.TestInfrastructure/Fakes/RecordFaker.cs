@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Bogus;
+﻿using Bogus;
+using System.Runtime.CompilerServices;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
