@@ -10,57 +10,57 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     private const string UserId = "user-123";
 
     [Fact]
-    public async Task ChallengeCreatedAsync_adds_challenge_to_inbox()
+    public async Task RecordChallengeCreatedAsync_adds_challenge_to_inbox()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        var challenge = new IncomingChallengeFaker().Generate();
+        var challenge = new ChallengeRequestFaker().Generate();
 
-        await grain.ChallengeCreatedAsync(challenge);
+        await grain.RecordChallengeCreatedAsync(challenge);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(challenge);
     }
 
     [Fact]
-    public async Task ChallengeCreatedAsync_overwrites_existing_challenge()
+    public async Task RecordChallengeCreatedAsync_overwrites_existing_challenge()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        var challenge1 = new IncomingChallengeFaker().Generate();
-        var challenge2 = new IncomingChallengeFaker()
+        var challenge1 = new ChallengeRequestFaker().Generate();
+        var challenge2 = new ChallengeRequestFaker()
             .RuleFor(x => x.ChallengeId, challenge1.ChallengeId)
             .Generate();
 
-        await grain.ChallengeCreatedAsync(challenge1);
-        await grain.ChallengeCreatedAsync(challenge2); // overwrite
+        await grain.RecordChallengeCreatedAsync(challenge1);
+        await grain.RecordChallengeCreatedAsync(challenge2); // overwrite
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(challenge2);
     }
 
     [Fact]
-    public async Task ChallengeCanceledAsync_removes_challenge_from_inbox()
+    public async Task RecordChallengeCreatedAsync_removes_challenge_from_inbox()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        var challenge = new IncomingChallengeFaker().Generate();
-        var someOtherChallenge = new IncomingChallengeFaker().Generate();
+        var challenge = new ChallengeRequestFaker().Generate();
+        var someOtherChallenge = new ChallengeRequestFaker().Generate();
 
-        await grain.ChallengeCreatedAsync(challenge);
-        await grain.ChallengeCreatedAsync(someOtherChallenge);
-        await grain.ChallengeCanceledAsync(challenge.ChallengeId);
+        await grain.RecordChallengeCreatedAsync(challenge);
+        await grain.RecordChallengeCreatedAsync(someOtherChallenge);
+        await grain.RecordChallengeRemovedAsync(challenge.ChallengeId);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(someOtherChallenge);
     }
 
     [Fact]
-    public async Task ChallengeCanceledAsync_does_nothing_if_challenge_not_found()
+    public async Task RecordChallengeCreatedAsync_does_nothing_if_challenge_not_found()
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        await grain.ChallengeCanceledAsync(new ChallengeId("nonexistent-challenge"));
+        await grain.RecordChallengeRemovedAsync(new ChallengeId("nonexistent-challenge"));
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().BeEmpty();
@@ -71,11 +71,11 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
 
-        IncomingChallenge challenge1 = new IncomingChallengeFaker().Generate();
-        IncomingChallenge challenge2 = new IncomingChallengeFaker().Generate();
+        ChallengeRequest challenge1 = new ChallengeRequestFaker().Generate();
+        ChallengeRequest challenge2 = new ChallengeRequestFaker().Generate();
 
-        await grain.ChallengeCreatedAsync(challenge1);
-        await grain.ChallengeCreatedAsync(challenge2);
+        await grain.RecordChallengeCreatedAsync(challenge1);
+        await grain.RecordChallengeCreatedAsync(challenge2);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().BeEquivalentTo([challenge1, challenge2]);
