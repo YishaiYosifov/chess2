@@ -30,8 +30,8 @@ public interface IChallengeGrain : IGrainWithStringKey
 }
 
 [GenerateSerializer]
-[Alias("Chess2.Api.Challenges.Grains.ChallengeState")]
-public class ChallengeState
+[Alias("Chess2.Api.Challenges.Grains.ChallengeGrainStorage")]
+public class ChallengeGrainStorage
 {
     [Id(0)]
     public ChallengeRequest? Request { get; set; }
@@ -45,7 +45,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     private readonly ChallengeId _challengeId;
 
     private readonly ILogger<ChallengeGrain> _logger;
-    private readonly IPersistentState<ChallengeState> _state;
+    private readonly IPersistentState<ChallengeGrainStorage> _state;
     private readonly ChallengeSettings _settings;
 
     private readonly IChallengeNotifier _challengeNotifier;
@@ -57,7 +57,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     public ChallengeGrain(
         ILogger<ChallengeGrain> logger,
         [PersistentState(StateName, StorageNames.ChallengeState)]
-            IPersistentState<ChallengeState> state,
+            IPersistentState<ChallengeGrainStorage> state,
         IOptions<AppSettings> settings,
         IChallengeNotifier challengeNotifier,
         IInteractionLevelGate interactionLevelGate,

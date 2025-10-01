@@ -7,7 +7,6 @@ namespace Chess2.Api.Challenges.Grains;
 public interface IChallengeInboxGrain : IGrainWithStringKey
 {
     [Alias("GetIncomingChallengesAsync")]
-    [OneWay]
     Task<List<ChallengeRequest>> GetIncomingChallengesAsync();
 
     [Alias("RecordChallengeCreatedAsync")]
