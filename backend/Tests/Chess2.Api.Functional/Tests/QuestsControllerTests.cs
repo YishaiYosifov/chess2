@@ -16,10 +16,10 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var quest1Response = await ApiClient.Api.GetDailyQuest();
+        var quest1Response = await ApiClient.Api.GetDailyQuestAsync();
         quest1Response.IsSuccessful.Should().BeTrue();
 
-        var quest2Response = await ApiClient.Api.GetDailyQuest();
+        var quest2Response = await ApiClient.Api.GetDailyQuestAsync();
         quest2Response.IsSuccessful.Should().BeTrue();
 
         quest1Response.Content.Should().NotBeNull();
@@ -31,7 +31,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest");
 
-        var response = await ApiClient.Api.GetDailyQuest();
+        var response = await ApiClient.Api.GetDailyQuestAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -41,15 +41,15 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var quest1Response = await ApiClient.Api.GetDailyQuest();
+        var quest1Response = await ApiClient.Api.GetDailyQuestAsync();
         quest1Response.IsSuccessful.Should().BeTrue();
 
-        var replaceResponse = await ApiClient.Api.ReplaceDailyQuest();
+        var replaceResponse = await ApiClient.Api.ReplaceDailyQuestAsync();
         replaceResponse.IsSuccessful.Should().BeTrue();
 
         replaceResponse.Content.Should().NotBeEquivalentTo(quest1Response.Content);
 
-        var questAfterReplaceResponse = await ApiClient.Api.GetDailyQuest();
+        var questAfterReplaceResponse = await ApiClient.Api.GetDailyQuestAsync();
         questAfterReplaceResponse.IsSuccessful.Should().BeTrue();
 
         questAfterReplaceResponse.Content.Should().BeEquivalentTo(replaceResponse.Content);
@@ -60,7 +60,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest");
 
-        var response = await ApiClient.Api.ReplaceDailyQuest();
+        var response = await ApiClient.Api.ReplaceDailyQuestAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -70,7 +70,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         await AuthUtils.AuthenticateAsync(ApiClient);
 
-        var response = await ApiClient.Api.CollectQuestReward();
+        var response = await ApiClient.Api.CollectQuestRewardAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
@@ -80,7 +80,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest");
 
-        var response = await ApiClient.Api.CollectQuestReward();
+        var response = await ApiClient.Api.CollectQuestRewardAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -93,7 +93,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
         await DbContext.AddRangeAsync(questPoints, otherQuestPoints);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetUserQuestPoints(questPoints.UserId);
+        var response = await ApiClient.Api.GetUserQuestPointsAsync(questPoints.UserId);
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().Be(questPoints.Points);
@@ -114,7 +114,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
 
         PaginationQuery pagination = new(Page: 0, PageSize: 3);
 
-        var response = await ApiClient.Api.GetQuestLeaderboard(
+        var response = await ApiClient.Api.GetQuestLeaderboardAsync(
             new PaginationQuery(Page: 0, PageSize: 3)
         );
 
@@ -135,7 +135,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetQuestLeaderboard(
+        var response = await ApiClient.Api.GetQuestLeaderboardAsync(
             new PaginationQuery(Page: 0, PageSize: -1)
         );
 
@@ -153,7 +153,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, questPoints.User);
 
-        var response = await ApiClient.Api.GetMyQuestRanking();
+        var response = await ApiClient.Api.GetMyQuestRankingAsync();
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().Be(higherPoints.Count + 1);
@@ -164,7 +164,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest");
 
-        var response = await ApiClient.Api.GetMyQuestRanking();
+        var response = await ApiClient.Api.GetMyQuestRankingAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
