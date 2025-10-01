@@ -2,11 +2,12 @@
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
+using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
-using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
@@ -15,6 +16,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Moq;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
@@ -23,17 +25,18 @@ namespace Chess2.Api.Integration.Tests.ChallengeTests;
 
 public class ChallengeGrainTests : BaseOrleansIntegrationTest
 {
-    private readonly UserId _requesterId = "requester-id";
+    private const string _requesterId = "requester-id";
     private readonly IChallengeInboxGrain _requesterInbox;
     private readonly AuthedUser _requester;
 
-    private readonly UserId _recipientId = "recipient-id";
+    private const string _recipientId = "recipient-id";
     private readonly IChallengeInboxGrain _recipientInbox;
     private readonly AuthedUser _recipient;
 
     private readonly ChallengeId _challengeId = "test challenge";
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
+    private readonly IGrainFactory _grainFactory;
     private readonly IBlockService _blockService;
     private readonly ChallengeSettings _settings;
 
@@ -48,8 +51,8 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         : base(factory)
     {
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-        _requester = new AuthedUserFaker().RuleFor(x => x.Id, _requesterId.Value).Generate();
-        _recipient = new AuthedUserFaker().RuleFor(x => x.Id, _recipientId.Value).Generate();
+        _requester = new AuthedUserFaker().RuleFor(x => x.Id, _requesterId).Generate();
+        _recipient = new AuthedUserFaker().RuleFor(x => x.Id, _recipientId).Generate();
 
         _blockService = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IBlockService>();
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
@@ -57,9 +60,9 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         >();
         _settings = settings.Value.Challenge;
 
-        var grains = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        _requesterInbox = grains.GetGrain<IChallengeInboxGrain>(_requesterId);
-        _recipientInbox = grains.GetGrain<IChallengeInboxGrain>(_recipientId);
+        _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
+        _requesterInbox = _grainFactory.GetGrain<IChallengeInboxGrain>(_requesterId);
+        _recipientInbox = _grainFactory.GetGrain<IChallengeInboxGrain>(_recipientId);
 
         Silo.AddProbe(id =>
         {
@@ -186,6 +189,114 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
                 ChallengeGrain.TimeoutReminderName,
                 _settings.ChallengeLifetime,
                 TimeSpan.Zero
+            )
+        );
+    }
+
+    [Fact]
+    public async Task CancelAsync_rejects_when_cancelled_by_is_not_requester_or_recipient()
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain);
+
+        var result = await grain.CancelAsync(cancelledBy: "some random");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.CannotCancel);
+    }
+
+    [Theory]
+    [InlineData(_requesterId)]
+    [InlineData(_recipientId)]
+    public async Task CancelAsync_tears_challenge_down_correctly(string cancelledBy)
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain);
+
+        var result = await grain.CancelAsync(cancelledBy);
+
+        result.IsError.Should().BeFalse();
+
+        await _challengeNotifierMock
+            .Received(1)
+            .NotifyChallengeCancelled(_requesterId, _recipientId, _challengeId);
+        await AssertToreDownAsync(grain);
+    }
+
+    [Fact]
+    public async Task AcceptAsync_rejects_when_done_by_non_recipient()
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain);
+
+        var result = await grain.AcceptAsync(_requesterId);
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.CannotAccept);
+    }
+
+    [Fact]
+    public async Task AcceptAsync_tears_down_and_creates_game()
+    {
+        var grain = await CreateGrainAsync();
+        var pool = await CreateAsync(grain);
+
+        var result = await grain.AcceptAsync(_recipientId);
+
+        result.IsError.Should().BeFalse();
+        var gameToken = result.Value;
+
+        await _challengeNotifierMock
+            .Received(1)
+            .NotifyChallengeAccepted(_requesterId, gameToken, _challengeId);
+        await AssertToreDownAsync(grain);
+
+        var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
+        gameStateResult.IsError.Should().BeFalse();
+        var gameState = gameStateResult.Value;
+        gameState.Pool.Should().Be(pool);
+
+        string[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
+        playerUserIds.Should().BeEquivalentTo([_requesterId, _recipientId]);
+    }
+
+    [Fact]
+    public async Task ReceiveReminder_cancels()
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain);
+
+        await Silo.FireAllReminders();
+
+        await _challengeNotifierMock
+            .Received(1)
+            .NotifyChallengeCancelled(_requesterId, _recipientId, _challengeId);
+        await AssertToreDownAsync(grain);
+    }
+
+    private async Task<PoolKey> CreateAsync(ChallengeGrain grain)
+    {
+        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
+        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
+
+        var pool = new PoolKeyFaker().Generate();
+        var result = await grain.CreateAsync(_requesterId, _recipientId, pool);
+
+        result.IsError.Should().BeFalse();
+        return pool;
+    }
+
+    private async Task AssertToreDownAsync(ChallengeGrain grain)
+    {
+        var recipientInbox = await _recipientInbox.GetIncomingChallengesAsync();
+        recipientInbox.Should().BeEmpty();
+
+        _stateStats.Clears.Should().Be(1);
+
+        Silo.ReminderRegistry.Mock.Verify(x =>
+            x.UnregisterReminder(
+                Silo.GetGrainId(grain),
+                It.Is<IGrainReminder>(r => r.ReminderName == ChallengeGrain.TimeoutReminderName)
             )
         );
     }
