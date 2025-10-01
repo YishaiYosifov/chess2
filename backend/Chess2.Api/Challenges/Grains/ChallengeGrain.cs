@@ -26,7 +26,7 @@ public interface IChallengeGrain : IGrainWithStringKey
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
     [Alias("AcceptAsync")]
-    Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy);
+    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy);
 }
 
 [GenerateSerializer]
@@ -154,7 +154,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Deleted;
     }
 
-    public async Task<ErrorOr<Success>> AcceptAsync(UserId acceptedBy)
+    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy)
     {
         if (acceptedBy.Value != _state.State.Request?.Recipient.UserId)
             return ChallengeErrors.CannotAccept;
@@ -170,10 +170,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             _challengeId
         );
 
-        await _state.ClearStateAsync();
-        await StopExpirationReminderAsync();
+        await TearDownChallengeAsync();
         _logger.LogInformation("Challenge {ChallengeId} accepted", _challengeId);
-        return Result.Success;
+
+        return gameToken;
     }
 
     public async Task ReceiveReminder(string reminderName, TickStatus status)
@@ -190,20 +190,24 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (_state.State.Request is null)
             return;
 
-        await GrainFactory
-            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
-            .RecordChallengeRemovedAsync(_challengeId);
         await _challengeNotifier.NotifyChallengeCancelled(
             _state.State.Request.Requester.UserId,
             _state.State.Request.Recipient.UserId,
             _challengeId
         );
-        await _state.ClearStateAsync();
-        await StopExpirationReminderAsync();
+        await TearDownChallengeAsync();
     }
 
-    private async Task StopExpirationReminderAsync()
+    private async Task TearDownChallengeAsync()
     {
+        if (_state.State.Request is null)
+            return;
+
+        await GrainFactory
+            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
+            .RecordChallengeRemovedAsync(_challengeId);
+
+        await _state.ClearStateAsync();
         var reminder = await this.GetReminder(TimeoutReminderName);
         if (reminder is not null)
             await this.UnregisterReminder(reminder);
