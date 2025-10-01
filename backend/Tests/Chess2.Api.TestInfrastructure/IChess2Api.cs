@@ -116,23 +116,23 @@ public interface IChess2Api
 
     #region Quests
     [Get("/api/quests")]
-    Task<IApiResponse<QuestDto>> GetDailyQuest();
+    Task<IApiResponse<QuestDto>> GetDailyQuestAsync();
 
     [Post("/api/quests/replace")]
-    Task<IApiResponse<QuestDto>> ReplaceDailyQuest();
+    Task<IApiResponse<QuestDto>> ReplaceDailyQuestAsync();
 
     [Post("/api/quests/claim")]
-    Task<IApiResponse<QuestDto>> CollectQuestReward();
+    Task<IApiResponse<QuestDto>> CollectQuestRewardAsync();
 
     [Get("/api/quests/points/{userId}")]
-    Task<IApiResponse<int>> GetUserQuestPoints(string userId);
+    Task<IApiResponse<int>> GetUserQuestPointsAsync(string userId);
 
     [Get("/api/quests/leaderboard")]
-    Task<IApiResponse<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
+    Task<IApiResponse<PagedResult<QuestPointsDto>>> GetQuestLeaderboardAsync(
         [Query] PaginationQuery pagination
     );
 
     [Get("/api/quests/leaderboard/me")]
-    Task<IApiResponse<int>> GetMyQuestRanking();
+    Task<IApiResponse<int>> GetMyQuestRankingAsync();
     #endregion
 }
