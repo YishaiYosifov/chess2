@@ -170,6 +170,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             Pool: pool,
             ExpiresAt: _fakeNow.DateTime + _settings.ChallengeLifetime
         );
+        result.Value.Should().Be(expectedChallenge);
         await _challengeNotifierMock
             .Received(1)
             .NotifyChallengeReceived(recipientId: _recipientId, expectedChallenge);

@@ -20,7 +20,11 @@ namespace Chess2.Api.Challenges.Grains;
 public interface IChallengeGrain : IGrainWithStringKey
 {
     [Alias("CreateAsync")]
-    Task<ErrorOr<Created>> CreateAsync(UserId requester, UserId recipient, PoolKey poolKey);
+    Task<ErrorOr<ChallengeRequest>> CreateAsync(
+        UserId requester,
+        UserId recipient,
+        PoolKey poolKey
+    );
 
     [Alias("CancelAsync")]
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
@@ -78,7 +82,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         _challengeId = this.GetPrimaryKeyString();
     }
 
-    public async Task<ErrorOr<Created>> CreateAsync(
+    public async Task<ErrorOr<ChallengeRequest>> CreateAsync(
         UserId requesterId,
         UserId recipientId,
         PoolKey poolKey
@@ -133,7 +137,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             expiresAt
         );
 
-        return Result.Created;
+        return challenge;
     }
 
     public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
