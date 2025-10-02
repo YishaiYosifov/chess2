@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using Chess2.Api.Challenges.Models;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
@@ -14,50 +16,26 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     {
         var requester = new AuthedUserFaker().Generate();
         var recipient = new AuthedUserFaker().Generate();
-        await DbContext.AddRangeAsync(requester, recipient);
-        await DbContext.SaveChangesAsync(CT);
 
         await using ChallengeHubClient recipientConn = new(
             await AuthedSignalRAsync(ChallengeHubClient.Path, recipient)
         );
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
-        var pool = new PoolKeyFaker().Generate();
 
-        var result = await ApiClient.Api.CreateChallengeAsync(recipient.Id, pool);
-
-        result.IsSuccessful.Should().BeTrue();
+        var challenge = await CreateChallengeAsync(requester, recipient);
 
         var recipientIncomingChallenge = await recipientConn.GetNextIncomingRequestAsync(CT);
         recipientIncomingChallenge.Requester.UserId.Should().Be(requester.Id);
         recipientIncomingChallenge.Recipient.UserId.Should().Be(recipient.Id);
-        recipientIncomingChallenge.Pool.Should().Be(pool);
+        recipientIncomingChallenge.Pool.Should().Be(challenge.Pool);
     }
 
     [Fact]
     public async Task CreateChallenge_creates_a_unique_id()
     {
-        var requester1 = new AuthedUserFaker().Generate();
-        var recipient1 = new AuthedUserFaker().Generate();
-        var requester2 = new AuthedUserFaker().Generate();
-        var recipient2 = new AuthedUserFaker().Generate();
-        await DbContext.AddRangeAsync(requester1, recipient1, requester2, recipient2);
-        await DbContext.SaveChangesAsync(CT);
+        var challenge1 = await CreateChallengeAsync();
+        var challenge2 = await CreateChallengeAsync();
 
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester1);
-        var result1 = await ApiClient.Api.CreateChallengeAsync(
-            recipient1.Id,
-            new PoolKeyFaker().Generate()
-        );
-        result1.IsSuccessful.Should().BeTrue();
-
-        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester2);
-        var result2 = await ApiClient.Api.CreateChallengeAsync(
-            recipient2.Id,
-            new PoolKeyFaker().Generate()
-        );
-        result2.IsSuccessful.Should().BeTrue();
-
-        result1.Content?.ChallengeId.Should().NotBe(result2.Content?.ChallengeId);
+        challenge1.ChallengeId.Should().NotBe(challenge2.ChallengeId);
     }
 
     [Fact]
@@ -74,5 +52,98 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         );
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task CancelChallenge_cancels_challenge_successfully()
+    {
+        var recipient = new AuthedUserFaker().Generate();
+        var challenge = await CreateChallengeAsync(recipient: recipient);
+
+        await using ChallengeHubClient recipientConn = new(
+            await AuthedSignalRAsync(ChallengeHubClient.Path, recipient)
+        );
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
+        var cancelResult = await ApiClient.Api.CancelChallengeAsync(challenge.ChallengeId);
+
+        cancelResult.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var cancelledId = await recipientConn.GetNextCancelledChallengeAsync(CT);
+        cancelledId.Should().Be(challenge.ChallengeId);
+    }
+
+    [Fact]
+    public async Task CancelChallenge_rejects_unauthorized()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
+
+        var result = await ApiClient.Api.CancelChallengeAsync("challenge id");
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task AcceptChallenge_accepts_challenge_successfully()
+    {
+        var requester = new AuthedUserFaker().Generate();
+        var recipient = new AuthedUserFaker().Generate();
+
+        var challenge = await CreateChallengeAsync(requester, recipient);
+
+        await using ChallengeHubClient requesterConn = new(
+            await AuthedSignalRAsync(ChallengeHubClient.Path, requester)
+        );
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
+        var acceptResult = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
+
+        acceptResult.IsSuccessful.Should().BeTrue();
+        acceptResult.Content.Should().NotBeNull();
+
+        var accepted = await requesterConn.GetNextAcceptedChallengeAsync(CT);
+        accepted.ChallengeId.Should().Be(challenge.ChallengeId);
+        accepted.GameToken.Should().Be(acceptResult.Content);
+
+        var createdGameStateResult = await ApiClient.Api.GetGameAsync(accepted.GameToken);
+        createdGameStateResult.IsSuccessful.Should().BeTrue();
+        createdGameStateResult.Content.Should().NotBeNull();
+        createdGameStateResult.Content.Pool.Should().Be(challenge.Pool);
+        string[] playerIds =
+        [
+            createdGameStateResult.Content.WhitePlayer.UserId,
+            createdGameStateResult.Content.BlackPlayer.UserId,
+        ];
+        playerIds.Should().BeEquivalentTo([requester.Id, recipient.Id]);
+    }
+
+    [Fact]
+    public async Task AcceptChallenge_rejects_unauthorized()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
+
+        var result = await ApiClient.Api.AcceptChallengeAsync("challenge id");
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    private async Task<ChallengeRequest> CreateChallengeAsync(
+        AuthedUser? requester = null,
+        AuthedUser? recipient = null
+    )
+    {
+        requester ??= new AuthedUserFaker().Generate();
+        recipient ??= new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(requester, recipient);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
+        var pool = new PoolKeyFaker().Generate();
+        var result = await ApiClient.Api.CreateChallengeAsync(recipient.Id, pool);
+
+        result.IsSuccessful.Should().BeTrue();
+        result.Content.Should().NotBeNull();
+
+        return result.Content;
     }
 }
