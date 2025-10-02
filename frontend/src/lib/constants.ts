@@ -35,6 +35,7 @@ const PATHS = {
     PLAY: "/play",
     QUESTS: "/quests",
     PROFILE: "/profile",
+    CHALLENGE: "/challenge",
     SETTINGS_BASE: "/settings",
     SETTINGS_PROFILE: "/settings/profile",
     SETTINGS_SOCIAL: "/settings/social",
