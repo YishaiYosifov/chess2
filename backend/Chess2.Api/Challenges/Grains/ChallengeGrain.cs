@@ -91,6 +91,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (requesterId == recipientId)
             return ChallengeErrors.CannotChallengeSelf;
 
+        var recipientInbox = GrainFactory.GetGrain<IChallengeInboxGrain>(recipientId);
+        if (await IsDuplicateChallenge(recipientInbox, requesterId))
+            return ChallengeErrors.AlreadyExists;
+
         var recipient = await _userManager.FindByIdAsync(recipientId);
         if (recipient is null)
             return ProfileErrors.NotFound;
@@ -125,9 +129,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         await _state.WriteStateAsync();
 
         await _challengeNotifier.NotifyChallengeReceived(recipientId: recipientId, challenge);
-        await GrainFactory
-            .GetGrain<IChallengeInboxGrain>(recipientId)
-            .RecordChallengeCreatedAsync(challenge);
+        await recipientInbox.RecordChallengeCreatedAsync(challenge);
 
         _logger.LogInformation(
             "Challenge {ChallengeId} created by {RequesterId} for {RecipientId}, expires at {ExpiresAt}",
@@ -187,6 +189,15 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
         _logger.LogInformation("Challenge {ChallengeId} expired", _challengeId);
         await ApplyCancellationAsync();
+    }
+
+    private static async Task<bool> IsDuplicateChallenge(
+        IChallengeInboxGrain recipientInbox,
+        UserId requesterId
+    )
+    {
+        var recipientChallenges = await recipientInbox.GetIncomingChallengesAsync();
+        return recipientChallenges.Any(x => x.Requester.UserId == requesterId);
     }
 
     private async Task ApplyCancellationAsync()
