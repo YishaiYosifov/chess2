@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -18,8 +19,8 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
 
     [HttpPut("{recipientId}", Name = nameof(CreateChallenge))]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ChallengeRequest>(StatusCodes.Status404NotFound)]
-    [ProducesResponseType<ChallengeRequest>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ChallengeRequest>> CreateChallenge(
         string recipientId,
         PoolKey pool
@@ -41,7 +42,7 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
 
     [HttpGet("{challengeId}", Name = nameof(GetChallenge))]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ChallengeRequest>> GetChallenge(string challengeId)
     {
         var userIdResult = _authService.GetUserId(User);
@@ -55,7 +56,7 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
 
     [HttpDelete("{challengeId}", Name = nameof(CancelChallenge))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> CancelChallenge(string challengeId)
     {
         var userIdResult = _authService.GetUserId(User);
@@ -69,7 +70,7 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
 
     [HttpPost("{challengeId}/accept")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ChallengeRequest>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<string>> AcceptChallenge(string challengeId)
     {
         var userIdResult = _authService.GetUserId(User);
