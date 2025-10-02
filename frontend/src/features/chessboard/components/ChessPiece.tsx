@@ -5,9 +5,10 @@ import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { Point } from "@/features/point/types";
 import { PieceID } from "../lib/types";
 
-import ChessSquare, { ChessSquareRef } from "./ChessSquare";
+import ChessSquare from "./ChessSquare";
 import useBoardInteraction from "../hooks/useBoardInteraction";
 import getPieceImage from "../lib/pieceImage";
+import { ChessSquareRef } from "./CoordSquare";
 
 const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
