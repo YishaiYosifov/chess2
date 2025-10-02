@@ -5,10 +5,12 @@ const Popup = ({
     closePopup,
     className,
     children,
+    "data-testid": testId,
 }: {
     closePopup: () => void;
     className?: string;
     children: ReactNode;
+    "data-testid"?: string;
 }) => {
     return (
         <div
@@ -23,7 +25,7 @@ const Popup = ({
                     className,
                 )}
                 onClick={(e) => e.stopPropagation()}
-                data-testid="popup"
+                data-testid={testId ?? "popup"}
             >
                 <button
                     onClick={closePopup}

@@ -382,15 +382,11 @@ export type PlayerSummary = {
 };
 
 export type ChallengeRequest = {
-    challengeId: ChallengeId;
+    challengeId: string;
     requester: MinimalProfile;
     recipient: MinimalProfile;
     pool: PoolKey;
     expiresAt: string;
-};
-
-export type ChallengeId = {
-    value: string;
 };
 
 export enum ErrorCode {
@@ -430,7 +426,7 @@ export enum ErrorCode {
     CHALLENGE_CANNOT_CHALLENGE_SELF = "Challenge.CannotChallengeSelf",
     CHALLENGE_ALREADY_EXISTS = "Challenge.AlreadyExists",
     CHALLENGE_CANNOT_ACCEPT = "Challenge.CannotAccept",
-    CHALLENGE_CANNOT_CANCEL = "Challenge.CannotCancel",
+    CHALLENGE_NOT_FOUND = "Challenge.NotFound",
 }
 
 export type GetRatingArchivesData = {
@@ -1010,13 +1006,15 @@ export type CreateChallengeData = {
 
 export type CreateChallengeErrors = {
     401: ApiProblemDetails;
+    403: ApiProblemDetails;
+    404: ApiProblemDetails;
 };
 
 export type CreateChallengeError =
     CreateChallengeErrors[keyof CreateChallengeErrors];
 
 export type CreateChallengeResponses = {
-    204: ChallengeRequest;
+    200: ChallengeRequest;
 };
 
 export type CreateChallengeResponse =
@@ -1033,6 +1031,7 @@ export type CancelChallengeData = {
 
 export type CancelChallengeErrors = {
     401: ApiProblemDetails;
+    404: ApiProblemDetails;
 };
 
 export type CancelChallengeError =
@@ -1045,6 +1044,29 @@ export type CancelChallengeResponses = {
 export type CancelChallengeResponse =
     CancelChallengeResponses[keyof CancelChallengeResponses];
 
+export type GetChallengeData = {
+    body?: never;
+    path: {
+        challengeId: string;
+    };
+    query?: never;
+    url: "/api/Challenge/{challengeId}";
+};
+
+export type GetChallengeErrors = {
+    401: ApiProblemDetails;
+    404: ApiProblemDetails;
+};
+
+export type GetChallengeError = GetChallengeErrors[keyof GetChallengeErrors];
+
+export type GetChallengeResponses = {
+    200: ChallengeRequest;
+};
+
+export type GetChallengeResponse =
+    GetChallengeResponses[keyof GetChallengeResponses];
+
 export type AcceptChallengeData = {
     body?: never;
     path: {
@@ -1056,6 +1078,7 @@ export type AcceptChallengeData = {
 
 export type AcceptChallengeErrors = {
     401: ApiProblemDetails;
+    403: ApiProblemDetails;
 };
 
 export type AcceptChallengeError =

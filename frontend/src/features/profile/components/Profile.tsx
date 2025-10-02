@@ -2,7 +2,6 @@
 
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { PublicUser, SessionUser } from "@/lib/apiClient";
@@ -13,6 +12,10 @@ import Button from "@/components/ui/Button";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
 import Flag from "./Flag";
+import ChallengePopup, {
+    ChallengePopupRef,
+} from "@/features/challenges/components/ChallengePopup";
+import { useRef } from "react";
 
 const Profile = ({
     profile,
@@ -35,6 +38,7 @@ const Profile = ({
             initialHasStarred,
             initialHasBlocked,
         });
+    const challengePopupRef = useRef<ChallengePopupRef>(null);
 
     const createdAt = new Date(profile.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString("en-US", {
@@ -76,6 +80,7 @@ const Profile = ({
                             hasBlocked={hasBlocked}
                             toggleStar={toggleStar}
                             toggleBlock={toggleBlock}
+                            challenge={() => challengePopupRef.current?.open()}
                         />
                     </div>
                 </div>
@@ -105,6 +110,8 @@ const Profile = ({
                     </p>
                 </div>
             </section>
+
+            <ChallengePopup profile={profile} ref={challengePopupRef} />
         </Card>
     );
 };
@@ -117,6 +124,7 @@ const ProfileActions = ({
     hasBlocked,
     toggleStar,
     toggleBlock,
+    challenge,
 }: {
     loggedInUser: SessionUser | null;
     profile: PublicUser;
@@ -124,10 +132,11 @@ const ProfileActions = ({
     hasBlocked: boolean;
     toggleStar: () => Promise<void>;
     toggleBlock: () => Promise<void>;
+    challenge: () => void;
 }) => {
     // guest user
     if (!loggedInUser) {
-        return <ChallengeButton profile={profile} />;
+        return <ChallengeButton challenge={challenge} />;
     }
 
     // viewing your own profile
@@ -159,7 +168,7 @@ const ProfileActions = ({
                 )}
                 {hasStarred ? "Starred" : "Star"}
             </Button>
-            <ChallengeButton profile={profile} />
+            <ChallengeButton challenge={challenge} />
             <Button
                 className="flex-1 bg-neutral-800"
                 onClick={toggleBlock}
@@ -171,16 +180,12 @@ const ProfileActions = ({
     );
 };
 
-export const ChallengeButton = ({ profile }: { profile: PublicUser }) => {
-    const router = useRouter();
-
+export const ChallengeButton = ({ challenge }: { challenge: () => void }) => {
     return (
         <Button
             className="flex-1"
             data-testid="profileChallengeButton"
-            onClick={() =>
-                router.push(`${constants.PATHS.CHALLENGE}/${profile.userId}`)
-            }
+            onClick={challenge}
         >
             Challenge
         </Button>

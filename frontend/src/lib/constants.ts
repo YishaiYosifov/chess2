@@ -88,6 +88,13 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
     },
 ];
 
+const CHALLENGE_MINUTES_OPTIONS = [
+    0.25, 0.5, 1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 45, 60, 90,
+];
+const CHALLENGE_INCREMENT_SECONDS_OPTIONS = [
+    0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 60,
+];
+
 const TIME_CONTROL_LABELS: Record<TimeControl, string> = {
     [TimeControl.BULLET]: "Bullet",
     [TimeControl.BLITZ]: "Blitz",
@@ -192,6 +199,8 @@ const constants = {
     STANDARD_TIME_CONTROLS,
     TIME_CONTROL_LABELS,
     DISPLAY_TIME_CONTROLS,
+    CHALLENGE_MINUTES_OPTIONS,
+    CHALLENGE_INCREMENT_SECONDS_OPTIONS,
     SEEK_RESUBSCRIBE_INTERAVAL_MS,
     OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
     COOKIES,

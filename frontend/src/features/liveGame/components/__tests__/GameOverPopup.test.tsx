@@ -31,7 +31,7 @@ describe("GameOverPopup", () => {
             </LiveChessStoreContext.Provider>,
         );
         await flushMicrotasks();
-        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
     it("should show victory title and rating changes for white win", async () => {
@@ -52,7 +52,7 @@ describe("GameOverPopup", () => {
         await flushMicrotasks();
         act(() => ref.current?.open());
 
-        expect(screen.getByTestId("popup")).toBeInTheDocument();
+        expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
         expect(screen.getByText("VICTORY")).toBeInTheDocument();
         expect(screen.getByText("White Won by Checkmate")).toBeInTheDocument();
         expect(screen.getByText("+12")).toBeInTheDocument();
@@ -144,7 +144,7 @@ describe("GameOverPopup", () => {
         act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("closePopup"));
-        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
+        expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
     it("should render NEW GAME and REMATCH buttons", async () => {
