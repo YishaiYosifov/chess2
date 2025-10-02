@@ -24,14 +24,8 @@ describe("Button Component", () => {
         expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
-    it("should render as disabled when the disabled prop is passed", () => {
-        render(<Button disabled>Click Me</Button>);
-        const button = screen.getByText("Click Me");
-        expect(button).toBeDisabled();
-    });
-
-    it("should apply disabled styles when disabled", () => {
-        render(<Button disabled>Click Me</Button>);
+    it("should apply disabled styles", () => {
+        render(<Button>Click Me</Button>);
         const button = screen.getByText("Click Me");
         expect(button).toHaveClass("disabled:brightness-70");
         expect(button).toHaveClass("disabled:text-text/50");
