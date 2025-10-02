@@ -180,4 +180,28 @@ describe("ChallengePopup", () => {
             PoolType.CASUAL.toString(),
         );
     });
+
+    it("should display the correct minutes and increment text", async () => {
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        const minutesText = screen.getByTestId("challengePopupMinutesText");
+        const incrementText = screen.getByTestId("challengePopupIncrementText");
+        const minutesSlider = screen.getByTestId<HTMLInputElement>(
+            "challengePopupMinutes",
+        );
+        const incrementSlider = screen.getByTestId<HTMLInputElement>(
+            "challengePopupIncrement",
+        );
+
+        fireEvent.change(minutesSlider, { target: { value: "2" } });
+        expect(minutesText).toHaveTextContent(
+            `Minutes per side: ${constants.CHALLENGE_MINUTES_OPTIONS[2]}`,
+        );
+
+        fireEvent.change(incrementSlider, { target: { value: "1" } });
+        expect(incrementText).toHaveTextContent(
+            `Increment in seconds: ${constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[1]}`,
+        );
+    });
 });
