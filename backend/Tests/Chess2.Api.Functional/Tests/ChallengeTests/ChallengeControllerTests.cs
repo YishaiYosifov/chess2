@@ -6,7 +6,7 @@ using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using FluentAssertions;
 
-namespace Chess2.Api.Functional.Tests.Challenges;
+namespace Chess2.Api.Functional.Tests.ChallengeTests;
 
 public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
