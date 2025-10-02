@@ -97,7 +97,7 @@ const ChallengePopup: ForwardRefRenderFunction<
 
             <div className="flex flex-col gap-3">
                 <div>
-                    <p>
+                    <p data-testid="challengePopupMinutesText">
                         Minutes per side:{" "}
                         {constants.CHALLENGE_MINUTES_OPTIONS[minutesIdx]}
                     </p>
@@ -112,7 +112,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                     />
                 </div>
                 <div>
-                    <p>
+                    <p data-testid="challengePopupIncrementText">
                         Increment in seconds:{" "}
                         {
                             constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[
