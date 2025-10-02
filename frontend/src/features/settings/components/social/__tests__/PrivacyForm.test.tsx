@@ -37,13 +37,11 @@ describe("PrivacyForm", () => {
         const challengeField = screen.getByTestId("challengePreference");
         const chatField = screen.getByTestId("showChat");
 
-        // disabled == selected
-        expect(
-            challengeField.querySelector("button[disabled]")?.textContent,
-        ).toBe("Always");
-        expect(chatField.querySelector("button[disabled]")?.textContent).toBe(
-            "Yes",
+        expect(challengeField).toHaveAttribute(
+            "data-selected",
+            InteractionLevel.EVERYONE.toString(),
         );
+        expect(chatField).toHaveAttribute("data-selected", "true");
 
         expect(screen.getByTestId("submitFormButton")).toBeInTheDocument();
     });
@@ -52,17 +50,12 @@ describe("PrivacyForm", () => {
         const user = userEvent.setup();
         render(<PrivacyForm initialPreferences={preferencesMock} />);
 
-        const challengeField = screen.getByTestId("challengePreference");
-        const chatField = screen.getByTestId("showChat");
-        const submitButton = screen.getByTestId("submitFormButton");
+        await user.click(
+            screen.getByTestId(`selector-${InteractionLevel.STARRED}`),
+        );
+        await user.click(screen.getByTestId("selector-false")); // showChat: false
 
-        const challengeButtons = challengeField.querySelectorAll("button");
-        await user.click(challengeButtons[1]); // only Stars
-
-        const chatButtons = chatField.querySelectorAll("button");
-        await user.click(chatButtons[1]); // no
-
-        await user.click(submitButton);
+        await user.click(screen.getByTestId("submitFormButton"));
 
         expect(setPreferencesMock).toHaveBeenCalledWith({
             body: {
@@ -82,12 +75,10 @@ describe("PrivacyForm", () => {
         const user = userEvent.setup();
         render(<PrivacyForm initialPreferences={preferencesMock} />);
 
-        const challengeField = screen.getByTestId("challengePreference");
-        const submitButton = screen.getByTestId("submitFormButton");
-
-        const challengeButtons = challengeField.querySelectorAll("button");
-        await user.click(challengeButtons[1]);
-        await user.click(submitButton);
+        await user.click(
+            screen.getByTestId(`selector-${InteractionLevel.STARRED}`),
+        );
+        await user.click(screen.getByTestId("submitFormButton"));
 
         const status = await screen.findByText("Failed to update preferences");
         expect(status).toBeInTheDocument();
