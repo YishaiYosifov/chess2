@@ -106,7 +106,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                 </div>
                 <div>
                     <p>
-                        Increments in seconds:{" "}
+                        Increment in seconds:{" "}
                         {
                             constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[
                                 incrementIdx
