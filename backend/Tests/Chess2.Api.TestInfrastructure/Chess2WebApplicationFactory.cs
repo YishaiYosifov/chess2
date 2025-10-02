@@ -1,5 +1,6 @@
 ﻿using System.Data.Common;
 using System.Net;
+using System.Text.Json;
 using Chess2.Api.Infrastructure;
 using FluentStorage;
 using FluentStorage.Blobs;
@@ -102,13 +103,13 @@ public class Chess2WebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         CookieContainerHandler cookieHandler = new(cookieContainer);
         RefitSettings refitSettings = new()
         {
-            ContentSerializer = new NewtonsoftJsonContentSerializer(),
+            ContentSerializer = new SystemTextJsonContentSerializer(
+                new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
+            ),
         };
 
         var httpClient = CreateDefaultClient(new Uri("https://localhost"), cookieHandler);
-
         var apiClient = RestService.For<IChess2Api>(httpClient, refitSettings);
-
         return new(apiClient, httpClient, cookieContainer);
     }
 

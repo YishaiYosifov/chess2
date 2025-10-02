@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Preferences.Models;
-using Newtonsoft.Json;
 
 namespace Chess2.Api.Preferences.DTOs;
 
