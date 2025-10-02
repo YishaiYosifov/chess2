@@ -4,11 +4,19 @@ import {
     createFakePrivateUser,
     createFakeUser,
 } from "@/lib/testUtils/fakers/userFaker";
-import { addStar, PrivateUser, PublicUser, removeStar } from "@/lib/apiClient";
+import {
+    addStar,
+    blockUser,
+    PrivateUser,
+    PublicUser,
+    removeStar,
+    unblockUser,
+} from "@/lib/apiClient";
 import Profile from "../Profile";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import userEvent from "@testing-library/user-event";
 import constants from "@/lib/constants";
+import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
 vi.mock("next/image");
 vi.mock("@/lib/apiClient/definition");
@@ -19,6 +27,8 @@ describe("Profile", () => {
 
     const addStarMock = vi.mocked(addStar);
     const removeStarMock = vi.mocked(removeStar);
+    const blockUserMock = vi.mocked(blockUser);
+    const unblockUserMock = vi.mocked(unblockUser);
 
     beforeEach(() => {
         userMock = createFakeUser();
@@ -29,6 +39,14 @@ describe("Profile", () => {
             response: new Response(),
         });
         removeStarMock.mockResolvedValue({
+            data: undefined,
+            response: new Response(),
+        });
+        blockUserMock.mockResolvedValue({
+            data: undefined,
+            response: new Response(),
+        });
+        unblockUserMock.mockResolvedValue({
             data: undefined,
             response: new Response(),
         });
@@ -66,7 +84,8 @@ describe("Profile", () => {
         expect(screen.getByTestId("username")).toBeInTheDocument();
         expect(screen.getByTestId("aboutMe")).toBeInTheDocument();
         expect(screen.getByTestId("profileStarCount")).toHaveTextContent("5");
-        expect(screen.getByText(/Joined/i)).toBeInTheDocument();
+        expect(screen.getByTestId("profileQuestPoints")).toBeInTheDocument();
+        expect(screen.getByTestId("profileCreatedAt")).toBeInTheDocument();
     });
 
     it("should display the username and flag correctly", () => {
@@ -106,13 +125,24 @@ describe("Profile", () => {
         ).not.toBeInTheDocument();
     });
 
-    it("should render Star button for logged in users viewing someone else's profile", () => {
+    it("should render correct action buttons for logged in users viewing someone else's profile", async () => {
+        const routerMock = mockRouter();
+        const user = userEvent.setup();
         renderProfile({ starCount: 3 });
 
-        const starButton = screen.getByTestId("profileStarButton");
-        expect(starButton).toBeInTheDocument();
-        expect(starButton).toHaveTextContent("Star");
-        expect(screen.getByTestId("profileStarCount")).toHaveTextContent("3");
+        expect(screen.getByTestId("profileStarButton")).toHaveTextContent(
+            "Star",
+        );
+        expect(screen.getByTestId("profileBlockButton")).toHaveTextContent(
+            "Block",
+        );
+
+        const challengeButton = screen.getByTestId("profileChallengeButton");
+        expect(challengeButton).toHaveTextContent("Challenge");
+        await user.click(challengeButton);
+        expect(routerMock.push).toHaveBeenCalledExactlyOnceWith(
+            `${constants.PATHS.CHALLENGE}/${userMock.userId}`,
+        );
     });
 
     it("should toggle star state when Star button is clicked", async () => {
@@ -141,13 +171,33 @@ describe("Profile", () => {
         expect(starCount).toHaveTextContent("2");
     });
 
+    it("should toggle block button when clicked", async () => {
+        const user = userEvent.setup();
+        renderProfile();
+
+        const blockButton = screen.getByTestId("profileBlockButton");
+        expect(blockButton).toHaveTextContent("Block");
+
+        await user.click(blockButton);
+        expect(blockUserMock).toHaveBeenCalledExactlyOnceWith({
+            path: { blockedUserId: userMock.userId },
+        });
+        expect(blockButton).toHaveTextContent("Unblock");
+
+        await user.click(blockButton);
+        expect(unblockUserMock).toHaveBeenCalledExactlyOnceWith({
+            path: { blockedUserId: userMock.userId },
+        });
+        expect(blockButton).toHaveTextContent("Block");
+    });
+
     it("should render only Challenge button for guest users", () => {
         renderProfile({ isLoggedOut: true });
 
         expect(
             screen.getByTestId("profileChallengeButton"),
         ).toBeInTheDocument();
-        expect(screen.queryByText(/Edit Profile/i)).not.toBeInTheDocument();
+        expect(screen.queryByTestId("editProfileLink")).not.toBeInTheDocument();
         expect(
             screen.queryByTestId("profileStarButton"),
         ).not.toBeInTheDocument();
