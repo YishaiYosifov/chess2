@@ -1,0 +1,144 @@
+import { fireEvent, within, render, screen } from "@testing-library/react";
+import { act } from "react";
+import ChallengePopup, { ChallengePopupRef } from "../ChallengePopup";
+import {
+    createChallenge,
+    ErrorCode,
+    PoolType,
+    PublicUser,
+} from "@/lib/apiClient";
+import React from "react";
+import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
+import userEvent from "@testing-library/user-event";
+import { createFakeChallengeRequets } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
+import constants from "@/lib/constants";
+
+vi.mock("@/lib/apiClient/definition");
+
+describe("ChallengePopup", () => {
+    const ref = React.createRef<ChallengePopupRef>();
+    let userMock: PublicUser;
+    const createChallengeMock = vi.mocked(createChallenge);
+
+    beforeEach(() => {
+        userMock = createFakeUser();
+    });
+
+    it("should not render popup content by default", async () => {
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        expect(screen.queryByTestId("challengePopup")).not.toBeInTheDocument();
+    });
+
+    it("should open the popup when open is called", async () => {
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        expect(screen.getByTestId("challengePopup")).toBeInTheDocument();
+        expect(screen.getByText("Create Challenge")).toBeInTheDocument();
+        expect(
+            screen.getByText(`Challenge ${userMock.userName}`),
+        ).toBeInTheDocument();
+    });
+
+    it("should show default minutes, increment, and pool type", async () => {
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        expect(screen.getByTestId("challengePopupMinutes")).toHaveValue(
+            constants.DEFAULT_CHALLENGE_MINUTE_OPTION_IDX.toString(),
+        );
+        expect(screen.getByTestId("challengePopupIncrement")).toHaveValue(
+            constants.DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX.toString(),
+        );
+        expect(screen.getByTestId("challengePopupPoolType")).toHaveAttribute(
+            "data-selected",
+            PoolType.RATED.toString(),
+        );
+    });
+
+    it("should pass correct time control and poolType to createChallenge", async () => {
+        const challengeMock = createFakeChallengeRequets();
+        vi.mocked(createChallenge).mockResolvedValue({
+            data: challengeMock,
+            response: new Response(),
+        });
+        const routerMock = mockRouter();
+        const user = userEvent.setup();
+
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        const minutesSlider = screen.getByTestId<HTMLInputElement>(
+            "challengePopupMinutes",
+        );
+        fireEvent.change(minutesSlider, { target: { value: "5" } });
+
+        const incrementSlider = screen.getByTestId<HTMLInputElement>(
+            "challengePopupIncrement",
+        );
+        fireEvent.change(incrementSlider, { target: { value: "1" } });
+
+        const poolTypeDiv = screen.getByTestId("challengePopupPoolType");
+        const casualButton = within(poolTypeDiv).getByTestId(
+            `selector-${PoolType.CASUAL}`,
+        );
+        await user.click(casualButton);
+
+        const challengeButton = screen.getByTestId("challengePopupCreate");
+        await user.click(challengeButton);
+
+        expect(createChallengeMock).toHaveBeenCalledExactlyOnceWith({
+            path: { recipientId: userMock.userId },
+            body: {
+                poolType: PoolType.CASUAL,
+                timeControl: {
+                    baseSeconds: constants.CHALLENGE_MINUTES_OPTIONS[5] * 60,
+                    incrementSeconds:
+                        constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[1],
+                },
+            },
+        });
+        expect(routerMock.push).toHaveBeenCalledWith(
+            `${constants.PATHS.CHALLENGE}/${challengeMock.challengeId}`,
+        );
+    });
+
+    it("should show error message if challenge fails", async () => {
+        createChallengeMock.mockResolvedValue({
+            error: {
+                errors: [
+                    {
+                        errorCode: ErrorCode.CHALLENGE_RECIPIENT_NOT_ACCEPTING,
+                        description: "test error description",
+                        metadata: {},
+                    },
+                ],
+            },
+            data: undefined,
+            response: new Response(),
+        });
+        const user = userEvent.setup();
+
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        const button = screen.getByTestId("challengePopupCreate");
+        await user.click(button);
+
+        expect(screen.getByTestId("challengePopupError")).toHaveTextContent(
+            "test error description",
+        );
+    });
+
+    it("should close when requested", async () => {
+        const user = userEvent.setup();
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        const closeButton = screen.getByTestId("closePopup");
+        await user.click(closeButton);
+
+        expect(screen.queryByTestId("challengePopup")).not.toBeInTheDocument();
+    });
+});
