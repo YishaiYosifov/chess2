@@ -31,15 +31,15 @@ const ChallengePopup: ForwardRefRenderFunction<
     const [error, setError] = useState<string | null>(null);
 
     const [minutesIdx, setMinutesIdx] = useLocalPref<number>(
-        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_MINUTES,
+        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_MINUTES_IDX,
         constants.DEFAULT_CHALLENGE_MINUTE_OPTION_IDX,
     );
     const [incrementIdx, setIncrementIdx] = useLocalPref<number>(
-        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_INCREMENT,
+        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_INCREMENT_IDX,
         constants.DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX,
     );
     const [poolType, setPoolType] = useLocalPref(
-        constants.LOCALSTORAGE.PREFERS_POOL,
+        constants.LOCALSTORAGE.PREFERS_CHALLENGE_POOL,
         PoolType.RATED,
     );
 

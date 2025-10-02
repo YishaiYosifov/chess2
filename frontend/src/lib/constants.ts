@@ -43,9 +43,10 @@ const PATHS = {
 };
 
 const LOCALSTORAGE = {
-    PREFERS_POOL: "prefersPool",
-    PREFERS_TIME_CONTROL_MINUTES: "prefersTimeControlMinutes",
-    PREFERS_TIME_CONTROL_INCREMENT: "prefersTimeControlIncrement",
+    PREFERS_MATCHMAKING_POOL: "prefersMatchmakingPool",
+    PREFERS_CHALLENGE_POOL: "prefersChallengePool",
+    PREFERS_TIME_CONTROL_MINUTES_IDX: "prefersTimeControlMinutesIdx",
+    PREFERS_TIME_CONTROL_INCREMENT_IDX: "prefersTimeControlIncrementIdx",
 };
 
 const SIGNALR_PATHS = {
