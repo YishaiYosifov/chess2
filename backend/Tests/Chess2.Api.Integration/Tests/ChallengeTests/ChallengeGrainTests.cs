@@ -167,6 +167,24 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
+    public async Task CreateAsync_allows_when_the_recipient_already_has_a_request_from_another_requester()
+    {
+        var anotherRequester = new AuthedUserFaker().Generate();
+        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient, anotherRequester);
+        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
+        var grain = await CreateGrainAsync();
+
+        await grain.CreateAsync(anotherRequester.Id, _recipientId, new PoolKeyFaker().Generate());
+        var result = await grain.CreateAsync(
+            _requesterId,
+            _recipientId,
+            new PoolKeyFaker().Generate()
+        );
+
+        result.IsError.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task CreateAsync_sets_challenge_up_correctly()
     {
         await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
