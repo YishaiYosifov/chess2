@@ -141,4 +141,43 @@ describe("ChallengePopup", () => {
 
         expect(screen.queryByTestId("challengePopup")).not.toBeInTheDocument();
     });
+
+    it("should persist preferences across mounts", async () => {
+        const user = userEvent.setup();
+
+        const { unmount } = render(
+            <ChallengePopup ref={ref} profile={userMock} />,
+        );
+        act(() => ref.current?.open());
+
+        fireEvent.change(
+            screen.getByTestId<HTMLInputElement>("challengePopupMinutes"),
+            {
+                target: { value: "2" },
+            },
+        );
+        fireEvent.change(
+            screen.getByTestId<HTMLInputElement>("challengePopupIncrement"),
+            {
+                target: { value: "1" },
+            },
+        );
+        const poolTypeSelector = screen.getByTestId("challengePopupPoolType");
+        const casualButton = within(poolTypeSelector).getByTestId(
+            `selector-${PoolType.CASUAL}`,
+        );
+        await user.click(casualButton);
+
+        unmount();
+
+        render(<ChallengePopup ref={ref} profile={userMock} />);
+        act(() => ref.current?.open());
+
+        expect(screen.getByTestId("challengePopupMinutes")).toHaveValue("2");
+        expect(screen.getByTestId("challengePopupIncrement")).toHaveValue("1");
+        expect(screen.getByTestId("challengePopupPoolType")).toHaveAttribute(
+            "data-selected",
+            PoolType.CASUAL.toString(),
+        );
+    });
 });

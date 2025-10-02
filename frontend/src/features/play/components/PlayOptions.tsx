@@ -14,7 +14,7 @@ const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
     const [poolType, setPoolType] = useLocalPref(
         constants.LOCALSTORAGE.PREFERS_POOL,
-        PoolType.CASUAL,
+        PoolType.RATED,
     );
     const isRated = poolType === PoolType.RATED;
 
