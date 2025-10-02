@@ -26,11 +26,11 @@ namespace Chess2.Api.Integration.Tests.ChallengeTests;
 public class ChallengeGrainTests : BaseOrleansIntegrationTest
 {
     private const string _requesterId = "requester-id";
-    private readonly IChallengeInboxGrain _requesterInbox;
+    private readonly ChallengeInboxGrain _requesterInbox = new();
     private readonly AuthedUser _requester;
 
     private const string _recipientId = "recipient-id";
-    private readonly IChallengeInboxGrain _recipientInbox;
+    private readonly ChallengeInboxGrain _recipientInbox = new();
     private readonly AuthedUser _recipient;
 
     private readonly ChallengeId _challengeId = "test challenge";
@@ -54,17 +54,14 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         _requester = new AuthedUserFaker().RuleFor(x => x.Id, _requesterId).Generate();
         _recipient = new AuthedUserFaker().RuleFor(x => x.Id, _recipientId).Generate();
 
+        _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         _blockService = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IBlockService>();
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
             IOptions<AppSettings>
         >();
         _settings = settings.Value.Challenge;
 
-        _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        _requesterInbox = _grainFactory.GetGrain<IChallengeInboxGrain>(_requesterId);
-        _recipientInbox = _grainFactory.GetGrain<IChallengeInboxGrain>(_recipientId);
-
-        Silo.AddProbe(id =>
+        Silo.AddProbe<IChallengeInboxGrain>(id =>
         {
             if (id.ToString() == _requesterId)
                 return _requesterInbox;
@@ -152,6 +149,24 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
+    public async Task CreateAsync_rejects_when_the_requester_already_has_a_request_to_the_recipient()
+    {
+        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
+        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
+        var grain = await CreateGrainAsync();
+
+        await grain.CreateAsync(_requesterId, _recipientId, new PoolKeyFaker().Generate());
+        var result = await grain.CreateAsync(
+            _requesterId,
+            _recipientId,
+            new PoolKeyFaker().Generate()
+        );
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.AlreadyExists);
+    }
+
+    [Fact]
     public async Task CreateAsync_sets_challenge_up_correctly()
     {
         await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
@@ -189,7 +204,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
                 Silo.GetGrainId(grain),
                 ChallengeGrain.TimeoutReminderName,
                 _settings.ChallengeLifetime,
-                TimeSpan.Zero
+                TimeSpan.MaxValue
             )
         );
     }

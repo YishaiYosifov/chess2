@@ -65,6 +65,7 @@ public static class ErrorCodes
 
     public const string ChallengeRecipientNotAccepting = "Challenge.RecipientNotAccepting";
     public const string ChallengeCannotChallengeSelf = "Challenge.CannotChallengeSelf";
+    public const string ChallengeAlreadyExists = "Challenge.AlreadyExists";
     public const string ChallengeCannotAccept = "Challenge.CannotAccept";
     public const string ChallengeCannotCancel = "Challenge.CannotCancel";
 }
