@@ -14,6 +14,12 @@ public static class ChallengeErrors
     public static Error CannotChallengeSelf =>
         Error.Validation(ErrorCodes.ChallengeCannotChallengeSelf, "You cannot challenge yourself");
 
+    public static Error AlreadyExists =>
+        Error.Conflict(
+            ErrorCodes.ChallengeAlreadyExists,
+            "You already sent a challenge to this user"
+        );
+
     public static Error CannotAccept =>
         Error.Forbidden(ErrorCodes.ChallengeCannotAccept, "You cannot accept this challenge");
 
