@@ -44,7 +44,6 @@ public interface IChess2Api
     Task<IApiResponse> EditProfileAsync(ProfileEditRequest profileEdit);
 
     [Put("/api/profile/edit-username")]
-    [Headers("Content-Type: application/json; charset=utf-8")]
     Task<IApiResponse> EditUsernameAsync(UsernameEditRequest usernameEdit);
 
     [Multipart]
