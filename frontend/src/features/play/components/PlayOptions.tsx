@@ -8,28 +8,20 @@ import PoolButton from "./PoolButton";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
 import { PoolType } from "@/lib/apiClient";
+import useLocalPref from "@/hooks/useLocalPref";
 
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
-    const [isRated, setIsRated] = useState(false);
+    const [poolType, setPoolType] = useLocalPref(
+        constants.LOCALSTORAGE.PREFERS_POOL,
+        PoolType.CASUAL,
+    );
+    const isRated = poolType === PoolType.RATED;
 
     useEffect(() => {
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
         setShowPoolToggle(isLoggedIn !== undefined);
-
-        const storedPrefersRated = localStorage.getItem(
-            constants.LOCALSTORAGE.PREFERS_RATED_POOL,
-        );
-        setIsRated(storedPrefersRated ? JSON.parse(storedPrefersRated) : false);
     }, []);
-
-    function toggleIsRated(toggleTo: boolean): void {
-        setIsRated(toggleTo);
-        localStorage.setItem(
-            constants.LOCALSTORAGE.PREFERS_RATED_POOL,
-            JSON.stringify(toggleTo),
-        );
-    }
 
     return (
         <Card data-testid="playOptions" className="items-center gap-0 pt-10">
@@ -39,7 +31,12 @@ const PlayOptions = () => {
             <div className="h-10" />
 
             {showPoolToggle && (
-                <PoolToggle isRated={isRated} onToggle={toggleIsRated} />
+                <PoolToggle
+                    isRated={isRated}
+                    onToggle={(isRated) =>
+                        setPoolType(isRated ? PoolType.RATED : PoolType.CASUAL)
+                    }
+                />
             )}
 
             <PoolButtons hidden={isRated} poolType={PoolType.CASUAL} />

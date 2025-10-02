@@ -61,33 +61,20 @@ describe("PlayOptions", () => {
         ).not.toBeVisible();
     });
 
-    it("should persist isRated preference in localStorage", async () => {
+    it("should persist isRated across mounts", async () => {
         const user = userEvent.setup();
         mockIsAuthedCookie(true);
-        render(<PlayOptions />);
+
+        const { unmount } = render(<PlayOptions />);
         const poolToggle = screen.getByTestId("poolToggle");
 
         await user.click(poolToggle);
         expect(
-            JSON.parse(
-                localStorage.getItem(
-                    constants.LOCALSTORAGE.PREFERS_RATED_POOL,
-                )!,
-            ),
-        ).toBe(true);
+            screen.getByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).toBeVisible();
 
-        await user.click(poolToggle);
-        expect(
-            JSON.parse(
-                localStorage.getItem(
-                    constants.LOCALSTORAGE.PREFERS_RATED_POOL,
-                )!,
-            ),
-        ).toBe(false);
-    });
+        unmount();
 
-    it("should initialize isRated from localStorage", () => {
-        localStorage.setItem(constants.LOCALSTORAGE.PREFERS_RATED_POOL, "true");
         render(<PlayOptions />);
 
         expect(

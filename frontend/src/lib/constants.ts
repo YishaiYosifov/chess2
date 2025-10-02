@@ -43,7 +43,9 @@ const PATHS = {
 };
 
 const LOCALSTORAGE = {
-    PREFERS_RATED_POOL: "prefersRatedPool",
+    PREFERS_POOL: "prefersPool",
+    PREFERS_TIME_CONTROL_MINUTES: "prefersTimeControlMinutes",
+    PREFERS_TIME_CONTROL_INCREMENT: "prefersTimeControlIncrement",
 };
 
 const SIGNALR_PATHS = {

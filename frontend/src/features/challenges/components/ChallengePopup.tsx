@@ -2,6 +2,7 @@ import Popup from "@/components/Popup";
 import Button from "@/components/ui/Button";
 import Range from "@/components/ui/Range";
 import Selector from "@/components/ui/Selector";
+import useLocalPref from "@/hooks/useLocalPref";
 import {
     createChallenge,
     ErrorCode,
@@ -27,14 +28,20 @@ const ChallengePopup: ForwardRefRenderFunction<
     { profile: PublicUser }
 > = ({ profile }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [minutesIdx, setMinutesIdx] = useState<number>(
+    const [error, setError] = useState<string | null>(null);
+
+    const [minutesIdx, setMinutesIdx] = useLocalPref<number>(
+        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_MINUTES,
         constants.DEFAULT_CHALLENGE_MINUTE_OPTION_IDX,
     );
-    const [incrementIdx, setIncrementIdx] = useState<number>(
+    const [incrementIdx, setIncrementIdx] = useLocalPref<number>(
+        constants.LOCALSTORAGE.PREFERS_TIME_CONTROL_INCREMENT,
         constants.DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX,
     );
-    const [poolType, setPoolType] = useState(PoolType.RATED);
-    const [error, setError] = useState<string | null>(null);
+    const [poolType, setPoolType] = useLocalPref(
+        constants.LOCALSTORAGE.PREFERS_POOL,
+        PoolType.RATED,
+    );
 
     const router = useRouter();
 
