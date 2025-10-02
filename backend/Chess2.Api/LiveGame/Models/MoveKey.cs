@@ -1,10 +1,16 @@
-﻿using Chess2.Api.GameLogic.Models;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json.Serialization;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Infrastructure;
+using NJsonSchema;
+using NJsonSchema.Annotations;
 
 namespace Chess2.Api.LiveGame.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.LiveGame.Models.MoveKey")]
+[JsonConverter(typeof(StringValueObjectConverter<MoveKey>))]
+[JsonSchema(JsonObjectType.String)]
 public readonly record struct MoveKey(string Value)
 {
     public MoveKey(Move move)

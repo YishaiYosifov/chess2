@@ -1,7 +1,14 @@
-﻿namespace Chess2.Api.Challenges.Models;
+﻿using System.Text.Json.Serialization;
+using Chess2.Api.Infrastructure;
+using NJsonSchema;
+using NJsonSchema.Annotations;
+
+namespace Chess2.Api.Challenges.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Challenges.Models.ChallengeId")]
+[JsonConverter(typeof(StringValueObjectConverter<ChallengeId>))]
+[JsonSchema(JsonObjectType.String)]
 public readonly record struct ChallengeId(string Value)
 {
     public static implicit operator string(ChallengeId id) => id.Value;
