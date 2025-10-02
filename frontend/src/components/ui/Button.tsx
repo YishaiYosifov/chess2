@@ -3,7 +3,6 @@
 import { twMerge } from "tailwind-merge";
 
 const Button = ({
-    children,
     className,
     ...buttonProps
 }: React.ButtonHTMLAttributes<HTMLButtonElement>) => {
@@ -15,9 +14,7 @@ const Button = ({
                 className,
             )}
             {...buttonProps}
-        >
-            {children}
-        </button>
+        />
     );
 };
 export default Button;
