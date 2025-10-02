@@ -2,6 +2,7 @@
 
 import { StarIcon as StarIconOutline } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { PublicUser, SessionUser } from "@/lib/apiClient";
@@ -126,14 +127,7 @@ const ProfileActions = ({
 }) => {
     // guest user
     if (!loggedInUser) {
-        return (
-            <Button
-                className="bg-secondary min-w-[100px] flex-1 text-black"
-                data-testid="profileChallengeButton"
-            >
-                Challenge
-            </Button>
-        );
+        return <ChallengeButton profile={profile} />;
     }
 
     // viewing your own profile
@@ -165,8 +159,7 @@ const ProfileActions = ({
                 )}
                 {hasStarred ? "Starred" : "Star"}
             </Button>
-
-            <Button className="flex-1">Challenge</Button>
+            <ChallengeButton profile={profile} />
             <Button
                 className="flex-1 bg-neutral-800"
                 onClick={toggleBlock}
@@ -175,5 +168,21 @@ const ProfileActions = ({
                 {hasBlocked ? "Unblock" : "Block"}
             </Button>
         </div>
+    );
+};
+
+export const ChallengeButton = ({ profile }: { profile: PublicUser }) => {
+    const router = useRouter();
+
+    return (
+        <Button
+            className="flex-1"
+            data-testid="profileChallengeButton"
+            onClick={() =>
+                router.push(`${constants.PATHS.CHALLENGE}/${profile.userId}`)
+            }
+        >
+            Challenge
+        </Button>
     );
 };
