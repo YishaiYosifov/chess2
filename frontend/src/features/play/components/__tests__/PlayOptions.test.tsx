@@ -61,7 +61,7 @@ describe("PlayOptions", () => {
         ).not.toBeVisible();
     });
 
-    it("should persist isRated across mounts", async () => {
+    it("should persist pool type across mounts", async () => {
         const user = userEvent.setup();
         mockIsAuthedCookie(true);
 
