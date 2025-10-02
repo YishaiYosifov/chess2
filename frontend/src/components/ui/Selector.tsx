@@ -44,7 +44,7 @@ const Selector = <T,>({
         if (idx !== -1 && idx !== selectedIndex) setSelectedIndex(idx);
     }, [value, options, selectedIndex]);
 
-    const select = (index: number) => {
+    function select(index: number) {
         setSelectedIndex(index);
         const selectedValue = options[index].value;
 
@@ -54,13 +54,14 @@ const Selector = <T,>({
                 value: selectedValue,
             },
         });
-    };
+    }
 
     return (
         <div
             id={id}
             className="flex w-full flex-wrap gap-3"
             data-testid={testId}
+            data-selected={options[selectedIndex].value}
         >
             {options.map((option, i) => (
                 <Button
@@ -69,6 +70,7 @@ const Selector = <T,>({
                         "flex-1 text-nowrap disabled:cursor-default",
                         i === selectedIndex && "border-secondary border-3",
                     )}
+                    data-testid={`selector-${option.value}`}
                     disabled={i === selectedIndex}
                     onClick={() => select(i)}
                     type="button"
