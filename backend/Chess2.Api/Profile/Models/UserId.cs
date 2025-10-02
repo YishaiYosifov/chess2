@@ -1,7 +1,14 @@
-﻿namespace Chess2.Api.Profile.Models;
+﻿using System.Text.Json.Serialization;
+using Chess2.Api.Infrastructure;
+using NJsonSchema;
+using NJsonSchema.Annotations;
+
+namespace Chess2.Api.Profile.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Profile.Models.UserId")]
+[JsonConverter(typeof(StringValueObjectConverter<UserId>))]
+[JsonSchema(JsonObjectType.String)]
 public readonly record struct UserId(string Value)
 {
     public static implicit operator string(UserId id) => id.Value;
