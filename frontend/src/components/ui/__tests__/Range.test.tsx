@@ -9,7 +9,7 @@ describe("Range", () => {
         expect(input).toHaveAttribute("type", "range");
     });
 
-    it("applies default and custom className", () => {
+    it("should apply default and custom className", () => {
         render(<Range className="custom-class" />);
         const input = screen.getByRole("slider");
         expect(input).toHaveClass("bg-primary");
@@ -17,7 +17,7 @@ describe("Range", () => {
         expect(input).toHaveClass("custom-class");
     });
 
-    it("passes other input props correctly", () => {
+    it("should pass other input props correctly", () => {
         render(<Range min={0} max={50} value={25} />);
         const input = screen.getByRole("slider");
         expect(input).toHaveAttribute("min", "0");
