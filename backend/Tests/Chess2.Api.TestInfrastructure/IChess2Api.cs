@@ -141,6 +141,9 @@ public interface IChess2Api
     [Put("/api/challenge/{recipientId}")]
     Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(string recipientId, PoolKey pool);
 
+    [Get("/api/challenge/{challengeId}")]
+    Task<IApiResponse<ChallengeRequest>> GetChallengeAsync(string challengeId);
+
     [Delete("/api/challenge/{challengeId}")]
     Task<IApiResponse> CancelChallengeAsync(string challengeId);
 

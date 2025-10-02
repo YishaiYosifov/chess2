@@ -55,6 +55,31 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task GetChallenge_returns_correct_challenge()
+    {
+        var requester = new AuthedUserFaker().Generate();
+        var challenge = await CreateChallengeAsync(requester);
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
+
+        var result = await ApiClient.Api.GetChallengeAsync(challenge.ChallengeId);
+
+        result.IsSuccessful.Should().BeTrue();
+        result.Content.Should().NotBeNull();
+        result.Content.Should().BeEquivalentTo(challenge);
+    }
+
+    [Fact]
+    public async Task GetChallenge_rejects_unauthorized()
+    {
+        var challenge = await CreateChallengeAsync();
+        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
+
+        var result = await ApiClient.Api.GetChallengeAsync(challenge.ChallengeId);
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
     public async Task CancelChallenge_cancels_challenge_successfully()
     {
         var recipient = new AuthedUserFaker().Generate();

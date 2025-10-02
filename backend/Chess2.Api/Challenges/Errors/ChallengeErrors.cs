@@ -23,6 +23,6 @@ public static class ChallengeErrors
     public static Error CannotAccept =>
         Error.Forbidden(ErrorCodes.ChallengeCannotAccept, "You cannot accept this challenge");
 
-    public static Error CannotCancel =>
-        Error.Forbidden(ErrorCodes.ChallengeCannotCancel, "You cannot cancel this challenge");
+    public static Error NotFound =>
+        Error.Forbidden(ErrorCodes.ChallengeNotFound, "Challenge not found");
 }
