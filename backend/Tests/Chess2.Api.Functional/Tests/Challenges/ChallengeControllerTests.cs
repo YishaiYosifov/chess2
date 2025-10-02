@@ -34,6 +34,33 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task CreateChallenge_creates_a_unique_id()
+    {
+        var requester1 = new AuthedUserFaker().Generate();
+        var recipient1 = new AuthedUserFaker().Generate();
+        var requester2 = new AuthedUserFaker().Generate();
+        var recipient2 = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(requester1, recipient1, requester2, recipient2);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester1);
+        var result1 = await ApiClient.Api.CreateChallengeAsync(
+            recipient1.Id,
+            new PoolKeyFaker().Generate()
+        );
+        result1.IsSuccessful.Should().BeTrue();
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester2);
+        var result2 = await ApiClient.Api.CreateChallengeAsync(
+            recipient2.Id,
+            new PoolKeyFaker().Generate()
+        );
+        result2.IsSuccessful.Should().BeTrue();
+
+        result1.Content?.ChallengeId.Should().NotBe(result2.Content?.ChallengeId);
+    }
+
+    [Fact]
     public async Task CreateChallenge_rejects_unauthorized()
     {
         var recipient = new AuthedUserFaker().Generate();
