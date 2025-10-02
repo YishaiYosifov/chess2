@@ -4,7 +4,6 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
-using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
@@ -227,6 +226,32 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         );
     }
 
+    [Theory]
+    [InlineData(_requesterId)]
+    [InlineData(_recipientId)]
+    public async Task GetAsync_returns_challenge(string requestedBy)
+    {
+        var grain = await CreateGrainAsync();
+        var createdChallenge = await CreateAsync(grain);
+
+        var result = await grain.GetAsync(requestedBy: requestedBy);
+
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeEquivalentTo(createdChallenge);
+    }
+
+    [Fact]
+    public async Task GetAsync_rejects_when_requested_by_is_not_requester_or_recipient()
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain);
+
+        var result = await grain.GetAsync(requestedBy: "some random");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.NotFound);
+    }
+
     [Fact]
     public async Task CancelAsync_rejects_when_cancelled_by_is_not_requester_or_recipient()
     {
@@ -236,7 +261,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var result = await grain.CancelAsync(cancelledBy: "some random");
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ChallengeErrors.CannotCancel);
+        result.FirstError.Should().Be(ChallengeErrors.NotFound);
     }
 
     [Theory]
@@ -273,7 +298,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public async Task AcceptAsync_tears_down_and_creates_game()
     {
         var grain = await CreateGrainAsync();
-        var pool = await CreateAsync(grain);
+        var createdChallenge = await CreateAsync(grain);
 
         var result = await grain.AcceptAsync(_recipientId);
 
@@ -288,7 +313,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
         gameStateResult.IsError.Should().BeFalse();
         var gameState = gameStateResult.Value;
-        gameState.Pool.Should().Be(pool);
+        gameState.Pool.Should().Be(createdChallenge.Pool);
 
         string[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
         playerUserIds.Should().BeEquivalentTo([_requesterId, _recipientId]);
@@ -308,7 +333,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         await AssertToreDownAsync(grain);
     }
 
-    private async Task<PoolKey> CreateAsync(ChallengeGrain grain)
+    private async Task<ChallengeRequest> CreateAsync(ChallengeGrain grain)
     {
         await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
@@ -317,7 +342,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var result = await grain.CreateAsync(_requesterId, _recipientId, pool);
 
         result.IsError.Should().BeFalse();
-        return pool;
+        return result.Value;
     }
 
     private async Task AssertToreDownAsync(ChallengeGrain grain)
