@@ -53,7 +53,6 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
         );
 
         var response = await ApiClient.Api.SetPreferencesAsync(newPrefs);
-
         response.IsSuccessful.Should().BeTrue();
 
         var dbPrefs = await DbContext

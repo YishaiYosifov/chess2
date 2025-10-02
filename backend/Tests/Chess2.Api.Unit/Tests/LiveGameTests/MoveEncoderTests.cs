@@ -1,28 +1,30 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.IO.Compression;
-using System.Text;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
 public class MoveEncoderTests
 {
     private readonly MoveEncoder _encoder;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public MoveEncoderTests()
     {
-        var jsonOptions = new MvcNewtonsoftJsonOptions();
-        jsonOptions.SerializerSettings.ContractResolver =
-            new CamelCasePropertyNamesContractResolver();
-        jsonOptions.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+        var jsonOptions = new JsonOptions();
+        jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        jsonOptions.JsonSerializerOptions.DefaultIgnoreCondition =
+            JsonIgnoreCondition.WhenWritingNull;
 
         _encoder = new MoveEncoder(Options.Create(jsonOptions));
+        _jsonOptions = jsonOptions.JsonSerializerOptions;
     }
 
     [Fact]
@@ -68,12 +70,12 @@ public class MoveEncoderTests
         decompressed.Should().BeEmpty();
     }
 
-    private static List<MovePath>? DecompressToPath(byte[] gzipBytes)
+    private List<MovePath>? DecompressToPath(byte[] compressedBytes)
     {
-        using var input = new MemoryStream(gzipBytes);
+        using var input = new MemoryStream(compressedBytes);
         using var brotli = new BrotliStream(input, CompressionMode.Decompress);
         using var reader = new StreamReader(brotli, Encoding.UTF8);
-        var paths = JsonConvert.DeserializeObject<List<MovePath>>(reader.ReadToEnd());
-        return paths;
+        var json = reader.ReadToEnd();
+        return JsonSerializer.Deserialize<List<MovePath>>(json, _jsonOptions);
     }
 }
