@@ -1,6 +1,8 @@
 ﻿using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.Auth.DTOs;
+using Chess2.Api.Challenges.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Profile.DTOs;
@@ -133,5 +135,16 @@ public interface IChess2Api
 
     [Get("/api/quests/leaderboard/me")]
     Task<IApiResponse<int>> GetMyQuestRankingAsync();
+    #endregion
+
+    #region Challenges
+    [Put("/api/challenge/{recipientId}")]
+    Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(string recipientId, PoolKey pool);
+
+    [Delete("/api/challenge/{challengeId}")]
+    Task<IApiResponse> CancelChallengeAsync(string challengeId);
+
+    [Post("/api/challenge/{challengeId}/accept")]
+    Task<IApiResponse<string>> AcceptChallengeAsync(string challengeId);
     #endregion
 }
