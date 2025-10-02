@@ -27,8 +27,12 @@ const ChallengePopup: ForwardRefRenderFunction<
     { profile: PublicUser }
 > = ({ profile }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [minutes, setMinutes] = useState(0);
-    const [increment, setIncrement] = useState(0);
+    const [minutesIdx, setMinutesIdx] = useState<number>(
+        constants.DEFAULT_CHALLENGE_MINUTE_OPTION_IDX,
+    );
+    const [incrementIdx, setIncrementIdx] = useState<number>(
+        constants.DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX,
+    );
     const [poolType, setPoolType] = useState(PoolType.RATED);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,8 +53,12 @@ const ChallengePopup: ForwardRefRenderFunction<
             body: {
                 poolType,
                 timeControl: {
-                    baseSeconds: minutes * 60,
-                    incrementSeconds: increment,
+                    baseSeconds:
+                        constants.CHALLENGE_MINUTES_OPTIONS[minutesIdx] * 60,
+                    incrementSeconds:
+                        constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[
+                            incrementIdx
+                        ],
                 },
             },
         });
@@ -84,13 +92,16 @@ const ChallengePopup: ForwardRefRenderFunction<
                 <div>
                     <p>
                         Minutes per side:{" "}
-                        {constants.CHALLENGE_MINUTES_OPTIONS[minutes]}
+                        {constants.CHALLENGE_MINUTES_OPTIONS[minutesIdx]}
                     </p>
                     <Range
                         min={0}
                         max={constants.CHALLENGE_MINUTES_OPTIONS.length - 1}
-                        value={minutes}
-                        onChange={(e) => setMinutes(parseInt(e.target.value))}
+                        value={minutesIdx}
+                        onChange={(e) =>
+                            setMinutesIdx(parseInt(e.target.value))
+                        }
+                        data-testid="challengePopupMinutes"
                     />
                 </div>
                 <div>
@@ -98,7 +109,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                         Increments in seconds:{" "}
                         {
                             constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS[
-                                increment
+                                incrementIdx
                             ]
                         }
                     </p>
@@ -108,8 +119,11 @@ const ChallengePopup: ForwardRefRenderFunction<
                             constants.CHALLENGE_INCREMENT_SECONDS_OPTIONS
                                 .length - 1
                         }
-                        value={increment}
-                        onChange={(e) => setIncrement(parseInt(e.target.value))}
+                        value={incrementIdx}
+                        onChange={(e) =>
+                            setIncrementIdx(parseInt(e.target.value))
+                        }
+                        data-testid="challengePopupIncrement"
                     />
                 </div>
 
@@ -120,6 +134,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                     ]}
                     value={poolType}
                     onChange={(e) => setPoolType(e.target.value)}
+                    data-testid="challengePopupPoolType"
                 />
             </div>
 
@@ -127,10 +142,18 @@ const ChallengePopup: ForwardRefRenderFunction<
                 <Button
                     className="border-secondary flex w-full items-center justify-center gap-1 border-4 text-xl"
                     onClick={sendChallenge}
+                    data-testid="challengePopupCreate"
                 >
                     Challenge {profile.userName}
                 </Button>
-                {error && <span className="text-error">{error}</span>}
+                {error && (
+                    <span
+                        className="text-error"
+                        data-testid="challengePopupError"
+                    >
+                        {error}
+                    </span>
+                )}
             </div>
         </Popup>
     );
