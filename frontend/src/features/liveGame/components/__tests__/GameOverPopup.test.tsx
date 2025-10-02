@@ -6,6 +6,7 @@ import createLiveChessStore, {
 } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor, GameResult } from "@/lib/apiClient";
 import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
+import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
@@ -122,6 +123,28 @@ describe("GameOverPopup", () => {
 
         expect(screen.getByText("ABORTED")).toBeInTheDocument();
         expect(screen.getByText("Game Aborted")).toBeInTheDocument();
+    });
+
+    it("should close when requested", async () => {
+        const user = userEvent.setup();
+        store.setState({
+            resultData: {
+                result: GameResult.WHITE_WIN,
+                resultDescription: "White Won by Resignation",
+                whiteRatingChange: 10,
+                blackRatingChange: -8,
+            },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup ref={ref} />
+            </LiveChessStoreContext.Provider>,
+        );
+        act(() => ref.current?.open());
+
+        await user.click(screen.getByTestId("closePopup"));
+        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
     });
 
     it("should render NEW GAME and REMATCH buttons", async () => {
