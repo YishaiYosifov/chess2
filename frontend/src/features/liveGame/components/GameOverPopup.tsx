@@ -11,6 +11,7 @@ import {
 } from "react";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
+import Popup from "@/components/Popup";
 
 export interface GameOverPopupRef {
     open(): void;
@@ -63,58 +64,37 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     const gameOverTitle = getGameOverTitle();
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 p-4"
-            onClick={closePopup}
-            data-testid="gameOverPopupBackground"
-        >
-            <div
-                className="bg-background shadow-x4 relative flex h-min max-h-full w-full max-w-md flex-col
-                    gap-3 overflow-auto rounded-2xl p-8"
-                onClick={(e) => e.stopPropagation()}
-                data-testid="gameOverPopup"
-            >
-                <button
-                    onClick={closePopup}
-                    aria-label="Close popup"
-                    className="hover:text-text/80 absolute top-2 right-4 cursor-pointer text-4xl"
-                    data-testid="closeGameOverPopup"
-                >
-                    ×
-                </button>
-                <h2 className="text-center text-3xl font-bold">
-                    {gameOverTitle}
-                </h2>
-                <p className="text-secondary text-center">
-                    {resultData.resultDescription}
-                </p>
+        <Popup closePopup={closePopup}>
+            <h2 className="text-center text-3xl font-bold">{gameOverTitle}</h2>
+            <p className="text-secondary text-center">
+                {resultData.resultDescription}
+            </p>
 
-                <div className="grid grid-cols-2 justify-center gap-2">
-                    <PopupCardProfile
-                        player={whitePlayer}
-                        ratingChange={resultData.whiteRatingChange ?? null}
-                        isWinner={resultData.result === GameResult.WHITE_WIN}
-                    />
-                    <PopupCardProfile
-                        player={blackPlayer}
-                        ratingChange={resultData.blackRatingChange ?? null}
-                        isWinner={resultData.result === GameResult.BLACK_WIN}
-                    />
-                </div>
-                <div className="flex gap-3">
-                    <Button
-                        className={clsx(
-                            "w-full",
-                            isSeeking && "animate-subtle-ping",
-                        )}
-                        onClick={() => toggleSeek()}
-                    >
-                        {isSeeking ? "SEARCHING..." : "NEW GAME"}
-                    </Button>
-                    <Button className="w-full">REMATCH</Button>
-                </div>
+            <div className="grid grid-cols-2 justify-center gap-2">
+                <PopupCardProfile
+                    player={whitePlayer}
+                    ratingChange={resultData.whiteRatingChange ?? null}
+                    isWinner={resultData.result === GameResult.WHITE_WIN}
+                />
+                <PopupCardProfile
+                    player={blackPlayer}
+                    ratingChange={resultData.blackRatingChange ?? null}
+                    isWinner={resultData.result === GameResult.BLACK_WIN}
+                />
             </div>
-        </div>
+            <div className="flex gap-3">
+                <Button
+                    className={clsx(
+                        "w-full",
+                        isSeeking && "animate-subtle-ping",
+                    )}
+                    onClick={() => toggleSeek()}
+                >
+                    {isSeeking ? "SEARCHING..." : "NEW GAME"}
+                </Button>
+                <Button className="w-full">REMATCH</Button>
+            </div>
+        </Popup>
     );
 };
 export default forwardRef(GameOverPopup);
