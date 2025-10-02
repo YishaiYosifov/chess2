@@ -13,8 +13,8 @@ import useLocalPref from "@/hooks/useLocalPref";
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
     const [poolType, setPoolType] = useLocalPref(
-        constants.LOCALSTORAGE.PREFERS_POOL,
-        PoolType.RATED,
+        constants.LOCALSTORAGE.PREFERS_MATCHMAKING_POOL,
+        PoolType.CASUAL,
     );
     const isRated = poolType === PoolType.RATED;
 
