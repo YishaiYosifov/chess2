@@ -26,6 +26,9 @@ public interface IChallengeGrain : IGrainWithStringKey
         PoolKey poolKey
     );
 
+    [Alias("GetAsync")]
+    public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy);
+
     [Alias("CancelAsync")]
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
@@ -142,13 +145,24 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return challenge;
     }
 
+    public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy)
+    {
+        if (
+            requestedBy.Value != _state.State.Request?.Recipient.UserId
+            && requestedBy.Value != _state.State.Request?.Requester.UserId
+        )
+            return Task.FromResult<ErrorOr<ChallengeRequest>>(ChallengeErrors.NotFound);
+
+        return Task.FromResult<ErrorOr<ChallengeRequest>>(_state.State.Request);
+    }
+
     public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
     {
         if (
             cancelledBy.Value != _state.State.Request?.Recipient.UserId
             && cancelledBy.Value != _state.State.Request?.Requester.UserId
         )
-            return ChallengeErrors.CannotCancel;
+            return ChallengeErrors.NotFound;
 
         _logger.LogInformation(
             "Challenge {ChallengeId} cancelled by {CancelledBy}",
