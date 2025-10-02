@@ -51,9 +51,6 @@ export type ProblemDetails = {
     status?: number | null;
     detail?: string | null;
     instance?: string | null;
-    extensions: {
-        [key: string]: unknown;
-    };
     [key: string]:
         | unknown
         | (string | null)
@@ -61,9 +58,6 @@ export type ProblemDetails = {
         | (number | null)
         | (string | null)
         | (string | null)
-        | {
-              [key: string]: unknown;
-          }
         | undefined;
 };
 
@@ -387,6 +381,18 @@ export type PlayerSummary = {
     rating?: number | null;
 };
 
+export type ChallengeRequest = {
+    challengeId: ChallengeId;
+    requester: MinimalProfile;
+    recipient: MinimalProfile;
+    pool: PoolKey;
+    expiresAt: string;
+};
+
+export type ChallengeId = {
+    value: string;
+};
+
 export enum ErrorCode {
     PROFILE_NOT_FOUND = "Profile.NotFound",
     PROFILE_COOLDOWN_SETTING = "Profile.Cooldown.Setting",
@@ -420,6 +426,11 @@ export enum ErrorCode {
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",
     QUEST_CANNOT_REPLACE = "Quest.CannotReplace",
     QUEST_NO_REWARD_TO_COLLECT = "Quest.NoRewardToCollect",
+    CHALLENGE_RECIPIENT_NOT_ACCEPTING = "Challenge.RecipientNotAccepting",
+    CHALLENGE_CANNOT_CHALLENGE_SELF = "Challenge.CannotChallengeSelf",
+    CHALLENGE_ALREADY_EXISTS = "Challenge.AlreadyExists",
+    CHALLENGE_CANNOT_ACCEPT = "Challenge.CannotAccept",
+    CHALLENGE_CANNOT_CANCEL = "Challenge.CannotCancel",
 }
 
 export type GetRatingArchivesData = {
@@ -987,6 +998,75 @@ export type GetGameResultsResponses = {
 
 export type GetGameResultsResponse =
     GetGameResultsResponses[keyof GetGameResultsResponses];
+
+export type CreateChallengeData = {
+    body: PoolKey;
+    path: {
+        recipientId: string;
+    };
+    query?: never;
+    url: "/api/Challenge/{recipientId}";
+};
+
+export type CreateChallengeErrors = {
+    401: ApiProblemDetails;
+};
+
+export type CreateChallengeError =
+    CreateChallengeErrors[keyof CreateChallengeErrors];
+
+export type CreateChallengeResponses = {
+    204: ChallengeRequest;
+};
+
+export type CreateChallengeResponse =
+    CreateChallengeResponses[keyof CreateChallengeResponses];
+
+export type CancelChallengeData = {
+    body?: never;
+    path: {
+        challengeId: string;
+    };
+    query?: never;
+    url: "/api/Challenge/{challengeId}";
+};
+
+export type CancelChallengeErrors = {
+    401: ApiProblemDetails;
+};
+
+export type CancelChallengeError =
+    CancelChallengeErrors[keyof CancelChallengeErrors];
+
+export type CancelChallengeResponses = {
+    204: void;
+};
+
+export type CancelChallengeResponse =
+    CancelChallengeResponses[keyof CancelChallengeResponses];
+
+export type AcceptChallengeData = {
+    body?: never;
+    path: {
+        challengeId: string;
+    };
+    query?: never;
+    url: "/api/Challenge/{challengeId}/accept";
+};
+
+export type AcceptChallengeErrors = {
+    401: ApiProblemDetails;
+};
+
+export type AcceptChallengeError =
+    AcceptChallengeErrors[keyof AcceptChallengeErrors];
+
+export type AcceptChallengeResponses = {
+    200: string;
+};
+
+export type AcceptChallengeResponse =
+    AcceptChallengeResponses[keyof AcceptChallengeResponses];
 
 export type RefreshData = {
     body?: never;

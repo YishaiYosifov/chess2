@@ -83,6 +83,15 @@ import type {
     GetGameErrors,
     GetGameResultsData,
     GetGameResultsResponses,
+    CreateChallengeData,
+    CreateChallengeResponses,
+    CreateChallengeErrors,
+    CancelChallengeData,
+    CancelChallengeResponses,
+    CancelChallengeErrors,
+    AcceptChallengeData,
+    AcceptChallengeResponses,
+    AcceptChallengeErrors,
     RefreshData,
     RefreshResponses,
     RefreshErrors,
@@ -483,6 +492,49 @@ export const getGameResults = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Game/results/{userId}",
+        ...options,
+    });
+};
+
+export const createChallenge = <ThrowOnError extends boolean = false>(
+    options: Options<CreateChallengeData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).put<
+        CreateChallengeResponses,
+        CreateChallengeErrors,
+        ThrowOnError
+    >({
+        url: "/api/Challenge/{recipientId}",
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options.headers,
+        },
+    });
+};
+
+export const cancelChallenge = <ThrowOnError extends boolean = false>(
+    options: Options<CancelChallengeData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).delete<
+        CancelChallengeResponses,
+        CancelChallengeErrors,
+        ThrowOnError
+    >({
+        url: "/api/Challenge/{challengeId}",
+        ...options,
+    });
+};
+
+export const acceptChallenge = <ThrowOnError extends boolean = false>(
+    options: Options<AcceptChallengeData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).post<
+        AcceptChallengeResponses,
+        AcceptChallengeErrors,
+        ThrowOnError
+    >({
+        url: "/api/Challenge/{challengeId}/accept",
         ...options,
     });
 };
