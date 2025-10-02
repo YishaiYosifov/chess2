@@ -16,7 +16,6 @@ import Profile from "../Profile";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import userEvent from "@testing-library/user-event";
 import constants from "@/lib/constants";
-import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 
 vi.mock("next/image");
 vi.mock("@/lib/apiClient/definition");
@@ -125,10 +124,8 @@ describe("Profile", () => {
         ).not.toBeInTheDocument();
     });
 
-    it("should render correct action buttons for logged in users viewing someone else's profile", async () => {
-        const routerMock = mockRouter();
-        const user = userEvent.setup();
-        renderProfile({ starCount: 3 });
+    it("should render correct action buttons for logged in users viewing someone else's profile", () => {
+        renderProfile();
 
         expect(screen.getByTestId("profileStarButton")).toHaveTextContent(
             "Star",
@@ -136,13 +133,18 @@ describe("Profile", () => {
         expect(screen.getByTestId("profileBlockButton")).toHaveTextContent(
             "Block",
         );
-
-        const challengeButton = screen.getByTestId("profileChallengeButton");
-        expect(challengeButton).toHaveTextContent("Challenge");
-        await user.click(challengeButton);
-        expect(routerMock.push).toHaveBeenCalledExactlyOnceWith(
-            `${constants.PATHS.CHALLENGE}/${userMock.userId}`,
+        expect(screen.getByTestId("profileChallengeButton")).toHaveTextContent(
+            "Challenge",
         );
+    });
+
+    it("should open challenge popup when challenge button is clicked", async () => {
+        const user = userEvent.setup();
+        renderProfile();
+
+        await user.click(screen.getByTestId("profileChallengeButton"));
+
+        expect(screen.getByTestId("challengePopup")).toBeInTheDocument();
     });
 
     it("should toggle star state when Star button is clicked", async () => {

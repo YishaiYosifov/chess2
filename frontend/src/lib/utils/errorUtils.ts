@@ -37,3 +37,14 @@ export function mapErrorsToFormik<T>(
 
     return formikErrors;
 }
+
+export function findMatchingError(
+    problemDetails: ApiProblemDetails,
+    errorCodes: Set<ErrorCode>,
+    defaultError: string,
+) {
+    const matched = problemDetails.errors.find((x) =>
+        errorCodes.has(x.errorCode),
+    );
+    return matched ? matched.description : defaultError;
+}

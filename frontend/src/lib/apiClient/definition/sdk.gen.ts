@@ -89,6 +89,9 @@ import type {
     CancelChallengeData,
     CancelChallengeResponses,
     CancelChallengeErrors,
+    GetChallengeData,
+    GetChallengeResponses,
+    GetChallengeErrors,
     AcceptChallengeData,
     AcceptChallengeResponses,
     AcceptChallengeErrors,
@@ -519,6 +522,19 @@ export const cancelChallenge = <ThrowOnError extends boolean = false>(
     return (options.client ?? _heyApiClient).delete<
         CancelChallengeResponses,
         CancelChallengeErrors,
+        ThrowOnError
+    >({
+        url: "/api/Challenge/{challengeId}",
+        ...options,
+    });
+};
+
+export const getChallenge = <ThrowOnError extends boolean = false>(
+    options: Options<GetChallengeData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetChallengeResponses,
+        GetChallengeErrors,
         ThrowOnError
     >({
         url: "/api/Challenge/{challengeId}",

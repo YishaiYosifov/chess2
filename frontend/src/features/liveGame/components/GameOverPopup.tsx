@@ -64,7 +64,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     const gameOverTitle = getGameOverTitle();
 
     return (
-        <Popup closePopup={closePopup}>
+        <Popup closePopup={closePopup} data-testid="gameOverPopup">
             <h2 className="text-center text-3xl font-bold">{gameOverTitle}</h2>
             <p className="text-secondary text-center">
                 {resultData.resultDescription}
