@@ -221,7 +221,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
                 Silo.GetGrainId(grain),
                 ChallengeGrain.TimeoutReminderName,
                 _settings.ChallengeLifetime,
-                TimeSpan.MaxValue
+                _settings.ChallengeLifetime
             )
         );
     }

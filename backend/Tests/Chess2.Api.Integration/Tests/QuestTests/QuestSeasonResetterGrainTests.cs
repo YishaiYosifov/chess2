@@ -43,8 +43,8 @@ public class QuestSeasonResetterGrainTests : BaseOrleansIntegrationTest
             x.RegisterOrUpdateReminder(
                 Silo.GetGrainId(grain),
                 QuestSeasonResetterGrain.ReminderName,
-                It.IsAny<TimeSpan>(),
-                TimeSpan.MaxValue
+                dueTime,
+                TimeSpan.FromDays(30)
             )
         );
     }
@@ -69,9 +69,9 @@ public class QuestSeasonResetterGrainTests : BaseOrleansIntegrationTest
             x =>
                 x.RegisterOrUpdateReminder(
                     Silo.GetGrainId(grain),
-                    "QuestSeasonResetterReminder",
+                    It.IsAny<string>(),
                     It.IsAny<TimeSpan>(),
-                    TimeSpan.MaxValue
+                    It.IsAny<TimeSpan>()
                 ),
             Times.Never
         );
@@ -97,7 +97,7 @@ public class QuestSeasonResetterGrainTests : BaseOrleansIntegrationTest
                 Silo.GetGrainId(grain),
                 QuestSeasonResetterGrain.ReminderName,
                 It.IsAny<TimeSpan>(),
-                TimeSpan.MaxValue
+                TimeSpan.FromDays(30)
             )
         );
     }
