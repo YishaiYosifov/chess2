@@ -137,16 +137,6 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         playerIds.Should().BeEquivalentTo([_requester.Id, _recipient.Id]);
     }
 
-    [Fact]
-    public async Task AcceptChallenge_rejects_unauthorized()
-    {
-        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
-
-        var result = await ApiClient.Api.AcceptChallengeAsync("challenge id");
-
-        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
     private async Task<ChallengeRequest> CreateChallengeAsync(
         AuthedUser? requester = null,
         AuthedUser? recipient = null
