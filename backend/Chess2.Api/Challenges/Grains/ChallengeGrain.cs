@@ -20,11 +20,7 @@ namespace Chess2.Api.Challenges.Grains;
 public interface IChallengeGrain : IGrainWithStringKey
 {
     [Alias("CreateAsync")]
-    Task<ErrorOr<ChallengeRequest>> CreateAsync(
-        UserId requester,
-        UserId recipient,
-        PoolKey poolKey
-    );
+    Task<ErrorOr<ChallengeRequest>> CreateAsync(UserId requester, UserId? recipient, PoolKey pool);
 
     [Alias("GetAsync")]
     public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy);
@@ -87,52 +83,38 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     public async Task<ErrorOr<ChallengeRequest>> CreateAsync(
         UserId requesterId,
-        UserId recipientId,
-        PoolKey poolKey
+        UserId? recipientId,
+        PoolKey pool
     )
     {
         if (requesterId == recipientId)
             return ChallengeErrors.CannotChallengeSelf;
 
-        var recipientInbox = GrainFactory.GetGrain<IChallengeInboxGrain>(recipientId);
-        if (await IsDuplicateChallenge(recipientInbox, requesterId))
-            return ChallengeErrors.AlreadyExists;
-
-        var recipient = await _userManager.FindByIdAsync(recipientId);
-        if (recipient is null)
-            return ProfileErrors.NotFound;
-
         var requester = await _userManager.FindByIdAsync(requesterId);
         if (requester is null)
             return Error.Unauthorized();
 
-        var canInteractWith = await _interactionLevelGate.CanInteractWithAsync(
-            prefs => prefs.ChallengePreference,
-            requesterId: requesterId,
-            recipientId: recipientId
-        );
-        if (!canInteractWith)
-            return ChallengeErrors.RecipientNotAccepting;
-
         var expiresAt = _timeProvider.GetUtcNow().DateTime + _settings.ChallengeLifetime;
+        var challengeResult = recipientId is null
+            ? CreateChallengeWithoutRecipient(requester, pool, expiresAt)
+            : await CreateChallengeWithRecipientAsync(
+                requester,
+                recipientId.Value,
+                pool,
+                expiresAt
+            );
+        if (challengeResult.IsError)
+            return challengeResult.Errors;
+        var challenge = challengeResult.Value;
+
         await this.RegisterOrUpdateReminder(
             TimeoutReminderName,
             dueTime: _settings.ChallengeLifetime,
             period: TimeSpan.MaxValue
         );
 
-        ChallengeRequest challenge = new(
-            ChallengeId: _challengeId,
-            Requester: new MinimalProfile(requester),
-            Recipient: new MinimalProfile(recipient),
-            Pool: poolKey,
-            ExpiresAt: expiresAt
-        );
         _state.State.Request = challenge;
         await _state.WriteStateAsync();
-
-        await _challengeNotifier.NotifyChallengeReceived(recipientId: recipientId, challenge);
-        await recipientInbox.RecordChallengeCreatedAsync(challenge);
 
         _logger.LogInformation(
             "Challenge {ChallengeId} created by {RequesterId} for {RecipientId}, expires at {ExpiresAt}",
@@ -147,9 +129,13 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy)
     {
+        if (_state.State.Request is null)
+            return Task.FromResult<ErrorOr<ChallengeRequest>>(ChallengeErrors.NotFound);
+
         if (
-            requestedBy.Value != _state.State.Request?.Recipient.UserId
-            && requestedBy.Value != _state.State.Request?.Requester.UserId
+            _state.State.Request.Recipient is not null
+            && requestedBy.Value != _state.State.Request.Recipient.UserId
+            && requestedBy.Value != _state.State.Request.Requester.UserId
         )
             return Task.FromResult<ErrorOr<ChallengeRequest>>(ChallengeErrors.NotFound);
 
@@ -159,7 +145,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
     {
         if (
-            cancelledBy.Value != _state.State.Request?.Recipient.UserId
+            cancelledBy.Value != _state.State.Request?.Recipient?.UserId
             && cancelledBy.Value != _state.State.Request?.Requester.UserId
         )
             return ChallengeErrors.NotFound;
@@ -176,12 +162,18 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy)
     {
-        if (acceptedBy.Value != _state.State.Request?.Recipient.UserId)
+        if (_state.State.Request is null)
+            return ChallengeErrors.NotFound;
+
+        if (
+            _state.State.Request.Recipient is not null
+            && acceptedBy.Value != _state.State.Request.Recipient.UserId
+        )
             return ChallengeErrors.CannotAccept;
 
         var gameToken = await _gameStarter.StartGameAsync(
-            _state.State.Request.Requester.UserId,
-            _state.State.Request.Recipient.UserId,
+            userId1: _state.State.Request.Requester.UserId,
+            userId2: acceptedBy,
             _state.State.Request.Pool
         );
         await _challengeNotifier.NotifyChallengeAccepted(
@@ -205,6 +197,55 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         await ApplyCancellationAsync();
     }
 
+    private ChallengeRequest CreateChallengeWithoutRecipient(
+        AuthedUser requester,
+        PoolKey pool,
+        DateTime expiresAt
+    ) =>
+        new(
+            ChallengeId: _challengeId,
+            Requester: new MinimalProfile(requester),
+            Recipient: null,
+            Pool: pool,
+            ExpiresAt: expiresAt
+        );
+
+    private async Task<ErrorOr<ChallengeRequest>> CreateChallengeWithRecipientAsync(
+        AuthedUser requester,
+        UserId recipientId,
+        PoolKey pool,
+        DateTime expiresAt
+    )
+    {
+        var recipientInbox = GrainFactory.GetGrain<IChallengeInboxGrain>(recipientId);
+        if (await IsDuplicateChallenge(recipientInbox, requester.Id))
+            return ChallengeErrors.AlreadyExists;
+
+        var recipient = await _userManager.FindByIdAsync(recipientId);
+        if (recipient is null)
+            return ProfileErrors.NotFound;
+
+        var canInteractWith = await _interactionLevelGate.CanInteractWithAsync(
+            prefs => prefs.ChallengePreference,
+            requesterId: requester.Id,
+            recipientId: recipientId
+        );
+        if (!canInteractWith)
+            return ChallengeErrors.RecipientNotAccepting;
+
+        ChallengeRequest challenge = new(
+            ChallengeId: _challengeId,
+            Requester: new MinimalProfile(requester),
+            Recipient: new MinimalProfile(recipient),
+            Pool: pool,
+            ExpiresAt: expiresAt
+        );
+        await _challengeNotifier.NotifyChallengeReceived(recipientId: recipientId, challenge);
+        await recipientInbox.RecordChallengeCreatedAsync(challenge);
+
+        return challenge;
+    }
+
     private static async Task<bool> IsDuplicateChallenge(
         IChallengeInboxGrain recipientInbox,
         UserId requesterId
@@ -221,7 +262,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
         await _challengeNotifier.NotifyChallengeCancelled(
             _state.State.Request.Requester.UserId,
-            _state.State.Request.Recipient.UserId,
+            _state.State.Request.Recipient?.UserId,
             _challengeId
         );
         await TearDownChallengeAsync();
@@ -232,9 +273,12 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (_state.State.Request is null)
             return;
 
-        await GrainFactory
-            .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
-            .RecordChallengeRemovedAsync(_challengeId);
+        if (_state.State.Request.Recipient is not null)
+        {
+            await GrainFactory
+                .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
+                .RecordChallengeRemovedAsync(_challengeId);
+        }
 
         await _state.ClearStateAsync();
         var reminder = await this.GetReminder(TimeoutReminderName);

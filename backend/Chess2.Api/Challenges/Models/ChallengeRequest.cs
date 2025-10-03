@@ -8,7 +8,7 @@ namespace Chess2.Api.Challenges.Models;
 public record ChallengeRequest(
     ChallengeId ChallengeId,
     MinimalProfile Requester,
-    MinimalProfile Recipient,
+    MinimalProfile? Recipient,
     PoolKey Pool,
     DateTime ExpiresAt
 );
