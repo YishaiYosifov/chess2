@@ -89,7 +89,7 @@ describe("ChallengePopup", () => {
         await user.click(challengeButton);
 
         expect(createChallengeMock).toHaveBeenCalledExactlyOnceWith({
-            path: { recipientId: userMock.userId },
+            query: { recipientId: userMock.userId },
             body: {
                 poolType: PoolType.CASUAL,
                 timeControl: {
