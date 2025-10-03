@@ -138,8 +138,11 @@ public interface IChess2Api
     #endregion
 
     #region Challenges
-    [Put("/api/challenge/{recipientId}")]
-    Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(string recipientId, PoolKey pool);
+    [Put("/api/challenge")]
+    Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(
+        [Query] string? recipientId,
+        PoolKey pool
+    );
 
     [Get("/api/challenge/{challengeId}")]
     Task<IApiResponse<ChallengeRequest>> GetChallengeAsync(string challengeId);

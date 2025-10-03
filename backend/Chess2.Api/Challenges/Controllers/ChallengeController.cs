@@ -4,6 +4,7 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +18,12 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
 
-    [HttpPut("{recipientId}", Name = nameof(CreateChallenge))]
+    [HttpPut(Name = nameof(CreateChallenge))]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ChallengeRequest>> CreateChallenge(
-        string recipientId,
+        [FromQuery] string? recipientId,
         PoolKey pool
     )
     {
@@ -34,7 +35,7 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);
         var result = await challengeGrain.CreateAsync(
             requester: userIdResult.Value,
-            recipient: recipientId,
+            recipient: recipientId is null ? (UserId?)null : recipientId,
             pool
         );
         return result.Match(Ok, errors => errors.ToActionResult());
