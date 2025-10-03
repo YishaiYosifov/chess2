@@ -1,4 +1,5 @@
 import { PolymorphicProps } from "@/types/polymorphicProps";
+import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 
 interface InputFieldOwnProps {
@@ -18,17 +19,21 @@ const InputField = <C extends React.ElementType = "input">({
 }: TextFieldProps<C>) => {
     const Component = as || "input";
     return (
-        <div className="relative">
+        <div className="flex w-full">
             <Component
                 className={twMerge(
-                    `bg-background/50 autofill:bg-background/50 text-text w-full rounded-md border
-                    border-white/20 p-1 disabled:cursor-not-allowed disabled:opacity-50`,
+                    clsx(
+                        `bg-background/50 autofill:bg-background/50 text-text w-full border
+                        border-white/20 p-1 disabled:cursor-not-allowed disabled:opacity-50`,
+                        icon && "rounded-l-md",
+                        icon || "rounded-md",
+                    ),
                     className,
                 )}
                 {...props}
             />
             {icon && (
-                <span className="text-text absolute top-1/2 right-2 size-7 -translate-y-1/2 cursor-pointer">
+                <span className="bg-background h-full w-10 cursor-pointer rounded-r-md p-1">
                     {icon}
                 </span>
             )}
