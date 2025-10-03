@@ -2,6 +2,7 @@
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
+using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Preferences.Services;
@@ -39,6 +40,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     private readonly IGrainFactory _grainFactory;
     private readonly IBlockService _blockService;
     private readonly ChallengeSettings _settings;
+    private readonly ITimeControlTranslator _timeControlTranslator;
 
     private readonly IChallengeNotifier _challengeNotifierMock =
         Substitute.For<IChallengeNotifier>();
@@ -56,6 +58,8 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         _blockService = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IBlockService>();
+        _timeControlTranslator =
+            ApiTestBase.Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
             IOptions<AppSettings>
         >();
@@ -72,6 +76,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         Silo.ServiceProvider.AddService(_challengeNotifierMock);
         Silo.ServiceProvider.AddService(_timeProviderMock);
+        Silo.ServiceProvider.AddService(_timeControlTranslator);
         Silo.ServiceProvider.AddService(settings);
         Silo.ServiceProvider.AddService(
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IInteractionLevelGate>()
@@ -200,6 +205,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             ChallengeId: _challengeId,
             Requester: new(_requester),
             Recipient: new(_recipient),
+            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
             ExpiresAt: _fakeNow.DateTime + _settings.ChallengeLifetime
         );
@@ -243,6 +249,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             ChallengeId: _challengeId,
             Requester: new(_requester),
             Recipient: null,
+            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
             ExpiresAt: _fakeNow.DateTime + _settings.ChallengeLifetime
         );
