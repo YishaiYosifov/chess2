@@ -29,6 +29,7 @@ import {
 } from "../lib/gameStateProcessor";
 import useConst from "@/hooks/useConst";
 import { Move } from "@/features/chessboard/lib/types";
+import ChessboardWithSidebar from "@/features/chessboard/components/ChessboardWithSidebar";
 
 const LiveChessboard = ({
     gameToken,
@@ -73,42 +74,47 @@ const LiveChessboard = ({
         <LiveChessStoreContext.Provider value={liveChessStore}>
             <ChessboardStoreContext.Provider value={chessboardStore}>
                 <GameOverPopup ref={gameOverPopupRef} />
-                <div
-                    className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:max-h-screen
-                        lg:flex-row lg:items-start"
-                >
-                    <section className="flex h-max w-fit flex-col gap-3">
-                        <LiveChessboardProfile
-                            side={ChessProfileSide.Opponent}
-                        />
-                        <ChessboardLayout
-                            breakpoints={[
-                                {
-                                    maxScreenSize: 767,
-                                    paddingOffset: { width: 40, height: 258 },
-                                },
-                                {
-                                    maxScreenSize: 1024,
-                                    paddingOffset: { width: 200, height: 198 },
-                                },
-                            ]}
-                            defaultOffset={{ width: 626, height: 164 }}
-                            className="self-center"
-                        />
-                        <LiveChessboardProfile
-                            side={ChessProfileSide.CurrentlyPlaying}
-                        />
-                    </section>
-
-                    <aside
-                        className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_100px_200px] gap-3
-                            overflow-auto lg:max-w-sm"
-                    >
-                        <MoveHistoryTable />
-                        <GameControlsCard />
-                        <GameChat initialShowChat={preferences.showChat} />
-                    </aside>
-                </div>
+                <ChessboardWithSidebar
+                    chessboard={
+                        <>
+                            <LiveChessboardProfile
+                                side={ChessProfileSide.Opponent}
+                            />
+                            <ChessboardLayout
+                                breakpoints={[
+                                    {
+                                        maxScreenSize: 767,
+                                        paddingOffset: {
+                                            width: 40,
+                                            height: 258,
+                                        },
+                                    },
+                                    {
+                                        maxScreenSize: 1024,
+                                        paddingOffset: {
+                                            width: 200,
+                                            height: 198,
+                                        },
+                                    },
+                                ]}
+                                defaultOffset={{ width: 626, height: 164 }}
+                            />
+                            <LiveChessboardProfile
+                                side={ChessProfileSide.CurrentlyPlaying}
+                            />
+                        </>
+                    }
+                    aside={
+                        <aside
+                            className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_100px_200px] gap-3
+                                overflow-auto lg:max-w-sm"
+                        >
+                            <MoveHistoryTable />
+                            <GameControlsCard />
+                            <GameChat initialShowChat={preferences.showChat} />
+                        </aside>
+                    }
+                />
             </ChessboardStoreContext.Provider>
         </LiveChessStoreContext.Provider>
     );
