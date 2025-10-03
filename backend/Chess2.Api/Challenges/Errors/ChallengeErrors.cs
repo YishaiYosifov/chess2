@@ -24,5 +24,5 @@ public static class ChallengeErrors
         Error.Forbidden(ErrorCodes.ChallengeCannotAccept, "You cannot accept this challenge");
 
     public static Error NotFound =>
-        Error.Forbidden(ErrorCodes.ChallengeNotFound, "Challenge not found");
+        Error.NotFound(ErrorCodes.ChallengeNotFound, "Challenge not found");
 }
