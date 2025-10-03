@@ -7,7 +7,6 @@ using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
-using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
@@ -419,11 +418,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         var pool = new PoolKeyFaker().Generate();
 
-        var result = await grain.CreateAsync(
-            requester.Id,
-            recipient is null ? (UserId?)null : recipient.Id,
-            pool
-        );
+        var result = await grain.CreateAsync(requester.Id, recipient?.Id, pool);
 
         result.IsError.Should().BeFalse();
         return result.Value;

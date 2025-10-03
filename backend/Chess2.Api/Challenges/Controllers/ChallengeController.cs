@@ -4,7 +4,6 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,7 +34,7 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);
         var result = await challengeGrain.CreateAsync(
             requester: userIdResult.Value,
-            recipient: recipientId is null ? (UserId?)null : recipientId,
+            recipient: recipientId,
             pool
         );
         return result.Match(Ok, errors => errors.ToActionResult());

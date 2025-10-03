@@ -15,5 +15,7 @@ public readonly record struct UserId(string Value)
 
     public static implicit operator UserId(string value) => new(value);
 
+    public static implicit operator UserId?(string? value) => value is null ? null : new(value);
+
     public override string ToString() => Value;
 }
