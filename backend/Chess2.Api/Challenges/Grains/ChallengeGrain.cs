@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Challenges.Errors;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
+using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
@@ -53,6 +54,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     private readonly IChallengeNotifier _challengeNotifier;
     private readonly IInteractionLevelGate _interactionLevelGate;
+    private readonly ITimeControlTranslator _timeControlTranslator;
     private readonly UserManager<AuthedUser> _userManager;
     private readonly IGameStarter _gameStarter;
     private readonly TimeProvider _timeProvider;
@@ -64,6 +66,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         IOptions<AppSettings> settings,
         IChallengeNotifier challengeNotifier,
         IInteractionLevelGate interactionLevelGate,
+        ITimeControlTranslator timeControlTranslator,
         UserManager<AuthedUser> userManager,
         IGameStarter gameStarter,
         TimeProvider timeProvider
@@ -74,6 +77,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         _settings = settings.Value.Challenge;
         _challengeNotifier = challengeNotifier;
         _interactionLevelGate = interactionLevelGate;
+        _timeControlTranslator = timeControlTranslator;
         _userManager = userManager;
         _gameStarter = gameStarter;
         _timeProvider = timeProvider;
@@ -200,14 +204,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         MinimalProfile requester,
         PoolKey pool,
         DateTime expiresAt
-    ) =>
-        new(
-            ChallengeId: _challengeId,
-            Requester: requester,
-            Recipient: null,
-            Pool: pool,
-            ExpiresAt: expiresAt
-        );
+    ) => BuildChallenge(requester, recipient: null, pool, expiresAt);
 
     private async Task<ErrorOr<ChallengeRequest>> CreateChallengeWithRecipientAsync(
         MinimalProfile requester,
@@ -232,18 +229,32 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (!canInteractWith)
             return ChallengeErrors.RecipientNotAccepting;
 
-        ChallengeRequest challenge = new(
-            ChallengeId: _challengeId,
-            Requester: requester,
-            Recipient: new MinimalProfile(recipient),
-            Pool: pool,
-            ExpiresAt: expiresAt
+        ChallengeRequest challenge = BuildChallenge(
+            requester,
+            new MinimalProfile(recipient),
+            pool,
+            expiresAt
         );
         await _challengeNotifier.NotifyChallengeReceived(recipientId: recipientId, challenge);
         await recipientInbox.RecordChallengeCreatedAsync(challenge);
 
         return challenge;
     }
+
+    private ChallengeRequest BuildChallenge(
+        MinimalProfile requester,
+        MinimalProfile? recipient,
+        PoolKey pool,
+        DateTime expiresAt
+    ) =>
+        new(
+            ChallengeId: _challengeId,
+            Requester: requester,
+            Recipient: recipient,
+            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
+            Pool: pool,
+            ExpiresAt: expiresAt
+        );
 
     private static async Task<bool> IsDuplicateChallenge(
         IChallengeInboxGrain recipientInbox,

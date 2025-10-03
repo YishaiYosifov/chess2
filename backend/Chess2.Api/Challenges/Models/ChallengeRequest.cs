@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.DTOs;
 
 namespace Chess2.Api.Challenges.Models;
@@ -9,6 +10,7 @@ public record ChallengeRequest(
     ChallengeId ChallengeId,
     MinimalProfile Requester,
     MinimalProfile? Recipient,
+    TimeControl TimeControl,
     PoolKey Pool,
     DateTime ExpiresAt
 );
