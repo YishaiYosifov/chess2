@@ -507,7 +507,7 @@ export const createChallenge = <ThrowOnError extends boolean = false>(
         CreateChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/{recipientId}",
+        url: "/api/Challenge",
         ...options,
         headers: {
             "Content-Type": "application/json",
