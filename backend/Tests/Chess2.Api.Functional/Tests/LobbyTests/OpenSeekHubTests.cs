@@ -36,7 +36,7 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
     }
 
     [Fact]
-    public async Task Authed_users_receive_both_casual_and_rated()
+    public async Task Authed_users_receive_rated_seeks()
     {
         var authedSeeker = new AuthedUserFaker().Generate();
         var authedWatcher = new AuthedUserFaker().Generate();
@@ -48,6 +48,23 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
         );
         await authLobby.SeekRatedAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
+        await using OpenSeekHubClient openSeek = await OpenSeekHubClient.CreateSubscribedAsync(
+            await AuthedSignalRAsync(OpenSeekHubClient.Path, authedWatcher),
+            CT
+        );
+
+        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
+        seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Rated);
+    }
+
+    [Fact]
+    public async Task Authed_users_receive_casual_seeks()
+    {
+        var authedSeeker = new AuthedUserFaker().Generate();
+        var authedWatcher = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(authedWatcher, authedSeeker);
+        await DbContext.SaveChangesAsync(CT);
+
         await using LobbyHubClient casualLobby = new(
             await AuthedSignalRAsync(LobbyHubClient.Path, authedSeeker)
         );
@@ -57,13 +74,9 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
             await AuthedSignalRAsync(OpenSeekHubClient.Path, authedWatcher),
             CT
         );
-        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
 
-        seeks.Count.Should().Be(2);
-        seeks
-            .Select(x => x.Pool.PoolType)
-            .Should()
-            .BeEquivalentTo([PoolType.Rated, PoolType.Casual]);
+        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
+        seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Casual);
     }
 
     [Fact]
