@@ -385,6 +385,7 @@ export type ChallengeRequest = {
     challengeId: string;
     requester: MinimalProfile;
     recipient?: MinimalProfile | null;
+    timeControl: TimeControl;
     pool: PoolKey;
     expiresAt: string;
 };
