@@ -1,9 +1,11 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
+using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +13,16 @@ namespace Chess2.Api.Challenges.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-[Authorize]
-public class ChallengeController(IGrainFactory grains, IAuthService authService) : Controller
+[Authorize(AuthPolicies.ActiveSession)]
+public class ChallengeController(
+    IGrainFactory grains,
+    IAuthService authService,
+    IGuestService guestService
+) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
+    private readonly IGuestService _guestService = guestService;
 
     [HttpPut(Name = nameof(CreateChallenge))]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
@@ -29,6 +36,12 @@ public class ChallengeController(IGrainFactory grains, IAuthService authService)
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
+        if (_guestService.IsGuest(User) && recipientId is not null)
+        {
+            return Error
+                .Forbidden(description: "Cannot create a direct challenge as a guest")
+                .ToActionResult();
+        }
 
         var id = Guid.NewGuid().ToString()[..16];
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);

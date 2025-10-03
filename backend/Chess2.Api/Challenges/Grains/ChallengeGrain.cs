@@ -91,14 +91,13 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             return ChallengeErrors.CannotChallengeSelf;
 
         var requester = await _userManager.FindByIdAsync(requesterId);
-        if (requester is null)
-            return Error.Unauthorized();
+        MinimalProfile requesterProfile = new(requesterId, requester);
 
         var expiresAt = _timeProvider.GetUtcNow().DateTime + _settings.ChallengeLifetime;
         var challengeResult = recipientId is null
-            ? CreateChallengeWithoutRecipient(requester, pool, expiresAt)
+            ? CreateChallengeWithoutRecipient(requesterProfile, pool, expiresAt)
             : await CreateChallengeWithRecipientAsync(
-                requester,
+                requesterProfile,
                 recipientId.Value,
                 pool,
                 expiresAt
@@ -198,27 +197,27 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     }
 
     private ChallengeRequest CreateChallengeWithoutRecipient(
-        AuthedUser requester,
+        MinimalProfile requester,
         PoolKey pool,
         DateTime expiresAt
     ) =>
         new(
             ChallengeId: _challengeId,
-            Requester: new MinimalProfile(requester),
+            Requester: requester,
             Recipient: null,
             Pool: pool,
             ExpiresAt: expiresAt
         );
 
     private async Task<ErrorOr<ChallengeRequest>> CreateChallengeWithRecipientAsync(
-        AuthedUser requester,
+        MinimalProfile requester,
         UserId recipientId,
         PoolKey pool,
         DateTime expiresAt
     )
     {
         var recipientInbox = GrainFactory.GetGrain<IChallengeInboxGrain>(recipientId);
-        if (await IsDuplicateChallenge(recipientInbox, requester.Id))
+        if (await IsDuplicateChallenge(recipientInbox, requester.UserId))
             return ChallengeErrors.AlreadyExists;
 
         var recipient = await _userManager.FindByIdAsync(recipientId);
@@ -227,7 +226,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
         var canInteractWith = await _interactionLevelGate.CanInteractWithAsync(
             prefs => prefs.ChallengePreference,
-            requesterId: requester.Id,
+            requesterId: requester.UserId,
             recipientId: recipientId
         );
         if (!canInteractWith)
@@ -235,7 +234,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
         ChallengeRequest challenge = new(
             ChallengeId: _challengeId,
-            Requester: new MinimalProfile(requester),
+            Requester: requester,
             Recipient: new MinimalProfile(recipient),
             Pool: pool,
             ExpiresAt: expiresAt

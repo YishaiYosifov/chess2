@@ -31,6 +31,34 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
+    public async Task CreateChallenge_rejects_guest_with_recipient()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+
+        var result = await ApiClient.Api.CreateChallengeAsync(
+            "some-recipient-id",
+            new PoolKeyFaker().Generate()
+        );
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task CreateChallenge_allows_guest_with_null_recipient()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+
+        var pool = new PoolKeyFaker().Generate();
+        var result = await ApiClient.Api.CreateChallengeAsync(null, pool);
+
+        result.IsSuccessful.Should().BeTrue();
+        result.Content.Should().NotBeNull();
+        result.Content.Requester.UserId.Should().Be((UserId)"guest id");
+        result.Content.Recipient.Should().BeNull();
+        result.Content.Pool.Should().Be(pool);
+    }
+
+    [Fact]
     public async Task CreateChallenge_allows_null_recipient()
     {
         var challenge = await CreateChallengeAsync(_requester);
@@ -48,21 +76,6 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task CreateChallenge_rejects_unauthorized()
-    {
-        await DbContext.AddAsync(_recipient, CT);
-        await DbContext.SaveChangesAsync(CT);
-        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
-
-        var result = await ApiClient.Api.CreateChallengeAsync(
-            _recipient.Id,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
     public async Task GetChallenge_returns_correct_challenge()
     {
         var challenge = await CreateChallengeAsync(_requester, _recipient);
@@ -73,17 +86,6 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         result.IsSuccessful.Should().BeTrue();
         result.Content.Should().NotBeNull();
         result.Content.Should().BeEquivalentTo(challenge);
-    }
-
-    [Fact]
-    public async Task GetChallenge_rejects_unauthorized()
-    {
-        var challenge = await CreateChallengeAsync(_requester, _recipient);
-        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
-
-        var result = await ApiClient.Api.GetChallengeAsync(challenge.ChallengeId);
-
-        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -102,16 +104,6 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         var cancelledId = await recipientConn.GetNextCancelledChallengeAsync(CT);
         cancelledId.Should().Be(challenge.ChallengeId);
-    }
-
-    [Fact]
-    public async Task CancelChallenge_rejects_unauthorized()
-    {
-        AuthUtils.AuthenticateGuest(ApiClient, "test guest");
-
-        var result = await ApiClient.Api.CancelChallengeAsync("challenge id");
-
-        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     [Fact]
