@@ -56,7 +56,7 @@ const ChallengePopup: ForwardRefRenderFunction<
 
     async function sendChallenge() {
         const { error, data: challenge } = await createChallenge({
-            path: { recipientId: profile.userId },
+            query: { recipientId: profile.userId },
             body: {
                 poolType,
                 timeControl: {
