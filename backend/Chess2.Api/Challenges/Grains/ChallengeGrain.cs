@@ -110,7 +110,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         await this.RegisterOrUpdateReminder(
             TimeoutReminderName,
             dueTime: _settings.ChallengeLifetime,
-            period: TimeSpan.MaxValue
+            period: _settings.ChallengeLifetime
         );
 
         _state.State.Request = challenge;
