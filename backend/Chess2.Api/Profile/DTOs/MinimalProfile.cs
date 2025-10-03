@@ -11,4 +11,7 @@ public record MinimalProfile(UserId UserId, string UserName)
 {
     public MinimalProfile(AuthedUser user)
         : this(user.Id, user.UserName ?? "Unknown") { }
+
+    public MinimalProfile(UserId userId, AuthedUser? user)
+        : this(userId, user?.UserName ?? "Guest") { }
 }

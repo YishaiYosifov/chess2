@@ -5,6 +5,7 @@ using Chess2.Api.Challenges.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Preferences.Services;
+using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
 using Chess2.Api.Shared.Models;
@@ -253,6 +254,23 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         _state.Request.Should().Be(expectedChallenge);
         _stateStats.Writes.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task CreateAsync_creates_guest_profile_when_requester_is_not_found()
+    {
+        var grain = await CreateGrainAsync();
+
+        var result = await grain.CreateAsync(
+            "guest id",
+            recipientId: null,
+            new PoolKeyFaker().Generate()
+        );
+
+        result.IsError.Should().BeFalse();
+        result
+            .Value.Requester.Should()
+            .BeEquivalentTo(new MinimalProfile(UserId: "guest id", UserName: "Guest"));
     }
 
     [Theory]
