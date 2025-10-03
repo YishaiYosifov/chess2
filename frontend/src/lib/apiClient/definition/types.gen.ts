@@ -384,7 +384,7 @@ export type PlayerSummary = {
 export type ChallengeRequest = {
     challengeId: string;
     requester: MinimalProfile;
-    recipient: MinimalProfile;
+    recipient?: MinimalProfile | null;
     pool: PoolKey;
     expiresAt: string;
 };
@@ -997,11 +997,11 @@ export type GetGameResultsResponse =
 
 export type CreateChallengeData = {
     body: PoolKey;
-    path: {
-        recipientId: string;
+    path?: never;
+    query?: {
+        recipientId?: string | null;
     };
-    query?: never;
-    url: "/api/Challenge/{recipientId}";
+    url: "/api/Challenge";
 };
 
 export type CreateChallengeErrors = {
