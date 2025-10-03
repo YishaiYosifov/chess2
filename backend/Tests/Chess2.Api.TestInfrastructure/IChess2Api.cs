@@ -6,7 +6,6 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Profile.DTOs;
-using Chess2.Api.Profile.Models;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Shared.Models;
 using Refit;
@@ -141,7 +140,7 @@ public interface IChess2Api
     #region Challenges
     [Put("/api/challenge")]
     Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(
-        [Query] UserId? recipientId,
+        [Query] string? recipientId,
         PoolKey pool
     );
 
