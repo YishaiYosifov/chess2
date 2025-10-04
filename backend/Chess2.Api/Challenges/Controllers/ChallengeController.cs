@@ -5,6 +5,7 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,13 @@ namespace Chess2.Api.Challenges.Controllers;
 [Authorize(AuthPolicies.ActiveSession)]
 public class ChallengeController(
     IGrainFactory grains,
+    IRandomCodeGenerator randomCodeGenerator,
     IAuthService authService,
     IGuestService guestService
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
+    private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
 
@@ -43,7 +46,7 @@ public class ChallengeController(
                 .ToActionResult();
         }
 
-        var id = Guid.NewGuid().ToString()[..16];
+        var id = _randomCodeGenerator.GenerateBase62Code(16);
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);
         var result = await challengeGrain.CreateAsync(
             requester: userIdResult.Value,
