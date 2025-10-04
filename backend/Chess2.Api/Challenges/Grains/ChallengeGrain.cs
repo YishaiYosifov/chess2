@@ -280,10 +280,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     private async Task TearDownChallengeAsync()
     {
-        if (_state.State.Request is null)
-            return;
-
-        if (_state.State.Request.Recipient is not null)
+        if (_state.State?.Request?.Recipient is not null)
         {
             await GrainFactory
                 .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
