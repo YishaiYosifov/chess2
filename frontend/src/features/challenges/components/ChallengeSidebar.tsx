@@ -34,66 +34,69 @@ const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
     }, []);
 
     return (
-        <Card
-            className="h-full w-full max-w-xl min-w-xs items-center gap-10 self-center pt-10
-                lg:max-w-lg"
-        >
-            <h1 className="text-5xl">Challenge</h1>
-
+        <Card className="h-full w-full min-w-xs items-center gap-10 p-5 lg:max-w-sm">
             <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-3">
+                <h1 className="text-4xl font-bold">Challenge</h1>
+
+                <div className="flex items-center gap-2">
                     <TimeControlIcon
                         timeControl={challenge.timeControl}
-                        className="h-10 w-10"
+                        className="h-8 w-8"
                     />
-                    <p className="text-3xl font-semibold">
+                    <p className="text-2xl font-semibold">
                         {challenge.pool.timeControl.baseSeconds / 60}+
-                        {challenge.pool.timeControl.incrementSeconds}
+                        {challenge.pool.timeControl.incrementSeconds}{" "}
+                        {isRated ? "Rated" : "Casual"}
                     </p>
                 </div>
-                <p className="text-text/70 text-2xl">
-                    {isRated ? "Rated" : "Casual"}
-                </p>
             </div>
 
             <div className="flex w-full flex-col items-center gap-3">
-                <p className="text-text/70">Invite someone to play via:</p>
+                <p className="text-text/70 text-lg">
+                    Invite someone to play via:
+                </p>
 
                 <InputField
                     defaultValue={currentUrl}
                     readOnly
                     icon={<ClipboardIcon onClick={copyChallengeLink} />}
+                    className="flex-1"
                 />
-
                 {qrCodeB64 && (
-                    <Image
-                        src={qrCodeB64}
-                        alt="challenge qr code"
-                        width={200}
-                        height={200}
-                    />
+                    <div className="bg-background flex w-full justify-center rounded-md border border-white/20 p-3">
+                        <Image
+                            src={qrCodeB64}
+                            alt="challenge qr code"
+                            width="150"
+                            height="150"
+                        />
+                    </div>
                 )}
             </div>
 
-            <div className="mt-auto flex w-full flex-col items-center gap-2">
+            <div className="mt-auto flex w-full flex-col items-center gap-3">
                 {isExpired ? (
                     <>
-                        <p className="text-error text-2xl">
-                            Challenge Expired!
-                        </p>
+                        <p className="text-error text-xl">Challenge Expired!</p>
                         <Link href={constants.PATHS.PLAY} className="w-full">
                             <Button className="w-full">New Opponent</Button>
                         </Link>
                     </>
                 ) : (
                     <>
-                        <p className="text-2xl">Waiting for opponent...</p>
+                        <p className="text-xl font-medium">
+                            Waiting for opponent...
+                        </p>
                         <Button className="w-full">Cancel</Button>
                         <CountdownText
                             getTimeUntil={() => expiresAt}
                             onDateReached={() => setIsExpired(true)}
                         >
-                            {({ countdown }) => <p>Expires in {countdown}</p>}
+                            {({ countdown }) => (
+                                <p className="text-text/70 text-sm">
+                                    Expires in {countdown}
+                                </p>
+                            )}
                         </CountdownText>
                     </>
                 )}
