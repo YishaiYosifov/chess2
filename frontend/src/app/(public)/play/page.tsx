@@ -8,10 +8,7 @@ const PlayPage = () => {
     return (
         <StaticChessboardWithSidebar
             aside={
-                <aside
-                    className="grid h-full w-full max-w-xl min-w-xs grid-rows-[auto_1fr] gap-3 overflow-auto
-                        lg:max-w-sm"
-                >
+                <aside className="grid h-full w-full min-w-xs grid-rows-[auto_1fr] gap-3 lg:max-w-sm">
                     <PlayOptions />
                     <OpenSeekDirectory />
                 </aside>

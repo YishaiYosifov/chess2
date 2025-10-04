@@ -9,8 +9,8 @@ const ChessboardWithSidebar = ({
 }) => {
     return (
         <div
-            className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:max-h-screen
-                lg:flex-row lg:items-start"
+            className="flex w-full flex-col items-center justify-center gap-5 p-5 lg:flex-row
+                lg:items-start"
         >
             <section className="flex h-max w-fit flex-col gap-3">
                 {chessboard}
