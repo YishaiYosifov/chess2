@@ -5,10 +5,12 @@ using Chess2.Api.Challenges.Services;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Errors;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
@@ -354,7 +356,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_requesterId);
+        var result = await grain.AcceptAsync(_requesterId, isGuest: false);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.CannotAccept);
@@ -366,40 +368,62 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         var createdChallenge = await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_recipientId);
+        var result = await grain.AcceptAsync(_recipientId, isGuest: false);
 
         result.IsError.Should().BeFalse();
-        var gameToken = result.Value;
 
-        await _challengeNotifierMock
-            .Received(1)
-            .NotifyChallengeAccepted(_requesterId, gameToken, _challengeId);
         await AssertToreDownAsync(grain);
-
-        var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
-        gameStateResult.IsError.Should().BeFalse();
-        var gameState = gameStateResult.Value;
-        gameState.Pool.Should().Be(createdChallenge.Pool);
-
-        string[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
-        playerUserIds.Should().BeEquivalentTo([_requesterId, _recipientId]);
+        await AssertGameCreated(
+            gameToken: result.Value,
+            fromChallenge: createdChallenge,
+            requesterId: _requesterId,
+            recipientId: _recipientId
+        );
     }
 
     [Fact]
     public async Task AcceptAsync_allows_any_user_to_accept_open_challenge()
     {
         var grain = await CreateGrainAsync();
-        await CreateAsync(grain, _requester);
+        var createdChallenge = await CreateAsync(
+            grain,
+            _requester,
+            pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual)
+        );
 
-        var result = await grain.AcceptAsync("random-user");
+        var result = await grain.AcceptAsync("random-user", isGuest: false);
 
         result.IsError.Should().BeFalse();
-        var gameToken = result.Value;
 
-        await _challengeNotifierMock
-            .Received(1)
-            .NotifyChallengeAccepted(_requesterId, gameToken, _challengeId);
         await AssertToreDownAsync(grain);
+        await AssertGameCreated(
+            gameToken: result.Value,
+            fromChallenge: createdChallenge,
+            requesterId: _requesterId,
+            recipientId: "random-user"
+        );
+    }
+
+    [Fact]
+    public async Task AcceptAsync_rejects_guests_for_rated_challenges()
+    {
+        var grain = await CreateGrainAsync();
+        var createdChallenge = await CreateAsync(
+            grain,
+            _requester,
+            pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
+        );
+
+        var result = await grain.AcceptAsync("random-user", isGuest: false);
+
+        result.IsError.Should().BeFalse();
+        await AssertToreDownAsync(grain);
+        await AssertGameCreated(
+            gameToken: result.Value,
+            fromChallenge: createdChallenge,
+            requesterId: _requesterId,
+            recipientId: "random-user"
+        );
     }
 
     [Fact]
@@ -433,7 +457,8 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     private async Task<ChallengeRequest> CreateAsync(
         ChallengeGrain grain,
         AuthedUser requester,
-        AuthedUser? recipient = null
+        AuthedUser? recipient = null,
+        PoolKey? pool = null
     )
     {
         await ApiTestBase.DbContext.AddAsync(requester, ApiTestBase.CT);
@@ -441,12 +466,31 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             await ApiTestBase.DbContext.AddAsync(recipient, ApiTestBase.CT);
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
-        var pool = new PoolKeyFaker().Generate();
-
+        pool ??= new PoolKeyFaker().Generate();
         var result = await grain.CreateAsync(requester.Id, recipient?.Id, pool);
 
         result.IsError.Should().BeFalse();
         return result.Value;
+    }
+
+    private async Task AssertGameCreated(
+        string gameToken,
+        ChallengeRequest fromChallenge,
+        UserId requesterId,
+        UserId recipientId
+    )
+    {
+        await _challengeNotifierMock
+            .Received(1)
+            .NotifyChallengeAccepted(requesterId, gameToken, _challengeId);
+
+        var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
+        gameStateResult.IsError.Should().BeFalse();
+        var gameState = gameStateResult.Value;
+        gameState.Pool.Should().Be(fromChallenge.Pool);
+
+        string[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
+        playerUserIds.Should().BeEquivalentTo([requesterId, recipientId]);
     }
 
     private async Task AssertToreDownAsync(ChallengeGrain grain)
