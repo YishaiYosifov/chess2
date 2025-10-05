@@ -26,6 +26,7 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <ProfilePicture userId={player.userId} height={50} width={50} />
+                <ProfilePicture userId={player.userId} size={50} />
                 <Flag countryCode={player.countryCode} size={30} />
 
                 <span className="overflow-hidden font-medium text-ellipsis whitespace-nowrap text-white">
