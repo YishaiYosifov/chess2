@@ -8,6 +8,7 @@ using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.UserRating.Models;
 using Refit;
 
 namespace Chess2.Api.TestInfrastructure;
@@ -71,6 +72,17 @@ public interface IChess2Api
         string userId,
         [Query] PaginationQuery pagination
     );
+    #endregion
+
+    #region Ratings
+    [Get("/api/rating/{userId}/archive")]
+    Task<IApiResponse<IEnumerable<RatingOverview>>> GetRatingArchivesAsync(
+        string userId,
+        [Query] DateTime? since
+    );
+
+    [Get("/api/rating/{userId}")]
+    Task<IApiResponse<IEnumerable<CurrentRatingStatus>>> GetCurrentRatingsAsync(string userId);
     #endregion
 
     #region Social

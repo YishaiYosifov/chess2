@@ -234,6 +234,45 @@ public class RatingServiceTests : BaseIntegrationTest
             .BeEquivalentTo([older.AchievedAt, recent.AchievedAt]);
     }
 
+    [Fact]
+    public async Task GetCurrentRatingsAsync_returns_all_current_ratings_for_user()
+    {
+        var user = new AuthedUserFaker().Generate();
+        var blitzRating = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
+        var rapidRating = new CurrentRatingFaker(user, timeControl: TimeControl.Rapid).Generate();
+        var anotherUser = new AuthedUserFaker().Generate();
+        var anotherUserRating = new CurrentRatingFaker(
+            anotherUser,
+            timeControl: TimeControl.Bullet
+        ).Generate();
+
+        await DbContext.AddRangeAsync(
+            user,
+            blitzRating,
+            rapidRating,
+            anotherUser,
+            anotherUserRating
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = (await _ratingService.GetCurrentRatingsAsync(user, CT)).ToList();
+
+        result
+            .Should()
+            .BeEquivalentTo(
+                [
+                    new CurrentRatingStatus(
+                        TimeControl: TimeControl.Blitz,
+                        Rating: blitzRating.Value
+                    ),
+                    new CurrentRatingStatus(
+                        TimeControl: TimeControl.Rapid,
+                        Rating: rapidRating.Value
+                    ),
+                ]
+            );
+    }
+
     [Theory]
     [InlineData(GameResult.WhiteWin, 1500, 1700, 12, -12)]
     [InlineData(GameResult.BlackWin, 1500, 1700, -4, 4)]

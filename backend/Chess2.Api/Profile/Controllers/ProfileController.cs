@@ -55,10 +55,10 @@ public class ProfileController(
         return Ok(dto);
     }
 
-    [HttpGet("by-username/{username}", Name = nameof(GetUser))]
+    [HttpGet("by-username/{username}", Name = nameof(GetUserByUsername))]
     [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<PublicUser>> GetUser(string username)
+    public async Task<ActionResult<PublicUser>> GetUserByUsername(string username)
     {
         var result = await _userManager.FindByNameAsync(username);
         if (result is null)
