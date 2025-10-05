@@ -6,7 +6,7 @@ import {
     getHasStarred,
     getRatingArchives,
     getStarsReceivedCount,
-    getUser,
+    getUserByUsername,
     getUserQuestPoints,
     PublicUser,
     SessionUser,
@@ -35,7 +35,7 @@ const LoadProfilePage = async ({
             return loggedInUser;
 
         const profile = await dataOrThrow(
-            getUser({
+            getUserByUsername({
                 path: { username: profileUsername },
             }),
         );
