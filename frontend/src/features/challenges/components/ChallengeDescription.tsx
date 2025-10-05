@@ -29,49 +29,66 @@ const ChallengeDescription = ({
     );
 };
 export default ChallengeDescription;
-
 const ChallengeRecipientDescription = ({
     requester,
 }: {
     requester: MinimalProfile;
-}) => {
-    return (
-        <>
-            <p className="text-2xl">Challenged By</p>
-            <ProfilePicture userId={requester.userId} size={200} />
-            <UserProfileTooltip username={requester.userName}>
-                <p className="text-lg">{requester.userName}</p>
-            </UserProfileTooltip>
-        </>
-    );
-};
+}) => (
+    <>
+        <p
+            data-testid="challengeRecipientDescriptionTitle"
+            className="text-2xl"
+        >
+            Challenged By
+        </p>
+        <ProfilePicture
+            data-testid="challengeRecipientDescriptionProfilePicture"
+            userId={requester.userId}
+            size={200}
+        />
+        <UserProfileTooltip username={requester.userName}>
+            <p
+                data-testid="challengeRecipientDescriptionUserName"
+                className="text-lg"
+            >
+                {requester.userName}
+            </p>
+        </UserProfileTooltip>
+    </>
+);
 
 const DirectChallengeDescription = ({
     recipient,
 }: {
     recipient: MinimalProfile;
-}) => {
-    return (
-        <>
-            <p className="text-2xl">Waiting For</p>
-            <ProfilePicture
-                userId={recipient.userId}
-                className="animate-subtle-ping"
-                size={200}
-            />
-            <UserProfileTooltip username={recipient.userName}>
-                <p className="text-lg">{recipient.userName}</p>
-            </UserProfileTooltip>
-        </>
-    );
-};
+}) => (
+    <>
+        <p data-testid="directChallengeDescriptionTitle" className="text-2xl">
+            Waiting For
+        </p>
+        <ProfilePicture
+            data-testid="directChallengeDescriptionProfilePicture"
+            userId={recipient.userId}
+            className="animate-subtle-ping"
+            size={200}
+        />
+        <UserProfileTooltip username={recipient.userName}>
+            <p
+                data-testid="directChallengeDescriptionUserName"
+                className="text-lg"
+            >
+                {recipient.userName}
+            </p>
+        </UserProfileTooltip>
+    </>
+);
 
 const OpenChallengeDescription = () => {
     const [currentUrl, setCurrentUrl] = useState<string>();
     const [qrCodeB64, setQrCodeB64] = useState<string>();
 
     async function copyChallengeLink() {
-        if (currentUrl) navigator.clipboard.writeText(currentUrl);
+        if (currentUrl) await navigator.clipboard.writeText(currentUrl);
     }
 
     useEffect(() => {
@@ -82,22 +99,32 @@ const OpenChallengeDescription = () => {
     }, []);
 
     return (
-        <div className="flex w-full flex-col items-center gap-3">
+        <div
+            data-testid="openChallengeDescriptionContainer"
+            className="flex w-full flex-col items-center gap-3"
+        >
             <p className="text-text/70 text-lg">Invite someone to play via:</p>
 
             <InputField
+                data-testid="openChallengeDescriptionInput"
                 defaultValue={currentUrl}
                 readOnly
-                icon={<ClipboardIcon onClick={copyChallengeLink} />}
+                icon={
+                    <ClipboardIcon
+                        onClick={copyChallengeLink}
+                        data-testid="openChallengeDescriptionCopy"
+                    />
+                }
                 className="flex-1"
             />
             {qrCodeB64 && (
                 <div className="bg-background flex w-full justify-center rounded-md border border-white/20 p-3">
                     <Image
                         src={qrCodeB64}
+                        data-testid="openChallengeDescriptionQRCode"
                         alt="challenge qr code"
-                        width="150"
-                        height="150"
+                        width={150}
+                        height={150}
                     />
                 </div>
             )}
