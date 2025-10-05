@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
-using Chess2.Api.Profile.Entities;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,12 +17,12 @@ public class RatingController(IRatingService ratingService, UserManager<AuthedUs
     private readonly IRatingService _ratingService = ratingService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
-    [HttpGet("{userId}", Name = nameof(GetRatingArchives))]
+    [HttpGet("{userId}/archive", Name = nameof(GetRatingArchives))]
     [ProducesResponseType<IEnumerable<RatingOverview>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<RatingOverview>>> GetRatingArchives(
         string userId,
-        DateTime? since,
+        [FromQuery] DateTime? since,
         CancellationToken token
     )
     {
@@ -31,6 +31,22 @@ public class RatingController(IRatingService ratingService, UserManager<AuthedUs
             return Error.NotFound().ToActionResult();
 
         var ratings = await _ratingService.GetRatingOverviewsAsync(user, since, token);
+        return Ok(ratings);
+    }
+
+    [HttpGet("{userId}", Name = nameof(GetCurrentRatings))]
+    [ProducesResponseType<IEnumerable<CurrentRatingStatus>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<CurrentRatingStatus>>> GetCurrentRatings(
+        string userId,
+        CancellationToken token
+    )
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null)
+            return Error.NotFound().ToActionResult();
+
+        var ratings = await _ratingService.GetCurrentRatingsAsync(user, token);
         return Ok(ratings);
     }
 }
