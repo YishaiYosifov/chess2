@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Repositories;
-using Chess2.Api.Profile.Entities;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.UserRating.Services;
@@ -31,6 +31,10 @@ public interface IRatingService
     Task<IEnumerable<RatingOverview>> GetRatingOverviewsAsync(
         AuthedUser user,
         DateTime? since,
+        CancellationToken token = default
+    );
+    Task<IEnumerable<CurrentRatingStatus>> GetCurrentRatingsAsync(
+        AuthedUser user,
         CancellationToken token = default
     );
 }
@@ -96,6 +100,23 @@ public class RatingService(
                 overviews.Add(overview);
         }
         return overviews;
+    }
+
+    public async Task<IEnumerable<CurrentRatingStatus>> GetCurrentRatingsAsync(
+        AuthedUser user,
+        CancellationToken token = default
+    )
+    {
+        List<CurrentRatingStatus> result = [];
+        foreach (var timeControl in Enum.GetValues<TimeControl>())
+        {
+            var rating = await _currentRatingRepository.GetRatingAsync(user.Id, timeControl, token);
+            if (rating is not null)
+            {
+                result.Add(new(TimeControl: timeControl, Rating: rating.Value));
+            }
+        }
+        return result;
     }
 
     private async Task<RatingOverview?> BuildOverviewAsync(
