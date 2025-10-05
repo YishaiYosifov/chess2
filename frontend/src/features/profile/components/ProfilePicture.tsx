@@ -3,16 +3,14 @@ import Image from "next/image";
 
 export interface ProfilePictureProps {
     userId: string;
-    width?: number;
-    height?: number;
+    size?: number;
     className?: string;
     refreshKey?: number;
 }
 
 const ProfilePicture = ({
     userId,
-    width = 120,
-    height = 120,
+    size = 120,
     className,
     refreshKey,
 }: ProfilePictureProps) => {
@@ -23,11 +21,11 @@ const ProfilePicture = ({
         <Image
             data-testid="profilePicture"
             className={twMerge("aspect-square rounded-md", className)}
-            style={{ width, height }}
+            style={{ width: size, height: size }}
             alt="profile picture"
             src={url}
-            width={width}
-            height={height}
+            width={size}
+            height={size}
             unoptimized // we already cache with etag in the backend
         />
     );

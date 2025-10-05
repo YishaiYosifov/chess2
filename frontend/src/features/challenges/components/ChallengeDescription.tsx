@@ -41,6 +41,7 @@ const ChallengeRecipientDescription = ({
                 userId={requester.userId}
                 width={200}
                 height={200}
+            <ProfilePicture userId={requester.userId} size={200} />
             />
             <p className="w-full truncate text-center text-xl">
                 {requester.userName}

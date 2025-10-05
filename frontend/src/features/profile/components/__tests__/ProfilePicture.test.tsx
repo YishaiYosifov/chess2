@@ -22,8 +22,7 @@ describe("ProfilePicture", () => {
         render(
             <ProfilePicture
                 userId={userId}
-                width={size}
-                height={size}
+                size={size}
                 className={className}
             />,
         );
