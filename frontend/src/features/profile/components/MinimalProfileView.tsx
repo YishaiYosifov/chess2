@@ -1,8 +1,7 @@
 import { MinimalProfile } from "@/lib/apiClient";
 import ProfilePicture from "./ProfilePicture";
-import Link from "next/link";
-import constants from "@/lib/constants";
 import clsx from "clsx";
+import UserProfileTooltip from "./UserProfileTooltip";
 
 const MinimalProfileView = ({
     profile,
@@ -19,12 +18,9 @@ const MinimalProfileView = ({
                 "flex w-full min-w-0 flex-wrap items-center gap-3 rounded-md p-3",
                 index % 2 === 0 ? "bg-white/5" : "bg-white/15",
             )}
+            data-testid="minimalProfileRow"
         >
-            <Link
-                href={`${constants.PATHS.PROFILE}/${profile.userName}`}
-                className="flex min-w-0 items-center gap-3"
-                data-testid="minimalProfileRowLink"
-            >
+            <UserProfileTooltip username={profile.userName}>
                 <ProfilePicture userId={profile.userId} size={80} />
                 <p
                     className="truncate text-lg"
@@ -32,7 +28,7 @@ const MinimalProfileView = ({
                 >
                     {profile.userName}
                 </p>
-            </Link>
+            </UserProfileTooltip>
 
             {children}
         </div>

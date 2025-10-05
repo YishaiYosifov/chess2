@@ -10,9 +10,9 @@ import type {
     GetRatingArchivesData,
     GetRatingArchivesResponses,
     GetRatingArchivesErrors,
-    GetCurrentRatingData,
-    GetCurrentRatingResponses,
-    GetCurrentRatingErrors,
+    GetCurrentRatingsData,
+    GetCurrentRatingsResponses,
+    GetCurrentRatingsErrors,
     GetStarredUsersData,
     GetStarredUsersResponses,
     GetStarredUsersErrors,
@@ -147,12 +147,12 @@ export const getRatingArchives = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getCurrentRating = <ThrowOnError extends boolean = false>(
-    options: Options<GetCurrentRatingData, ThrowOnError>,
+export const getCurrentRatings = <ThrowOnError extends boolean = false>(
+    options: Options<GetCurrentRatingsData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetCurrentRatingResponses,
-        GetCurrentRatingErrors,
+        GetCurrentRatingsResponses,
+        GetCurrentRatingsErrors,
         ThrowOnError
     >({
         url: "/api/Rating/{userId}",

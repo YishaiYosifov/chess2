@@ -7,6 +7,7 @@ import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import { ChallengeRequest, MinimalProfile } from "@/lib/apiClient";
 import InputField from "@/components/ui/InputField";
+import UserProfileTooltip from "@/features/profile/components/UserProfileTooltip";
 
 const ChallengeDescription = ({
     challenge,
@@ -37,15 +38,10 @@ const ChallengeRecipientDescription = ({
     return (
         <>
             <p className="text-2xl">Challenged By</p>
-            <ProfilePicture
-                userId={requester.userId}
-                width={200}
-                height={200}
             <ProfilePicture userId={requester.userId} size={200} />
-            />
-            <p className="w-full truncate text-center text-xl">
-                {requester.userName}
-            </p>
+            <UserProfileTooltip username={requester.userName}>
+                <p className="text-lg">{requester.userName}</p>
+            </UserProfileTooltip>
         </>
     );
 };
@@ -61,12 +57,11 @@ const DirectChallengeDescription = ({
             <ProfilePicture
                 userId={recipient.userId}
                 className="animate-subtle-ping"
-                width={200}
-                height={200}
+                size={200}
             />
-            <p className="w-full truncate text-center text-xl">
-                {recipient.userName}
-            </p>
+            <UserProfileTooltip username={recipient.userName}>
+                <p className="text-lg">{recipient.userName}</p>
+            </UserProfileTooltip>
         </>
     );
 };

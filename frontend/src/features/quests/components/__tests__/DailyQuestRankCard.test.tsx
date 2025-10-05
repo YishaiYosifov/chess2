@@ -22,7 +22,6 @@ describe("DailyQuestRankCard", () => {
             </SessionProvider>,
         );
 
-        expect(screen.getByTestId("minimalProfileRowLink")).toBeInTheDocument();
         expect(
             screen.getByTestId("minimalProfileRowUsername"),
         ).toHaveTextContent(userMock.userName);

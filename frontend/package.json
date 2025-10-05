@@ -13,6 +13,7 @@
         "generate-api-client": "openapi-ts"
     },
     "dependencies": {
+        "@floating-ui/react-dom": "^2.1.6",
         "@heroicons/react": "^2.2.0",
         "@hey-api/client-next": "^0.5.1",
         "@hey-api/openapi-ts": "^0.81.1",

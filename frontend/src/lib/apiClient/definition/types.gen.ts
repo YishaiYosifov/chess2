@@ -460,7 +460,7 @@ export type GetRatingArchivesResponses = {
 export type GetRatingArchivesResponse =
     GetRatingArchivesResponses[keyof GetRatingArchivesResponses];
 
-export type GetCurrentRatingData = {
+export type GetCurrentRatingsData = {
     body?: never;
     path: {
         userId: string;
@@ -469,19 +469,19 @@ export type GetCurrentRatingData = {
     url: "/api/Rating/{userId}";
 };
 
-export type GetCurrentRatingErrors = {
+export type GetCurrentRatingsErrors = {
     404: ApiProblemDetails;
 };
 
-export type GetCurrentRatingError =
-    GetCurrentRatingErrors[keyof GetCurrentRatingErrors];
+export type GetCurrentRatingsError =
+    GetCurrentRatingsErrors[keyof GetCurrentRatingsErrors];
 
-export type GetCurrentRatingResponses = {
+export type GetCurrentRatingsResponses = {
     200: Array<CurrentRatingStatus>;
 };
 
-export type GetCurrentRatingResponse =
-    GetCurrentRatingResponses[keyof GetCurrentRatingResponses];
+export type GetCurrentRatingsResponse =
+    GetCurrentRatingsResponses[keyof GetCurrentRatingsResponses];
 
 export type GetStarredUsersData = {
     body?: never;
