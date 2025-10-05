@@ -10,6 +10,9 @@ import type {
     GetRatingArchivesData,
     GetRatingArchivesResponses,
     GetRatingArchivesErrors,
+    GetCurrentRatingData,
+    GetCurrentRatingResponses,
+    GetCurrentRatingErrors,
     GetStarredUsersData,
     GetStarredUsersResponses,
     GetStarredUsersErrors,
@@ -55,9 +58,9 @@ import type {
     GetSessionUserData,
     GetSessionUserResponses,
     GetSessionUserErrors,
-    GetUserData,
-    GetUserResponses,
-    GetUserErrors,
+    GetUserByUsernameData,
+    GetUserByUsernameResponses,
+    GetUserByUsernameErrors,
     EditProfileSettingsData,
     EditProfileSettingsResponses,
     EditProfileSettingsErrors,
@@ -137,6 +140,19 @@ export const getRatingArchives = <ThrowOnError extends boolean = false>(
     return (options.client ?? _heyApiClient).get<
         GetRatingArchivesResponses,
         GetRatingArchivesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Rating/{userId}/archive",
+        ...options,
+    });
+};
+
+export const getCurrentRating = <ThrowOnError extends boolean = false>(
+    options: Options<GetCurrentRatingData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<
+        GetCurrentRatingResponses,
+        GetCurrentRatingErrors,
         ThrowOnError
     >({
         url: "/api/Rating/{userId}",
@@ -352,12 +368,12 @@ export const getSessionUser = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getUser = <ThrowOnError extends boolean = false>(
-    options: Options<GetUserData, ThrowOnError>,
+export const getUserByUsername = <ThrowOnError extends boolean = false>(
+    options: Options<GetUserByUsernameData, ThrowOnError>,
 ) => {
     return (options.client ?? _heyApiClient).get<
-        GetUserResponses,
-        GetUserErrors,
+        GetUserByUsernameResponses,
+        GetUserByUsernameErrors,
         ThrowOnError
     >({
         url: "/api/Profile/by-username/{username}",

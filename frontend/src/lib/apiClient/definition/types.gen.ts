@@ -61,6 +61,11 @@ export type ProblemDetails = {
         | undefined;
 };
 
+export type CurrentRatingStatus = {
+    timeControl: TimeControl;
+    rating: number;
+};
+
 export type PagedResultOfMinimalProfile = {
     items: Array<MinimalProfile>;
     totalCount: number;
@@ -438,7 +443,7 @@ export type GetRatingArchivesData = {
     query?: {
         since?: string | null;
     };
-    url: "/api/Rating/{userId}";
+    url: "/api/Rating/{userId}/archive";
 };
 
 export type GetRatingArchivesErrors = {
@@ -454,6 +459,29 @@ export type GetRatingArchivesResponses = {
 
 export type GetRatingArchivesResponse =
     GetRatingArchivesResponses[keyof GetRatingArchivesResponses];
+
+export type GetCurrentRatingData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: "/api/Rating/{userId}";
+};
+
+export type GetCurrentRatingErrors = {
+    404: ApiProblemDetails;
+};
+
+export type GetCurrentRatingError =
+    GetCurrentRatingErrors[keyof GetCurrentRatingErrors];
+
+export type GetCurrentRatingResponses = {
+    200: Array<CurrentRatingStatus>;
+};
+
+export type GetCurrentRatingResponse =
+    GetCurrentRatingResponses[keyof GetCurrentRatingResponses];
 
 export type GetStarredUsersData = {
     body?: never;
@@ -796,7 +824,7 @@ export type GetSessionUserResponses = {
 export type GetSessionUserResponse =
     GetSessionUserResponses[keyof GetSessionUserResponses];
 
-export type GetUserData = {
+export type GetUserByUsernameData = {
     body?: never;
     path: {
         username: string;
@@ -805,17 +833,19 @@ export type GetUserData = {
     url: "/api/Profile/by-username/{username}";
 };
 
-export type GetUserErrors = {
+export type GetUserByUsernameErrors = {
     404: ApiProblemDetails;
 };
 
-export type GetUserError = GetUserErrors[keyof GetUserErrors];
+export type GetUserByUsernameError =
+    GetUserByUsernameErrors[keyof GetUserByUsernameErrors];
 
-export type GetUserResponses = {
+export type GetUserByUsernameResponses = {
     200: PublicUser;
 };
 
-export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
+export type GetUserByUsernameResponse =
+    GetUserByUsernameResponses[keyof GetUserByUsernameResponses];
 
 export type EditProfileSettingsData = {
     body: ProfileEditRequest;
