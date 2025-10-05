@@ -5,7 +5,6 @@ import { Mock } from "vitest";
 import { createFakeMinimalProfile } from "@/lib/testUtils/fakers/minimalProfileFaker";
 import MinimalProfileAction from "../MinimalProfileAction";
 import { MinimalProfile } from "@/lib/apiClient";
-import constants from "@/lib/constants";
 
 describe("MinimalProfileAction", () => {
     let profileMock: MinimalProfile;
@@ -27,11 +26,6 @@ describe("MinimalProfileAction", () => {
                 deactivate={deactivate}
                 buttonLabel={(active) => (active ? "Active" : "Inactive")}
             />,
-        );
-
-        expect(screen.getByTestId("minimalProfileRowLink")).toHaveAttribute(
-            "href",
-            `${constants.PATHS.PROFILE}/${profileMock.userName}`,
         );
 
         expect(

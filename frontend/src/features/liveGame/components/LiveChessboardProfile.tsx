@@ -5,6 +5,7 @@ import { invertColor } from "@/lib/utils/chessUtils";
 import { GameColor } from "@/lib/apiClient";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import GameClock from "./GameClock";
+import UserProfileTooltip from "@/features/profile/components/UserProfileTooltip";
 
 export enum ProfileSide {
     CurrentlyPlaying,
@@ -23,15 +24,13 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
     );
 
     return (
-        <div className="flex items-center justify-between">
+        <div className="flex max-w-screen items-center justify-between">
             <div className="flex items-center gap-3">
-                <ProfilePicture userId={player.userId} height={50} width={50} />
-                <ProfilePicture userId={player.userId} size={50} />
+                <UserProfileTooltip username={player.userName}>
+                    <ProfilePicture userId={player.userId} size={50} />
+                    <p className="truncate">{player.userName}</p>
+                </UserProfileTooltip>
                 <Flag countryCode={player.countryCode} size={30} />
-
-                <span className="overflow-hidden font-medium text-ellipsis whitespace-nowrap text-white">
-                    {player.userName}
-                </span>
 
                 {player.rating && (
                     <span className="w-fit rounded bg-white/10 px-2 py-0.5 text-xs text-white/80">

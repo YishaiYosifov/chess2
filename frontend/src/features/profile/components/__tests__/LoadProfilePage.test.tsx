@@ -6,7 +6,7 @@ import {
     getHasStarred,
     getRatingArchives,
     getStarsReceivedCount,
-    getUser,
+    getUserByUsername,
     getUserQuestPoints,
     PagedResultOfGameSummaryDto,
     PrivateUser,
@@ -34,7 +34,7 @@ describe("ProfilePage", () => {
     const starsReceived = 5;
     const questPoints = 69;
 
-    const getUserMock = vi.mocked(getUser);
+    const getUserByUsernameMock = vi.mocked(getUserByUsername);
     const getRatingArchivesMock = vi.mocked(getRatingArchives);
     const getGameResultsMock = vi.mocked(getGameResults);
     const getStarsReceivedCountMock = vi.mocked(getStarsReceivedCount);
@@ -54,7 +54,7 @@ describe("ProfilePage", () => {
             timeControl: constants.DISPLAY_TIME_CONTROLS[0],
         });
 
-        getUserMock.mockResolvedValue({
+        getUserByUsernameMock.mockResolvedValue({
             data: otherUser,
             response: new Response(),
         });
@@ -101,7 +101,7 @@ describe("ProfilePage", () => {
         expect(screen.getByTestId("profileQuestPoints")).toHaveTextContent(
             questPoints.toString(),
         );
-        expect(getUserMock).not.toHaveBeenCalled();
+        expect(getUserByUsernameMock).not.toHaveBeenCalled();
     });
 
     it("should fetch profile when viewing someone else's page", async () => {
@@ -115,7 +115,7 @@ describe("ProfilePage", () => {
             </SessionProvider>,
         );
 
-        expect(getUserMock).toHaveBeenCalledWith({
+        expect(getUserByUsernameMock).toHaveBeenCalledWith({
             path: { username: otherUser.userName },
         });
         expect(screen.getByTestId("profileUsername")).toHaveTextContent(
