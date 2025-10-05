@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure;
@@ -116,14 +117,14 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         );
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
-        var acceptResult = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
+        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
 
-        acceptResult.IsSuccessful.Should().BeTrue();
-        acceptResult.Content.Should().NotBeNull();
+        result.IsSuccessful.Should().BeTrue();
+        result.Content.Should().NotBeNull();
 
         var accepted = await requesterConn.GetNextAcceptedChallengeAsync(CT);
         accepted.ChallengeId.Should().Be(challenge.ChallengeId);
-        accepted.GameToken.Should().Be(acceptResult.Content);
+        accepted.GameToken.Should().Be(result.Content);
 
         var createdGameStateResult = await ApiClient.Api.GetGameAsync(accepted.GameToken);
         createdGameStateResult.IsSuccessful.Should().BeTrue();
@@ -137,9 +138,24 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         playerIds.Should().BeEquivalentTo([_requester.Id, _recipient.Id]);
     }
 
+    [Fact]
+    public async Task AcceptChallenge_rejects_guests_accepting_rated_challenges()
+    {
+        var challenge = await CreateChallengeAsync(
+            _requester,
+            pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
+        );
+
+        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
     private async Task<ChallengeRequest> CreateChallengeAsync(
         AuthedUser? requester = null,
-        AuthedUser? recipient = null
+        AuthedUser? recipient = null,
+        PoolKey? pool = null
     )
     {
         requester ??= new AuthedUserFaker().Generate();
@@ -151,7 +167,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
         var result = await ApiClient.Api.CreateChallengeAsync(
             recipient?.Id,
-            new PoolKeyFaker().Generate()
+            pool ?? new PoolKeyFaker().Generate()
         );
 
         result.IsSuccessful.Should().BeTrue();
