@@ -30,7 +30,7 @@ public interface IChallengeGrain : IGrainWithStringKey
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
     [Alias("AcceptAsync")]
-    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy);
+    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy, bool isGuest);
 }
 
 [GenerateSerializer]
@@ -163,10 +163,13 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Deleted;
     }
 
-    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy)
+    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy, bool isGuest)
     {
         if (_state.State.Request is null)
             return ChallengeErrors.NotFound;
+
+        if (_state.State.Request.Pool.PoolType is PoolType.Rated && isGuest)
+            return ChallengeErrors.CannotAccept;
 
         if (
             _state.State.Request.Recipient is not null

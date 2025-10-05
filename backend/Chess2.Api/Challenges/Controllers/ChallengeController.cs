@@ -92,9 +92,10 @@ public class ChallengeController(
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
+        bool isGuest = _guestService.IsGuest(User);
 
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
-        var result = await challengeGrain.AcceptAsync(userIdResult.Value);
+        var result = await challengeGrain.AcceptAsync(userIdResult.Value, isGuest);
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 }
