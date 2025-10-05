@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import { createFakeMinimalProfile } from "@/lib/testUtils/fakers/minimalProfileFaker";
 import MinimalProfileView from "../MinimalProfileView";
 import { MinimalProfile } from "@/lib/apiClient";
-import constants from "@/lib/constants";
 
 describe("MinimalProfileView", () => {
     let profileMock: MinimalProfile;
@@ -12,14 +11,13 @@ describe("MinimalProfileView", () => {
         profileMock = createFakeMinimalProfile();
     });
 
-    it("should render profile link with correct href", () => {
+    it("should render profile with tooltip", async () => {
         render(<MinimalProfileView profile={profileMock} />);
 
-        const link = screen.getByTestId("minimalProfileRowLink");
-        expect(link).toHaveAttribute(
-            "href",
-            `${constants.PATHS.PROFILE}/${profileMock.userName}`,
-        );
+        const tooltip = screen.getByTestId("userProfileTooltipChildren");
+        expect(
+            within(tooltip).getByTestId("minimalProfileRowUsername"),
+        ).toBeInTheDocument();
     });
 
     it("should render profile username", () => {
@@ -34,14 +32,14 @@ describe("MinimalProfileView", () => {
         const { rerender } = render(
             <MinimalProfileView profile={profileMock} index={0} />,
         );
-        expect(
-            screen.getByTestId("minimalProfileRowLink").parentElement,
-        ).toHaveClass("bg-white/5");
+        expect(screen.getByTestId("minimalProfileRow")).toHaveClass(
+            "bg-white/5",
+        );
 
         rerender(<MinimalProfileView profile={profileMock} index={1} />);
-        expect(
-            screen.getByTestId("minimalProfileRowLink").parentElement,
-        ).toHaveClass("bg-white/15");
+        expect(screen.getByTestId("minimalProfileRow")).toHaveClass(
+            "bg-white/15",
+        );
     });
 
     it("should render children if provided", () => {

@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import clsx from "clsx";
 import { GameResult, GameSummary, PublicUser } from "@/lib/apiClient";
+import UserProfileTooltip from "./UserProfileTooltip";
 
 const GameRow = ({
     game,
@@ -71,19 +72,19 @@ const GameRow = ({
             <td className="relative p-4">
                 <GameLink />
                 <div className="flex flex-col justify-between">
-                    <Link
-                        href={`/profile/${whiteUsername}`}
-                        data-testid="gameRowWhiteUsername"
-                    >
-                        {whiteUsername}
-                    </Link>
-                    <Link
-                        href={`/profile/${blackUsername}`}
-                        className="text-white/50"
-                        data-testid="gameRowBlackUsername"
-                    >
-                        {blackUsername}
-                    </Link>
+                    <UserProfileTooltip username={whiteUsername}>
+                        <p data-testid="gameRowWhiteUsername">
+                            {whiteUsername}
+                        </p>
+                    </UserProfileTooltip>
+                    <UserProfileTooltip username={blackUsername}>
+                        <p
+                            className="text-white/50"
+                            data-testid="gameRowBlackUsername"
+                        >
+                            {blackUsername}
+                        </p>
+                    </UserProfileTooltip>
                 </div>
             </td>
 
