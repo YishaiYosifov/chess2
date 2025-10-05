@@ -25,11 +25,7 @@ const MinimalProfileView = ({
                 className="flex min-w-0 items-center gap-3"
                 data-testid="minimalProfileRowLink"
             >
-                <ProfilePicture
-                    userId={profile.userId}
-                    width={80}
-                    height={80}
-                />
+                <ProfilePicture userId={profile.userId} size={80} />
                 <p
                     className="truncate text-lg"
                     data-testid="minimalProfileRowUsername"
