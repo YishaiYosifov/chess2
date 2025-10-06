@@ -1,7 +1,7 @@
 import Card from "@/components/ui/Card";
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 import { PoolType } from "@/lib/apiClient";
-import useChallengeStore from "../hooks/useChallengeStore";
+import useChallengeStore from "../../hooks/useChallengeStore";
 
 const ChallengeHeader = () => {
     const challenge = useChallengeStore((x) => x.challenge);

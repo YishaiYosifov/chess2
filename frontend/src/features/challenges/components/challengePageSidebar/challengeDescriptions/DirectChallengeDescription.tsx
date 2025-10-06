@@ -3,8 +3,8 @@ import clsx from "clsx";
 import UserProfileTooltip from "@/features/profile/components/UserProfileTooltip";
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
-import useChallengeStore from "../../hooks/useChallengeStore";
 import { MinimalProfile } from "@/lib/apiClient";
+import useChallengeStore from "@/features/challenges/hooks/useChallengeStore";
 import ChallengeStatusText from "../ChallengeStatusText";
 
 const DirectChallengeDescription = () => {

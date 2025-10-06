@@ -4,8 +4,8 @@ import Image from "next/image";
 import QRCode from "qrcode";
 
 import InputField from "@/components/ui/InputField";
-import useChallengeStore from "../../hooks/useChallengeStore";
 import clsx from "clsx";
+import useChallengeStore from "@/features/challenges/hooks/useChallengeStore";
 import ChallengeStatusText from "../ChallengeStatusText";
 
 const OpenChallengeDescription = () => {

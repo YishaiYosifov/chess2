@@ -4,11 +4,11 @@ import { ChallengeRequest } from "@/lib/apiClient";
 import ChallengeFooter from "./ChallengeFooter";
 import ChallengeHeader from "./ChallengeHeader";
 import Card from "@/components/ui/Card";
-import ChallengeStoreContext from "../contexts/challengeContext";
+import ChallengeStoreContext from "../../contexts/challengeContext";
 import useConst from "@/hooks/useConst";
-import { createChallengeStore } from "../stores/challengeStore";
+import { createChallengeStore } from "../../stores/challengeStore";
 import ChallengeDescription from "./challengeDescriptions/ChallengeDescription";
-import useChallengeEvents from "../hooks/useChallengeEvents";
+import useChallengeEvents from "../../hooks/useChallengeEvents";
 
 const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
     const challengeStore = useConst(() => createChallengeStore({ challenge }));

@@ -1,5 +1,5 @@
 import WithSession from "@/features/auth/components/WithSession";
-import ChallengeSidebar from "@/features/challenges/components/ChallengeSidebar";
+import ChallengeSidebar from "@/features/challenges/components/challengePageSidebar/ChallengeSidebar";
 import StaticChessboardWithSidebar from "@/features/chessboard/components/StaticChessboardWithSidebar";
 import { getChallenge } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";

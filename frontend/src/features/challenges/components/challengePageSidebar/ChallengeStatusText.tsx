@@ -1,4 +1,4 @@
-import useChallengeStore from "../hooks/useChallengeStore";
+import useChallengeStore from "../../hooks/useChallengeStore";
 
 const ChallengeStatusText = ({
     activeText,
