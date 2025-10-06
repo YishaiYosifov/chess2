@@ -10,7 +10,7 @@ import {
 import React from "react";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import userEvent from "@testing-library/user-event";
-import { createFakeChallengeRequets } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import constants from "@/lib/constants";
 
@@ -58,7 +58,7 @@ describe("ChallengePopup", () => {
     });
 
     it("should pass correct time control and poolType to createChallenge", async () => {
-        const challengeMock = createFakeChallengeRequets();
+        const challengeMock = createFakeChallengeRequest();
         vi.mocked(createChallenge).mockResolvedValue({
             data: challengeMock,
             response: new Response(),

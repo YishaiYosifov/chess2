@@ -6,7 +6,7 @@ import {
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
 
-import { createFakeChallengeRequets } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
 import ChallengeDescription from "../ChallengeDescription";
@@ -20,7 +20,7 @@ describe("ChallengeDescription", () => {
 
     beforeEach(() => {
         userMock = createFakePrivateUser();
-        challengeMock = createFakeChallengeRequets();
+        challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 

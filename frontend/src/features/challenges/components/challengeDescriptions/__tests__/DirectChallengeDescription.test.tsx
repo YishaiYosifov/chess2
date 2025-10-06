@@ -6,7 +6,7 @@ import {
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
 
-import { createFakeChallengeRequets } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { createFakeMinimalProfile } from "@/lib/testUtils/fakers/minimalProfileFaker";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
@@ -26,7 +26,7 @@ describe("DirectChallengeDescription", () => {
         userMock = createFakePrivateUser();
         requesterMock = createFakeMinimalProfile();
         recipientMock = createFakeMinimalProfile();
-        challengeMock = createFakeChallengeRequets({
+        challengeMock = createFakeChallengeRequest({
             requester: requesterMock,
             recipient: recipientMock,
         });

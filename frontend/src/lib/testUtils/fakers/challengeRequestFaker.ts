@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker";
 import { createFakeMinimalProfile } from "./minimalProfileFaker";
 import { createFakePoolKey } from "./poolKeyFaker";
 
-export function createFakeChallengeRequets(
+export function createFakeChallengeRequest(
     overrides?: Partial<ChallengeRequest>,
 ): ChallengeRequest {
     return {
