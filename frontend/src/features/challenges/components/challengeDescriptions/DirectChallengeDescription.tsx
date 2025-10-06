@@ -5,66 +5,35 @@ import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import useChallengeStore from "../../hooks/useChallengeStore";
 import { MinimalProfile } from "@/lib/apiClient";
+import ChallengeStatusText from "../ChallengeStatusText";
 
 const DirectChallengeDescription = () => {
-    const { challenge, isCancelled, isExpired } = useChallengeStore((x) => ({
-        challenge: x.challenge,
-        isCancelled: x.isCancelled,
-        isExpired: x.isExpired,
-    }));
+    const challenge = useChallengeStore((x) => x.challenge);
     const user = useSessionUser();
     if (!challenge.recipient) return null;
 
     return challenge.requester.userId === user?.userId ? (
-        <RequesterPOV
-            recipient={challenge.recipient}
-            isCancelled={isCancelled}
-            isExpired={isExpired}
-        />
+        <RequesterPOV recipient={challenge.recipient} />
     ) : (
-        <RecipientPOV
-            requester={challenge.requester}
-            isCancelled={isCancelled}
-            isExpired={isExpired}
-        />
+        <RecipientPOV requester={challenge.requester} />
     );
 };
 export default DirectChallengeDescription;
 
-const RequesterPOV = ({
-    recipient,
-    isCancelled,
-    isExpired,
-}: {
-    recipient: MinimalProfile;
-    isCancelled: boolean;
-    isExpired: boolean;
-}) => {
-    const isOver = isCancelled || isExpired;
+const RequesterPOV = ({ recipient }: { recipient: MinimalProfile }) => {
+    const isOver = useChallengeStore((x) => x.isCancelled || x.isExpired);
     return (
         <>
-            {isOver ? (
-                <p
-                    data-testid="directChallengeDescriptionTitle"
-                    className="text-error text-2xl"
-                >
-                    Challenge {isCancelled ? "Cancelled" : "Expired"}
-                </p>
-            ) : (
-                <p
-                    data-testid="directChallengeDescriptionTitle"
-                    className={"text-text/70 text-2xl"}
-                >
-                    Waiting For
-                </p>
-            )}
+            <ChallengeStatusText
+                activeText="Waiting For"
+                activeClassName="text-2xl"
+                overClassName="text-error text-2xl"
+            />
 
             <ProfilePicture
                 data-testid="directChallengeDescriptionProfilePicture"
                 userId={recipient.userId}
-                className={clsx(
-                    !isCancelled && !isExpired && "animate-subtle-ping",
-                )}
+                className={clsx(!isOver && "animate-subtle-ping")}
                 size={200}
             />
             <UserProfileTooltip username={recipient.userName}>
@@ -79,33 +48,14 @@ const RequesterPOV = ({
     );
 };
 
-const RecipientPOV = ({
-    requester,
-    isCancelled,
-    isExpired,
-}: {
-    requester: MinimalProfile;
-    isCancelled: boolean;
-    isExpired: boolean;
-}) => {
-    const isOver = isCancelled || isExpired;
+const RecipientPOV = ({ requester }: { requester: MinimalProfile }) => {
     return (
         <>
-            {isOver ? (
-                <p
-                    data-testid="directChallengeDescriptionTitle"
-                    className="text-error text-2xl"
-                >
-                    Challenge {isCancelled ? "Cancelled" : "Expired"}
-                </p>
-            ) : (
-                <p
-                    data-testid="directChallengeDescriptionTitle"
-                    className={"text-text/70 text-2xl"}
-                >
-                    Challenged By{" "}
-                </p>
-            )}
+            <ChallengeStatusText
+                activeText="Challenged By"
+                activeClassName="text-2xl"
+                overClassName="text-error text-2xl"
+            />
             <ProfilePicture userId={requester.userId} size={200} />
             <UserProfileTooltip username={requester.userName}>
                 <p

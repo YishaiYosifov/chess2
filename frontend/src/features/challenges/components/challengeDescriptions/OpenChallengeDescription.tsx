@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import InputField from "@/components/ui/InputField";
 import useChallengeStore from "../../hooks/useChallengeStore";
 import clsx from "clsx";
+import ChallengeStatusText from "../ChallengeStatusText";
 
 const OpenChallengeDescription = () => {
     const [currentUrl, setCurrentUrl] = useState<string>();
@@ -31,21 +32,11 @@ const OpenChallengeDescription = () => {
 
     return (
         <>
-            {isOver ? (
-                <p
-                    data-testid="openChallengeDescriptionTitle"
-                    className="text-error text-lg"
-                >
-                    Challenge {isCancelled ? "Cancelled" : "Expired"}
-                </p>
-            ) : (
-                <p
-                    data-testid="openChallengeDescriptionTitle"
-                    className={"text-text/70 text-lg"}
-                >
-                    Invite someone to play via:
-                </p>
-            )}
+            <ChallengeStatusText
+                activeText="Invite someone to play via:"
+                activeClassName="text-text/70 text-lg"
+                overClassName="text-error text-lg"
+            />
 
             <InputField
                 data-testid="openChallengeDescriptionInput"
