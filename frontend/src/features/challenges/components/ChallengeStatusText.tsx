@@ -26,7 +26,7 @@ const ChallengeStatusText = ({
         className = overClassName;
     } else if (isCancelled) {
         text =
-            cancelledBy !== user?.userId
+            cancelledBy !== null && cancelledBy !== user?.userId
                 ? "Challenge Declined"
                 : "Challenge Cancelled";
         className = overClassName;

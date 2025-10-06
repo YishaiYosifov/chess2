@@ -64,6 +64,18 @@ describe("ChallengeStatusText", () => {
         expect(text).toHaveClass("text-over");
     });
 
+    it("should render 'Challenge Declined' when isCancelled is true and cancelled by is null", () => {
+        challengeStore.setState({
+            isCancelled: true,
+            cancelledBy: null,
+        });
+        renderWithProviders();
+
+        const text = screen.getByText("Challenge Cancelled");
+        expect(text).toBeInTheDocument();
+        expect(text).toHaveClass("text-over");
+    });
+
     it("should render 'Challenge Declined' when isCancelled is true and cancelled by opponent", () => {
         challengeStore.setState({
             isCancelled: true,
