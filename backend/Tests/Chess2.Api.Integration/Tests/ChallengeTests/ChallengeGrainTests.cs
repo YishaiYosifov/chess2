@@ -209,7 +209,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             Recipient: new(_recipient),
             TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
-            ExpiresAt: _fakeNow.DateTime + _settings.ChallengeLifetime
+            ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
         );
         result.Value.Should().Be(expectedChallenge);
         await _challengeNotifierMock
@@ -253,7 +253,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             Recipient: null,
             TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
-            ExpiresAt: _fakeNow.DateTime + _settings.ChallengeLifetime
+            ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
         );
         result.Value.Should().Be(expectedChallenge);
 

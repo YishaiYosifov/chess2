@@ -97,7 +97,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         var requester = await _userManager.FindByIdAsync(requesterId);
         MinimalProfile requesterProfile = new(requesterId, requester);
 
-        var expiresAt = _timeProvider.GetUtcNow().DateTime + _settings.ChallengeLifetime;
+        var expiresAt = _timeProvider.GetUtcNow().UtcDateTime + _settings.ChallengeLifetime;
         var challengeResult = recipientId is null
             ? CreateChallengeWithoutRecipient(requesterProfile, pool, expiresAt)
             : await CreateChallengeWithRecipientAsync(
