@@ -12,7 +12,7 @@ export function createFakeChallengeRequest(
         recipient: createFakeMinimalProfile(),
         timeControl: faker.helpers.enumValue(TimeControl),
         pool: createFakePoolKey(),
-        expiresAt: faker.date.recent().toISOString(),
+        expiresAt: faker.date.future().toISOString(),
         ...overrides,
     };
 }
