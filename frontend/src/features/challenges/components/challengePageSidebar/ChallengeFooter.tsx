@@ -7,7 +7,7 @@ import { acceptChallenge, cancelChallenge, PoolType } from "@/lib/apiClient";
 import Button from "@/components/ui/Button";
 import constants from "@/lib/constants";
 import { useRouter } from "next/navigation";
-import useChallengeStore from "../hooks/useChallengeStore";
+import useChallengeStore from "../../hooks/useChallengeStore";
 
 const ChallengeFooter = () => {
     const [error, setError] = useState<string>();

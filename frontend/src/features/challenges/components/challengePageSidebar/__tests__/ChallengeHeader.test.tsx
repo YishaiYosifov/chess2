@@ -1,13 +1,13 @@
 import { ChallengeRequest, PoolType } from "@/lib/apiClient";
 import { StoreApi } from "zustand";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { render, screen } from "@testing-library/react";
+import ChallengeHeader from "../ChallengeHeader";
 import {
     ChallengeStore,
     createChallengeStore,
-} from "../../stores/challengeStore";
-import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
-import { render, screen } from "@testing-library/react";
-import ChallengeStoreContext from "../../contexts/challengeContext";
-import ChallengeHeader from "../ChallengeHeader";
+} from "@/features/challenges/stores/challengeStore";
+import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
 
 describe("ChallengeHeader", () => {
     let challengeMock: ChallengeRequest;

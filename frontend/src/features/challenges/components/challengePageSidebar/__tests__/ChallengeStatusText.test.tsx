@@ -1,13 +1,13 @@
 import { ChallengeRequest } from "@/lib/apiClient";
 import { StoreApi } from "zustand";
-import ChallengeStoreContext from "../../contexts/challengeContext";
 import ChallengeStatusText from "../ChallengeStatusText";
 import { render, screen } from "@testing-library/react";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import {
     ChallengeStore,
     createChallengeStore,
-} from "../../stores/challengeStore";
-import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
+} from "@/features/challenges/stores/challengeStore";
+import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
 
 describe("ChallengeStatusText", () => {
     let challengeMock: ChallengeRequest;
