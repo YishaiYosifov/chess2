@@ -11,10 +11,10 @@ export interface ChallengeStoreProps {
 export interface ChallengeStore {
     challenge: ChallengeRequest;
     isCancelled: boolean;
-    hasExpired: boolean;
     isExpired: boolean;
+    cancelledBy: string | null;
 
-    setCancelled(): void;
+    setCancelled(cancelledBy: string): void;
     setExpired(): void;
 }
 
@@ -23,17 +23,18 @@ export function createChallengeStore(initState: ChallengeStoreProps) {
         immer((set) => ({
             ...initState,
             isCancelled: false,
-            hasExpired: false,
+            isDeclined: false,
             isExpired: false,
+            cancelledBy: null,
 
-            setCancelled() {
+            setCancelled(cancelledBy) {
                 set((state) => {
                     state.isCancelled = true;
+                    state.cancelledBy = cancelledBy;
                 });
             },
             setExpired() {
                 set((state) => {
-                    state.hasExpired = true;
                     state.isExpired = true;
                 });
             },

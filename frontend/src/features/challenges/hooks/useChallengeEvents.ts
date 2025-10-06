@@ -17,10 +17,10 @@ export default function useChallengeEvents(
         router.push(`${constants.PATHS.GAME}/${gameToken}`);
     });
 
-    useChallengeEvent("ChallengeCancelledAsync", (challengeId) => {
+    useChallengeEvent("ChallengeCancelledAsync", (cancelledBy, challengeId) => {
         const { challenge: currentChallenge, setCancelled } =
             challengeStore.getState();
         if (challengeId !== currentChallenge.challengeId) return;
-        setCancelled();
+        setCancelled(cancelledBy);
     });
 }
