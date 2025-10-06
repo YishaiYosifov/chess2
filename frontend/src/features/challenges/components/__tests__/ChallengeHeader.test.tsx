@@ -37,7 +37,7 @@ describe("ChallengeHeader", () => {
             </ChallengeStoreContext.Provider>,
         );
 
-        const expectedText = `${challengeMock.pool.timeControl.baseSeconds / 60}+${challengeMock.pool.timeControl.incrementSeconds} Rated`;
+        const expectedText = `${challengeMock.pool.timeControl.baseSeconds / 60}+${challengeMock.pool.timeControl.incrementSeconds}`;
         expect(
             screen.getByTestId("challengeHeaderTimeControl"),
         ).toHaveTextContent(expectedText);
