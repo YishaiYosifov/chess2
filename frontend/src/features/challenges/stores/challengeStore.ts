@@ -14,7 +14,7 @@ export interface ChallengeStore {
     isExpired: boolean;
     cancelledBy: string | null;
 
-    setCancelled(cancelledBy: string): void;
+    setCancelled(cancelledBy: string | null): void;
     setExpired(): void;
 }
 
