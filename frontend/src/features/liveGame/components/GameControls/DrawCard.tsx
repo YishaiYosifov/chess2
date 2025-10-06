@@ -2,8 +2,8 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import { ScaleIcon } from "@heroicons/react/24/solid";
 
 import GameControlButton from "./GameControlButton";
-import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import useLiveChessStore from "../../hooks/useLiveChessStore";
+import { useGameEmitter } from "../../hooks/useGameHub";
 
 const DrawCard = () => {
     const gameToken = useLiveChessStore((x) => x.gameToken);

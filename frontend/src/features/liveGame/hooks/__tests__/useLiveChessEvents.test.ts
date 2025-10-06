@@ -9,10 +9,6 @@ import {
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import useLiveChessEvents from "../useLiveChessEvents";
 import {
-    GameClientEvents,
-    useGameEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
-import {
     Clocks,
     DrawState,
     GameColor,
@@ -39,8 +35,9 @@ import { logicalPoint } from "@/features/point/pointUtils";
 import { brotliCompressSync } from "zlib";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { decodePath } from "../../lib/moveDecoder";
+import { GameClientEvents, useGameEvent } from "../useGameHub";
 
-vi.mock("@/features/signalr/hooks/useSignalRHubs");
+vi.mock("@/features/liveGame/hooks/useGameHub");
 vi.mock("@/features/liveGame/lib/gameStateProcessor");
 
 describe("useLiveChessEvents", () => {

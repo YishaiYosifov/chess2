@@ -4,8 +4,8 @@ import { GameColor } from "@/lib/apiClient";
 import DrawCard from "./DrawCard";
 import GameControlButton from "./GameControlButton";
 import constants from "@/lib/constants";
-import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import useLiveChessStore from "../../hooks/useLiveChessStore";
+import { useGameEmitter } from "../../hooks/useGameHub";
 
 const LiveGameControls = () => {
     const { gameToken, playerColor, canAbort, drawState } = useLiveChessStore(
