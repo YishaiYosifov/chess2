@@ -2,15 +2,12 @@ import { useRef, useState } from "react";
 
 import Card from "@/components/ui/Card";
 import useLiveChessStore from "../hooks/useLiveChessStore";
-import {
-    useGameEmitter,
-    useGameEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import { useRouter } from "next/navigation";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
 import InputField from "@/components/ui/InputField";
 import Button from "@/components/ui/Button";
+import { useGameEmitter, useGameEvent } from "../hooks/useGameHub";
 
 interface ChatMessage {
     sender: string;
