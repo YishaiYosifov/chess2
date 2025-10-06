@@ -11,6 +11,7 @@ import useChallengeStore from "../hooks/useChallengeStore";
 
 const ChallengeFooter = () => {
     const [error, setError] = useState<string>();
+    const [isInAction, setIsInAction] = useState(false);
     const user = useAuthedUser();
     const router = useRouter();
 
@@ -22,78 +23,62 @@ const ChallengeFooter = () => {
             hasExpired: x.hasExpired,
             setExpired: x.setExpired,
         }));
-    const expiresAt = new Date(challenge.expiresAt + "Z");
-    const isRequester = challenge.requester.userId === user?.userId;
-    const isOpen = !challenge.recipient;
-    const isRatedAndGuest = challenge.pool.poolType === PoolType.RATED && !user;
+    const expiresAt = new Date(challenge.expiresAt);
 
-    async function handleAcceptChallenge() {
-        const { error, data: gameToken } = await acceptChallenge({
-            path: { challengeId: challenge.challengeId },
-        });
-        if (error || gameToken === undefined) {
-            console.error(error);
-            setError("Failed to accept challenge");
-            return;
+    async function onAccept() {
+        setIsInAction(true);
+        try {
+            const { error, data: gameToken } = await acceptChallenge({
+                path: { challengeId: challenge.challengeId },
+            });
+            if (error || gameToken === undefined) {
+                console.error(error);
+                setError("Failed to accept challenge");
+                return;
+            }
+
+            router.push(`${constants.PATHS.GAME}/${gameToken}`);
+        } finally {
+            setIsInAction(false);
         }
-
-        router.push(`${constants.PATHS.GAME}/${gameToken}`);
     }
 
-    async function handleCancelChallenge() {
-        const { error } = await cancelChallenge({
-            path: { challengeId: challenge.challengeId },
-        });
-        if (error) {
-            console.error(error);
-            setError("Failed to cancel challenge");
-            return;
+    async function onCancel() {
+        setIsInAction(true);
+        try {
+            const { error } = await cancelChallenge({
+                path: { challengeId: challenge.challengeId },
+            });
+            if (error) {
+                console.error(error);
+                setError("Failed to cancel challenge");
+                return;
+            }
+            setCancelled();
+        } finally {
+            setIsInAction(false);
         }
-        setCancelled();
     }
 
-    if (isCancelled || hasExpired)
-        return (
-            <Link
-                href={constants.PATHS.PLAY}
-                className="w-full"
-                data-testid="challengeFooterNewOpponent"
-            >
-                <Button className="w-full">New Opponent</Button>
-            </Link>
-        );
+    if (isCancelled || hasExpired) return <ChallengeOver />;
 
     return (
         <>
-            {isRequester ? (
-                <Button className="w-full" onClick={handleCancelChallenge}>
+            {challenge.requester.userId === user?.userId ? (
+                <Button
+                    className="w-full"
+                    onClick={onCancel}
+                    disabled={isInAction}
+                    data-testid="challengeFooterCancelButton"
+                >
                     Cancel
                 </Button>
             ) : (
-                <>
-                    <p className="text-xl font-medium">
-                        Do you accept the challenge?
-                    </p>
-                    <div className="flex w-full gap-3">
-                        <Button
-                            className="w-full"
-                            disabled={isRatedAndGuest}
-                            onClick={handleAcceptChallenge}
-                        >
-                            {isRatedAndGuest
-                                ? "Guests can't accept rated challenges"
-                                : "Accept"}
-                        </Button>
-                        {!isOpen && (
-                            <Button
-                                className="w-full"
-                                onClick={handleCancelChallenge}
-                            >
-                                Decline
-                            </Button>
-                        )}
-                    </div>
-                </>
+                <RecipientActions
+                    onAccept={onAccept}
+                    onCancel={onCancel}
+                    isInAction={isInAction}
+                />
             )}
 
             {error && <span className="text-error">{error}</span>}
@@ -115,3 +100,64 @@ const ChallengeFooter = () => {
     );
 };
 export default ChallengeFooter;
+
+const RecipientActions = ({
+    onAccept,
+    onCancel,
+    isInAction,
+}: {
+    onAccept: () => Promise<void>;
+    onCancel: () => Promise<void>;
+    isInAction: boolean;
+}) => {
+    const user = useAuthedUser();
+    const challenge = useChallengeStore((x) => x.challenge);
+    const isRatedAndGuest = challenge.pool.poolType === PoolType.RATED && !user;
+    const isOpen = !challenge.recipient;
+
+    return (
+        <>
+            <p
+                className="text-xl font-medium"
+                data-testid="challengeFooterRecipientPrompt"
+            >
+                Do you accept the challenge?
+            </p>
+            <div className="flex w-full gap-3">
+                <Button
+                    className="w-full"
+                    disabled={isRatedAndGuest || isInAction}
+                    onClick={onAccept}
+                    data-testid="challengeFooterAcceptButton"
+                >
+                    {isRatedAndGuest
+                        ? "Guests can't accept rated challenges"
+                        : "Accept"}
+                </Button>
+
+                {!isOpen && (
+                    <Button
+                        className="w-full"
+                        onClick={onCancel}
+                        disabled={isInAction}
+                        data-testid="challengeFooterDeclineButton"
+                    >
+                        Decline
+                    </Button>
+                )}
+            </div>
+        </>
+    );
+};
+
+const ChallengeOver = () => {
+    return (
+        <Link
+            href={constants.PATHS.PLAY}
+            className="w-full"
+            data-testid="challengeFooterNewOpponent"
+        >
+            <Button className="w-full">New Opponent</Button>
+        </Link>
+    );
+};
