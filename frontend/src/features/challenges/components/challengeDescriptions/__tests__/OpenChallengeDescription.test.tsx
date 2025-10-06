@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import OpenChallengeDescription from "../OpenChallengeDescription";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import { ChallengeRequest } from "@/lib/apiClient";
-import { createFakeChallengeRequets } from "@/lib/testUtils/fakers/challengeRequestFaker";
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { StoreApi } from "zustand";
 import {
     ChallengeStore,
@@ -27,7 +27,7 @@ describe("OpenChallengeDescription", () => {
         qrCodeMock.toDataURL.mockResolvedValue(qrCodeText);
         vi.stubGlobal("location", { href: locationHref });
 
-        challengeMock = createFakeChallengeRequets();
+        challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 
