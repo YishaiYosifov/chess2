@@ -4,6 +4,8 @@ import StaticChessboardWithSidebar from "@/features/chessboard/components/Static
 import { getChallenge } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 
+export const metadata = { title: "Challenge - Chess 2" };
+
 export default async function ChallengePage({
     params,
 }: {
