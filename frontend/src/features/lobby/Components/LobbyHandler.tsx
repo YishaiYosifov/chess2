@@ -1,13 +1,10 @@
 "use client";
 
-import {
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import constants from "@/lib/constants";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import useLobbyStore from "../stores/lobbyStore";
+import { useLobbyEmitter, useLobbyEvent } from "../hooks/useLobbyHub";
 
 const LobbyHandler = () => {
     const router = useRouter();

@@ -5,10 +5,10 @@ import { PoolType, TimeControl } from "@/lib/apiClient";
 import OpenSeekItem from "../OpenSeekItem";
 import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
 import userEvent from "@testing-library/user-event";
-import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import useLobbyStore from "@/features/lobby/stores/lobbyStore";
+import { useLobbyEmitter } from "@/features/lobby/hooks/useLobbyHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 vi.mock("@/features/lobby/Components/TimeControlIcon", () => ({
     default: ({ timeControl }: { timeControl: TimeControl }) => (

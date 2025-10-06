@@ -12,7 +12,7 @@ import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import { StoreApi } from "zustand";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("GameOverPopup", () => {
     const ref = React.createRef<GameOverPopupRef>();

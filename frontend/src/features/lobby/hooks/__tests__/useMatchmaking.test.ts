@@ -1,17 +1,17 @@
 import { PoolKey, PoolType, TimeControlSettings } from "@/lib/apiClient";
 import { act, renderHook } from "@testing-library/react";
 import useMatchmaking from "../useMatchmaking";
-import {
-    LobbyClientEvents,
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import constants from "@/lib/constants";
 import useLobbyStore from "../../stores/lobbyStore";
 import { PoolKeyToStr } from "../../lib/matchmakingKeys";
+import {
+    LobbyClientEvents,
+    useLobbyEmitter,
+    useLobbyEvent,
+} from "../useLobbyHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("useMatchmaking", () => {
     const timeControl: TimeControlSettings = {

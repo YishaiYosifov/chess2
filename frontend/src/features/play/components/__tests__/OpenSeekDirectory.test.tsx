@@ -3,15 +3,16 @@ import { act } from "react";
 
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import OpenSeekDirectory from "../OpenSeekDirectory";
+import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
+import constants from "@/lib/constants";
 import {
     OpenSeekClientEvents,
     useOpenSeekEmitter,
     useOpenSeekEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
-import createFakeOpenSeek from "@/lib/testUtils/fakers/openSeekerFaker";
-import constants from "@/lib/constants";
+} from "@/features/lobby/hooks/useOpenSeekHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useOpenSeekHub");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("OpenSeekDirectory", () => {
     const openSeekHandlers: EventHandlers<OpenSeekClientEvents> = {};

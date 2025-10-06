@@ -1,13 +1,10 @@
-import {
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import { useCallback, useEffect } from "react";
 
 import { PoolKeyToStr } from "../lib/matchmakingKeys";
 import { PoolKey, PoolType } from "@/lib/apiClient";
 import useLobbyStore from "../stores/lobbyStore";
 import constants from "@/lib/constants";
+import { useLobbyEmitter, useLobbyEvent } from "./useLobbyHub";
 
 export default function useMatchmaking(pool: PoolKey): {
     createSeek: () => Promise<void>;
