@@ -3,8 +3,8 @@ import { FireIcon } from "@heroicons/react/24/outline";
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType } from "@/lib/apiClient";
-import { useLobbyEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import useLobbyStore from "@/features/lobby/stores/lobbyStore";
+import { useLobbyEmitter } from "@/features/lobby/hooks/useLobbyHub";
 
 const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
     const sendLobbyEvents = useLobbyEmitter();

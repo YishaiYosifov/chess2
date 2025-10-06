@@ -4,15 +4,15 @@ import { CSSTransition, TransitionGroup } from "react-transition-group";
 
 import Card from "@/components/ui/Card";
 import OpenSeekItem from "./OpenSeekItem";
-import {
-    useOpenSeekEmitter,
-    useOpenSeekEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import { useEffect, useRef, useState } from "react";
 import { OpenSeek, SeekKeyStr } from "@/features/lobby/lib/types";
 import { SeekKeyToStr } from "@/features/lobby/lib/matchmakingKeys";
 import React from "react";
 import constants from "@/lib/constants";
+import {
+    useOpenSeekEmitter,
+    useOpenSeekEvent,
+} from "@/features/lobby/hooks/useOpenSeekHub";
 
 const OpenSeekDirectory = () => {
     const [openSeeks, setOpenSeeks] = useState<Record<SeekKeyStr, OpenSeek>>(

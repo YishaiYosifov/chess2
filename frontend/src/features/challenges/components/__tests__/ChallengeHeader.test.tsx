@@ -44,6 +44,8 @@ describe("ChallengeHeader", () => {
     });
 
     it("should show 'Rated' when pool type is rated", () => {
+        challengeMock.pool.poolType = PoolType.RATED;
+
         render(
             <ChallengeStoreContext.Provider value={challengeStore}>
                 <ChallengeHeader />

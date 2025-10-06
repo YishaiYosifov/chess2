@@ -1,8 +1,3 @@
-import {
-    LobbyClientEvents,
-    useLobbyEmitter,
-    useLobbyEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import useLobbyStore from "../../stores/lobbyStore";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import { act, render } from "@testing-library/react";
@@ -12,8 +7,13 @@ import constants from "@/lib/constants";
 import { usePathname } from "next/navigation";
 import { PoolType } from "@/lib/apiClient";
 import { PoolKeyStr } from "../../lib/types";
+import {
+    LobbyClientEvents,
+    useLobbyEmitter,
+    useLobbyEvent,
+} from "../../hooks/useLobbyHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 vi.mock("next/navigation");
 
 describe("LobbyHandler", () => {
