@@ -159,7 +159,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             cancelledBy
         );
 
-        await ApplyCancellationAsync();
+        await ApplyCancellationAsync(cancelledBy);
         return Result.Deleted;
     }
 
@@ -200,7 +200,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             return;
 
         _logger.LogInformation("Challenge {ChallengeId} expired", _challengeId);
-        await ApplyCancellationAsync();
+        await ApplyCancellationAsync(cancelledBy: null);
     }
 
     private ChallengeRequest CreateChallengeWithoutRecipient(
@@ -268,12 +268,13 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return recipientChallenges.Any(x => x.Requester.UserId == requesterId);
     }
 
-    private async Task ApplyCancellationAsync()
+    private async Task ApplyCancellationAsync(UserId? cancelledBy)
     {
         if (_state.State.Request is null)
             return;
 
         await _challengeNotifier.NotifyChallengeCancelled(
+            cancelledBy: cancelledBy,
             _state.State.Request.Requester.UserId,
             _state.State.Request.Recipient?.UserId,
             _challengeId

@@ -103,8 +103,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         cancelResult.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var cancelledId = await recipientConn.GetNextCancelledChallengeAsync(CT);
-        cancelledId.Should().Be(challenge.ChallengeId);
+        var cancelledEvent = await recipientConn.GetNextCancelledChallengeAsync(CT);
+        cancelledEvent.ChallengeId.Should().Be(challenge.ChallengeId);
+        cancelledEvent.CancelledBy.Should().Be((UserId)_recipient.Id);
     }
 
     [Fact]
