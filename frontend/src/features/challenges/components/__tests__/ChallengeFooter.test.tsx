@@ -82,7 +82,7 @@ describe("ChallengeFooter", () => {
     });
 
     it("should render ChallengeOver when challenge is expired", () => {
-        challengeStore.setState({ hasExpired: true });
+        challengeStore.setState({ isExpired: true });
 
         render(
             <SessionProvider user={userMock}>
@@ -122,7 +122,7 @@ describe("ChallengeFooter", () => {
         challengeMock.expiresAt = new Date(now + 60000).toISOString();
         challengeStore.setState({ challenge: challengeMock });
 
-        expect(challengeStore.getState().hasExpired).toBe(false);
+        expect(challengeStore.getState().isExpired).toBe(false);
 
         render(
             <SessionProvider user={userMock}>
@@ -134,6 +134,6 @@ describe("ChallengeFooter", () => {
 
         await act(() => vi.advanceTimersByTime(61000));
 
-        expect(challengeStore.getState().hasExpired).toBe(true);
+        expect(challengeStore.getState().isExpired).toBe(true);
     });
 });

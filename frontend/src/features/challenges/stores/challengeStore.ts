@@ -12,6 +12,7 @@ export interface ChallengeStore {
     challenge: ChallengeRequest;
     isCancelled: boolean;
     hasExpired: boolean;
+    isExpired: boolean;
 
     setCancelled(): void;
     setExpired(): void;
@@ -23,6 +24,7 @@ export function createChallengeStore(initState: ChallengeStoreProps) {
             ...initState,
             isCancelled: false,
             hasExpired: false,
+            isExpired: false,
 
             setCancelled() {
                 set((state) => {
@@ -32,6 +34,7 @@ export function createChallengeStore(initState: ChallengeStoreProps) {
             setExpired() {
                 set((state) => {
                     state.hasExpired = true;
+                    state.isExpired = true;
                 });
             },
         })),
