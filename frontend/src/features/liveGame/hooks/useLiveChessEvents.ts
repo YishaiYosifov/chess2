@@ -1,5 +1,4 @@
 import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
-import { useGameEvent } from "@/features/signalR/hooks/useSignalRHubs";
 import { Clocks, GameColor, MoveSnapshot } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
@@ -8,6 +7,7 @@ import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
+import { useGameEvent } from "./useGameHub";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,

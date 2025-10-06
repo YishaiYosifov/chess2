@@ -14,7 +14,7 @@ const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
     return (
         <ChallengeStoreContext.Provider value={challengeStore}>
             <aside className="flex w-full min-w-xs flex-col gap-3 lg:max-w-sm">
-                <ChallengeHeader challenge={challenge} />
+                <ChallengeHeader />
                 <ChallengeDescription />
 
                 <Card className="items-center">

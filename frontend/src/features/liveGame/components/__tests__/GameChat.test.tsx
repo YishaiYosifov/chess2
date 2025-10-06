@@ -2,11 +2,6 @@ import userEvent from "@testing-library/user-event";
 import { screen, render, act } from "@testing-library/react";
 
 import GameChat from "../GameChat";
-import {
-    GameClientEvents,
-    useGameEmitter,
-    useGameEvent,
-} from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessStoreContext from "../../contexts/liveChessContext";
 import { StoreApi } from "zustand";
 import createLiveChessStore, {
@@ -18,8 +13,13 @@ import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import { GuestUser, PrivateUser } from "@/lib/apiClient";
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
+import {
+    GameClientEvents,
+    useGameEmitter,
+    useGameEvent,
+} from "../../hooks/useGameHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/liveGame/hooks/useGameHub");
 
 describe("GameChat", () => {
     const sendGameEventMock = vi.fn();

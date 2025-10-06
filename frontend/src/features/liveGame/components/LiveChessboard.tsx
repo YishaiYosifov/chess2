@@ -3,7 +3,6 @@
 import { useCallback, useRef } from "react";
 import { StoreApi } from "zustand";
 
-import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import LiveChessboardProfile, {
     ProfileSide as ChessProfileSide,
 } from "./LiveChessboardProfile";
@@ -30,6 +29,7 @@ import {
 import useConst from "@/hooks/useConst";
 import { Move } from "@/features/chessboard/lib/types";
 import ChessboardWithSidebar from "@/features/chessboard/components/ChessboardWithSidebar";
+import { useGameEmitter } from "../hooks/useGameHub";
 
 const LiveChessboard = ({
     gameToken,

@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import createLiveChessStore, {
     LiveChessStore,
 } from "@/features/liveGame/stores/liveChessStore";
-import { useGameEmitter } from "@/features/signalR/hooks/useSignalRHubs";
 import GameControlsCard from "../GameControlsCard";
 import userEvent from "@testing-library/user-event";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
@@ -11,8 +10,9 @@ import { StoreApi } from "zustand";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { GameResult } from "@/lib/apiClient";
 import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
+import { useGameEmitter } from "@/features/liveGame/hooks/useGameHub";
 
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/liveGame/hooks/useGameHub");
 
 describe("GameControlsCard", () => {
     const useGameEmitterMock = vi.mocked(useGameEmitter);
