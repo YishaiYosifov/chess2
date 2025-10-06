@@ -1,3 +1,4 @@
+import Card from "@/components/ui/Card";
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
 import { ChallengeRequest, PoolType } from "@/lib/apiClient";
 
@@ -5,7 +6,7 @@ const ChallengeHeader = ({ challenge }: { challenge: ChallengeRequest }) => {
     const isRated = challenge.pool.poolType == PoolType.RATED;
 
     return (
-        <>
+        <Card className="items-center">
             <h1 className="text-4xl font-bold">Challenge</h1>
             <div className="flex items-center gap-2">
                 <TimeControlIcon
@@ -18,7 +19,7 @@ const ChallengeHeader = ({ challenge }: { challenge: ChallengeRequest }) => {
                     {isRated ? "Rated" : "Casual"}
                 </p>
             </div>
-        </>
+        </Card>
     );
 };
 export default ChallengeHeader;
