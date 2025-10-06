@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
@@ -10,8 +11,13 @@ public class ChallengeHubClient : BaseHubClient
 
     private readonly Channel<ChallengeRequest> _incomingChallengesChannel =
         Channel.CreateUnbounded<ChallengeRequest>();
-    private readonly Channel<ChallengeId> _cancelledChallengesChannel =
-        Channel.CreateUnbounded<ChallengeId>();
+    private readonly Channel<(
+        UserId CancelledBy,
+        ChallengeId ChallengeId
+    )> _cancelledChallengesChannel = Channel.CreateUnbounded<(
+        UserId CancelledBy,
+        ChallengeId ChallengeId
+    )>();
     private readonly Channel<(
         string GameToken,
         ChallengeId ChallengeId
@@ -27,10 +33,13 @@ public class ChallengeHubClient : BaseHubClient
             "ChallengeReceivedAsync",
             challenge => _incomingChallengesChannel.Writer.TryWrite(challenge)
         );
-        connection.On<ChallengeId>(
+
+        connection.On<UserId, ChallengeId>(
             "ChallengeCancelledAsync",
-            challengeId => _cancelledChallengesChannel.Writer.TryWrite(challengeId)
+            (cancelledBy, challengeId) =>
+                _cancelledChallengesChannel.Writer.TryWrite((cancelledBy, challengeId))
         );
+
         connection.On<string, ChallengeId>(
             "ChallengeAcceptedAsync",
             (gameToken, challengeId) =>
@@ -53,7 +62,9 @@ public class ChallengeHubClient : BaseHubClient
         return challenge;
     }
 
-    public async Task<ChallengeId> GetNextCancelledChallengeAsync(CancellationToken token = default)
+    public async Task<(UserId CancelledBy, ChallengeId ChallengeId)> GetNextCancelledChallengeAsync(
+        CancellationToken token = default
+    )
     {
         TimeSpan timeout = TimeSpan.FromSeconds(10);
         using var timeoutCts = new CancellationTokenSource(timeout);

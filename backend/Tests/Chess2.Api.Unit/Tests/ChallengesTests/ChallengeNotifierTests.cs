@@ -64,11 +64,17 @@ public class ChallengeNotifierTests
     public async Task NotifyChallengeCancelledAsync_notifies_both_requester_and_recipient_clients()
     {
         ChallengeId challengeId = "challenge-123";
+        UserId cancelledBy = "cancelled by";
 
-        await _notifier.NotifyChallengeCancelled(_requesterId, _recipientId, challengeId);
+        await _notifier.NotifyChallengeCancelled(
+            cancelledBy,
+            _requesterId,
+            _recipientId,
+            challengeId
+        );
 
-        await _requesterProxyMock.Received(1).ChallengeCancelledAsync(challengeId);
-        await _recipientProxyMock.Received(1).ChallengeCancelledAsync(challengeId);
+        await _requesterProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeId);
+        await _recipientProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeId);
     }
 
     [Fact]

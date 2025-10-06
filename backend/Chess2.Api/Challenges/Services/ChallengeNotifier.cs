@@ -9,7 +9,12 @@ namespace Chess2.Api.Challenges.Services;
 public interface IChallengeNotifier
 {
     Task NotifyChallengeAccepted(UserId requesterId, string gameToken, ChallengeId challengeId);
-    Task NotifyChallengeCancelled(UserId requesterId, UserId? recipientId, ChallengeId challengeId);
+    Task NotifyChallengeCancelled(
+        UserId? cancelledBy,
+        UserId requesterId,
+        UserId? recipientId,
+        ChallengeId challengeId
+    );
     Task NotifyChallengeReceived(ConnectionId recipientConnectionId, ChallengeRequest challenge);
     Task NotifyChallengeReceived(UserId recipientId, ChallengeRequest challenge);
 }
@@ -28,14 +33,15 @@ public class ChallengeNotifier(IHubContext<ChallengeHub, IChallengeHubClient> hu
     ) => _hub.Clients.Client(recipientConnectionId).ChallengeReceivedAsync(challenge);
 
     public async Task NotifyChallengeCancelled(
+        UserId? cancelledBy,
         UserId requesterId,
         UserId? recipientId,
         ChallengeId challengeId
     )
     {
-        await _hub.Clients.User(requesterId).ChallengeCancelledAsync(challengeId);
+        await _hub.Clients.User(requesterId).ChallengeCancelledAsync(cancelledBy, challengeId);
         if (recipientId is not null)
-            await _hub.Clients.User(recipientId).ChallengeCancelledAsync(challengeId);
+            await _hub.Clients.User(recipientId).ChallengeCancelledAsync(cancelledBy, challengeId);
     }
 
     public Task NotifyChallengeAccepted(
