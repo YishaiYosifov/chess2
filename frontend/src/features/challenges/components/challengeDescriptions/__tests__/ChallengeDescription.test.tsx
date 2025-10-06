@@ -26,7 +26,6 @@ describe("ChallengeDescription", () => {
 
     it("should render OpenChallengeDescription when there is no recipient", () => {
         challengeMock.recipient = null;
-        challengeStore = createChallengeStore({ challenge: challengeMock });
 
         render(
             <SessionProvider user={userMock}>
@@ -36,16 +35,13 @@ describe("ChallengeDescription", () => {
             </SessionProvider>,
         );
 
-        expect(
-            screen.getByTestId("openChallengeDescriptionTitle"),
-        ).toBeInTheDocument();
-        expect(
-            screen.queryByTestId("directChallengeDescriptionTitle"),
-        ).not.toBeInTheDocument();
+        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
+            "Invite someone to play via:",
+        );
     });
 
     it("should render DirectChallengeDescription when there is a recipient", () => {
-        challengeStore = createChallengeStore({ challenge: challengeMock });
+        userMock.userId = challengeMock.requester.userId;
 
         render(
             <SessionProvider user={userMock}>
@@ -55,11 +51,8 @@ describe("ChallengeDescription", () => {
             </SessionProvider>,
         );
 
-        expect(
-            screen.getByTestId("directChallengeDescriptionTitle"),
-        ).toBeInTheDocument();
-        expect(
-            screen.queryByTestId("openChallengeDescriptionTitle"),
-        ).not.toBeInTheDocument();
+        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
+            "Waiting For", // waiting for recipient
+        );
     });
 });

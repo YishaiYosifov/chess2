@@ -54,7 +54,8 @@ const ChallengeFooter = () => {
                 setError("Failed to cancel challenge");
                 return;
             }
-            setCancelled();
+
+            if (user) setCancelled(user?.userId);
         } finally {
             setIsInAction(false);
         }

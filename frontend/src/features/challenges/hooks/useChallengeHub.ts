@@ -4,7 +4,7 @@ import constants from "@/lib/constants";
 
 export type ChallengeClientEvents = {
     ChallengeReceivedAsync: [challenge: ChallengeRequest];
-    ChallengeCancelledAsync: [challengeId: string];
+    ChallengeCancelledAsync: [cancelledBy: string, challengeId: string];
     ChallengeAcceptedAsync: [gameToken: string, challengeId: string];
 };
 

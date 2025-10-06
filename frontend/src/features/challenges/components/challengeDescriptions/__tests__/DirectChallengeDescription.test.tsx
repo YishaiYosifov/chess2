@@ -45,9 +45,9 @@ describe("DirectChallengeDescription", () => {
             </SessionProvider>,
         );
 
-        expect(
-            screen.getByTestId("directChallengeDescriptionTitle"),
-        ).toHaveTextContent("Waiting For");
+        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
+            "Waiting For",
+        );
         expect(
             screen.getByTestId("directChallengeDescriptionUserName"),
         ).toHaveTextContent(recipientMock.userName);
@@ -65,15 +65,15 @@ describe("DirectChallengeDescription", () => {
             </SessionProvider>,
         );
 
-        expect(
-            screen.getByTestId("directChallengeDescriptionTitle"),
-        ).toHaveTextContent("Challenged By");
+        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
+            "Challenged By",
+        );
         expect(
             screen.getByTestId("challengeRecipientDescriptionUserName"),
         ).toHaveTextContent(requesterMock.userName);
     });
 
-    it("should display 'Challenge Cancelled' when isCancelled is true", () => {
+    it("should set status text color when over", () => {
         userMock.userId = requesterMock.userId;
         challengeStore.setState({ isCancelled: true });
 
@@ -85,25 +85,7 @@ describe("DirectChallengeDescription", () => {
             </SessionProvider>,
         );
 
-        const title = screen.getByTestId("directChallengeDescriptionTitle");
-        expect(title).toHaveTextContent("Challenge Cancelled");
-        expect(title).toHaveClass("text-error");
-    });
-
-    it("should display 'Challenge Expired' when isExpired is true", () => {
-        userMock.userId = requesterMock.userId;
-        challengeStore.setState({ isExpired: true });
-
-        render(
-            <SessionProvider user={userMock}>
-                <ChallengeStoreContext.Provider value={challengeStore}>
-                    <DirectChallengeDescription />
-                </ChallengeStoreContext.Provider>
-            </SessionProvider>,
-        );
-
-        const title = screen.getByTestId("directChallengeDescriptionTitle");
-        expect(title).toHaveTextContent("Challenge Expired");
+        const title = screen.getByTestId("challengeStatusText");
         expect(title).toHaveClass("text-error");
     });
 

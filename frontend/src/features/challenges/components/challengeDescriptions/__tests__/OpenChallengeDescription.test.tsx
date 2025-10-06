@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 import OpenChallengeDescription from "../OpenChallengeDescription";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
-import { ChallengeRequest } from "@/lib/apiClient";
+import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { StoreApi } from "zustand";
 import {
@@ -12,6 +12,8 @@ import {
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
+import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
+import SessionProvider from "@/features/auth/contexts/sessionContext";
 
 vi.mock("qrcode");
 
@@ -19,6 +21,7 @@ describe("OpenChallengeDescription", () => {
     const qrCodeMock = vi.mocked(QRCode);
     const qrCodeText = "data:image/png;base64,fakeqr";
     const locationHref = "http://localhost:3000/challenge/12345";
+    let userMock: PrivateUser;
     let challengeMock: ChallengeRequest;
     let challengeStore: StoreApi<ChallengeStore>;
 
@@ -27,18 +30,24 @@ describe("OpenChallengeDescription", () => {
         qrCodeMock.toDataURL.mockResolvedValue(qrCodeText);
         vi.stubGlobal("location", { href: locationHref });
 
+        userMock = createFakePrivateUser();
         challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 
     it("should render OpenChallengeDescription input and QR code", async () => {
         render(
-            <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
-            </ChallengeStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <OpenChallengeDescription />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
         );
         await flushMicrotasks();
 
+        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
+            "Invite someone to play via:",
+        );
         expect(screen.getByTestId("openChallengeDescriptionInput")).toHaveValue(
             locationHref,
         );
@@ -56,9 +65,11 @@ describe("OpenChallengeDescription", () => {
             },
         });
         render(
-            <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
-            </ChallengeStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <OpenChallengeDescription />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
         );
 
         const clipboardIcon = screen.getByTestId(
@@ -69,33 +80,20 @@ describe("OpenChallengeDescription", () => {
         expect(writeTextMock).toHaveBeenCalledWith(location.href);
     });
 
-    it("should show 'Challenge Cancelled' when isCancelled is true", async () => {
+    it("should update correctly when challenge is over", async () => {
         challengeStore.setState({ isCancelled: true });
         render(
-            <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
-            </ChallengeStoreContext.Provider>,
+            <SessionProvider user={userMock}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <OpenChallengeDescription />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
         );
         await flushMicrotasks();
 
-        const title = screen.getByTestId("openChallengeDescriptionTitle");
-        expect(title).toHaveTextContent("Challenge Cancelled");
-        expect(
-            screen.getByTestId("openChallengeDescriptionInput"),
-        ).toBeDisabled();
-    });
-
-    it("should show 'Challenge Expired' when isExpired is true", async () => {
-        challengeStore.setState({ isExpired: true });
-        render(
-            <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
-            </ChallengeStoreContext.Provider>,
+        expect(screen.getByTestId("challengeStatusText")).toHaveClass(
+            "text-error",
         );
-        await flushMicrotasks();
-
-        const title = screen.getByTestId("openChallengeDescriptionTitle");
-        expect(title).toHaveTextContent("Challenge Expired");
         expect(
             screen.getByTestId("openChallengeDescriptionInput"),
         ).toBeDisabled();
