@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 import OpenChallengeDescription from "../OpenChallengeDescription";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
-import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
+import { ChallengeRequest } from "@/lib/apiClient";
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { StoreApi } from "zustand";
 import {
@@ -12,8 +12,6 @@ import {
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
-import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
-import SessionProvider from "@/features/auth/contexts/sessionContext";
 
 vi.mock("qrcode");
 
@@ -21,7 +19,6 @@ describe("OpenChallengeDescription", () => {
     const qrCodeMock = vi.mocked(QRCode);
     const qrCodeText = "data:image/png;base64,fakeqr";
     const locationHref = "http://localhost:3000/challenge/12345";
-    let userMock: PrivateUser;
     let challengeMock: ChallengeRequest;
     let challengeStore: StoreApi<ChallengeStore>;
 
@@ -30,18 +27,15 @@ describe("OpenChallengeDescription", () => {
         qrCodeMock.toDataURL.mockResolvedValue(qrCodeText);
         vi.stubGlobal("location", { href: locationHref });
 
-        userMock = createFakePrivateUser();
         challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 
     it("should render OpenChallengeDescription input and QR code", async () => {
         render(
-            <SessionProvider user={userMock}>
-                <ChallengeStoreContext.Provider value={challengeStore}>
-                    <OpenChallengeDescription />
-                </ChallengeStoreContext.Provider>
-            </SessionProvider>,
+            <ChallengeStoreContext.Provider value={challengeStore}>
+                <OpenChallengeDescription />
+            </ChallengeStoreContext.Provider>,
         );
         await flushMicrotasks();
 
@@ -65,11 +59,9 @@ describe("OpenChallengeDescription", () => {
             },
         });
         render(
-            <SessionProvider user={userMock}>
-                <ChallengeStoreContext.Provider value={challengeStore}>
-                    <OpenChallengeDescription />
-                </ChallengeStoreContext.Provider>
-            </SessionProvider>,
+            <ChallengeStoreContext.Provider value={challengeStore}>
+                <OpenChallengeDescription />
+            </ChallengeStoreContext.Provider>,
         );
 
         const clipboardIcon = screen.getByTestId(
@@ -83,11 +75,9 @@ describe("OpenChallengeDescription", () => {
     it("should update correctly when challenge is over", async () => {
         challengeStore.setState({ isCancelled: true });
         render(
-            <SessionProvider user={userMock}>
-                <ChallengeStoreContext.Provider value={challengeStore}>
-                    <OpenChallengeDescription />
-                </ChallengeStoreContext.Provider>
-            </SessionProvider>,
+            <ChallengeStoreContext.Provider value={challengeStore}>
+                <OpenChallengeDescription />
+            </ChallengeStoreContext.Provider>,
         );
         await flushMicrotasks();
 

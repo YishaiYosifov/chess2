@@ -1,5 +1,4 @@
-import SessionProvider from "@/features/auth/contexts/sessionContext";
-import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
+import { ChallengeRequest } from "@/lib/apiClient";
 import { StoreApi } from "zustand";
 import ChallengeStoreContext from "../../contexts/challengeContext";
 import ChallengeStatusText from "../ChallengeStatusText";
@@ -8,31 +7,26 @@ import {
     ChallengeStore,
     createChallengeStore,
 } from "../../stores/challengeStore";
-import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 
 describe("ChallengeStatusText", () => {
-    let userMock: PrivateUser;
     let challengeMock: ChallengeRequest;
     let challengeStore: StoreApi<ChallengeStore>;
 
     beforeEach(() => {
-        userMock = createFakePrivateUser();
         challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 
     const renderWithProviders = () =>
         render(
-            <SessionProvider user={userMock}>
-                <ChallengeStoreContext.Provider value={challengeStore}>
-                    <ChallengeStatusText
-                        activeText="Active Challenge"
-                        activeClassName="text-active"
-                        overClassName="text-over"
-                    />
-                </ChallengeStoreContext.Provider>
-            </SessionProvider>,
+            <ChallengeStoreContext.Provider value={challengeStore}>
+                <ChallengeStatusText
+                    activeText="Active Challenge"
+                    activeClassName="text-active"
+                    overClassName="text-over"
+                />
+            </ChallengeStoreContext.Provider>,
         );
 
     it("should render active text when not cancelled or expired", () => {
@@ -52,10 +46,10 @@ describe("ChallengeStatusText", () => {
         expect(text).toHaveClass("text-over");
     });
 
-    it("should render 'Challenge Cancelled' when isCancelled is true and cancelled by current user", () => {
+    it("should render 'Challenge Cancelled' when isCancelled is true and cancelled requester", () => {
         challengeStore.setState({
             isCancelled: true,
-            cancelledBy: userMock.userId,
+            cancelledBy: challengeMock.requester.userId,
         });
         renderWithProviders();
 
@@ -64,7 +58,7 @@ describe("ChallengeStatusText", () => {
         expect(text).toHaveClass("text-over");
     });
 
-    it("should render 'Challenge Declined' when isCancelled is true and cancelled by is null", () => {
+    it("should render 'Challenge Cancelled' when isCancelled is true and cancelled by is null", () => {
         challengeStore.setState({
             isCancelled: true,
             cancelledBy: null,
@@ -76,10 +70,10 @@ describe("ChallengeStatusText", () => {
         expect(text).toHaveClass("text-over");
     });
 
-    it("should render 'Challenge Declined' when isCancelled is true and cancelled by opponent", () => {
+    it("should render 'Challenge Declined' when isCancelled is true and cancelled by recipient", () => {
         challengeStore.setState({
             isCancelled: true,
-            cancelledBy: "someOtherUserId",
+            cancelledBy: challengeMock.recipient?.userId,
         });
         renderWithProviders();
 
