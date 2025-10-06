@@ -13,6 +13,7 @@ import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
 import { useGameEmitter } from "@/features/liveGame/hooks/useGameHub";
 
 vi.mock("@/features/liveGame/hooks/useGameHub");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("GameControlsCard", () => {
     const useGameEmitterMock = vi.mocked(useGameEmitter);

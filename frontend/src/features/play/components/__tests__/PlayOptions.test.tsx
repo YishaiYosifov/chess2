@@ -8,7 +8,7 @@ import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 import { PoolType } from "@/lib/apiClient";
 
 vi.mock("js-cookie");
-vi.mock("@/features/signalR/hooks/useSignalRHubs");
+vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("PlayOptions", () => {
     function mockIsAuthedCookie(isAuthed: boolean) {

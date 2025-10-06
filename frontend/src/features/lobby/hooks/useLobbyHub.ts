@@ -1,8 +1,7 @@
 import constants from "@/lib/constants";
-import { signalREventHookFactory } from "./useSignalREvent";
-import { signalREmitterHookFactory } from "./useSignalREmitter";
 import { PoolKey, TimeControlSettings } from "@/lib/apiClient";
-import { OpenSeek } from "@/features/lobby/lib/types";
+import { signalREventHookFactory } from "@/features/signalR/hooks/useSignalREvent";
+import { signalREmitterHookFactory } from "@/features/signalR/hooks/useSignalREmitter";
 
 export type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
@@ -24,20 +23,4 @@ export const useLobbyEvent = signalREventHookFactory<LobbyClientEvents>(
 
 export const useLobbyEmitter = signalREmitterHookFactory<LobbyHubEvents>(
     constants.SIGNALR_PATHS.LOBBY,
-);
-
-export type OpenSeekClientEvents = {
-    NewOpenSeeksAsync: [seeks: OpenSeek[]];
-    OpenSeekEndedAsync: [userId: string, pool: PoolKey];
-};
-
-type OpenSeekHubEvents = {
-    SubscribeAsync: [];
-};
-
-export const useOpenSeekEvent = signalREventHookFactory<OpenSeekClientEvents>(
-    constants.SIGNALR_PATHS.OPENSEEK,
-);
-export const useOpenSeekEmitter = signalREmitterHookFactory<OpenSeekHubEvents>(
-    constants.SIGNALR_PATHS.OPENSEEK,
 );
