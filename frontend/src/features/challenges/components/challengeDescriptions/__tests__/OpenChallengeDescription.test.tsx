@@ -85,8 +85,8 @@ describe("OpenChallengeDescription", () => {
         ).toBeDisabled();
     });
 
-    it("should show 'Challenge Expired' when hasExpired is true", async () => {
-        challengeStore.setState({ hasExpired: true });
+    it("should show 'Challenge Expired' when isExpired is true", async () => {
+        challengeStore.setState({ isExpired: true });
         render(
             <ChallengeStoreContext.Provider value={challengeStore}>
                 <OpenChallengeDescription />
