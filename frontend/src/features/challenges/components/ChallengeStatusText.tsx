@@ -1,4 +1,3 @@
-import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import useChallengeStore from "../hooks/useChallengeStore";
 
 const ChallengeStatusText = ({
@@ -10,13 +9,13 @@ const ChallengeStatusText = ({
     activeClassName: string;
     overClassName: string;
 }) => {
-    const user = useSessionUser();
-    const { isCancelled, cancelledBy, isExpired } = useChallengeStore((x) => ({
-        challenge: x.challenge,
-        isCancelled: x.isCancelled,
-        cancelledBy: x.cancelledBy,
-        isExpired: x.isExpired,
-    }));
+    const { challenge, isCancelled, cancelledBy, isExpired } =
+        useChallengeStore((x) => ({
+            challenge: x.challenge,
+            isCancelled: x.isCancelled,
+            cancelledBy: x.cancelledBy,
+            isExpired: x.isExpired,
+        }));
 
     let text: string;
     let className: string;
@@ -26,7 +25,7 @@ const ChallengeStatusText = ({
         className = overClassName;
     } else if (isCancelled) {
         text =
-            cancelledBy !== null && cancelledBy !== user?.userId
+            cancelledBy === challenge.recipient?.userId
                 ? "Challenge Declined"
                 : "Challenge Cancelled";
         className = overClassName;
