@@ -3,6 +3,7 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
+using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Chess2.Api.Challenges.SignalR;
@@ -10,7 +11,7 @@ namespace Chess2.Api.Challenges.SignalR;
 public interface IChallengeHubClient : IChess2HubClient
 {
     public Task ChallengeReceivedAsync(ChallengeRequest challenge);
-    public Task ChallengeCancelledAsync(ChallengeId challengeId);
+    public Task ChallengeCancelledAsync(UserId? cancelledBy, ChallengeId challengeId);
     public Task ChallengeAcceptedAsync(string gameToken, ChallengeId challengeId);
 }
 
