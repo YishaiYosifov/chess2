@@ -11,11 +11,11 @@ const OpenChallengeDescription = () => {
     const [currentUrl, setCurrentUrl] = useState<string>();
     const [qrCodeB64, setQrCodeB64] = useState<string>();
 
-    const { isCancelled, hasExpired } = useChallengeStore((x) => ({
+    const { isCancelled, isExpired } = useChallengeStore((x) => ({
         isCancelled: x.isCancelled,
-        hasExpired: x.hasExpired,
+        isExpired: x.isExpired,
     }));
-    const isOver = isCancelled || hasExpired;
+    const isOver = isCancelled || isExpired;
 
     async function copyChallengeLink() {
         if (currentUrl && !isOver)

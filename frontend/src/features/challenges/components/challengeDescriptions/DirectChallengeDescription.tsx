@@ -7,10 +7,10 @@ import useChallengeStore from "../../hooks/useChallengeStore";
 import { MinimalProfile } from "@/lib/apiClient";
 
 const DirectChallengeDescription = () => {
-    const { challenge, isCancelled, hasExpired } = useChallengeStore((x) => ({
+    const { challenge, isCancelled, isExpired } = useChallengeStore((x) => ({
         challenge: x.challenge,
         isCancelled: x.isCancelled,
-        hasExpired: x.hasExpired,
+        isExpired: x.isExpired,
     }));
     const user = useSessionUser();
     if (!challenge.recipient) return null;
@@ -19,13 +19,13 @@ const DirectChallengeDescription = () => {
         <RequesterPOV
             recipient={challenge.recipient}
             isCancelled={isCancelled}
-            hasExpired={hasExpired}
+            isExpired={isExpired}
         />
     ) : (
         <RecipientPOV
             requester={challenge.requester}
             isCancelled={isCancelled}
-            hasExpired={hasExpired}
+            isExpired={isExpired}
         />
     );
 };
@@ -34,13 +34,13 @@ export default DirectChallengeDescription;
 const RequesterPOV = ({
     recipient,
     isCancelled,
-    hasExpired,
+    isExpired,
 }: {
     recipient: MinimalProfile;
     isCancelled: boolean;
-    hasExpired: boolean;
+    isExpired: boolean;
 }) => {
-    const isOver = isCancelled || hasExpired;
+    const isOver = isCancelled || isExpired;
     return (
         <>
             {isOver ? (
@@ -63,7 +63,7 @@ const RequesterPOV = ({
                 data-testid="directChallengeDescriptionProfilePicture"
                 userId={recipient.userId}
                 className={clsx(
-                    !isCancelled && !hasExpired && "animate-subtle-ping",
+                    !isCancelled && !isExpired && "animate-subtle-ping",
                 )}
                 size={200}
             />
@@ -82,13 +82,13 @@ const RequesterPOV = ({
 const RecipientPOV = ({
     requester,
     isCancelled,
-    hasExpired,
+    isExpired,
 }: {
     requester: MinimalProfile;
     isCancelled: boolean;
-    hasExpired: boolean;
+    isExpired: boolean;
 }) => {
-    const isOver = isCancelled || hasExpired;
+    const isOver = isCancelled || isExpired;
     return (
         <>
             {isOver ? (

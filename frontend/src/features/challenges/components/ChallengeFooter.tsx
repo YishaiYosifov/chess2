@@ -15,12 +15,12 @@ const ChallengeFooter = () => {
     const user = useAuthedUser();
     const router = useRouter();
 
-    const { challenge, isCancelled, setCancelled, hasExpired, setExpired } =
+    const { challenge, isCancelled, setCancelled, isExpired, setExpired } =
         useChallengeStore((x) => ({
             challenge: x.challenge,
             isCancelled: x.isCancelled,
             setCancelled: x.setCancelled,
-            hasExpired: x.hasExpired,
+            isExpired: x.isExpired,
             setExpired: x.setExpired,
         }));
     const expiresAt = new Date(challenge.expiresAt);
@@ -60,7 +60,7 @@ const ChallengeFooter = () => {
         }
     }
 
-    if (isCancelled || hasExpired) return <ChallengeOver />;
+    if (isCancelled || isExpired) return <ChallengeOver />;
 
     return (
         <>

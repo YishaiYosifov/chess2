@@ -90,9 +90,9 @@ describe("DirectChallengeDescription", () => {
         expect(title).toHaveClass("text-error");
     });
 
-    it("should display 'Challenge Expired' when hasExpired is true", () => {
+    it("should display 'Challenge Expired' when isExpired is true", () => {
         userMock.userId = requesterMock.userId;
-        challengeStore.setState({ hasExpired: true });
+        challengeStore.setState({ isExpired: true });
 
         render(
             <SessionProvider user={userMock}>
@@ -121,7 +121,7 @@ describe("DirectChallengeDescription", () => {
         const picture = screen.getByTestId("profilePicture");
         expect(picture).toHaveClass("animate-subtle-ping");
 
-        act(() => challengeStore.setState({ hasExpired: true }));
+        act(() => challengeStore.setState({ isExpired: true }));
 
         expect(screen.getByTestId("profilePicture")).not.toHaveClass(
             "animate-subtle-ping",
