@@ -1,18 +1,17 @@
 import { act, render, screen } from "@testing-library/react";
 import { StoreApi } from "zustand";
 
-import {
-    ChallengeStore,
-    createChallengeStore,
-} from "../../stores/challengeStore";
-
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import ChallengeStoreContext from "../../contexts/challengeContext";
 import ChallengeFooter from "../ChallengeFooter";
 import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import {
+    ChallengeStore,
+    createChallengeStore,
+} from "@/features/challenges/stores/challengeStore";
+import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
 
 describe("ChallengeFooter", () => {
     let challengeStore: StoreApi<ChallengeStore>;

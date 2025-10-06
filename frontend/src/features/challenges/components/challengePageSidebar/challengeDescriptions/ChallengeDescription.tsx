@@ -1,7 +1,7 @@
 import Card from "@/components/ui/Card";
-import useChallengeStore from "../../hooks/useChallengeStore";
 import DirectChallengeDescription from "./DirectChallengeDescription";
 import OpenChallengeDescription from "./OpenChallengeDescription";
+import useChallengeStore from "@/features/challenges/hooks/useChallengeStore";
 
 const ChallengeDescription = () => {
     const challenge = useChallengeStore((x) => x.challenge);
