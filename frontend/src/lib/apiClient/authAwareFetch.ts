@@ -1,17 +1,9 @@
-import { logout, refresh } from "./definition";
+import { logout } from "./definition";
 import { navigate } from "@/actions/navigate";
 import constants from "../constants";
+import handleRefresh from "./refresh";
 import rawClient from "./rawClient";
 
-type Pending = {
-    resolve: (value: Response | PromiseLike<Response>) => void;
-    reject: (reason?: unknown) => void;
-    input: URL | RequestInfo;
-    init?: RequestInit;
-};
-
-let isRefreshing = false;
-let refreshQueue: Pending[] = [];
 export default async function authAwareFetch(
     input: URL | RequestInfo,
     init?: RequestInit,
@@ -22,60 +14,14 @@ export default async function authAwareFetch(
     const isServerRequest = typeof window === "undefined";
     if (response.status !== 401 || isServerRequest) return response;
 
-    const newResponse = addToRefreshQueue(input, init);
-    if (isRefreshing) return newResponse;
+    const isRefreshSuccessful = await handleRefresh();
+    if (!isRefreshSuccessful) throw new Error();
 
-    isRefreshing = true;
-    let isRefreshSuccessful: boolean = false;
-    try {
-        isRefreshSuccessful = await handleRefresh();
-        refreshQueue.forEach(({ resolve, reject, input, init }) => {
-            logoutWhenUnauthorizedFetch(input, init)
-                .then(resolve)
-                .catch(reject);
-        });
-    } catch (err) {
-        refreshQueue.forEach(({ reject }) => reject(err));
-        throw err;
-    } finally {
-        refreshQueue = [];
-        isRefreshing = false;
-
-        if (!isRefreshSuccessful) await handleLogout();
+    const newResponse = await fetch(input, init);
+    if (newResponse.status === 401) {
+        await logout({ client: rawClient });
+        navigate(constants.PATHS.REGISTER);
     }
 
     return newResponse;
 }
-
-async function logoutWhenUnauthorizedFetch(
-    input: URL | RequestInfo,
-    init?: RequestInit,
-): Promise<Response> {
-    const response = await fetch(input, init);
-    if (response.status === 401) await handleLogout();
-
-    return response;
-}
-
-async function handleRefresh(): Promise<boolean> {
-    const { error } = await refresh({ client: rawClient });
-    if (error) {
-        console.error("Failed refreshing:", error);
-        return false;
-    }
-
-    return true;
-}
-
-async function handleLogout() {
-    await logout();
-    navigate(constants.PATHS.REGISTER);
-}
-
-const addToRefreshQueue = (
-    input: URL | RequestInfo,
-    init?: RequestInit,
-): Promise<Response> =>
-    new Promise<Response>((resolve, reject) =>
-        refreshQueue.push({ resolve, reject, input, init }),
-    );
