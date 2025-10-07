@@ -99,7 +99,7 @@ const ChallengeNotificationRenderer = () => {
                             <ChallengeNotification
                                 key={challenge.challengeId}
                                 challenge={challenge}
-                                onRemove={removeChallenge}
+                                removeChallenge={removeChallenge}
                             />
                         ))}
                 </div>

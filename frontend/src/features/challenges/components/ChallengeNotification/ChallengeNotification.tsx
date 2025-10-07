@@ -18,12 +18,13 @@ import constants from "@/lib/constants";
 
 const ChallengeNotification = ({
     challenge,
-    onRemove,
+    removeChallenge,
 }: {
     challenge: ChallengeRequest;
-    onRemove: (challengeId: string) => void;
+    removeChallenge: (challengeId: string) => void;
 }) => {
     const [isInAction, setIsInAction] = useState(false);
+    const [error, setError] = useState<string>();
     const router = useRouter();
 
     async function onDecline() {
@@ -34,8 +35,10 @@ const ChallengeNotification = ({
             });
             if (error) {
                 console.error(error);
+                setError("Failed to decline");
                 return;
             }
+            removeChallenge(challenge.challengeId);
         } finally {
             setIsInAction(false);
         }
@@ -49,10 +52,11 @@ const ChallengeNotification = ({
             });
             if (error || gameToken === undefined) {
                 console.error(error);
+                setError("Failed to accept");
                 return;
             }
 
-            onRemove(challenge.challengeId);
+            removeChallenge(challenge.challengeId);
             router.push(`${constants.PATHS.GAME}/${gameToken}`);
         } finally {
             setIsInAction(false);
@@ -71,25 +75,41 @@ const ChallengeNotification = ({
 
             <div className="min-w-0 flex-1">
                 <ProfileTooltip username={challenge.requester.userName}>
-                    <p className="truncate">{challenge.requester.userName}</p>
+                    <p
+                        className="truncate"
+                        data-testid="challengeNotificationUsername"
+                    >
+                        {challenge.requester.userName}
+                    </p>
                 </ProfileTooltip>
+
                 <p className="text-text/70 flex gap-1 text-sm">
-                    <span>
+                    <span data-testid="challengeNotificationTimeControl">
                         {challenge.pool.timeControl.baseSeconds / 60}+
                         {challenge.pool.timeControl.incrementSeconds}
                     </span>
-                    <span>
+                    <span data-testid="challengeNotificationPoolType">
                         {challenge.pool.poolType === PoolType.RATED
                             ? "rated"
                             : "casual"}
                     </span>
                 </p>
+
+                {error && (
+                    <span
+                        className="text-error"
+                        data-testid="challengeNotificationError"
+                    >
+                        {error}
+                    </span>
+                )}
             </div>
 
             <Button
                 className="bg-neutral-800 p-1"
                 onClick={onDecline}
                 disabled={isInAction}
+                data-testid="challengeNotificationDecline"
             >
                 <XMarkIcon className="h-9 w-9" />
             </Button>
@@ -97,6 +117,7 @@ const ChallengeNotification = ({
                 className="bg-green-600 p-1"
                 onClick={onAccept}
                 disabled={isInAction}
+                data-testid="challengeNotificationAccept"
             >
                 <CheckIcon className="h-9 w-9" />
             </Button>
