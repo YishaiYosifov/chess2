@@ -1,17 +1,19 @@
 import { CheckIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
-import ProfileTooltip from "@/features/profile/components/ProfileTooltip";
 import {
     acceptChallenge,
     cancelChallenge,
     ChallengeRequest,
     PoolType,
 } from "@/lib/apiClient";
+
+import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import ProfileTooltip from "@/features/profile/components/ProfileTooltip";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import constants from "@/lib/constants";
 
 const ChallengeNotification = ({
