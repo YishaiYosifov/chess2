@@ -60,8 +60,7 @@ const ChallengeNotification = ({
 
     return (
         <Card
-            key={challenge.challengeId}
-            className="w-100 flex-row items-center"
+            className="w-100 max-w-full flex-row items-center"
             data-testid={`challengeNotification-${challenge.challengeId}`}
         >
             <TimeControlIcon
