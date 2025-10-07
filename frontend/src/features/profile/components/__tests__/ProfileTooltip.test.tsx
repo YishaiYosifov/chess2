@@ -7,11 +7,11 @@ import {
 import { createFakeCurrentRatingStatus } from "@/lib/testUtils/fakers/currentRatingStatusFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import userEvent from "@testing-library/user-event";
-import UserProfileTooltip from "../UserProfileTooltip";
+import ProfileTooltip from "../ProfileTooltip";
 
 vi.mock("@/lib/apiClient/definition");
 
-describe("UserProfileTooltip", () => {
+describe("ProfileTooltip", () => {
     const userMock = createFakeUser();
     const ratingsMock = [
         createFakeCurrentRatingStatus({ timeControl: TimeControl.BLITZ }),
@@ -36,19 +36,19 @@ describe("UserProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <UserProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName}>
                 <div>Trigger</div>
-            </UserProfileTooltip>,
+            </ProfileTooltip>,
         );
 
-        await user.click(screen.getByTestId("userProfileTooltipChildren"));
+        await user.click(screen.getByTestId("profileTooltipChildren"));
 
-        const tooltip = await screen.findByTestId("userProfileTooltip");
+        const tooltip = await screen.findByTestId("profileTooltip");
         expect(tooltip).toBeInTheDocument();
-        expect(
-            screen.getByTestId("userProfileTooltipUsername"),
-        ).toHaveTextContent(userMock.userName);
-        expect(screen.getByTestId("userProfileTooltipAbout")).toHaveTextContent(
+        expect(screen.getByTestId("profileTooltipUsername")).toHaveTextContent(
+            userMock.userName,
+        );
+        expect(screen.getByTestId("profileTooltipAbout")).toHaveTextContent(
             userMock.about,
         );
 
@@ -68,19 +68,19 @@ describe("UserProfileTooltip", () => {
     it("should render all ratings in tooltip", async () => {
         const user = userEvent.setup();
         render(
-            <UserProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName}>
                 <div>Trigger</div>
-            </UserProfileTooltip>,
+            </ProfileTooltip>,
         );
 
-        await user.click(screen.getByTestId("userProfileTooltipChildren"));
+        await user.click(screen.getByTestId("profileTooltipChildren"));
 
         for (const rating of ratingsMock) {
             const container = await screen.findByTestId(
-                `userProfileTooltipRating-${rating.timeControl}`,
+                `profileTooltipRating-${rating.timeControl}`,
             );
             const value = screen.getByTestId(
-                `userProfileTooltipRatingValue-${rating.timeControl}`,
+                `profileTooltipRatingValue-${rating.timeControl}`,
             );
 
             expect(container).toBeInTheDocument();
@@ -92,12 +92,12 @@ describe("UserProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <UserProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName}>
                 <div>Trigger</div>
-            </UserProfileTooltip>,
+            </ProfileTooltip>,
         );
 
-        const trigger = screen.getByTestId("userProfileTooltipChildren");
+        const trigger = screen.getByTestId("profileTooltipChildren");
 
         await user.click(trigger);
         await user.click(trigger);
@@ -113,22 +113,18 @@ describe("UserProfileTooltip", () => {
         render(
             <>
                 <div data-testid="outside">Outside</div>
-                <UserProfileTooltip username={userMock.userName}>
+                <ProfileTooltip username={userMock.userName}>
                     <div>Trigger</div>
-                </UserProfileTooltip>
+                </ProfileTooltip>
             </>,
         );
 
-        await user.click(screen.getByTestId("userProfileTooltipChildren"));
+        await user.click(screen.getByTestId("profileTooltipChildren"));
 
-        expect(
-            await screen.findByTestId("userProfileTooltip"),
-        ).toBeInTheDocument();
+        expect(await screen.findByTestId("profileTooltip")).toBeInTheDocument();
 
         await user.click(screen.getByTestId("outside"));
 
-        expect(
-            screen.queryByTestId("userProfileTooltip"),
-        ).not.toBeInTheDocument();
+        expect(screen.queryByTestId("profileTooltip")).not.toBeInTheDocument();
     });
 });

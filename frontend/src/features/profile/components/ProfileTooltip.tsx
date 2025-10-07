@@ -16,7 +16,7 @@ import Card from "@/components/ui/Card";
 import Link from "next/link";
 import Flag from "./Flag";
 
-const UserProfileTooltip = ({
+const ProfileTooltip = ({
     username,
     children,
 }: {
@@ -84,7 +84,7 @@ const UserProfileTooltip = ({
             <div
                 onClick={loadProfile}
                 ref={refs.setReference}
-                data-testid="userProfileTooltipChildren"
+                data-testid="profileTooltipChildren"
                 className="flex min-w-0 cursor-pointer items-center gap-3"
             >
                 {children}
@@ -98,7 +98,7 @@ const UserProfileTooltip = ({
                         "bg-background z-50 mt-2 min-h-32 w-max max-w-[min(512px,100vw)] min-w-64",
                         !hasLoaded && "animate-lite-pulse",
                     )}
-                    data-testid="userProfileTooltip"
+                    data-testid="profileTooltip"
                 >
                     {hasLoaded && (
                         <ProfilePopupContent
@@ -111,7 +111,7 @@ const UserProfileTooltip = ({
         </>
     );
 };
-export default UserProfileTooltip;
+export default ProfileTooltip;
 
 const ProfilePopupContent = ({
     profile,
@@ -126,14 +126,11 @@ const ProfilePopupContent = ({
                 className="flex w-full items-center gap-2"
                 href={`${constants.PATHS.PROFILE}/${profile.userName}`}
                 title={profile.userName}
-                data-testid="userProfileTooltipLink"
+                data-testid="profileTooltipLink"
             >
                 <ProfilePicture userId={profile.userId} size={40} />
 
-                <span
-                    className="truncate"
-                    data-testid="userProfileTooltipUsername"
-                >
+                <span className="truncate" data-testid="profileTooltipUsername">
                     {profile.userName}
                 </span>
                 <Flag countryCode={profile.countryCode} size={20} />
@@ -141,7 +138,7 @@ const ProfilePopupContent = ({
 
             <p
                 className="text-text/70 truncate text-sm"
-                data-testid="userProfileTooltipAbout"
+                data-testid="profileTooltipAbout"
             >
                 {profile.about}
             </p>
@@ -151,14 +148,14 @@ const ProfilePopupContent = ({
                     <div
                         key={i}
                         className="flex flex-col items-center"
-                        data-testid={`userProfileTooltipRating-${rating.timeControl}`}
+                        data-testid={`profileTooltipRating-${rating.timeControl}`}
                     >
                         <TimeControlIcon
                             timeControl={rating.timeControl}
                             className="h-10 w-10"
                         />
                         <p
-                            data-testid={`userProfileTooltipRatingValue-${rating.timeControl}`}
+                            data-testid={`profileTooltipRatingValue-${rating.timeControl}`}
                         >
                             {rating.rating}
                         </p>
