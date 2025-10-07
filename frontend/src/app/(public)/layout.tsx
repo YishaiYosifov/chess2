@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
+import ChallengeNotificationRenderer from "@/features/challenges/components/ChallengeNotification/ChallengeNotificationRenderer";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
 import Navbar from "@/features/navbar/Navbar";
@@ -38,6 +39,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                     </div>
 
                     <LobbyHandler />
+                    <ChallengeNotificationRenderer />
                 </SessionProvider>
             </body>
         </html>
