@@ -193,12 +193,12 @@ describe("Profile", () => {
         expect(blockButton).toHaveTextContent("Block");
     });
 
-    it("should render only Challenge button for guest users", () => {
+    it("should not render any action button for guest users", () => {
         renderProfile({ isLoggedOut: true });
 
         expect(
-            screen.getByTestId("profileChallengeButton"),
-        ).toBeInTheDocument();
+            screen.queryByTestId("profileChallengeButton"),
+        ).not.toBeInTheDocument();
         expect(screen.queryByTestId("editProfileLink")).not.toBeInTheDocument();
         expect(
             screen.queryByTestId("profileStarButton"),
