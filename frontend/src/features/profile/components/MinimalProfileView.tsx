@@ -1,7 +1,7 @@
 import { MinimalProfile } from "@/lib/apiClient";
 import ProfilePicture from "./ProfilePicture";
 import clsx from "clsx";
-import UserProfileTooltip from "./UserProfileTooltip";
+import ProfileTooltip from "./ProfileTooltip";
 
 const MinimalProfileView = ({
     profile,
@@ -20,7 +20,7 @@ const MinimalProfileView = ({
             )}
             data-testid="minimalProfileRow"
         >
-            <UserProfileTooltip username={profile.userName}>
+            <ProfileTooltip username={profile.userName}>
                 <ProfilePicture userId={profile.userId} size={80} />
                 <p
                     className="truncate text-lg"
@@ -28,7 +28,7 @@ const MinimalProfileView = ({
                 >
                     {profile.userName}
                 </p>
-            </UserProfileTooltip>
+            </ProfileTooltip>
 
             {children}
         </div>

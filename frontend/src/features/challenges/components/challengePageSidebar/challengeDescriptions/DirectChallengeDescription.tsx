@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-import UserProfileTooltip from "@/features/profile/components/UserProfileTooltip";
+import ProfileTooltip from "@/features/profile/components/ProfileTooltip";
 import ProfilePicture from "@/features/profile/components/ProfilePicture";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
 import { MinimalProfile } from "@/lib/apiClient";
@@ -36,14 +36,14 @@ const RequesterPOV = ({ recipient }: { recipient: MinimalProfile }) => {
                 className={clsx(!isOver && "animate-subtle-ping")}
                 size={200}
             />
-            <UserProfileTooltip username={recipient.userName}>
+            <ProfileTooltip username={recipient.userName}>
                 <p
                     data-testid="directChallengeDescriptionUserName"
                     className="text-lg"
                 >
                     {recipient.userName}
                 </p>
-            </UserProfileTooltip>
+            </ProfileTooltip>
         </>
     );
 };
@@ -57,14 +57,14 @@ const RecipientPOV = ({ requester }: { requester: MinimalProfile }) => {
                 overClassName="text-error text-2xl"
             />
             <ProfilePicture userId={requester.userId} size={200} />
-            <UserProfileTooltip username={requester.userName}>
+            <ProfileTooltip username={requester.userName}>
                 <p
                     data-testid="challengeRecipientDescriptionUserName"
                     className="text-lg"
                 >
                     {requester.userName}
                 </p>
-            </UserProfileTooltip>
+            </ProfileTooltip>
         </>
     );
 };
