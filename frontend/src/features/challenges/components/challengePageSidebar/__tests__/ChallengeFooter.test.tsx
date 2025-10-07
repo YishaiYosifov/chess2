@@ -5,7 +5,7 @@ import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequ
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import ChallengeFooter from "../ChallengeFooter";
-import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
+import { ChallengeRequest, PoolType, PrivateUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import {
     ChallengeStore,
@@ -134,5 +134,30 @@ describe("ChallengeFooter", () => {
         await act(() => vi.advanceTimersByTime(61000));
 
         expect(challengeStore.getState().isExpired).toBe(true);
+    });
+
+    it("should disable Accept button and show guest message for rated challenge when user is guest", () => {
+        challengeMock.pool.poolType = PoolType.RATED;
+        challengeStore.setState({ challenge: challengeMock });
+
+        render(
+            <SessionProvider user={null} fetchAttempted>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <ChallengeFooter />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
+        );
+
+        const acceptButton = screen.getByTestId("challengeFooterAcceptButton");
+
+        expect(acceptButton).toBeInTheDocument();
+        expect(acceptButton).toBeDisabled();
+        expect(acceptButton).toHaveTextContent(
+            "Guests can't accept rated challenges",
+        );
+
+        expect(
+            screen.getByTestId("challengeFooterRecipientPrompt"),
+        ).toBeInTheDocument();
     });
 });
