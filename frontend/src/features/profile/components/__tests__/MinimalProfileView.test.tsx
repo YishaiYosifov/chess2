@@ -14,7 +14,7 @@ describe("MinimalProfileView", () => {
     it("should render profile with tooltip", async () => {
         render(<MinimalProfileView profile={profileMock} />);
 
-        const tooltip = screen.getByTestId("userProfileTooltipChildren");
+        const tooltip = screen.getByTestId("profileTooltipChildren");
         expect(
             within(tooltip).getByTestId("minimalProfileRowUsername"),
         ).toBeInTheDocument();
