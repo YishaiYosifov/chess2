@@ -8,7 +8,7 @@ import ChallengeNotification from "./ChallengeNotification";
 import { ChallengeRequest } from "@/lib/apiClient";
 import Card from "@/components/ui/Card";
 
-const MAX_CHALLENGES = 5;
+export const MAX_CHALLENGES = 5;
 
 type State = {
     incoming: Map<string, ChallengeRequest>;
@@ -90,9 +90,13 @@ const ChallengeNotificationRenderer = () => {
             className="fixed right-10 bottom-10 z-50 flex flex-col items-end gap-y-1"
             onMouseEnter={() => setShow(true)}
             onMouseLeave={() => setShow(false)}
+            data-testid="challengeNotificationRenderer"
         >
             {show && (
-                <div className="flex max-w-[calc(100vw-50px)] flex-col gap-y-1">
+                <div
+                    className="flex max-w-[calc(100vw-50px)] flex-col gap-y-1"
+                    data-testid="challengeNotificationRendererList"
+                >
                     {[...state.incoming.values()]
                         .toReversed()
                         .map((challenge) => (
