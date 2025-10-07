@@ -34,7 +34,6 @@ const ChallengeNotification = ({
                 console.error(error);
                 return;
             }
-            onRemove(challenge.challengeId);
         } finally {
             setIsInAction(false);
         }
