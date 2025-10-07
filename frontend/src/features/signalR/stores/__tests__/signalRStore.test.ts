@@ -14,6 +14,7 @@ import {
     LogLevel,
 } from "@microsoft/signalr";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
+import RefreshRetryPolicy from "../../lib/refreshRetryPolicy";
 
 vi.mock("@microsoft/signalr");
 
@@ -47,7 +48,9 @@ describe("signalRStore", () => {
             ).toHaveBeenCalledExactlyOnceWith(url);
             expect(
                 hubBuilderInstanceMock.withAutomaticReconnect,
-            ).toHaveBeenCalledOnce();
+            ).toHaveBeenCalledExactlyOnceWith(
+                new RefreshRetryPolicy([1000, 2000, 5000], 20000),
+            );
             expect(
                 hubBuilderInstanceMock.configureLogging,
             ).toHaveBeenCalledExactlyOnceWith(LogLevel.Information);

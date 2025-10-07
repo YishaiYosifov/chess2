@@ -9,6 +9,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 import { enableMapSet, WritableDraft } from "immer";
+import RefreshRetryPolicy from "../lib/refreshRetryPolicy";
 
 interface Hub {
     connection: HubConnection;
@@ -42,7 +43,9 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
 
             const hubConnection = new HubConnectionBuilder()
                 .withUrl(url)
-                .withAutomaticReconnect()
+                .withAutomaticReconnect(
+                    new RefreshRetryPolicy([1000, 2000, 5000], 20000),
+                )
                 .configureLogging(LogLevel.Information)
                 .build();
 
