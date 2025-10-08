@@ -17,7 +17,7 @@ public class RatingController(IRatingService ratingService, UserManager<AuthedUs
     private readonly IRatingService _ratingService = ratingService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
-    [HttpGet("{userId}/archive", Name = nameof(GetRatingArchives))]
+    [HttpGet("{userId}/archive")]
     [ProducesResponseType<IEnumerable<RatingOverview>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<RatingOverview>>> GetRatingArchives(
@@ -34,7 +34,7 @@ public class RatingController(IRatingService ratingService, UserManager<AuthedUs
         return Ok(ratings);
     }
 
-    [HttpGet("{userId}", Name = nameof(GetCurrentRatings))]
+    [HttpGet("{userId}")]
     [ProducesResponseType<IEnumerable<CurrentRatingStatus>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<CurrentRatingStatus>>> GetCurrentRatings(

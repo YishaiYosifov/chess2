@@ -24,7 +24,7 @@ public class ProfileController(
     IGuestService guestService,
     UserManager<AuthedUser> userManager,
     IProfilePictureProvider profilePictureProvider
-) : ControllerBase
+) : Controller
 {
     private readonly IValidator<ProfileEditRequest> _profileEditValidator = profileEditValidator;
     private readonly IValidator<UsernameEditRequest> _usernameEditValidator = usernameEditValidator;
@@ -34,7 +34,7 @@ public class ProfileController(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IProfilePictureProvider _profilePictureProvider = profilePictureProvider;
 
-    [HttpGet("me", Name = nameof(GetSessionUser))]
+    [HttpGet("me")]
     [ProducesResponseType<SessionUser>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.ActiveSession)]
     public async Task<ActionResult<SessionUser>> GetSessionUser()
@@ -55,7 +55,7 @@ public class ProfileController(
         return Ok(dto);
     }
 
-    [HttpGet("by-username/{username}", Name = nameof(GetUserByUsername))]
+    [HttpGet("by-username/{username}")]
     [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PublicUser>> GetUserByUsername(string username)
@@ -68,7 +68,7 @@ public class ProfileController(
         return Ok(dto);
     }
 
-    [HttpPut("edit-profile", Name = nameof(EditProfileSettings))]
+    [HttpPut("edit-profile")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
@@ -86,7 +86,7 @@ public class ProfileController(
         return editResult.Match((value) => NoContent(), (errors) => errors.ToActionResult());
     }
 
-    [HttpPut("edit-username", Name = nameof(EditUsername))]
+    [HttpPut("edit-username")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
     public async Task<ActionResult> EditUsername(UsernameEditRequest usernameEditRequest)
@@ -106,7 +106,7 @@ public class ProfileController(
         return editResult.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpPut("profile-picture", Name = nameof(UploadProfilePicture))]
+    [HttpPut("profile-picture")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [RequestSizeLimit(2 * 1024 * 1024)]
     [Authorize]
@@ -128,7 +128,7 @@ public class ProfileController(
         return uploadResult.Match(value => Created(), errors => errors.ToActionResult());
     }
 
-    [HttpDelete("profile-picture", Name = nameof(DeleteProfilePicture))]
+    [HttpDelete("profile-picture")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
     public async Task<ActionResult> DeleteProfilePicture(CancellationToken token)
@@ -141,7 +141,7 @@ public class ProfileController(
         return NoContent();
     }
 
-    [HttpGet("profile-picture/{userId}", Name = nameof(GetProfilePicture))]
+    [HttpGet("profile-picture/{userId}")]
     [ProducesResponseType<FileResult>(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetProfilePicture(string userId, CancellationToken token)
     {

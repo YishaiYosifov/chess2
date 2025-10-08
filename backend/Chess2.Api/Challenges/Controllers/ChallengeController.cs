@@ -26,7 +26,7 @@ public class ChallengeController(
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
 
-    [HttpPut(Name = nameof(CreateChallenge))]
+    [HttpPut]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
@@ -54,7 +54,7 @@ public class ChallengeController(
         return Ok(challengeRequest);
     }
 
-    [HttpGet("by-id/{challengeId}", Name = nameof(GetChallenge))]
+    [HttpGet("by-id/{challengeId}")]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ChallengeRequest>> GetChallenge(string challengeId)
@@ -68,7 +68,7 @@ public class ChallengeController(
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpDelete("by-id/{challengeId}", Name = nameof(CancelChallenge))]
+    [HttpDelete("by-id/{challengeId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize(AuthPolicies.AuthedUser)]

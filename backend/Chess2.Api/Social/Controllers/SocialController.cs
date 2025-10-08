@@ -26,7 +26,7 @@ public class SocialController(
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("starred/{userId}", Name = nameof(GetStarredUsers))]
+    [HttpGet("starred/{userId}")]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<PagedResult<MinimalProfile>>> GetStarredUsers(
@@ -43,7 +43,7 @@ public class SocialController(
         return Ok(result);
     }
 
-    [HttpGet("stars/{starredUserId}", Name = nameof(GetStarsReceivedCount))]
+    [HttpGet("stars/{starredUserId}")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     public async Task<ActionResult<int>> GetStarsReceivedCount(
         string starredUserId,
@@ -54,7 +54,7 @@ public class SocialController(
         return Ok(count);
     }
 
-    [HttpGet("star/{starredUserId}/exists", Name = nameof(GetHasStarred))]
+    [HttpGet("star/{starredUserId}/exists")]
     [ProducesResponseType<bool>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.AuthedUser)]
     public async Task<ActionResult<bool>> GetHasStarred(
@@ -70,7 +70,7 @@ public class SocialController(
         return Ok(result);
     }
 
-    [HttpPost("star/{starredUserId}", Name = nameof(AddStar))]
+    [HttpPost("star/{starredUserId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
@@ -89,7 +89,7 @@ public class SocialController(
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpDelete("star/{starredUserId}", Name = nameof(RemoveStar))]
+    [HttpDelete("star/{starredUserId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize]
@@ -107,7 +107,7 @@ public class SocialController(
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpGet("blocked", Name = nameof(GetBlockedUsers))]
+    [HttpGet("blocked")]
     [ProducesResponseType<PagedResult<MinimalProfile>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
     [Authorize]
@@ -132,7 +132,7 @@ public class SocialController(
         return Ok(result);
     }
 
-    [HttpGet("block/{blockedUserId}/exists", Name = nameof(GetHasBlocked))]
+    [HttpGet("block/{blockedUserId}/exists")]
     [ProducesResponseType<bool>(StatusCodes.Status200OK)]
     [Authorize]
     public async Task<ActionResult<bool>> GetHasBlocked(
@@ -148,7 +148,7 @@ public class SocialController(
         return Ok(result);
     }
 
-    [HttpPost("block/{blockedUserId}", Name = nameof(BlockUser))]
+    [HttpPost("block/{blockedUserId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status409Conflict)]
@@ -163,7 +163,7 @@ public class SocialController(
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpDelete("block/{blockedUserId}", Name = nameof(UnblockUser))]
+    [HttpDelete("block/{blockedUserId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Authorize]

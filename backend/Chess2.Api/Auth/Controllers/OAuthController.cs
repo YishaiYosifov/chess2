@@ -21,7 +21,7 @@ public class OAuthController(
         oAuthProviderNameNormalizer;
     private readonly AppSettings _settings = settings.Value;
 
-    [HttpGet("{provider}/callback", Name = nameof(OAuthCallback))]
+    [HttpGet("{provider}/callback")]
     public async Task<ActionResult> OAuthCallback(
         string provider,
         CancellationToken token = default
@@ -51,7 +51,7 @@ public class OAuthController(
         );
     }
 
-    [HttpGet("signin/{provider}", Name = nameof(SigninOAuth))]
+    [HttpGet("signin/{provider}")]
     [ProducesResponseType(StatusCodes.Status302Found)]
     public ActionResult SigninOAuth(string provider)
     {
