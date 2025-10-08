@@ -58,9 +58,6 @@ const GameRow = ({
         return game.result === winResult ? "1" : "0";
     }
 
-    const whiteUsername = game.whitePlayer.userName;
-    const blackUsername = game.blackPlayer.userName;
-
     return (
         <tr
             data-testid={`gameRow-${game.gameToken}`}
@@ -72,17 +69,23 @@ const GameRow = ({
             <td className="relative p-4">
                 <GameLink />
                 <div className="flex flex-col justify-between">
-                    <ProfileTooltip username={whiteUsername}>
+                    <ProfileTooltip
+                        username={game.whitePlayer.userName}
+                        isAuthenticated={game.whitePlayer.isAuthenticated}
+                    >
                         <p data-testid="gameRowWhiteUsername">
-                            {whiteUsername}
+                            {game.whitePlayer.userName}
                         </p>
                     </ProfileTooltip>
-                    <ProfileTooltip username={blackUsername}>
+                    <ProfileTooltip
+                        username={game.blackPlayer.userName}
+                        isAuthenticated={game.blackPlayer.isAuthenticated}
+                    >
                         <p
                             className="text-white/50"
                             data-testid="gameRowBlackUsername"
                         >
-                            {blackUsername}
+                            {game.blackPlayer.userName}
                         </p>
                     </ProfileTooltip>
                 </div>
