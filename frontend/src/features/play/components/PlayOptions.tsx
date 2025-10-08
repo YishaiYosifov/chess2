@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 
+import ChallengePopup, {
+    ChallengePopupRef,
+} from "@/features/challenges/components/ChallengePopup";
+
+import useLocalPref from "@/hooks/useLocalPref";
+import Button from "@/components/ui/Button";
+import { PoolType } from "@/lib/apiClient";
+import Card from "@/components/ui/Card";
+import constants from "@/lib/constants";
 import PoolToggle from "./PoolToggle";
 import PoolButton from "./PoolButton";
-import constants from "@/lib/constants";
-import Card from "@/components/ui/Card";
-import { PoolType } from "@/lib/apiClient";
-import useLocalPref from "@/hooks/useLocalPref";
 
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
@@ -18,29 +23,41 @@ const PlayOptions = () => {
     );
     const isRated = poolType === PoolType.RATED;
 
+    const challengePopupRef = useRef<ChallengePopupRef>(null);
+
     useEffect(() => {
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
         setShowPoolToggle(isLoggedIn !== undefined);
     }, []);
 
     return (
-        <Card data-testid="playOptions" className="items-center gap-0 pt-10">
+        <Card data-testid="playOptions" className="items-center gap-7 pt-10">
             <h1 className="text-5xl">Play Chess 2</h1>
 
-            {/* spacer */}
-            <div className="h-10" />
+            <div className="flex w-full flex-col">
+                {showPoolToggle && (
+                    <PoolToggle
+                        isRated={isRated}
+                        onToggle={(isRated) =>
+                            setPoolType(
+                                isRated ? PoolType.RATED : PoolType.CASUAL,
+                            )
+                        }
+                    />
+                )}
 
-            {showPoolToggle && (
-                <PoolToggle
-                    isRated={isRated}
-                    onToggle={(isRated) =>
-                        setPoolType(isRated ? PoolType.RATED : PoolType.CASUAL)
-                    }
-                />
-            )}
+                <PoolButtons hidden={isRated} poolType={PoolType.CASUAL} />
+                <PoolButtons hidden={!isRated} poolType={PoolType.RATED} />
+            </div>
 
-            <PoolButtons hidden={isRated} poolType={PoolType.CASUAL} />
-            <PoolButtons hidden={!isRated} poolType={PoolType.RATED} />
+            <Button
+                className="w-full"
+                onClick={() => challengePopupRef.current?.open()}
+                data-testid="playOptionsChallengeFriend"
+            >
+                Challenge a friend
+            </Button>
+            <ChallengePopup ref={challengePopupRef} />
         </Card>
     );
 };
