@@ -14,13 +14,13 @@ public class PreferenceController(
     IPreferenceService preferenceService,
     IAuthService authService,
     IGuestService guestService
-) : ControllerBase
+) : Controller
 {
     private readonly IPreferenceService _preferenceService = preferenceService;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
 
-    [HttpGet(Name = nameof(GetPreferences))]
+    [HttpGet]
     [ProducesResponseType<PreferenceDto>(StatusCodes.Status200OK)]
     [Authorize(AuthPolicies.ActiveSession)]
     public async Task<ActionResult<PreferenceDto>> GetPreferences(CancellationToken token)
@@ -36,7 +36,7 @@ public class PreferenceController(
         return Ok(preferences);
     }
 
-    [HttpPut(Name = nameof(SetPreferences))]
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
     public async Task<ActionResult> SetPreferences(

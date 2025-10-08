@@ -26,7 +26,7 @@ public class QuestsController(
     private readonly IQuestService _questService = questService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet(Name = nameof(GetDailyQuest))]
+    [HttpGet]
     [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
     [Authorize]
     public async Task<ActionResult<QuestDto>> GetDailyQuest()
@@ -39,7 +39,7 @@ public class QuestsController(
         return Ok(quest);
     }
 
-    [HttpPost("replace", Name = nameof(ReplaceDailyQuest))]
+    [HttpPost("replace")]
     [ProducesResponseType<QuestDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize]
@@ -55,7 +55,7 @@ public class QuestsController(
         return replaceResult.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpPost("claim", Name = nameof(CollectQuestReward))]
+    [HttpPost("claim")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize]
@@ -71,7 +71,7 @@ public class QuestsController(
         return replaceResult.Match(value => Ok(value), errors => errors.ToActionResult());
     }
 
-    [HttpGet("points/{userId}", Name = nameof(GetUserQuestPoints))]
+    [HttpGet("points/{userId}")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     public async Task<ActionResult<int>> GetUserQuestPoints(
         string userId,
@@ -82,7 +82,7 @@ public class QuestsController(
         return Ok(points);
     }
 
-    [HttpGet("leaderboard", Name = nameof(GetQuestLeaderboard))]
+    [HttpGet("leaderboard")]
     [ProducesResponseType<PagedResult<QuestPointsDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetQuestLeaderboard(
         [FromQuery] PaginationQuery pagination,
@@ -97,7 +97,7 @@ public class QuestsController(
         return Ok(leaderboard);
     }
 
-    [HttpGet("leaderboard/me", Name = nameof(GetMyQuestRanking))]
+    [HttpGet("leaderboard/me")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     [Authorize]
     public async Task<ActionResult<int>> GetMyQuestRanking(CancellationToken token = default)

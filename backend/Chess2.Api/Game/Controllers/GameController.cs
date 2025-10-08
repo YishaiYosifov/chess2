@@ -28,7 +28,7 @@ public class GameController(
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
-    [HttpGet("{gameToken}", Name = nameof(GetGame))]
+    [HttpGet("{gameToken}")]
     [ProducesResponseType<GameState>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     [Authorize(AuthPolicies.ActiveSession)]
@@ -46,7 +46,7 @@ public class GameController(
         return gameStateResult.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpGet("results/{userId}", Name = nameof(GetGameResults))]
+    [HttpGet("results/{userId}")]
     [ProducesResponseType<PagedResult<GameSummaryDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<GameSummaryDto>>> GetGameResults(
         string userId,
