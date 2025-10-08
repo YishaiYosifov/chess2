@@ -10,6 +10,8 @@ import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 import { enableMapSet, WritableDraft } from "immer";
 import RefreshRetryPolicy from "../lib/refreshRetryPolicy";
+import ensureAuth from "@/features/auth/lib/ensureAuth";
+import { ErrorCode } from "@/lib/apiClient";
 
 interface Hub {
     connection: HubConnection;
@@ -80,7 +82,14 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
                         hub.state = HubConnectionState.Connected;
                     });
                 })
-                .catch(console.error);
+                .catch(async (err: Error) => {
+                    if (
+                        err.message.includes(ErrorCode.AUTH_TOKEN_MISSING) &&
+                        (await ensureAuth())
+                    ) {
+                        hubConnection.start();
+                    }
+                });
 
             return hubConnection;
         },
