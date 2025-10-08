@@ -83,4 +83,25 @@ describe("PrivacyForm", () => {
         const status = await screen.findByText("Failed to update preferences");
         expect(status).toBeInTheDocument();
     });
+
+    it("should render all options for challengePreference and showChat", () => {
+        render(<PrivacyForm initialPreferences={preferencesMock} />);
+
+        const challengeValues = [
+            InteractionLevel.NO_ONE,
+            InteractionLevel.STARRED,
+            InteractionLevel.LOGGED_IN,
+            InteractionLevel.EVERYONE,
+        ];
+
+        challengeValues.forEach((value) => {
+            expect(screen.getByTestId(`selector-${value}`)).toBeInTheDocument();
+        });
+
+        const chatValues = [true, false];
+
+        chatValues.forEach((value) => {
+            expect(screen.getByTestId(`selector-${value}`)).toBeInTheDocument();
+        });
+    });
 });

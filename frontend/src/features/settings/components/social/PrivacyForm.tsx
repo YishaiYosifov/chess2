@@ -46,6 +46,10 @@ const PrivacyForm = ({
                                     value: InteractionLevel.STARRED,
                                 },
                                 {
+                                    label: "Only Logged In",
+                                    value: InteractionLevel.LOGGED_IN,
+                                },
+                                {
                                     label: "Always",
                                     value: InteractionLevel.EVERYONE,
                                 },
