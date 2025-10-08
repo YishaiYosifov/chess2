@@ -19,7 +19,7 @@ public class AuthController(
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IAuthService _authService = authService;
 
-    [HttpPost("refresh", Name = nameof(Refresh))]
+    [HttpPost("refresh")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize(AuthPolicies.RefreshAccess)]
@@ -40,7 +40,7 @@ public class AuthController(
         );
     }
 
-    [HttpPost("logout", Name = nameof(Logout))]
+    [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public ActionResult Logout()
     {
@@ -48,7 +48,7 @@ public class AuthController(
         return NoContent();
     }
 
-    [HttpPost("guest", Name = nameof(CreateGuestUser))]
+    [HttpPost("guest")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public ActionResult CreateGuestUser()
     {
@@ -58,12 +58,12 @@ public class AuthController(
     }
 
 #if DEBUG
-    [HttpPost("test-auth", Name = nameof(TestAuthed))]
+    [HttpPost("test-auth")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize]
     public ActionResult TestAuthed() => NoContent();
 
-    [HttpPost("test-guest-auth", Name = nameof(TestGuest))]
+    [HttpPost("test-guest-auth")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [Authorize(AuthPolicies.ActiveSession)]
     public ActionResult TestGuest() => NoContent();
