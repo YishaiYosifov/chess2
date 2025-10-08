@@ -15,15 +15,20 @@ import {
 } from "@microsoft/signalr";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import RefreshRetryPolicy from "../../lib/refreshRetryPolicy";
+import ensureAuth from "@/features/auth/lib/ensureAuth";
+import { ErrorCode } from "@/lib/apiClient";
 
 vi.mock("@microsoft/signalr");
+vi.mock("@/features/auth/lib/ensureAuth");
 
 describe("signalRStore", () => {
     const hubBuilderMock = vi.mocked(HubConnectionBuilder);
+    const ensureAuthMock = vi.mocked(ensureAuth);
     const url = "test-url";
 
     beforeEach(() => {
         useSignalRStore.setState(useSignalRStore.getInitialState());
+        vi.useFakeTimers();
     });
 
     function renderSignalRStore() {
@@ -120,6 +125,50 @@ describe("signalRStore", () => {
             act(() => handlers.onReconnectedHandler?.());
             const hub = useSignalRStore.getState().hubs.get(url);
             expect(hub?.state).toBe(HubConnectionState.Connected);
+        });
+
+        it("should call ensureAuth if missing auth tokens", async () => {
+            const { mockConnection } = mockHubConnection();
+            mockHubBuilder(mockConnection);
+
+            mockConnection.start
+                .mockRejectedValueOnce(
+                    new Error(
+                        `{"errorCode":"${ErrorCode.AUTH_TOKEN_MISSING}"}`,
+                    ),
+                )
+                .mockResolvedValueOnce(undefined);
+
+            const { joinHub } = renderSignalRStore();
+            act(() => joinHub(url));
+
+            await flushMicrotasks();
+            expect(mockConnection.start).toHaveBeenCalledTimes(1);
+            expect(ensureAuthMock).toHaveBeenCalledOnce();
+
+            vi.advanceTimersByTime(2000);
+            await flushMicrotasks();
+
+            expect(mockConnection.start).toHaveBeenCalledTimes(2);
+        });
+
+        it("should keep retrying indefinitely on persistent failure", async () => {
+            const { mockConnection } = mockHubConnection();
+            mockHubBuilder(mockConnection);
+
+            mockConnection.start.mockRejectedValue(
+                new Error("Server unavailable"),
+            );
+
+            const { joinHub } = renderSignalRStore();
+            act(() => joinHub(url));
+
+            for (let i = 0; i < 3; i++) {
+                await flushMicrotasks();
+                vi.advanceTimersByTime(2000);
+            }
+
+            expect(mockConnection.start).toHaveBeenCalledTimes(4);
         });
     });
 

@@ -1,23 +1,20 @@
 import { RetryContext } from "@microsoft/signalr";
 import RefreshRetryPolicy from "../refreshRetryPolicy";
-import { ErrorCode, refresh } from "@/lib/apiClient";
+import { ErrorCode } from "@/lib/apiClient";
+import ensureAuth from "@/features/auth/lib/ensureAuth";
 
-vi.mock("@/lib/apiClient/definition");
+vi.mock("@/features/auth/lib/ensureAuth");
 
 describe("RefreshRetryPolicy", () => {
     const retryIntervals = [100, 200, 300];
     const postRetryInterval = 500;
 
-    const refreshMock = vi.mocked(refresh);
+    const ensureAuthMock = vi.mocked(ensureAuth);
 
     let policy: RefreshRetryPolicy;
 
     beforeEach(() => {
         policy = new RefreshRetryPolicy(retryIntervals, postRetryInterval);
-        refreshMock.mockResolvedValue({
-            response: new Response(),
-            data: undefined,
-        });
     });
 
     it("should return the correct retry interval based on previousRetryCount", () => {
@@ -38,7 +35,7 @@ describe("RefreshRetryPolicy", () => {
         expect(delay).toBe(postRetryInterval);
     });
 
-    it("should call handleRefresh when retryReason contains AUTH_TOKEN_MISSING", () => {
+    it("should call ensureAuth when retryReason contains missing token", () => {
         const ctx: Partial<RetryContext> = {
             previousRetryCount: 0,
             retryReason: new Error(
@@ -46,7 +43,7 @@ describe("RefreshRetryPolicy", () => {
             ),
         };
         policy.nextRetryDelayInMilliseconds(ctx as RetryContext);
-        expect(refreshMock).toHaveBeenCalledTimes(1);
+        expect(ensureAuthMock).toHaveBeenCalledTimes(1);
     });
 
     it("should not call handleRefresh for other errors", () => {
@@ -55,7 +52,7 @@ describe("RefreshRetryPolicy", () => {
             retryReason: new Error(),
         };
         policy.nextRetryDelayInMilliseconds(ctx as RetryContext);
-        expect(refreshMock).not.toHaveBeenCalled();
+        expect(ensureAuthMock).not.toHaveBeenCalled();
     });
 
     it("should return null if postRetryInterval is null and retries exhausted", () => {
