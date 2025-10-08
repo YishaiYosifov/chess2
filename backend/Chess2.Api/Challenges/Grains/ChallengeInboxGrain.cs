@@ -10,7 +10,6 @@ public interface IChallengeInboxGrain : IGrainWithStringKey
     Task<List<ChallengeRequest>> GetIncomingChallengesAsync();
 
     [Alias("RecordChallengeCreatedAsync")]
-    [OneWay]
     Task RecordChallengeCreatedAsync(ChallengeRequest challenge);
 
     [Alias("RecordChallengeRemovedAsync")]

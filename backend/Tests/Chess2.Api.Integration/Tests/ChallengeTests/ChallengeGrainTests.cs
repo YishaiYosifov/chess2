@@ -6,17 +6,12 @@ using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Preferences.Services;
-using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
-using Chess2.Api.Profile.Errors;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -37,16 +32,13 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     private readonly AuthedUser _recipient;
 
     private readonly ChallengeId _challengeId = "test challenge";
-    private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
     private readonly IGrainFactory _grainFactory;
-    private readonly IBlockService _blockService;
     private readonly ChallengeSettings _settings;
     private readonly ITimeControlTranslator _timeControlTranslator;
 
     private readonly IChallengeNotifier _challengeNotifierMock =
         Substitute.For<IChallengeNotifier>();
-    private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
     private readonly ChallengeGrainStorage _state;
     private readonly TestStorageStats _stateStats;
@@ -54,12 +46,10 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public ChallengeGrainTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         _requester = new AuthedUserFaker().RuleFor(x => x.Id, _requesterId).Generate();
         _recipient = new AuthedUserFaker().RuleFor(x => x.Id, _recipientId).Generate();
 
         _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        _blockService = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IBlockService>();
         _timeControlTranslator =
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
@@ -76,16 +66,8 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             return null!;
         });
 
-        Silo.ServiceProvider.AddService(_challengeNotifierMock);
-        Silo.ServiceProvider.AddService(_timeProviderMock);
-        Silo.ServiceProvider.AddService(_timeControlTranslator);
         Silo.ServiceProvider.AddService(settings);
-        Silo.ServiceProvider.AddService(
-            ApiTestBase.Scope.ServiceProvider.GetRequiredService<IInteractionLevelGate>()
-        );
-        Silo.ServiceProvider.AddService(
-            ApiTestBase.Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>()
-        );
+        Silo.ServiceProvider.AddService(_challengeNotifierMock);
         Silo.ServiceProvider.AddService(
             ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameStarter>()
         );
@@ -100,129 +82,23 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         Silo.CreateGrainAsync<ChallengeGrain>(_challengeId);
 
     [Fact]
-    public async Task CreateAsync_rejects_when_requester_and_recipient_is_the_same_user()
-    {
-        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-        var grain = await CreateGrainAsync();
-
-        var result = await grain.CreateAsync(
-            _requesterId,
-            _requesterId,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ChallengeErrors.CannotChallengeSelf);
-    }
-
-    [Fact]
-    public async Task CreateAsync_rejects_when_recipient_is_not_found()
-    {
-        await ApiTestBase.DbContext.AddAsync(_requester, ApiTestBase.CT);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-        var grain = await CreateGrainAsync();
-
-        var result = await grain.CreateAsync(
-            _requesterId,
-            _recipientId,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ProfileErrors.NotFound);
-    }
-
-    [Fact]
-    public async Task CreateAsync_rejects_when_recipient_is_not_accepting()
-    {
-        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-        await _blockService.BlockUserAsync(
-            _recipientId,
-            userIdToBlock: _requesterId,
-            ApiTestBase.CT
-        );
-        var grain = await CreateGrainAsync();
-
-        var result = await grain.CreateAsync(
-            _requesterId,
-            _recipientId,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ChallengeErrors.RecipientNotAccepting);
-    }
-
-    [Fact]
-    public async Task CreateAsync_rejects_when_the_requester_already_has_a_request_to_the_recipient()
-    {
-        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-        var grain = await CreateGrainAsync();
-
-        await grain.CreateAsync(_requesterId, _recipientId, new PoolKeyFaker().Generate());
-        var result = await grain.CreateAsync(
-            _requesterId,
-            _recipientId,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ChallengeErrors.AlreadyExists);
-    }
-
-    [Fact]
-    public async Task CreateAsync_allows_when_the_recipient_already_has_a_request_from_another_requester()
-    {
-        var anotherRequester = new AuthedUserFaker().Generate();
-        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient, anotherRequester);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
-        var grain = await CreateGrainAsync();
-
-        await grain.CreateAsync(anotherRequester.Id, _recipientId, new PoolKeyFaker().Generate());
-        var result = await grain.CreateAsync(
-            _requesterId,
-            _recipientId,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeFalse();
-    }
-
-    [Fact]
     public async Task CreateAsync_sets_challenge_up_correctly()
     {
-        await ApiTestBase.DbContext.AddRangeAsync(_requester, _recipient);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
         var grain = await CreateGrainAsync();
 
-        var pool = new PoolKeyFaker().Generate();
-        var result = await grain.CreateAsync(_requesterId, _recipientId, pool);
+        var challenge = await CreateAsync(grain, _requester, _recipient);
 
-        result.IsError.Should().BeFalse();
-
-        ChallengeRequest expectedChallenge = new(
-            ChallengeId: _challengeId,
-            Requester: new(_requester),
-            Recipient: new(_recipient),
-            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
-            Pool: pool,
-            ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
-        );
-        result.Value.Should().Be(expectedChallenge);
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeReceived(recipientId: _recipientId, expectedChallenge);
+            .NotifyChallengeReceived(recipientId: _recipientId, challenge);
 
         var requesterInbox = await _requesterInbox.GetIncomingChallengesAsync();
         requesterInbox.Should().BeEmpty();
 
         var recipientInbox = await _recipientInbox.GetIncomingChallengesAsync();
-        recipientInbox.Should().ContainSingle().Which.Should().Be(expectedChallenge);
+        recipientInbox.Should().ContainSingle().Which.Should().Be(challenge);
 
-        _state.Request.Should().Be(expectedChallenge);
+        _state.Request.Should().Be(challenge);
         _stateStats.Writes.Should().Be(1);
 
         Silo.ReminderRegistry.Mock.Verify(x =>
@@ -238,48 +114,18 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task CreateAsync_allows_open_challenge_without_recipient()
     {
-        await ApiTestBase.DbContext.AddAsync(_requester, ApiTestBase.CT);
-        await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
         var grain = await CreateGrainAsync();
 
-        var pool = new PoolKeyFaker().Generate();
-        var result = await grain.CreateAsync(_requesterId, recipientId: null, pool);
-
-        result.IsError.Should().BeFalse();
-
-        ChallengeRequest expectedChallenge = new(
-            ChallengeId: _challengeId,
-            Requester: new(_requester),
-            Recipient: null,
-            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
-            Pool: pool,
-            ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
-        );
-        result.Value.Should().Be(expectedChallenge);
+        var challenge = await CreateAsync(grain, _requester);
 
         await _challengeNotifierMock
             .DidNotReceiveWithAnyArgs()
             .NotifyChallengeReceived(recipientId: default!, default!);
+        var recipientInbox = await _recipientInbox.GetIncomingChallengesAsync();
+        recipientInbox.Should().BeEmpty();
 
-        _state.Request.Should().Be(expectedChallenge);
+        _state.Request.Should().Be(challenge);
         _stateStats.Writes.Should().Be(1);
-    }
-
-    [Fact]
-    public async Task CreateAsync_creates_guest_profile_when_requester_is_not_found()
-    {
-        var grain = await CreateGrainAsync();
-
-        var result = await grain.CreateAsync(
-            "guest id",
-            recipientId: null,
-            new PoolKeyFaker().Generate()
-        );
-
-        result.IsError.Should().BeFalse();
-        result
-            .Value.Requester.Should()
-            .BeEquivalentTo(new MinimalProfile(UserId: "guest id", UserName: "Guest"));
     }
 
     [Theory]
@@ -359,7 +205,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var result = await grain.AcceptAsync(_requesterId, isGuest: false);
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(ChallengeErrors.CannotAccept);
+        result.FirstError.Should().Be(ChallengeErrors.NotFound);
     }
 
     [Fact]
@@ -467,10 +313,17 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
         pool ??= new PoolKeyFaker().Generate();
-        var result = await grain.CreateAsync(requester.Id, recipient?.Id, pool);
+        ChallengeRequest challenge = new(
+            _challengeId,
+            Requester: new(requester),
+            Recipient: recipient is null ? null : new(recipient),
+            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
+            Pool: pool,
+            ExpiresAt: DateTime.UtcNow + _settings.ChallengeLifetime
+        );
+        await grain.CreateAsync(challenge);
 
-        result.IsError.Should().BeFalse();
-        return result.Value;
+        return challenge;
     }
 
     private async Task AssertGameCreated(
