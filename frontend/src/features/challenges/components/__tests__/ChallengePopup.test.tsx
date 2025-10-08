@@ -40,7 +40,7 @@ describe("ChallengePopup", () => {
     it("should not render popup content by default", async () => {
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         expect(screen.queryByTestId("challengePopup")).not.toBeInTheDocument();
@@ -49,7 +49,7 @@ describe("ChallengePopup", () => {
     it("should open the popup when open is called", async () => {
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -64,7 +64,7 @@ describe("ChallengePopup", () => {
     it("should show default minutes, increment, and pool type", async () => {
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -92,7 +92,7 @@ describe("ChallengePopup", () => {
 
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -150,7 +150,7 @@ describe("ChallengePopup", () => {
 
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -167,7 +167,7 @@ describe("ChallengePopup", () => {
         const user = userEvent.setup();
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -183,7 +183,7 @@ describe("ChallengePopup", () => {
 
         const { unmount } = render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -210,7 +210,7 @@ describe("ChallengePopup", () => {
 
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -226,7 +226,7 @@ describe("ChallengePopup", () => {
     it("should display the correct minutes and increment text", async () => {
         render(
             <SessionProvider user={loggedInUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -254,7 +254,7 @@ describe("ChallengePopup", () => {
     it("should not show pool type selector for guest users", async () => {
         render(
             <SessionProvider user={guestUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -264,7 +264,7 @@ describe("ChallengePopup", () => {
         ).not.toBeInTheDocument();
     });
 
-    it("should force poolType to CASUAL when guest sends a challenge", async () => {
+    it("should force poolType to casual when guest sends a challenge", async () => {
         const challengeMock = createFakeChallengeRequest();
         createChallengeMock.mockResolvedValue({
             data: challengeMock,
@@ -275,7 +275,7 @@ describe("ChallengePopup", () => {
 
         render(
             <SessionProvider user={guestUserMock}>
-                <ChallengePopup ref={ref} profile={userMock} />
+                <ChallengePopup ref={ref} recipient={userMock} />
             </SessionProvider>,
         );
         act(() => ref.current?.open());
@@ -301,6 +301,19 @@ describe("ChallengePopup", () => {
         });
         expect(routerMock.push).toHaveBeenCalledWith(
             `${constants.PATHS.CHALLENGE}/${challengeMock.challengeId}`,
+        );
+    });
+
+    it("should refer to recipient as friend when no recipient is provided", () => {
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <ChallengePopup ref={ref} />
+            </SessionProvider>,
+        );
+        act(() => ref.current?.open());
+
+        expect(screen.getByTestId("challengePopupCreate")).toHaveTextContent(
+            "Challenge a friend",
         );
     });
 });
