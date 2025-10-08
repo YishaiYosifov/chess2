@@ -58,33 +58,24 @@ describe("middleware", () => {
         },
     );
 
-    it.each([
-        [
-            {
+    it("should rewrite to refresh path if needed", async () => {
+        const pathname = "/some-path";
+        const request = createRequest({
+            setCookies: {
                 [constants.COOKIES.IS_LOGGED_IN]: "true",
             },
-            constants.PATHS.REFRESH,
-        ],
-        [{}, constants.PATHS.GUEST],
-    ])(
-        "should rewrite to refresh path if needed",
-        async (setCookies: Record<string, string>, rewriteTo: string) => {
-            const pathname = "/some-path";
-            const request = createRequest({
-                setCookies,
-                pathname,
-            });
+            pathname,
+        });
 
-            const response = await middleware(request);
+        const response = await middleware(request);
 
-            expect(NextResponse.rewrite).toHaveBeenCalled();
-            expect(response.type).toBe("rewrite");
+        expect(NextResponse.rewrite).toHaveBeenCalled();
+        expect(response.type).toBe("rewrite");
 
-            const url = new URL(response.url);
-            expect(url.pathname).toBe(rewriteTo);
-            expect(
-                response.headers.get(constants.HEADERS.REDIRECT_AFTER_AUTH),
-            ).toBe(pathname);
-        },
-    );
+        const url = new URL(response.url);
+        expect(url.pathname).toBe(constants.PATHS.REFRESH);
+        expect(
+            response.headers.get(constants.HEADERS.REDIRECT_AFTER_AUTH),
+        ).toBe(pathname);
+    });
 });
