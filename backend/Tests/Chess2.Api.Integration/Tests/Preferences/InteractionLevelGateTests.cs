@@ -155,4 +155,47 @@ public class InteractionLevelGateTests : BaseIntegrationTest
         );
         result.Should().BeFalse();
     }
+
+    [Fact]
+    public async Task CanInteractWithAsync_returns_true_if_recipient_accepts_logged_in_and_requester_is_logged_in()
+    {
+        var requester = new AuthedUserFaker().Generate();
+        var recipient = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(requester, recipient);
+        await DbContext.SaveChangesAsync(CT);
+
+        var prefs = new UserPreferencesFaker(recipient)
+            .RuleFor(x => x.ChallengePreference, InteractionLevel.LoggedIn)
+            .Generate();
+        await _preferenceService.UpdatePreferencesAsync(recipient.Id, new PreferenceDto(prefs), CT);
+
+        var result = await _interactionLevelGate.CanInteractWithAsync(
+            prefs => prefs.ChallengePreference,
+            requester.Id,
+            recipient.Id
+        );
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CanInteractWithAsync_returns_false_if_recipient_accepts_logged_in_and_requester_is_not_logged_in()
+    {
+        var recipient = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(recipient, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var prefs = new UserPreferencesFaker(recipient)
+            .RuleFor(x => x.ChallengePreference, InteractionLevel.LoggedIn)
+            .Generate();
+        await _preferenceService.UpdatePreferencesAsync(recipient.Id, new PreferenceDto(prefs), CT);
+
+        var result = await _interactionLevelGate.CanInteractWithAsync(
+            prefs => prefs.ChallengePreference,
+            "guest id",
+            recipient.Id
+        );
+
+        result.Should().BeFalse();
+    }
 }
