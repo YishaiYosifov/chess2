@@ -180,9 +180,7 @@ public class RatingServiceTests : BaseIntegrationTest
 
         var result = await _ratingService.GetRatingOverviewsAsync(user, since, CT);
 
-        result.Should().HaveCount(1); // only blitz has current
-
-        var blitzOverview = result.Single(o => o.TimeControl == TimeControl.Blitz);
+        // only blitz has current
         RatingOverview expectedBlitzOverview = new(
             TimeControl.Blitz,
             Current: blitzCurrent.Value,
@@ -190,6 +188,7 @@ public class RatingServiceTests : BaseIntegrationTest
             Lowest: blitzLow.Value,
             Ratings: [new RatingSummary(blitzWithin1), new RatingSummary(blitzWithin2)]
         );
+        result.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedBlitzOverview);
     }
 
     [Fact]
