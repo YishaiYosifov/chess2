@@ -180,7 +180,7 @@ public class RatingServiceTests : BaseIntegrationTest
 
         var result = await _ratingService.GetRatingOverviewsAsync(user, since, CT);
 
-        result.Should().HaveCount(2); // only blitz has current
+        result.Should().HaveCount(1); // only blitz has current
 
         var blitzOverview = result.Single(o => o.TimeControl == TimeControl.Blitz);
         RatingOverview expectedBlitzOverview = new(
