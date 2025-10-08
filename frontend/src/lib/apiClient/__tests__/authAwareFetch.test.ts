@@ -1,24 +1,40 @@
+import { createGuestUser, logout, refresh } from "../definition";
+import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
 import authAwareFetch from "../authAwareFetch";
-import { logout, refresh } from "../definition";
-import { Mock } from "vitest";
 import { navigate } from "@/actions/navigate";
 import constants from "@/lib/constants";
 import rawClient from "../rawClient";
 
+vi.mock("js-cookie");
 vi.mock("../definition/sdk.gen.ts");
 vi.mock("@/actions/navigate");
-global.fetch = vi.fn();
 
+const originalWindow = global.window;
 describe("authAwareFetch", () => {
-    const originalWindow = global.window;
-    const fetchMock = fetch as Mock;
-    const refreshMock = refresh as Mock;
+    const fetchMock = vi.fn();
+    const refreshMock = vi.mocked(refresh);
+    const createGuestUserMock = vi.mocked(createGuestUser);
+    const logoutMock = vi.mocked(logout);
+    const navigateMock = vi.mocked(navigate);
 
     const unauthorizedResponse = new Response("unauthorized", { status: 401 });
     const successfulResponse = new Response("ok", { status: 200 });
 
+    beforeEach(() => {
+        vi.stubGlobal("fetch", fetchMock);
+
+        refreshMock.mockResolvedValue({
+            data: undefined,
+            response: new Response(),
+        });
+        createGuestUserMock.mockResolvedValue({
+            data: undefined,
+            response: new Response(),
+        });
+    });
+
     afterEach(() => {
-        global.window = originalWindow;
+        vi.stubGlobal("window", originalWindow);
     });
 
     it("should return response if status is not 401", async () => {
@@ -27,26 +43,24 @@ describe("authAwareFetch", () => {
         const res = await authAwareFetch("https://localhost/api/data");
 
         expect(res).toBe(successfulResponse);
-        expect(refresh).not.toHaveBeenCalled();
+        expect(refreshMock).not.toHaveBeenCalled();
     });
 
     it("should return response if request is server-side (no window)", async () => {
-        // Simulate server environment
-        // @ts-expect-error shut up eslint
-        delete global.window;
+        // simulate server environment
+        vi.stubGlobal("window", undefined);
         fetchMock.mockResolvedValue(unauthorizedResponse);
 
         const res = await authAwareFetch("https://localhost/api/data");
 
         expect(res.status).toBe(401);
-        expect(refresh).not.toHaveBeenCalled();
+        expect(refreshMock).not.toHaveBeenCalled();
     });
 
-    it("refreshes and retries queued requests on 401", async () => {
+    it("should refresh and retry requests on 401", async () => {
+        mockJsCookie({ [constants.COOKIES.IS_LOGGED_IN]: "true" });
         const firstResponse = new Response(null, { status: 401 });
         const retryResponse = new Response("ok", { status: 200 });
-
-        refreshMock.mockResolvedValue({ error: null });
 
         fetchMock
             .mockResolvedValueOnce(firstResponse) // initial 401
@@ -54,40 +68,55 @@ describe("authAwareFetch", () => {
 
         const res = await authAwareFetch("https://localhost/api/data");
 
-        expect(refresh).toHaveBeenCalledWith({ client: rawClient });
+        expect(refreshMock).toHaveBeenCalledExactlyOnceWith({
+            client: rawClient,
+        });
         expect(res.status).toBe(200);
-        expect(logout).not.toHaveBeenCalled();
+        expect(logoutMock).not.toHaveBeenCalled();
     });
 
-    it("should log out if refresh fails", async () => {
+    it("should create guest and retry requests on 401 when needed", async () => {
+        const firstResponse = new Response(null, { status: 401 });
+        const retryResponse = new Response("ok", { status: 200 });
+
+        fetchMock
+            .mockResolvedValueOnce(firstResponse)
+            .mockResolvedValueOnce(retryResponse);
+
+        await authAwareFetch("https://localhost/api/data");
+
+        expect(createGuestUserMock).toHaveBeenCalledExactlyOnceWith({
+            client: rawClient,
+        });
+    });
+
+    it("should log out if ensureAuth fails", async () => {
+        fetchMock.mockResolvedValueOnce(unauthorizedResponse);
+
+        createGuestUserMock.mockResolvedValue({
+            data: undefined,
+            error: { errors: [] },
+            response: new Response(),
+        });
+
+        await authAwareFetch("https://localhost/api/data");
+
+        expect(logoutMock).toHaveBeenCalledOnce();
+        expect(navigateMock).toHaveBeenCalledExactlyOnceWith(
+            constants.PATHS.REGISTER,
+        );
+    });
+
+    it("should log out if we fail to fetch after successful auth", async () => {
         fetchMock
             .mockResolvedValueOnce(unauthorizedResponse)
             .mockResolvedValueOnce(unauthorizedResponse);
 
-        refreshMock.mockResolvedValue({ error: "error" });
-
         await authAwareFetch("https://localhost/api/data");
 
-        expect(logout).toHaveBeenCalled();
-        expect(navigate).toHaveBeenCalledWith(constants.PATHS.REGISTER);
-    });
-
-    it("should queue multiple 401 requests and retries them after refresh", async () => {
-        refreshMock.mockResolvedValue({ error: null });
-
-        fetchMock
-            .mockResolvedValueOnce(unauthorizedResponse) // req1
-            .mockResolvedValueOnce(unauthorizedResponse) // req2
-            .mockResolvedValueOnce(successfulResponse) // retry1
-            .mockResolvedValueOnce(successfulResponse); // retry2
-
-        const promise1 = authAwareFetch("https://localhost/api/data1");
-        const promise2 = authAwareFetch("https://localhost/api/data2");
-
-        const [res1, res2] = await Promise.all([promise1, promise2]);
-
-        expect(refresh).toHaveBeenCalledTimes(1);
-        expect(res1.status).toBe(200);
-        expect(res2.status).toBe(200);
+        expect(logoutMock).toHaveBeenCalledOnce();
+        expect(navigateMock).toHaveBeenCalledExactlyOnceWith(
+            constants.PATHS.REGISTER,
+        );
     });
 });
