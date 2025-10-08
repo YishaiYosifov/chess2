@@ -128,7 +128,6 @@ public class RatingServiceTests : BaseIntegrationTest
     {
         var user = new AuthedUserFaker().Generate();
         var blitzCurrent = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
-        var rapidCurrent = new CurrentRatingFaker(user, timeControl: TimeControl.Rapid).Generate();
 
         var blitzHigh = new RatingArchiveFaker(
             user,
@@ -168,7 +167,6 @@ public class RatingServiceTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(
             user,
             blitzCurrent,
-            rapidCurrent,
             blitzHigh,
             blitzWithin1,
             blitzWithin2,
@@ -182,7 +180,7 @@ public class RatingServiceTests : BaseIntegrationTest
 
         var result = await _ratingService.GetRatingOverviewsAsync(user, since, CT);
 
-        result.Should().HaveCount(1); // only blitz has archives
+        result.Should().HaveCount(2); // only blitz has current
 
         var blitzOverview = result.Single(o => o.TimeControl == TimeControl.Blitz);
         RatingOverview expectedBlitzOverview = new(
