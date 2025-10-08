@@ -9,6 +9,7 @@ public class MinimalProfileFaker : RecordFaker<MinimalProfile>
     {
         StrictMode(true);
         RuleFor(x => x.UserId, f => (UserId)f.Random.Guid().ToString());
+        RuleFor(x => x.IsAuthenticated, true);
         RuleFor(x => x.UserName, f => f.Internet.UserName());
     }
 }
