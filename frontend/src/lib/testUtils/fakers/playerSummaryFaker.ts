@@ -6,6 +6,7 @@ export function createFakePlayerSummary(
 ): PlayerSummary {
     return {
         userId: faker.string.uuid(),
+        isAuthenticated: true,
         userName: faker.internet.username(),
         rating: faker.number.int({ min: 1200, max: 2800 }),
         ...overrides,

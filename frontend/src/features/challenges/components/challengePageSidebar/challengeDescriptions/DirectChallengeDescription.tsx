@@ -36,7 +36,10 @@ const RequesterPOV = ({ recipient }: { recipient: MinimalProfile }) => {
                 className={clsx(!isOver && "animate-subtle-ping")}
                 size={200}
             />
-            <ProfileTooltip username={recipient.userName}>
+            <ProfileTooltip
+                username={recipient.userName}
+                isAuthenticated={recipient.isAuthenticated}
+            >
                 <p
                     data-testid="directChallengeDescriptionUserName"
                     className="text-lg"
@@ -57,7 +60,10 @@ const RecipientPOV = ({ requester }: { requester: MinimalProfile }) => {
                 overClassName="text-error text-2xl"
             />
             <ProfilePicture userId={requester.userId} size={200} />
-            <ProfileTooltip username={requester.userName}>
+            <ProfileTooltip
+                username={requester.userName}
+                isAuthenticated={requester.isAuthenticated}
+            >
                 <p
                     data-testid="challengeRecipientDescriptionUserName"
                     className="text-lg"

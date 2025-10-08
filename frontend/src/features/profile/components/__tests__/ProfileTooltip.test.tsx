@@ -36,7 +36,7 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName} isAuthenticated>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -68,7 +68,7 @@ describe("ProfileTooltip", () => {
     it("should render all ratings in tooltip", async () => {
         const user = userEvent.setup();
         render(
-            <ProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName} isAuthenticated>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -92,7 +92,7 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip username={userMock.userName}>
+            <ProfileTooltip username={userMock.userName} isAuthenticated>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -113,7 +113,7 @@ describe("ProfileTooltip", () => {
         render(
             <>
                 <div data-testid="outside">Outside</div>
-                <ProfileTooltip username={userMock.userName}>
+                <ProfileTooltip username={userMock.userName} isAuthenticated>
                     <div>Trigger</div>
                 </ProfileTooltip>
             </>,
@@ -126,5 +126,20 @@ describe("ProfileTooltip", () => {
         await user.click(screen.getByTestId("outside"));
 
         expect(screen.queryByTestId("profileTooltip")).not.toBeInTheDocument();
+    });
+
+    it("should just render children when no authenticated", () => {
+        render(
+            <ProfileTooltip
+                username={userMock.userName}
+                isAuthenticated={false}
+            >
+                <div>Trigger</div>
+            </ProfileTooltip>,
+        );
+
+        expect(
+            screen.queryByTestId("profileTooltipChildren"),
+        ).not.toBeInTheDocument();
     });
 });
