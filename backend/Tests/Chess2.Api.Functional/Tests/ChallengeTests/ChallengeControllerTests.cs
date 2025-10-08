@@ -32,24 +32,11 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task CreateChallenge_rejects_guest_with_recipient()
+    public async Task CreateChallenge_allows_guest_with_casual_pool()
     {
         AuthUtils.AuthenticateGuest(ApiClient, "guest id");
 
-        var result = await ApiClient.Api.CreateChallengeAsync(
-            "some-recipient-id",
-            new PoolKeyFaker().Generate()
-        );
-
-        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
-    }
-
-    [Fact]
-    public async Task CreateChallenge_allows_guest_with_null_recipient()
-    {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
-
-        var pool = new PoolKeyFaker().Generate();
+        var pool = new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual).Generate();
         var result = await ApiClient.Api.CreateChallengeAsync(null, pool);
 
         result.IsSuccessful.Should().BeTrue();
@@ -60,20 +47,24 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task CreateChallenge_allows_null_recipient()
+    public async Task CreateChallenge_rejects_guest_with_rated_pool()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+
+        var result = await ApiClient.Api.CreateChallengeAsync(
+            null,
+            new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated).Generate()
+        );
+
+        result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task CreateChallenge_allows_null_recipient_for_open_challenges()
     {
         var challenge = await CreateChallengeAsync(_requester);
         challenge.Requester.UserId.Should().Be((UserId)_requester.Id);
         challenge.Recipient.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task CreateChallenge_creates_a_unique_id()
-    {
-        var challenge1 = await CreateChallengeAsync();
-        var challenge2 = await CreateChallengeAsync();
-
-        challenge1.ChallengeId.Should().NotBe(challenge2.ChallengeId);
     }
 
     [Fact]

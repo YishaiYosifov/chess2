@@ -20,8 +20,11 @@ public static class ChallengeErrors
             "You already sent a challenge to this user"
         );
 
-    public static Error CannotAccept =>
-        Error.Forbidden(ErrorCodes.ChallengeCannotAccept, "You cannot accept this challenge");
+    public static Error AuthedOnlyPool =>
+        Error.Forbidden(
+            ErrorCodes.ChallengeAuthedOnlyPool,
+            "Only a logged in user can interact with this pool type"
+        );
 
     public static Error NotFound =>
         Error.NotFound(ErrorCodes.ChallengeNotFound, "Challenge not found");
