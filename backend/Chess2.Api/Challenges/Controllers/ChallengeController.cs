@@ -97,4 +97,25 @@ public class ChallengeController(
         var result = await challengeGrain.AcceptAsync(userIdResult.Value, isGuest);
         return result.Match(Ok, errors => errors.ToActionResult());
     }
+
+    [HttpDelete("incoming")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [Authorize(AuthPolicies.AuthedUser)]
+    public async Task<ActionResult> CancelAllIncomingChallenges()
+    {
+        var userIdResult = _authService.GetUserId(User);
+        if (userIdResult.IsError)
+            return userIdResult.Errors.ToActionResult();
+        var userId = userIdResult.Value;
+
+        var inboxGrain = _grains.GetGrain<IChallengeInboxGrain>(userId);
+        var challenges = await inboxGrain.GetIncomingChallengesAsync();
+        foreach (var challenge in challenges)
+        {
+            var challengeGrain = _grains.GetGrain<IChallengeGrain>(challenge.ChallengeId);
+            await challengeGrain.CancelAsync(userId);
+        }
+
+        return NoContent();
+    }
 }
