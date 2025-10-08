@@ -18,9 +18,11 @@ import Flag from "./Flag";
 
 const ProfileTooltip = ({
     username,
+    isAuthenticated,
     children,
 }: {
     username: string;
+    isAuthenticated: boolean;
     children?: React.ReactNode;
 }) => {
     const [profile, setProfile] = useState<PublicUser>();
@@ -79,6 +81,7 @@ const ProfileTooltip = ({
         };
     }, [open, refs.floating]);
 
+    if (!isAuthenticated) return children;
     return (
         <>
             <div
