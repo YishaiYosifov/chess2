@@ -439,6 +439,7 @@ builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>(
 
 #region Challenges
 builder.Services.AddSingleton<IChallengeNotifier, ChallengeNotifier>();
+builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
