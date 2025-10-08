@@ -19,6 +19,8 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CreateChallenge_creates_challenge_successfully()
     {
+        await DbContext.AddRangeAsync(_requester, _recipient);
+        await DbContext.SaveChangesAsync(CT);
         await using ChallengeHubClient recipientConn = new(
             await AuthedSignalRAsync(ChallengeHubClient.Path, _recipient)
         );
@@ -62,6 +64,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CreateChallenge_allows_null_recipient_for_open_challenges()
     {
+        await DbContext.AddAsync(_requester, CT);
+        await DbContext.SaveChangesAsync(CT);
+
         var challenge = await CreateChallengeAsync(_requester);
         challenge.Requester.UserId.Should().Be((UserId)_requester.Id);
         challenge.Recipient.Should().BeNull();
@@ -70,6 +75,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetChallenge_returns_correct_challenge()
     {
+        await DbContext.AddRangeAsync(_requester, _recipient);
+        await DbContext.SaveChangesAsync(CT);
+
         var challenge = await CreateChallengeAsync(_requester, _recipient);
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _requester);
 
@@ -83,6 +91,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CancelChallenge_cancels_challenge_successfully()
     {
+        await DbContext.AddRangeAsync(_requester, _recipient);
+        await DbContext.SaveChangesAsync(CT);
+
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
         await using ChallengeHubClient recipientConn = new(
@@ -102,6 +113,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task AcceptChallenge_accepts_challenge_successfully()
     {
+        await DbContext.AddRangeAsync(_requester, _recipient);
+        await DbContext.SaveChangesAsync(CT);
+
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
         await using ChallengeHubClient requesterConn = new(
@@ -133,6 +147,9 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task AcceptChallenge_rejects_guests_accepting_rated_challenges()
     {
+        await DbContext.AddAsync(_requester, CT);
+        await DbContext.SaveChangesAsync(CT);
+
         var challenge = await CreateChallengeAsync(
             _requester,
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
@@ -144,18 +161,37 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task CancelAllIncomingChallenges_cancels_all_incoming_challenges_for_user()
+    {
+        var requester1 = new AuthedUserFaker().Generate();
+        var requester2 = new AuthedUserFaker().Generate();
+        var recipient = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(requester1, requester2, recipient);
+        await DbContext.SaveChangesAsync(CT);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester1);
+        var challenge1 = await CreateChallengeAsync(requester1, recipient);
+        var challenge2 = await CreateChallengeAsync(requester2, recipient);
+
+        await AuthUtils.AuthenticateWithUserAsync(ApiClient, recipient);
+        var cancelResponse = await ApiClient.Api.CancelAllIncomingChallengesAsync();
+
+        cancelResponse.IsSuccessful.Should().BeTrue();
+
+        var get1 = await ApiClient.Api.GetChallengeAsync(challenge1.ChallengeId);
+        get1.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        var get2 = await ApiClient.Api.GetChallengeAsync(challenge2.ChallengeId);
+        get2.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     private async Task<ChallengeRequest> CreateChallengeAsync(
-        AuthedUser? requester = null,
+        AuthedUser requester,
         AuthedUser? recipient = null,
         PoolKey? pool = null
     )
     {
-        requester ??= new AuthedUserFaker().Generate();
-        await DbContext.AddAsync(requester, CT);
-        if (recipient is not null)
-            await DbContext.AddAsync(recipient, CT);
-        await DbContext.SaveChangesAsync(CT);
-
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
         var result = await ApiClient.Api.CreateChallengeAsync(
             recipient?.Id,

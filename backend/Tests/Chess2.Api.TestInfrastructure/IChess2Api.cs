@@ -164,5 +164,8 @@ public interface IChess2Api
 
     [Post("/api/challenge/by-id/{challengeId}/accept")]
     Task<IApiResponse<string>> AcceptChallengeAsync(string challengeId);
+
+    [Delete("/api/challenge/incoming")]
+    Task<IApiResponse> CancelAllIncomingChallengesAsync();
     #endregion
 }
