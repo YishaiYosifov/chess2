@@ -197,8 +197,8 @@ describe("Profile", () => {
         renderProfile({ isLoggedOut: true });
 
         expect(
-            screen.queryByTestId("profileChallengeButton"),
-        ).not.toBeInTheDocument();
+            screen.getByTestId("profileChallengeButton"),
+        ).toBeInTheDocument();
         expect(screen.queryByTestId("editProfileLink")).not.toBeInTheDocument();
         expect(
             screen.queryByTestId("profileStarButton"),
