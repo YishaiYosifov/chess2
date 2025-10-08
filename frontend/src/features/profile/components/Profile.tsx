@@ -111,7 +111,7 @@ const Profile = ({
                 </div>
             </section>
 
-            <ChallengePopup profile={profile} ref={challengePopupRef} />
+            <ChallengePopup recipient={profile} ref={challengePopupRef} />
         </Card>
     );
 };

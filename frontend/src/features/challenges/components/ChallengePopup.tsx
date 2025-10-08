@@ -27,8 +27,8 @@ export interface ChallengePopupRef {
 
 const ChallengePopup: ForwardRefRenderFunction<
     ChallengePopupRef,
-    { profile: PublicUser }
-> = ({ profile }, ref) => {
+    { recipient?: PublicUser }
+> = ({ recipient }, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +62,7 @@ const ChallengePopup: ForwardRefRenderFunction<
         const effectivePoolType = isUserGuest ? PoolType.CASUAL : poolType;
 
         const { error, data: challenge } = await createChallenge({
-            query: { recipientId: profile.userId },
+            query: { recipientId: recipient?.userId },
             body: {
                 poolType: effectivePoolType,
                 timeControl: {
@@ -160,7 +160,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                     onClick={sendChallenge}
                     data-testid="challengePopupCreate"
                 >
-                    Challenge {profile.userName}
+                    Challenge {recipient?.userName ?? "a friend"}
                 </Button>
                 {error && (
                     <span
