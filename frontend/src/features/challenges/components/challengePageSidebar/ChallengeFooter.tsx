@@ -1,7 +1,10 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
+import {
+    useAuthedUser,
+    useSessionUser,
+} from "@/features/auth/hooks/useSessionUser";
 import CountdownText from "@/components/CountdownText";
 import { acceptChallenge, cancelChallenge, PoolType } from "@/lib/apiClient";
 import Button from "@/components/ui/Button";
@@ -12,7 +15,7 @@ import useChallengeStore from "../../hooks/useChallengeStore";
 const ChallengeFooter = () => {
     const [error, setError] = useState<string>();
     const [isInAction, setIsInAction] = useState(false);
-    const user = useAuthedUser();
+    const user = useSessionUser();
     const router = useRouter();
 
     const { challenge, isCancelled, setCancelled, isExpired, setExpired } =
