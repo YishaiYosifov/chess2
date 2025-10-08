@@ -80,6 +80,7 @@ const ChallengePopup: ForwardRefRenderFunction<
                     "Something went wrong",
                 ),
             );
+            console.error(error);
             return;
         }
         setError(null);
