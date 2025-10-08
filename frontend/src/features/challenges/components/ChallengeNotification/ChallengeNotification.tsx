@@ -106,7 +106,7 @@ const ChallengeNotification = ({
             </div>
 
             <Button
-                className="bg-neutral-800 p-1"
+                className="bg-neutral-900 p-1"
                 onClick={onDecline}
                 disabled={isInAction}
                 data-testid="challengeNotificationDecline"

@@ -9,15 +9,27 @@ import {
     useChallengeEvent,
 } from "@/features/challenges/hooks/useChallengeHub";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
+import { cancelAllIncomingChallenges } from "@/lib/apiClient";
 
 vi.mock("@/features/challenges/hooks/useChallengeHub");
+vi.mock("@/lib/apiClient/definition");
 
 describe("ChallengeNotificationRenderer", () => {
+    const cancelAllIncomingChallengesMock = vi.mocked(
+        cancelAllIncomingChallenges,
+    );
+
     const useChallengeEventMock = vi.mocked(useChallengeEvent);
     let challengeEventHandlers: EventHandlers<ChallengeClientEvents>;
 
     beforeEach(() => {
         vi.clearAllMocks();
+
+        cancelAllIncomingChallengesMock.mockResolvedValue({
+            data: undefined,
+            response: new Response(),
+        });
+
         challengeEventHandlers = {};
         useChallengeEventMock.mockImplementation((event, handler) => {
             challengeEventHandlers[event] = handler;
@@ -198,6 +210,29 @@ describe("ChallengeNotificationRenderer", () => {
 
         expect(
             screen.queryByTestId("challengeNotificationRendererList"),
+        ).not.toBeInTheDocument();
+    });
+
+    it("should cancel all incoming challenges when clicking decline all", async () => {
+        const user = userEvent.setup();
+        render(<ChallengeNotificationRenderer />);
+
+        for (let i = 0; i < 5; i++) {
+            await act(() =>
+                challengeEventHandlers["ChallengeReceivedAsync"]?.(
+                    createFakeChallengeRequest(),
+                ),
+            );
+        }
+
+        await user.click(
+            screen.getByTestId("challengeNotificationRendererDeclineAll"),
+        );
+
+        expect(cancelAllIncomingChallengesMock).toHaveBeenCalledOnce();
+
+        expect(
+            screen.queryByTestId("challengeNotificationRenderer"),
         ).not.toBeInTheDocument();
     });
 });

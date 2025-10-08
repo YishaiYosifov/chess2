@@ -5,8 +5,9 @@ import { useReducer, useState } from "react";
 
 import { useChallengeEvent } from "../../hooks/useChallengeHub";
 import ChallengeNotification from "./ChallengeNotification";
-import { ChallengeRequest } from "@/lib/apiClient";
+import { cancelAllIncomingChallenges, ChallengeRequest } from "@/lib/apiClient";
 import Card from "@/components/ui/Card";
+import Button from "@/components/ui/Button";
 
 export const MAX_CHALLENGES = 5;
 
@@ -17,7 +18,8 @@ type State = {
 
 type Action =
     | { type: "add"; challenge: ChallengeRequest }
-    | { type: "remove"; id: string };
+    | { type: "remove"; id: string }
+    | { type: "clear" };
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
@@ -53,6 +55,10 @@ function reducer(state: State, action: Action): State {
             return { incoming: newIncoming, overflow: newOverflow };
         }
 
+        case "clear": {
+            return { incoming: new Map(), overflow: new Map() };
+        }
+
         default:
             return state;
     }
@@ -81,6 +87,16 @@ const ChallengeNotificationRenderer = () => {
     function removeChallenge(challengeId: string) {
         dispatch({ type: "remove", id: challengeId });
     }
+
+    async function declineAll() {
+        const { error } = await cancelAllIncomingChallenges();
+        if (error) {
+            console.error(error);
+            return;
+        }
+        dispatch({ type: "clear" });
+    }
+
     if (state.incoming.size === 0) return null;
 
     const totalCount = state.incoming.size + state.overflow.size;
@@ -109,16 +125,28 @@ const ChallengeNotificationRenderer = () => {
                 </div>
             )}
 
-            <Card className="relative w-min cursor-pointer p-2">
-                <EyeDropperIcon className="h-6 w-6" />
-                <span
-                    className="absolute -right-1.5 -bottom-1.5 flex h-5 w-5 items-center justify-center
-                        rounded-full bg-red-500 text-sm"
-                    data-testid="challengeNotificationRendererCount"
-                >
-                    {notificationCount}
-                </span>
-            </Card>
+            <div className="flex gap-1">
+                {show && (
+                    <Button
+                        onClick={declineAll}
+                        className="bg-neutral-900"
+                        data-testid="challengeNotificationRendererDeclineAll"
+                    >
+                        Decline All
+                    </Button>
+                )}
+
+                <Card className="relative w-min cursor-pointer p-2">
+                    <EyeDropperIcon className="h-6 w-6" />
+                    <span
+                        className="absolute -right-1.5 -bottom-1.5 flex h-5 w-5 items-center justify-center
+                            rounded-full bg-red-500 text-sm"
+                        data-testid="challengeNotificationRendererCount"
+                    >
+                        {notificationCount}
+                    </span>
+                </Card>
+            </div>
         </div>
     );
 };
