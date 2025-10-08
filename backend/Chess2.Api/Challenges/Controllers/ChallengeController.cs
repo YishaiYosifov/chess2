@@ -56,7 +56,7 @@ public class ChallengeController(
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpGet("{challengeId}", Name = nameof(GetChallenge))]
+    [HttpGet("by-id/{challengeId}", Name = nameof(GetChallenge))]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ChallengeRequest>> GetChallenge(string challengeId)
@@ -70,9 +70,10 @@ public class ChallengeController(
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpDelete("{challengeId}", Name = nameof(CancelChallenge))]
+    [HttpDelete("by-id/{challengeId}", Name = nameof(CancelChallenge))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [Authorize(AuthPolicies.AuthedUser)]
     public async Task<ActionResult> CancelChallenge(string challengeId)
     {
         var userIdResult = _authService.GetUserId(User);
@@ -84,7 +85,7 @@ public class ChallengeController(
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpPost("{challengeId}/accept")]
+    [HttpPost("by-id/{challengeId}/accept")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<string>> AcceptChallenge(string challengeId)
