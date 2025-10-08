@@ -2,6 +2,8 @@ import Popup from "@/components/Popup";
 import Button from "@/components/ui/Button";
 import Range from "@/components/ui/Range";
 import Selector from "@/components/ui/Selector";
+import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
+import { isAuthed, isGuest } from "@/features/auth/lib/userGuard";
 import useLocalPref from "@/hooks/useLocalPref";
 import {
     createChallenge,
@@ -43,6 +45,7 @@ const ChallengePopup: ForwardRefRenderFunction<
         PoolType.RATED,
     );
 
+    const user = useSessionUser();
     const router = useRouter();
 
     const openPopup = () => setIsOpen(true);
@@ -55,10 +58,13 @@ const ChallengePopup: ForwardRefRenderFunction<
     if (!isOpen) return;
 
     async function sendChallenge() {
+        const isUserGuest = isGuest(user);
+        const effectivePoolType = isUserGuest ? PoolType.CASUAL : poolType;
+
         const { error, data: challenge } = await createChallenge({
             query: { recipientId: profile.userId },
             body: {
-                poolType,
+                poolType: effectivePoolType,
                 timeControl: {
                     baseSeconds:
                         constants.CHALLENGE_MINUTES_OPTIONS[minutesIdx] * 60,
@@ -135,15 +141,17 @@ const ChallengePopup: ForwardRefRenderFunction<
                     />
                 </div>
 
-                <Selector
-                    options={[
-                        { label: "Rated", value: PoolType.RATED },
-                        { label: "Casual", value: PoolType.CASUAL },
-                    ]}
-                    value={poolType}
-                    onChange={(e) => setPoolType(e.target.value)}
-                    data-testid="challengePopupPoolType"
-                />
+                {isAuthed(user) && (
+                    <Selector
+                        options={[
+                            { label: "Rated", value: PoolType.RATED },
+                            { label: "Casual", value: PoolType.CASUAL },
+                        ]}
+                        value={poolType}
+                        onChange={(e) => setPoolType(e.target.value)}
+                        data-testid="challengePopupPoolType"
+                    />
+                )}
             </div>
 
             <div>
