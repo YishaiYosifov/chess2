@@ -2,7 +2,10 @@ import { act, render, screen } from "@testing-library/react";
 import { StoreApi } from "zustand";
 
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
-import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
+import {
+    createFakeGuestUser,
+    createFakePrivateUser,
+} from "@/lib/testUtils/fakers/userFaker";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import ChallengeFooter from "../ChallengeFooter";
 import { ChallengeRequest, PoolType, PrivateUser } from "@/lib/apiClient";
@@ -158,6 +161,22 @@ describe("ChallengeFooter", () => {
 
         expect(
             screen.getByTestId("challengeFooterRecipientPrompt"),
+        ).toBeInTheDocument();
+    });
+
+    it("should render Cancel button when guest is requester", () => {
+        const guestUser = createFakeGuestUser();
+        challengeMock.requester.userId = guestUser.userId;
+        render(
+            <SessionProvider user={guestUser}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <ChallengeFooter />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
+        );
+
+        expect(
+            screen.getByTestId("challengeFooterCancelButton"),
         ).toBeInTheDocument();
     });
 });
