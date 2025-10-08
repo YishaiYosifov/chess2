@@ -98,6 +98,9 @@ import type {
     AcceptChallengeData,
     AcceptChallengeResponses,
     AcceptChallengeErrors,
+    CancelAllIncomingChallengesData,
+    CancelAllIncomingChallengesResponses,
+    CancelAllIncomingChallengesErrors,
     RefreshData,
     RefreshResponses,
     RefreshErrors,
@@ -540,7 +543,7 @@ export const cancelChallenge = <ThrowOnError extends boolean = false>(
         CancelChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/{challengeId}",
+        url: "/api/Challenge/by-id/{challengeId}",
         ...options,
     });
 };
@@ -553,7 +556,7 @@ export const getChallenge = <ThrowOnError extends boolean = false>(
         GetChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/{challengeId}",
+        url: "/api/Challenge/by-id/{challengeId}",
         ...options,
     });
 };
@@ -566,7 +569,22 @@ export const acceptChallenge = <ThrowOnError extends boolean = false>(
         AcceptChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/{challengeId}/accept",
+        url: "/api/Challenge/by-id/{challengeId}/accept",
+        ...options,
+    });
+};
+
+export const cancelAllIncomingChallenges = <
+    ThrowOnError extends boolean = false,
+>(
+    options?: Options<CancelAllIncomingChallengesData, ThrowOnError>,
+) => {
+    return (options?.client ?? _heyApiClient).delete<
+        CancelAllIncomingChallengesResponses,
+        CancelAllIncomingChallengesErrors,
+        ThrowOnError
+    >({
+        url: "/api/Challenge/incoming",
         ...options,
     });
 };

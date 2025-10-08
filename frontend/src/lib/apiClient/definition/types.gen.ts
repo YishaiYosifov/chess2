@@ -431,6 +431,7 @@ export enum ErrorCode {
     CHALLENGE_RECIPIENT_NOT_ACCEPTING = "Challenge.RecipientNotAccepting",
     CHALLENGE_CANNOT_CHALLENGE_SELF = "Challenge.CannotChallengeSelf",
     CHALLENGE_ALREADY_EXISTS = "Challenge.AlreadyExists",
+    CHALLENGE_AUTHED_ONLY_POOL = "Challenge.AuthedOnlyPool",
     CHALLENGE_CANNOT_ACCEPT = "Challenge.CannotAccept",
     CHALLENGE_NOT_FOUND = "Challenge.NotFound",
 }
@@ -1057,7 +1058,7 @@ export type CancelChallengeData = {
         challengeId: string;
     };
     query?: never;
-    url: "/api/Challenge/{challengeId}";
+    url: "/api/Challenge/by-id/{challengeId}";
 };
 
 export type CancelChallengeErrors = {
@@ -1081,7 +1082,7 @@ export type GetChallengeData = {
         challengeId: string;
     };
     query?: never;
-    url: "/api/Challenge/{challengeId}";
+    url: "/api/Challenge/by-id/{challengeId}";
 };
 
 export type GetChallengeErrors = {
@@ -1104,7 +1105,7 @@ export type AcceptChallengeData = {
         challengeId: string;
     };
     query?: never;
-    url: "/api/Challenge/{challengeId}/accept";
+    url: "/api/Challenge/by-id/{challengeId}/accept";
 };
 
 export type AcceptChallengeErrors = {
@@ -1121,6 +1122,27 @@ export type AcceptChallengeResponses = {
 
 export type AcceptChallengeResponse =
     AcceptChallengeResponses[keyof AcceptChallengeResponses];
+
+export type CancelAllIncomingChallengesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Challenge/incoming";
+};
+
+export type CancelAllIncomingChallengesErrors = {
+    401: ApiProblemDetails;
+};
+
+export type CancelAllIncomingChallengesError =
+    CancelAllIncomingChallengesErrors[keyof CancelAllIncomingChallengesErrors];
+
+export type CancelAllIncomingChallengesResponses = {
+    204: void;
+};
+
+export type CancelAllIncomingChallengesResponse =
+    CancelAllIncomingChallengesResponses[keyof CancelAllIncomingChallengesResponses];
 
 export type RefreshData = {
     body?: never;
