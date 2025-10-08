@@ -8,7 +8,7 @@ export function isAuthed(user: SessionUser | null): user is PrivateUser {
 }
 
 export function isGuest(user: SessionUser | null): user is GuestUser {
-    if (user === null) return false;
+    if (user === null) return true;
 
     const type: GuestUser["type"] = "guest";
     return user.type === type;
