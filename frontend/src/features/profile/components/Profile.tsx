@@ -135,7 +135,7 @@ const ProfileActions = ({
     challenge: () => void;
 }) => {
     // guest user
-    if (!loggedInUser) return null;
+    if (!loggedInUser) return <ChallengeButton challenge={challenge} />;
 
     // viewing your own profile
     if (loggedInUser.userId === profile.userId) {
