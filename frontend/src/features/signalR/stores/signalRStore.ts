@@ -43,13 +43,8 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
                 return;
             }
 
-            const hubConnection = new HubConnectionBuilder()
-                .withUrl(url)
-                .withAutomaticReconnect(
-                    new RefreshRetryPolicy([1000, 2000, 5000], 20000),
-                )
-                .configureLogging(LogLevel.Information)
-                .build();
+            const hubConnection = createHubConnection(url);
+            startHub(url, hubConnection);
 
             set((state) => {
                 state.hubs.set(url, {
@@ -58,38 +53,6 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
                     state: hubConnection.state,
                 });
             });
-
-            hubConnection.onclose(() => {
-                updateHub(url, (hub) => {
-                    hub.state = HubConnectionState.Disconnected;
-                });
-            });
-
-            hubConnection.onreconnected(() => {
-                updateHub(url, (hub) => {
-                    hub.state = HubConnectionState.Connected;
-                });
-            });
-
-            hubConnection.on("ReceiveErrorAsync", (err) => {
-                console.error(`SignalR error from ${url}`, err);
-            });
-
-            hubConnection
-                .start()
-                .then(() => {
-                    updateHub(url, (hub) => {
-                        hub.state = HubConnectionState.Connected;
-                    });
-                })
-                .catch(async (err: Error) => {
-                    if (
-                        err.message.includes(ErrorCode.AUTH_TOKEN_MISSING) &&
-                        (await ensureAuth())
-                    ) {
-                        hubConnection.start();
-                    }
-                });
 
             return hubConnection;
         },
@@ -120,7 +83,60 @@ const useSignalRStore = createWithEqualityFn<SignalRStore>()(
 );
 export default useSignalRStore;
 
-function updateHub(url: string, updater: (hub: WritableDraft<Hub>) => void) {
+function createHubConnection(url: string): HubConnection {
+    const hubConnection = new HubConnectionBuilder()
+        .withUrl(url)
+        .withAutomaticReconnect(
+            new RefreshRetryPolicy([1000, 2000, 5000], 20000),
+        )
+        .configureLogging(LogLevel.Information)
+        .build();
+
+    hubConnection.onclose(() => {
+        updateHub(url, (hub) => {
+            hub.state = HubConnectionState.Disconnected;
+        });
+    });
+
+    hubConnection.onreconnected(() => {
+        updateHub(url, (hub) => {
+            hub.state = HubConnectionState.Connected;
+        });
+    });
+
+    hubConnection.on("ReceiveErrorAsync", (err) => {
+        console.error(`SignalR error from ${url}`, err);
+    });
+
+    return hubConnection;
+}
+
+async function startHub(
+    url: string,
+    hubConnection: HubConnection,
+): Promise<void> {
+    try {
+        await hubConnection.start();
+
+        updateHub(url, (hub) => {
+            hub.state = HubConnectionState.Connected;
+        });
+    } catch (err) {
+        if (
+            err instanceof Error &&
+            err.message.includes(ErrorCode.AUTH_TOKEN_MISSING)
+        ) {
+            await ensureAuth();
+        }
+
+        setTimeout(() => startHub(url, hubConnection), 2000);
+    }
+}
+
+function updateHub(
+    url: string,
+    updater: (hub: WritableDraft<Hub>) => void,
+): void {
     useSignalRStore.setState((state) => {
         const hub = state.hubs.get(url);
         if (hub) updater(hub);
