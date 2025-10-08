@@ -166,24 +166,21 @@ public class RatingServiceTests : BaseIntegrationTest
         ).Generate();
 
         await DbContext.AddRangeAsync(
-            [
-                user,
-                blitzCurrent,
-                rapidCurrent,
-                blitzHigh,
-                blitzWithin1,
-                blitzWithin2,
-                blitzLow,
-                otherUser,
-                otherUserRating,
-            ],
-            CT
+            user,
+            blitzCurrent,
+            rapidCurrent,
+            blitzHigh,
+            blitzWithin1,
+            blitzWithin2,
+            blitzLow,
+            otherUser,
+            otherUserRating
         );
         await DbContext.SaveChangesAsync(CT);
 
         var since = DateTime.UtcNow.AddDays(-7);
 
-        var result = (await _ratingService.GetRatingOverviewsAsync(user, since, CT)).ToList();
+        var result = await _ratingService.GetRatingOverviewsAsync(user, since, CT);
 
         result.Should().HaveCount(1); // only blitz has archives
 
@@ -207,6 +204,26 @@ public class RatingServiceTests : BaseIntegrationTest
         var result = await _ratingService.GetRatingOverviewsAsync(user, since: null, CT);
 
         result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetRatingOverviewsAsync_returns_ratings_with_archives_out_of_date_range()
+    {
+        var user = new AuthedUserFaker().Generate();
+        var currentRating = new CurrentRatingFaker(user).Generate();
+        var oldRating = new RatingArchiveFaker(user, timeControl: currentRating.TimeControl)
+            .RuleFor(x => x.AchievedAt, DateTime.UtcNow.AddDays(-10))
+            .Generate();
+
+        await DbContext.AddRangeAsync(user, currentRating, oldRating);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _ratingService.GetRatingOverviewsAsync(user, DateTime.UtcNow, CT);
+
+        result.Should().ContainSingle();
+        var overview = result.Single();
+        overview.Current.Should().Be(currentRating.Value);
+        overview.Ratings.Should().BeEmpty();
     }
 
     [Fact]
@@ -255,7 +272,7 @@ public class RatingServiceTests : BaseIntegrationTest
         );
         await DbContext.SaveChangesAsync(CT);
 
-        var result = (await _ratingService.GetCurrentRatingsAsync(user, CT)).ToList();
+        var result = await _ratingService.GetCurrentRatingsAsync(user, CT);
 
         result
             .Should()

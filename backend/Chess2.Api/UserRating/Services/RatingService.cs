@@ -28,12 +28,12 @@ public interface IRatingService
         TimeControl timeControl,
         CancellationToken token = default
     );
-    Task<IEnumerable<RatingOverview>> GetRatingOverviewsAsync(
+    Task<List<RatingOverview>> GetRatingOverviewsAsync(
         AuthedUser user,
         DateTime? since,
         CancellationToken token = default
     );
-    Task<IEnumerable<CurrentRatingStatus>> GetCurrentRatingsAsync(
+    Task<List<CurrentRatingStatus>> GetCurrentRatingsAsync(
         AuthedUser user,
         CancellationToken token = default
     );
@@ -85,7 +85,7 @@ public class RatingService(
         await _ratingArchiveRepository.AddRatingAsync(ratingArchive, token);
     }
 
-    public async Task<IEnumerable<RatingOverview>> GetRatingOverviewsAsync(
+    public async Task<List<RatingOverview>> GetRatingOverviewsAsync(
         AuthedUser user,
         DateTime? since,
         CancellationToken token = default
@@ -102,7 +102,7 @@ public class RatingService(
         return overviews;
     }
 
-    public async Task<IEnumerable<CurrentRatingStatus>> GetCurrentRatingsAsync(
+    public async Task<List<CurrentRatingStatus>> GetCurrentRatingsAsync(
         AuthedUser user,
         CancellationToken token = default
     )
@@ -136,8 +136,6 @@ public class RatingService(
             since,
             token
         );
-        if (archives.Count == 0)
-            return null;
 
         var highest = await _ratingArchiveRepository.GetHighestAsync(userId, timeControl, token);
         var lowest = await _ratingArchiveRepository.GetLowestAsync(userId, timeControl, token);
