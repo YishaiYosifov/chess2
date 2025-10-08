@@ -1,5 +1,5 @@
 import { ErrorCode } from "@/lib/apiClient";
-import handleRefresh from "@/lib/apiClient/refresh";
+import ensureAuth from "@/features/auth/lib/ensureAuth";
 import { IRetryPolicy, RetryContext } from "@microsoft/signalr";
 
 export default class RefreshRetryPolicy implements IRetryPolicy {
@@ -15,9 +15,8 @@ export default class RefreshRetryPolicy implements IRetryPolicy {
             retryContext.retryReason.message.includes(
                 ErrorCode.AUTH_TOKEN_MISSING,
             )
-        ) {
-            handleRefresh();
-        }
+        )
+            ensureAuth();
 
         return (
             this._retryIntervals.at(retryContext.previousRetryCount) ??
