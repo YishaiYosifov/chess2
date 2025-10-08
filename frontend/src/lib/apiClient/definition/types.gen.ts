@@ -193,9 +193,13 @@ export enum InteractionLevel {
      */
     STARRED = 1,
     /**
+     * LoggedIn
+     */
+    LOGGED_IN = 2,
+    /**
      * Everyone
      */
-    EVERYONE = 2,
+    EVERYONE = 3,
 }
 
 export type GameState = {
