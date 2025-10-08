@@ -123,11 +123,13 @@ public class GameArchiveService(
             archive.GameToken,
             new PlayerSummaryDto(
                 UserId: archive.WhitePlayer.UserId,
+                IsAuthenticated: archive.WhitePlayer.IsAuthenticated,
                 UserName: archive.WhitePlayer.UserName,
                 Rating: archive.WhitePlayer.NewRating
             ),
             new PlayerSummaryDto(
                 UserId: archive.BlackPlayer.UserId,
+                IsAuthenticated: archive.BlackPlayer.IsAuthenticated,
                 UserName: archive.BlackPlayer.UserName,
                 Rating: archive.BlackPlayer.NewRating
             ),

@@ -71,7 +71,6 @@ public class ChallengeController(
     [HttpDelete("by-id/{challengeId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    [Authorize(AuthPolicies.AuthedUser)]
     public async Task<ActionResult> CancelChallenge(string challengeId)
     {
         var userIdResult = _authService.GetUserId(User);

@@ -3,4 +3,4 @@
 namespace Chess2.Api.ArchivedGames.Models;
 
 [DisplayName("PlayerSummary")]
-public record PlayerSummaryDto(string UserId, string UserName, int? Rating);
+public record PlayerSummaryDto(string UserId, bool IsAuthenticated, string UserName, int? Rating);
