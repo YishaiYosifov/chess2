@@ -1,12 +1,11 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Shared.Services;
-using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +16,13 @@ namespace Chess2.Api.Challenges.Controllers;
 [Authorize(AuthPolicies.ActiveSession)]
 public class ChallengeController(
     IGrainFactory grains,
-    IRandomCodeGenerator randomCodeGenerator,
+    IChallengeRequestCreator challengeRequestCreator,
     IAuthService authService,
     IGuestService guestService
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
-    private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
+    private readonly IChallengeRequestCreator _challengeRequestCreator = challengeRequestCreator;
     private readonly IAuthService _authService = authService;
     private readonly IGuestService _guestService = guestService;
 
@@ -39,21 +38,20 @@ public class ChallengeController(
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
-        if (_guestService.IsGuest(User) && recipientId is not null)
-        {
-            return Error
-                .Forbidden(description: "Cannot create a direct challenge as a guest")
-                .ToActionResult();
-        }
 
-        var id = _randomCodeGenerator.GenerateBase62Code(16);
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(id);
-        var result = await challengeGrain.CreateAsync(
-            requester: userIdResult.Value,
-            recipient: recipientId,
+        var challengeRequestResult = await _challengeRequestCreator.CreateAsync(
+            requesterId: userIdResult.Value,
+            isGuest: _guestService.IsGuest(User),
+            recipientId: recipientId,
             pool
         );
-        return result.Match(Ok, errors => errors.ToActionResult());
+        if (challengeRequestResult.IsError)
+            return challengeRequestResult.Errors.ToActionResult();
+        var challengeRequest = challengeRequestResult.Value;
+
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeRequest.ChallengeId);
+        await challengeGrain.CreateAsync(challengeRequest);
+        return Ok(challengeRequest);
     }
 
     [HttpGet("by-id/{challengeId}", Name = nameof(GetChallenge))]
