@@ -40,7 +40,7 @@ const RatingCard = ({ overview }: { overview: RatingOverview }) => {
         ];
     }
 
-    const earliestRating = ratings.at(0)?.rating ?? 0;
+    const earliestRating = ratings.at(0)?.rating ?? currentRating;
     const ratingChange = currentRating - earliestRating;
 
     function formatNumberWithSign(num: number): string {

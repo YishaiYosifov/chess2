@@ -4,25 +4,20 @@ import Chart from "react-apexcharts";
 import preloadAll from "@/lib/testUtils/dynamicImportMock";
 
 import RatingCard from "../RatingsCard";
-import { RatingOverview, TimeControl } from "@/lib/apiClient";
+import { RatingOverview } from "@/lib/apiClient";
+import { createFakeRatingOverview } from "@/lib/testUtils/fakers/ratingOverviewFaker";
 
 vi.mock("react-apexcharts");
 
-const ratingMock: RatingOverview = {
-    timeControl: TimeControl.BLITZ,
-    ratings: [
-        { rating: 800, achievedAt: "2024-11-24T11:00:00Z" },
-        { rating: 900, achievedAt: "2024-11-24T12:00:00Z" },
-    ],
-    highest: 1200,
-    lowest: 600,
-    current: 900,
-};
-
 describe("RatingsCard", () => {
     const chartMock = vi.mocked(Chart);
+    let ratingMock: RatingOverview;
 
     beforeAll(() => preloadAll());
+
+    beforeEach(() => {
+        ratingMock = createFakeRatingOverview();
+    });
 
     it("should render the card with variant, rating data, and chart", () => {
         render(<RatingCard overview={ratingMock} />);
@@ -49,7 +44,7 @@ describe("RatingsCard", () => {
         ]);
     });
 
-    it("displays current, highest, lowest ratings correctly", () => {
+    it("should display current, highest, lowest ratings correctly", () => {
         render(<RatingCard overview={ratingMock} />);
 
         expect(screen.getByTestId("currentRating").textContent).toBe(
@@ -93,7 +88,7 @@ describe("RatingsCard", () => {
             "text-neutral-400",
         ],
     ])(
-        "displays correct rating change and color for %p",
+        "should display the correct rating change and color for %p",
         (partialOverview, expectedText, expectedClass) => {
             const ratingOverview = {
                 ...ratingMock,
@@ -107,4 +102,13 @@ describe("RatingsCard", () => {
             expect(change).toHaveClass(expectedClass);
         },
     );
+
+    it("should fall back to current rating when there are no historical ratings", () => {
+        ratingMock.ratings = [];
+
+        render(<RatingCard overview={ratingMock} />);
+
+        const change = screen.getByTestId("ratingChange");
+        expect(change.textContent).toBe("±0");
+    });
 });
