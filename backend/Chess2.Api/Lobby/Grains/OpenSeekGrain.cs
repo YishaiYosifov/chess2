@@ -21,6 +21,11 @@ public interface IOpenSeekGrain : IGrainWithIntegerKey
 
     [Alias("InitializeAsync")]
     Task InitializeAsync();
+
+#if DEBUG
+    [Alias("ClearStateAsync")]
+    Task ClearStateAsync();
+#endif
 }
 
 public class SeekWatcher
@@ -40,13 +45,14 @@ public record SeekKey(UserId UserId, PoolKey Pool);
 
 [KeepAlive]
 public class OpenSeekGrain(
+    ILogger<OpenSeekGrain> logger,
     IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator
 ) : Grain, IOpenSeekGrain, IGrainBase
 {
     public const int RefetchTimer = 0;
-    public const int StaleTimer = 1;
 
+    private readonly ILogger<OpenSeekGrain> _logger = logger;
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
@@ -104,12 +110,12 @@ public class OpenSeekGrain(
         if (!_openSeeks.TryGetValue(seekKey, out var openSeek))
             return;
 
+        _openSeeks.Remove(seekKey);
         await _openSeekNotifier.NotifyOpenSeekEndedAsync(
             openSeek.SubscribedUserIds,
             @event.UserId,
             @event.Pool
         );
-        _openSeeks.Remove(seekKey);
     }
 
     private async Task OnSeekCreated(OpenSeekCreatedEvent @event, StreamSequenceToken _)
@@ -167,4 +173,13 @@ public class OpenSeekGrain(
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
+
+#if DEBUG
+    public Task ClearStateAsync()
+    {
+        _connections.Clear();
+        _openSeeks.Clear();
+        return Task.CompletedTask;
+    }
+#endif
 }
