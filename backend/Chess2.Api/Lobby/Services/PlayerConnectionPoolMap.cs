@@ -3,9 +3,14 @@ using Chess2.Api.Shared.Models;
 
 namespace Chess2.Api.Lobby.Services;
 
+[GenerateSerializer]
+[Alias("Chess2.Api.Lobby.Services.PlayerConnectionPoolMap")]
 public class PlayerConnectionPoolMap
 {
+    [Id(0)]
     private readonly Dictionary<ConnectionId, HashSet<PoolKey>> _connectionToPools = [];
+
+    [Id(1)]
     private readonly Dictionary<PoolKey, HashSet<ConnectionId>> _poolToConnections = [];
 
     public IEnumerable<PoolKey> ActivePools => _poolToConnections.Keys;

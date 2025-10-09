@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Infrastructure.Extensions;
+﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
@@ -34,20 +35,34 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
     Task GameEndedAsync(string gameToken);
 }
 
+[GenerateSerializer]
+[Alias("Chess2.Api.Lobby.Grains.PlayerSessionState")]
+public class PlayerSessionState
+{
+    [Id(0)]
+    public PlayerConnectionPoolMap ConnectionMap { get; } = new();
+
+    [Id(1)]
+    public HashSet<string> ActiveGameTokens { get; } = [];
+}
+
 public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 {
+    public const string StateName = "playerSession";
+
     private readonly UserId _userId;
 
-    private readonly PlayerConnectionPoolMap _connectionMap = new();
     private readonly Dictionary<PoolKey, ConnectionId> _poolConnectionReservations = [];
-    private readonly HashSet<string> _activeGameTokens = [];
     private readonly HashSet<ConnectionId> _connectionsRecentlyMatched = [];
 
+    private readonly IPersistentState<PlayerSessionState> _state;
     private readonly ILogger<PlayerSessionGrain> _logger;
     private readonly ILobbyNotifier _matchmakingNotifier;
     private readonly LobbySettings _settings;
 
     public PlayerSessionGrain(
+        [PersistentState(StateName, StorageNames.PlayerSessionState)]
+            IPersistentState<PlayerSessionState> state,
         ILogger<PlayerSessionGrain> logger,
         ILobbyNotifier matchmakingNotifier,
         IOptions<AppSettings> settings
@@ -55,6 +70,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         _userId = this.GetPrimaryKeyString();
 
+        _state = state;
         _logger = logger;
         _matchmakingNotifier = matchmakingNotifier;
         _settings = settings.Value.Lobby;
@@ -75,7 +91,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         var matchmakingGrain = GrainFactory.GetMatchmakingGrain(pool);
         await matchmakingGrain.AddSeekAsync(seeker, this.AsSafeReference<ISeekObserver>());
 
-        _connectionMap.AddConnectionToPool(connectionId, pool);
+        _state.State.ConnectionMap.AddConnectionToPool(connectionId, pool);
+        await _state.WriteStateAsync();
 
         return Result.Created;
     }
@@ -84,6 +101,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         await RemoveConnectionFromPoolsAsync(connectionId);
         _connectionsRecentlyMatched.Remove(connectionId);
+        await _state.WriteStateAsync();
     }
 
     public Task CancelSeekAsync(PoolKey pool) =>
@@ -110,23 +128,29 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         var gameToken = startGameResult.Value;
 
         await OnGameFoundAsync(gameToken, [connectionId], pool);
+        await _state.WriteStateAsync();
         return Result.Created;
     }
 
-    public Task GameEndedAsync(string gameToken) =>
-        Task.FromResult(_activeGameTokens.Remove(gameToken));
+    public async Task GameEndedAsync(string gameToken)
+    {
+        _state.State.ActiveGameTokens.Remove(gameToken);
+        await _state.WriteStateAsync();
+    }
 
     public async Task SeekMatchedAsync(string gameToken, PoolKey pool)
     {
-        var poolConnectionIds = _connectionMap.RemovePool(pool);
+        var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
         await OnGameFoundAsync(gameToken, poolConnectionIds, pool);
+        await _state.WriteStateAsync();
     }
 
     public async Task SeekRemovedAsync(PoolKey pool)
     {
         _poolConnectionReservations.Remove(pool);
 
-        var poolConnectionIds = _connectionMap.RemovePool(pool);
+        var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
+        await _state.WriteStateAsync();
         await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
     }
 
@@ -137,7 +161,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         if (_poolConnectionReservations.ContainsKey(pool))
             return Task.FromResult(false);
 
-        var connectionIds = _connectionMap.PoolConnections(pool);
+        var connectionIds = _state.State.ConnectionMap.PoolConnections(pool);
 
         foreach (var connectionId in connectionIds)
         {
@@ -163,10 +187,10 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         PoolKey pool
     )
     {
+        _state.State.ActiveGameTokens.Add(gameToken);
         _poolConnectionReservations.Remove(pool);
 
         await _matchmakingNotifier.NotifyGameFoundAsync(connectionIds, gameToken);
-        _activeGameTokens.Add(gameToken);
         _connectionsRecentlyMatched.UnionWith(connectionIds);
 
         foreach (var connectionId in connectionIds)
@@ -178,16 +202,16 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
     private async Task CancelAllSeeksAsync()
     {
-        foreach (var pool in _connectionMap.ActivePools)
+        foreach (var pool in _state.State.ConnectionMap.ActivePools)
         {
             await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
         }
-        _connectionMap.RemoveAllPools();
+        _state.State.ConnectionMap.RemoveAllPools();
     }
 
     private async Task RemoveConnectionFromPoolsAsync(ConnectionId connectionId)
     {
-        var removedPools = _connectionMap.RemoveConnection(connectionId);
+        var removedPools = _state.State.ConnectionMap.RemoveConnection(connectionId);
         foreach (var pool in removedPools)
         {
             await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
@@ -199,5 +223,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         || _poolConnectionReservations.Values.Any(claimedConn => connectionId == claimedConn);
 
     private bool HasReachedGameLimit() =>
-        _activeGameTokens.Count + _poolConnectionReservations.Count >= _settings.MaxActiveGames;
+        _state.State.ActiveGameTokens.Count + _poolConnectionReservations.Count
+        >= _settings.MaxActiveGames;
 }

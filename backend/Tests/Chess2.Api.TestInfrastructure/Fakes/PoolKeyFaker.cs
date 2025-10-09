@@ -5,10 +5,10 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class PoolKeyFaker : RecordFaker<PoolKey>
 {
-    public PoolKeyFaker()
+    public PoolKeyFaker(PoolType? poolType = null)
     {
         StrictMode(true);
-        RuleFor(x => x.PoolType, f => f.PickRandom<PoolType>());
+        RuleFor(x => x.PoolType, f => poolType ?? f.PickRandom<PoolType>());
         RuleFor(
             x => x.TimeControl,
             f => new TimeControlSettings(
