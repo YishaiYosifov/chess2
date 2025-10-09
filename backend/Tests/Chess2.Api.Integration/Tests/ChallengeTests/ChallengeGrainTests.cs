@@ -202,7 +202,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_requesterId, isGuest: false);
+        var result = await grain.AcceptAsync(_requesterId);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.NotFound);
@@ -214,7 +214,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         var createdChallenge = await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_recipientId, isGuest: false);
+        var result = await grain.AcceptAsync(_recipientId);
 
         result.IsError.Should().BeFalse();
 
@@ -237,7 +237,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual)
         );
 
-        var result = await grain.AcceptAsync("random-user", isGuest: false);
+        var result = await grain.AcceptAsync("random-user");
 
         result.IsError.Should().BeFalse();
 
@@ -260,16 +260,10 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
 
-        var result = await grain.AcceptAsync("random-user", isGuest: false);
+        var result = await grain.AcceptAsync(UserId.Guest());
 
-        result.IsError.Should().BeFalse();
-        await AssertToreDownAsync(grain);
-        await AssertGameCreated(
-            gameToken: result.Value,
-            fromChallenge: createdChallenge,
-            requesterId: _requesterId,
-            recipientId: "random-user"
-        );
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.AuthedOnlyPool);
     }
 
     [Fact]

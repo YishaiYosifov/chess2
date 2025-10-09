@@ -1,9 +1,7 @@
 ﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Models;
-using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Social.Services;
-using Microsoft.AspNetCore.Identity;
 
 namespace Chess2.Api.Preferences.Services;
 
@@ -19,14 +17,12 @@ public interface IInteractionLevelGate
 public class InteractionLevelGate(
     IPreferenceService preferenceService,
     IBlockService blockService,
-    IStarService starService,
-    UserManager<AuthedUser> userManager
+    IStarService starService
 ) : IInteractionLevelGate
 {
     private readonly IPreferenceService _preferenceService = preferenceService;
     private readonly IBlockService _blockService = blockService;
     private readonly IStarService _starService = starService;
-    private readonly UserManager<AuthedUser> _userManager = userManager;
 
     public async Task<bool> CanInteractWithAsync(
         Func<PreferenceDto, InteractionLevel> getInteractionLevel,
@@ -39,10 +35,7 @@ public class InteractionLevelGate(
         if (interactionLevel is InteractionLevel.NoOne)
             return false;
 
-        if (
-            interactionLevel is InteractionLevel.LoggedIn
-            && await _userManager.FindByIdAsync(requesterId) is null
-        )
+        if (interactionLevel is InteractionLevel.LoggedIn && requesterId.IsGuest)
             return false;
 
         if (await _blockService.HasBlockedAsync(byUserId: recipientId, blockedUserId: requesterId))

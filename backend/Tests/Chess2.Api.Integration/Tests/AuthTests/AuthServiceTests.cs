@@ -1,15 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Auth.Errors;
+﻿using Chess2.Api.Auth.Errors;
 using Chess2.Api.Auth.Services;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
-using Chess2.Api.Profile.Models;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Integration.Tests.AuthTests;
 
@@ -32,7 +32,7 @@ public class AuthServiceTests : BaseIntegrationTest
         var result = _authService.GetUserId(claims);
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().Be(id);
+        result.Value.Should().Be((UserId)id);
     }
 
     [Fact]

@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
@@ -54,9 +55,9 @@ public class ApiTestBase : IAsyncLifetime
         );
     }
 
-    protected async Task<HubConnection> GuestSignalRAsync(string path, string guestId)
+    protected async Task<HubConnection> GuestSignalRAsync(string path, UserId? guestId = null)
     {
-        var token = TokenProvider.GenerateGuestToken(guestId);
+        var token = TokenProvider.GenerateGuestToken(guestId ?? UserId.Guest());
         var conn = await SignalRAsync(path, token);
         return conn;
     }

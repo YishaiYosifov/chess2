@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Models;
 using Chess2.Api.Preferences.Services;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Social.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -192,7 +193,7 @@ public class InteractionLevelGateTests : BaseIntegrationTest
 
         var result = await _interactionLevelGate.CanInteractWithAsync(
             prefs => prefs.ChallengePreference,
-            "guest id",
+            UserId.Guest(),
             recipient.Id
         );
 

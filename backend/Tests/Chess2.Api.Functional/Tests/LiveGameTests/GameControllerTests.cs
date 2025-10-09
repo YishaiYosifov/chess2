@@ -1,15 +1,16 @@
-﻿using System.Net;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.LiveGameTests;
 
@@ -28,12 +29,14 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_game_state_for_guest_player()
     {
+        var guest1 = UserId.Guest();
+        var guest2 = UserId.Guest();
         var gameToken = await _gameStarter.StartGameAsync(
-            "guest1",
-            "guest2",
+            guest1,
+            guest2,
             new PoolKey(PoolType.Casual, new(600, 0))
         );
-        AuthUtils.AuthenticateGuest(ApiClient, "guest1");
+        AuthUtils.AuthenticateGuest(ApiClient, guest1);
 
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
@@ -41,7 +44,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         var gameState = response.Content;
         gameState.Should().NotBeNull();
-        AssertGuestPlayersMatch("guest1", "guest2", gameState);
+        AssertGuestPlayersMatch(guest1, guest2, gameState);
     }
 
     [Fact]
@@ -70,11 +73,11 @@ public class GameControllerTests : BaseFunctionalTest
     public async Task GetGame_returns_403_for_guest_not_in_game()
     {
         var gameToken = await _gameStarter.StartGameAsync(
-            "guest1",
-            "guest2",
+            UserId.Guest(),
+            UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0))
         );
-        AuthUtils.AuthenticateGuest(ApiClient, "otherGuest");
+        AuthUtils.AuthenticateGuest(ApiClient, UserId.Guest());
 
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
@@ -85,8 +88,8 @@ public class GameControllerTests : BaseFunctionalTest
     public async Task GetGame_returns_403_for_authed_user_not_in_game()
     {
         var gameToken = await _gameStarter.StartGameAsync(
-            "guest1",
-            "guest2",
+            UserId.Guest(),
+            UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0))
         );
 
@@ -100,8 +103,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_404_for_invalid_game_token()
     {
-        var token = TokenProvider.GenerateGuestToken("guest1");
-        AuthUtils.AuthenticateWithTokens(ApiClient, token);
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.GetGameAsync("thisgamedoesnotexist123");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -146,14 +148,16 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_correct_game_after_it_is_over_when_unrated()
     {
+        var guest1 = UserId.Guest();
+        var guest2 = UserId.Guest();
         var gameToken = await _gameStarter.StartGameAsync(
-            "guest1",
-            "guest2",
+            guest1,
+            guest2,
             new PoolKey(PoolType.Casual, new(600, 0))
         );
-        await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync("guest2");
+        await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(guest2);
 
-        AuthUtils.AuthenticateGuest(ApiClient, "guest1");
+        AuthUtils.AuthenticateGuest(ApiClient, guest1);
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -165,7 +169,7 @@ public class GameControllerTests : BaseFunctionalTest
         gameState
             .MoveOptions.Should()
             .BeEquivalentTo(new MoveOptions(LegalMoves: [], HasForcedMoves: false));
-        AssertGuestPlayersMatch("guest1", "guest2", gameState);
+        AssertGuestPlayersMatch(guest1, guest2, gameState);
     }
 
     [Fact]
@@ -180,8 +184,7 @@ public class GameControllerTests : BaseFunctionalTest
         await DbContext.AddRangeAsync(authedUser, rating);
         await DbContext.SaveChangesAsync(CT);
 
-        var guestId = "guest123";
-
+        var guestId = UserId.Guest();
         var gameToken = await _gameStarter.StartGameAsync(
             authedUser.Id,
             guestId,
