@@ -4,8 +4,8 @@ using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Stream;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;
@@ -278,20 +278,6 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             period: TimeSpan.FromMinutes(1)
         );
 
-        var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
-        await poolDirectoryGrain.RegisterPoolAsync(_key);
-
         await base.OnActivateAsync(cancellationToken);
-    }
-
-    public override async Task OnDeactivateAsync(
-        DeactivationReason reason,
-        CancellationToken cancellationToken
-    )
-    {
-        var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
-        await poolDirectoryGrain.UnregisterPoolAsync(_key);
-
-        await base.OnDeactivateAsync(reason, cancellationToken);
     }
 }

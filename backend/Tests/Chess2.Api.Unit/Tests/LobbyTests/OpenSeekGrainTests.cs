@@ -4,7 +4,6 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
-using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
@@ -19,8 +18,6 @@ public class OpenSeekGrainTests : BaseGrainTest
 {
     private readonly IOpenSeekNotifier _openSeekNotifierMock = Substitute.For<IOpenSeekNotifier>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
-    private readonly IPoolDirectoryGrain _poolDirectoryGrainMock =
-        Substitute.For<IPoolDirectoryGrain>();
 
     private readonly DateTime _fakeNow;
 
@@ -28,7 +25,6 @@ public class OpenSeekGrainTests : BaseGrainTest
         PoolType.Rated,
         new TimeControlSettings(BaseSeconds: 600, IncrementSeconds: 30)
     );
-    private readonly TimeControl _ratedPoolTimeControl = TimeControl.Rapid;
 
     private readonly PoolKey _casualPoolKey = new(
         PoolType.Casual,
@@ -40,9 +36,6 @@ public class OpenSeekGrainTests : BaseGrainTest
     {
         _fakeNow = DateTime.UtcNow;
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-
-        _poolDirectoryGrainMock.GetAllSeekersAsync().Returns([]);
-        Silo.AddProbe(_ => _poolDirectoryGrainMock);
 
         Silo.ServiceProvider.AddService(_openSeekNotifierMock);
         Silo.ServiceProvider.AddService(_timeProviderMock);
@@ -236,113 +229,6 @@ public class OpenSeekGrainTests : BaseGrainTest
                 Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(expectedUserIds)),
                 matchSeeker.UserId,
                 _casualPoolKey
-            );
-    }
-
-    [Fact]
-    public async Task CleanStaleConnectionsAsync_removes_stale_connections_and_keeps_fresh()
-    {
-        var now = DateTimeOffset.UtcNow;
-        var timeProviderMock = Substitute.For<TimeProvider>();
-        timeProviderMock.GetUtcNow().Returns(now);
-
-        var freshSeeker = new CasualSeekerFaker()
-            .RuleFor(s => s.CreatedAt, now.AddMinutes(-4))
-            .Generate();
-
-        var staleSeeker = new CasualSeekerFaker()
-            .RuleFor(s => s.CreatedAt, now.AddMinutes(-6))
-            .Generate();
-
-        var matchSeeker = new CasualSeekerFaker().Generate();
-
-        var createStream = ProbeOpenSeekCreatedStream();
-        var grain = await Silo.CreateGrainAsync<OpenSeekGrain>(0);
-
-        await grain.SubscribeAsync("freshConn", freshSeeker);
-        await grain.SubscribeAsync("staleConn", staleSeeker);
-
-        await Silo.FireTimerAsync(OpenSeekGrain.StaleTimer);
-
-        // add a new compatible seek to make sure only fresh conn receives it
-        await createStream.OnNextAsync(new OpenSeekCreatedEvent(matchSeeker, _casualPoolKey));
-
-        List<string> expectedIds = [freshSeeker.UserId];
-        await _openSeekNotifierMock
-            .Received(1)
-            .NotifyOpenSeekAsync(
-                Arg.Is<IEnumerable<string>>(ids => ids.SequenceEqual(expectedIds)),
-                Arg.Any<IEnumerable<OpenSeek>>()
-            );
-    }
-
-    [Fact]
-    public async Task RefetchSeeksAsync_notifies_all_compatible_watchers_after_fetch()
-    {
-        var createStream = ProbeOpenSeekCreatedStream();
-
-        var casualWatcher = new CasualSeekerFaker().Generate();
-        var ratedWatcher = new OpenRatedSeekerFaker()
-            .RuleFor(
-                x => x.Ratings,
-                new Dictionary<TimeControl, int> { [_ratedPoolTimeControl] = 1500 }
-            )
-            .Generate();
-
-        var casualSeeker = new CasualSeekerFaker().Generate();
-        var ratedSeeker = new RatedSeekerFaker()
-            .RuleFor(x => x.Rating, new SeekerRatingFaker(1500, _ratedPoolTimeControl))
-            .Generate();
-
-        var grain = await Silo.CreateGrainAsync<OpenSeekGrain>(0);
-
-        _poolDirectoryGrainMock
-            .GetAllSeekersAsync()
-            .Returns(
-                new Dictionary<PoolKey, List<Seeker>>
-                {
-                    [_casualPoolKey] = [casualSeeker],
-                    [_ratedPoolKey] = [ratedSeeker],
-                }
-            );
-
-        await Silo.FireTimerAsync(OpenSeekGrain.RefetchTimer);
-
-        await grain.SubscribeAsync("casualconn", casualWatcher);
-        await grain.SubscribeAsync("ratedconn", ratedWatcher);
-        List<OpenSeek> expectedCasualSeeks =
-        [
-            new OpenSeek(
-                casualSeeker.UserId,
-                casualSeeker.UserName,
-                _casualPoolKey,
-                _casualPoolTimeControl,
-                Rating: null
-            ),
-        ];
-        await _openSeekNotifierMock
-            .Received(1)
-            .NotifyOpenSeekAsync(
-                Arg.Is<ConnectionId>("casualconn"),
-                Arg.Is<IEnumerable<OpenSeek>>(x => x.SequenceEqual(expectedCasualSeeks))
-            );
-
-        List<OpenSeek> expectedRatedSeeks =
-        [
-            .. expectedCasualSeeks,
-            new OpenSeek(
-                ratedSeeker.UserId,
-                ratedSeeker.UserName,
-                _ratedPoolKey,
-                _ratedPoolTimeControl,
-                Rating: ratedSeeker.Rating.Value
-            ),
-        ];
-        await _openSeekNotifierMock
-            .Received(1)
-            .NotifyOpenSeekAsync(
-                Arg.Is<ConnectionId>("ratedconn"),
-                Arg.Is<IEnumerable<OpenSeek>>(x => x.SequenceEqual(expectedRatedSeeks))
             );
     }
 }

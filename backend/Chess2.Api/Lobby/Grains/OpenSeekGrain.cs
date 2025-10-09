@@ -2,11 +2,10 @@
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
-using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Stream;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using Orleans.Streams;
 
 namespace Chess2.Api.Lobby.Grains;
@@ -19,6 +18,8 @@ public interface IOpenSeekGrain : IGrainWithIntegerKey
 
     [Alias("Unsubscribe")]
     Task UnsubscribeAsync(UserId userId, ConnectionId connectionId);
+
+    Task InitializeAsync();
 }
 
 public class SeekWatcher
@@ -39,8 +40,7 @@ public record SeekKey(UserId UserId, PoolKey Pool);
 [KeepAlive]
 public class OpenSeekGrain(
     IOpenSeekNotifier openSeekNotifier,
-    ITimeControlTranslator timeControlTranslator,
-    TimeProvider timeProvider
+    ITimeControlTranslator timeControlTranslator
 ) : Grain, IOpenSeekGrain, IGrainBase
 {
     public const int RefetchTimer = 0;
@@ -48,7 +48,6 @@ public class OpenSeekGrain(
 
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-    private readonly TimeProvider _timeProvider = timeProvider;
 
     private readonly Dictionary<UserId, SeekWatcher> _connections = [];
     private readonly Dictionary<SeekKey, OpenSeekEntry> _openSeeks = [];
@@ -124,40 +123,8 @@ public class OpenSeekGrain(
         }
     }
 
-    private async Task RefetchSeeksAsync()
-    {
-        var poolDirectoryGrain = GrainFactory.GetGrain<IPoolDirectoryGrain>(0);
-        var poolSeekers = await poolDirectoryGrain.GetAllSeekersAsync();
-
-        _openSeeks.Clear();
-        foreach (var (pool, seekers) in poolSeekers)
-        {
-            foreach (var seeker in seekers)
-            {
-                RegisterOpenSeeker(seeker, pool);
-            }
-        }
-    }
-
-    private Task CleanStaleConnectionsAsync()
-    {
-        var cutoff = _timeProvider.GetUtcNow() - TimeSpan.FromMinutes(5);
-        var staleUserIds = _connections
-            .Where(watcher => watcher.Value.Seeker.CreatedAt < cutoff)
-            .Select(watcher => watcher.Key)
-            .ToList();
-        foreach (var userId in staleUserIds)
-        {
-            _connections.Remove(userId);
-        }
-
-        return Task.CompletedTask;
-    }
-
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
-        await RefetchSeeksAsync();
-
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         var openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
             MatchmakingStreamConstants.OpenSeekCreatedStream
@@ -168,17 +135,6 @@ public class OpenSeekGrain(
             MatchmakingStreamConstants.OpenSeekRemovedStream
         );
         await openSeekRemovedStream.SubscribeAsync(OnSeekEnded);
-
-        this.RegisterGrainTimer(
-            callback: RefetchSeeksAsync,
-            dueTime: TimeSpan.FromMinutes(10),
-            period: TimeSpan.FromMinutes(10)
-        );
-        this.RegisterGrainTimer(
-            callback: CleanStaleConnectionsAsync,
-            dueTime: TimeSpan.FromMinutes(5),
-            period: TimeSpan.FromMinutes(5)
-        );
 
         await base.OnActivateAsync(cancellationToken);
     }
@@ -208,4 +164,6 @@ public class OpenSeekGrain(
         _openSeeks.TryAdd(new SeekKey(seeker.UserId, pool), entry);
         return entry;
     }
+
+    public Task InitializeAsync() => Task.CompletedTask;
 }
