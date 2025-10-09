@@ -6,21 +6,18 @@ using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Matchmaking.Stream;
-using Chess2.Api.Shared.Models;
-using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
+using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
 using Orleans.TestKit.Streams;
 
-namespace Chess2.Api.Integration.Tests.MatchmakingTests;
+namespace Chess2.Api.Unit.Tests.MatchmakingTests;
 
-public class MatchmakingGrainTests : BaseOrleansIntegrationTest
+public class MatchmakingGrainTests : BaseGrainTest
 {
     private readonly DateTime _fakeNow = DateTime.UtcNow;
     private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
@@ -33,13 +30,10 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
     private readonly MatchmakingGrainState<CasualMatchmakingPool> _state;
     private readonly TestStorageStats _stateStats;
 
-    public MatchmakingGrainTests(Chess2WebApplicationFactory factory)
-        : base(factory)
+    public MatchmakingGrainTests()
     {
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-        var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
-            IOptions<AppSettings>
-        >();
+        var settings = AppSettingsLoader.LoadAppSettings();
 
         Silo.ServiceProvider.AddService(
             Substitute.For<ILogger<MatchmakingGrain<CasualMatchmakingPool>>>()
