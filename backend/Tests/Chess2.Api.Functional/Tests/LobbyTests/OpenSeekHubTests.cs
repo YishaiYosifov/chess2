@@ -9,6 +9,12 @@ namespace Chess2.Api.Functional.Tests.LobbyTests;
 
 public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
+    //public override ValueTask DisposeAsync()
+    //{
+    //    Scope.ServiceProvider.GetRequired
+    //    return base.DisposeAsync();
+    //}
+
     [Fact]
     public async Task Guest_users_only_receives_casual_seeks()
     {

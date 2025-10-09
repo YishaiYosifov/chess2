@@ -10,10 +10,10 @@ public static class GrainExtensions
     {
         return pool.PoolType switch
         {
-            PoolType.Rated => factory.GetGrain<IMatchmakingGrain<IRatedMatchmakingPool>>(
+            PoolType.Rated => factory.GetGrain<IMatchmakingGrain<RatedMatchmakingPool>>(
                 pool.ToGrainKey()
             ),
-            PoolType.Casual => factory.GetGrain<IMatchmakingGrain<ICasualMatchmakingPool>>(
+            PoolType.Casual => factory.GetGrain<IMatchmakingGrain<CasualMatchmakingPool>>(
                 pool.ToGrainKey()
             ),
             _ => throw new InvalidOperationException($"Unsupported pool type: {pool.PoolType}"),
