@@ -1,7 +1,3 @@
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -61,6 +57,10 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -329,6 +329,7 @@ builder.Host.UseOrleans(siloBuilder =>
             ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
         );
     });
+    siloBuilder.AddMemoryGrainStorage(StorageNames.PlayerSessionState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.ChallengeState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
@@ -344,6 +345,11 @@ builder.Host.UseOrleans(siloBuilder =>
             var grainFactory = services.GetRequiredService<IGrainFactory>();
             var grain = grainFactory.GetGrain<IQuestSeasonResetterGrain>(0);
             await grain.InitializeAsync();
+
+            for (var i = 0; i < appSettings.Lobby.OpenSeekShardCount; i++)
+            {
+                await grainFactory.GetGrain<IOpenSeekGrain>(i).InitializeAsync();
+            }
         }
     );
 });
