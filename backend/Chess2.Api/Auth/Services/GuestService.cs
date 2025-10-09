@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
+﻿using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
+using System.Security.Claims;
 
 namespace Chess2.Api.Auth.Services;
 
@@ -31,7 +32,7 @@ public class GuestService(
     /// <returns>The guest access token</returns>
     public string CreateGuestUser()
     {
-        var id = GenerateGuestId();
+        var id = UserId.Guest();
         var accessToken = _tokenProvider.GenerateGuestToken(id);
         _logger.LogInformation("Created guest user with id {Id}", id);
         return accessToken;
@@ -64,10 +65,5 @@ public class GuestService(
         var isAnnonymous = userClaims.GetClaim(ClaimTypes.Anonymous);
         var isGuest = isAnnonymous is not null && isAnnonymous == "1";
         return isGuest;
-    }
-
-    private static string GenerateGuestId()
-    {
-        return $"{Guid.NewGuid()}-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
     }
 }

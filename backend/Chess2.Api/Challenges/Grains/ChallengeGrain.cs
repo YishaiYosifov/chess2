@@ -24,7 +24,7 @@ public interface IChallengeGrain : IGrainWithStringKey
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
     [Alias("AcceptAsync")]
-    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy, bool isGuest);
+    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy);
 }
 
 [GenerateSerializer]
@@ -125,7 +125,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Deleted;
     }
 
-    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy, bool isGuest)
+    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy)
     {
         var request = _state.State.Request;
         if (request is null)
@@ -134,7 +134,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (request.Recipient is not null && !IsUserRecipient(acceptedBy))
             return ChallengeErrors.NotFound;
 
-        if (request.Pool.PoolType is PoolType.Rated && isGuest)
+        if (request.Pool.PoolType is PoolType.Rated && acceptedBy.IsGuest)
             return ChallengeErrors.AuthedOnlyPool;
 
         var gameToken = await _gameStarter.StartGameAsync(

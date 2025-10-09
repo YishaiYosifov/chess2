@@ -27,7 +27,7 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
         await casualLobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         await using OpenSeekHubClient openSeek = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, "guest watcher"),
+            await GuestSignalRAsync(OpenSeekHubClient.Path),
             CT
         );
         var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
@@ -83,13 +83,11 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
     public async Task Seek_end_notifies_subscribed_users()
     {
         TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
-        await using var lobby = new LobbyHubClient(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest seeker")
-        );
+        await using var lobby = new LobbyHubClient(await GuestSignalRAsync(LobbyHubClient.Path));
         await lobby.SeekCasualAsync(timeControl, CT);
 
         await using var watcher = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, "guest watcher"),
+            await GuestSignalRAsync(OpenSeekHubClient.Path),
             CT
         );
 
@@ -103,17 +101,15 @@ public class OpenSeekHubTests(Chess2WebApplicationFactory factory) : BaseFunctio
     public async Task Multiple_connections_receive_same_notifications()
     {
         await using var watcher1 = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, "watcher 1"),
+            await GuestSignalRAsync(OpenSeekHubClient.Path),
             CT
         );
         await using var watcher2 = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, "watcher 1"),
+            await GuestSignalRAsync(OpenSeekHubClient.Path),
             CT
         );
 
-        await using var lobby = new LobbyHubClient(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest seeker")
-        );
+        await using var lobby = new LobbyHubClient(await GuestSignalRAsync(LobbyHubClient.Path));
         await lobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         var watcher1Seeks = await watcher1.GetOpenSeekBatchesAsync(1, CT);

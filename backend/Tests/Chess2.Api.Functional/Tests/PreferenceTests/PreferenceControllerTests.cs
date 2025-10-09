@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Preferences.DTOs;
+﻿using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Preferences.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.PreferenceTests;
 
@@ -35,7 +35,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetPreferences_with_a_guest_user_returns_default_preferences()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest123");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.GetPreferencesAsync();
 
@@ -66,7 +66,7 @@ public class PreferenceControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task SetPreferences_with_a_guest_user_returns_forbidden()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest123");
+        AuthUtils.AuthenticateGuest(ApiClient);
         PreferenceDto newPrefs = new(
             ChallengePreference: InteractionLevel.Everyone,
             ShowChat: true

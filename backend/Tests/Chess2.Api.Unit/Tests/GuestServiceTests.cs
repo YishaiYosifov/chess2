@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoFixture;
+﻿using AutoFixture;
 using Chess2.Api.Auth.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using System.Security.Claims;
 
 namespace Chess2.Api.Unit.Tests;
 
@@ -55,6 +55,9 @@ public class GuestServiceTests : BaseUnitTest
         var guestId1 = calls.ElementAt(0).GetArguments()[0];
         var guestId2 = calls.ElementAt(1).GetArguments()[0];
         guestId1.Should().NotBe(guestId2);
+
+        guestId1.ToString().Should().StartWith("guest:");
+        guestId2?.ToString().Should().StartWith("guest:");
 
         guestId1.ToString()?.Length.Should().BeGreaterThan(36);
         guestId2?.ToString()?.Length.Should().BeGreaterThan(36);

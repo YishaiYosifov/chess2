@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Chess2.Api.Challenges.Models;
+﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -7,6 +6,7 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using FluentAssertions;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.ChallengeTests;
 
@@ -36,14 +36,15 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CreateChallenge_allows_guest_with_casual_pool()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+        var guestId = UserId.Guest();
+        AuthUtils.AuthenticateGuest(ApiClient, guestId);
 
         var pool = new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual).Generate();
         var result = await ApiClient.Api.CreateChallengeAsync(null, pool);
 
         result.IsSuccessful.Should().BeTrue();
         result.Content.Should().NotBeNull();
-        result.Content.Requester.UserId.Should().Be((UserId)"guest id");
+        result.Content.Requester.UserId.Should().Be(guestId);
         result.Content.Recipient.Should().BeNull();
         result.Content.Pool.Should().Be(pool);
     }
@@ -51,7 +52,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CreateChallenge_rejects_guest_with_rated_pool()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var result = await ApiClient.Api.CreateChallengeAsync(
             null,
@@ -155,7 +156,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
 
-        AuthUtils.AuthenticateGuest(ApiClient, "guest id");
+        AuthUtils.AuthenticateGuest(ApiClient);
         var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);

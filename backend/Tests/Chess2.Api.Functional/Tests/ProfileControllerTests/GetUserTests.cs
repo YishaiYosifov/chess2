@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Profile.DTOs;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -30,7 +31,7 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     [Fact]
     public async Task GetSessionUser_with_a_guest_user()
     {
-        const string guestId = "guest 123";
+        var guestId = UserId.Guest();
         AuthUtils.AuthenticateGuest(ApiClient, guestId);
 
         var response = await ApiClient.Api.GetSessionUserGuestAsync();
