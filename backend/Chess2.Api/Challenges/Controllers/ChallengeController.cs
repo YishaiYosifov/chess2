@@ -17,14 +17,12 @@ namespace Chess2.Api.Challenges.Controllers;
 public class ChallengeController(
     IGrainFactory grains,
     IChallengeRequestCreator challengeRequestCreator,
-    IAuthService authService,
-    IGuestService guestService
+    IAuthService authService
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IChallengeRequestCreator _challengeRequestCreator = challengeRequestCreator;
     private readonly IAuthService _authService = authService;
-    private readonly IGuestService _guestService = guestService;
 
     [HttpPut]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
@@ -41,7 +39,6 @@ public class ChallengeController(
 
         var challengeRequestResult = await _challengeRequestCreator.CreateAsync(
             requesterId: userIdResult.Value,
-            isGuest: _guestService.IsGuest(User),
             recipientId: recipientId,
             pool
         );
@@ -90,10 +87,9 @@ public class ChallengeController(
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
-        bool isGuest = _guestService.IsGuest(User);
 
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
-        var result = await challengeGrain.AcceptAsync(userIdResult.Value, isGuest);
+        var result = await challengeGrain.AcceptAsync(userIdResult.Value);
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 

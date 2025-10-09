@@ -20,7 +20,6 @@ public interface IChallengeRequestCreator
 {
     Task<ErrorOr<ChallengeRequest>> CreateAsync(
         UserId requesterId,
-        bool isGuest,
         UserId? recipientId,
         PoolKey pool
     );
@@ -46,7 +45,6 @@ public class ChallengeRequestCreator(
 
     public async Task<ErrorOr<ChallengeRequest>> CreateAsync(
         UserId requesterId,
-        bool isGuest,
         UserId? recipientId,
         PoolKey pool
     )
@@ -54,7 +52,7 @@ public class ChallengeRequestCreator(
         if (requesterId == recipientId)
             return ChallengeErrors.CannotChallengeSelf;
 
-        if (isGuest && pool.PoolType is PoolType.Rated)
+        if (requesterId.IsGuest && pool.PoolType is PoolType.Rated)
             return ChallengeErrors.AuthedOnlyPool;
 
         var expiresAt = _timeProvider.GetUtcNow().UtcDateTime + _settings.ChallengeLifetime;

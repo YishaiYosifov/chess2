@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Chess2.Api.Pagination.Models;
+﻿using Chess2.Api.Pagination.Models;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests;
 
@@ -29,7 +29,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetDailyQuest_rejects_unauthorized()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.GetDailyQuestAsync();
 
@@ -58,7 +58,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task ReplaceDailyQuest_rejects_unauthorized()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.ReplaceDailyQuestAsync();
 
@@ -78,7 +78,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task CollectQuestReward_rejects_unauthorized()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.CollectQuestRewardAsync();
 
@@ -162,7 +162,7 @@ public class QuestsControllerTests(Chess2WebApplicationFactory factory)
     [Fact]
     public async Task GetMyQuestRanking_rejects_unauthorized()
     {
-        AuthUtils.AuthenticateGuest(ApiClient, "guest");
+        AuthUtils.AuthenticateGuest(ApiClient);
 
         var response = await ApiClient.Api.GetMyQuestRankingAsync();
 

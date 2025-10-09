@@ -7,6 +7,7 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Preferences.Services;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Services;
@@ -65,7 +66,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
         var pool = new PoolKeyFaker().Generate();
         var result = await _challengeCreator.CreateAsync(
             requesterId: requester.Id,
-            isGuest: false,
             recipientId: null,
             pool: pool
         );
@@ -99,7 +99,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
         var pool = new PoolKeyFaker().Generate();
         var result = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipientId: recipient.Id,
             pool: pool
         );
@@ -130,7 +129,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
 
         var result = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipientId: requester.Id,
             pool: new PoolKeyFaker().Generate()
         );
@@ -143,8 +141,7 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
     public async Task CreateAsync_rejects_guests_creating_rated_challenge()
     {
         var result = await _challengeCreator.CreateAsync(
-            requesterId: "test guest",
-            isGuest: true,
+            requesterId: UserId.Guest(),
             recipientId: null,
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
@@ -165,7 +162,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
 
         var result = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipientId: recipient.Id,
             pool: new PoolKeyFaker().Generate()
         );
@@ -184,7 +180,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
 
         var result1 = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipient.Id,
             pool: new PoolKeyFaker().Generate()
         );
@@ -195,7 +190,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
 
         var result2 = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipientId: recipient.Id,
             pool: new PoolKeyFaker().Generate()
         );
@@ -215,14 +209,12 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
 
         await _challengeCreator.CreateAsync(
             anotherRequester.Id,
-            isGuest: false,
             recipient.Id,
             pool: new PoolKeyFaker().Generate()
         );
 
         var result = await _challengeCreator.CreateAsync(
             requester.Id,
-            isGuest: false,
             recipient.Id,
             pool: new PoolKeyFaker().Generate()
         );

@@ -1,14 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Chess2.Api.Auth.DTOs;
+﻿using Chess2.Api.Auth.DTOs;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Shared.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Chess2.Api.Auth.Services;
 
@@ -25,7 +25,7 @@ public interface IAuthService
         ClaimsPrincipal? claimsPrincipal,
         CancellationToken token = default
     );
-    ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal);
+    ErrorOr<UserId> GetUserId(ClaimsPrincipal? claimsPrincipal);
     Task<ErrorOr<T>> MatchAuthTypeAsync<T>(
         ClaimsPrincipal? claimsPrincipal,
         Func<AuthedUser, Task<T>> whenAuthed,
@@ -49,12 +49,10 @@ public class AuthService(
     private readonly IGuestService _guestService = guestService;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public ErrorOr<string> GetUserId(ClaimsPrincipal? claimsPrincipal)
+    public ErrorOr<UserId> GetUserId(ClaimsPrincipal? claimsPrincipal)
     {
         var userId = claimsPrincipal?.GetClaim(ClaimTypes.NameIdentifier);
-        if (userId is null)
-            return Error.Unauthorized();
-        return userId;
+        return userId is null ? Error.Unauthorized() : (UserId)userId;
     }
 
     public async Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? claimsPrincipal)

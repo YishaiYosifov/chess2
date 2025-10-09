@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
@@ -19,12 +20,8 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [Fact]
     public async Task SeekCasualAsync_guest_vs_guest_matches()
     {
-        await using LobbyHubClient conn1 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
-        );
-        await using LobbyHubClient conn2 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
-        );
+        await using LobbyHubClient conn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         await conn1.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
         await conn2.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
@@ -63,9 +60,7 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
         await using LobbyHubClient conn1 = new(
             await AuthedSignalRAsync(LobbyHubClient.Path, authedUser)
         );
-        await using LobbyHubClient conn2 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
-        );
+        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         await conn1.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
         await conn2.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
@@ -98,12 +93,8 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
             await AuthedSignalRAsync(LobbyHubClient.Path, authed4)
         );
 
-        await using LobbyHubClient guestConn1 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
-        );
-        await using LobbyHubClient guestConn2 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
-        );
+        await using LobbyHubClient guestConn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient guestConn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         List<Task> connTasks =
         [
@@ -129,9 +120,7 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     [Fact]
     public async Task SeekRated_with_a_guest_should_return_an_error()
     {
-        await using LobbyHubClient conn = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
-        );
+        await using LobbyHubClient conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         await conn.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
 
@@ -145,18 +134,12 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     {
         TimeControlSettings timeControl = new(300, 10);
 
-        await using LobbyHubClient conn1 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
-        );
+        await using LobbyHubClient conn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
         await conn1.SeekCasualAsync(timeControl, CT);
         await conn1.DisposeAsync();
 
-        await using LobbyHubClient conn2 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
-        );
-        await using LobbyHubClient conn3 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest3")
-        );
+        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn3 = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         await conn2.SeekCasualAsync(timeControl, CT);
         await conn3.SeekCasualAsync(timeControl, CT);
@@ -170,37 +153,35 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
         TimeControlSettings timeControl = new(300, 10);
 
         await using LobbyHubClient guest1ActiveConn = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
+            await GuestSignalRAsync(LobbyHubClient.Path)
         );
-        await using var guest1DisconnectedConn = await GuestSignalRAsync(
-            LobbyHubClient.Path,
-            "guest1"
-        );
+        await using var guest1DisconnectedConn = await GuestSignalRAsync(LobbyHubClient.Path);
         await guest1ActiveConn.SeekCasualAsync(timeControl, CT);
         await guest1DisconnectedConn.StopAsync(CT);
 
-        await using LobbyHubClient guest2Conn = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
-        );
+        await using LobbyHubClient guest2Conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
         await guest2Conn.SeekCasualAsync(timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
     }
 
     [Fact]
-    public async Task MatchWithOpenSeekAsync_matches_authed_user_with_open_seek()
+    public async Task MatchWithOpenSeekAsync_matches_user_with_open_seek()
     {
         TimeControlSettings timeControl = new(300, 10);
 
+        var seekerId = UserId.Guest();
         await using LobbyHubClient conn1 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest1")
+            await GuestSignalRAsync(LobbyHubClient.Path, seekerId)
         );
-        await using LobbyHubClient conn2 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, "guest2")
-        );
+        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
 
         await conn1.SeekCasualAsync(timeControl, CT);
-        await conn2.MatchWithOpenSeekAsync("guest1", new PoolKey(PoolType.Casual, timeControl), CT);
+        await conn2.MatchWithOpenSeekAsync(
+            matchWith: seekerId,
+            new PoolKey(PoolType.Casual, timeControl),
+            CT
+        );
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }
