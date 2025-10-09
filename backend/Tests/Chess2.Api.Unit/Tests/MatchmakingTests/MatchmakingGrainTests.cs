@@ -9,7 +9,7 @@ using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
@@ -33,11 +33,8 @@ public class MatchmakingGrainTests : BaseGrainTest
     public MatchmakingGrainTests()
     {
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-        var settings = AppSettingsLoader.LoadAppSettings();
+        var settings = Options.Create(AppSettingsLoader.LoadAppSettings());
 
-        Silo.ServiceProvider.AddService(
-            Substitute.For<ILogger<MatchmakingGrain<CasualMatchmakingPool>>>()
-        );
         Silo.ServiceProvider.AddService(settings);
         Silo.ServiceProvider.AddService(_timeProviderMock);
         Silo.ServiceProvider.AddService(_gameStarterMock);
