@@ -22,7 +22,6 @@ using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Services;
-using Chess2.Api.Matchmaking.Services.Pools;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Pagination.Validators;
 using Chess2.Api.Preferences.Repositories;
@@ -330,6 +329,7 @@ builder.Host.UseOrleans(siloBuilder =>
         );
     });
     siloBuilder.AddMemoryGrainStorage(StorageNames.PlayerSessionState);
+    siloBuilder.AddMemoryGrainStorage(StorageNames.MatchmakingState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.ChallengeState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
@@ -355,8 +355,6 @@ builder.Host.UseOrleans(siloBuilder =>
 });
 
 #region Matchmaking
-builder.Services.AddTransient<IRatedMatchmakingPool, RatedMatchmakingPool>();
-builder.Services.AddTransient<ICasualMatchmakingPool, CasualMatchmakingPool>();
 builder.Services.AddSingleton<ILobbyNotifier, LobbyNotifier>();
 builder.Services.AddSingleton<IOpenSeekNotifier, OpenSeekNotifier>();
 builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();

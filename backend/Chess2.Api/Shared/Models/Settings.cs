@@ -32,6 +32,7 @@ public class LobbySettings
     public int MaxActiveGames { get; set; }
     public int AllowedMatchRatingDifference { get; set; }
     public TimeSpan MatchWaveEvery { get; set; }
+    public TimeSpan SeekActiveFor { get; set; }
 }
 
 public class GameSettings

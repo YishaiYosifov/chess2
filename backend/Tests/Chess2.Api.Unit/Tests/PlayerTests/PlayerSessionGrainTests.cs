@@ -23,11 +23,12 @@ public class PlayerSessionGrainTests : BaseGrainTest
     private readonly ILobbyNotifier _matchmakingNotifierMock = Substitute.For<ILobbyNotifier>();
     private readonly LobbySettings _settings;
 
-    private readonly IMatchmakingGrain<IRatedMatchmakingPool> _ratedPoolGrainMock = Substitute.For<
-        IMatchmakingGrain<IRatedMatchmakingPool>
+    private readonly IMatchmakingGrain<RatedMatchmakingPool> _ratedPoolGrainMock = Substitute.For<
+        IMatchmakingGrain<RatedMatchmakingPool>
     >();
-    private readonly IMatchmakingGrain<ICasualMatchmakingPool> _casualPoolGrainMock =
-        Substitute.For<IMatchmakingGrain<ICasualMatchmakingPool>>();
+    private readonly IMatchmakingGrain<CasualMatchmakingPool> _casualPoolGrainMock = Substitute.For<
+        IMatchmakingGrain<CasualMatchmakingPool>
+    >();
 
     private const string UserId = "test-user-id";
 
