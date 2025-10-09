@@ -19,6 +19,7 @@ public interface IOpenSeekGrain : IGrainWithIntegerKey
     [Alias("Unsubscribe")]
     Task UnsubscribeAsync(UserId userId, ConnectionId connectionId);
 
+    [Alias("InitializeAsync")]
     Task InitializeAsync();
 }
 
