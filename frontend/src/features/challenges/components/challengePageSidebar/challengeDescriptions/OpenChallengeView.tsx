@@ -8,7 +8,7 @@ import clsx from "clsx";
 import useChallengeStore from "@/features/challenges/hooks/useChallengeStore";
 import ChallengeStatusText from "../ChallengeStatusText";
 
-const OpenChallengeDescription = () => {
+const OpenChallengeView = () => {
     const [currentUrl, setCurrentUrl] = useState<string>();
     const [qrCodeB64, setQrCodeB64] = useState<string>();
 
@@ -39,14 +39,14 @@ const OpenChallengeDescription = () => {
             />
 
             <InputField
-                data-testid="openChallengeDescriptionInput"
+                data-testid="openChallengeViewInput"
                 defaultValue={currentUrl}
                 readOnly
                 disabled={isOver}
                 icon={
                     <ClipboardIcon
                         onClick={copyChallengeLink}
-                        data-testid="openChallengeDescriptionCopy"
+                        data-testid="openChallengeViewCopy"
                         className={clsx(
                             isOver && "cursor-not-allowed brightness-50",
                         )}
@@ -63,7 +63,7 @@ const OpenChallengeDescription = () => {
                 >
                     <Image
                         src={qrCodeB64}
-                        data-testid="openChallengeDescriptionQRCode"
+                        data-testid="openChallengeViewQRCode"
                         alt="challenge qr code"
                         width={150}
                         height={150}
@@ -73,4 +73,4 @@ const OpenChallengeDescription = () => {
         </>
     );
 };
-export default OpenChallengeDescription;
+export default OpenChallengeView;

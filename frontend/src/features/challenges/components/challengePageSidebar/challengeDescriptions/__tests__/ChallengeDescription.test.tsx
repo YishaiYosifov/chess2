@@ -5,54 +5,94 @@ import {
     ChallengeStore,
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
+import {
+    createFakeGuestUser,
+    createFakePrivateUser,
+} from "@/lib/testUtils/fakers/userFaker";
 
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
-import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
-import ChallengeDescription from "../ChallengeDescription";
+import { ChallengeRequest, GuestUser, PrivateUser } from "@/lib/apiClient";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import { ChallengeRequest, PrivateUser } from "@/lib/apiClient";
+import ChallengeDescription from "../ChallengeDescription";
 
 describe("ChallengeDescription", () => {
-    let userMock: PrivateUser;
     let challengeMock: ChallengeRequest;
     let challengeStore: StoreApi<ChallengeStore>;
+    let loggedInUserMock: PrivateUser;
+    let guestUserMock: GuestUser;
 
     beforeEach(() => {
-        userMock = createFakePrivateUser();
         challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
+
+        loggedInUserMock = createFakePrivateUser({
+            userId: challengeMock.requester.userId,
+        });
+        guestUserMock = createFakeGuestUser();
     });
 
-    it("should render OpenChallengeDescription when there is no recipient", () => {
-        challengeMock.recipient = null;
+    it("should render OpenChallengeView when logged-in user is requester and recipient is null", () => {
+        challengeStore.setState({
+            challenge: { ...challengeMock, recipient: null },
+        });
 
         render(
-            <SessionProvider user={userMock}>
+            <SessionProvider user={loggedInUserMock}>
                 <ChallengeStoreContext.Provider value={challengeStore}>
                     <ChallengeDescription />
                 </ChallengeStoreContext.Provider>
             </SessionProvider>,
         );
 
-        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
-            "Invite someone to play via:",
-        );
+        expect(
+            screen.getByTestId("openChallengeViewInput"),
+        ).toBeInTheDocument();
     });
 
-    it("should render DirectChallengeDescription when there is a recipient", () => {
-        userMock.userId = challengeMock.requester.userId;
-
+    it("should render DirectChallengeView when logged-in user is requester and recipient exists", () => {
         render(
-            <SessionProvider user={userMock}>
+            <SessionProvider user={loggedInUserMock}>
                 <ChallengeStoreContext.Provider value={challengeStore}>
                     <ChallengeDescription />
                 </ChallengeStoreContext.Provider>
             </SessionProvider>,
         );
 
-        expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
-            "Waiting For", // waiting for recipient
+        expect(
+            screen.getByTestId("directChallengeViewUserName"),
+        ).toBeInTheDocument();
+    });
+
+    it("should render RecipientChallengeView when logged-in user is not the requester", () => {
+        const otherUserMock = createFakePrivateUser({
+            userId: "differentUser123",
+        });
+
+        render(
+            <SessionProvider user={otherUserMock}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <ChallengeDescription />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
         );
+
+        expect(
+            screen.getByTestId("recipientChallengeViewUserName"),
+        ).toBeInTheDocument();
+    });
+
+    it("should render RecipientChallengeView for guest users", () => {
+        render(
+            <SessionProvider user={guestUserMock}>
+                <ChallengeStoreContext.Provider value={challengeStore}>
+                    <ChallengeDescription />
+                </ChallengeStoreContext.Provider>
+            </SessionProvider>,
+        );
+
+        expect(
+            screen.getByTestId("recipientChallengeViewUserName"),
+        ).toBeInTheDocument();
     });
 });

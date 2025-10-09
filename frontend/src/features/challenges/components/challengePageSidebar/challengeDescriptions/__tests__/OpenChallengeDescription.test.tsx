@@ -1,21 +1,22 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { StoreApi } from "zustand";
 import QRCode from "qrcode";
 
-import OpenChallengeDescription from "../OpenChallengeDescription";
-import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
-import { ChallengeRequest } from "@/lib/apiClient";
-import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
-import { StoreApi } from "zustand";
 import {
     ChallengeStore,
     createChallengeStore,
 } from "@/features/challenges/stores/challengeStore";
+
+import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
 import ChallengeStoreContext from "@/features/challenges/contexts/challengeContext";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
+import OpenChallengeView from "../OpenChallengeView";
+import { ChallengeRequest } from "@/lib/apiClient";
 
 vi.mock("qrcode");
 
-describe("OpenChallengeDescription", () => {
+describe("OpenChallengeView", () => {
     const qrCodeMock = vi.mocked(QRCode);
     const qrCodeText = "data:image/png;base64,fakeqr";
     const locationHref = "http://localhost:3000/challenge/12345";
@@ -31,10 +32,10 @@ describe("OpenChallengeDescription", () => {
         challengeStore = createChallengeStore({ challenge: challengeMock });
     });
 
-    it("should render OpenChallengeDescription input and QR code", async () => {
+    it("should render input and QR code", async () => {
         render(
             <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
+                <OpenChallengeView />
             </ChallengeStoreContext.Provider>,
         );
         await flushMicrotasks();
@@ -42,12 +43,13 @@ describe("OpenChallengeDescription", () => {
         expect(screen.getByTestId("challengeStatusText")).toHaveTextContent(
             "Invite someone to play via:",
         );
-        expect(screen.getByTestId("openChallengeDescriptionInput")).toHaveValue(
+        expect(screen.getByTestId("openChallengeViewInput")).toHaveValue(
             locationHref,
         );
-        expect(
-            screen.getByTestId("openChallengeDescriptionQRCode"),
-        ).toHaveAttribute("src", qrCodeText);
+        expect(screen.getByTestId("openChallengeViewQRCode")).toHaveAttribute(
+            "src",
+            qrCodeText,
+        );
     });
 
     it("should copy challenge URL to clipboard when clipboard icon is clicked", async () => {
@@ -60,13 +62,11 @@ describe("OpenChallengeDescription", () => {
         });
         render(
             <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
+                <OpenChallengeView />
             </ChallengeStoreContext.Provider>,
         );
 
-        const clipboardIcon = screen.getByTestId(
-            "openChallengeDescriptionCopy",
-        );
+        const clipboardIcon = screen.getByTestId("openChallengeViewCopy");
         await user.click(clipboardIcon);
 
         expect(writeTextMock).toHaveBeenCalledWith(location.href);
@@ -76,7 +76,7 @@ describe("OpenChallengeDescription", () => {
         challengeStore.setState({ isCancelled: true });
         render(
             <ChallengeStoreContext.Provider value={challengeStore}>
-                <OpenChallengeDescription />
+                <OpenChallengeView />
             </ChallengeStoreContext.Provider>,
         );
         await flushMicrotasks();
@@ -84,8 +84,6 @@ describe("OpenChallengeDescription", () => {
         expect(screen.getByTestId("challengeStatusText")).toHaveClass(
             "text-error",
         );
-        expect(
-            screen.getByTestId("openChallengeDescriptionInput"),
-        ).toBeDisabled();
+        expect(screen.getByTestId("openChallengeViewInput")).toBeDisabled();
     });
 });
