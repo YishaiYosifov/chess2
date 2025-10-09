@@ -13,9 +13,9 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Moq;
 using NSubstitute;
 using Orleans.TestKit;
+using Orleans.TestKit.Storage;
 using Orleans.TestKit.Streams;
 
 namespace Chess2.Api.Integration.Tests.MatchmakingTests;
@@ -25,11 +25,13 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
     private readonly DateTime _fakeNow = DateTime.UtcNow;
     private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
-    private readonly ICasualMatchmakingPool _pool;
     private readonly PoolKey _testPoolKey = new(
         PoolType.Casual,
         new TimeControlSettings(BaseSeconds: 600, IncrementSeconds: 10)
     );
+
+    private readonly MatchmakingGrainState<CasualMatchmakingPool> _state;
+    private readonly TestStorageStats _stateStats;
 
     public MatchmakingGrainTests(Chess2WebApplicationFactory factory)
         : base(factory)
@@ -38,15 +40,22 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
             IOptions<AppSettings>
         >();
-        _pool = ApiTestBase.Scope.ServiceProvider.GetRequiredService<ICasualMatchmakingPool>();
 
         Silo.ServiceProvider.AddService(
-            Substitute.For<ILogger<MatchmakingGrain<ICasualMatchmakingPool>>>()
+            Substitute.For<ILogger<MatchmakingGrain<CasualMatchmakingPool>>>()
         );
         Silo.ServiceProvider.AddService(settings);
         Silo.ServiceProvider.AddService(_timeProviderMock);
         Silo.ServiceProvider.AddService(_gameStarterMock);
-        Silo.ServiceProvider.AddService(_pool);
+
+        _state = Silo
+            .StorageManager.GetStorage<MatchmakingGrainState<CasualMatchmakingPool>>(
+                MatchmakingGrain<CasualMatchmakingPool>.StateName
+            )
+            .State;
+        _stateStats = Silo.StorageManager.GetStorageStats(
+            MatchmakingGrain<CasualMatchmakingPool>.StateName
+        )!;
     }
 
     private TestStream<OpenSeekCreatedEvent> ProbeOpenSeekCreatedStream() =>
@@ -63,10 +72,16 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
             Streaming.StreamProvider
         );
 
-    private async Task<MatchmakingGrain<ICasualMatchmakingPool>> CreateGrainAsync() =>
-        await Silo.CreateGrainAsync<MatchmakingGrain<ICasualMatchmakingPool>>(
+    private async Task<MatchmakingGrain<CasualMatchmakingPool>> CreateGrainAsync() =>
+        await Silo.CreateGrainAsync<MatchmakingGrain<CasualMatchmakingPool>>(
             _testPoolKey.ToGrainKey()
         );
+
+    private Task FireWave() =>
+        Silo.FireTimerAsync(MatchmakingGrain<CasualMatchmakingPool>.WaveTimer);
+
+    private Task TimeoutWave() =>
+        Silo.FireTimerAsync(MatchmakingGrain<CasualMatchmakingPool>.TimeoutTimer);
 
     [Fact]
     public async Task AddSeekAsync_adds_the_seek_and_doesnt_broadcast()
@@ -78,7 +93,8 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await grain.AddSeekAsync(seeker, observer);
 
-        _pool.Seekers.Should().ContainSingle().Which.Should().Be(seeker);
+        _state.Pool.Seekers.Should().ContainSingle().Which.Should().Be(seeker);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
         createdStream.Sends.Should().Be(0);
     }
 
@@ -95,7 +111,8 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         var result = await grain.TryCancelSeekAsync(seeker.UserId);
 
         result.Should().BeTrue();
-        _pool.Seekers.Should().BeEmpty();
+        _state.Pool.Seekers.Should().BeEmpty();
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
         await observer.Received(1).SeekRemovedAsync(_testPoolKey);
         removedStream.Sends.Should().Be(0); // no broadcast if it was never pending
     }
@@ -119,7 +136,7 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         await grain.AddSeekAsync(seeker, observer);
 
         // simulate a wave to broadcast the seeker
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
 
         await grain.TryCancelSeekAsync(seeker.UserId);
 
@@ -147,14 +164,15 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
             .StartGameAsync(seeker1.UserId, seeker2.UserId, _testPoolKey)
             .Returns(Task.FromResult(gameToken));
 
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
 
         await observer1.Received(1).ReleaseReservationAsync(_testPoolKey);
         await observer2.Received(1).ReleaseReservationAsync(_testPoolKey);
         await observer1.Received(1).SeekMatchedAsync(gameToken, _testPoolKey);
         await observer2.Received(1).SeekMatchedAsync(gameToken, _testPoolKey);
 
-        _pool.Seekers.Should().BeEmpty();
+        _state.Pool.Seekers.Should().BeEmpty();
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
@@ -172,13 +190,13 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         await grain.AddSeekAsync(seeker1, observer1);
         await grain.AddSeekAsync(seeker2, observer2);
 
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
 
         await observer1.Received(1).ReleaseReservationAsync(_testPoolKey);
         await observer2.Received(1).ReleaseReservationAsync(_testPoolKey);
 
-        _pool.Seekers.Should().Contain(seeker1);
-        _pool.Seekers.Should().Contain(seeker2);
+        _state.Pool.Seekers.Should().BeEquivalentTo([seeker1, seeker2]);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
@@ -191,12 +209,12 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await grain.AddSeekAsync(seeker, observer);
 
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
         createdStream.VerifySend(e => e.Seeker == seeker && e.Pool == _testPoolKey);
         createdStream.VerifySendBatch();
 
         // second wave does not re-broadcast already cleared pending
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
         createdStream.Sends.Should().Be(1);
     }
 
@@ -214,30 +232,12 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         await grain.AddSeekAsync(timedOutSeeker, observerTimedOut);
         await grain.AddSeekAsync(otherSeeker, observerOther);
 
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.TimeoutTimer);
+        await TimeoutWave();
 
-        _pool.Seekers.Should().ContainSingle().Which.Should().Be(otherSeeker);
+        _state.Pool.Seekers.Should().ContainSingle().Which.Should().Be(otherSeeker);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
         await observerTimedOut.Received(1).SeekRemovedAsync(_testPoolKey);
         await observerOther.DidNotReceiveWithAnyArgs().SeekRemovedAsync(default!);
-
-        var context = Silo.GetContextFromGrain(grain);
-        Silo.GrainRuntime.Mock.Verify(
-            x => x.DelayDeactivation(context, TimeSpan.FromMinutes(5)),
-            Times.Once
-        );
-        Silo.GrainRuntime.Mock.VerifyNoOtherCalls();
-    }
-
-    [Fact]
-    public async Task TimeoutSeeksAsync_deactivates_when_no_seeks()
-    {
-        var grain = await CreateGrainAsync();
-
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.TimeoutTimer);
-
-        var context = Silo.GetContextFromGrain(grain);
-        Silo.GrainRuntime.Mock.Verify(x => x.DeactivateOnIdle(context), Times.Once);
-        Silo.GrainRuntime.Mock.VerifyNoOtherCalls();
     }
 
     [Fact]
@@ -265,7 +265,8 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
 
         await matchWithObserver.Received(1).SeekMatchedAsync(gameToken, _testPoolKey);
         await matchWithObserver.Received(1).ReleaseReservationAsync(_testPoolKey);
-        _pool.Seekers.Should().NotContain(matchWithSeeker);
+        _state.Pool.Seekers.Should().NotContain(matchWithSeeker);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
         removedStream.Sends.Should().Be(0);
     }
 
@@ -282,7 +283,7 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         await grain.AddSeekAsync(matchWithSeeker, matchWithObserver);
 
         // simulate a wave so the seeker is no longer pending
-        await Silo.FireTimerAsync(MatchmakingGrain<IMatchmakingPool>.WaveTimer);
+        await FireWave();
 
         matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
         _gameStarterMock
@@ -315,7 +316,8 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
             .StartGameAsync(default!, default!, default!);
         await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!);
         await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
-        _pool.Seekers.Should().Contain(matchWithSeeker);
+        _state.Pool.Seekers.Should().Contain(matchWithSeeker);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
@@ -352,7 +354,7 @@ public class MatchmakingGrainTests : BaseOrleansIntegrationTest
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
             .StartGameAsync(default!, default!, default!);
-        _pool.Seekers.Should().Contain(ratedSeeker);
+        _state.Pool.Seekers.Should().Contain(ratedSeeker);
         await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!);
     }
 }

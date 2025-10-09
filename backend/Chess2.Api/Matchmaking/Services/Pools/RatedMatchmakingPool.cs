@@ -1,19 +1,25 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
-public interface IRatedMatchmakingPool : IMatchmakingPool;
-
+[GenerateSerializer]
+[Alias("Chess2.Api.Matchmaking.Services.Pools.RatedPoolMember")]
 public class RatedPoolMember(RatedSeeker seek, int wavesMissed = 0)
 {
+    [Id(0)]
     public RatedSeeker Seek { get; } = seek;
+
+    [Id(1)]
     public int WavesMissed { get; set; } = wavesMissed;
 }
 
-public class RatedMatchmakingPool : IRatedMatchmakingPool
+[GenerateSerializer]
+[Alias("Chess2.Api.Matchmaking.Services.Pools.RatedMatchmakingPool")]
+public class RatedMatchmakingPool : IMatchmakingPool
 {
+    [Id(0)]
     private readonly Dictionary<string, RatedPoolMember> _seekers = [];
 
     public IEnumerable<Seeker> Seekers => _seekers.Values.Select(x => x.Seek);

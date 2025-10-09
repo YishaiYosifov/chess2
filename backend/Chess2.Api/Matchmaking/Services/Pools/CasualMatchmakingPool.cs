@@ -1,13 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
-public interface ICasualMatchmakingPool : IMatchmakingPool;
-
-public class CasualMatchmakingPool : ICasualMatchmakingPool
+[GenerateSerializer]
+[Alias("Chess2.Api.Matchmaking.Services.Pools.CasualMatchmakingPool")]
+public class CasualMatchmakingPool : IMatchmakingPool
 {
+    [Id(0)]
     private readonly Dictionary<string, Seeker> _seekers = [];
 
     public IEnumerable<Seeker> Seekers => _seekers.Values;
