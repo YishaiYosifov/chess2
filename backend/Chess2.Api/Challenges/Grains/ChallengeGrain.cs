@@ -2,6 +2,7 @@
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
@@ -24,7 +25,7 @@ public interface IChallengeGrain : IGrainWithStringKey
     Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
 
     [Alias("AcceptAsync")]
-    Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy);
+    Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy);
 }
 
 [GenerateSerializer]
@@ -125,7 +126,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Deleted;
     }
 
-    public async Task<ErrorOr<string>> AcceptAsync(UserId acceptedBy)
+    public async Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy)
     {
         var request = _state.State.Request;
         if (request is null)
