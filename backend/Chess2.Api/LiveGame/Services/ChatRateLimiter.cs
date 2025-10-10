@@ -1,11 +1,12 @@
-﻿using Chess2.Api.Shared.Models;
+﻿using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 
 namespace Chess2.Api.LiveGame.Services;
 
 public interface IChatRateLimiter
 {
-    bool ShouldAllowRequest(string userId, out TimeSpan cooldownLeft);
+    bool ShouldAllowRequest(UserId userId, out TimeSpan cooldownLeft);
 }
 
 public class ChatRateLimiter(IOptions<AppSettings> settings, TimeProvider timeProvider)
@@ -14,9 +15,9 @@ public class ChatRateLimiter(IOptions<AppSettings> settings, TimeProvider timePr
     private readonly ChatSettings _settings = settings.Value.Game.Chat;
     private readonly TimeProvider _timeProvider = timeProvider;
 
-    private readonly Dictionary<string, (int Fill, DateTimeOffset LastRefill)> _userBuckets = [];
+    private readonly Dictionary<UserId, (int Fill, DateTimeOffset LastRefill)> _userBuckets = [];
 
-    public bool ShouldAllowRequest(string userId, out TimeSpan cooldownLeft)
+    public bool ShouldAllowRequest(UserId userId, out TimeSpan cooldownLeft)
     {
         var now = _timeProvider.GetUtcNow();
         if (!_userBuckets.TryGetValue(userId, out var bucket))

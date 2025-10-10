@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ namespace Chess2.Api.UserRating.Repositories;
 public interface ICurrentRatingRepository
 {
     Task<CurrentRating?> GetRatingAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     );
@@ -20,7 +21,7 @@ public class CurrentRatingRepository(ApplicationDbContext dbContext) : ICurrentR
     private readonly ApplicationDbContext _dbContext = dbContext;
 
     public async Task<CurrentRating?> GetRatingAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     ) =>

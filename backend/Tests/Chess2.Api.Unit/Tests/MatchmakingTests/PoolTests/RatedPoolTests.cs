@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.PoolTests;
@@ -12,7 +12,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     private const int AllowedMatchRatingDifference = 300;
     protected override RatedMatchmakingPool Pool { get; } = new();
 
-    private RatedSeeker AddSeeker(string userId, int rating)
+    private RatedSeeker AddSeeker(UserId userId, int rating)
     {
         RatedSeeker seeker = new(
             userId,
@@ -29,7 +29,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         return seeker;
     }
 
-    protected override Seeker AddSeeker(string userId) => AddSeeker(userId, 1200);
+    protected override Seeker AddSeeker(UserId userId) => AddSeeker(userId, 1200);
 
     [Fact]
     public void CalculateMatches_matches_compatible_seekers_within_range()

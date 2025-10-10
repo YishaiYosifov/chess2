@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.Profile.Models;
 using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.MatchmakingTests.PoolTests;
@@ -9,7 +10,7 @@ public abstract class BasePoolTests<TPool> : BaseUnitTest
 {
     protected abstract TPool Pool { get; }
 
-    protected abstract Seeker AddSeeker(string userId);
+    protected abstract Seeker AddSeeker(UserId userId);
 
     [Fact]
     public void AddSeeker_adds_the_seeker()

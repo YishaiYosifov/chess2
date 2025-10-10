@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -7,12 +8,12 @@ namespace Chess2.Api.Unit.Tests.ChallengesTests;
 
 public class ChallengeInboxGrainTests : BaseGrainTest
 {
-    private const string UserId = "user-123";
+    private readonly UserId _userId = "user-123";
 
     [Fact]
     public async Task RecordChallengeCreatedAsync_adds_challenge_to_inbox()
     {
-        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
+        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
         var challenge = new ChallengeRequestFaker().Generate();
 
@@ -25,7 +26,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     [Fact]
     public async Task RecordChallengeCreatedAsync_overwrites_existing_challenge()
     {
-        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
+        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
         var challenge1 = new ChallengeRequestFaker().Generate();
         var challenge2 = new ChallengeRequestFaker()
@@ -42,7 +43,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     [Fact]
     public async Task RecordChallengeCreatedAsync_removes_challenge_from_inbox()
     {
-        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
+        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
         var challenge = new ChallengeRequestFaker().Generate();
         var someOtherChallenge = new ChallengeRequestFaker().Generate();
@@ -58,7 +59,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     [Fact]
     public async Task RecordChallengeCreatedAsync_does_nothing_if_challenge_not_found()
     {
-        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
+        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
         await grain.RecordChallengeRemovedAsync(new ChallengeId("nonexistent-challenge"));
 
@@ -69,7 +70,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     [Fact]
     public async Task GetIncomingChallengesAsync_returns_all_challenges()
     {
-        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(UserId);
+        var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
         ChallengeRequest challenge1 = new ChallengeRequestFaker().Generate();
         ChallengeRequest challenge2 = new ChallengeRequestFaker().Generate();
