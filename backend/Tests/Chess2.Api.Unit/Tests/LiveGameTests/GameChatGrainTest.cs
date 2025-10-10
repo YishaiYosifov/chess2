@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -42,9 +43,9 @@ public class GameChatGrainTest : BaseGrainTest
 
     private const string WhiteUserId = "white-user";
     private const string BlackUserId = "black-user";
-    private const string TestGameToken = "test-game";
 
-    private const string ConnectionId = "test-connection-id";
+    private readonly ConnectionId _connectionId = "test-connection-id";
+    private readonly GameToken _gameToken = "test-game";
 
     public GameChatGrainTest()
     {
@@ -66,7 +67,7 @@ public class GameChatGrainTest : BaseGrainTest
         _gameGrainMock.GetPlayersAsync().Returns(new PlayerRoster(_whitePlayer, _blackPlayer));
 
         _chatRateLimiterMock
-            .ShouldAllowRequest(Arg.Any<string>(), out Arg.Any<TimeSpan>())
+            .ShouldAllowRequest(Arg.Any<UserId>(), out Arg.Any<TimeSpan>())
             .Returns(x =>
             {
                 x[1] = TimeSpan.Zero;
@@ -87,12 +88,12 @@ public class GameChatGrainTest : BaseGrainTest
     [InlineData("another-user", false)]
     public async Task JoinChat_provides_notifier_correct_information(string userId, bool isPlaying)
     {
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        await grain.JoinChatAsync(ConnectionId, userId, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        await grain.JoinChatAsync(_connectionId, userId, CT);
 
         await _gameChatNotifierMock
             .Received(1)
-            .JoinChatAsync(TestGameToken, ConnectionId, isPlaying, CT);
+            .JoinChatAsync(_gameToken, _connectionId, isPlaying, CT);
     }
 
     [Theory]
@@ -101,23 +102,23 @@ public class GameChatGrainTest : BaseGrainTest
     [InlineData("another-user", false)]
     public async Task LeaveChat_when_user_in_chat_removes_user(string userId, bool isPlaying)
     {
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        await grain.LeaveChatAsync(ConnectionId, userId, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        await grain.LeaveChatAsync(_connectionId, userId, CT);
 
         await _gameChatNotifierMock
             .Received(1)
-            .LeaveChatAsync(TestGameToken, ConnectionId, isPlaying, CT);
+            .LeaveChatAsync(_gameToken, _connectionId, isPlaying, CT);
     }
 
     [Theory]
     [InlineData(WhiteUserId, true)]
     [InlineData(BlackUserId, true)]
     [InlineData("another-user", false)]
-    public async Task SendMessage_when_user_in_chat_sends_message(UserId userId, bool isPlaying)
+    public async Task SendMessage_when_user_in_chat_sends_message(string userId, bool isPlaying)
     {
         const string message = "test message";
 
-        var user = new AuthedUserFaker().RuleFor(x => x.Id, userId).Generate();
+        var user = new AuthedUserFaker().RuleFor(x => x.Id, (UserId)userId).Generate();
         _userManagerMock.FindByIdAsync(userId).Returns(user);
 
         var cooldown = TimeSpan.FromSeconds(5);
@@ -129,25 +130,23 @@ public class GameChatGrainTest : BaseGrainTest
                 return true;
             });
 
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, userId, message, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, userId, message, CT);
 
         result.IsError.Should().BeFalse();
 
         await _gameChatNotifierMock
             .Received(1)
             .SendMessageAsync(
-                TestGameToken,
+                _gameToken,
                 user.UserName!,
-                ConnectionId,
+                _connectionId,
                 cooldown,
                 message,
                 isPlaying
             );
 
-        await _chatMessageLoggerMock
-            .Received(1)
-            .LogMessageAsync(TestGameToken, userId, message, CT);
+        await _chatMessageLoggerMock.Received(1).LogMessageAsync(_gameToken, userId, message, CT);
     }
 
     [Fact]
@@ -155,21 +154,21 @@ public class GameChatGrainTest : BaseGrainTest
     {
         const string message = "test message 123";
 
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result1 = await grain.SendMessageAsync(ConnectionId, WhiteUserId, message, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result1 = await grain.SendMessageAsync(_connectionId, WhiteUserId, message, CT);
         result1.IsError.Should().BeFalse();
 
         _userManagerMock.FindByIdAsync(WhiteUserId).Returns((AuthedUser?)null);
 
-        var result2 = await grain.SendMessageAsync(ConnectionId, WhiteUserId, message, CT);
+        var result2 = await grain.SendMessageAsync(_connectionId, WhiteUserId, message, CT);
         result2.IsError.Should().BeFalse();
 
         await _gameChatNotifierMock
             .Received(2)
             .SendMessageAsync(
-                TestGameToken,
+                _gameToken,
                 _whiteUser.UserName!,
-                ConnectionId,
+                _connectionId,
                 TimeSpan.Zero,
                 message,
                 isPlaying: true
@@ -179,8 +178,8 @@ public class GameChatGrainTest : BaseGrainTest
     [Fact]
     public async Task SendMessage_returns_error_when_user_is_not_found()
     {
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, "random id", "message", CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, "random id", "message", CT);
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidUser);
@@ -198,8 +197,8 @@ public class GameChatGrainTest : BaseGrainTest
                 return false;
             });
 
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, WhiteUserId, "test", CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, WhiteUserId, "test", CT);
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.OnCooldown);
@@ -214,8 +213,8 @@ public class GameChatGrainTest : BaseGrainTest
     [InlineData("   ")]
     public async Task SendMessage_rejects_empty_messages(string msg)
     {
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, WhiteUserId, msg, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, WhiteUserId, msg, CT);
 
         result.IsError.Should().BeTrue();
         result
@@ -230,8 +229,8 @@ public class GameChatGrainTest : BaseGrainTest
     {
         var longMsg = new string('a', _settings.MaxMessageLength + 1);
 
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, WhiteUserId, longMsg, CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, WhiteUserId, longMsg, CT);
 
         result.IsError.Should().BeTrue();
         result.Errors.Should().ContainSingle().Which.Should().Be(GameChatErrors.InvalidMessage);
@@ -242,17 +241,17 @@ public class GameChatGrainTest : BaseGrainTest
     {
         _gameGrainMock.GetPlayersAsync().Returns(GameErrors.GameNotFound);
 
-        var grain = await Silo.CreateGrainAsync<GameChatGrain>(TestGameToken);
-        var result = await grain.SendMessageAsync(ConnectionId, WhiteUserId, "test", CT);
+        var grain = await Silo.CreateGrainAsync<GameChatGrain>(_gameToken);
+        var result = await grain.SendMessageAsync(_connectionId, WhiteUserId, "test", CT);
 
         result.IsError.Should().BeFalse();
 
         await _gameChatNotifierMock
             .Received(1)
             .SendMessageAsync(
-                TestGameToken,
+                _gameToken,
                 _whitePlayer.UserName,
-                ConnectionId,
+                _connectionId,
                 TimeSpan.Zero,
                 "test",
                 isPlaying: false

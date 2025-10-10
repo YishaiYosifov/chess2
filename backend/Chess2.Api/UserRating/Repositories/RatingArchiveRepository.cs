@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,18 +10,18 @@ public interface IRatingArchiveRepository
 {
     Task AddRatingAsync(RatingArchive rating, CancellationToken token = default);
     Task<List<RatingArchive>> GetArchivesAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         DateTime since,
         CancellationToken token = default
     );
     Task<RatingArchive?> GetHighestAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     );
     Task<RatingArchive?> GetLowestAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     );
@@ -34,7 +35,7 @@ public class RatingArchiveRepository(ApplicationDbContext dbContext) : IRatingAr
         await _dbContext.RatingArchives.AddAsync(rating, token);
 
     public Task<List<RatingArchive>> GetArchivesAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         DateTime since,
         CancellationToken token = default
@@ -47,7 +48,7 @@ public class RatingArchiveRepository(ApplicationDbContext dbContext) : IRatingAr
             .ToListAsync(token);
 
     public Task<RatingArchive?> GetHighestAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     ) =>
@@ -57,7 +58,7 @@ public class RatingArchiveRepository(ApplicationDbContext dbContext) : IRatingAr
             .FirstOrDefaultAsync(token);
 
     public Task<RatingArchive?> GetLowestAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     ) =>

@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Entities;
 using Chess2.Api.UserRating.Models;
@@ -120,7 +121,7 @@ public class RatingService(
     }
 
     private async Task<RatingOverview?> BuildOverviewAsync(
-        string userId,
+        UserId userId,
         TimeControl timeControl,
         DateTime since,
         CancellationToken token = default

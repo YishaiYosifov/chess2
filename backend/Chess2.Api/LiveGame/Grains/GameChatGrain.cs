@@ -2,6 +2,7 @@
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
@@ -13,15 +14,19 @@ namespace Chess2.Api.LiveGame.Grains;
 public interface IGameChatGrain : IGrainWithStringKey
 {
     [Alias("JoinChatAsync")]
-    Task JoinChatAsync(string connectionId, string userId, CancellationToken token = default);
+    Task JoinChatAsync(ConnectionId connectionId, UserId userId, CancellationToken token = default);
 
     [Alias("LeaveChatAsync")]
-    Task LeaveChatAsync(string connectionId, string userId, CancellationToken token = default);
+    Task LeaveChatAsync(
+        ConnectionId connectionId,
+        UserId userId,
+        CancellationToken token = default
+    );
 
     [Alias("SendMessageAsync")]
     Task<ErrorOr<Success>> SendMessageAsync(
-        string connectionId,
-        string userId,
+        ConnectionId connectionId,
+        UserId userId,
         string message,
         CancellationToken token = default
     );
@@ -61,8 +66,8 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     }
 
     public async Task JoinChatAsync(
-        string connectionId,
-        string userId,
+        ConnectionId connectionId,
+        UserId userId,
         CancellationToken token = default
     )
     {
@@ -77,8 +82,8 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     }
 
     public async Task LeaveChatAsync(
-        string connectionId,
-        string userId,
+        ConnectionId connectionId,
+        UserId userId,
         CancellationToken token = default
     )
     {
@@ -89,8 +94,8 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
     }
 
     public async Task<ErrorOr<Success>> SendMessageAsync(
-        string connectionId,
-        string userId,
+        ConnectionId connectionId,
+        UserId userId,
         string message,
         CancellationToken token = default
     )
@@ -135,7 +140,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         return Result.Success;
     }
 
-    private async Task<ErrorOr<string>> GetUsernameAsync(string userId)
+    private async Task<ErrorOr<string>> GetUsernameAsync(UserId userId)
     {
         if (_usernameCache.TryGetValue(userId, out var username))
             return username;
@@ -149,7 +154,7 @@ public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
         return username;
     }
 
-    private async Task<bool> IsUserPlayingAsync(string userId)
+    private async Task<bool> IsUserPlayingAsync(UserId userId)
     {
         var playersResult = await GetPlayersAsync();
         if (playersResult.IsError)

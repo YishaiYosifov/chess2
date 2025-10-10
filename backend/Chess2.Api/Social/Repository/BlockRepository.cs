@@ -15,14 +15,14 @@ public interface IBlockRepository
         UserId userId,
         CancellationToken token = default
     );
-    Task<int> GetBlockedCountAsync(string userId, CancellationToken token = default);
+    Task<int> GetBlockedCountAsync(UserId userId, CancellationToken token = default);
     Task<BlockedUser?> GetBlockedUserAsync(
-        string blockedByUserId,
-        string blockedUserId,
+        UserId blockedByUserId,
+        UserId blockedUserId,
         CancellationToken token = default
     );
     Task<List<AuthedUser>> GetPaginatedBlockedUsersAsync(
-        string userId,
+        UserId userId,
         PaginationQuery query,
         CancellationToken token = default
     );
@@ -34,7 +34,7 @@ public class BlockRepository(ApplicationDbContext dbContext) : IBlockRepository
     private readonly ApplicationDbContext _dbContext = dbContext;
 
     public Task<List<AuthedUser>> GetPaginatedBlockedUsersAsync(
-        string userId,
+        UserId userId,
         PaginationQuery query,
         CancellationToken token = default
     ) =>
@@ -54,12 +54,12 @@ public class BlockRepository(ApplicationDbContext dbContext) : IBlockRepository
             .Select(x => x.BlockedUserId)
             .ToHashSetAsync(token);
 
-    public Task<int> GetBlockedCountAsync(string userId, CancellationToken token = default) =>
+    public Task<int> GetBlockedCountAsync(UserId userId, CancellationToken token = default) =>
         _dbContext.BlockedUsers.Where(x => x.UserId == userId).CountAsync(token);
 
     public Task<BlockedUser?> GetBlockedUserAsync(
-        string blockedByUserId,
-        string blockedUserId,
+        UserId blockedByUserId,
+        UserId blockedUserId,
         CancellationToken token = default
     ) =>
         _dbContext

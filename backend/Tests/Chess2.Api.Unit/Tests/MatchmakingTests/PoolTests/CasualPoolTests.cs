@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 
@@ -9,7 +10,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
 {
     protected override CasualMatchmakingPool Pool { get; } = new();
 
-    protected override CasualSeeker AddSeeker(string userId)
+    protected override CasualSeeker AddSeeker(UserId userId)
     {
         CasualSeeker seeker = new(
             UserId: userId,

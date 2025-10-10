@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestConditions;
@@ -52,8 +53,8 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         _stateStats = Silo.StorageManager.GetStorageStats(QuestGrain.StateName)!;
     }
 
-    private async Task<IQuestGrain> CreateGrainAsync(string userId = "user1") =>
-        await Silo.CreateGrainAsync<QuestGrain>(userId);
+    private async Task<IQuestGrain> CreateGrainAsync(UserId? userId = null) =>
+        await Silo.CreateGrainAsync<QuestGrain>(userId ?? "user1");
 
     private QuestVariant SetupSelectableVariant(DateTimeOffset? date = null)
     {
