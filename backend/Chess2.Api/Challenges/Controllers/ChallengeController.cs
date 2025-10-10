@@ -90,7 +90,7 @@ public class ChallengeController(
 
         var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
         var result = await challengeGrain.AcceptAsync(userIdResult.Value);
-        return result.Match(Ok, errors => errors.ToActionResult());
+        return result.Match(value => Ok(value), errors => errors.ToActionResult());
     }
 
     [HttpDelete("incoming")]
