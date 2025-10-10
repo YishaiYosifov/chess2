@@ -12,6 +12,11 @@ public class GameHubClient : BaseHubClient
     private readonly Channel<(string SenderUserName, string Message)> _messagesChannel =
         Channel.CreateUnbounded<(string, string)>();
 
+    private readonly Channel<bool> _rematchRequestedChannel = Channel.CreateUnbounded<bool>();
+    private readonly Channel<bool> _rematchCancelledChannel = Channel.CreateUnbounded<bool>();
+    private readonly Channel<GameToken> _rematchAcceptedChannel =
+        Channel.CreateUnbounded<GameToken>();
+
     private readonly TaskCompletionSource _connectedTcs = new();
     private readonly string _gameToken;
 
@@ -24,6 +29,19 @@ public class GameHubClient : BaseHubClient
         Connection.On<string, string>(
             "ChatMessageAsync",
             (senderUserName, message) => _messagesChannel.Writer.TryWrite((senderUserName, message))
+        );
+
+        Connection.On(
+            "RematchRequestedAsync",
+            () => _rematchRequestedChannel.Writer.TryWrite(true)
+        );
+        Connection.On(
+            "RematchCancelledAsync",
+            () => _rematchCancelledChannel.Writer.TryWrite(true)
+        );
+        Connection.On<GameToken>(
+            "RematchAccepted",
+            gameToken => _rematchAcceptedChannel.Writer.TryWrite(gameToken)
         );
     }
 
@@ -46,11 +64,18 @@ public class GameHubClient : BaseHubClient
 
     public async Task<(string SenderUserName, string Message)> GetNextMessageAsync(
         CancellationToken token = default
-    )
-    {
-        var message = await _messagesChannel.Reader.ReadAsync(
+    ) => await _messagesChannel.Reader.ReadAsync(token.WithTimeout(TimeSpan.FromSeconds(10)));
+
+    public async Task WaitForRematchRequestedAsync(CancellationToken token = default) =>
+        await _rematchRequestedChannel.Reader.ReadAsync(
             token.WithTimeout(TimeSpan.FromSeconds(10))
         );
-        return message;
-    }
+
+    public async Task WaitForRematchCancelledAsync(CancellationToken token = default) =>
+        await _rematchCancelledChannel.Reader.ReadAsync(
+            token.WithTimeout(TimeSpan.FromSeconds(10))
+        );
+
+    public async Task<GameToken> GetNextRematchAcceptedAsync(CancellationToken token = default) =>
+        await _rematchAcceptedChannel.Reader.ReadAsync(token.WithTimeout(TimeSpan.FromSeconds(10)));
 }
