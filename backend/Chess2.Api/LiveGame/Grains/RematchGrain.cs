@@ -14,8 +14,14 @@ namespace Chess2.Api.LiveGame.Grains;
 [Alias("Chess2.Api.LiveGame.Grains.IRematchGrain")]
 public interface IRematchGrain : IGrainWithStringKey
 {
-    [Alias("RequestRematch")]
-    Task<ErrorOr<Success>> RequestRematch(UserId requestedBy);
+    [Alias("RequestAsync")]
+    Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId);
+
+    [Alias("CancelAsync")]
+    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
+
+    [Alias("RemoveConnectionAsync")]
+    Task<ErrorOr<Deleted>> RemoveConnectionAsync(UserId ofUserId, ConnectionId connectionId);
 }
 
 public record RematchRequest(PlayerRoster Players, PoolKey Pool);
@@ -25,10 +31,10 @@ public record RematchRequest(PlayerRoster Players, PoolKey Pool);
 public class RematchGrainState
 {
     [Id(0)]
-    public bool WhiteRequested { get; set; }
+    public HashSet<ConnectionId> WhiteConnections { get; } = [];
 
     [Id(1)]
-    public bool BlackRequested { get; set; }
+    public HashSet<ConnectionId> BlackConnections { get; } = [];
 
     [Id(2)]
     public RematchRequest? Request { get; set; }
@@ -52,7 +58,7 @@ public class RematchGrain(
     private readonly IRematchNotifier _rematchNotifier = rematchNotifier;
     private readonly IGameStarter _gameStarter = gameStarter;
 
-    public async Task<ErrorOr<Success>> RequestRematch(UserId requestedBy)
+    public async Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId)
     {
         var request = _state.State.Request;
         if (request is null)
@@ -61,15 +67,16 @@ public class RematchGrain(
         if (!request.Players.TryGetPlayerById(requestedBy, out var player))
             return GameErrors.PlayerInvalid;
 
-        player.Color.Match(
-            whenWhite: () => _state.State.WhiteRequested = true,
-            whenBlack: () => _state.State.BlackRequested = true
+        var playerConnections = player.Color.Match(
+            whenWhite: _state.State.WhiteConnections,
+            whenBlack: _state.State.BlackConnections
         );
+        playerConnections.Add(connectionId);
 
-        if (_state.State.WhiteRequested && _state.State.BlackRequested)
+        if (_state.State.WhiteConnections.Count > 0 && _state.State.BlackConnections.Count > 0)
         {
             await AcceptRematchAsync(request);
-            return Result.Success;
+            return Result.Created;
         }
 
         await this.RegisterOrUpdateReminder(
@@ -82,39 +89,55 @@ public class RematchGrain(
         var opponent = request.Players.GetPlayerByColor(player.Color.Invert());
         await _rematchNotifier.NotifyRematchRequestedAsync(opponent.UserId);
 
-        return Result.Success;
+        return Result.Created;
+    }
+
+    public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
+    {
+        var request = _state.State.Request;
+        if (request is null)
+            return GameErrors.GameNotFound;
+
+        if (!request.Players.TryGetPlayerById(cancelledBy, out var _))
+            return GameErrors.PlayerInvalid;
+
+        await TearDownRematchAsync();
+        return Result.Deleted;
+    }
+
+    public async Task<ErrorOr<Deleted>> RemoveConnectionAsync(
+        UserId ofUserId,
+        ConnectionId connectionId
+    )
+    {
+        var request = _state.State.Request;
+        if (request is null)
+            return GameErrors.GameNotFound;
+
+        if (!request.Players.TryGetPlayerById(ofUserId, out var player))
+            return GameErrors.PlayerInvalid;
+
+        var playerConnections = player.Color.Match(
+            whenWhite: _state.State.WhiteConnections,
+            whenBlack: _state.State.BlackConnections
+        );
+        playerConnections.Remove(connectionId);
+
+        if (playerConnections.Count == 0)
+        {
+            await TearDownRematchAsync();
+            return Result.Deleted;
+        }
+
+        await _state.WriteStateAsync();
+        return Result.Deleted;
     }
 
     public async Task ReceiveReminder(string reminderName, TickStatus status)
     {
         if (reminderName != ExpirationReminderName)
             return;
-
-        var request = _state.State.Request;
-        if (request is not null)
-        {
-            await _rematchNotifier.NotifyRematchCancelledAsync(
-                request.Players.WhitePlayer.UserId,
-                request.Players.BlackPlayer.UserId
-            );
-        }
-
-        await _state.ClearStateAsync();
-    }
-
-    private async Task AcceptRematchAsync(RematchRequest request)
-    {
-        var gameToken = await _gameStarter.StartGameAsync(
-            request.Players.WhitePlayer.UserId,
-            request.Players.BlackPlayer.UserId,
-            pool: request.Pool
-        );
-        await _rematchNotifier.NotifyRematchAccepted(
-            gameToken,
-            request.Players.WhitePlayer.UserId,
-            request.Players.BlackPlayer.UserId
-        );
-        await _state.ClearStateAsync();
+        await TearDownRematchAsync();
     }
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
@@ -145,5 +168,34 @@ public class RematchGrain(
         {
             await base.OnActivateAsync(cancellationToken);
         }
+    }
+
+    private async Task AcceptRematchAsync(RematchRequest request)
+    {
+        var gameToken = await _gameStarter.StartGameAsync(
+            request.Players.WhitePlayer.UserId,
+            request.Players.BlackPlayer.UserId,
+            pool: request.Pool
+        );
+        await _rematchNotifier.NotifyRematchAccepted(
+            gameToken,
+            request.Players.WhitePlayer.UserId,
+            request.Players.BlackPlayer.UserId
+        );
+        await _state.ClearStateAsync();
+    }
+
+    private async Task TearDownRematchAsync()
+    {
+        var request = _state.State.Request;
+        if (request is not null)
+        {
+            await _rematchNotifier.NotifyRematchCancelledAsync(
+                request.Players.WhitePlayer.UserId,
+                request.Players.BlackPlayer.UserId
+            );
+        }
+
+        await _state.ClearStateAsync();
     }
 }

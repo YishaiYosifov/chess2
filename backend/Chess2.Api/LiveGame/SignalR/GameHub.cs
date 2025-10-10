@@ -137,7 +137,10 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
 
         var rematchGrain = _grains.GetGrain<IRematchGrain>(gameToken);
-        var rematchResult = await rematchGrain.RequestRematch(requestedBy: userId);
+        var rematchResult = await rematchGrain.RequestAsync(
+            requestedBy: userId,
+            connectionId: Context.ConnectionId
+        );
         if (rematchResult.IsError)
         {
             await HandleErrors(rematchResult.Errors);
