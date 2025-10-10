@@ -19,7 +19,7 @@ public class AuthController(
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IAuthService _authService = authService;
 
-    [HttpPost("refresh")]
+    [HttpPost("refresh", Name = nameof(Refresh))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     [Authorize(AuthPolicies.RefreshAccess)]
