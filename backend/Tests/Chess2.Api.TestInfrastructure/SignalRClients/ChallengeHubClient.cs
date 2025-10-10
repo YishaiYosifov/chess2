@@ -2,6 +2,7 @@
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
@@ -54,14 +55,9 @@ public class ChallengeHubClient : BaseHubClient
         CancellationToken token = default
     )
     {
-        TimeSpan timeout = TimeSpan.FromSeconds(10);
-        using var timeoutCts = new CancellationTokenSource(timeout);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-            token,
-            timeoutCts.Token
+        var challenge = await _incomingChallengesChannel.Reader.ReadAsync(
+            token.WithTimeout(TimeSpan.FromSeconds(10))
         );
-
-        var challenge = await _incomingChallengesChannel.Reader.ReadAsync(linkedCts.Token);
         return challenge;
     }
 
@@ -69,14 +65,9 @@ public class ChallengeHubClient : BaseHubClient
         CancellationToken token = default
     )
     {
-        TimeSpan timeout = TimeSpan.FromSeconds(10);
-        using var timeoutCts = new CancellationTokenSource(timeout);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-            token,
-            timeoutCts.Token
+        var challengeId = await _cancelledChallengesChannel.Reader.ReadAsync(
+            token.WithTimeout(TimeSpan.FromSeconds(10))
         );
-
-        var challengeId = await _cancelledChallengesChannel.Reader.ReadAsync(linkedCts.Token);
         return challengeId;
     }
 
@@ -84,14 +75,9 @@ public class ChallengeHubClient : BaseHubClient
         CancellationToken token = default
     )
     {
-        TimeSpan timeout = TimeSpan.FromSeconds(10);
-        using var timeoutCts = new CancellationTokenSource(timeout);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(
-            token,
-            timeoutCts.Token
+        var accepted = await _acceptedChallengesChannel.Reader.ReadAsync(
+            token.WithTimeout(TimeSpan.FromSeconds(10))
         );
-
-        var accepted = await _acceptedChallengesChannel.Reader.ReadAsync(linkedCts.Token);
         return accepted;
     }
 }
