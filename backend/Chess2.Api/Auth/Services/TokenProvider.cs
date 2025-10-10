@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text;
-using Chess2.Api.Shared.Models;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Shared.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -59,9 +59,9 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
 
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+        SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = claims,
             Expires = expires,
@@ -70,7 +70,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
             Audience = _jwtSettings.Audience,
         };
 
-        var handler = new JsonWebTokenHandler();
+        JsonWebTokenHandler handler = new();
         return handler.CreateToken(tokenDescriptor);
     }
 }
