@@ -66,6 +66,12 @@ public class GameHubClient : BaseHubClient
         CancellationToken token = default
     ) => await _messagesChannel.Reader.ReadAsync(token.WithTimeout(TimeSpan.FromSeconds(10)));
 
+    public Task RequestRematchAsync(CancellationToken token = default) =>
+        Connection.InvokeAsync("RequestRematchAsync", _gameToken, token);
+
+    public Task CancelRematchAsync(CancellationToken token = default) =>
+        Connection.InvokeAsync("CancelRematchAsync", _gameToken, token);
+
     public async Task WaitForRematchRequestedAsync(CancellationToken token = default) =>
         await _rematchRequestedChannel.Reader.ReadAsync(
             token.WithTimeout(TimeSpan.FromSeconds(10))

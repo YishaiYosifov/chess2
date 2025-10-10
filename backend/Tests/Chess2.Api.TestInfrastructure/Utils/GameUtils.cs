@@ -14,7 +14,8 @@ public record StartGameResult(
     CurrentRating User1Rating,
     AuthedUser User2,
     CurrentRating User2Rating,
-    GameToken GameToken
+    GameToken GameToken,
+    PoolKey Pool
 );
 
 public static class GameUtils
@@ -24,8 +25,6 @@ public static class GameUtils
         IGameStarter gameStarter
     )
     {
-        var timeControl = new TimeControlSettings(30, 0);
-
         var user1 = new AuthedUserFaker().Generate();
         var user1Rating = new CurrentRatingFaker(user1, 1200)
             .RuleFor(x => x.TimeControl, TimeControl.Bullet)
@@ -39,12 +38,9 @@ public static class GameUtils
         await dbContext.AddRangeAsync(user1, user1Rating, user2, user2Rating);
         await dbContext.SaveChangesAsync();
 
-        var gameToken = await gameStarter.StartGameAsync(
-            user1.Id,
-            user2.Id,
-            new PoolKey(PoolType.Rated, timeControl)
-        );
+        var pool = new PoolKeyFaker(PoolType.Rated).Generate();
+        var gameToken = await gameStarter.StartGameAsync(user1.Id, user2.Id, pool);
 
-        return new(user1, user1Rating, user2, user2Rating, gameToken);
+        return new(user1, user1Rating, user2, user2Rating, gameToken, pool);
     }
 }

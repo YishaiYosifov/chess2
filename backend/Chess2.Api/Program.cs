@@ -331,6 +331,7 @@ builder.Host.UseOrleans(siloBuilder =>
     siloBuilder.AddMemoryGrainStorage(StorageNames.PlayerSessionState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.MatchmakingState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.ChallengeState);
+    siloBuilder.AddMemoryGrainStorage(StorageNames.RematchState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
     siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
 
