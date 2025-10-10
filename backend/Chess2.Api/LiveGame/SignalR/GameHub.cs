@@ -150,29 +150,52 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
 
     public override async Task OnConnectedAsync()
     {
-        string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
-        if (gameToken is null)
+        try
         {
-            await HandleErrors(
-                Error.Validation($"Missing required query parameter: {GameTokenQueryParam}")
-            );
-            await base.OnConnectedAsync();
-            return;
-        }
+            string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
+            if (gameToken is null)
+            {
+                await HandleErrors(
+                    Error.Validation($"Missing required query parameter: {GameTokenQueryParam}")
+                );
+                return;
+            }
 
-        if (!TryGetUserId(out var userId))
+            if (!TryGetUserId(out var userId))
+            {
+                await HandleErrors(Error.Unauthorized());
+                return;
+            }
+
+            await _gameNotifier.JoinGameGroupAsync(gameToken, userId, Context.ConnectionId);
+
+            var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
+            await chatGrain.JoinChatAsync(connectionId: Context.ConnectionId, userId: userId);
+            await Clients.Caller.ChatConnectedAsync();
+        }
+        finally
         {
-            await HandleErrors(Error.Unauthorized());
             await base.OnConnectedAsync();
-            return;
         }
+    }
 
-        await _gameNotifier.JoinGameGroupAsync(gameToken, userId, Context.ConnectionId);
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        try
+        {
+            string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
+            if (gameToken is null)
+                return;
 
-        var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
-        await chatGrain.JoinChatAsync(connectionId: Context.ConnectionId, userId: userId);
-        await Clients.Caller.ChatConnectedAsync();
+            if (!TryGetUserId(out var userId))
+                return;
 
-        await base.OnConnectedAsync();
+            var rematchGrain = _grains.GetGrain<IRematchGrain>(gameToken);
+            await rematchGrain.RemoveConnectionAsync(ofUserId: userId, Context.ConnectionId);
+        }
+        finally
+        {
+            await base.OnDisconnectedAsync(exception);
+        }
     }
 }
