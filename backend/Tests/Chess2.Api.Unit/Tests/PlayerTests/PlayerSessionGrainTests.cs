@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;
@@ -343,10 +344,10 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
-        var connection = "conn1";
         var seeker = new CasualSeekerFaker(_userId).Generate();
-        var targetSeekerId = "target-user";
-        var gameToken = "game123";
+        ConnectionId connection = "conn1";
+        UserId targetSeekerId = "target-user";
+        GameToken gameToken = "game123";
 
         _casualPoolGrainMock.MatchWithSeekerAsync(seeker, targetSeekerId).Returns(gameToken);
 
