@@ -1,45 +1,40 @@
-﻿using AutoFixture;
-using Chess2.Api.Auth.Controllers;
-using Chess2.Api.Auth.Services;
+﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using NSubstitute;
 using SameSiteMode = Microsoft.Net.Http.Headers.SameSiteMode;
 
-namespace Chess2.Api.Unit.Tests;
+namespace Chess2.Api.Integration.Tests.AuthTests;
 
-public class AuthCookieSetterTests : BaseUnitTest
+public class AuthCookieSetterTests : BaseIntegrationTest
 {
     private readonly JwtSettings _jwtSettings;
     private readonly IOptions<AppSettings> _appSettingsOptions;
 
     private readonly IWebHostEnvironment _webHostEnvironmentMock =
         Substitute.For<IWebHostEnvironment>();
-    private readonly LinkGenerator _linkGeneratorMock = Substitute.For<LinkGenerator>();
+    private readonly LinkGenerator _linkGenerator;
 
     private SameSiteMode SameSiteMode =>
         _webHostEnvironmentMock.IsDevelopment() ? SameSiteMode.None : SameSiteMode.Strict;
 
     private const string _refreshPath = "/api/auth/refresh";
 
-    public AuthCookieSetterTests()
+    public AuthCookieSetterTests(Chess2WebApplicationFactory factory)
+        : base(factory)
     {
-        _appSettingsOptions = Fixture.Create<IOptions<AppSettings>>();
+        _appSettingsOptions = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
         _jwtSettings = _appSettingsOptions.Value.Jwt;
 
-        _linkGeneratorMock
-            .GetPathByAddress(
-                Arg.Any<HttpContext>(),
-                nameof(AuthController.Refresh),
-                Arg.Any<RouteValueDictionary>()
-            )
-            .Returns(_refreshPath);
+        _linkGenerator = Scope.ServiceProvider.GetRequiredService<LinkGenerator>();
     }
 
     [Theory]
@@ -114,11 +109,7 @@ public class AuthCookieSetterTests : BaseUnitTest
         _webHostEnvironmentMock.EnvironmentName.Returns(
             isDevelopment ? Environments.Development : Environments.Production
         );
-        return new AuthCookieSetter(
-            _appSettingsOptions,
-            _webHostEnvironmentMock,
-            _linkGeneratorMock
-        );
+        return new AuthCookieSetter(_appSettingsOptions, _webHostEnvironmentMock, _linkGenerator);
     }
 
     private SetCookieHeaderValue CreateExpectedCookie(
