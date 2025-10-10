@@ -43,7 +43,7 @@ public class OpenSeekHubClient : BaseHubClient
     public Task SubscribeAsync(CancellationToken token) =>
         Connection.InvokeAsync("SubscribeAsync", token);
 
-    public async Task<List<OpenSeek>> GetNextOpenSeekBatcheAsync(CancellationToken token)
+    public async Task<List<OpenSeek>> GetNextOpenSeekBatchAsync(CancellationToken token)
     {
         TimeSpan timeout = TimeSpan.FromSeconds(10);
         using var timeoutCts = new CancellationTokenSource(timeout);
