@@ -1,5 +1,7 @@
 ﻿using Chess2.Api.LiveGame.Entities;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Repositories;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Services;
 
 namespace Chess2.Api.LiveGame.Services;
@@ -7,8 +9,8 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IChatMessageLogger
 {
     Task LogMessageAsync(
-        string gameToken,
-        string userId,
+        GameToken gameToken,
+        UserId userId,
         string message,
         CancellationToken token = default
     );
@@ -25,8 +27,8 @@ public class ChatMessageLogger(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task LogMessageAsync(
-        string gameToken,
-        string userId,
+        GameToken gameToken,
+        UserId userId,
         string message,
         CancellationToken token = default
     )

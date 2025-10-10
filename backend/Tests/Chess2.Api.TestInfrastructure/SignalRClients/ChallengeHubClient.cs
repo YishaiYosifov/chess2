@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using Chess2.Api.Challenges.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -11,6 +12,7 @@ public class ChallengeHubClient : BaseHubClient
 
     private readonly Channel<ChallengeRequest> _incomingChallengesChannel =
         Channel.CreateUnbounded<ChallengeRequest>();
+
     private readonly Channel<(
         UserId CancelledBy,
         ChallengeId ChallengeId
@@ -18,11 +20,12 @@ public class ChallengeHubClient : BaseHubClient
         UserId CancelledBy,
         ChallengeId ChallengeId
     )>();
+
     private readonly Channel<(
-        string GameToken,
+        GameToken GameToken,
         ChallengeId ChallengeId
     )> _acceptedChallengesChannel = Channel.CreateUnbounded<(
-        string GameToken,
+        GameToken GameToken,
         ChallengeId ChallengeId
     )>();
 
@@ -77,7 +80,7 @@ public class ChallengeHubClient : BaseHubClient
         return challengeId;
     }
 
-    public async Task<(string GameToken, ChallengeId ChallengeId)> GetNextAcceptedChallengeAsync(
+    public async Task<(GameToken GameToken, ChallengeId ChallengeId)> GetNextAcceptedChallengeAsync(
         CancellationToken token = default
     )
     {

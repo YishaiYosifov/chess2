@@ -1,5 +1,7 @@
-﻿using Chess2.Api.GameSnapshot.Models;
+﻿using System.Net;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -10,7 +12,6 @@ using Chess2.Api.TestInfrastructure.Utils;
 using Chess2.Api.UserRating.Entities;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.LiveGameTests;
 
@@ -238,8 +239,8 @@ public class GameControllerTests : BaseFunctionalTest
     private async Task AssertMixedPlayersGameState(
         AuthedUser authedUser,
         CurrentRating authedRating,
-        string guestId,
-        string gameToken
+        UserId guestId,
+        GameToken gameToken
     )
     {
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, authedUser);
@@ -284,8 +285,8 @@ public class GameControllerTests : BaseFunctionalTest
     }
 
     private static void AssertGuestPlayersMatch(
-        string guest1Id,
-        string guest2Id,
+        UserId guest1Id,
+        UserId guest2Id,
         GameState gameState
     )
     {

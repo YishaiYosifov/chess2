@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -81,7 +82,7 @@ public class ChallengeNotifierTests
     public async Task NotifyChallengeAcceptedAsync_notifies_the_requester_client()
     {
         ChallengeId challengeId = "challenge-accepted";
-        string gameToken = "game-token-xyz";
+        GameToken gameToken = "game-token-xyz";
 
         await _notifier.NotifyChallengeAccepted(_requesterId, gameToken, challengeId);
 

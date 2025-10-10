@@ -2,6 +2,8 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Profile.Models;
 using ErrorOr;
 
 namespace Chess2.Api.Game.Services;
@@ -9,8 +11,8 @@ namespace Chess2.Api.Game.Services;
 public interface IGameStateProvider
 {
     Task<ErrorOr<GameState>> GetGameStateAsync(
-        string gameToken,
-        string forUserId,
+        GameToken gameToken,
+        UserId forUserId,
         CancellationToken token = default
     );
 }
@@ -22,8 +24,8 @@ public class GameStateProvider(IGameArchiveService gameArchiveService, IGrainFac
     private readonly IGrainFactory _grains = grains;
 
     public async Task<ErrorOr<GameState>> GetGameStateAsync(
-        string gameToken,
-        string forUserId,
+        GameToken gameToken,
+        UserId forUserId,
         CancellationToken token = default
     )
     {

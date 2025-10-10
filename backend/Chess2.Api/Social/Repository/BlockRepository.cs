@@ -2,6 +2,7 @@
 using Chess2.Api.Pagination.Extensions;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Social.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,8 @@ namespace Chess2.Api.Social.Repository;
 public interface IBlockRepository
 {
     Task AddBlockedUserAsync(BlockedUser blockedUser, CancellationToken token = default);
-    Task<HashSet<string>> GetAllBlockedUserIdsAsync(
-        string userId,
+    Task<HashSet<UserId>> GetAllBlockedUserIdsAsync(
+        UserId userId,
         CancellationToken token = default
     );
     Task<int> GetBlockedCountAsync(string userId, CancellationToken token = default);
@@ -43,8 +44,8 @@ public class BlockRepository(ApplicationDbContext dbContext) : IBlockRepository
             .Paginate(query)
             .ToListAsync(token);
 
-    public Task<HashSet<string>> GetAllBlockedUserIdsAsync(
-        string userId,
+    public Task<HashSet<UserId>> GetAllBlockedUserIdsAsync(
+        UserId userId,
         CancellationToken token = default
     ) =>
         _dbContext

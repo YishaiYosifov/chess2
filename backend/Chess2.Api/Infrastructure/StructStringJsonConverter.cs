@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Chess2.Api.Infrastructure;
 
-public class StringValueObjectConverter<T> : JsonConverter<T>
+public class StructStringJsonConverter<T> : JsonConverter<T>
     where T : struct
 {
     private static readonly ConstructorInfo Ctor =
@@ -18,7 +18,7 @@ public class StringValueObjectConverter<T> : JsonConverter<T>
     )
     {
         var str = reader.GetString();
-        return (T)Ctor.Invoke([str!]);
+        return (T)Ctor.Invoke([str]);
     }
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)

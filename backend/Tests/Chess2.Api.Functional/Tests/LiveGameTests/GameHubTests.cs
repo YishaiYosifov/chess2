@@ -1,4 +1,5 @@
-﻿using Chess2.Api.LiveGame.Services;
+﻿using Chess2.Api.LiveGame.Models;
+using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -95,7 +96,7 @@ public class GameHubTests : BaseFunctionalTest
     }
 
     private async Task SendMessageAndAssertReceptionAsync(
-        string gameToken,
+        GameToken gameToken,
         string message,
         AuthedUser sender,
         params List<AuthedUser> receivers

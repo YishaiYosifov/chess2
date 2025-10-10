@@ -4,6 +4,7 @@ using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -29,11 +30,11 @@ public class GameChatGrainTest : BaseGrainTest
 
     private readonly GamePlayer _whitePlayer = new GamePlayerFaker(GameColor.White).RuleFor(
         x => x.UserId,
-        WhiteUserId
+        (UserId)WhiteUserId
     );
     private readonly GamePlayer _blackPlayer = new GamePlayerFaker(GameColor.Black).RuleFor(
         x => x.UserId,
-        BlackUserId
+        (UserId)BlackUserId
     );
 
     private readonly AuthedUser _whiteUser;
@@ -112,7 +113,7 @@ public class GameChatGrainTest : BaseGrainTest
     [InlineData(WhiteUserId, true)]
     [InlineData(BlackUserId, true)]
     [InlineData("another-user", false)]
-    public async Task SendMessage_when_user_in_chat_sends_message(string userId, bool isPlaying)
+    public async Task SendMessage_when_user_in_chat_sends_message(UserId userId, bool isPlaying)
     {
         const string message = "test message";
 

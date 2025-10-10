@@ -1,4 +1,5 @@
-﻿using Chess2.Api.LiveGame.SignalR;
+﻿using Chess2.Api.LiveGame.Models;
+using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -7,19 +8,19 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IGameChatNotifier
 {
     Task JoinChatAsync(
-        string gameToken,
+        GameToken gameToken,
         ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     );
     Task LeaveChatAsync(
-        string gameToken,
+        GameToken gameToken,
         ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
     );
     Task SendMessageAsync(
-        string gameToken,
+        GameToken gameToken,
         string userName,
         ConnectionId connectionId,
         TimeSpan cooldownLeft,
@@ -32,11 +33,11 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
 {
     private readonly IHubContext<GameHub, IGameHubClient> _hub = hub;
 
-    private static string GetGroupName(string gameToken, bool isPlaying) =>
+    private static string GetGroupName(GameToken gameToken, bool isPlaying) =>
         isPlaying ? $"{gameToken}:chat:playing" : $"{gameToken}:chat:spectators";
 
     public async Task JoinChatAsync(
-        string gameToken,
+        GameToken gameToken,
         ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
@@ -47,7 +48,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     }
 
     public async Task LeaveChatAsync(
-        string gameToken,
+        GameToken gameToken,
         ConnectionId connectionId,
         bool isPlaying,
         CancellationToken token = default
@@ -58,7 +59,7 @@ public class GameChatNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameC
     }
 
     public async Task SendMessageAsync(
-        string gameToken,
+        GameToken gameToken,
         string userName,
         ConnectionId connectionId,
         TimeSpan cooldownLeft,
