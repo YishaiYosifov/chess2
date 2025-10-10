@@ -190,7 +190,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
     [Fact]
     public async Task CancelSeekAsync_removes_pool_and_notifies_match_failed()
     {
-        var pool = new PoolKeyFaker().Generate();
+        var pool = new PoolKeyFaker(PoolType.Rated).Generate();
         var seeker = new RatedSeekerFaker(UserId).Generate();
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(UserId);
