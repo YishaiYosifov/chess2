@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Social.Repository;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -21,7 +22,7 @@ public class BlockRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetPaginatedBlockedUsersAsync_applies_pagination()
     {
-        string userId = "test user";
+        UserId userId = "test user";
         var blockedUsers = new BlockedUserFaker(forUser: userId).Generate(5);
 
         await DbContext.AddRangeAsync(blockedUsers, CT);
@@ -40,7 +41,7 @@ public class BlockRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetAllBlockedUserIdsAsync_returns_only_user_blocked_ids()
     {
-        string userId = "test-user";
+        UserId userId = "test-user";
         var blockedUsers = new BlockedUserFaker(forUser: userId).Generate(3);
         var otherBlocked = new BlockedUserFaker().Generate();
 
@@ -57,7 +58,7 @@ public class BlockRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetBlockedCountAsync_returns_correct_number()
     {
-        string userId = "test user";
+        UserId userId = "test user";
         var blockedUsers = new BlockedUserFaker(forUser: userId).Generate(4);
         var otherBlocked = new BlockedUserFaker().Generate();
 

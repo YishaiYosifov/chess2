@@ -1,6 +1,7 @@
 ﻿using Chess2.Api.Infrastructure;
 using Chess2.Api.Pagination.Extensions;
 using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Quests.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,7 @@ public interface IQuestRepository
     );
     Task<int> GetRankingAsync(int points, CancellationToken token = default);
     Task<int> GetTotalCountAsync(CancellationToken token = default);
-    Task<UserQuestPoints?> GetUserPointsAsync(string userId, CancellationToken token = default);
+    Task<UserQuestPoints?> GetUserPointsAsync(UserId userId, CancellationToken token = default);
 }
 
 public class QuestRepository(ApplicationDbContext dbContext) : IQuestRepository
@@ -39,7 +40,7 @@ public class QuestRepository(ApplicationDbContext dbContext) : IQuestRepository
         await _dbContext.QuestPoints.CountAsync(x => x.Points > points, token) + 1;
 
     public Task<UserQuestPoints?> GetUserPointsAsync(
-        string userId,
+        UserId userId,
         CancellationToken token = default
     ) => _dbContext.QuestPoints.FirstOrDefaultAsync(x => x.UserId == userId, token);
 

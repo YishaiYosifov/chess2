@@ -2,6 +2,7 @@
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.LiveGame.Services;
 
@@ -9,7 +10,7 @@ namespace Chess2.Api.LiveGame.Services;
 [Alias("Chess2.Api.LiveGame.Services.PlayerRoster")]
 public record PlayerRoster(GamePlayer WhitePlayer, GamePlayer BlackPlayer)
 {
-    public bool TryGetPlayerById(string userId, [NotNullWhen(true)] out GamePlayer? player)
+    public bool TryGetPlayerById(UserId? userId, [NotNullWhen(true)] out GamePlayer? player)
     {
         player = null;
         if (WhitePlayer.UserId == userId)

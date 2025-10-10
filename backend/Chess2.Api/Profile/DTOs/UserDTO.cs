@@ -1,11 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 using Chess2.Api.Profile.Entities;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.Profile.DTOs;
 
 [method: JsonConstructor]
 public record PublicUser(
-    string UserId,
+    UserId UserId,
     string UserName,
     string About,
     string CountryCode,
@@ -25,14 +26,14 @@ public record PublicUser(
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(PrivateUser), SessionUserType.Authed)]
 [JsonDerivedType(typeof(GuestUser), SessionUserType.Guest)]
-public abstract record SessionUser(string UserId)
+public abstract record SessionUser(UserId UserId)
 {
     public abstract string Type { get; }
 }
 
 [method: JsonConstructor]
 public record PrivateUser(
-    string UserId,
+    UserId UserId,
     string UserName,
     string About,
     string CountryCode,
@@ -53,7 +54,7 @@ public record PrivateUser(
         ) { }
 }
 
-public record GuestUser(string UserId) : SessionUser(UserId)
+public record GuestUser(UserId UserId) : SessionUser(UserId)
 {
     public override string Type => SessionUserType.Guest;
 }
