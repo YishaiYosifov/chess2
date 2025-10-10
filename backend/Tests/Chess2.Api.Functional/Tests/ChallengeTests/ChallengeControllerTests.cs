@@ -138,7 +138,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         createdGameStateResult.IsSuccessful.Should().BeTrue();
         createdGameStateResult.Content.Should().NotBeNull();
         createdGameStateResult.Content.Pool.Should().Be(challenge.Pool);
-        string[] playerIds =
+        UserId[] playerIds =
         [
             createdGameStateResult.Content.WhitePlayer.UserId,
             createdGameStateResult.Content.BlackPlayer.UserId,
