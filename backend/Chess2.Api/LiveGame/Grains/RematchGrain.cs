@@ -24,6 +24,8 @@ public interface IRematchGrain : IGrainWithStringKey
     Task<ErrorOr<Deleted>> RemoveConnectionAsync(UserId ofUserId, ConnectionId connectionId);
 }
 
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Grains.RematchRequest")]
 public record RematchRequest(PlayerRoster Players, PoolKey Pool);
 
 [GenerateSerializer]
