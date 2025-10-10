@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Models;
@@ -22,7 +23,7 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<bool> TryCancelSeekAsync(UserId userId);
 
     [Alias("MatchWithSeeker")]
-    Task<ErrorOr<string>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith);
+    Task<ErrorOr<GameToken>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith);
 }
 
 [Alias("Chess2.Api.Matchmaking.Grains.IMatchmakingGrain`1")]
@@ -98,7 +99,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         return result;
     }
 
-    public async Task<ErrorOr<string>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith)
+    public async Task<ErrorOr<GameToken>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith)
     {
         if (
             !_state.State.Pool.TryGetSeeker(matchWith, out var matchWithSeeker)
