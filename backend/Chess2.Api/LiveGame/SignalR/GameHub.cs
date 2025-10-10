@@ -51,10 +51,10 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             return;
         }
 
-        var response = await _grains.GetGrain<IGameGrain>(gameToken).MovePieceAsync(userId, key);
-        if (response.IsError)
+        var result = await _grains.GetGrain<IGameGrain>(gameToken).MovePieceAsync(userId, key);
+        if (result.IsError)
         {
-            await HandleErrors(response.Errors);
+            await HandleErrors(result.Errors);
             return;
         }
     }
@@ -67,10 +67,10 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             return;
         }
 
-        var response = await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(userId);
-        if (response.IsError)
+        var result = await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(userId);
+        if (result.IsError)
         {
-            await HandleErrors(response.Errors);
+            await HandleErrors(result.Errors);
             return;
         }
     }
@@ -83,10 +83,10 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             return;
         }
 
-        var response = await _grains.GetGrain<IGameGrain>(gameToken).RequestDrawAsync(userId);
-        if (response.IsError)
+        var result = await _grains.GetGrain<IGameGrain>(gameToken).RequestDrawAsync(userId);
+        if (result.IsError)
         {
-            await HandleErrors(response.Errors);
+            await HandleErrors(result.Errors);
             return;
         }
     }
@@ -99,10 +99,10 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             return;
         }
 
-        var response = await _grains.GetGrain<IGameGrain>(gameToken).DeclineDrawAsync(userId);
-        if (response.IsError)
+        var result = await _grains.GetGrain<IGameGrain>(gameToken).DeclineDrawAsync(userId);
+        if (result.IsError)
         {
-            await HandleErrors(response.Errors);
+            await HandleErrors(result.Errors);
             return;
         }
     }
@@ -116,19 +116,19 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
 
         var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
-        var sendChatResult = await chatGrain.SendMessageAsync(
+        var result = await chatGrain.SendMessageAsync(
             connectionId: Context.ConnectionId,
             userId: userId,
             message: message
         );
-        if (sendChatResult.IsError)
+        if (result.IsError)
         {
-            await HandleErrors(sendChatResult.Errors);
+            await HandleErrors(result.Errors);
             return;
         }
     }
 
-    public async Task RequestRematch(GameToken gameToken)
+    public async Task RequestRematchAsync(GameToken gameToken)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -137,13 +137,30 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
 
         var rematchGrain = _grains.GetGrain<IRematchGrain>(gameToken);
-        var rematchResult = await rematchGrain.RequestAsync(
+        var result = await rematchGrain.RequestAsync(
             requestedBy: userId,
             connectionId: Context.ConnectionId
         );
-        if (rematchResult.IsError)
+        if (result.IsError)
         {
-            await HandleErrors(rematchResult.Errors);
+            await HandleErrors(result.Errors);
+            return;
+        }
+    }
+
+    public async Task CancelRematchAsync(GameToken gameToken)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var rematchGrain = _grains.GetGrain<IRematchGrain>(gameToken);
+        var result = await rematchGrain.CancelAsync(cancelledBy: userId);
+        if (result.IsError)
+        {
+            await HandleErrors(result.Errors);
             return;
         }
     }
