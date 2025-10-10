@@ -10,11 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Chess2.Api.Functional.Tests.LiveGameTests;
 
-public class GameHubTests : BaseFunctionalTest
+public class GameChatTests : BaseFunctionalTest
 {
     private readonly IGameStarter _gameStarter;
 
-    public GameHubTests(Chess2WebApplicationFactory factory)
+    public GameChatTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _gameStarter = Scope.ServiceProvider.GetRequiredService<IGameStarter>();
@@ -128,7 +128,7 @@ public class GameHubTests : BaseFunctionalTest
     {
         foreach (var conn in connections)
         {
-            var result = await conn.WaitForMessageAsync(CT);
+            var result = await conn.GetNextMessageAsync(CT);
             result.Should().BeEquivalentTo((sender.UserName, message));
         }
 
