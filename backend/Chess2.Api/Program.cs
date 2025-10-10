@@ -1,3 +1,7 @@
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -56,10 +60,6 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -371,6 +371,7 @@ builder.Services.AddSingleton<IGameResultDescriber, GameResultDescriber>();
 builder.Services.AddSingleton<IGameNotifier, GameNotifier>();
 builder.Services.AddSingleton<IArchivedGameStateBuilder, ArchivedGameStateBuilder>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddSingleton<IRematchNotifier, RematchNotifier>();
 
 builder.Services.AddTransient<IGameCore, GameCore>();
 builder.Services.AddTransient<IGameClock, GameClock>();
@@ -445,6 +446,7 @@ builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>(
 builder.Services.AddSingleton<IChallengeNotifier, ChallengeNotifier>();
 builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
 #endregion
+
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
