@@ -1,11 +1,12 @@
 ﻿using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Shared.Services;
 
 namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameTokenGenerator
 {
-    Task<string> GenerateUniqueGameToken();
+    Task<GameToken> GenerateUniqueGameToken();
 }
 
 public class GameTokenGenerator(IGrainFactory grains, IRandomCodeGenerator randomCodeGenerator)
@@ -14,7 +15,7 @@ public class GameTokenGenerator(IGrainFactory grains, IRandomCodeGenerator rando
     private readonly IGrainFactory _grains = grains;
     private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
 
-    public async Task<string> GenerateUniqueGameToken()
+    public async Task<GameToken> GenerateUniqueGameToken()
     {
         while (true)
         {

@@ -12,7 +12,7 @@ public interface IGameStateProvider
 {
     Task<ErrorOr<GameState>> GetGameStateAsync(
         GameToken gameToken,
-        UserId forUserId,
+        UserId? forUserId = null,
         CancellationToken token = default
     );
 }
@@ -25,7 +25,7 @@ public class GameStateProvider(IGameArchiveService gameArchiveService, IGrainFac
 
     public async Task<ErrorOr<GameState>> GetGameStateAsync(
         GameToken gameToken,
-        UserId forUserId,
+        UserId? forUserId = null,
         CancellationToken token = default
     )
     {
