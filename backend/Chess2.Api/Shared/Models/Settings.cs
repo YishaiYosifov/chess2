@@ -32,7 +32,7 @@ public class LobbySettings
     public int MaxActiveGames { get; set; }
     public int AllowedMatchRatingDifference { get; set; }
     public TimeSpan MatchWaveEvery { get; set; }
-    public TimeSpan SeekActiveFor { get; set; }
+    public TimeSpan SeekLifetime { get; set; }
 }
 
 public class GameSettings
@@ -43,6 +43,8 @@ public class GameSettings
     public int DrawCooldown { get; set; }
 
     public required ChatSettings Chat { get; set; }
+
+    public TimeSpan RematchLifetime { get; set; }
 }
 
 public class ChatSettings

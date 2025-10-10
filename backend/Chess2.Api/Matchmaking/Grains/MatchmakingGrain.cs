@@ -220,7 +220,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     {
         var now = _timeProvider.GetUtcNow();
         var timedOutSeekers = _state
-            .State.Pool.Seekers.Where(seeker => now - seeker.CreatedAt >= _settings.SeekActiveFor)
+            .State.Pool.Seekers.Where(seeker => now - seeker.CreatedAt >= _settings.SeekLifetime)
             .ToList();
 
         foreach (var seeker in timedOutSeekers)
