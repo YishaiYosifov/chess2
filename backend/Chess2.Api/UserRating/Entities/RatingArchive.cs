@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.UserRating.Entities;
@@ -7,7 +8,7 @@ namespace Chess2.Api.UserRating.Entities;
 public class RatingArchive
 {
     public int Id { get; set; }
-    public required string UserId { get; set; }
+    public required UserId UserId { get; set; }
 
     public required TimeControl TimeControl { get; set; }
     public required int Value { get; set; }

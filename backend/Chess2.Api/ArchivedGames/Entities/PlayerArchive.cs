@@ -1,11 +1,12 @@
 ﻿using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.ArchivedGames.Entities;
 
 public class PlayerArchive
 {
     public int Id { get; set; }
-    public required string UserId { get; set; }
+    public required UserId UserId { get; set; }
 
     public required bool IsAuthenticated { get; set; }
     public required GameColor Color { get; set; }

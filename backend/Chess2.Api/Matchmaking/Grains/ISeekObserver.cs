@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Matchmaking.Models;
 using Orleans.Concurrency;
 
 namespace Chess2.Api.Matchmaking.Grains;
@@ -8,7 +9,7 @@ public interface ISeekObserver : IGrainObserver
 {
     [OneWay]
     [Alias("SeekMatched")]
-    public Task SeekMatchedAsync(string gameToken, PoolKey pool);
+    public Task SeekMatchedAsync(GameToken gameToken, PoolKey pool);
 
     [OneWay]
     [Alias("SeekRemoved")]

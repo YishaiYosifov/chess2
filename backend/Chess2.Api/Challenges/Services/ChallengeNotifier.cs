@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.SignalR;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
@@ -8,7 +9,7 @@ namespace Chess2.Api.Challenges.Services;
 
 public interface IChallengeNotifier
 {
-    Task NotifyChallengeAccepted(UserId requesterId, string gameToken, ChallengeId challengeId);
+    Task NotifyChallengeAccepted(UserId requesterId, GameToken gameToken, ChallengeId challengeId);
     Task NotifyChallengeCancelled(
         UserId? cancelledBy,
         UserId requesterId,
@@ -46,7 +47,7 @@ public class ChallengeNotifier(IHubContext<ChallengeHub, IChallengeHubClient> hu
 
     public Task NotifyChallengeAccepted(
         UserId requesterId,
-        string gameToken,
+        GameToken gameToken,
         ChallengeId challengeId
     ) => _hub.Clients.User(requesterId).ChallengeAcceptedAsync(gameToken, challengeId);
 }

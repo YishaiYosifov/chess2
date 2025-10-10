@@ -2,7 +2,9 @@
 using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
@@ -22,7 +24,7 @@ public class GameArchiveFaker : Faker<GameArchive>
     {
         StrictMode(true);
         RuleFor(x => x.Id, 0);
-        RuleFor(x => x.GameToken, f => f.Random.Guid().ToString()[..16]);
+        RuleFor(x => x.GameToken, f => (GameToken)f.Random.Guid().ToString()[..16]);
         RuleFor(x => x.Result, f => f.PickRandom<GameResult>());
         RuleFor(x => x.ResultDescription, "some description");
         RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
@@ -51,8 +53,8 @@ public class GameArchiveFaker : Faker<GameArchive>
     }
 
     public GameArchiveFaker(
-        string? whiteUserId = null,
-        string? blackUserId = null,
+        UserId? whiteUserId = null,
+        UserId? blackUserId = null,
         int moveCount = 5
     )
         : this(
@@ -67,6 +69,5 @@ public class GameArchiveFaker : Faker<GameArchive>
                     .Generate()
                 : null,
             moveCount
-        )
-    { }
+        ) { }
 }

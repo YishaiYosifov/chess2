@@ -3,7 +3,9 @@ using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Models;
 using ErrorOr;
@@ -13,18 +15,18 @@ namespace Chess2.Api.ArchivedGames.Services;
 public interface IGameArchiveService
 {
     Task<GameArchive> CreateArchiveAsync(
-        string gameToken,
+        GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
         RatingChange? ratingChange,
         CancellationToken token = default
     );
     Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
-        string gameToken,
+        GameToken gameToken,
         CancellationToken token = default
     );
     Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
-        string userId,
+        UserId userId,
         PaginationQuery pagination,
         CancellationToken token = default
     );
@@ -39,7 +41,7 @@ public class GameArchiveService(
     private readonly IArchivedGameStateBuilder _gameStateBuilder = gameStateBuilder;
 
     public async Task<GameArchive> CreateArchiveAsync(
-        string gameToken,
+        GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
         RatingChange? ratingChange,
@@ -84,7 +86,7 @@ public class GameArchiveService(
     }
 
     public async Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
-        string gameToken,
+        GameToken gameToken,
         CancellationToken token = default
     )
     {
@@ -97,7 +99,7 @@ public class GameArchiveService(
     }
 
     public async Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
-        string userId,
+        UserId userId,
         PaginationQuery pagination,
         CancellationToken token = default
     )

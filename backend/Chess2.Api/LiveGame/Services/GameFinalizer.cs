@@ -2,6 +2,7 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -16,7 +17,7 @@ namespace Chess2.Api.LiveGame.Services;
 public interface IGameFinalizer
 {
     Task<GameResultData> FinalizeGameAsync(
-        string gameToken,
+        GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
         IReadOnlyList<Move> gameMoves,
@@ -41,7 +42,7 @@ public class GameFinalizer(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameResultData> FinalizeGameAsync(
-        string gameToken,
+        GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
         IReadOnlyList<Move> gameMoves,
@@ -102,7 +103,7 @@ public class GameFinalizer(
     }
 
     private async Task NotifyQuestAsync(
-        string gameToken,
+        GameToken gameToken,
         GamePlayer player,
         IReadOnlyList<Move> gameMoves,
         GameResultData result

@@ -22,6 +22,15 @@ public class UserIdTests
     }
 
     [Fact]
+    public void Authed_returns_unqiue_id()
+    {
+        var userId1 = UserId.Authed();
+        var userId2 = UserId.Authed();
+
+        userId1.Value.Should().NotBe(userId2.Value);
+    }
+
+    [Fact]
     public void IsGuest_returns_true_for_guest()
     {
         var userId = UserId.Guest();

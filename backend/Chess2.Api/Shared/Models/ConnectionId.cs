@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Chess2.Api.Infrastructure;
 using NJsonSchema;
 using NJsonSchema.Annotations;
@@ -7,7 +8,8 @@ namespace Chess2.Api.Shared.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Shared.Models.ConnectionId")]
-[JsonConverter(typeof(StringValueObjectConverter<ConnectionId>))]
+[JsonConverter(typeof(StructStringJsonConverter<ConnectionId>))]
+[TypeConverter(typeof(StructStringTypeConverter<ConnectionId>))]
 [JsonSchema(JsonObjectType.String)]
 public readonly record struct ConnectionId(string Value)
 {

@@ -4,6 +4,7 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -46,8 +47,8 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public ChallengeGrainTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _requester = new AuthedUserFaker().RuleFor(x => x.Id, _requesterId).Generate();
-        _recipient = new AuthedUserFaker().RuleFor(x => x.Id, _recipientId).Generate();
+        _requester = new AuthedUserFaker().RuleFor(x => x.Id, (UserId)_requesterId).Generate();
+        _recipient = new AuthedUserFaker().RuleFor(x => x.Id, (UserId)_recipientId).Generate();
 
         _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         _timeControlTranslator =
@@ -321,7 +322,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     }
 
     private async Task AssertGameCreated(
-        string gameToken,
+        GameToken gameToken,
         ChallengeRequest fromChallenge,
         UserId requesterId,
         UserId recipientId
@@ -336,7 +337,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var gameState = gameStateResult.Value;
         gameState.Pool.Should().Be(fromChallenge.Pool);
 
-        string[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
+        UserId[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
         playerUserIds.Should().BeEquivalentTo([requesterId, recipientId]);
     }
 

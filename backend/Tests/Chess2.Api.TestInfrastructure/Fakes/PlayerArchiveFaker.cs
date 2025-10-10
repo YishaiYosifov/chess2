@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.GameLogic.Models;
+using Chess2.Api.Profile.Models;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
@@ -11,7 +12,7 @@ public class PlayerArchiveFaker : Faker<PlayerArchive>
         StrictMode(true);
         RuleFor(x => x.Id, 0);
         RuleFor(x => x.UserName, f => f.Internet.UserName());
-        RuleFor(x => x.UserId, f => f.Random.Guid().ToString());
+        RuleFor(x => x.UserId, f => (UserId)f.Random.Guid().ToString());
         RuleFor(x => x.IsAuthenticated, true);
         RuleFor(x => x.Color, color);
         RuleFor(x => x.FinalTimeRemaining, f => f.Random.Double(0, 100000));

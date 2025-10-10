@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Challenges.Models;
+﻿using System.Net;
+using Chess2.Api.Challenges.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -6,7 +8,6 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using FluentAssertions;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.ChallengeTests;
 
@@ -28,8 +29,8 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
         var recipientIncomingChallenge = await recipientConn.GetNextIncomingRequestAsync(CT);
-        recipientIncomingChallenge.Requester.UserId.Should().Be((UserId)_requester.Id);
-        recipientIncomingChallenge.Recipient?.UserId.Should().Be((UserId)_recipient.Id);
+        recipientIncomingChallenge.Requester.UserId.Should().Be(_requester.Id);
+        recipientIncomingChallenge.Recipient?.UserId.Should().Be(_recipient.Id);
         recipientIncomingChallenge.Pool.Should().Be(challenge.Pool);
     }
 
@@ -69,7 +70,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         await DbContext.SaveChangesAsync(CT);
 
         var challenge = await CreateChallengeAsync(_requester);
-        challenge.Requester.UserId.Should().Be((UserId)_requester.Id);
+        challenge.Requester.UserId.Should().Be(_requester.Id);
         challenge.Recipient.Should().BeNull();
     }
 
@@ -108,7 +109,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         var cancelledEvent = await recipientConn.GetNextCancelledChallengeAsync(CT);
         cancelledEvent.ChallengeId.Should().Be(challenge.ChallengeId);
-        cancelledEvent.CancelledBy.Should().Be((UserId)_recipient.Id);
+        cancelledEvent.CancelledBy.Should().Be(_recipient.Id);
     }
 
     [Fact]
@@ -131,7 +132,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         var accepted = await requesterConn.GetNextAcceptedChallengeAsync(CT);
         accepted.ChallengeId.Should().Be(challenge.ChallengeId);
-        accepted.GameToken.Should().Be(result.Content);
+        accepted.GameToken.Should().Be((GameToken)result.Content);
 
         var createdGameStateResult = await ApiClient.Api.GetGameAsync(accepted.GameToken);
         createdGameStateResult.IsSuccessful.Should().BeTrue();

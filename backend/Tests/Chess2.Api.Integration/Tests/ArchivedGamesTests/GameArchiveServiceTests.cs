@@ -2,6 +2,7 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -16,7 +17,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 {
     private readonly IGameArchiveService _gameArchiveService;
 
-    private const string GameToken = "test game token";
+    private readonly GameToken _gameToken = "test game token";
 
     public GameArchiveServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
@@ -32,7 +33,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         var ratingChange = new RatingChange(WhiteChange: 100, BlackChange: -150);
 
         var result = await _gameArchiveService.CreateArchiveAsync(
-            GameToken,
+            _gameToken,
             gameState,
             endStatus,
             ratingChange,
@@ -41,12 +42,12 @@ public class GameArchiveServiceTests : BaseIntegrationTest
 
         await DbContext.SaveChangesAsync(CT);
 
-        var savedArchive = await GetSavedArchiveAsync(GameToken);
+        var savedArchive = await GetSavedArchiveAsync(_gameToken);
 
         savedArchive.Should().BeEquivalentTo(result);
         var expectedArchive = new GameArchive
         {
-            GameToken = GameToken,
+            GameToken = _gameToken,
             Result = endStatus.Result,
             ResultDescription = endStatus.ResultDescription,
             InitialFen = gameState.InitialFen,
@@ -95,7 +96,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         GameEndStatus endStatus = new(GameResult.WhiteWin, "White Won by Resignation");
 
         var result = await _gameArchiveService.CreateArchiveAsync(
-            GameToken,
+            _gameToken,
             gameState,
             endStatus,
             ratingChange: null,
@@ -179,7 +180,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         summary.Should().BeEquivalentTo(expectedSummary);
     }
 
-    private async Task<GameArchive> GetSavedArchiveAsync(string gameToken)
+    private async Task<GameArchive> GetSavedArchiveAsync(GameToken gameToken)
     {
         var archive = await DbContext
             .GameArchives.Include(g => g.Moves)

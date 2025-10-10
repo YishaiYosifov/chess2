@@ -1,6 +1,8 @@
 ﻿using Chess2.Api.LiveGame.Entities;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Repositories;
 using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
@@ -28,8 +30,8 @@ public class ChatMessageLoggerTests : BaseIntegrationTest
     [Fact]
     public async Task LogMessageAsync_adds_the_message_correctly()
     {
-        const string gameToken = "game token";
-        const string userId = "user1";
+        GameToken gameToken = "game token";
+        UserId userId = "user1";
 
         var message1Date = DateTime.UtcNow;
         _timeProviderMock.GetUtcNow().Returns(message1Date);

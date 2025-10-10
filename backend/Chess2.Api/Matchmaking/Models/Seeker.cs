@@ -8,7 +8,7 @@ namespace Chess2.Api.Matchmaking.Models;
 public record Seeker(
     UserId UserId,
     string UserName,
-    HashSet<string> BlockedUserIds,
+    HashSet<UserId> BlockedUserIds,
     DateTimeOffset CreatedAt
 )
 {
@@ -21,7 +21,7 @@ public record Seeker(
 public record CasualSeeker(
     UserId UserId,
     string UserName,
-    HashSet<string> BlockedUserIds,
+    HashSet<UserId> BlockedUserIds,
     DateTimeOffset CreatedAt
 ) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt);
 
@@ -30,7 +30,7 @@ public record CasualSeeker(
 public record RatedSeeker(
     UserId UserId,
     string UserName,
-    HashSet<string> BlockedUserIds,
+    HashSet<UserId> BlockedUserIds,
     DateTimeOffset CreatedAt,
     SeekerRating Rating
 ) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt)
@@ -73,7 +73,7 @@ public record SeekerRating(int Value, int AllowedRatingRange, TimeControl TimeCo
 public record OpenRatedSeeker(
     UserId UserId,
     string UserName,
-    HashSet<string> BlockedUserIds,
+    HashSet<UserId> BlockedUserIds,
     DateTimeOffset CreatedAt,
     Dictionary<TimeControl, int> Ratings
 ) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt)

@@ -2,6 +2,7 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
@@ -31,7 +32,7 @@ public class GameFinalizerTests : BaseUnitTest
 
     private readonly IGrainFactory _grainFactory = Substitute.For<IGrainFactory>();
 
-    private const string GameToken = "test game token 123";
+    private readonly GameToken _gameToken = "test game token 123";
     private readonly TimeControl _timeControl = TimeControl.Rapid;
     private readonly TimeControlSettings _timeControlSettings = new(
         BaseSeconds: 600,
@@ -62,7 +63,7 @@ public class GameFinalizerTests : BaseUnitTest
             .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, _timeControl, CT)
             .Returns(ratingChange);
 
-        var result = await _gameFinalizer.FinalizeGameAsync(GameToken, state, endStatus, [], CT);
+        var result = await _gameFinalizer.FinalizeGameAsync(_gameToken, state, endStatus, [], CT);
 
         result
             .Should()
@@ -76,7 +77,7 @@ public class GameFinalizerTests : BaseUnitTest
             );
         await _gameArchiveServiceMock
             .Received(1)
-            .CreateArchiveAsync(GameToken, state, endStatus, ratingChange, CT);
+            .CreateArchiveAsync(_gameToken, state, endStatus, ratingChange, CT);
         await _ratingServiceMock
             .Received(1)
             .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, _timeControl, CT);
@@ -96,15 +97,15 @@ public class GameFinalizerTests : BaseUnitTest
         var state = CreateRatedGameState(whitePlayer, blackPlayer);
 
         await _gameFinalizer.FinalizeGameAsync(
-            GameToken,
+            _gameToken,
             state,
             new(GameResult.Aborted, "desc"),
             [],
             CT
         );
 
-        await whitePlayerSessionGrain.Received(1).GameEndedAsync(GameToken);
-        await blackPlayerSessionGrain.Received(1).GameEndedAsync(GameToken);
+        await whitePlayerSessionGrain.Received(1).GameEndedAsync(_gameToken);
+        await blackPlayerSessionGrain.Received(1).GameEndedAsync(_gameToken);
     }
 
     [Fact]
@@ -126,7 +127,7 @@ public class GameFinalizerTests : BaseUnitTest
         var moves = new MoveFaker().Generate(5);
 
         var resultData = await _gameFinalizer.FinalizeGameAsync(
-            GameToken,
+            _gameToken,
             state,
             endStatus,
             moves,
@@ -135,10 +136,10 @@ public class GameFinalizerTests : BaseUnitTest
 
         await whiteQuestGrain
             .Received(1)
-            .OnGameOverAsync(new(GameToken, GameColor.White, moves, resultData));
+            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData));
         await whiteQuestGrain
             .Received(1)
-            .OnGameOverAsync(new(GameToken, GameColor.White, moves, resultData));
+            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData));
     }
 
     [Fact]
@@ -149,7 +150,7 @@ public class GameFinalizerTests : BaseUnitTest
         var state = CreateRatedGameState(whitePlayer, blackPlayer);
 
         await _gameFinalizer.FinalizeGameAsync(
-            GameToken,
+            _gameToken,
             state,
             new(GameResult.Aborted, "desc"),
             [],
@@ -168,7 +169,7 @@ public class GameFinalizerTests : BaseUnitTest
         var ratingChange = new RatingChange(15, -15);
 
         await _gameFinalizer.FinalizeGameAsync(
-            GameToken,
+            _gameToken,
             state,
             new(GameResult.WhiteWin, "desc"),
             [],

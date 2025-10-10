@@ -20,7 +20,7 @@ public interface IBlockService
         UserId userIdToBlock,
         CancellationToken token = default
     );
-    Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+    Task<HashSet<UserId>> GetAllBlockedUserIdsAsync(
         UserId forUser,
         CancellationToken token = default
     );
@@ -76,7 +76,7 @@ public class BlockService(
         );
     }
 
-    public Task<HashSet<string>> GetAllBlockedUserIdsAsync(
+    public Task<HashSet<UserId>> GetAllBlockedUserIdsAsync(
         UserId forUser,
         CancellationToken token = default
     ) => _blockRepository.GetAllBlockedUserIdsAsync(forUser, token);

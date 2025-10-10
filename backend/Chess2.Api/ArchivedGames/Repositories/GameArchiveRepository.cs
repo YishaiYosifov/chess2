@@ -1,7 +1,9 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Pagination.Extensions;
 using Chess2.Api.Pagination.Models;
+using Chess2.Api.Profile.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.ArchivedGames.Repositories;
@@ -9,16 +11,16 @@ namespace Chess2.Api.ArchivedGames.Repositories;
 public interface IGameArchiveRepository
 {
     Task<GameArchive?> GetGameArchiveByTokenAsync(
-        string gameToken,
+        GameToken gameToken,
         CancellationToken token = default
     );
     Task AddArchiveAsync(GameArchive gameArchive, CancellationToken token = default);
     Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
-        string userId,
+        UserId userId,
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task<int> CountArchivedGamesForUserAsync(string userId, CancellationToken token = default);
+    Task<int> CountArchivedGamesForUserAsync(UserId userId, CancellationToken token = default);
 }
 
 public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiveRepository
@@ -26,7 +28,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
     private readonly ApplicationDbContext _dbContext = dbContext;
 
     public Task<GameArchive?> GetGameArchiveByTokenAsync(
-        string gameToken,
+        GameToken gameToken,
         CancellationToken token = default
     ) =>
         _dbContext
@@ -38,7 +40,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
             .FirstOrDefaultAsync(token);
 
     public Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
-        string userId,
+        UserId userId,
         PaginationQuery pagination,
         CancellationToken token = default
     ) =>
@@ -53,7 +55,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
             .ToListAsync(token);
 
     public Task<int> CountArchivedGamesForUserAsync(
-        string userId,
+        UserId userId,
         CancellationToken token = default
     ) =>
         _dbContext

@@ -1,13 +1,14 @@
-﻿using Chess2.Api.GameSnapshot.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Matchmaking.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chess2.Api.ArchivedGames.Entities;
 
 public class GameArchive
 {
     public int Id { get; set; }
-    public required string GameToken { get; set; }
+    public required GameToken GameToken { get; set; }
     public required GameResult Result { get; set; }
     public required string ResultDescription { get; set; }
     public required string InitialFen { get; set; }

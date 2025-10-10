@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
@@ -32,7 +33,7 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
     );
 
     [Alias("GameEndedAsync")]
-    Task GameEndedAsync(string gameToken);
+    Task GameEndedAsync(GameToken gameToken);
 }
 
 [GenerateSerializer]
@@ -132,13 +133,13 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         return Result.Created;
     }
 
-    public async Task GameEndedAsync(string gameToken)
+    public async Task GameEndedAsync(GameToken gameToken)
     {
         _state.State.ActiveGameTokens.Remove(gameToken);
         await _state.WriteStateAsync();
     }
 
-    public async Task SeekMatchedAsync(string gameToken, PoolKey pool)
+    public async Task SeekMatchedAsync(GameToken gameToken, PoolKey pool)
     {
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
         await OnGameFoundAsync(gameToken, poolConnectionIds, pool);
@@ -182,7 +183,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     }
 
     private async Task OnGameFoundAsync(
-        string gameToken,
+        GameToken gameToken,
         IEnumerable<ConnectionId> connectionIds,
         PoolKey pool
     )
