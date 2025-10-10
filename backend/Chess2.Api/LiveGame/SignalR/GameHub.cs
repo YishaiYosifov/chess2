@@ -27,6 +27,10 @@ public interface IGameHubClient : IChess2HubClient
     Task ChatMessageAsync(string senderUserName, string message);
     Task ChatConnectedAsync();
     Task ChatMessageDeliveredAsync(double cooldownLeftMs);
+
+    Task RematchRequestedAsync();
+    Task RematchCancelledAsync();
+    Task RematchAccepted(GameToken gameToken);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
@@ -120,6 +124,23 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         if (sendChatResult.IsError)
         {
             await HandleErrors(sendChatResult.Errors);
+            return;
+        }
+    }
+
+    public async Task RequestRematch(GameToken gameToken)
+    {
+        if (!TryGetUserId(out var userId))
+        {
+            await HandleErrors(Error.Unauthorized());
+            return;
+        }
+
+        var rematchGrain = _grains.GetGrain<IRematchGrain>(gameToken);
+        var rematchResult = await rematchGrain.RequestRematch(requestedBy: userId);
+        if (rematchResult.IsError)
+        {
+            await HandleErrors(rematchResult.Errors);
             return;
         }
     }
