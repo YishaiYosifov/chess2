@@ -10,15 +10,16 @@ public class OpenSeekHubClient : BaseHubClient
 {
     public const string Path = "/api/hub/openseek";
 
-    private readonly Channel<IEnumerable<OpenSeek>> _openSeekCreatedChannel =
-        Channel.CreateUnbounded<IEnumerable<OpenSeek>>();
+    private readonly Channel<List<OpenSeek>> _openSeekCreatedChannel = Channel.CreateUnbounded<
+        List<OpenSeek>
+    >();
     private readonly Channel<(UserId SeekerId, PoolKey Pool)> _openSeekRemovedChannel =
         Channel.CreateUnbounded<(UserId SeekerId, PoolKey Pool)>();
 
     public OpenSeekHubClient(HubConnection connection)
         : base(connection)
     {
-        Connection.On<IEnumerable<OpenSeek>>(
+        Connection.On<List<OpenSeek>>(
             "NewOpenSeeksAsync",
             openSeeks => _openSeekCreatedChannel.Writer.TryWrite(openSeeks)
         );
@@ -42,10 +43,7 @@ public class OpenSeekHubClient : BaseHubClient
     public Task SubscribeAsync(CancellationToken token) =>
         Connection.InvokeAsync("SubscribeAsync", token);
 
-    public async Task<List<OpenSeek>> GetOpenSeekBatchesAsync(
-        int batchCount,
-        CancellationToken token
-    )
+    public async Task<List<OpenSeek>> GetNextOpenSeekBatcheAsync(CancellationToken token)
     {
         TimeSpan timeout = TimeSpan.FromSeconds(10);
         using var timeoutCts = new CancellationTokenSource(timeout);
@@ -54,18 +52,11 @@ public class OpenSeekHubClient : BaseHubClient
             timeoutCts.Token
         );
 
-        List<OpenSeek> result = new(batchCount);
-        for (int i = 0; i < batchCount; i++)
-        {
-            var seek = await _openSeekCreatedChannel.Reader.ReadAsync(linkedCts.Token);
-            result.AddRange(seek);
-        }
-
-        return result;
+        var batch = await _openSeekCreatedChannel.Reader.ReadAsync(linkedCts.Token);
+        return batch;
     }
 
-    public async Task<List<(UserId SeekerId, PoolKey Pool)>> GetOpenSeekRemovedAsync(
-        int count,
+    public async Task<(UserId SeekerId, PoolKey Pool)> GetNextOpenSeekRemovedAsync(
         CancellationToken token
     )
     {
@@ -76,13 +67,7 @@ public class OpenSeekHubClient : BaseHubClient
             timeoutCts.Token
         );
 
-        List<(UserId SeekerId, PoolKey Pool)> result = new(count);
-        for (int i = 0; i < count; i++)
-        {
-            var seek = await _openSeekRemovedChannel.Reader.ReadAsync(linkedCts.Token);
-            result.Add(seek);
-        }
-
-        return result;
+        var seek = await _openSeekRemovedChannel.Reader.ReadAsync(linkedCts.Token);
+        return seek;
     }
 }

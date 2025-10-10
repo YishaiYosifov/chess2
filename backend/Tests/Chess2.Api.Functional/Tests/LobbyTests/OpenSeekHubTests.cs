@@ -53,7 +53,7 @@ public class OpenSeekHubTests : BaseFunctionalTest
             await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId),
             CT
         );
-        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
+        var seeks = await openSeek.GetNextOpenSeekBatcheAsync(CT);
 
         seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Casual);
     }
@@ -77,7 +77,7 @@ public class OpenSeekHubTests : BaseFunctionalTest
             CT
         );
 
-        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
+        var seeks = await openSeek.GetNextOpenSeekBatcheAsync(CT);
         seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Rated);
     }
 
@@ -100,7 +100,7 @@ public class OpenSeekHubTests : BaseFunctionalTest
             CT
         );
 
-        var seeks = await openSeek.GetOpenSeekBatchesAsync(1, CT);
+        var seeks = await openSeek.GetNextOpenSeekBatcheAsync(CT);
         seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Casual);
     }
 
@@ -111,7 +111,10 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await ClearShardForWatcher(watcherId);
 
         TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
-        await using var lobby = new LobbyHubClient(await GuestSignalRAsync(LobbyHubClient.Path));
+        var seekerId = UserId.Guest();
+        await using var lobby = new LobbyHubClient(
+            await GuestSignalRAsync(LobbyHubClient.Path, seekerId)
+        );
         await lobby.SeekCasualAsync(timeControl, CT);
 
         await using var watcher = await OpenSeekHubClient.CreateSubscribedAsync(
@@ -121,8 +124,9 @@ public class OpenSeekHubTests : BaseFunctionalTest
 
         await lobby.CancelSeekAsync(new(PoolType.Casual, timeControl), CT);
 
-        var seeks = await watcher.GetOpenSeekRemovedAsync(1, CT);
-        seeks.Should().ContainSingle();
+        var (removedSeekerId, removedPool) = await watcher.GetNextOpenSeekRemovedAsync(CT);
+        removedPool.PoolType.Should().Be(PoolType.Casual);
+        removedSeekerId.Should().Be(seekerId);
     }
 
     [Fact]
@@ -144,8 +148,8 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await using var lobby = new LobbyHubClient(await GuestSignalRAsync(LobbyHubClient.Path));
         await lobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
-        var watcher1Seeks = await watcher1.GetOpenSeekBatchesAsync(1, CT);
-        var watcher2Seeks = await watcher2.GetOpenSeekBatchesAsync(1, CT);
+        var watcher1Seeks = await watcher1.GetNextOpenSeekBatcheAsync(CT);
+        var watcher2Seeks = await watcher2.GetNextOpenSeekBatcheAsync(CT);
         watcher1Seeks.Count.Should().Be(1);
         watcher2Seeks.Should().BeEquivalentTo(watcher1Seeks);
     }
