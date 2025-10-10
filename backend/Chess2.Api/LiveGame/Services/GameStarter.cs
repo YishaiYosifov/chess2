@@ -2,6 +2,7 @@
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -12,7 +13,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameStarter
 {
-    Task<string> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool);
+    Task<GameToken> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool);
 }
 
 public class GameStarter(
@@ -29,7 +30,7 @@ public class GameStarter(
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IGrainFactory _grains = grains;
 
-    public async Task<string> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool)
+    public async Task<GameToken> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool)
     {
         var token = await _gameTokenGenerator.GenerateUniqueGameToken();
         // TODO: choose white and black based on each player last game

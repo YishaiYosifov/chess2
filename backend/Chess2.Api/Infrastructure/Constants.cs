@@ -10,6 +10,7 @@ public static class StorageNames
     public const string PlayerSessionState = "PlayerSessionState";
     public const string MatchmakingState = "MatchmakingState";
     public const string ChallengeState = "ChallengeState";
+    public const string RematchState = "RematchState";
     public const string QuestState = "QuestState";
     public const string GameState = "GameState";
 }
