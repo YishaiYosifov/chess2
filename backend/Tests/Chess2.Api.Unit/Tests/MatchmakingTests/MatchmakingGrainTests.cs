@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Grains;
@@ -150,10 +151,10 @@ public class MatchmakingGrainTests : BaseGrainTest
         await grain.AddSeekAsync(seeker1, observer1);
         await grain.AddSeekAsync(seeker2, observer2);
 
-        var gameToken = "game123";
+        GameToken gameToken = "game123";
         _gameStarterMock
             .StartGameAsync(seeker1.UserId, seeker2.UserId, _testPoolKey)
-            .Returns(Task.FromResult(gameToken));
+            .Returns(gameToken);
 
         await FireWave();
 
@@ -244,10 +245,10 @@ public class MatchmakingGrainTests : BaseGrainTest
         await grain.AddSeekAsync(matchWithSeeker, matchWithObserver);
         matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
 
-        var gameToken = "direct-game-123";
+        GameToken gameToken = "direct-game-123";
         _gameStarterMock
             .StartGameAsync(initiatingSeeker.UserId, matchWithSeeker.UserId, _testPoolKey)
-            .Returns(Task.FromResult(gameToken));
+            .Returns(gameToken);
 
         var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId);
 
@@ -279,7 +280,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
         _gameStarterMock
             .StartGameAsync(initiatingSeeker.UserId, matchWithSeeker.UserId, _testPoolKey)
-            .Returns(Task.FromResult("gameToken"));
+            .Returns("gameToken");
 
         var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId);
 
