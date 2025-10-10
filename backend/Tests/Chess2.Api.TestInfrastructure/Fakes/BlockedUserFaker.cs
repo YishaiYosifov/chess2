@@ -12,7 +12,7 @@ public class BlockedUserFaker : Faker<BlockedUser>
         StrictMode(true);
         RuleFor(x => x.Id, 0);
 
-        RuleFor(x => x.UserId, f => (string)(forUser ?? f.Random.Guid().ToString()));
+        RuleFor(x => x.UserId, f => forUser ?? f.Random.Guid().ToString());
 
         RuleFor(x => x.Blocked, f => blockedUser ?? new AuthedUserFaker().Generate());
         RuleFor(x => x.BlockedUserId, (f, x) => x.Blocked.Id);

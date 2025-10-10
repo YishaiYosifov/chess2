@@ -3,8 +3,10 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -20,7 +22,7 @@ namespace Chess2.Api.Integration.Tests.LiveGameTests;
 
 public class GameGrainTests : BaseOrleansIntegrationTest
 {
-    private const string TestGameToken = "testtoken";
+    private readonly GameToken _gameToken = "testtoken";
     private readonly PoolKey _pool = new(
         PoolType.Rated,
         new(BaseSeconds: 600, IncrementSeconds: 5)
@@ -71,7 +73,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     private async Task<IGameGrain> CreateGrainAsync() =>
-        await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+        await Silo.CreateGrainAsync<GameGrain>(_gameToken);
 
     [Fact]
     public async Task GetStateAsync_returns_the_correct_GameStateEvent()
@@ -117,7 +119,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyDrawStateChangeAsync(
-                TestGameToken,
+                _gameToken,
                 new DrawState(ActiveRequester: GameColor.White)
             );
 
@@ -150,7 +152,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyDrawStateChangeAsync(
-                TestGameToken,
+                _gameToken,
                 new DrawState(WhiteCooldown: _settings.DrawCooldown)
             );
 
@@ -192,7 +194,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                gameToken: TestGameToken,
+                gameToken: _gameToken,
                 move: expectedMoveSnapshot,
                 moveNumber: 1,
                 clocks: ArgEx.FluentAssert<ClockSnapshot>(x =>
@@ -248,12 +250,12 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                gameToken: TestGameToken,
+                gameToken: _gameToken,
                 move: Arg.Any<MoveSnapshot>(),
                 moveNumber: 2 * 4,
                 clocks: Arg.Any<ClockSnapshot>(),
                 sideToMove: Arg.Any<GameColor>(),
-                sideToMoveUserId: Arg.Any<string>(),
+                sideToMoveUserId: Arg.Any<UserId>(),
                 encodedLegalMoves: Arg.Any<IEnumerable<byte>>(),
                 hasForcedMoves: Arg.Any<bool>()
             );
@@ -277,12 +279,12 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                Arg.Any<string>(),
+                Arg.Any<GameToken>(),
                 Arg.Any<MoveSnapshot>(),
                 Arg.Any<int>(),
                 Arg.Any<ClockSnapshot>(),
                 Arg.Any<GameColor>(),
-                Arg.Any<string>(),
+                Arg.Any<UserId>(),
                 Arg.Any<byte[]>(),
                 hasForcedMoves: true
             );
@@ -310,7 +312,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         await _gameNotifierMock
             .DidNotReceive()
-            .NotifyDrawStateChangeAsync(Arg.Any<string>(), Arg.Any<DrawState>());
+            .NotifyDrawStateChangeAsync(Arg.Any<GameToken>(), Arg.Any<DrawState>());
 
         var state = await grain.GetStateAsync();
         state.Value.DrawState.WhiteCooldown.Should().Be(drawCooldown - 1);
@@ -331,7 +333,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyDrawStateChangeAsync(
-                TestGameToken,
+                _gameToken,
                 new DrawState(WhiteCooldown: _settings.DrawCooldown)
             );
 
@@ -425,7 +427,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyGameEndedAsync(
-                TestGameToken,
+                _gameToken,
                 ArgEx.FluentAssert<GameResultData>(
                     (x) =>
                     {

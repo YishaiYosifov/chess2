@@ -3,6 +3,7 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +39,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
     private readonly IGrainFactory _grains = grains;
     private readonly IGameNotifier _gameNotifier = gameNotifier;
 
-    public async Task MovePieceAsync(string gameToken, string key)
+    public async Task MovePieceAsync(GameToken gameToken, string key)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -54,7 +55,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
     }
 
-    public async Task EndGameAsync(string gameToken)
+    public async Task EndGameAsync(GameToken gameToken)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -70,7 +71,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
     }
 
-    public async Task RequestDrawAsync(string gameToken)
+    public async Task RequestDrawAsync(GameToken gameToken)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -86,7 +87,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
     }
 
-    public async Task DeclineDrawAsync(string gameToken)
+    public async Task DeclineDrawAsync(GameToken gameToken)
     {
         if (!TryGetUserId(out var userId))
         {
@@ -102,7 +103,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         }
     }
 
-    public async Task SendChatAsync(string gameToken, string message)
+    public async Task SendChatAsync(GameToken gameToken, string message)
     {
         if (!TryGetUserId(out var userId))
         {

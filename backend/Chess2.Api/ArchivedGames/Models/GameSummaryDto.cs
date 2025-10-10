@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.LiveGame.Models;
 
 namespace Chess2.Api.ArchivedGames.Models;
 
 [DisplayName("GameSummary")]
 public record GameSummaryDto(
-    string GameToken,
+    GameToken GameToken,
     PlayerSummaryDto WhitePlayer,
     PlayerSummaryDto BlackPlayer,
     GameResult Result,

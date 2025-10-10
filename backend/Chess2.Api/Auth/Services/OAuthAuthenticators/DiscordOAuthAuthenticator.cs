@@ -41,19 +41,19 @@ public class DiscordOAuthAuthenticator(
         }
 
         using var doc = JsonDocument.Parse(userClaim);
-        if (!doc.RootElement.TryGetProperty("id", out var userIdElement))
+        if (!doc.RootElement.TryGetProperty("id", out var discordIdElement))
         {
             _logger.LogWarning("Could not get user id from discord claims principal");
             return AuthErrors.OAuthInvalid;
         }
 
-        var userId = userIdElement.GetString();
-        if (userId is null)
+        var discordId = discordIdElement.GetString();
+        if (discordId is null)
         {
             _logger.LogWarning("User id was null in discord claims principal");
             return AuthErrors.OAuthInvalid;
         }
 
-        return userId;
+        return discordId;
     }
 }

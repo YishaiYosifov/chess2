@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+﻿using Chess2.Api.LiveGame.Models;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
@@ -6,7 +7,7 @@ using ChatTcs = TaskCompletionSource<(string senderUserName, string message)>;
 
 public class GameHubClient : BaseHubClient
 {
-    public static string Path(string gameToken) => $"/api/hub/game?gameToken={gameToken}";
+    public static string Path(GameToken gameToken) => $"/api/hub/game?gameToken={gameToken}";
 
     private readonly ChatTcs _messageTcs = new();
     private readonly TaskCompletionSource _connectedTcs = new();
@@ -26,7 +27,7 @@ public class GameHubClient : BaseHubClient
 
     public static async Task<GameHubClient> ConnectToChatAsync(
         HubConnection connection,
-        string gameToken,
+        GameToken gameToken,
         CancellationToken token
     )
     {

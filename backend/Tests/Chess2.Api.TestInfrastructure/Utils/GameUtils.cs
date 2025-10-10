@@ -1,10 +1,11 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.UserRating.Entities;
-using Chess2.Api.Profile.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -13,7 +14,7 @@ public record StartGameResult(
     CurrentRating User1Rating,
     AuthedUser User2,
     CurrentRating User2Rating,
-    string GameToken
+    GameToken GameToken
 );
 
 public static class GameUtils

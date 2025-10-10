@@ -1,4 +1,6 @@
-﻿using Chess2.Api.Auth.DTOs;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Chess2.Api.Auth.DTOs;
 using Chess2.Api.Auth.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Profile.Entities;
@@ -7,8 +9,6 @@ using Chess2.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Chess2.Api.Auth.Services;
 
@@ -105,6 +105,7 @@ public class AuthService(
     {
         var dbUser = new AuthedUser()
         {
+            Id = UserId.Authed(),
             UserName = username,
             Email = email,
             About = "",
