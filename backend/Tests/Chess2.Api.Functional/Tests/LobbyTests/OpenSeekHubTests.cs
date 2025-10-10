@@ -121,6 +121,9 @@ public class OpenSeekHubTests : BaseFunctionalTest
             await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId),
             CT
         );
+        // wait until the seek is broadcasted
+        var seekCreated = await watcher.GetNextOpenSeekBatchAsync(CT);
+        seekCreated.Should().ContainSingle().Which.UserId.Should().Be(seekerId);
 
         await lobby.CancelSeekAsync(new(PoolType.Casual, timeControl), CT);
 
