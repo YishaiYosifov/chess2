@@ -64,21 +64,21 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         async onDragEnd(point) {
-            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
             await handleMousePieceDrop({
                 mousePoint: point,
                 isDrag: true,
             });
+            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
         async onPress(info) {
             if (!isSelected || info.button != 0) return;
 
-            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
             const didMove = await handleMousePieceDrop({
                 mousePoint: info.point,
                 isDrag: false,
             });
             if (didMove) moveOccurredOnPressRef.current = true;
+            pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
     });
 

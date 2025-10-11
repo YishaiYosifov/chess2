@@ -102,9 +102,10 @@ export function createPiecesSlice(
         async applyMoveTurn(move) {
             const { applyMove, disableMovement, onPieceMovement } = get();
 
-            applyMove(move);
+            const animationPromise = applyMove(move);
             disableMovement();
             await onPieceMovement?.(move);
+            await animationPromise;
         },
 
         /**
