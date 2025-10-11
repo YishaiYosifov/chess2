@@ -6,7 +6,6 @@ import createLiveChessStore, {
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { Clocks, GameColor } from "@/lib/apiClient";
 import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
-import { createFakeClock } from "@/lib/testUtils/fakers/clockFaker";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { createFakeLegalMoveMap } from "@/lib/testUtils/fakers/chessboardFakers";
 import {
