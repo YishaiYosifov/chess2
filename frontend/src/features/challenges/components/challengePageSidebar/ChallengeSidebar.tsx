@@ -12,7 +12,7 @@ import useChallengeEvents from "../../hooks/useChallengeEvents";
 
 const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
     const challengeStore = useConst(() => createChallengeStore({ challenge }));
-    useChallengeEvents(challengeStore);
+    useChallengeEvents(challengeStore, challenge.challengeId);
 
     return (
         <ChallengeStoreContext.Provider value={challengeStore}>
