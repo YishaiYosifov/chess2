@@ -24,6 +24,7 @@ const GameOverControls = () => {
                 icon={PlusIcon}
                 className={clsx(isSeeking && "animate-subtle-ping")}
                 onClick={toggleSeek}
+                data-testid="gameOverControlsNewGame"
             >
                 {isSeeking ? "Searching..." : "New Game"}
             </GameControlButton>
@@ -32,6 +33,7 @@ const GameOverControls = () => {
                     icon={ArrowPathIcon}
                     onClick={requestRematch}
                     className="bg-secondary enabled:hover:bg-card text-black enabled:hover:text-white"
+                    data-testid="gameOverControlsRematch"
                 >
                     Rematch?
                 </GameControlButton>
@@ -42,6 +44,7 @@ const GameOverControls = () => {
                         isRequestingRematch && "animate-subtle-ping",
                     )}
                     onClick={toggleRematch}
+                    data-testid="gameOverControlsRematch"
                 >
                     Rematch
                 </GameControlButton>
