@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Chess2.Api.Challenges.Models;
+﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -8,6 +7,7 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using FluentAssertions;
+using System.Net;
 
 namespace Chess2.Api.Functional.Tests.ChallengeTests;
 
@@ -98,8 +98,11 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
-        await using ChallengeHubClient recipientConn = new(
-            await AuthedSignalRAsync(ChallengeHubClient.Path, _recipient)
+        await using ChallengeInstanceHubClient recipientConn = new(
+            await AuthedSignalRAsync(
+                ChallengeInstanceHubClient.Path(challenge.ChallengeId),
+                _recipient
+            )
         );
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
@@ -120,8 +123,11 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
-        await using ChallengeHubClient requesterConn = new(
-            await AuthedSignalRAsync(ChallengeHubClient.Path, _requester)
+        await using ChallengeInstanceHubClient requesterConn = new(
+            await AuthedSignalRAsync(
+                ChallengeInstanceHubClient.Path(challenge.ChallengeId),
+                _requester
+            )
         );
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);

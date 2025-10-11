@@ -117,7 +117,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     {
         var grain = await CreateGrainAsync();
 
-        var challenge = await CreateAsync(grain, _requester);
+        var challenge = await CreateAsync(grain, _requester, recipient: null);
 
         await _challengeNotifierMock
             .DidNotReceiveWithAnyArgs()
@@ -132,27 +132,74 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     [Theory]
     [InlineData(_requesterId)]
     [InlineData(_recipientId)]
+    public async Task SubscribeAsync_subscribes_user_to_notification(string userId)
+    {
+        var grain = await CreateGrainAsync();
+        var challenge = await CreateAsync(grain, _requester, _recipient);
+
+        ConnectionId connId = "conn id";
+        var result = await grain.SubscribeAsync(userId, connId);
+
+        result.IsError.Should().BeFalse();
+        await _challengeNotifierMock
+            .Received(1)
+            .SubscribeToChallengeAsync(connId, challenge.ChallengeId);
+    }
+
+    [Fact]
+    public async Task SubscribeAsync_allows_any_user_when_open_challenge()
+    {
+        var grain = await CreateGrainAsync();
+        var challenge = await CreateAsync(grain, _requester, recipient: null);
+
+        ConnectionId connId = "test conn id";
+        var result = await grain.SubscribeAsync("random user", connId);
+
+        result.IsError.Should().BeFalse();
+        await _challengeNotifierMock
+            .Received(1)
+            .SubscribeToChallengeAsync(connId, challenge.ChallengeId);
+    }
+
+    [Fact]
+    public async Task SubscribeAsync_rejects_when_user_is_not_requester_or_recipient()
+    {
+        var grain = await CreateGrainAsync();
+        await CreateAsync(grain, _requester, _recipient);
+
+        var result = await grain.SubscribeAsync("random user", "conn id");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ChallengeErrors.NotFound);
+        await _challengeNotifierMock
+            .DidNotReceiveWithAnyArgs()
+            .SubscribeToChallengeAsync(default, default);
+    }
+
+    [Theory]
+    [InlineData(_requesterId)]
+    [InlineData(_recipientId)]
     public async Task GetAsync_returns_challenge(string requestedBy)
     {
         var grain = await CreateGrainAsync();
-        var createdChallenge = await CreateAsync(grain, _requester, _recipient);
+        var challenge = await CreateAsync(grain, _requester, _recipient);
 
         var result = await grain.GetAsync(requestedBy: requestedBy);
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(createdChallenge);
+        result.Value.Should().BeEquivalentTo(challenge);
     }
 
     [Fact]
     public async Task GetAsync_allows_any_user_to_view_open_challenge()
     {
         var grain = await CreateGrainAsync();
-        var createdChallenge = await CreateAsync(grain, _requester);
+        var challenge = await CreateAsync(grain, _requester, recipient: null);
 
         var result = await grain.GetAsync("random-user");
 
         result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(createdChallenge);
+        result.Value.Should().BeEquivalentTo(challenge);
     }
 
     [Fact]
@@ -193,7 +240,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy, _requesterId, _recipientId, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy, _challengeId);
         await AssertToreDownAsync(grain);
     }
 
@@ -213,7 +260,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public async Task AcceptAsync_tears_down_and_creates_game()
     {
         var grain = await CreateGrainAsync();
-        var createdChallenge = await CreateAsync(grain, _requester, _recipient);
+        var challenge = await CreateAsync(grain, _requester, _recipient);
 
         var result = await grain.AcceptAsync(_recipientId);
 
@@ -222,7 +269,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         await AssertToreDownAsync(grain);
         await AssertGameCreated(
             gameToken: result.Value,
-            fromChallenge: createdChallenge,
+            fromChallenge: challenge,
             requesterId: _requesterId,
             recipientId: _recipientId
         );
@@ -232,9 +279,10 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public async Task AcceptAsync_allows_any_user_to_accept_open_challenge()
     {
         var grain = await CreateGrainAsync();
-        var createdChallenge = await CreateAsync(
+        var challenge = await CreateAsync(
             grain,
             _requester,
+            recipient: null,
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual)
         );
 
@@ -245,7 +293,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         await AssertToreDownAsync(grain);
         await AssertGameCreated(
             gameToken: result.Value,
-            fromChallenge: createdChallenge,
+            fromChallenge: challenge,
             requesterId: _requesterId,
             recipientId: "random-user"
         );
@@ -255,9 +303,10 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public async Task AcceptAsync_rejects_guests_for_rated_challenges()
     {
         var grain = await CreateGrainAsync();
-        var createdChallenge = await CreateAsync(
+        var challenge = await CreateAsync(
             grain,
             _requester,
+            recipient: null,
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
 
@@ -277,7 +326,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _requesterId, _recipientId, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy: null, _challengeId);
         await AssertToreDownAsync(grain);
     }
 
@@ -285,20 +334,20 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     public async Task ReceiveReminder_cancels_open_challenge()
     {
         var grain = await CreateGrainAsync();
-        await CreateAsync(grain, _requester);
+        await CreateAsync(grain, _requester, recipient: null);
 
         await Silo.FireAllReminders();
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _requesterId, null, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy: null, _challengeId);
         await AssertToreDownAsync(grain);
     }
 
     private async Task<ChallengeRequest> CreateAsync(
         ChallengeGrain grain,
         AuthedUser requester,
-        AuthedUser? recipient = null,
+        AuthedUser? recipient,
         PoolKey? pool = null
     )
     {
@@ -328,9 +377,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         UserId recipientId
     )
     {
-        await _challengeNotifierMock
-            .Received(1)
-            .NotifyChallengeAccepted(requesterId, gameToken, _challengeId);
+        await _challengeNotifierMock.Received(1).NotifyChallengeAccepted(gameToken, _challengeId);
 
         var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
         gameStateResult.IsError.Should().BeFalse();

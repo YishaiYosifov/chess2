@@ -7,12 +7,10 @@ using System.Threading.Channels;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
-public class ChallengeHubClient : BaseHubClient
+public class ChallengeInstanceHubClient : BaseHubClient
 {
-    public const string Path = $"/api/hub/challenge";
-
-    private readonly Channel<ChallengeRequest> _incomingChallengesChannel =
-        Channel.CreateUnbounded<ChallengeRequest>();
+    public static string Path(ChallengeId challengeId) =>
+        $"/api/hub/challenge?challengeId={challengeId}";
 
     private readonly Channel<(
         UserId CancelledBy,
@@ -30,14 +28,9 @@ public class ChallengeHubClient : BaseHubClient
         ChallengeId ChallengeId
     )>();
 
-    public ChallengeHubClient(HubConnection connection)
+    public ChallengeInstanceHubClient(HubConnection connection)
         : base(connection)
     {
-        connection.On<ChallengeRequest>(
-            "ChallengeReceivedAsync",
-            challenge => _incomingChallengesChannel.Writer.TryWrite(challenge)
-        );
-
         connection.On<UserId, ChallengeId>(
             "ChallengeCancelledAsync",
             (cancelledBy, challengeId) =>
@@ -51,12 +44,21 @@ public class ChallengeHubClient : BaseHubClient
         );
     }
 
-    public async Task<ChallengeRequest> GetNextIncomingRequestAsync(
+    public async Task<(UserId CancelledBy, ChallengeId ChallengeId)> GetNextCancelledChallengeAsync(
         CancellationToken token = default
     )
     {
         using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
-        var challenge = await _incomingChallengesChannel.Reader.ReadAsync(cts.Token);
-        return challenge;
+        var challengeId = await _cancelledChallengesChannel.Reader.ReadAsync(cts.Token);
+        return challengeId;
+    }
+
+    public async Task<(GameToken GameToken, ChallengeId ChallengeId)> GetNextAcceptedChallengeAsync(
+        CancellationToken token = default
+    )
+    {
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        var accepted = await _acceptedChallengesChannel.Reader.ReadAsync(cts.Token);
+        return accepted;
     }
 }
