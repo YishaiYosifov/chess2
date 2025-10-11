@@ -38,7 +38,8 @@ public static class GameUtils
         await dbContext.AddRangeAsync(user1, user1Rating, user2, user2Rating);
         await dbContext.SaveChangesAsync();
 
-        var pool = new PoolKeyFaker(PoolType.Rated).Generate();
+        TimeControlSettings timeControl = new(30, 0);
+        PoolKey pool = new(PoolType.Rated, timeControl);
         var gameToken = await gameStarter.StartGameAsync(user1.Id, user2.Id, pool);
 
         return new(user1, user1Rating, user2, user2Rating, gameToken, pool);
