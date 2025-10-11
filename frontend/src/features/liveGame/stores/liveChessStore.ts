@@ -21,11 +21,16 @@ import {
     GameStateSliceProps,
 } from "./gameStateSlice";
 
+import { createRematchSlice, RematchSlice } from "./rematchSlice";
+
 export type LiveChessStoreProps = HistorySliceProps &
     GamePlaySliceProps &
     GameStateSliceProps;
 
-export type LiveChessStore = HistorySlice & GamePlaySlice & GameStateSlice;
+export type LiveChessStore = HistorySlice &
+    GamePlaySlice &
+    GameStateSlice &
+    RematchSlice;
 
 enableMapSet();
 export default function createLiveChessStore(initState: LiveChessStoreProps) {
@@ -34,6 +39,7 @@ export default function createLiveChessStore(initState: LiveChessStoreProps) {
             ...createHistorySlice(initState)(...a),
             ...createGamePlaySlice(initState)(...a),
             ...createGameStateSlice(initState)(...a),
+            ...createRematchSlice(...a),
         })),
         shallow,
     );

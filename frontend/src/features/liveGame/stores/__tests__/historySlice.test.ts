@@ -144,7 +144,7 @@ describe("HistorySlice", () => {
             );
         });
 
-        it("should NOT increment viewingMoveNumber when not viewing the latest move", () => {
+        it("should not increment viewingMoveNumber when not viewing the latest move", () => {
             const position = createFakePosition();
 
             store.setState({ viewingMoveNumber: 0 });

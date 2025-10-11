@@ -9,7 +9,7 @@ const GameControlsCard = () => {
     const resultData = useLiveChessStore((state) => state.resultData);
 
     return (
-        <Card className="h flex-row justify-center gap-2">
+        <Card className="flex-row justify-center gap-2">
             {resultData ? <GameOverControls /> : <LiveGameControls />}
         </Card>
     );

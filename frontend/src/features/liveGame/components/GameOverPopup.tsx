@@ -12,6 +12,7 @@ import {
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 import Popup from "@/components/Popup";
+import useRematch from "../hooks/useRematch";
 
 export interface GameOverPopupRef {
     open(): void;
@@ -35,6 +36,12 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     const openPopup = () => setIsOpen(true);
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
+    const {
+        toggleRematch,
+        requestRematch,
+        isRequestingRematch,
+        isRematchRequested,
+    } = useRematch();
 
     useImperativeHandle(ref, () => ({
         open: openPopup,
@@ -85,14 +92,31 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
             <div className="flex gap-3">
                 <Button
                     className={clsx(
-                        "w-full",
+                        "flex-1",
                         isSeeking && "animate-subtle-ping",
                     )}
                     onClick={() => toggleSeek()}
                 >
                     {isSeeking ? "SEARCHING..." : "NEW GAME"}
                 </Button>
-                <Button className="w-full">REMATCH</Button>
+                {isRematchRequested ? (
+                    <Button
+                        onClick={requestRematch}
+                        className="bg-secondary flex-1 text-black"
+                    >
+                        REMATCH?
+                    </Button>
+                ) : (
+                    <Button
+                        onClick={toggleRematch}
+                        className={clsx(
+                            "flex-1",
+                            isRequestingRematch && "animate-subtle-ping",
+                        )}
+                    >
+                        REMATCH
+                    </Button>
+                )}
             </div>
         </Popup>
     );
