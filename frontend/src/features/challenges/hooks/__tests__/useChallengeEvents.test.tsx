@@ -5,7 +5,10 @@ import {
 } from "../../stores/challengeStore";
 import { ChallengeRequest } from "@/lib/apiClient";
 import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequestFaker";
-import { ChallengeClientEvents, useChallengeEvent } from "../useChallengeHub";
+import {
+    ChallengeClientEvents,
+    useChallengeInstanceEvent,
+} from "../useChallengeHub";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import { act, renderHook } from "@testing-library/react";
@@ -18,22 +21,27 @@ describe("useChallengeEvents", () => {
     let challengeStore: StoreApi<ChallengeStore>;
     let challengeMock: ChallengeRequest;
 
-    const useChallengeEventMock = vi.mocked(useChallengeEvent);
+    const useChallengeInstanceEventMock = vi.mocked(useChallengeInstanceEvent);
     const challengeEventHandlers: EventHandlers<ChallengeClientEvents> = {};
 
     beforeEach(() => {
         challengeMock = createFakeChallengeRequest();
         challengeStore = createChallengeStore({ challenge: challengeMock });
 
-        useChallengeEventMock.mockImplementation((event, handler) => {
-            challengeEventHandlers[event] = handler;
-        });
+        useChallengeInstanceEventMock.mockImplementation(
+            (challengeId, event, handler) => {
+                if (challengeId === challengeMock.challengeId)
+                    challengeEventHandlers[event] = handler;
+            },
+        );
     });
 
     it("should redirect when ChallengeAcceptedAsync with the right challenge id", async () => {
         const routerMock = mockRouter();
         const gameToken = "test game token";
-        renderHook(() => useChallengeEvents(challengeStore));
+        renderHook(() =>
+            useChallengeEvents(challengeStore, challengeMock.challengeId),
+        );
 
         await act(() =>
             challengeEventHandlers["ChallengeAcceptedAsync"]?.(
@@ -49,7 +57,9 @@ describe("useChallengeEvents", () => {
 
     it("should not redirect when ChallengeAcceptedAsync with the wrong challenge id", async () => {
         const routerMock = mockRouter();
-        renderHook(() => useChallengeEvents(challengeStore));
+        renderHook(() =>
+            useChallengeEvents(challengeStore, challengeMock.challengeId),
+        );
 
         await act(() =>
             challengeEventHandlers["ChallengeAcceptedAsync"]?.(
@@ -63,7 +73,9 @@ describe("useChallengeEvents", () => {
 
     it("should mark as cancelled when ChallengeCancelledAsync with the right challenge id", async () => {
         const cancelledBy = "cancelled by";
-        renderHook(() => useChallengeEvents(challengeStore));
+        renderHook(() =>
+            useChallengeEvents(challengeStore, challengeMock.challengeId),
+        );
 
         await act(() =>
             challengeEventHandlers["ChallengeCancelledAsync"]?.(
@@ -77,7 +89,9 @@ describe("useChallengeEvents", () => {
     });
 
     it("should not do anything when ChallengeCancelledAsync with the wrong challenge id", async () => {
-        renderHook(() => useChallengeEvents(challengeStore));
+        renderHook(() =>
+            useChallengeEvents(challengeStore, challengeMock.challengeId),
+        );
 
         await act(() =>
             challengeEventHandlers["ChallengeCancelledAsync"]?.(
