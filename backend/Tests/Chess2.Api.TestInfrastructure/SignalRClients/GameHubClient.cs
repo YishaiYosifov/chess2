@@ -1,7 +1,7 @@
-﻿using System.Threading.Channels;
-using Chess2.Api.LiveGame.Models;
+﻿using Chess2.Api.LiveGame.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Threading.Channels;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
@@ -18,9 +18,9 @@ public class GameHubClient : BaseHubClient
         Channel.CreateUnbounded<GameToken>();
 
     private readonly TaskCompletionSource _connectedTcs = new();
-    private readonly string _gameToken;
+    private readonly GameToken _gameToken;
 
-    public GameHubClient(HubConnection connection, string gameToken)
+    public GameHubClient(HubConnection connection, GameToken gameToken)
         : base(connection)
     {
         _gameToken = gameToken;
@@ -64,7 +64,12 @@ public class GameHubClient : BaseHubClient
 
     public async Task<(string SenderUserName, string Message)> GetNextMessageAsync(
         CancellationToken token = default
-    ) => await _messagesChannel.Reader.ReadAsync(token.WithTimeout(TimeSpan.FromSeconds(10)));
+    )
+    {
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        var message = await _messagesChannel.Reader.ReadAsync(cts.Token);
+        return message;
+    }
 
     public Task RequestRematchAsync(CancellationToken token = default) =>
         Connection.InvokeAsync("RequestRematchAsync", _gameToken, token);
@@ -72,16 +77,22 @@ public class GameHubClient : BaseHubClient
     public Task CancelRematchAsync(CancellationToken token = default) =>
         Connection.InvokeAsync("CancelRematchAsync", _gameToken, token);
 
-    public async Task WaitForRematchRequestedAsync(CancellationToken token = default) =>
-        await _rematchRequestedChannel.Reader.ReadAsync(
-            token.WithTimeout(TimeSpan.FromSeconds(10))
-        );
+    public async Task WaitForRematchRequestedAsync(CancellationToken token = default)
+    {
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        await _rematchRequestedChannel.Reader.ReadAsync(cts.Token);
+    }
 
-    public async Task WaitForRematchCancelledAsync(CancellationToken token = default) =>
-        await _rematchCancelledChannel.Reader.ReadAsync(
-            token.WithTimeout(TimeSpan.FromSeconds(10))
-        );
+    public async Task WaitForRematchCancelledAsync(CancellationToken token = default)
+    {
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        await _rematchCancelledChannel.Reader.ReadAsync(cts.Token);
+    }
 
-    public async Task<GameToken> GetNextRematchAcceptedAsync(CancellationToken token = default) =>
-        await _rematchAcceptedChannel.Reader.ReadAsync(token.WithTimeout(TimeSpan.FromSeconds(10)));
+    public async Task<GameToken> GetNextRematchAcceptedAsync(CancellationToken token = default)
+    {
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        var rematch = await _rematchAcceptedChannel.Reader.ReadAsync(cts.Token);
+        return rematch;
+    }
 }

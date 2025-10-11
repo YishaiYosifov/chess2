@@ -170,7 +170,7 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
         try
         {
             string? gameToken = Context.GetHttpContext()?.Request.Query[GameTokenQueryParam];
-            if (gameToken is null)
+            if (string.IsNullOrWhiteSpace(gameToken))
             {
                 await HandleErrors(
                     Error.Validation($"Missing required query parameter: {GameTokenQueryParam}")

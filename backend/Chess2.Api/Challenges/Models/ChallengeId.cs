@@ -1,8 +1,8 @@
-﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
-using Chess2.Api.Infrastructure;
+﻿using Chess2.Api.Infrastructure;
 using NJsonSchema;
 using NJsonSchema.Annotations;
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Chess2.Api.Challenges.Models;
 
@@ -16,6 +16,9 @@ public readonly record struct ChallengeId(string Value)
     public static implicit operator string(ChallengeId id) => id.Value;
 
     public static implicit operator ChallengeId(string value) => new(value);
+
+    public static implicit operator ChallengeId?(string? value) =>
+        value is null ? null : new(value);
 
     public override string ToString() => Value;
 }
