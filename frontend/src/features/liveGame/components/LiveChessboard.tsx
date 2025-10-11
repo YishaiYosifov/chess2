@@ -98,6 +98,7 @@ const LiveChessboard = ({
                                     },
                                 ]}
                                 defaultOffset={{ width: 626, height: 164 }}
+                                className="mx-auto"
                             />
                             <LiveChessboardProfile
                                 side={ChessProfileSide.CurrentlyPlaying}
