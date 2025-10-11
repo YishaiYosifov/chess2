@@ -1,6 +1,6 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useRef, useState } from "react";
-import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
 
 const GameControlButton = ({
     icon,
@@ -37,7 +37,7 @@ const GameControlButton = ({
         <div className="flex h-full w-full gap-1">
             <button
                 data-testid="gameControlButton"
-                className={clsx(
+                className={twMerge(
                     `text-md lg:text-md flex w-full cursor-pointer items-center justify-center gap-1
                     rounded-md p-2 text-nowrap`,
                     isConfirming

@@ -13,6 +13,7 @@ import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import { StoreApi } from "zustand";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
+vi.mock("@/features/liveGame/hooks/useGameHub");
 
 describe("GameOverPopup", () => {
     const ref = React.createRef<GameOverPopupRef>();
