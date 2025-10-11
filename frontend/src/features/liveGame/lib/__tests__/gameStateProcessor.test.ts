@@ -2,10 +2,7 @@ import { GameColor } from "@/lib/apiClient";
 import { createStoreProps } from "../gameStateProcessor";
 import { createFakeGameState } from "@/lib/testUtils/fakers/gameStateFaker";
 import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
-import {
-    LiveChessStoreProps,
-    LiveChessViewer,
-} from "../../stores/liveChessStore";
+import { LiveChessStoreProps } from "../../stores/liveChessStore";
 import { LogicalPoint } from "@/features/point/types";
 import { Position } from "../types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
@@ -13,6 +10,7 @@ import constants from "@/lib/constants";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import { logicalPoint } from "@/features/point/pointUtils";
 import { decodePath, decodePathIntoMap } from "../moveDecoder";
+import { LiveChessViewer } from "../../stores/gamePlaySlice";
 
 describe("createStoreProps", () => {
     it("should return the complete and correct store props object", () => {
