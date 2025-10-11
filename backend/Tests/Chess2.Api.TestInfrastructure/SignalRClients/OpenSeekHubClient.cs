@@ -1,9 +1,9 @@
-﻿using System.Threading.Channels;
-using Chess2.Api.Lobby.Models;
+﻿using Chess2.Api.Lobby.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
+using System.Threading.Channels;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
@@ -46,9 +46,8 @@ public class OpenSeekHubClient : BaseHubClient
 
     public async Task<List<OpenSeek>> GetNextOpenSeekBatchAsync(CancellationToken token)
     {
-        var batch = await _openSeekCreatedChannel.Reader.ReadAsync(
-            token.WithTimeout(TimeSpan.FromSeconds(10))
-        );
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        var batch = await _openSeekCreatedChannel.Reader.ReadAsync(cts.Token);
         return batch;
     }
 
@@ -56,9 +55,8 @@ public class OpenSeekHubClient : BaseHubClient
         CancellationToken token
     )
     {
-        var seek = await _openSeekRemovedChannel.Reader.ReadAsync(
-            token.WithTimeout(TimeSpan.FromSeconds(10))
-        );
+        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        var seek = await _openSeekRemovedChannel.Reader.ReadAsync(cts.Token);
         return seek;
     }
 }

@@ -26,6 +26,9 @@ public interface IChallengeGrain : IGrainWithStringKey
 
     [Alias("AcceptAsync")]
     Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy);
+
+    [Alias("SubscribeAsync")]
+    Task<ErrorOr<Success>> SubscribeAsync(UserId userId, ConnectionId connectionId);
 }
 
 [GenerateSerializer]
@@ -99,6 +102,19 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         );
     }
 
+    public async Task<ErrorOr<Success>> SubscribeAsync(UserId userId, ConnectionId connectionId)
+    {
+        var request = _state.State.Request;
+        if (request is null)
+            return ChallengeErrors.NotFound;
+
+        if (request.Recipient is not null && IsUserSpectator(userId))
+            return ChallengeErrors.NotFound;
+
+        await _challengeNotifier.SubscribeToChallengeAsync(connectionId, _challengeId);
+        return Result.Success;
+    }
+
     public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy)
     {
         var request = _state.State.Request;
@@ -143,11 +159,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             userId2: acceptedBy,
             request.Pool
         );
-        await _challengeNotifier.NotifyChallengeAccepted(
-            request.Requester.UserId,
-            gameToken,
-            _challengeId
-        );
+        await _challengeNotifier.NotifyChallengeAccepted(gameToken, _challengeId);
 
         await TearDownChallengeAsync();
         _logger.LogInformation("Challenge {ChallengeId} accepted", _challengeId);
@@ -169,12 +181,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (_state.State.Request is null)
             return;
 
-        await _challengeNotifier.NotifyChallengeCancelled(
-            cancelledBy: cancelledBy,
-            _state.State.Request.Requester.UserId,
-            _state.State.Request.Recipient?.UserId,
-            _challengeId
-        );
+        await _challengeNotifier.NotifyChallengeCancelled(cancelledBy: cancelledBy, _challengeId);
         await TearDownChallengeAsync();
     }
 
