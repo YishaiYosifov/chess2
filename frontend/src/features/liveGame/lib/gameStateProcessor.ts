@@ -4,11 +4,7 @@ import {
     getGame,
     type GameState,
 } from "@/lib/apiClient";
-import {
-    LiveChessStore,
-    LiveChessStoreProps,
-    LiveChessViewer,
-} from "../stores/liveChessStore";
+import { LiveChessStore, LiveChessStoreProps } from "../stores/liveChessStore";
 import {
     ChessboardProps,
     ChessboardStore,
@@ -21,6 +17,7 @@ import { decodePath, decodePathIntoMap } from "./moveDecoder";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import constants from "@/lib/constants";
 import { StoreApi } from "zustand";
+import { LiveChessViewer } from "../stores/gamePlaySlice";
 
 export interface ProcessedGameState {
     live: LiveChessStoreProps;
