@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Shared.Services;
 using FluentAssertions;
@@ -22,11 +23,11 @@ public class GameTokenGeneratorTests
     [Fact]
     public async Task GenerateUniqueGameToken_returns_a_unique_token()
     {
-        var existingToken = "existingToken";
-        var nonExistingToken = "nonExistingToken";
+        GameToken existingToken = "existingToken";
+        GameToken nonExistingToken = "nonExistingToken";
         _randomCodeGeneratorMock
             .GenerateBase62Code(Arg.Any<int>())
-            .ReturnsForAnyArgs(existingToken, nonExistingToken);
+            .ReturnsForAnyArgs(existingToken.Value, nonExistingToken.Value);
 
         var existingTokenGrain = Substitute.For<IGameGrain>();
         var nonExistingTokenGrain = Substitute.For<IGameGrain>();
