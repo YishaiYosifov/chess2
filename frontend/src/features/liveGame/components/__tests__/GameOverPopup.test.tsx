@@ -9,7 +9,6 @@ import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
-import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import { StoreApi } from "zustand";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
@@ -31,7 +30,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
     });
 
@@ -50,7 +48,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
@@ -75,7 +72,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("YOU LOST")).toBeInTheDocument();
@@ -97,7 +93,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("DRAW")).toBeInTheDocument();
@@ -119,7 +114,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("ABORTED")).toBeInTheDocument();
@@ -163,7 +157,6 @@ describe("GameOverPopup", () => {
                 <GameOverPopup ref={ref} />
             </LiveChessStoreContext.Provider>,
         );
-        await flushMicrotasks();
         act(() => ref.current?.open());
 
         expect(screen.getByText("NEW GAME")).toBeInTheDocument();
