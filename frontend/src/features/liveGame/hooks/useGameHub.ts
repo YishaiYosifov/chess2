@@ -28,6 +28,10 @@ export type GameClientEvents = {
     ChatMessageAsync: [senderUsername: string, message: string];
     ChatMessageDeliveredAsync: [cooldownLeftMs: number];
     ChatConnectedAsync: [];
+
+    RematchRequestedAsync: [];
+    RematchCancelledAsync: [];
+    RematchAccepted: [createdGameToken: string];
 };
 
 type GameHubEvents = {
@@ -38,6 +42,9 @@ type GameHubEvents = {
     DeclineDrawAsync: [gameToken: string];
 
     SendChatAsync: [gameToken: string, message: string];
+
+    RequestRematchAsync: [gameToken: string];
+    CancelRematchAsync: [gameToken: string];
 };
 
 export function useGameEvent<
