@@ -89,6 +89,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
                     isWinner={resultData.result === GameResult.BLACK_WIN}
                 />
             </div>
+
             <div className="flex gap-3">
                 <Button
                     className={clsx(
