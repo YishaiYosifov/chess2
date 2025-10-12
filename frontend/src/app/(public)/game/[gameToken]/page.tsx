@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
-import WithSession from "@/features/auth/components/WithSession";
+import WithSession from "@/features/auth/hocs/WithSession";
 import { getGame, getPreferences } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 

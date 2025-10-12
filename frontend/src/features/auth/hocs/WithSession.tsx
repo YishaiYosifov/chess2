@@ -1,11 +1,10 @@
-import { redirect } from "next/navigation";
 import React from "react";
 
 import { Renderable, renderRenderable } from "@/lib/utils/renderable";
 import SessionProvider from "../contexts/sessionContext";
 import { fetchUserSession } from "../lib/getLoggedIn";
 import { type SessionUser } from "@/lib/apiClient";
-import constants from "@/lib/constants";
+import GuestRedirect from "../components/GuestRedirect";
 
 interface WithAuthedSessionProps {
     user: SessionUser;
@@ -18,7 +17,7 @@ export default async function WithSession({
     children: Renderable<WithAuthedSessionProps>;
 }) {
     const session = await fetchUserSession();
-    if (!session) redirect(constants.PATHS.LOGOUT);
+    if (!session) return <GuestRedirect />;
 
     return (
         <SessionProvider user={session.user} fetchAttempted>
