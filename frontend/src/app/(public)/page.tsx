@@ -11,15 +11,22 @@ const HomePage = async () => {
     return (
         <div className="grid flex-1 grid-rows-[auto_1fr]">
             <section
-                className="bg-checkerboard flex flex-col items-center justify-center gap-3 bg-[#151515]
-                    bg-[length:10rem_10rem] bg-center p-3 py-30 md:gap-10 md:px-10 xl:flex-row
-                    xl:items-start xl:gap-20"
+                className="bg-checkerboard relative flex flex-col items-center justify-center gap-3
+                    bg-[#151515] bg-[length:10rem_10rem] bg-center p-3 py-30 md:gap-10 md:px-10
+                    xl:flex-row xl:items-start xl:gap-20"
             >
-                <div className="flex flex-col text-center text-nowrap xl:text-start">
+                <div className="relative flex h-full flex-col text-center text-nowrap xl:text-start">
                     <p className="text-4xl sm:text-5xl">WELCOME TO</p>
                     <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl">
                         CHESS 2
                     </h1>
+
+                    <Image
+                        src={Knook}
+                        alt="knook"
+                        width={800}
+                        className="absolute -bottom-110 -left-80 hidden max-w-none rotate-15 xl:block"
+                    />
                 </div>
 
                 <div className="grid h-min max-w-128 grid-cols-2 items-stretch gap-10">
@@ -74,6 +81,8 @@ const HomePage = async () => {
                     </Card>
                 </div>
             </section>
+
+            <div className="bg-background z-5 h-full w-full"></div>
         </div>
     );
 };
