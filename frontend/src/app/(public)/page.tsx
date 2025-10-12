@@ -11,26 +11,19 @@ const HomePage = async () => {
     return (
         <div className="grid flex-1 grid-rows-[auto_1fr]">
             <section
-                className="bg-checkerboard relative flex justify-center gap-20 bg-[#151515]
-                    bg-[length:10rem_10rem] bg-center p-3 py-30"
+                className="bg-checkerboard flex flex-col items-center justify-center gap-3 bg-[#151515]
+                    bg-[length:10rem_10rem] bg-center p-3 py-30 md:gap-10 md:px-10 xl:flex-row
+                    xl:items-start xl:gap-20"
             >
-                <div className="absolute inset-0 overflow-clip">
-                    <Image
-                        src={Knook}
-                        alt="knook"
-                        draggable={false}
-                        className="absolute bottom-[-35%] left-1/2 w-auto max-w-none -translate-x-1/1 rotate-15
-                            object-contain select-none md:block"
-                    />
+                <div className="flex flex-col text-center text-nowrap xl:text-start">
+                    <p className="text-4xl sm:text-5xl">WELCOME TO</p>
+                    <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl">
+                        CHESS 2
+                    </h1>
                 </div>
 
-                <div className="flex flex-col">
-                    <p className="text-5xl">WELCOME TO</p>
-                    <h1 className="text-9xl">CHESS 2</h1>
-                </div>
-
-                <div className="grid h-min grid-cols-2 items-stretch gap-10">
-                    <Card className="border-secondary col-span-2 w-full max-w-128 flex-col gap-5 border-4">
+                <div className="grid h-min max-w-128 grid-cols-2 items-stretch gap-10">
+                    <Card className="border-secondary col-span-2 gap-5 border-4">
                         <header className="flex items-center gap-3">
                             <div className="flex h-full flex-col gap-3">
                                 <h1 className="text-3xl text-balance sm:text-4xl">
@@ -54,7 +47,7 @@ const HomePage = async () => {
                         </Button>
                     </Card>
 
-                    <Card className="bg-background border-secondary aspect-square gap-10 border-4">
+                    <Card className="bg-background border-secondary border-4">
                         <div className="flex flex-col gap-2">
                             <h1 className="text-3xl">DAILY QUEST</h1>
                             <p className="text-sm text-balance md:text-base">
@@ -67,7 +60,7 @@ const HomePage = async () => {
                         </Button>
                     </Card>
 
-                    <Card className="bg-background border-secondary aspect-square gap-10 border-4">
+                    <Card className="bg-background border-secondary border-4">
                         <div className="flex flex-col gap-2">
                             <h1 className="text-3xl">NEW RULES</h1>
                             <p className="text-sm text-balance md:text-base">
