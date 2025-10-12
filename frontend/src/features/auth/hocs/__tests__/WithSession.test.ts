@@ -3,7 +3,7 @@ import { GuestUser, SessionUser } from "@/lib/apiClient";
 import { fetchUserSession } from "../../lib/getLoggedIn";
 import SessionProvider from "../../contexts/sessionContext";
 import WithSession from "../WithSession";
-import constants from "@/lib/constants";
+import GuestRedirect from "../../components/GuestRedirect";
 
 vi.mock("next/navigation");
 vi.mock("../../lib/getLoggedIn");
@@ -20,7 +20,7 @@ describe("WithSession", () => {
         sessionMock = { user: userMock, accessToken: "token-abc" };
     });
 
-    it("should render children with session when user is authenticated", async () => {
+    it("should render children inside SessionProvider when a session exists", async () => {
         fetchUserSessionMock.mockResolvedValue(sessionMock);
 
         const ui = await WithSession({
@@ -29,20 +29,22 @@ describe("WithSession", () => {
 
         expect(ui.type).toBe(SessionProvider);
         expect(ui.props).toEqual(
-            expect.objectContaining({ fetchAttempted: true, user: userMock }),
+            expect.objectContaining({
+                user: userMock,
+                fetchAttempted: true,
+            }),
         );
         expect(childrenMock).toHaveBeenCalledWith(sessionMock);
     });
 
-    it("should redirect to logout when no session", async () => {
+    it("should render GuestRedirect when no session exists", async () => {
         fetchUserSessionMock.mockResolvedValue(null);
 
-        const act = () =>
-            WithSession({
-                children: childrenMock,
-            });
+        const ui = await WithSession({
+            children: childrenMock,
+        });
 
-        await expect(act).rejects.toThrow(`redirect ${constants.PATHS.LOGOUT}`);
+        expect(ui.type).toBe(GuestRedirect);
         expect(childrenMock).not.toHaveBeenCalled();
     });
 });

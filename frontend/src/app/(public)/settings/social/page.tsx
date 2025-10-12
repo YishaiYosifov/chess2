@@ -7,7 +7,7 @@ import {
 import BlockedForm from "@/features/settings/components/social/BlockedForm";
 import PrivacyForm from "@/features/settings/components/social/PrivacyForm";
 import StarsForm from "@/features/settings/components/social/StarsForm";
-import WithAuthedUser from "@/features/auth/components/WithAuthedUser";
+import WithAuthedUser from "@/features/auth/hocs/WithAuthedUser";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import constants from "@/lib/constants";
 

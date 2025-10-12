@@ -7,9 +7,9 @@ import { createGuestUser } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 
 /**
- * Create a guest user and redirect
+ * Create a guest user and retry
  */
-const GuestRedirect = ({ redirectTo }: { redirectTo: string }) => {
+const GuestRedirect = () => {
     const router = useRouter();
 
     useEffect(() => {
@@ -20,10 +20,10 @@ const GuestRedirect = ({ redirectTo }: { redirectTo: string }) => {
                 return;
             }
 
-            router.replace(redirectTo);
+            router.refresh();
         }
         handleCreateGuest();
-    }, [redirectTo, router]);
+    }, [router]);
 
     return null;
 };

@@ -5,7 +5,7 @@ import {
     getUserQuestPoints,
 } from "@/lib/apiClient";
 
-import WithOptionalAuthedUser from "@/features/auth/components/WithOptionalAuthedUser";
+import WithOptionalAuthedUser from "@/features/auth/hocs/WithOptionalAuthedUser";
 import DailyQuestCard from "@/features/quests/components/DailyQuestCard";
 import DailyQuestCardLoggedOut from "@/features/quests/components/DailyQuestCardLoggedOut";
 import DailyQuestRankCard from "@/features/quests/components/DailyQuestRankCard";
