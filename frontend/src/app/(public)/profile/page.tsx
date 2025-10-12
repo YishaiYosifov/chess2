@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import WithAuthedUser from "@/features/auth/components/WithAuthedUser";
+import WithAuthedUser from "@/features/auth/hocs/WithAuthedUser";
 
 export default async function RedirectUserPage() {
     return (

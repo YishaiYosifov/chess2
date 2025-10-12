@@ -1,4 +1,4 @@
-import WithOptionalAuthedUser from "@/features/auth/components/WithOptionalAuthedUser";
+import WithOptionalAuthedUser from "@/features/auth/hocs/WithOptionalAuthedUser";
 import LoadProfilePage from "@/features/profile/components/LoadProfilePage";
 
 type Params = Promise<{ username: string }>;
