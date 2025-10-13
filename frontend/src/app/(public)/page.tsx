@@ -76,8 +76,8 @@ const HomePage = async () => {
             </section>
 
             <section
-                className="grid w-full grid-rows-[min-content_auto] justify-center gap-20 p-5
-                    lg:grid-cols-[minmax(auto,max-content)_auto]"
+                className="grid w-full grid-rows-[auto_auto] justify-center gap-10 p-5
+                    lg:grid-cols-[auto_auto] lg:gap-20"
             >
                 <div className="flex w-full flex-col gap-3 lg:max-w-lg">
                     <h1 className="text-5xl">
@@ -87,9 +87,19 @@ const HomePage = async () => {
                     <p className="text-text/80 text-xl">
                         Don&apos;t worry, no one knows what&apos;s going on
                     </p>
-                    <p className="text-text/80 flex gap-2 text-sm">
-                        look at this cool game on the side though
-                        <Image src={Pog} alt="pog" width={20} height={20} />
+                    <p className="text-text/80 text-sm">
+                        look at this cool game{" "}
+                        <span className="hidden lg:inline">to the side</span>
+                        <span className="inline lg:hidden">
+                            bellow
+                        </span> though{" "}
+                        <Image
+                            src={Pog}
+                            alt="pog"
+                            width={20}
+                            height={20}
+                            className="inline-block"
+                        />
                     </p>
 
                     <Button className="bg-secondary mt-5 max-w-sm text-3xl text-black">
@@ -105,7 +115,11 @@ const HomePage = async () => {
                         },
                         {
                             maxScreenSize: 1024,
-                            paddingOffset: { width: 145, height: 0 }, // p-5 + p-5 + sidebar
+                            paddingOffset: {
+                                width: 145,
+                                height: 0,
+                                maxSize: 600,
+                            }, // p-5 + p-5 + sidebar
                         },
                     ]}
                     defaultOffset={{ width: 500, height: 0, maxSize: 400 }}
