@@ -93,10 +93,24 @@ const ChessboardLayout = ({
     }, [defaultOffset, sortedBreakpoints]);
 
     useLayoutEffect(() => {
-        if (ref.current) {
-            setBoardRect(ref.current.getBoundingClientRect());
-        }
-    }, [boardSize, setBoardRect]);
+        let timeoutId: NodeJS.Timeout;
+        const updateRect = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                if (ref.current)
+                    setBoardRect(ref.current.getBoundingClientRect());
+            }, 100);
+        };
+        updateRect();
+
+        window.addEventListener("scroll", updateRect);
+        window.addEventListener("resize", updateRect);
+
+        return () => {
+            window.removeEventListener("scroll", updateRect);
+            window.removeEventListener("resize", updateRect);
+        };
+    }, [ref, setBoardRect]);
 
     return (
         <div
