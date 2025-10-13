@@ -14,6 +14,7 @@ import Coords from "./Coords";
 export interface PaddingOffset {
     width: number;
     height: number;
+    maxSize?: number;
 }
 
 export interface ChessboardBreakpoint {
@@ -53,7 +54,7 @@ const ChessboardLayout = ({
         /**
          * Calculate the width and height offset based on the offsetBreakpoints param and window width
          */
-        function calculateOffset(): { width: number; height: number } {
+        function calculateOffset(): PaddingOffset {
             const width = window.innerWidth;
             for (const { maxScreenSize, paddingOffset } of sortedBreakpoints) {
                 if (maxScreenSize > width) return paddingOffset;
@@ -71,13 +72,17 @@ const ChessboardLayout = ({
          * Set the board size based on the viewport size and the offset
          */
         function resizeBoard(): void {
-            const { width: offsetWidth, height: offsetHeight } =
-                calculateOffset();
+            const {
+                width: offsetWidth,
+                height: offsetHeight,
+                maxSize,
+            } = calculateOffset();
 
             const width = window.innerWidth - offsetWidth;
             const height = window.innerHeight - offsetHeight;
 
-            const minSize = Math.max(264, Math.min(width, height));
+            let minSize = Math.max(264, Math.min(width, height));
+            if (maxSize !== undefined) minSize = Math.min(minSize, maxSize);
             setBoardSize(minSize);
         }
 
