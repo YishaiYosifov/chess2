@@ -10,38 +10,27 @@ import {
     ChessboardStore,
     createChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
-import ChessboardLayout, {
-    ChessboardBreakpoint,
-    PaddingOffset,
-} from "./ChessboardLayout";
+import ChessboardLayout, { ChessboardLayoutProps } from "./ChessboardLayout";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import { createMoveOptions } from "../lib/moveOptions";
 import useConst from "@/hooks/useConst";
 
 export interface ChessboardProps {
-    breakpoints?: ChessboardBreakpoint[];
-    defaultOffset?: PaddingOffset;
-
     startingPieces?: PieceMap;
     boardWidth?: number;
     boardHeight?: number;
     viewingFrom?: GameColor;
-
-    className?: string;
 }
 
 const StaticChessboard = ({
-    breakpoints = [],
-    defaultOffset,
-
     startingPieces = constants.DEFAULT_CHESS_BOARD,
     boardHeight = constants.BOARD_HEIGHT,
     boardWidth = constants.BOARD_WIDTH,
 
     viewingFrom = GameColor.WHITE,
 
-    className,
-}: ChessboardProps) => {
+    ...props
+}: ChessboardProps & ChessboardLayoutProps) => {
     const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
         createChessboardStore({
             pieceMap: startingPieces,
@@ -53,11 +42,7 @@ const StaticChessboard = ({
 
     return (
         <ChessboardStoreContext.Provider value={chessboardStore}>
-            <ChessboardLayout
-                breakpoints={breakpoints}
-                defaultOffset={defaultOffset}
-                className={className}
-            />
+            <ChessboardLayout {...props} />
         </ChessboardStoreContext.Provider>
     );
 };
