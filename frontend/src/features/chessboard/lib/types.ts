@@ -27,6 +27,11 @@ export interface Move {
     promotesTo: PieceType | null;
 }
 
+export type MinimalMove = Partial<Move> & {
+    from: LogicalPoint;
+    to: LogicalPoint;
+};
+
 export interface BoardState {
     pieces: PieceMap;
     moveOptions: ProcessedMoveOptions;
@@ -48,4 +53,9 @@ export interface AnimationStep {
 export interface MoveAnimation {
     steps: AnimationStep[];
     removedPieceIds: PieceID[];
+}
+
+export interface GameReplay {
+    startingFen: string;
+    moves: MinimalMove[];
 }

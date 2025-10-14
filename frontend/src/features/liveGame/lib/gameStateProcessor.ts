@@ -9,7 +9,7 @@ import {
     ChessboardProps,
     ChessboardStore,
 } from "@/features/chessboard/stores/chessboardStore";
-import { decodeFen } from "./fenDecoder";
+import { decodeFen } from "../../chessboard/lib/fenDecoder";
 import { ClockSnapshot } from "./types";
 import { Position } from "./types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";

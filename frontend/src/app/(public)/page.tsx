@@ -2,11 +2,15 @@ import Image from "next/image";
 
 import StaticChessboard from "@/features/chessboard/components/StaticChessboard";
 import Knook from "@public/assets/pieces-svg/knook-white.svg";
+import HomePageReplay from "@public/data/homePageReplay.json";
 import Button from "@/components/ui/Button";
 import Pog from "@public/assets/pog.png";
 import Card from "@/components/ui/Card";
+import { GameReplay } from "@/features/chessboard/lib/types";
 
 export const metadata = { title: "Home - Chess 2" };
+
+const typedHomePageReplay = HomePageReplay as GameReplay[];
 
 const HomePage = async () => {
     return (
@@ -27,6 +31,7 @@ const HomePage = async () => {
                         alt="knook"
                         width={700}
                         className="absolute -bottom-100 -left-60 hidden max-w-none rotate-15 xl:block"
+                        priority
                     />
                 </div>
 
@@ -79,7 +84,10 @@ const HomePage = async () => {
                 className="grid w-full grid-rows-[auto_auto] justify-center gap-10 p-5
                     lg:grid-cols-[auto_auto] lg:gap-20"
             >
-                <div className="flex w-full flex-col gap-3 lg:max-w-lg">
+                <div
+                    className="flex w-full flex-col items-center gap-3 text-center lg:max-w-lg lg:items-start
+                        lg:text-start"
+                >
                     <h1 className="text-5xl">
                         Discover the Madness of Anarchy Chess
                     </h1>
@@ -102,7 +110,7 @@ const HomePage = async () => {
                         />
                     </p>
 
-                    <Button className="bg-secondary mt-5 max-w-sm text-3xl text-black">
+                    <Button className="bg-secondary mt-5 w-full text-3xl text-black lg:max-w-sm">
                         PLAY NOW
                     </Button>
                 </div>
@@ -124,6 +132,7 @@ const HomePage = async () => {
                     ]}
                     defaultOffset={{ width: 500, height: 0, maxSize: 400 }}
                     className="justify-self-center"
+                    replays={typedHomePageReplay}
                 />
             </section>
         </div>

@@ -40,10 +40,7 @@ describe("StaticChessboard", () => {
         "should render pieces in the correct order depending on the viewing side",
         (side, firstRow, firstColumn) => {
             render(
-                <StaticChessboard
-                    startingPieces={mockBoard}
-                    viewingFrom={side}
-                />,
+                <StaticChessboard position={mockBoard} viewingFrom={side} />,
             );
 
             const piece = screen.getAllByTestId("piece")[0];
