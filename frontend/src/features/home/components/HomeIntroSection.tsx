@@ -5,6 +5,8 @@ import homePageReplay from "@public/data/homePageReplay.json";
 import { GameReplay } from "@/features/chessboard/lib/types";
 import Button from "@/components/ui/Button";
 import Pog from "@public/assets/pog.png";
+import constants from "@/lib/constants";
+import Link from "next/link";
 
 const typedHomePageReplay = homePageReplay as GameReplay[];
 
@@ -38,9 +40,11 @@ const HomeIntroSection = () => {
                     />
                 </p>
 
-                <Button className="bg-secondary mt-5 w-full max-w-sm text-3xl text-black">
-                    PLAY NOW
-                </Button>
+                <Link href={constants.PATHS.PLAY} className="w-full">
+                    <Button className="bg-secondary mt-5 w-full max-w-sm text-3xl text-black">
+                        PLAY NOW
+                    </Button>
+                </Link>
             </div>
 
             <StaticChessboard
