@@ -12,7 +12,7 @@ const HomeIntroSection = () => {
     return (
         <section
             className="grid w-full grid-rows-[auto_auto] justify-center gap-10 p-5
-                lg:grid-cols-[auto_auto] lg:gap-x-20"
+                lg:grid-cols-[auto_auto] lg:grid-rows-1 lg:gap-x-20"
         >
             <div
                 className="flex w-full flex-col items-center gap-3 text-center lg:max-w-lg lg:items-start
