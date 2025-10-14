@@ -32,7 +32,7 @@ const GameOverControls = () => {
                 <GameControlButton
                     icon={ArrowPathIcon}
                     onClick={requestRematch}
-                    className="bg-secondary enabled:hover:bg-card text-black enabled:hover:text-white"
+                    className="bg-secondary enabled:hover:bg-card enabled:hover:text-text text-black"
                     data-testid="gameOverControlsRematch"
                 >
                     Rematch?

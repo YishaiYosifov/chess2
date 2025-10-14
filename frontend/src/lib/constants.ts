@@ -66,6 +66,11 @@ const PAGINATION_PAGE_SIZE = {
     BLOCKED: 5,
 };
 
+const SOCIALS = {
+    DISCORD: "https://discord.gg/qnkddndecq",
+    YOUTUBE: "https://youtube.com/@slomgdev",
+};
+
 interface TimeControlLabel {
     label: string;
     settings: TimeControlSettings;
@@ -211,6 +216,7 @@ const constants = {
     DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX,
     SEEK_RESUBSCRIBE_INTERAVAL_MS,
     OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
+    SOCIALS,
     COOKIES,
     PATHS,
     HEADERS,

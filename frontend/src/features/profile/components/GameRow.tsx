@@ -82,7 +82,7 @@ const GameRow = ({
                         isAuthenticated={game.blackPlayer.isAuthenticated}
                     >
                         <p
-                            className="text-white/50"
+                            className="text-text/50"
                             data-testid="gameRowBlackUsername"
                         >
                             {game.blackPlayer.userName}
