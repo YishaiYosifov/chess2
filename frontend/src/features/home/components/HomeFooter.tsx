@@ -36,6 +36,9 @@ const HomeFooter = () => {
                             <Link href={constants.PATHS.PLAY}>Play Now</Link>
                         </li>
                         <li>
+                            <Link href={constants.PATHS.DONATE}>Donate</Link>
+                        </li>
+                        <li>
                             <Link href={constants.PATHS.QUESTS}>
                                 Daily Quests
                             </Link>

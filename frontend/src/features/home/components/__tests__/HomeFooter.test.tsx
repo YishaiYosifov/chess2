@@ -42,13 +42,15 @@ describe("HomeFooter", () => {
         const links = within(quickLinksSection!).getAllByRole("link");
         expect(links.map((l) => l.textContent)).toEqual([
             "Play Now",
+            "Donate",
             "Daily Quests",
             "Guide",
         ]);
 
-        const [play, quests, guide] = links;
+        const [play, donate, quests, guide] = links;
 
         expect(play).toHaveAttribute("href", constants.PATHS.PLAY);
+        expect(donate).toHaveAttribute("href", constants.PATHS.DONATE);
         expect(quests).toHaveAttribute("href", constants.PATHS.QUESTS);
         expect(guide).toHaveAttribute("href", constants.PATHS.GUIDE);
     });
