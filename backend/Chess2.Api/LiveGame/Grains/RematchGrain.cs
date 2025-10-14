@@ -62,7 +62,7 @@ public class RematchGrain(
 
     public async Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId)
     {
-        var request = _state.State.Request;
+        var request = await FetchRematchRequest();
         if (request is null)
             return GameErrors.GameNotFound;
 
@@ -142,34 +142,28 @@ public class RematchGrain(
         await TearDownRematchAsync();
     }
 
-    public override async Task OnActivateAsync(CancellationToken cancellationToken)
+    private async Task<RematchRequest?> FetchRematchRequest()
     {
-        try
-        {
-            var gameToken = this.GetPrimaryKeyString();
-            if (_state.State.Request is not null)
-                return;
+        if (_state.State.Request is not null)
+            return _state.State.Request;
 
-            var gameResult = await _gameStateProvider.GetGameStateAsync(
-                gameToken,
-                token: cancellationToken
-            );
-            if (gameResult.IsError)
-                return;
-            var game = gameResult.Value;
+        var gameToken = this.GetPrimaryKeyString();
+        var gameResult = await _gameStateProvider.GetGameStateAsync(gameToken);
+        if (gameResult.IsError)
+            return null;
 
-            // the game is not over
-            if (game.ResultData is null)
-                return;
+        var game = gameResult.Value;
+        // the game is not over
+        if (game.ResultData is null)
+            return null;
 
-            PlayerRoster players = new(game.WhitePlayer, game.BlackPlayer);
-            _state.State.Request = new(players, Pool: game.Pool);
-            await _state.WriteStateAsync(cancellationToken);
-        }
-        finally
-        {
-            await base.OnActivateAsync(cancellationToken);
-        }
+        PlayerRoster players = new(game.WhitePlayer, game.BlackPlayer);
+        RematchRequest request = new(players, Pool: game.Pool);
+
+        _state.State.Request = request;
+        await _state.WriteStateAsync();
+
+        return request;
     }
 
     private async Task AcceptRematchAsync(RematchRequest request)

@@ -30,7 +30,7 @@ public interface IGameHubClient : IChess2HubClient
 
     Task RematchRequestedAsync();
     Task RematchCancelledAsync();
-    Task RematchAccepted(GameToken gameToken);
+    Task RematchAccepted(GameToken createdGameToken);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]

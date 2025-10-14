@@ -55,6 +55,36 @@ public class RematchGrainTests : BaseGrainTest
         Silo.CreateGrainAsync<RematchGrain>(_gameToken);
 
     [Fact]
+    public async Task RequestAsync_rejects_when_the_game_is_not_found()
+    {
+        _gameStateProviderMock
+            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
+            .Returns(GameErrors.GameNotFound);
+        var grain = await CreateGrainAsync();
+
+        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(GameErrors.GameNotFound);
+        _state.Request.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task RequestAsync_rejects_when_the_game_is_not_over()
+    {
+        _gameStateProviderMock
+            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
+            .Returns(_gameState with { ResultData = null });
+        var grain = await CreateGrainAsync();
+
+        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
+
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(GameErrors.GameNotFound);
+        _state.Request.Should().BeNull();
+    }
+
+    [Fact]
     public async Task RequestAsync_sets_up_rematch_correctly()
     {
         var grain = await CreateGrainAsync();
@@ -78,6 +108,10 @@ public class RematchGrainTests : BaseGrainTest
                 _settings.RematchLifetime
             )
         );
+
+        _state.Request.Should().NotBeNull();
+        _state.Request!.Players.WhitePlayer.Should().BeEquivalentTo(_gameState.WhitePlayer);
+        _state.Request.Players.BlackPlayer.Should().BeEquivalentTo(_gameState.BlackPlayer);
     }
 
     [Fact]
@@ -124,7 +158,6 @@ public class RematchGrainTests : BaseGrainTest
     public async Task CancelAsync_clears_state_and_notifies()
     {
         var grain = await CreateGrainAsync();
-
         await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
 
         var result = await grain.CancelAsync(_gameState.WhitePlayer.UserId);
@@ -143,6 +176,8 @@ public class RematchGrainTests : BaseGrainTest
     public async Task CancelAsync_rejects_invalid_player()
     {
         var grain = await CreateGrainAsync();
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
+
         var invalidPlayer = "invalid-player-id";
 
         var result = await grain.CancelAsync(invalidPlayer);
@@ -192,6 +227,7 @@ public class RematchGrainTests : BaseGrainTest
     public async Task RemoveConnectionAsync_rejects_invalid_player()
     {
         var grain = await CreateGrainAsync();
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
         var invalidPlayer = "invalid-player-id";
 
         var result = await grain.RemoveConnectionAsync(invalidPlayer, "conn");
@@ -216,39 +252,5 @@ public class RematchGrainTests : BaseGrainTest
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId
             );
-    }
-
-    [Fact]
-    public async Task OnActivateAsync_fills_state_correctly()
-    {
-        await CreateGrainAsync();
-
-        _state.Request.Should().NotBeNull();
-        _state.Request!.Players.WhitePlayer.Should().BeEquivalentTo(_gameState.WhitePlayer);
-        _state.Request.Players.BlackPlayer.Should().BeEquivalentTo(_gameState.BlackPlayer);
-    }
-
-    [Fact]
-    public async Task OnActivateAsync_does_not_fill_state_if_game_not_over()
-    {
-        _gameStateProviderMock
-            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
-            .Returns(_gameState with { ResultData = null });
-
-        await CreateGrainAsync();
-
-        _state.Request.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task OnActivateAsync_does_not_fill_state_if_game_not_found()
-    {
-        _gameStateProviderMock
-            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
-            .Returns(GameErrors.GameNotFound);
-
-        await CreateGrainAsync();
-
-        _state.Request.Should().BeNull();
     }
 }

@@ -178,10 +178,12 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     private async Task ApplyCancellationAsync(UserId? cancelledBy)
     {
-        if (_state.State.Request is null)
-            return;
+        if (_state.State.Request is not null)
+            await _challengeNotifier.NotifyChallengeCancelled(
+                cancelledBy: cancelledBy,
+                _challengeId
+            );
 
-        await _challengeNotifier.NotifyChallengeCancelled(cancelledBy: cancelledBy, _challengeId);
         await TearDownChallengeAsync();
     }
 
