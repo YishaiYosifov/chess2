@@ -1,7 +1,7 @@
 import { PieceMap } from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { GameColor, PieceType } from "@/lib/apiClient";
-import { decodeFen } from "../fenDecoder";
+import { decodeFen } from "../../../chessboard/lib/fenDecoder";
 import { logicalPoint } from "@/features/point/pointUtils";
 
 describe("decodeFen", () => {
