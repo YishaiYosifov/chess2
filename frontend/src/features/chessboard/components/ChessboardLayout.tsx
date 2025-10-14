@@ -94,13 +94,13 @@ const ChessboardLayout = ({
 
     useLayoutEffect(() => {
         let timeoutId: NodeJS.Timeout;
-        const updateRect = () => {
+        function updateRect() {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
                 if (ref.current)
                     setBoardRect(ref.current.getBoundingClientRect());
             }, 100);
-        };
+        }
         if (ref.current) setBoardRect(ref.current.getBoundingClientRect());
 
         window.addEventListener("scroll", updateRect);
@@ -110,7 +110,7 @@ const ChessboardLayout = ({
             window.removeEventListener("scroll", updateRect);
             window.removeEventListener("resize", updateRect);
         };
-    }, [ref, setBoardRect]);
+    }, [boardSize, ref, setBoardRect]);
 
     return (
         <div
