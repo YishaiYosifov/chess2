@@ -8,6 +8,7 @@ import {
     BoltSlashIcon,
     CalendarIcon,
     HomeIcon,
+    ArrowLeftEndOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -41,7 +42,16 @@ export const UpperNavItems = ({
                 isCollapsed={isCollapsed}
                 className="text-secondary rounded-md"
             >
-                Register
+                Sign Up
+            </NavItem>
+            <NavItem
+                as={Link}
+                href="/register"
+                icon={<ArrowLeftEndOnRectangleIcon />}
+                isCollapsed={isCollapsed}
+                className="text-secondary rounded-md"
+            >
+                Login
             </NavItem>
         </>
     );
