@@ -6,7 +6,7 @@ const Card: React.ForwardRefRenderFunction<
     React.InputHTMLAttributes<HTMLDivElement>
 > = ({ className, ...props }, ref) => {
     return (
-        <div
+        <article
             className={twMerge(
                 "bg-card border-secondary/30 flex flex-col gap-3 rounded-md border p-4",
                 className,

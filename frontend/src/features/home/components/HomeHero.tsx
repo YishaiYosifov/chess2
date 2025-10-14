@@ -13,7 +13,10 @@ const HomeHero = () => {
                 overflow-hidden bg-[#151515] bg-[length:10rem_10rem] bg-center p-3 py-30
                 md:gap-10 md:px-10 xl:flex-row xl:items-start xl:gap-20"
         >
-            <div className="relative flex h-full flex-col text-center text-nowrap xl:text-start">
+            <div
+                className="relative flex h-full flex-col text-center text-nowrap xl:text-start"
+                data-testid="homeHeroBanner"
+            >
                 <p className="text-4xl sm:text-5xl">WELCOME TO</p>
                 <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl">
                     CHESS 2
