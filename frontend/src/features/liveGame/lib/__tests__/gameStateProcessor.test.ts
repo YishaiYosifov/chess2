@@ -186,6 +186,7 @@ describe("createStoreProps", () => {
                     height: constants.BOARD_HEIGHT,
                 },
                 viewingFrom: GameColor.BLACK,
+                canDrag: true,
             },
         });
     });

@@ -35,6 +35,7 @@ describe("CoreSlice", () => {
                     legalMoves: createFakeLegalMoveMap(),
                     hasForcedMoves: true,
                 }),
+                canDrag: false,
             };
 
             store.getState().resetState(newChessboardState);

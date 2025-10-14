@@ -22,6 +22,7 @@ interface BaseChessboardProps {
     boardWidth?: number;
     boardHeight?: number;
     viewingFrom?: GameColor;
+    canDrag?: boolean;
 }
 
 interface ChessboardPropsWithReplay extends BaseChessboardProps {
@@ -40,6 +41,8 @@ const StaticChessboard = ({
     boardHeight = constants.BOARD_HEIGHT,
     boardWidth = constants.BOARD_WIDTH,
     viewingFrom = GameColor.WHITE,
+    canDrag = true,
+
     position = constants.DEFAULT_CHESS_BOARD,
     replays = [],
 
@@ -56,6 +59,7 @@ const StaticChessboard = ({
             boardDimensions: { width: boardWidth, height: boardHeight },
             moveOptions: createMoveOptions(),
             viewingFrom,
+            canDrag,
         }),
     );
     useBoardReplay(replays, chessboardStore);

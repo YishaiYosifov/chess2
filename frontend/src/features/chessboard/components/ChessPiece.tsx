@@ -17,6 +17,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         isSelected,
         isAnimating,
         isRemoving,
+        canDrag,
         screenPointToPiece,
         selectPiece,
         handleMousePieceDrop,
@@ -25,6 +26,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         isSelected: x.selectedPieceId === id,
         isAnimating: x.animatingPieces.has(id),
         isRemoving: x.removingPieces.has(id),
+        canDrag: x.canDrag,
         screenPointToPiece: x.screenPointToPiece,
         selectPiece: x.selectPiece,
         handleMousePieceDrop: x.handleMousePieceDrop,
@@ -34,6 +36,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
     const moveOccurredOnPressRef = useRef<boolean>(false);
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
+            if (!canDrag) return false;
+
             if (moveOccurredOnPressRef.current) {
                 moveOccurredOnPressRef.current = false;
                 return false;

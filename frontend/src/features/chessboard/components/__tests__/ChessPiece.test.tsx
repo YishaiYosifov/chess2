@@ -340,4 +340,27 @@ describe("ChessPiece", () => {
             );
         },
     );
+
+    it("should not allow dragging if canDrag is false", async () => {
+        const { logicalPointToScreenPoint } = store.getState();
+        store.setState({ canDrag: false });
+
+        const user = userEvent.setup();
+        const { piece, pieceInfo, chessboard } = renderPiece();
+
+        await user.pointer([
+            {
+                target: chessboard,
+                coords: logicalPointToScreenPoint(pieceInfo.position),
+                keys: "[MouseLeft>]",
+            },
+            { coords: { x: 100, y: 100 } },
+        ]);
+        vi.advanceTimersToNextFrame();
+
+        const expectedTransform = getExpectedTransform({
+            percentPosition: { x: 0, y: 0 },
+        });
+        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+    });
 });

@@ -14,12 +14,14 @@ import {
 
 export interface PieceSliceProps {
     pieceMap: PieceMap;
+    canDrag: boolean;
     onPieceMovement?: (move: Move) => Promise<void>;
 }
 
 export interface PiecesSlice {
     pieceMap: PieceMap;
     selectedPieceId: PieceID | null;
+    canDrag: boolean;
 
     onPieceMovement?: (move: Move) => Promise<void>;
 

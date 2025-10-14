@@ -75,6 +75,7 @@ export function createStoreProps(
 
         boardDimensions: { width: boardWidth, height: boardHeight },
         viewingFrom: viewerColor ?? GameColor.WHITE,
+        canDrag: true,
     };
 
     return { live, board };
