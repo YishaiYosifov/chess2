@@ -1,0 +1,93 @@
+[
+    {
+        "startingFen": "r1nbqkbcar/pppdp1dppp/2h7/10/5p3+/+4P4/10/7A2/PPPDP1DPPP/RHNBQKBC1R",
+        "moves": [
+            {
+                "from": { "x": 7, "y": 0 },
+                "to": { "x": 5, "y": 2 }
+            },
+            {
+                "from": { "x": 2, "y": 9 },
+                "to": { "x": 3, "y": 7 }
+            },
+            {
+                "from": { "x": 5, "y": 0 },
+                "to": { "x": 7, "y": 0 },
+                "sideEffects": [
+                    { "from": { "x": 9, "y": 0 }, "to": { "x": 6, "y": 0 } }
+                ],
+                "captures": [{ "x": 6, "y": 0 }]
+            }
+        ]
+    },
+    {
+        "startingFen": "r1nb1r2k1/ppp2a2pp/2hd1c1p2/6dq2/4pp3+/+6b2/4P3C1/2HN1P1A1P/PPPDBBDPP1/R3QK3R",
+        "moves": [
+            {
+                "from": { "x": 8, "y": 9 },
+                "to": { "x": 7, "y": 8 }
+            },
+            {
+                "from": { "x": 8, "y": 3 },
+                "to": { "x": 6, "y": 9 },
+                "intermediates": [
+                    { "x": 6, "y": 5 },
+                    { "x": 8, "y": 7 }
+                ],
+                "captures": [
+                    { "x": 7, "y": 4 },
+                    { "x": 7, "y": 6 },
+                    { "x": 7, "y": 8 }
+                ],
+                "promotesTo": 0
+            }
+        ]
+    },
+    {
+        "startingFen": "r1nbqkbcar/pp2ppdppp/h1p7/3d6/5P3+/+9/10/10/PPPDP1DPPP/RHNBQKBCAR",
+        "moves": [
+            {
+                "from": { "x": 4, "y": 8 },
+                "to": { "x": 4, "y": 5 }
+            },
+            {
+                "from": { "x": 5, "y": 5 },
+                "to": { "x": 1, "y": 9 },
+                "captures": [
+                    { "x": 4, "y": 5 },
+                    { "x": 3, "y": 6 },
+                    { "x": 2, "y": 7 },
+                    { "x": 1, "y": 8 }
+                ],
+                "promotesTo": 1
+            }
+        ]
+    },
+    {
+        "startingFen": "rhnbqkbcar/ppp4ppp/3d2d3/10/4ppB2+/+1B7/5P4/4P5/PPPD2DPPP/RHN1QK1CAR",
+        "moves": [
+            {
+                "from": { "x": 2, "y": 4 },
+                "to": { "x": 3, "y": 5 }
+            },
+            {
+                "from": { "x": 1, "y": 9 },
+                "to": { "x": 2, "y": 7 }
+            },
+            {
+                "from": { "x": 3, "y": 5 },
+                "to": { "x": 6, "y": 5 },
+                "captures": [
+                    { "x": 4, "y": 5 },
+                    { "x": 5, "y": 5 }
+                ],
+                "sideEffects": [
+                    {
+                        "from": { "x": 6, "y": 5 },
+                        "to": { "x": 3, "y": 5 }
+                    }
+                ]
+            }
+        ]
+    }
+]
