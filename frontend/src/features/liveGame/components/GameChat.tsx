@@ -109,7 +109,7 @@ const GameChat = ({ initialShowChat }: { initialShowChat: boolean }) => {
             <form onSubmit={onChatSend}>
                 <InputField
                     data-testid="gameChatInput"
-                    className="bg-white/5 text-white"
+                    className="text-text bg-white/5"
                     value={currentMessage}
                     placeholder={getPlaceholderMessage()}
                     onChange={(e) => setCurrentMessage(e.target.value)}
