@@ -36,7 +36,7 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
                 <Flag countryCode={player.countryCode} size={30} />
 
                 {player.rating && (
-                    <span className="w-fit rounded bg-white/10 px-2 py-0.5 text-xs text-white/80">
+                    <span className="text-text/80 w-fit rounded bg-white/10 px-2 py-0.5 text-xs">
                         {player.rating}
                     </span>
                 )}
