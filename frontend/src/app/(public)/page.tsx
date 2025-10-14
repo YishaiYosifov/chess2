@@ -7,6 +7,8 @@ import Button from "@/components/ui/Button";
 import Pog from "@public/assets/pog.png";
 import Card from "@/components/ui/Card";
 import { GameReplay } from "@/features/chessboard/lib/types";
+import Link from "next/link";
+import constants from "@/lib/constants";
 
 export const metadata = { title: "Home - Chess 2" };
 
@@ -83,12 +85,13 @@ const HomePage = async () => {
             <section
                 className="grid w-full grid-rows-[auto_auto] justify-center gap-10 p-5
                     lg:grid-cols-[auto_auto] lg:gap-20"
+                    lg:grid-cols-[auto_auto] lg:gap-x-20"
             >
                 <div
                     className="flex w-full flex-col items-center gap-3 text-center lg:max-w-lg lg:items-start
                         lg:text-start"
                 >
-                    <h1 className="text-5xl">
+                    <h1 className="text-5xl text-balance">
                         Discover the Madness of Anarchy Chess
                     </h1>
 
@@ -119,7 +122,11 @@ const HomePage = async () => {
                     breakpoints={[
                         {
                             maxScreenSize: 767,
-                            paddingOffset: { width: 45, height: 0 },
+                            paddingOffset: {
+                                width: 45,
+                                height: 0,
+                                maxSize: 600,
+                            },
                         },
                         {
                             maxScreenSize: 1024,
