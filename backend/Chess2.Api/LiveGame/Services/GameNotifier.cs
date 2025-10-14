@@ -10,6 +10,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameNotifier
 {
+    Task SyncCurrentMoveAsync(GameState gameState, ConnectionId connectionId);
     Task JoinGameGroupAsync(GameToken gameToken, UserId userId, ConnectionId connectionId);
     Task NotifyDrawStateChangeAsync(GameToken gameToken, DrawState drawState);
     Task NotifyGameEndedAsync(GameToken gameToken, GameResultData result);
@@ -31,6 +32,9 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
 
     private static string UserGameGroup(GameToken gameToken, UserId userId) =>
         $"{gameToken}:{userId}";
+
+    public Task SyncCurrentMoveAsync(GameState gameState, ConnectionId connectionId) =>
+        _hub.Clients.Client(connectionId).SyncGameStateAsync(gameState);
 
     public async Task NotifyMoveMadeAsync(
         GameToken gameToken,

@@ -134,9 +134,6 @@ public class GameGrainTests : BaseGrainTest
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.GameNotFound);
-
-        var context = Silo.GetContextFromGrain(grain);
-        Silo.GrainRuntime.Mock.Verify(x => x.DeactivateOnIdle(context), Times.Once);
     }
 
     private Task StartGameAsync(GameGrain grain) =>

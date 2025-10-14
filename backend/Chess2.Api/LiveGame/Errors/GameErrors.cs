@@ -34,4 +34,7 @@ public static class GameErrors
             ErrorCodes.GameDrawNotRequested,
             "You cannot decline a draw that doesn't exist"
         );
+
+    public static Error GameNotOver =>
+        Error.Conflict(ErrorCodes.GameNotOver, "The game is still active");
 }

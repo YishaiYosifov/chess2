@@ -32,8 +32,8 @@ public class GameTokenGeneratorTests
         var existingTokenGrain = Substitute.For<IGameGrain>();
         var nonExistingTokenGrain = Substitute.For<IGameGrain>();
 
-        existingTokenGrain.IsGameOngoingAsync().Returns(true);
-        nonExistingTokenGrain.IsGameOngoingAsync().Returns(false);
+        existingTokenGrain.DoesGameExistAsync().Returns(true);
+        nonExistingTokenGrain.DoesGameExistAsync().Returns(false);
 
         _grainFactoryMock.GetGrain<IGameGrain>(existingToken).Returns(existingTokenGrain);
         _grainFactoryMock.GetGrain<IGameGrain>(nonExistingToken).Returns(nonExistingTokenGrain);
