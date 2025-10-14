@@ -47,8 +47,6 @@ describe("useLiveChessEvents", () => {
     const useGameEventMock = vi.mocked(useGameEvent);
     const gameEventHandlers: EventHandlers<GameClientEvents> = {};
 
-    const gameOverPopupRef = { current: { open: vi.fn() } };
-
     beforeEach(() => {
         liveChessStore = createLiveChessStore(createFakeLiveChessStoreProps());
         chessboardStore = createChessboardStore();
@@ -60,11 +58,7 @@ describe("useLiveChessEvents", () => {
 
     function renderLiveChessEvents() {
         return renderHook(() =>
-            useLiveChessEvents(
-                liveChessStore,
-                chessboardStore,
-                gameOverPopupRef,
-            ),
+            useLiveChessEvents(liveChessStore, chessboardStore),
         );
     }
 
@@ -356,9 +350,6 @@ describe("useLiveChessEvents", () => {
                 selectedPieceId: "123",
             });
 
-            const openMock = vi.fn();
-            gameOverPopupRef.current = { open: openMock };
-
             renderLiveChessEvents();
 
             const gameResult: GameResultData = {
@@ -379,8 +370,6 @@ describe("useLiveChessEvents", () => {
             expect(chessboardState.highlightedLegalMoves).toHaveLength(0);
             expect(chessboardState.selectedPieceId).toBeNull();
             expect(chessboardState.moveOptions.legalMoves.size).toBe(0);
-
-            expect(openMock).toHaveBeenCalled();
         });
     });
 });

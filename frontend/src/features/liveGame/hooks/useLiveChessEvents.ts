@@ -7,12 +7,10 @@ import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
 import { useGameEvent } from "./useGameHub";
-import { PopupRef } from "@/components/Popup";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
-    gameOverPopupRef: React.RefObject<PopupRef | null>,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
     const gameToken = useStore(liveChessStore, (x) => x.gameToken);
@@ -102,6 +100,5 @@ export default function useLiveChessEvents(
     useGameEvent(gameToken, "GameEndedAsync", async (result) => {
         liveChessStore.getState().endGame(result);
         chessboardStore.getState().disableMovement();
-        gameOverPopupRef.current?.open();
     });
 }

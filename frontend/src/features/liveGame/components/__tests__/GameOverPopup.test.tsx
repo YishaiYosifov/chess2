@@ -10,13 +10,11 @@ import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
-import { PopupRef } from "@/components/Popup";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
 vi.mock("@/features/liveGame/hooks/useGameHub");
 
 describe("GameOverPopup", () => {
-    const ref = React.createRef<PopupRef>();
     let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {
@@ -25,13 +23,25 @@ describe("GameOverPopup", () => {
         );
     });
 
-    it("should not render popup content by default", async () => {
+    it("should only not render popup once result data is set", async () => {
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
+
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
+
+        act(() =>
+            store.setState({
+                resultData: {
+                    result: GameResult.ABORTED,
+                    resultDescription: "test",
+                },
+            }),
+        );
+
+        expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
     });
 
     it("should show victory title and rating changes for white win", async () => {
@@ -46,10 +56,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
         expect(screen.getByText("VICTORY")).toBeInTheDocument();
@@ -70,10 +79,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         expect(screen.getByText("YOU LOST")).toBeInTheDocument();
         expect(screen.getByText("Black Won on Time")).toBeInTheDocument();
@@ -91,10 +99,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         expect(screen.getByText("DRAW")).toBeInTheDocument();
         expect(screen.getByText("Draw by Stalemate")).toBeInTheDocument();
@@ -112,10 +119,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         expect(screen.getByText("ABORTED")).toBeInTheDocument();
         expect(screen.getByText("Game Aborted")).toBeInTheDocument();
@@ -134,10 +140,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("closePopup"));
         expect(screen.queryByTestId("gameOverPopup")).not.toBeInTheDocument();
@@ -155,10 +160,9 @@ describe("GameOverPopup", () => {
 
         render(
             <LiveChessStoreContext.Provider value={store}>
-                <GameOverPopup ref={ref} />
+                <GameOverPopup />
             </LiveChessStoreContext.Provider>,
         );
-        act(() => ref.current?.open());
 
         expect(screen.getByText("NEW GAME")).toBeInTheDocument();
         expect(screen.getByText("REMATCH")).toBeInTheDocument();

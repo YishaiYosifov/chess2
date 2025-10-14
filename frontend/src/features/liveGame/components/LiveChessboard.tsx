@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { StoreApi } from "zustand";
 
 import LiveChessboardProfile, {
@@ -30,7 +30,6 @@ import useConst from "@/hooks/useConst";
 import { Move } from "@/features/chessboard/lib/types";
 import ChessboardWithSidebar from "@/features/chessboard/components/ChessboardWithSidebar";
 import { useGameEmitter } from "../hooks/useGameHub";
-import { PopupRef } from "@/components/Popup";
 
 const LiveChessboard = ({
     gameToken,
@@ -42,7 +41,6 @@ const LiveChessboard = ({
     preferences: Preferences;
 }) => {
     const user = useSessionUser();
-    const gameOverPopupRef = useRef<PopupRef>(null);
 
     const storeProps = useConst<ProcessedGameState>(() =>
         createStoreProps(gameToken, user?.userId ?? "", gameState),
@@ -68,13 +66,13 @@ const LiveChessboard = ({
         }),
     );
 
-    useLiveChessEvents(liveChessStore, chessboardStore, gameOverPopupRef);
+    useLiveChessEvents(liveChessStore, chessboardStore);
     useInvalidateOnNavigate();
 
     return (
         <LiveChessStoreContext.Provider value={liveChessStore}>
             <ChessboardStoreContext.Provider value={chessboardStore}>
-                <GameOverPopup ref={gameOverPopupRef} />
+                <GameOverPopup />
                 <ChessboardWithSidebar
                     chessboard={
                         <>

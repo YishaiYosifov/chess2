@@ -3,13 +3,13 @@ import Card from "@/components/ui/Card";
 import { GameColor, GamePlayer, GameResult } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "@/components/ui/Button";
-import { forwardRef, ForwardRefRenderFunction } from "react";
+import { useEffect, useRef } from "react";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 import Popup, { PopupRef } from "@/components/Popup";
 import useRematch from "../hooks/useRematch";
 
-const GameOverPopup: ForwardRefRenderFunction<PopupRef, unknown> = (_, ref) => {
+const GameOverPopup = () => {
     const { whitePlayer, blackPlayer, resultData, playerColor, pool } =
         useLiveChessStore((x) => ({
             whitePlayer: x.whitePlayer,
@@ -26,6 +26,13 @@ const GameOverPopup: ForwardRefRenderFunction<PopupRef, unknown> = (_, ref) => {
         isRequestingRematch,
         isRematchRequested,
     } = useRematch();
+
+    const popupRef = useRef<PopupRef>(null);
+
+    useEffect(() => {
+        if (resultData && popupRef.current) popupRef.current.open();
+    }, [resultData]);
+
     if (!resultData) return;
 
     function getGameOverTitle(): string {
@@ -50,7 +57,7 @@ const GameOverPopup: ForwardRefRenderFunction<PopupRef, unknown> = (_, ref) => {
     const gameOverTitle = getGameOverTitle();
 
     return (
-        <Popup ref={ref} data-testid="gameOverPopup">
+        <Popup data-testid="gameOverPopup" ref={popupRef}>
             <h2 className="text-center text-3xl font-bold">{gameOverTitle}</h2>
             <p className="text-secondary text-center">
                 {resultData.resultDescription}
@@ -101,7 +108,7 @@ const GameOverPopup: ForwardRefRenderFunction<PopupRef, unknown> = (_, ref) => {
         </Popup>
     );
 };
-export default forwardRef(GameOverPopup);
+export default GameOverPopup;
 
 const PopupCardProfile = ({
     player,
