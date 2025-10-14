@@ -3,9 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 
-import ChallengePopup, {
-    ChallengePopupRef,
-} from "@/features/challenges/components/ChallengePopup";
+import ChallengePopup from "@/features/challenges/components/ChallengePopup";
 
 import useLocalPref from "@/hooks/useLocalPref";
 import Button from "@/components/ui/Button";
@@ -14,6 +12,7 @@ import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
 import PoolToggle from "./PoolToggle";
 import PoolButton from "./PoolButton";
+import { PopupRef } from "@/components/Popup";
 
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
@@ -23,7 +22,7 @@ const PlayOptions = () => {
     );
     const isRated = poolType === PoolType.RATED;
 
-    const challengePopupRef = useRef<ChallengePopupRef>(null);
+    const challengePopupRef = useRef<PopupRef>(null);
 
     useEffect(() => {
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);

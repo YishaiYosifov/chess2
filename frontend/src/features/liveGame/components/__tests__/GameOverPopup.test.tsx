@@ -5,17 +5,18 @@ import createLiveChessStore, {
     LiveChessStore,
 } from "@/features/liveGame/stores/liveChessStore";
 import { GameColor, GameResult } from "@/lib/apiClient";
-import GameOverPopup, { GameOverPopupRef } from "../GameOverPopup";
+import GameOverPopup from "../GameOverPopup";
 import userEvent from "@testing-library/user-event";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import { StoreApi } from "zustand";
+import { PopupRef } from "@/components/Popup";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
 vi.mock("@/features/liveGame/hooks/useGameHub");
 
 describe("GameOverPopup", () => {
-    const ref = React.createRef<GameOverPopupRef>();
+    const ref = React.createRef<PopupRef>();
     let store: StoreApi<LiveChessStore>;
 
     beforeEach(() => {

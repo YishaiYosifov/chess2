@@ -1,6 +1,6 @@
 import { fireEvent, within, render, screen } from "@testing-library/react";
 import { act } from "react";
-import ChallengePopup, { ChallengePopupRef } from "../ChallengePopup";
+import ChallengePopup from "../ChallengePopup";
 import {
     createChallenge,
     ErrorCode,
@@ -20,11 +20,12 @@ import { createFakeChallengeRequest } from "@/lib/testUtils/fakers/challengeRequ
 import { mockRouter } from "@/lib/testUtils/mocks/mockRouter";
 import constants from "@/lib/constants";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
+import { PopupRef } from "@/components/Popup";
 
 vi.mock("@/lib/apiClient/definition");
 
 describe("ChallengePopup", () => {
-    const ref = React.createRef<ChallengePopupRef>();
+    const ref = React.createRef<PopupRef>();
     const createChallengeMock = vi.mocked(createChallenge);
 
     let userMock: PublicUser;

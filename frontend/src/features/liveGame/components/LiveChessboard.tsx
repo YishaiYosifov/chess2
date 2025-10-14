@@ -16,7 +16,7 @@ import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardSto
 import MoveHistoryTable from "./MoveHistoryTable";
 import GameControlsCard from "./GameControls/GameControlsCard";
 import GameChat from "./GameChat";
-import GameOverPopup, { GameOverPopupRef } from "./GameOverPopup";
+import GameOverPopup from "./GameOverPopup";
 import LiveChessStoreContext from "../contexts/liveChessContext";
 import useLiveChessEvents from "../hooks/useLiveChessEvents";
 import { useSessionUser } from "@/features/auth/hooks/useSessionUser";
@@ -30,6 +30,7 @@ import useConst from "@/hooks/useConst";
 import { Move } from "@/features/chessboard/lib/types";
 import ChessboardWithSidebar from "@/features/chessboard/components/ChessboardWithSidebar";
 import { useGameEmitter } from "../hooks/useGameHub";
+import { PopupRef } from "@/components/Popup";
 
 const LiveChessboard = ({
     gameToken,
@@ -41,7 +42,7 @@ const LiveChessboard = ({
     preferences: Preferences;
 }) => {
     const user = useSessionUser();
-    const gameOverPopupRef = useRef<GameOverPopupRef>(null);
+    const gameOverPopupRef = useRef<PopupRef>(null);
 
     const storeProps = useConst<ProcessedGameState>(() =>
         createStoreProps(gameToken, user?.userId ?? "", gameState),

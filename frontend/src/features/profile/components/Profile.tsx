@@ -12,10 +12,9 @@ import Button from "@/components/ui/Button";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
 import Flag from "./Flag";
-import ChallengePopup, {
-    ChallengePopupRef,
-} from "@/features/challenges/components/ChallengePopup";
+import ChallengePopup from "@/features/challenges/components/ChallengePopup";
 import { useRef } from "react";
+import { PopupRef } from "@/components/Popup";
 
 const Profile = ({
     profile,
@@ -38,7 +37,7 @@ const Profile = ({
             initialHasStarred,
             initialHasBlocked,
         });
-    const challengePopupRef = useRef<ChallengePopupRef>(null);
+    const challengePopupRef = useRef<PopupRef>(null);
 
     const createdAt = new Date(profile.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString("en-US", {

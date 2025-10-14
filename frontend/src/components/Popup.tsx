@@ -1,17 +1,36 @@
-import { ReactNode } from "react";
+"use client";
+
+import {
+    forwardRef,
+    ForwardRefRenderFunction,
+    ReactNode,
+    useImperativeHandle,
+    useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 
-const Popup = ({
-    closePopup,
-    className,
-    children,
-    "data-testid": testId,
-}: {
-    closePopup: () => void;
-    className?: string;
-    children: ReactNode;
-    "data-testid"?: string;
-}) => {
+export interface PopupRef {
+    open(): void;
+}
+
+const Popup: ForwardRefRenderFunction<
+    PopupRef,
+    {
+        className?: string;
+        children: ReactNode;
+        "data-testid"?: string;
+    }
+> = ({ className, children, "data-testid": testId }, ref) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const openPopup = () => setIsOpen(true);
+    const closePopup = () => setIsOpen(false);
+
+    useImperativeHandle(ref, () => ({
+        open: openPopup,
+    }));
+
+    if (!isOpen) return null;
     return (
         <div
             className="fixed inset-0 z-50 flex min-h-screen items-center justify-center bg-black/60 p-4"
@@ -41,4 +60,4 @@ const Popup = ({
         </div>
     );
 };
-export default Popup;
+export default forwardRef(Popup);
