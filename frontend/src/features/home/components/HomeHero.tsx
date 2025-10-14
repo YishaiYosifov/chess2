@@ -3,6 +3,8 @@ import Image from "next/image";
 import Knook from "@public/assets/pieces-svg/knook-white.svg";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import constants from "@/lib/constants";
+import Link from "next/link";
 
 const HomeHero = () => {
     return (
@@ -37,9 +39,11 @@ const HomeHero = () => {
                         </p>
                     </div>
 
-                    <Button className="bg-secondary text-3xl text-black">
-                        PLAY NOW
-                    </Button>
+                    <Link href={constants.PATHS.PLAY} className="w-full">
+                        <Button className="bg-secondary w-full text-3xl text-black">
+                            PLAY NOW
+                        </Button>
+                    </Link>
                 </Card>
 
                 <Card className="bg-background border-secondary border-4 p-2 sm:gap-10">
@@ -50,9 +54,11 @@ const HomeHero = () => {
                         </p>
                     </div>
 
-                    <Button className="mt-auto text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
-                        PLAY QUEST
-                    </Button>
+                    <Link href={constants.PATHS.QUESTS} className="w-full">
+                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                            PLAY QUEST
+                        </Button>
+                    </Link>
                 </Card>
 
                 <Card className="bg-background border-secondary border-4 p-2 sm:gap-10">
@@ -63,9 +69,11 @@ const HomeHero = () => {
                         </p>
                     </div>
 
-                    <Button className="mt-auto text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
-                        VIEW GUIDE
-                    </Button>
+                    <Link href={constants.PATHS.GUIDE} className="w-full">
+                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                            VIEW GUIDE
+                        </Button>
+                    </Link>
                 </Card>
             </div>
         </header>
