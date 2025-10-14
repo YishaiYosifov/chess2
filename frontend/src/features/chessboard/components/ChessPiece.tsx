@@ -36,14 +36,12 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
     const moveOccurredOnPressRef = useRef<boolean>(false);
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
-            if (!canDrag) return false;
-
             if (moveOccurredOnPressRef.current) {
                 moveOccurredOnPressRef.current = false;
                 return false;
             }
 
-            if (info.button !== 0) return false;
+            if (!canDrag || info.button !== 0) return false;
 
             const piece = screenPointToPiece(info.point);
             return piece === id;
