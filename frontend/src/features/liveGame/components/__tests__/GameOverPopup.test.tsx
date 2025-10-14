@@ -23,7 +23,7 @@ describe("GameOverPopup", () => {
         );
     });
 
-    it("should only not render popup once result data is set", async () => {
+    it("should only render popup once result data is set", async () => {
         render(
             <LiveChessStoreContext.Provider value={store}>
                 <GameOverPopup />
