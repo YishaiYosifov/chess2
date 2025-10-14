@@ -2,13 +2,11 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.UserRating.Models;
-using ErrorOr;
 
 namespace Chess2.Api.ArchivedGames.Services;
 
@@ -21,10 +19,6 @@ public interface IGameArchiveService
         RatingChange? ratingChange,
         CancellationToken token = default
     );
-    Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
-        GameToken gameToken,
-        CancellationToken token = default
-    );
     Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
         UserId userId,
         PaginationQuery pagination,
@@ -32,13 +26,9 @@ public interface IGameArchiveService
     );
 }
 
-public class GameArchiveService(
-    IGameArchiveRepository gameArchiveRepository,
-    IArchivedGameStateBuilder gameStateBuilder
-) : IGameArchiveService
+public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : IGameArchiveService
 {
     private readonly IGameArchiveRepository _gameArchiveRepository = gameArchiveRepository;
-    private readonly IArchivedGameStateBuilder _gameStateBuilder = gameStateBuilder;
 
     public async Task<GameArchive> CreateArchiveAsync(
         GameToken gameToken,
@@ -83,19 +73,6 @@ public class GameArchiveService(
 
         await _gameArchiveRepository.AddArchiveAsync(gameArchive, token);
         return gameArchive;
-    }
-
-    public async Task<ErrorOr<GameState>> GetGameStateByTokenAsync(
-        GameToken gameToken,
-        CancellationToken token = default
-    )
-    {
-        var archive = await _gameArchiveRepository.GetGameArchiveByTokenAsync(gameToken, token);
-        if (archive is null)
-            return GameErrors.GameNotFound;
-
-        var state = _gameStateBuilder.FromArchive(archive);
-        return state;
     }
 
     public async Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
