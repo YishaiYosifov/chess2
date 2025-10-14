@@ -38,7 +38,7 @@ const HomeIntroSection = () => {
                     />
                 </p>
 
-                <Button className="bg-secondary mt-5 w-full text-3xl text-black lg:max-w-sm">
+                <Button className="bg-secondary mt-5 w-full max-w-sm text-3xl text-black">
                     PLAY NOW
                 </Button>
             </div>
