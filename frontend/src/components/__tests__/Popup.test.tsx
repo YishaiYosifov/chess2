@@ -1,56 +1,67 @@
 import { render, screen } from "@testing-library/react";
-import Popup from "../Popup";
+import Popup, { PopupRef } from "../Popup";
 import userEvent from "@testing-library/user-event";
+import React, { act } from "react";
 
 describe("Popup", () => {
-    it("should render children correctly", () => {
+    const ref = React.createRef<PopupRef>();
+
+    it("should not render before opening", () => {
+        render(<Popup ref={ref}>Content</Popup>);
+        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
+    });
+
+    it("should render correctly", () => {
         render(
-            <Popup closePopup={() => {}}>
+            <Popup ref={ref}>
                 <div data-testid="child">Hello</div>
             </Popup>,
         );
+        act(() => ref.current?.open());
+
         expect(screen.getByTestId("child")).toBeInTheDocument();
         expect(screen.getByText("Hello")).toBeVisible();
+        expect(screen.getByTestId("popup")).toBeInTheDocument();
     });
 
-    it("should call closePopup when clicking the background", async () => {
+    it("should close when clicking the background", async () => {
         const user = userEvent.setup();
-        const closePopup = vi.fn();
-        render(<Popup closePopup={closePopup}>Content</Popup>);
+        render(<Popup ref={ref}>Content</Popup>);
+        act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("popupBackground"));
-        expect(closePopup).toHaveBeenCalledTimes(1);
+        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
     });
 
-    it("should call closePopup when clicking the close button", async () => {
+    it("should close clicking the close button", async () => {
         const user = userEvent.setup();
-        const closePopup = vi.fn();
-        render(<Popup closePopup={closePopup}>Content</Popup>);
+        render(<Popup ref={ref}>Content</Popup>);
+        act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("closePopup"));
-        expect(closePopup).toHaveBeenCalledTimes(1);
+        expect(screen.queryByTestId("popup")).not.toBeInTheDocument();
     });
 
-    it("should not call closePopup when clicking inside the popup content", async () => {
+    it("should not close when clicking inside the popup content", async () => {
         const user = userEvent.setup();
-        const closePopup = vi.fn();
         render(
-            <Popup closePopup={closePopup}>
+            <Popup ref={ref}>
                 <div data-testid="insidePopup">Inside</div>
             </Popup>,
         );
+        act(() => ref.current?.open());
 
         await user.click(screen.getByTestId("insidePopup"));
-        expect(closePopup).not.toHaveBeenCalled();
+        expect(screen.getByTestId("popup")).toBeInTheDocument();
     });
 
     it("should apply custom className to the popup content", () => {
         render(
-            <Popup closePopup={() => {}} className="custom-popup-class">
+            <Popup ref={ref} className="custom-popup-class">
                 Content
             </Popup>,
         );
-        const popupContent = screen.getByTestId("popup");
-        expect(popupContent).toHaveClass("custom-popup-class");
+        act(() => ref.current?.open());
+        expect(screen.getByTestId("popup")).toHaveClass("custom-popup-class");
     });
 });
