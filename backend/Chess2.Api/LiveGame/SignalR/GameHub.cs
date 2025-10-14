@@ -13,6 +13,7 @@ namespace Chess2.Api.LiveGame.SignalR;
 
 public interface IGameHubClient : IChess2HubClient
 {
+    Task SyncGameStateAsync(GameState state);
     Task MoveMadeAsync(
         MoveSnapshot move,
         GameColor sideToMove,

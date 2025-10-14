@@ -20,8 +20,8 @@ public class GameTokenGenerator(IGrainFactory grains, IRandomCodeGenerator rando
         while (true)
         {
             var token = _randomCodeGenerator.GenerateBase62Code(16);
-            var isGameOngoing = await _grains.GetGrain<IGameGrain>(token).IsGameOngoingAsync();
-            if (!isGameOngoing)
+            var tokenTaken = await _grains.GetGrain<IGameGrain>(token).DoesGameExistAsync();
+            if (!tokenTaken)
                 return token;
         }
     }

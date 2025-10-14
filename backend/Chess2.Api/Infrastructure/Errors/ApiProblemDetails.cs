@@ -55,6 +55,7 @@ public static class ErrorCodes
     public const string GameDrawAlreadyRequested = "Game.DrawAlreadyRequested";
     public const string GameDrawOnCooldown = "Game.DrawOnCooldown";
     public const string GameDrawNotRequested = "Game.DrawNotRequested";
+    public const string GameNotOver = "Game.NotOver";
 
     public const string GameChatInvalidUser = "GameChat.InvalidUser";
     public const string GameChatInvalidMessage = "GameChat.InvalidMessage";

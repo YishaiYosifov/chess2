@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Services;
-using Chess2.Api.GameLogic.Extensions;
+﻿using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Services;
@@ -46,7 +45,6 @@ public class RematchGrain(
     [PersistentState(RematchGrain.StateName, StorageNames.RematchState)]
         IPersistentState<RematchGrainState> state,
     IOptions<AppSettings> settings,
-    IGameStateProvider gameStateProvider,
     IRematchNotifier rematchNotifier,
     IGameStarter gameStarter
 ) : Grain, IRematchGrain, IRemindable
@@ -56,15 +54,15 @@ public class RematchGrain(
 
     private readonly GameSettings _settings = settings.Value.Game;
     private readonly IPersistentState<RematchGrainState> _state = state;
-    private readonly IGameStateProvider _gameStateProvider = gameStateProvider;
     private readonly IRematchNotifier _rematchNotifier = rematchNotifier;
     private readonly IGameStarter _gameStarter = gameStarter;
 
     public async Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId)
     {
-        var request = await FetchRematchRequest();
-        if (request is null)
-            return GameErrors.GameNotFound;
+        var requestResult = await FetchRematchRequest();
+        if (requestResult.IsError)
+            return requestResult.Errors;
+        var request = requestResult.Value;
 
         if (!request.Players.TryGetPlayerById(requestedBy, out var player))
             return GameErrors.PlayerInvalid;
@@ -142,20 +140,19 @@ public class RematchGrain(
         await TearDownRematchAsync();
     }
 
-    private async Task<RematchRequest?> FetchRematchRequest()
+    private async Task<ErrorOr<RematchRequest>> FetchRematchRequest()
     {
         if (_state.State.Request is not null)
             return _state.State.Request;
 
         var gameToken = this.GetPrimaryKeyString();
-        var gameResult = await _gameStateProvider.GetGameStateAsync(gameToken);
+        var gameResult = await GrainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
         if (gameResult.IsError)
-            return null;
+            return gameResult.Errors;
 
         var game = gameResult.Value;
-        // the game is not over
         if (game.ResultData is null)
-            return null;
+            return GameErrors.GameNotOver;
 
         PlayerRoster players = new(game.WhitePlayer, game.BlackPlayer);
         RematchRequest request = new(players, Pool: game.Pool);
