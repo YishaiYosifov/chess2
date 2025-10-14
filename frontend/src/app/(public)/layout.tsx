@@ -33,7 +33,9 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                 <SessionProvider user={null}>
                     <div className="flex min-h-screen max-w-screen min-w-[300px] flex-col md:flex-row">
                         <Navbar />
-                        <main className="flex flex-1">{children}</main>
+                        <main className="flex flex-1 overflow-auto">
+                            {children}
+                        </main>
                     </div>
 
                     <LobbyHandler />
