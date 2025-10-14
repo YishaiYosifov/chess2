@@ -30,6 +30,7 @@ const PATHS = {
     REGISTER: "/register",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
+    DONATE: "/donate",
     GAME: "/game",
     PLAY: "/play",
     GUIDE: "/guide",
