@@ -101,7 +101,7 @@ const ChessboardLayout = ({
                     setBoardRect(ref.current.getBoundingClientRect());
             }, 100);
         };
-        updateRect();
+        if (ref.current) setBoardRect(ref.current.getBoundingClientRect());
 
         window.addEventListener("scroll", updateRect);
         window.addEventListener("resize", updateRect);
