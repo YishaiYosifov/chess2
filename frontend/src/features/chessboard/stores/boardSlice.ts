@@ -110,10 +110,11 @@ export function createBoardSlice(
             );
         },
 
-        setBoardRect: (rect) =>
+        setBoardRect(rect) {
             set((state) => {
                 state.boardRect = rect;
-            }),
+            });
+        },
     });
 }
 
