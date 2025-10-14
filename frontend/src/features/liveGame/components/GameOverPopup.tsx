@@ -3,25 +3,13 @@ import Card from "@/components/ui/Card";
 import { GameColor, GamePlayer, GameResult } from "@/lib/apiClient";
 import clsx from "clsx";
 import Button from "@/components/ui/Button";
-import {
-    forwardRef,
-    ForwardRefRenderFunction,
-    useImperativeHandle,
-    useState,
-} from "react";
+import { forwardRef, ForwardRefRenderFunction } from "react";
 import useLiveChessStore from "../hooks/useLiveChessStore";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
-import Popup from "@/components/Popup";
+import Popup, { PopupRef } from "@/components/Popup";
 import useRematch from "../hooks/useRematch";
 
-export interface GameOverPopupRef {
-    open(): void;
-}
-
-const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
-    _,
-    ref,
-) => {
+const GameOverPopup: ForwardRefRenderFunction<PopupRef, unknown> = (_, ref) => {
     const { whitePlayer, blackPlayer, resultData, playerColor, pool } =
         useLiveChessStore((x) => ({
             whitePlayer: x.whitePlayer,
@@ -30,10 +18,6 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
             playerColor: x.viewer.playerColor,
             pool: x.pool,
         }));
-    const [isOpen, setIsOpen] = useState(false);
-
-    const closePopup = () => setIsOpen(false);
-    const openPopup = () => setIsOpen(true);
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
     const {
@@ -42,12 +26,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
         isRequestingRematch,
         isRematchRequested,
     } = useRematch();
-
-    useImperativeHandle(ref, () => ({
-        open: openPopup,
-    }));
-
-    if (!resultData || !isOpen) return;
+    if (!resultData) return;
 
     function getGameOverTitle(): string {
         if (!resultData) return "GAME OVER";
@@ -71,7 +50,7 @@ const GameOverPopup: ForwardRefRenderFunction<GameOverPopupRef, unknown> = (
     const gameOverTitle = getGameOverTitle();
 
     return (
-        <Popup closePopup={closePopup} data-testid="gameOverPopup">
+        <Popup ref={ref} data-testid="gameOverPopup">
             <h2 className="text-center text-3xl font-bold">{gameOverTitle}</h2>
             <p className="text-secondary text-center">
                 {resultData.resultDescription}

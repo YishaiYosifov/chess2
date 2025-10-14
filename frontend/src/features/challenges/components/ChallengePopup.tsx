@@ -1,4 +1,4 @@
-import Popup from "@/components/Popup";
+import Popup, { PopupRef } from "@/components/Popup";
 import Button from "@/components/ui/Button";
 import Range from "@/components/ui/Range";
 import Selector from "@/components/ui/Selector";
@@ -14,22 +14,12 @@ import {
 import constants from "@/lib/constants";
 import { findMatchingError as filterError } from "@/lib/utils/errorUtils";
 import { useRouter } from "next/navigation";
-import {
-    forwardRef,
-    ForwardRefRenderFunction,
-    useImperativeHandle,
-    useState,
-} from "react";
-
-export interface ChallengePopupRef {
-    open(): void;
-}
+import { forwardRef, ForwardRefRenderFunction, useState } from "react";
 
 const ChallengePopup: ForwardRefRenderFunction<
-    ChallengePopupRef,
+    PopupRef,
     { recipient?: PublicUser }
 > = ({ recipient }, ref) => {
-    const [isOpen, setIsOpen] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const [minutesIdx, setMinutesIdx] = useLocalPref<number>(
@@ -47,15 +37,6 @@ const ChallengePopup: ForwardRefRenderFunction<
 
     const user = useSessionUser();
     const router = useRouter();
-
-    const openPopup = () => setIsOpen(true);
-    const closePopup = () => setIsOpen(false);
-
-    useImperativeHandle(ref, () => ({
-        open: openPopup,
-    }));
-
-    if (!isOpen) return;
 
     async function sendChallenge() {
         const isUserGuest = isGuest(user);
@@ -95,11 +76,7 @@ const ChallengePopup: ForwardRefRenderFunction<
     }
 
     return (
-        <Popup
-            closePopup={closePopup}
-            className="bg-card gap-8"
-            data-testid="challengePopup"
-        >
+        <Popup className="bg-card gap-8" data-testid="challengePopup" ref={ref}>
             <h1 className="text-center text-3xl font-bold">Create Challenge</h1>
 
             <div className="flex flex-col gap-3">

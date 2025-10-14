@@ -2,17 +2,17 @@ import { ChessboardStore } from "@/features/chessboard/stores/chessboardStore";
 import { Clocks, GameColor, MoveSnapshot } from "@/lib/apiClient";
 import { StoreApi, useStore } from "zustand";
 import { LiveChessStore } from "../stores/liveChessStore";
-import { GameOverPopupRef } from "../components/GameOverPopup";
 import { decodePath, decodeEncodedMovesIntoMap } from "../lib/moveDecoder";
 import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
 import { useGameEvent } from "./useGameHub";
+import { PopupRef } from "@/components/Popup";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,
     chessboardStore: StoreApi<ChessboardStore>,
-    gameOverPopupRef: React.RefObject<GameOverPopupRef | null>,
+    gameOverPopupRef: React.RefObject<PopupRef | null>,
 ) {
     const boardDimensions = useStore(chessboardStore, (x) => x.boardDimensions);
     const gameToken = useStore(liveChessStore, (x) => x.gameToken);
