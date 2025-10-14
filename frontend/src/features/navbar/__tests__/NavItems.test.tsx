@@ -7,7 +7,11 @@ describe("UpperNavItems", () => {
     it("should render with the correct href when not authenticated", () => {
         render(<UpperNavItems hasAccessCookie={false} />);
 
-        expect(screen.getByText("Register").closest("a")).toHaveAttribute(
+        expect(screen.getByText("Login").closest("a")).toHaveAttribute(
+            "href",
+            constants.PATHS.REGISTER,
+        );
+        expect(screen.getByText("Sign Up").closest("a")).toHaveAttribute(
             "href",
             constants.PATHS.REGISTER,
         );
