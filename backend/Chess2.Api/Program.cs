@@ -10,7 +10,6 @@ using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
-using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.GameSnapshot.Services;
@@ -362,7 +361,6 @@ builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();
 #endregion
 
 #region Game
-builder.Services.AddScoped<IGameStateProvider, GameStateProvider>();
 builder.Services.AddScoped<IGameStarter, GameStarter>();
 builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();

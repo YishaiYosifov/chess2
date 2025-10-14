@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Game.Services;
-using Chess2.Api.GameSnapshot.Models;
+﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
@@ -18,8 +17,7 @@ namespace Chess2.Api.Unit.Tests.LiveGameTests;
 public class RematchGrainTests : BaseGrainTest
 {
     private readonly IRematchNotifier _rematchNotifierMock = Substitute.For<IRematchNotifier>();
-    private readonly IGameStateProvider _gameStateProviderMock =
-        Substitute.For<IGameStateProvider>();
+    private readonly IGameGrain _gameGrainMock = Substitute.For<IGameGrain>();
     private readonly IGameStarter _gameStarterMock = Substitute.For<IGameStarter>();
 
     private readonly GameSettings _settings;
@@ -35,8 +33,14 @@ public class RematchGrainTests : BaseGrainTest
         var settings = AppSettingsLoader.LoadAppSettings();
         _settings = settings.Game;
 
+        Silo.AddProbe(id =>
+        {
+            if (id.ToString() == _gameToken)
+                return _gameGrainMock;
+            return Substitute.For<IGameGrain>();
+        });
+
         Silo.AddService(Options.Create(settings));
-        Silo.AddService(_gameStateProviderMock);
         Silo.AddService(_rematchNotifierMock);
         Silo.AddService(_gameStarterMock);
 
@@ -46,9 +50,7 @@ public class RematchGrainTests : BaseGrainTest
         _gameState = new GameStateFaker()
             .RuleFor(x => x.ResultData, new GameResultDataFaker().Generate())
             .Generate();
-        _gameStateProviderMock
-            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
-            .Returns(_gameState);
+        _gameGrainMock.GetStateAsync(forUserId: null).Returns(_gameState);
     }
 
     private Task<RematchGrain> CreateGrainAsync() =>
@@ -57,9 +59,7 @@ public class RematchGrainTests : BaseGrainTest
     [Fact]
     public async Task RequestAsync_rejects_when_the_game_is_not_found()
     {
-        _gameStateProviderMock
-            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
-            .Returns(GameErrors.GameNotFound);
+        _gameGrainMock.GetStateAsync(forUserId: null).Returns(GameErrors.GameNotFound);
         var grain = await CreateGrainAsync();
 
         var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
@@ -72,15 +72,15 @@ public class RematchGrainTests : BaseGrainTest
     [Fact]
     public async Task RequestAsync_rejects_when_the_game_is_not_over()
     {
-        _gameStateProviderMock
-            .GetGameStateAsync(_gameToken, forUserId: null, Arg.Any<CancellationToken>())
+        _gameGrainMock
+            .GetStateAsync(forUserId: null)
             .Returns(_gameState with { ResultData = null });
         var grain = await CreateGrainAsync();
 
         var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
 
         result.IsError.Should().BeTrue();
-        result.FirstError.Should().Be(GameErrors.GameNotFound);
+        result.FirstError.Should().Be(GameErrors.GameNotOver);
         _state.Request.Should().BeNull();
     }
 
