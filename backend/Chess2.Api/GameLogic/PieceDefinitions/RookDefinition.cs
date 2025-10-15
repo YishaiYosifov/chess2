@@ -10,11 +10,18 @@ public class RookDefinition : IPieceDefinition
 
     private readonly IPieceMovementRule[] _behaviours =
     [
-        new CaptureRule(
-            new SlideBehaviour(new Offset(X: 0, Y: 1)),
-            new SlideBehaviour(new Offset(X: 0, Y: -1)),
-            new SlideBehaviour(new Offset(X: 1, Y: 0)),
-            new SlideBehaviour(new Offset(X: -1, Y: 0))
+        new KnooklearFusionRule(
+            fuseWith: PieceType.Horsey,
+            new CaptureRule(
+                allowFriendlyFireWhen: (board, piece) => piece.Type is PieceType.Horsey,
+                movementBehaviours:
+                [
+                    new SlideBehaviour(new Offset(X: 0, Y: 1)),
+                    new SlideBehaviour(new Offset(X: 0, Y: -1)),
+                    new SlideBehaviour(new Offset(X: 1, Y: 0)),
+                    new SlideBehaviour(new Offset(X: -1, Y: 0)),
+                ]
+            )
         ),
     ];
 
