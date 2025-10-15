@@ -6,6 +6,7 @@ namespace Chess2.Api.GameSnapshot.Models;
 [GenerateSerializer]
 [Alias("Chess2.Api.GameSnapshot.Models.GameState")]
 public record GameState(
+    int Revision,
     PoolKey Pool,
     GamePlayer WhitePlayer,
     GamePlayer BlackPlayer,

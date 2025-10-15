@@ -6,7 +6,6 @@ using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -76,6 +75,23 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await Silo.CreateGrainAsync<GameGrain>(_gameToken);
 
     [Fact]
+    public async Task SyncRevisionAsync_calls_notifier_with_current_revision()
+    {
+        var grain = await CreateGrainAsync();
+        await StartGameAsync(grain);
+
+        ConnectionId connectionId = "test-connection";
+
+        var result = await grain.SyncRevisionAsync(connectionId);
+
+        result.IsError.Should().BeFalse();
+
+        await _gameNotifierMock
+            .Received(1)
+            .SyncRevisionAsync(connectionId, _state.CurrentGame!.NotifierState);
+    }
+
+    [Fact]
     public async Task GetStateAsync_returns_the_correct_game_state()
     {
         var grain = await CreateGrainAsync();
@@ -91,6 +107,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         );
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state.CurrentGame!.Core);
         GameState expectedGameState = new(
+            Revision: _state.CurrentGame.NotifierState.Revision,
             Pool: _pool,
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
@@ -133,7 +150,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             .Received(1)
             .NotifyDrawStateChangeAsync(
                 _gameToken,
-                new DrawState(ActiveRequester: GameColor.White)
+                new DrawState(ActiveRequester: GameColor.White),
+                _state.CurrentGame!.NotifierState
             );
 
         var state = await grain.GetStateAsync();
@@ -166,7 +184,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             .Received(1)
             .NotifyDrawStateChangeAsync(
                 _gameToken,
-                new DrawState(WhiteCooldown: _settings.DrawCooldown)
+                new DrawState(WhiteCooldown: _settings.DrawCooldown),
+                _state.CurrentGame!.NotifierState
             );
 
         var state = await grain.GetStateAsync();
@@ -207,16 +226,17 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                gameToken: _gameToken,
-                move: expectedMoveSnapshot,
-                moveNumber: 1,
-                clocks: ArgEx.FluentAssert<ClockSnapshot>(x =>
-                    x.Should().BeEquivalentTo(expectedClock)
+                notification: new(
+                    GameToken: _gameToken,
+                    Move: expectedMoveSnapshot,
+                    MoveNumber: 1,
+                    Clocks: expectedClock,
+                    SideToMove: GameColor.Black,
+                    SideToMoveUserId: _blackPlayer.UserId,
+                    LegalMoves: legalMoves.EncodedMoves,
+                    HasForcedMoves: legalMoves.HasForcedMoves
                 ),
-                sideToMove: GameColor.Black,
-                sideToMoveUserId: _blackPlayer.UserId,
-                encodedLegalMoves: legalMoves.EncodedMoves,
-                hasForcedMoves: legalMoves.HasForcedMoves
+                _state.CurrentGame.NotifierState
             );
     }
 
@@ -260,18 +280,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         _stateStats.Writes.Should().Be(2 * 4 - 1);
         await TestGameEndedAsync(grain, _gameResultDescriber.ThreeFold());
         // make sure the state was not deleted before the notification
-        await _gameNotifierMock
-            .Received(1)
-            .NotifyMoveMadeAsync(
-                gameToken: _gameToken,
-                move: Arg.Any<MoveSnapshot>(),
-                moveNumber: 2 * 4,
-                clocks: Arg.Any<ClockSnapshot>(),
-                sideToMove: Arg.Any<GameColor>(),
-                sideToMoveUserId: Arg.Any<UserId>(),
-                encodedLegalMoves: Arg.Any<IEnumerable<byte>>(),
-                hasForcedMoves: Arg.Any<bool>()
-            );
+        await _gameNotifierMock.ReceivedWithAnyArgs(1).NotifyMoveMadeAsync(default!, default!);
     }
 
     [Fact]
@@ -292,14 +301,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                Arg.Any<GameToken>(),
-                Arg.Any<MoveSnapshot>(),
-                Arg.Any<int>(),
-                Arg.Any<ClockSnapshot>(),
-                Arg.Any<GameColor>(),
-                Arg.Any<UserId>(),
-                Arg.Any<byte[]>(),
-                hasForcedMoves: true
+                ArgEx.FluentAssert<MoveNotification>(x => x?.HasForcedMoves.Should().BeTrue()),
+                _state.CurrentGame!.NotifierState
             );
 
         var state = await grain.GetStateAsync(_whitePlayer.UserId);
@@ -324,8 +327,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await MakeLegalMoveAsync(grain, _whitePlayer);
 
         await _gameNotifierMock
-            .DidNotReceive()
-            .NotifyDrawStateChangeAsync(Arg.Any<GameToken>(), Arg.Any<DrawState>());
+            .DidNotReceiveWithAnyArgs()
+            .NotifyDrawStateChangeAsync(default, default!, default!);
 
         var state = await grain.GetStateAsync();
         state.Value.DrawState.WhiteCooldown.Should().Be(drawCooldown - 1);
@@ -347,7 +350,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             .Received(1)
             .NotifyDrawStateChangeAsync(
                 _gameToken,
-                new DrawState(WhiteCooldown: _settings.DrawCooldown)
+                new DrawState(WhiteCooldown: _settings.DrawCooldown),
+                _state.CurrentGame!.NotifierState
             );
 
         var state = await grain.GetStateAsync();
@@ -447,7 +451,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
                         x?.Result.Should().Be(expectedEndStatus.Result);
                         x?.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
                     }
-                )
+                ),
+                _state.CurrentGame!.NotifierState
             );
 
         var gameStateResult = await grain.GetStateAsync();

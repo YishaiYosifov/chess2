@@ -13,7 +13,7 @@ namespace Chess2.Api.LiveGame.SignalR;
 
 public interface IGameHubClient : IChess2HubClient
 {
-    Task SyncGameStateAsync(GameState state);
+    Task SyncRevisionAsync(int currentRevision);
     Task MoveMadeAsync(
         MoveSnapshot move,
         GameColor sideToMove,
@@ -186,6 +186,9 @@ public class GameHub(ILogger<GameHub> logger, IGrainFactory grains, IGameNotifie
             }
 
             await _gameNotifier.JoinGameGroupAsync(gameToken, userId, Context.ConnectionId);
+
+            var gameGrain = _grains.GetGrain<IGameGrain>(gameToken);
+            await gameGrain.SyncRevisionAsync(Context.ConnectionId);
 
             var chatGrain = _grains.GetGrain<IGameChatGrain>(gameToken);
             await chatGrain.JoinChatAsync(connectionId: Context.ConnectionId, userId: userId);
