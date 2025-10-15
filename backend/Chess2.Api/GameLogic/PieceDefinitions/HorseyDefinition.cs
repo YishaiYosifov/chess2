@@ -10,15 +10,22 @@ public class HorseyDefinition : IPieceDefinition
 
     private readonly IPieceMovementRule[] _behaviours =
     [
-        new CaptureRule(
-            new StepBehaviour(new Offset(X: 1, Y: 2)),
-            new StepBehaviour(new Offset(X: -1, Y: 2)),
-            new StepBehaviour(new Offset(X: 1, Y: -2)),
-            new StepBehaviour(new Offset(X: -1, Y: -2)),
-            new StepBehaviour(new Offset(X: 2, Y: 1)),
-            new StepBehaviour(new Offset(X: -2, Y: 1)),
-            new StepBehaviour(new Offset(X: 2, Y: -1)),
-            new StepBehaviour(new Offset(X: -2, Y: -1))
+        new KnooklearFusionRule(
+            fuseWith: PieceType.Rook,
+            new CaptureRule(
+                allowFriendlyFireWhen: (board, piece) => piece.Type is PieceType.Rook,
+                movementBehaviours:
+                [
+                    new StepBehaviour(new Offset(X: 1, Y: 2)),
+                    new StepBehaviour(new Offset(X: -1, Y: 2)),
+                    new StepBehaviour(new Offset(X: 1, Y: -2)),
+                    new StepBehaviour(new Offset(X: -1, Y: -2)),
+                    new StepBehaviour(new Offset(X: 2, Y: 1)),
+                    new StepBehaviour(new Offset(X: -2, Y: 1)),
+                    new StepBehaviour(new Offset(X: 2, Y: -1)),
+                    new StepBehaviour(new Offset(X: -2, Y: -1)),
+                ]
+            )
         ),
     ];
 
