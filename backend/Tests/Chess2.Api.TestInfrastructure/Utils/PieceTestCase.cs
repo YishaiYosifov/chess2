@@ -1,9 +1,9 @@
-﻿using Chess2.Api.GameLogic;
+﻿using System.Text.Json.Serialization;
+using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure.Factories;
 using Chess2.Api.TestInfrastructure.Fakes;
-using System.Text.Json.Serialization;
 
 namespace Chess2.Api.TestInfrastructure.Utils;
 
@@ -93,17 +93,27 @@ public class PieceTestCase
         return this;
     }
 
-    public PieceTestCase WithWhitePieceAt(string position) =>
-        WithPieceAt(position, PieceFactory.White());
+    public PieceTestCase WithWhitePieceAt(string position, PieceType? pieceType = null) =>
+        WithPieceAt(position, PieceFactory.White(pieceType));
 
-    public PieceTestCase WithBlackPieceAt(string position) =>
-        WithPieceAt(position, PieceFactory.Black());
+    public PieceTestCase WithBlackPieceAt(string position, PieceType? pieceType = null) =>
+        WithPieceAt(position, PieceFactory.Black(pieceType));
 
-    public PieceTestCase WithFriendlyPieceAt(string position) =>
-        WithPieceAt(position, new PieceFaker(color: Piece.Color).Generate());
+    public PieceTestCase WithFriendlyPieceAt(string position, params PieceType[] excludePieces) =>
+        WithPieceAt(
+            position,
+            new PieceFaker(color: Piece.Color)
+                .RuleFor(x => x.Type, f => f.PickRandomWithout(excludePieces))
+                .Generate()
+        );
 
-    public PieceTestCase WithEnemyPieceAt(string position) =>
-        WithPieceAt(position, new PieceFaker(color: Piece.Color?.Invert()).Generate());
+    public PieceTestCase WithEnemyPieceAt(string position, params PieceType[] excludePieces) =>
+        WithPieceAt(
+            position,
+            new PieceFaker(color: Piece.Color?.Invert())
+                .RuleFor(x => x.Type, f => f.PickRandomWithout(excludePieces))
+                .Generate()
+        );
 
     public PieceTestCase WithPriorMove(
         string from,
