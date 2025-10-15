@@ -15,7 +15,7 @@ export interface GameStateSliceProps {
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
 
-    revision: number;
+    sourceRevision: number;
     pool: PoolKey;
 
     resultData: GameResultData | null;

@@ -35,7 +35,7 @@ export function createFakeLiveChessStoreProps(
         }),
 
         sideToMove: faker.helpers.enumValue(GameColor),
-        revision: faker.number.int({ min: 5, max: 100 }),
+        sourceRevision: faker.number.int({ min: 5, max: 100 }),
         viewer,
         whitePlayer: whitePlayer,
         blackPlayer: blackPlayer,
