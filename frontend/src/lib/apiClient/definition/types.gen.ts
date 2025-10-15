@@ -204,6 +204,7 @@ export enum InteractionLevel {
 }
 
 export type GameState = {
+    revision: number;
     pool: PoolKey;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
@@ -429,6 +430,7 @@ export enum ErrorCode {
     GAME_DRAW_ALREADY_REQUESTED = "Game.DrawAlreadyRequested",
     GAME_DRAW_ON_COOLDOWN = "Game.DrawOnCooldown",
     GAME_DRAW_NOT_REQUESTED = "Game.DrawNotRequested",
+    GAME_NOT_OVER = "Game.NotOver",
     GAME_CHAT_INVALID_USER = "GameChat.InvalidUser",
     GAME_CHAT_INVALID_MESSAGE = "GameChat.InvalidMessage",
     GAME_CHAT_ON_COOLDOWN = "GameChat.OnCooldown",

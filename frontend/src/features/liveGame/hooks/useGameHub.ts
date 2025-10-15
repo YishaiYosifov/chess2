@@ -11,6 +11,7 @@ import constants from "@/lib/constants";
 import { useMemo } from "react";
 
 export type GameClientEvents = {
+    SyncRevisionAsync: [currentRevision: number];
     MoveMadeAsync: [
         move: MoveSnapshot,
         sideToMove: GameColor,
