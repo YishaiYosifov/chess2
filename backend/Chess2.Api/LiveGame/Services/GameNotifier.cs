@@ -10,20 +10,34 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameNotifier
 {
-    Task SyncCurrentMoveAsync(GameState gameState, ConnectionId connectionId);
+    Task SyncRevisionAsync(ConnectionId connectionId, GameNotifierState state);
     Task JoinGameGroupAsync(GameToken gameToken, UserId userId, ConnectionId connectionId);
-    Task NotifyDrawStateChangeAsync(GameToken gameToken, DrawState drawState);
-    Task NotifyGameEndedAsync(GameToken gameToken, GameResultData result);
-    Task NotifyMoveMadeAsync(
+    Task NotifyDrawStateChangeAsync(
         GameToken gameToken,
-        MoveSnapshot move,
-        int moveNumber,
-        ClockSnapshot clocks,
-        GameColor sideToMove,
-        UserId sideToMoveUserId,
-        IEnumerable<byte> encodedLegalMoves,
-        bool hasForcedMoves
+        DrawState drawState,
+        GameNotifierState state
     );
+    Task NotifyGameEndedAsync(GameToken gameToken, GameResultData result, GameNotifierState state);
+    Task NotifyMoveMadeAsync(MoveNotification notification, GameNotifierState state);
+}
+
+public record MoveNotification(
+    GameToken GameToken,
+    MoveSnapshot Move,
+    int MoveNumber,
+    ClockSnapshot Clocks,
+    GameColor SideToMove,
+    UserId SideToMoveUserId,
+    IReadOnlyCollection<byte> LegalMoves,
+    bool HasForcedMoves
+);
+
+[GenerateSerializer]
+[Alias("Chess2.Api.LiveGame.Services.GameNotifierState")]
+public class GameNotifierState
+{
+    [Id(0)]
+    public int Revision { get; set; }
 }
 
 public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotifier
@@ -33,31 +47,44 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
     private static string UserGameGroup(GameToken gameToken, UserId userId) =>
         $"{gameToken}:{userId}";
 
-    public Task SyncCurrentMoveAsync(GameState gameState, ConnectionId connectionId) =>
-        _hub.Clients.Client(connectionId).SyncGameStateAsync(gameState);
+    public Task SyncRevisionAsync(ConnectionId connectionId, GameNotifierState state) =>
+        _hub.Clients.Client(connectionId).SyncRevisionAsync(state.Revision);
 
-    public async Task NotifyMoveMadeAsync(
-        GameToken gameToken,
-        MoveSnapshot move,
-        int moveNumber,
-        ClockSnapshot clocks,
-        GameColor sideToMove,
-        UserId sideToMoveUserId,
-        IEnumerable<byte> legalMoves,
-        bool hasForcedMoves
-    )
+    public async Task NotifyMoveMadeAsync(MoveNotification notification, GameNotifierState state)
     {
-        await _hub.Clients.Group(gameToken).MoveMadeAsync(move, sideToMove, moveNumber, clocks);
+        state.Revision++;
         await _hub
-            .Clients.Group(UserGameGroup(gameToken, sideToMoveUserId))
-            .LegalMovesChangedAsync(legalMoves, hasForcedMoves);
+            .Clients.Group(notification.GameToken)
+            .MoveMadeAsync(
+                notification.Move,
+                notification.SideToMove,
+                notification.MoveNumber,
+                notification.Clocks
+            );
+        await _hub
+            .Clients.Group(UserGameGroup(notification.GameToken, notification.SideToMoveUserId))
+            .LegalMovesChangedAsync(notification.LegalMoves, notification.HasForcedMoves);
     }
 
-    public Task NotifyDrawStateChangeAsync(GameToken gameToken, DrawState drawState) =>
-        _hub.Clients.Group(gameToken).DrawStateChangeAsync(drawState);
+    public Task NotifyDrawStateChangeAsync(
+        GameToken gameToken,
+        DrawState drawState,
+        GameNotifierState state
+    )
+    {
+        state.Revision++;
+        return _hub.Clients.Group(gameToken).DrawStateChangeAsync(drawState);
+    }
 
-    public Task NotifyGameEndedAsync(GameToken gameToken, GameResultData result) =>
-        _hub.Clients.Group(gameToken).GameEndedAsync(result);
+    public Task NotifyGameEndedAsync(
+        GameToken gameToken,
+        GameResultData result,
+        GameNotifierState state
+    )
+    {
+        state.Revision++;
+        return _hub.Clients.Group(gameToken).GameEndedAsync(result);
+    }
 
     public async Task JoinGameGroupAsync(
         GameToken gameToken,
