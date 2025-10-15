@@ -58,6 +58,7 @@ export function createStoreProps(
         blackPlayer: gameState.blackPlayer,
         sideToMove: gameState.sideToMove,
 
+        revision: gameState.revision,
         pool: gameState.pool,
         viewer,
 

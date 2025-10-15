@@ -25,6 +25,13 @@ export default function useLiveChessEvents(
         }
     }
 
+    useGameEvent(gameToken, "SyncRevisionAsync", async (currentRevision) => {
+        const { revision } = liveChessStore.getState();
+        if (revision !== currentRevision) {
+            await refetchGame(liveChessStore, chessboardStore);
+        }
+    });
+
     useGameEvent(
         gameToken,
         "MoveMadeAsync",

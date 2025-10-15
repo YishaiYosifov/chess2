@@ -97,6 +97,43 @@ describe("useLiveChessEvents", () => {
         return move;
     }
 
+    describe("SyncRevisionAsync", () => {
+        it("should refetch the game if revision is out of sync", async () => {
+            const newRevision = 2;
+
+            liveChessStore.setState({
+                revision: 1,
+            });
+
+            renderLiveChessEvents();
+
+            await act(async () => {
+                await gameEventHandlers.SyncRevisionAsync?.(newRevision);
+            });
+
+            expect(refetchGame).toHaveBeenCalledWith(
+                liveChessStore,
+                chessboardStore,
+            );
+        });
+
+        it("should not refetch if revision matches", async () => {
+            const newRevision = 1;
+
+            liveChessStore.setState({
+                revision: newRevision,
+            });
+
+            renderLiveChessEvents();
+
+            await act(async () => {
+                await gameEventHandlers.SyncRevisionAsync?.(newRevision);
+            });
+
+            expect(refetchGame).not.toHaveBeenCalled();
+        });
+    });
+
     describe("MoveMadeAsync", () => {
         it("should trigger a refetch when moveNumber is out of sync", async () => {
             liveChessStore.setState({

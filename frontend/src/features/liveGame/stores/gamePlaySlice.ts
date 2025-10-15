@@ -2,7 +2,7 @@ import { StateCreator } from "zustand";
 
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
-import { Clocks, GameColor, PoolKey } from "@/lib/apiClient";
+import { Clocks, GameColor } from "@/lib/apiClient";
 import type { LiveChessStore } from "./liveChessStore";
 import { Position } from "../lib/types";
 
@@ -16,7 +16,6 @@ export interface GamePlaySliceProps {
     clocks: Clocks;
 
     viewer: LiveChessViewer;
-    pool: PoolKey;
 }
 
 export interface GamePlaySlice extends GamePlaySliceProps {
