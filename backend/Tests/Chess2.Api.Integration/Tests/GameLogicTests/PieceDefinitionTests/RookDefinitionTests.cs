@@ -174,5 +174,23 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f5", captures: ["f5"])
                 .WithDescription("Surrounded by enemy pieces in all directions")
         );
+
+        Add(
+            PieceTestCase
+                .From("a1", rook)
+                .WithWhitePieceAt("a3", PieceType.Horsey)
+                .WithEnemyPieceAt("a4")
+                .WithFriendlyPieceAt("b4")
+                .WithEnemyPieceAt("b3")
+                .GoesTo("a2")
+                .GoesTo(
+                    "a3",
+                    captures: ["a3", "a4", "b4", "b3"],
+                    promotesTo: PieceType.Knook,
+                    specialMoveType: SpecialMoveType.KnooklearFusion
+                )
+                .GoesTo("b1", "c1", "d1", "e1", "f1", "g1", "h1", "i1", "j1")
+                .WithDescription("Fuses with horset and explodes surrounding pieces")
+        );
     }
 }

@@ -90,7 +90,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithFriendlyPieceAt("g7") // blocks beyond f6
+                .WithFriendlyPieceAt("g7", excludePieces: [PieceType.UnderagePawn]) // blocks beyond f6
                 // diagonal up-left
                 .GoesTo("d6")
                 .GoesTo("c7")
@@ -115,7 +115,7 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithEnemyPieceAt("g3") // enemy can be captured, blocks beyond
+                .WithEnemyPieceAt("g3", excludePieces: [PieceType.UnderagePawn]) // enemy can be captured, blocks beyond
                 .WithFriendlyPieceAt("h2") // friendly beyond enemy
                 // diagonal up-left
                 .GoesTo("d6")
@@ -143,20 +143,20 @@ public class BishopDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithFriendlyPieceAt("d6")
-                .WithFriendlyPieceAt("f6")
-                .WithFriendlyPieceAt("d4")
-                .WithFriendlyPieceAt("f4")
+                .WithFriendlyPieceAt("d6", excludePieces: [PieceType.UnderagePawn])
+                .WithFriendlyPieceAt("f6", excludePieces: [PieceType.UnderagePawn])
+                .WithFriendlyPieceAt("d4", excludePieces: [PieceType.UnderagePawn])
+                .WithFriendlyPieceAt("f4", excludePieces: [PieceType.UnderagePawn])
                 .WithDescription("Bishop surrounded by friendly pieces on all diagonals (no moves)")
         );
 
         Add(
             PieceTestCase
                 .From("e5", bishop)
-                .WithEnemyPieceAt("d6")
-                .WithEnemyPieceAt("f6")
-                .WithEnemyPieceAt("d4")
-                .WithEnemyPieceAt("f4")
+                .WithEnemyPieceAt("d6", excludePieces: [PieceType.UnderagePawn])
+                .WithEnemyPieceAt("f6", excludePieces: [PieceType.UnderagePawn])
+                .WithEnemyPieceAt("d4", excludePieces: [PieceType.UnderagePawn])
+                .WithEnemyPieceAt("f4", excludePieces: [PieceType.UnderagePawn])
                 .GoesTo("d6", captures: ["d6"])
                 .GoesTo("f6", captures: ["f6"])
                 .GoesTo("d4", captures: ["d4"])
