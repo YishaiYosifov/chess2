@@ -160,7 +160,7 @@ describe("createStoreProps", () => {
         }>({
             live: {
                 gameToken: "game-token",
-                revision: gameState.revision,
+                sourceRevision: gameState.revision,
                 whitePlayer: gameState.whitePlayer,
                 blackPlayer: gameState.blackPlayer,
                 sideToMove: gameState.sideToMove,
