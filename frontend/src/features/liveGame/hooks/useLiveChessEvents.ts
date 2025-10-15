@@ -26,8 +26,8 @@ export default function useLiveChessEvents(
     }
 
     useGameEvent(gameToken, "SyncRevisionAsync", async (currentRevision) => {
-        const { revision } = liveChessStore.getState();
-        if (revision !== currentRevision) {
+        const { sourceRevision } = liveChessStore.getState();
+        if (sourceRevision !== currentRevision) {
             await refetchGame(liveChessStore, chessboardStore);
         }
     });

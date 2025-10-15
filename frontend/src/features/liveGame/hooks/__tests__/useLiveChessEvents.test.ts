@@ -102,7 +102,7 @@ describe("useLiveChessEvents", () => {
             const newRevision = 2;
 
             liveChessStore.setState({
-                revision: 1,
+                sourceRevision: 1,
             });
 
             renderLiveChessEvents();
@@ -121,7 +121,7 @@ describe("useLiveChessEvents", () => {
             const newRevision = 1;
 
             liveChessStore.setState({
-                revision: newRevision,
+                sourceRevision: newRevision,
             });
 
             renderLiveChessEvents();
