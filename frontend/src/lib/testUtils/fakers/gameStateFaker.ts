@@ -12,6 +12,7 @@ export function createFakeGameState(
 ): GameState {
     return {
         pool: createFakePoolKey(),
+        revision: faker.number.int({ min: 5, max: 100 }),
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
         sideToMove: GameColor.WHITE,

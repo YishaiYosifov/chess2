@@ -1,7 +1,12 @@
 import { StateCreator } from "zustand";
 
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
-import { DrawState, GamePlayer, GameResultData } from "@/lib/apiClient";
+import {
+    DrawState,
+    GamePlayer,
+    GameResultData,
+    PoolKey,
+} from "@/lib/apiClient";
 import { LiveChessStore, LiveChessStoreProps } from "./liveChessStore";
 
 export interface GameStateSliceProps {
@@ -9,6 +14,9 @@ export interface GameStateSliceProps {
 
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
+
+    revision: number;
+    pool: PoolKey;
 
     resultData: GameResultData | null;
     drawState: DrawState;
