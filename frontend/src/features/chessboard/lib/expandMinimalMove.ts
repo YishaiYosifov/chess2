@@ -7,6 +7,7 @@ export default function expandMinimalMove(minimalMove: MinimalMove): Move {
         captures: [],
         intermediates: [],
         sideEffects: [],
+        pieceSpawns: [],
         promotesTo: null,
         ...minimalMove,
     };
