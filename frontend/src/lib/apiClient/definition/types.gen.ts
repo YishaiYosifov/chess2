@@ -278,12 +278,19 @@ export type MovePath = {
     triggerIdxs?: Array<number> | null;
     intermediateIdxs?: Array<number> | null;
     sideEffects?: Array<MoveSideEffectPath> | null;
+    pieceSpawns?: Array<PieceSpawnPath> | null;
     promotesTo?: PieceType | null;
 };
 
 export type MoveSideEffectPath = {
     fromIdx: number;
     toIdx: number;
+};
+
+export type PieceSpawnPath = {
+    type: PieceType;
+    color?: GameColor | null;
+    posIdx: number;
 };
 
 export enum PieceType {

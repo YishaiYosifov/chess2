@@ -1,6 +1,6 @@
 import brotliCompress from "brotli/compress";
 
-import { MovePath, PieceType } from "@/lib/apiClient";
+import { GameColor, MovePath, PieceType } from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
 import { Move } from "@/features/chessboard/lib/types";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -12,6 +12,7 @@ const emptyMove = {
     captures: [],
     intermediates: [],
     sideEffects: [],
+    pieceSpawns: [],
     promotesTo: null,
 };
 
@@ -26,6 +27,13 @@ describe("decodePathIntoMap", () => {
                 capturedIdxs: [4],
                 intermediateIdxs: [5],
                 sideEffects: [{ fromIdx: 6, toIdx: 7 }],
+                pieceSpawns: [
+                    {
+                        type: PieceType.CHECKER,
+                        color: GameColor.BLACK,
+                        posIdx: 8,
+                    },
+                ],
                 promotesTo: PieceType.BISHOP,
             },
         ];
@@ -49,6 +57,13 @@ describe("decodePathIntoMap", () => {
                 {
                     from: logicalPoint({ x: 6, y: 0 }),
                     to: logicalPoint({ x: 7, y: 0 }),
+                },
+            ],
+            pieceSpawns: [
+                {
+                    type: PieceType.CHECKER,
+                    color: GameColor.BLACK,
+                    position: logicalPoint({ x: 8, y: 0 }),
                 },
             ],
             promotesTo: PieceType.BISHOP,
@@ -98,6 +113,13 @@ describe("decodeEncodedMovesIntoMap", () => {
                 capturedIdxs: [3],
                 intermediateIdxs: [4],
                 sideEffects: [{ fromIdx: 5, toIdx: 6 }],
+                pieceSpawns: [
+                    {
+                        type: PieceType.CHECKER,
+                        color: GameColor.BLACK,
+                        posIdx: 7,
+                    },
+                ],
                 moveKey: "1",
             },
             {
@@ -126,6 +148,13 @@ describe("decodeEncodedMovesIntoMap", () => {
                     {
                         from: logicalPoint({ x: 5, y: 0 }),
                         to: logicalPoint({ x: 6, y: 0 }),
+                    },
+                ],
+                pieceSpawns: [
+                    {
+                        type: PieceType.CHECKER,
+                        color: GameColor.BLACK,
+                        position: logicalPoint({ x: 7, y: 0 }),
                     },
                 ],
                 promotesTo: null,
