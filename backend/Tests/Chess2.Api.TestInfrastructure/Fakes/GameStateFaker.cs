@@ -9,6 +9,7 @@ public class GameStateFaker : RecordFaker<GameState>
     public GameStateFaker()
     {
         StrictMode(true);
+        RuleFor(x => x.Revision, f => f.Random.Number(1, 100));
         RuleFor(
             x => x.Pool,
             f => new PoolKey(
