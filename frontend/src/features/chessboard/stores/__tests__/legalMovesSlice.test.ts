@@ -4,7 +4,7 @@ import {
     createFakeLegalMoveMap,
     createFakeMove,
     createFakePiece,
-    createFakePieceMapFromPieces,
+    createSequentialPieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, Piece } from "../../lib/types";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
@@ -25,7 +25,7 @@ describe("LegalMovesSlice", () => {
         it("should return null if no legal moves exist for the origin", async () => {
             const origin = logicalPoint({ x: 1, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -42,7 +42,7 @@ describe("LegalMovesSlice", () => {
         it("should return null if no move matches the destination", async () => {
             const origin = logicalPoint({ x: 1, y: 1 });
             const dest = logicalPoint({ x: 5, y: 5 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -67,7 +67,7 @@ describe("LegalMovesSlice", () => {
         it("should return the single matching move if only one matches", async () => {
             const origin = logicalPoint({ x: 2, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -90,7 +90,7 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -119,7 +119,7 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -144,7 +144,7 @@ describe("LegalMovesSlice", () => {
         it("should return null if multiple moves match but promotion is cancelled", async () => {
             const origin = logicalPoint({ x: 0, y: 1 });
             const dest = logicalPoint({ x: 0, y: 7 });
-            const pieceMap = createFakePieceMapFromPieces(
+            const pieceMap = createSequentialPieceMapFromPieces(
                 createFakePiece({ position: origin }),
             );
 
@@ -206,7 +206,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieceMap: createFakePieceMapFromPieces(piece),
+                pieceMap: createSequentialPieceMapFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
@@ -233,7 +233,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieceMap: createFakePieceMapFromPieces(piece),
+                pieceMap: createSequentialPieceMapFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 

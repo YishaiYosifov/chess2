@@ -11,9 +11,12 @@ import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import { logicalPoint } from "@/features/point/pointUtils";
 import { decodePath, decodePathIntoMap } from "../moveDecoder";
 import { LiveChessViewer } from "../../stores/gamePlaySlice";
+import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
 
 describe("createStoreProps", () => {
     it("should return the complete and correct store props object", () => {
+        mockSequentialUUID();
+
         const gameState = createFakeGameState({
             initialFen: constants.INITIAL_FEN,
             // f5 f6 Nh3 Nc8

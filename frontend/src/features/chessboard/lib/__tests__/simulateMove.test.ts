@@ -1,7 +1,7 @@
 import {
     createFakeMoveFromPieces,
     createFakePiece,
-    createFakePieceMapFromPieces,
+    createSequentialPieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import {
     pointToPiece,
@@ -19,7 +19,7 @@ describe("simulateMove", () => {
         const piece2 = createFakePiece({
             position: logicalPoint({ x: 5, y: 5 }),
         });
-        const pieces = createFakePieceMapFromPieces(piece1, piece2);
+        const pieces = createSequentialPieceMapFromPieces(piece1, piece2);
 
         const move = createFakeMoveFromPieces(pieces, {
             from: piece1.position,
@@ -45,7 +45,11 @@ describe("simulateMove", () => {
         const piece3 = createFakePiece({
             position: logicalPoint({ x: 2, y: 2 }),
         });
-        const pieces = createFakePieceMapFromPieces(piece1, piece2, piece3);
+        const pieces = createSequentialPieceMapFromPieces(
+            piece1,
+            piece2,
+            piece3,
+        );
 
         const move = createFakeMoveFromPieces(pieces, {
             from: piece1.position,
@@ -72,7 +76,11 @@ describe("simulateMove", () => {
         const piece3 = createFakePiece({
             position: logicalPoint({ x: 2, y: 2 }),
         });
-        const pieces = createFakePieceMapFromPieces(piece1, piece2, piece3);
+        const pieces = createSequentialPieceMapFromPieces(
+            piece1,
+            piece2,
+            piece3,
+        );
 
         const move = createFakeMoveFromPieces(pieces, {
             from: piece1.position,
@@ -105,7 +113,7 @@ describe("simulateMove", () => {
         const anotherPiece = createFakePiece({
             position: logicalPoint({ x: 2, y: 2 }),
         });
-        const pieces = createFakePieceMapFromPieces(
+        const pieces = createSequentialPieceMapFromPieces(
             mainPiece,
             sideEffectPiece,
             anotherPiece,
@@ -142,7 +150,7 @@ describe("simulateMoveWithIntermediates", () => {
         const piece = createFakePiece({
             position: logicalPoint({ x: 0, y: 0 }),
         });
-        const pieces = createFakePieceMapFromPieces(piece);
+        const pieces = createSequentialPieceMapFromPieces(piece);
 
         const intermediates = [
             logicalPoint({ x: 1, y: 1 }),
@@ -181,7 +189,7 @@ describe("simulateMoveWithIntermediates", () => {
         const piece2 = createFakePiece({
             position: logicalPoint({ x: 1, y: 1 }),
         });
-        const pieces = createFakePieceMapFromPieces(piece1, piece2);
+        const pieces = createSequentialPieceMapFromPieces(piece1, piece2);
 
         const intermediates = [
             logicalPoint({ x: 0, y: 1 }),

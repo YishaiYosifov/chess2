@@ -5,7 +5,7 @@ import {
     createFakeMove,
     createFakePiece,
     createFakePieceMap,
-    createFakePieceMapFromPieces,
+    createSequentialPieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LogicalPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
@@ -50,7 +50,7 @@ describe("PiecesSlice", () => {
                 position: logicalPoint({ x: 5, y: 5 }),
             });
             store.setState({
-                pieceMap: createFakePieceMapFromPieces(piece, otherPiece),
+                pieceMap: createSequentialPieceMapFromPieces(piece, otherPiece),
             });
 
             const intermediates = [
@@ -79,7 +79,7 @@ describe("PiecesSlice", () => {
                 position: logicalPoint({ x: 5, y: 5 }),
             });
             store.setState({
-                pieceMap: createFakePieceMapFromPieces(piece, otherPiece),
+                pieceMap: createSequentialPieceMapFromPieces(piece, otherPiece),
             });
 
             const intermediates = [
@@ -132,7 +132,7 @@ describe("PiecesSlice", () => {
             });
 
             store.setState({
-                pieceMap: createFakePieceMapFromPieces(
+                pieceMap: createSequentialPieceMapFromPieces(
                     piece,
                     capturedPiece,
                     sideEffectPiece,
@@ -293,7 +293,7 @@ describe("PiecesSlice", () => {
             });
 
             const boardState = {
-                pieces: createFakePieceMapFromPieces(piece),
+                pieces: createSequentialPieceMapFromPieces(piece),
                 moveOptions: { legalMoves, hasForcedMoves: false },
                 casuedByMove: move,
             };
@@ -315,7 +315,7 @@ describe("PiecesSlice", () => {
             const newPos = logicalPoint({ x: 1, y: 1 });
 
             const boardState = {
-                pieces: createFakePieceMapFromPieces({
+                pieces: createSequentialPieceMapFromPieces({
                     ...piece,
                     position: newPos,
                 }),

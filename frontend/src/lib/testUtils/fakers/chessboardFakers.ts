@@ -56,7 +56,9 @@ export function createFakePieceMap(count = 5): PieceMap {
     return map;
 }
 
-export function createFakePieceMapFromPieces(...pieces: Piece[]): PieceMap {
+export function createSequentialPieceMapFromPieces(
+    ...pieces: Piece[]
+): PieceMap {
     const map: PieceMap = new Map();
     for (const [i, piece] of pieces.entries()) {
         map.set(`${i}`, piece);

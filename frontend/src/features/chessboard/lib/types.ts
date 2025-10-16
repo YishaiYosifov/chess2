@@ -50,7 +50,7 @@ export interface PieceSpawn {
     position: LogicalPoint;
 }
 
-export type PieceID = `${number}`;
+export type PieceID = string;
 
 export interface AnimationStep {
     newPieces: PieceMap;
