@@ -32,6 +32,7 @@ export function createFakeMove(override?: Partial<Move>): Move {
         captures: [],
         intermediates: [],
         sideEffects: [],
+        pieceSpawns: [],
         promotesTo: null,
         ...override,
     };

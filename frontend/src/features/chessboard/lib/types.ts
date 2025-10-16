@@ -24,6 +24,7 @@ export interface Move {
     captures: LogicalPoint[];
     intermediates: LogicalPoint[];
     sideEffects: MoveSideEffect[];
+    pieceSpawns: PieceSpawn[];
     promotesTo: PieceType | null;
 }
 
@@ -41,6 +42,12 @@ export interface BoardState {
 export interface MoveSideEffect {
     from: LogicalPoint;
     to: LogicalPoint;
+}
+
+export interface PieceSpawn {
+    type: PieceType;
+    color: GameColor | null;
+    position: LogicalPoint;
 }
 
 export type PieceID = `${number}`;
