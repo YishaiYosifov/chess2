@@ -416,7 +416,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private async Task<Move> MakeLegalMoveAsync(IGameGrain grain, GamePlayer player)
     {
         var move = GetLegalMoveFor(player);
-        await grain.MovePieceAsync(player.UserId, key: new(move.From, move.To));
+        await grain.MovePieceAsync(player.UserId, key: new MoveKey(move));
         return move;
     }
 
