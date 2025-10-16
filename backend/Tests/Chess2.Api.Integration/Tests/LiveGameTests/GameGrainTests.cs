@@ -226,15 +226,20 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await _gameNotifierMock
             .Received(1)
             .NotifyMoveMadeAsync(
-                notification: new(
-                    GameToken: _gameToken,
-                    Move: expectedMoveSnapshot,
-                    MoveNumber: 1,
-                    Clocks: expectedClock,
-                    SideToMove: GameColor.Black,
-                    SideToMoveUserId: _blackPlayer.UserId,
-                    LegalMoves: legalMoves.EncodedMoves,
-                    HasForcedMoves: legalMoves.HasForcedMoves
+                notification: ArgEx.FluentAssert<MoveNotification>(x =>
+                    x.Should()
+                        .BeEquivalentTo(
+                            new MoveNotification(
+                                GameToken: _gameToken,
+                                Move: expectedMoveSnapshot,
+                                MoveNumber: 1,
+                                Clocks: expectedClock,
+                                SideToMove: GameColor.Black,
+                                SideToMoveUserId: _blackPlayer.UserId,
+                                LegalMoves: legalMoves.EncodedMoves,
+                                HasForcedMoves: legalMoves.HasForcedMoves
+                            )
+                        )
                 ),
                 _state.CurrentGame.NotifierState
             );
