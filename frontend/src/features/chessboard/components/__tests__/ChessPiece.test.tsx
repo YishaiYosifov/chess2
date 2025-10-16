@@ -256,6 +256,7 @@ describe("ChessPiece", () => {
             captures: [],
             intermediates: [],
             sideEffects: [],
+            pieceSpawns: [],
             promotesTo: null,
         };
 
