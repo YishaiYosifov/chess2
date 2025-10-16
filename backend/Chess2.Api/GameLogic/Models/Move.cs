@@ -2,6 +2,26 @@
 
 namespace Chess2.Api.GameLogic.Models;
 
+/// <param name="From">Origin square</param>
+/// <param name="To">Destination square</param>
+/// <param name="Piece">The piece being moved</param>
+/// <param name="TriggerSquares">
+/// Squares (other than the destination) that the user can click on to trigger this move.
+/// </param>
+/// <param name="IntermediateSquares">
+/// Squares the piece passes through before reaching its final destination.
+/// Used for frontend animation
+/// </param>
+/// <param name="Captures">Information about what pieces were captured and where</param>
+/// <param name="SideEffects">Any additional movement caused by this</param>
+/// <param name="SpecialMoveType">Indicates the type of move</param>
+/// <param name="ForcedPriority">
+/// Indicates whether this move is forced, and if so, how strongly it should be prioritized.
+/// The move(s) with the highest <see cref="ForcedMovePriority"/> will be the only ones allowed
+/// </param>
+/// <param name="PromotesTo">
+/// What piece to promote to if any. Other properties of <see cref="Piece"/> will remain unchanged
+/// </param>
 [GenerateSerializer]
 [Alias("Chess2.Api.GameLogic.Models.Move")]
 [method: JsonConstructor]
