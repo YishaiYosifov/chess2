@@ -208,6 +208,7 @@ describe("ChessPiece", () => {
             captures: [],
             intermediates: [],
             sideEffects: [],
+            pieceSpawns: [],
             promotesTo: null,
         };
         const legalMoves: LegalMoveMap = new Map([
