@@ -1,8 +1,8 @@
-import { PieceID } from "@/features/chessboard/lib/types";
 import { PieceMap } from "@/features/chessboard/lib/types";
 import { GameColor } from "@/lib/apiClient";
 import { logicalPoint } from "@/features/point/pointUtils";
 import constants from "@/lib/constants";
+import { createPieceId } from "./pieceMapUtils";
 
 /**
  * Parse a fen into a PieceMap
@@ -14,7 +14,6 @@ export function decodeFen(fen: string): PieceMap {
     const board: PieceMap = new Map();
     const ranks = fen.split("/").reverse();
 
-    let pieceIdx = 0;
     for (const [y, rank] of ranks.entries()) {
         // split the rank into numbers and pieces.
         // this regex makes sure multiple digits are grouped together
@@ -30,7 +29,7 @@ export function decodeFen(fen: string): PieceMap {
                 continue;
             }
 
-            const pieceId = pieceIdx.toString() as PieceID;
+            const pieceId = createPieceId();
             const color = getColorFromLetter(square);
             const pieceLetter = square.toLowerCase();
             const pieceType = constants.LETTER_TO_PIECE[pieceLetter];
@@ -41,7 +40,6 @@ export function decodeFen(fen: string): PieceMap {
                 color,
             });
             x++;
-            pieceIdx++;
         }
     }
     return board;

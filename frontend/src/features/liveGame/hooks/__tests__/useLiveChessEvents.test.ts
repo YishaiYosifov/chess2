@@ -28,7 +28,7 @@ import { Position } from "../../lib/types";
 import {
     createFakeLegalMoveMap,
     createFakePiece,
-    createFakePieceMapFromPieces,
+    createSequentialPieceMapFromPieces,
     createRandomPoint,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -67,7 +67,7 @@ describe("useLiveChessEvents", () => {
             position: logicalPoint({ x: 1, y: 1 }),
         });
         chessboardStore.setState({
-            pieceMap: createFakePieceMapFromPieces(piece),
+            pieceMap: createSequentialPieceMapFromPieces(piece),
         });
         liveChessStore.setState({
             viewingMoveNumber: 0,
