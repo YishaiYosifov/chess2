@@ -10,6 +10,7 @@ import { decodeFen } from "../../lib/fenDecoder";
 import { GameReplay } from "../../lib/types";
 import { logicalPoint } from "@/features/point/pointUtils";
 import { simulateMove } from "../../lib/simulateMove";
+import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
 
 describe("useBoardReplay", () => {
     let chessboardStore: StoreApi<ChessboardStore>;
@@ -57,14 +58,17 @@ describe("useBoardReplay", () => {
     }
 
     it("should set initial board position from starting FEN", () => {
+        mockSequentialUUID();
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
+        mockSequentialUUID();
         expect(chessboardStore.getState().pieceMap).toEqual(
             decodeFen(replays[0].startingFen),
         );
     });
 
     it("should apply moves sequentially every 1 second", () => {
+        mockSequentialUUID();
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
         let nextPieces = new Map(chessboardStore.getState().pieceMap);
@@ -73,6 +77,7 @@ describe("useBoardReplay", () => {
             expandMinimalMove(replays[0].moves[0]),
         ).newPieces;
 
+        mockSequentialUUID();
         expect(chessboardStore.getState().pieceMap).toEqual(
             decodeFen(replays[0].startingFen),
         );
@@ -93,37 +98,48 @@ describe("useBoardReplay", () => {
     });
 
     it("should advance to next replay after last move", () => {
+        mockSequentialUUID();
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
+        mockSequentialUUID();
         advanceReplay(replays[0]);
         act(() => vi.advanceTimersByTime(2000));
 
+        mockSequentialUUID();
         expect(chessboardStore.getState().pieceMap).toEqual(
             decodeFen(replays[1].startingFen),
         );
     });
 
     it("should loop back to first replay after the last replay", () => {
+        mockSequentialUUID();
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
+        mockSequentialUUID();
         advanceReplay(replays[0]);
         act(() => vi.advanceTimersByTime(2000));
 
+        mockSequentialUUID();
         advanceReplay(replays[1]);
         act(() => vi.advanceTimersByTime(2000));
 
+        mockSequentialUUID();
         expect(chessboardStore.getState().pieceMap).toEqual(
             decodeFen(replays[0].startingFen),
         );
     });
 
     it("should clear timeout on unmount", () => {
+        mockSequentialUUID();
         const { unmount } = renderHook(() =>
             useBoardReplay(replays, chessboardStore),
         );
 
         unmount();
+        mockSequentialUUID();
         act(() => vi.advanceTimersByTime(5000));
+
+        mockSequentialUUID();
         expect(chessboardStore.getState().pieceMap).toEqual(
             decodeFen(replays[0].startingFen),
         );
