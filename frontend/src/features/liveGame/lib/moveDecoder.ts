@@ -1,9 +1,9 @@
 import brotliDecompress from "brotli/decompress";
 
-import { MoveSideEffect } from "@/features/chessboard/lib/types";
+import { MoveSideEffect, PieceSpawn } from "@/features/chessboard/lib/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
-import { MovePath, MoveSideEffectPath } from "@/lib/apiClient";
+import { MovePath, MoveSideEffectPath, PieceSpawnPath } from "@/lib/apiClient";
 import { idxToLogicalPoint, pointToStr } from "@/features/point/pointUtils";
 
 export function decodePathIntoMap(
@@ -36,7 +36,9 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
             idxToLogicalPoint(idx, boardWidth),
         ) ?? [];
     const sideEffects =
-        path.sideEffects?.map((m) => sideEffectToMove(m, boardWidth)) ?? [];
+        path.sideEffects?.map((x) => parseSideEffect(x, boardWidth)) ?? [];
+    const pieceSpawns =
+        path.pieceSpawns?.map((x) => parsePieceSpawns(x, boardWidth)) ?? [];
 
     return {
         from,
@@ -46,11 +48,12 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
         captures,
         intermediates,
         sideEffects,
+        pieceSpawns,
         promotesTo: path.promotesTo ?? null,
     };
 }
 
-function sideEffectToMove(
+function parseSideEffect(
     path: MoveSideEffectPath,
     boardWidth: number,
 ): MoveSideEffect {
@@ -59,6 +62,18 @@ function sideEffectToMove(
     return {
         from,
         to,
+    };
+}
+
+function parsePieceSpawns(
+    path: PieceSpawnPath,
+    boardWidth: number,
+): PieceSpawn {
+    const position = idxToLogicalPoint(path.posIdx, boardWidth);
+    return {
+        type: path.type,
+        color: path.color ?? null,
+        position,
     };
 }
 
