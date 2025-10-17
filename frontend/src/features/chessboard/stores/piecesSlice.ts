@@ -22,6 +22,7 @@ export interface PiecesSlice {
     pieceMap: PieceMap;
     selectedPieceId: PieceID | null;
     canDrag: boolean;
+    isProcessingMove: boolean;
 
     onPieceMovement?: (move: Move) => Promise<void>;
 
@@ -61,6 +62,7 @@ export function createPiecesSlice(
         animatingPieceMap: null,
         selectedPieceId: null,
         animatingPieces: new Set(),
+        isProcessingMove: false,
 
         selectPiece(pieceId) {
             const { showLegalMoves, pieceMap } = get();
@@ -122,25 +124,37 @@ export function createPiecesSlice(
                 flashLegalMoves,
                 getMoveForSelection,
                 moveOptions,
+                isProcessingMove,
             } = get();
+            if (isProcessingMove) return false;
 
-            const dest = screenToLogicalPoint(mousePoint);
-            if (!dest) return false;
+            set((state) => {
+                state.isProcessingMove = true;
+            });
+            try {
+                const dest = screenToLogicalPoint(mousePoint);
+                if (!dest) return false;
 
-            const move = await getMoveForSelection(dest);
-            if (move) {
-                await applyMoveTurn(move);
-                return true;
+                const move = await getMoveForSelection(dest);
+
+                if (move) {
+                    await applyMoveTurn(move);
+                    return true;
+                }
+
+                if (
+                    moveOptions.hasForcedMoves &&
+                    isDrag // player tried to phyically move the piece, not just click and click somewhere else
+                ) {
+                    flashLegalMoves();
+                }
+
+                return false;
+            } finally {
+                set((state) => {
+                    state.isProcessingMove = false;
+                });
             }
-
-            if (
-                moveOptions.hasForcedMoves &&
-                isDrag // player tried to phyically move the piece, not just click and click somewhere else
-            ) {
-                flashLegalMoves();
-            }
-
-            return false;
         },
 
         async getMoveForSelection(dest) {

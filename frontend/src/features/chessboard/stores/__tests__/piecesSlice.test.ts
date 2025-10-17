@@ -274,6 +274,58 @@ describe("PiecesSlice", () => {
                 expectPieces({ id: "0", position: expectedPosition, piece });
             },
         );
+
+        it("should return false immediately if isProcessingMove is true", async () => {
+            const applyMoveTurnMock = vi.fn();
+            const screenToLogicalPointMock = vi.fn();
+            const getMoveForSelectionMock = vi.fn();
+            const flashLegalMovesMock = vi.fn();
+
+            store.setState({
+                isProcessingMove: true,
+                applyMoveTurn: applyMoveTurnMock,
+                screenToLogicalPoint: screenToLogicalPointMock,
+                getMoveForSelection: getMoveForSelectionMock,
+                flashLegalMoves: flashLegalMovesMock,
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 50, y: 50 }),
+                isDrag: false,
+            });
+
+            expect(result).toBe(false);
+            expect(applyMoveTurnMock).not.toHaveBeenCalled();
+            expect(screenToLogicalPointMock).not.toHaveBeenCalled();
+            expect(getMoveForSelectionMock).not.toHaveBeenCalled();
+            expect(flashLegalMovesMock).not.toHaveBeenCalled();
+        });
+
+        it("should set isProcessingMove to true before processing and reset to false after", async () => {
+            const screenToLogicalPointMock = vi.fn(() =>
+                logicalPoint({ x: 1, y: 1 }),
+            );
+            const getMoveForSelectionMock = vi.fn().mockResolvedValue({
+                from: { x: 0, y: 0 },
+                to: { x: 1, y: 1 },
+            });
+            const applyMoveTurnMock = vi.fn().mockResolvedValue(undefined);
+
+            store.setState({
+                screenToLogicalPoint: screenToLogicalPointMock,
+                getMoveForSelection: getMoveForSelectionMock,
+                applyMoveTurn: applyMoveTurnMock,
+            });
+
+            const movePromise = store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 10, y: 10 }),
+                isDrag: false,
+            });
+
+            expect(store.getState().isProcessingMove).toBe(true);
+            await movePromise;
+            expect(store.getState().isProcessingMove).toBe(false);
+        });
     });
 
     describe("goToPosition", () => {
