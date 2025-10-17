@@ -331,13 +331,17 @@ export enum PieceType {
      */
     UNDERAGE_PAWN = 8,
     /**
+     * SterilePawn
+     */
+    STERILE_PAWN = 9,
+    /**
      * TraitorRook
      */
-    TRAITOR_ROOK = 9,
+    TRAITOR_ROOK = 10,
     /**
      * Checker
      */
-    CHECKER = 10,
+    CHECKER = 11,
 }
 
 export type MoveOptions = {
