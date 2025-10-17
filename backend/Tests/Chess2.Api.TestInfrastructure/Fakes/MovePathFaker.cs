@@ -19,6 +19,7 @@ public class MovePathFaker : RecordFaker<MovePath>
             x => x.SideEffects,
             f => new MoveSideEffectPathFaker().Generate(f.Random.Number(1, 5))
         );
+        RuleFor(x => x.PieceSpawns, f => new PieceSpawnPathFaker().Generate(f.Random.Number(1, 5)));
         RuleFor(x => x.PromotesTo, f => f.PickRandom<PieceType>());
     }
 }

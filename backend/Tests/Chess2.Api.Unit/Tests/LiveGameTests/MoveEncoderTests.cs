@@ -39,7 +39,12 @@ public class MoveEncoderTests
                 CapturedIdxs: [4, 5, 6],
                 TriggerIdxs: [7, 8, 9],
                 SideEffects: [new(FromIdx: 10, ToIdx: 11), new(FromIdx: 12, ToIdx: 13)],
-                IntermediateIdxs: [14, 15, 16],
+                PieceSpawns:
+                [
+                    new(Type: PieceType.Pawn, Color: GameColor.White, PosIdx: 14),
+                    new(Type: PieceType.Knook, Color: GameColor.Black, PosIdx: 15),
+                ],
+                IntermediateIdxs: [16, 17, 18],
                 PromotesTo: PieceType.Queen
             ),
             new(
@@ -50,6 +55,7 @@ public class MoveEncoderTests
                 TriggerIdxs: null,
                 IntermediateIdxs: null,
                 SideEffects: null,
+                PieceSpawns: null,
                 PromotesTo: null
             ),
         ];

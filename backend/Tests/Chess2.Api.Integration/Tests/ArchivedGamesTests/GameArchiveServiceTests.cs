@@ -86,6 +86,9 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                         .For(x => x.Moves)
                         .For(x => x.SideEffects)
                         .Exclude(x => x.Id)
+                        .For(x => x.Moves)
+                        .For(x => x.PieceSpawns)
+                        .Exclude(x => x.Id)
             );
     }
 
@@ -226,10 +229,18 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
                     Intermediates = move.Path.IntermediateIdxs?.ToList() ?? [],
                     SideEffects =
-                        move.Path.SideEffects?.Select(se => new MoveSideEffectArchive
+                        move.Path.SideEffects?.Select(x => new MoveSideEffectArchive
                             {
-                                FromIdx = se.FromIdx,
-                                ToIdx = se.ToIdx,
+                                FromIdx = x.FromIdx,
+                                ToIdx = x.ToIdx,
+                            })
+                            .ToList() ?? [],
+                    PieceSpawns =
+                        move.Path.PieceSpawns?.Select(x => new PieceSpawnArchive
+                            {
+                                Type = x.Type,
+                                Color = x.Color,
+                                PosIdx = x.PosIdx,
                             })
                             .ToList() ?? [],
                     PromotesTo = move.Path.PromotesTo,

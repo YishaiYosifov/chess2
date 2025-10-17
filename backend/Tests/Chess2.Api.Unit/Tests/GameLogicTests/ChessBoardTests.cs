@@ -6,7 +6,7 @@ using FluentAssertions;
 
 namespace Chess2.Api.Unit.Tests.GameLogicTests;
 
-public class ChessBoardTests : BaseUnitTest
+public class ChessBoardTests
 {
     [Fact]
     public void Constructor_initializes_board_correctly()
@@ -224,6 +224,36 @@ public class ChessBoardTests : BaseUnitTest
         promotedPiece
             .Should()
             .BeEquivalentTo(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
+    }
+
+    [Fact]
+    public void PlayMove_with_piece_spawns_places_all_pieces()
+    {
+        ChessBoard board = new();
+        PieceSpawn[] spawns =
+        [
+            new(PieceType.Pawn, GameColor.White, new AlgebraicPoint("b2")),
+            new(PieceType.Bishop, GameColor.Black, new AlgebraicPoint("c3")),
+            new(PieceType.Horsey, GameColor.White, new AlgebraicPoint("f6")),
+        ];
+
+        Move move = new(
+            from: new AlgebraicPoint("a1"),
+            to: new AlgebraicPoint("a2"),
+            piece: PieceFactory.White(),
+            pieceSpawns: spawns
+        );
+        board.PlacePiece(new("a1"), PieceFactory.White());
+
+        board.PlayMove(move);
+
+        foreach (var spawn in spawns)
+        {
+            var piece = board.PeekPieceAt(spawn.Position);
+            piece.Should().NotBeNull();
+            piece.Type.Should().Be(spawn.Type);
+            piece.Color.Should().Be(spawn.Color);
+        }
     }
 
     [Theory]
