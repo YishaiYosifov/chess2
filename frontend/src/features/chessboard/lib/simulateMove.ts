@@ -3,6 +3,7 @@ import { LogicalPoint } from "@/features/point/types";
 import { AnimationStep, MoveAnimation, PieceID } from "./types";
 import { Move } from "./types";
 import { PieceMap } from "./types";
+import { createPieceId } from "./pieceMapUtils";
 
 export function simulateMove(pieces: PieceMap, move: Move): AnimationStep {
     return simulateMoveDetails(pieces, move).step;
@@ -36,16 +37,16 @@ export function simulateMoveWithIntermediates(
     };
 }
 
-export function simulateMoveDetails(
-    pieces: PieceMap,
+function simulateMoveDetails(
+    basePieces: PieceMap,
     move: Move,
 ): { step: AnimationStep; removedPieceIds: PieceID[] } {
     const movedPieceIds = new Set<PieceID>();
-    const newPieces = new Map(pieces);
+    const newPieces = new Map(basePieces);
 
-    const fromId = pointToPiece(pieces, move.from);
+    const fromId = pointToPiece(basePieces, move.from);
     if (fromId) {
-        const piece = { ...pieces.get(fromId)! };
+        const piece = { ...basePieces.get(fromId)! };
         piece.position = move.to;
         piece.type = move.promotesTo ?? piece.type;
 
@@ -54,33 +55,63 @@ export function simulateMoveDetails(
     }
 
     for (const sideEffect of move.sideEffects) {
-        const sideEffectId = pointToPiece(pieces, sideEffect.from);
+        const sideEffectId = pointToPiece(basePieces, sideEffect.from);
         if (!sideEffectId) continue;
 
-        const piece = { ...pieces.get(sideEffectId)! };
+        const piece = { ...basePieces.get(sideEffectId)! };
         piece.position = sideEffect.to;
         newPieces.set(sideEffectId, piece);
         movedPieceIds.add(sideEffectId);
     }
 
     const removedPieceIds: PieceID[] = [];
-    const destCaptureId = pointToPiece(pieces, move.to);
+    const destCaptureId = pointToPiece(basePieces, move.to);
     if (destCaptureId && !movedPieceIds.has(destCaptureId)) {
         removedPieceIds.push(destCaptureId);
         newPieces.delete(destCaptureId);
     }
     for (const capture of move.captures) {
-        const captureId = pointToPiece(pieces, capture);
+        const captureId = pointToPiece(basePieces, capture);
         if (captureId) {
             newPieces.delete(captureId);
             removedPieceIds.push(captureId);
         }
     }
 
+    const initialSpawnPositions = applySpawns(
+        newPieces,
+        basePieces,
+        move,
+        movedPieceIds,
+    );
+
     return {
-        step: { newPieces, movedPieceIds: [...movedPieceIds] },
+        step: {
+            newPieces,
+            movedPieceIds: [...movedPieceIds],
+            initialSpawnPositions,
+        },
         removedPieceIds,
     };
+}
+
+function applySpawns(
+    newPieces: PieceMap,
+    basePieces: PieceMap,
+    move: Move,
+    movedPieceIds: Set<PieceID>,
+): PieceMap | undefined {
+    if (move.pieceSpawns.length === 0) return;
+
+    const initialSpawnPositions = new Map(basePieces);
+    for (const piece of move.pieceSpawns) {
+        const id = createPieceId();
+        newPieces.set(id, piece);
+        initialSpawnPositions.set(id, { ...piece, position: move.from });
+
+        movedPieceIds.add(id);
+    }
+    return initialSpawnPositions;
 }
 
 export function pointToPiece(
