@@ -1,5 +1,6 @@
-﻿using Chess2.Api.GameLogic.Models;
-using System.Text;
+﻿using System.Text;
+using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.LiveGame.Services;
 
@@ -45,7 +46,7 @@ public class SanCalculator(IPieceToLetter pieceToLetter) : ISanCalculator
 
     private void NotateRegularMove(Move move, IEnumerable<Move> legalMoves, StringBuilder sb)
     {
-        var isPawn = move.Piece.Type == PieceType.Pawn || move.Piece.Type == PieceType.UnderagePawn;
+        var isPawn = GameLogicConstants.PawnLikePieces.Contains(move.Piece.Type);
         var isCapture = move.Captures.Count != 0;
 
         // add the piece letter if this is not a pawn move
