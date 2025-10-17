@@ -16,14 +16,14 @@ public class HorseyDefinitionTests(Chess2WebApplicationFactory factory)
 
 public class HorseyDefinitionTestData : KnightLikeTestData
 {
-    private static readonly Piece _horsey = PieceFactory.White(PieceType.Horsey);
-
     public HorseyDefinitionTestData()
-        : base(_horsey)
     {
+        var horsey = PieceFactory.White(PieceType.Horsey);
+        AddKnightLikeMoves(horsey);
+
         Add(
             PieceTestCase
-                .From("e5", _horsey)
+                .From("e5", horsey)
                 .WithWhitePieceAt("d7", PieceType.Rook)
                 .WithEnemyPieceAt("c8")
                 .WithFriendlyPieceAt("d8")

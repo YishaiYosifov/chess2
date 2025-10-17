@@ -5,7 +5,7 @@ namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
 
 public class KnightLikeTestData : TheoryData<PieceTestCase>
 {
-    public KnightLikeTestData(Piece piece)
+    protected void AddKnightLikeMoves(Piece piece)
     {
         Add(
             PieceTestCase
