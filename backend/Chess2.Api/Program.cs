@@ -389,6 +389,7 @@ builder.Services.AddSingleton<IPieceDefinition, BishopDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, HorseyDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, KnookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, UnderagePawnDefinition>();
+builder.Services.AddSingleton<IPieceDefinition, SterilePawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, AntiqueenDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, TraitorRookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, CheckerDefinition>();

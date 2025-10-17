@@ -1,4 +1,4 @@
-﻿using Chess2.Api.LiveGame;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestDefinitions;
 using Chess2.Api.QuestLogic.QuestMetrics;
@@ -15,7 +15,7 @@ public class PromoteToAllQuestTests
     {
         var variant = _quest.Variants.Single();
         variant.Difficulty.Should().Be(QuestDifficulty.Medium);
-        variant.Target.Should().Be(GameConstants.PromotablePieces.Count);
+        variant.Target.Should().Be(GameLogicConstants.PromotablePieces.Count);
     }
 
     [Fact]

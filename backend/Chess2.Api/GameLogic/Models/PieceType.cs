@@ -12,6 +12,7 @@ public enum PieceType
     Knook,
     Antiqueen,
     UnderagePawn,
+    SterilePawn,
     TraitorRook,
     Checker,
 }

@@ -1,5 +1,5 @@
-﻿using Chess2.Api.GameLogic.PieceMovementRules;
-using Chess2.Api.LiveGame;
+﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.PieceMovementRules;
 using FluentAssertions;
 using NSubstitute;
 
@@ -12,13 +12,13 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
     {
         PromotionRule rule = new(
             (board, move) => move == Moves[1],
-            GameConstants.PromotablePieces,
+            GameLogicConstants.PromotablePieces,
             RuleMocks
         );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
-        result.Should().HaveCount(Moves.Length - 1 + GameConstants.PromotablePieces.Count);
+        result.Should().HaveCount(Moves.Length - 1 + GameLogicConstants.PromotablePieces.Count);
         result.Should().Contain([Moves[0], .. Moves[2..]]);
 
         var promotionMoves = result
@@ -28,13 +28,17 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
         promotionMoves
             .Select(m => m.PromotesTo)
             .Should()
-            .BeEquivalentTo(GameConstants.PromotablePieces);
+            .BeEquivalentTo(GameLogicConstants.PromotablePieces);
     }
 
     [Fact]
     public void Evaluate_yields_moves_unchanged_when_predicate_fails()
     {
-        var rule = new PromotionRule((_, _) => false, GameConstants.PromotablePieces, RuleMocks);
+        var rule = new PromotionRule(
+            (_, _) => false,
+            GameLogicConstants.PromotablePieces,
+            RuleMocks
+        );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 
@@ -47,7 +51,11 @@ public class PromotionRuleTests : RuleBasedPieceRuleTestBase
         var emptyBaseRule = Substitute.For<IPieceMovementRule>();
         emptyBaseRule.Evaluate(Board, Origin, Piece).Returns([]);
 
-        var rule = new PromotionRule((_, _) => true, GameConstants.PromotablePieces, emptyBaseRule);
+        var rule = new PromotionRule(
+            (_, _) => true,
+            GameLogicConstants.PromotablePieces,
+            emptyBaseRule
+        );
 
         var result = rule.Evaluate(Board, Origin, Piece).ToList();
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 
@@ -66,7 +67,7 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
 
     private static bool Is50Moves(Move move, AutoDrawState state)
     {
-        if (move.Piece.Type is PieceType.Pawn || move.Captures.Count != 0)
+        if (GameLogicConstants.PawnLikePieces.Contains(move.Piece.Type) || move.Captures.Count != 0)
         {
             state.HalfMoveClock = 0;
             return false;

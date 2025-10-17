@@ -104,8 +104,8 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithFriendlyPieceAt("e7") // blocks beyond e6
-                .WithFriendlyPieceAt("h5") // blocks beyond g5
+                .WithFriendlyPieceAt("e7", excludePieces: [PieceType.Horsey]) // blocks beyond e6
+                .WithFriendlyPieceAt("h5", excludePieces: [PieceType.Horsey]) // blocks beyond g5
                 // vertical up
                 .GoesTo("e6")
                 // vertical down
@@ -154,10 +154,10 @@ public class RookDefinitionTestData : TheoryData<PieceTestCase>
         Add(
             PieceTestCase
                 .From("e5", rook)
-                .WithFriendlyPieceAt("e6")
-                .WithFriendlyPieceAt("e4")
-                .WithFriendlyPieceAt("d5")
-                .WithFriendlyPieceAt("f5")
+                .WithFriendlyPieceAt("e6", excludePieces: [PieceType.Horsey])
+                .WithFriendlyPieceAt("e4", excludePieces: [PieceType.Horsey])
+                .WithFriendlyPieceAt("d5", excludePieces: [PieceType.Horsey])
+                .WithFriendlyPieceAt("f5", excludePieces: [PieceType.Horsey])
                 .WithDescription("Surrounded by friendly pieces in all directions")
         );
 

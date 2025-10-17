@@ -15,6 +15,7 @@ public class PieceToLetterTests : BaseUnitTest
             { PieceType.Queen, "q" },
             { PieceType.Pawn, "p" },
             { PieceType.UnderagePawn, "d" },
+            { PieceType.SterilePawn, "s" },
             { PieceType.Rook, "r" },
             { PieceType.Bishop, "b" },
             { PieceType.Horsey, "h" },

@@ -13,10 +13,11 @@ public class PawnDefinitionTests(Chess2WebApplicationFactory factory)
         TestMoves(testCase);
 }
 
-public class PawnDefinitionTestData : BasePawnDefinitionTestData
+public class PawnDefinitionTestData : PawnLikeTestData
 {
     public PawnDefinitionTestData()
     {
-        AddTestCases(PieceType.Pawn, 3);
+        AddRegularMoveTests(PieceType.Pawn, maxInitialMoveDistance: 3);
+        AddPromotionTests(PieceType.Pawn);
     }
 }

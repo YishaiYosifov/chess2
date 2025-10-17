@@ -1,4 +1,4 @@
-﻿using Chess2.Api.LiveGame;
+﻿using Chess2.Api.GameLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestMetrics;
 
@@ -11,7 +11,7 @@ public class PromoteToAllQuest : IQuestDefinition
             new QuestVariant(
                 Description: "Promote to every piece types at least once across all games",
                 Difficulty: QuestDifficulty.Medium,
-                Target: GameConstants.PromotablePieces.Count,
+                Target: GameLogicConstants.PromotablePieces.Count,
                 Conditions: () => [],
                 Progressors: () => [new ProgressiveUniquePromotionsMetric()]
             ),

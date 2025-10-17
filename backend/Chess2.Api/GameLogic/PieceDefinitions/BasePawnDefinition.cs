@@ -2,7 +2,6 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.MovementBehaviours;
 using Chess2.Api.GameLogic.PieceMovementRules;
-using Chess2.Api.LiveGame;
 
 namespace Chess2.Api.GameLogic.PieceDefinitions;
 
@@ -20,18 +19,19 @@ public abstract class BasePawnDefinition : IPieceDefinition
     protected IEnumerable<IPieceMovementRule> GetPawnBehaviours(
         ChessBoard board,
         Piece movingPiece,
-        int maxInitialMoveDistance
+        int maxInitialMoveDistance,
+        bool canPromote = true
     )
     {
         if (movingPiece.Color is null)
-            yield break;
+            return [];
 
         var color = movingPiece.Color.Value;
         var direction = color.Match(whenWhite: 1, whenBlack: -1);
         int promotionY = color.Match(whenWhite: board.Height - 1, whenBlack: 0);
-        yield return new PromotionRule(
-            (_, move) => move.To.Y == promotionY,
-            promotesTo: GameConstants.PromotablePieces,
+
+        IPieceMovementRule[] behaviour =
+        [
             new NoCaptureRule(
                 new ConditionalBehaviour(
                     (board, pos, piece) => piece.TimesMoved == 0,
@@ -55,7 +55,18 @@ public abstract class BasePawnDefinition : IPieceDefinition
             new EnPassantRule(
                 direction: new Offset(X: -1, Y: 1 * direction),
                 chainCaptureDirection: new Offset(X: 0, Y: -direction)
-            )
-        );
+            ),
+        ];
+
+        return canPromote
+            ?
+            [
+                new PromotionRule(
+                    (_, move) => move.To.Y == promotionY,
+                    promotesTo: GameLogicConstants.PromotablePieces,
+                    behaviour
+                ),
+            ]
+            : behaviour;
     }
 }
