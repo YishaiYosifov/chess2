@@ -40,9 +40,14 @@ export const createAnimationSlice: StateCreator<
             state.removingPieces = new Set(animation.removedPieceIds);
         });
 
-        for (const { movedPieceIds, newPieces } of animation.steps) {
+        for (const {
+            movedPieceIds,
+            newPieces,
+            initialSpawnPositions,
+        } of animation.steps) {
             if (cancelToken.canceled) break;
 
+            if (initialSpawnPositions) await spawnPieces(initialSpawnPositions);
             set((state) => {
                 state.animatingPieceMap = newPieces;
             });
@@ -59,6 +64,15 @@ export const createAnimationSlice: StateCreator<
         if (currentAnimationCancelToken === cancelToken) {
             currentAnimationCancelToken = null;
         }
+    }
+
+    async function spawnPieces(initialSpawnPositions: PieceMap): Promise<void> {
+        set((state) => {
+            state.animatingPieceMap = initialSpawnPositions;
+        });
+        await new Promise<void>((resolve) =>
+            requestAnimationFrame(() => resolve()),
+        );
     }
 
     async function markPiecesAsAnimating(pieceIds: PieceID[]) {

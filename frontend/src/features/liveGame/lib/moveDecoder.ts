@@ -1,6 +1,6 @@
 import brotliDecompress from "brotli/decompress";
 
-import { MoveSideEffect, PieceSpawn } from "@/features/chessboard/lib/types";
+import { MoveSideEffect, Piece } from "@/features/chessboard/lib/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
 import { MovePath, MoveSideEffectPath, PieceSpawnPath } from "@/lib/apiClient";
@@ -65,10 +65,7 @@ function parseSideEffect(
     };
 }
 
-function parsePieceSpawns(
-    path: PieceSpawnPath,
-    boardWidth: number,
-): PieceSpawn {
+function parsePieceSpawns(path: PieceSpawnPath, boardWidth: number): Piece {
     const position = idxToLogicalPoint(path.posIdx, boardWidth);
     return {
         type: path.type,

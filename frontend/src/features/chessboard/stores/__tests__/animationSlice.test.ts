@@ -102,6 +102,43 @@ describe("AnimationSlice", () => {
 
             expect(store.getState().removingPieces).toEqual(new Set());
         });
+
+        it("should display initialSpawnPositions before showing newPieces", async () => {
+            const pieceId = "1";
+            const spawnedPieceId = "spawn1";
+
+            const initialSpawnPositions = new Map([
+                [pieceId, createFakePiece()],
+                [spawnedPieceId, createFakePiece()],
+            ]);
+
+            const newPieces = new Map([
+                [pieceId, createFakePiece()],
+                [spawnedPieceId, createFakePiece()],
+            ]);
+
+            const animation: MoveAnimation = {
+                steps: [
+                    {
+                        newPieces,
+                        movedPieceIds: [pieceId, spawnedPieceId],
+                        initialSpawnPositions,
+                    },
+                ],
+                removedPieceIds: [],
+            };
+
+            const promise = store.getState().playAnimationBatch(animation);
+
+            expect(store.getState().animatingPieceMap).toEqual(
+                initialSpawnPositions,
+            );
+
+            await vi.runAllTimersAsync();
+            await promise;
+
+            expect(store.getState().animatingPieceMap).toBeNull();
+        });
     });
 
     describe("playAnimation", () => {

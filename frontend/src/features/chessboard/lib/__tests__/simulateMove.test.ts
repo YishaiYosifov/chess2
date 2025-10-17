@@ -10,6 +10,7 @@ import {
 } from "../simulateMove";
 import { PieceMap } from "../types";
 import { logicalPoint } from "@/features/point/pointUtils";
+import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
 
 describe("simulateMove", () => {
     it("should move a piece without captures", () => {
@@ -142,6 +143,49 @@ describe("simulateMove", () => {
         // make sure it's still the same order
         expect([...result.newPieces]).toEqual([...expected]);
         expect(result.movedPieceIds).toEqual(["0", "1"]);
+    });
+
+    it("should spawn new pieces", () => {
+        mockSequentialUUID({ startAt: 1 });
+
+        const mainPiece = createFakePiece({
+            position: logicalPoint({ x: 0, y: 0 }),
+        });
+        const pieces = createSequentialPieceMapFromPieces(mainPiece);
+
+        const spawn1 = createFakePiece({
+            position: logicalPoint({ x: 2, y: 2 }),
+        });
+        const spawn2 = createFakePiece({
+            position: logicalPoint({ x: 3, y: 3 }),
+        });
+
+        const move = createFakeMoveFromPieces(pieces, {
+            from: mainPiece.position,
+            to: logicalPoint({ x: 1, y: 1 }),
+            pieceSpawns: [spawn1, spawn2],
+        });
+
+        const result = simulateMove(pieces, move);
+
+        const expectedNewPieces = new Map(pieces);
+        expectedNewPieces.set("0", { ...mainPiece, position: move.to });
+        expectedNewPieces.set("1", spawn1);
+        expectedNewPieces.set("2", spawn2);
+        expect(result.newPieces).toEqual(expectedNewPieces);
+
+        const expectedInitialSpawnPositions = new Map(pieces);
+        expectedInitialSpawnPositions.set("1", {
+            ...spawn1,
+            position: move.from,
+        });
+        expectedInitialSpawnPositions.set("2", {
+            ...spawn2,
+            position: move.from,
+        });
+        expect(result.initialSpawnPositions).toEqual(
+            expectedInitialSpawnPositions,
+        );
     });
 });
 
