@@ -17,5 +17,7 @@ public class AntiqueenDefinitionTests(Chess2WebApplicationFactory factory)
 public class AntiqueenDefinitionTestData : KnightLikeTestData
 {
     public AntiqueenDefinitionTestData()
-        : base(PieceFactory.White(PieceType.Antiqueen)) { }
+    {
+        AddKnightLikeMoves(PieceFactory.White(PieceType.Antiqueen));
+    }
 }
