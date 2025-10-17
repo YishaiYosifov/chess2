@@ -137,10 +137,18 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
     {
         var path = moveSnapshot.Path;
         var sideEffects =
-            path.SideEffects?.Select(se => new MoveSideEffectArchive
+            path.SideEffects?.Select(x => new MoveSideEffectArchive
                 {
-                    FromIdx = se.FromIdx,
-                    ToIdx = se.ToIdx,
+                    FromIdx = x.FromIdx,
+                    ToIdx = x.ToIdx,
+                })
+                .ToList() ?? [];
+        var pieceSpawns =
+            path.PieceSpawns?.Select(x => new PieceSpawnArchive
+                {
+                    Type = x.Type,
+                    Color = x.Color,
+                    PosIdx = x.PosIdx,
                 })
                 .ToList() ?? [];
 
@@ -156,6 +164,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             Triggers = path.TriggerIdxs?.ToList() ?? [],
             Intermediates = path.IntermediateIdxs?.ToList() ?? [],
             SideEffects = sideEffects,
+            PieceSpawns = pieceSpawns,
             PromotesTo = path.PromotesTo,
         };
     }
