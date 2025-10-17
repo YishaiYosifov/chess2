@@ -8,15 +8,16 @@ public class UnderagePawnDefinitionTests(Chess2WebApplicationFactory factory)
     : PieceDefinitionTestBase(factory)
 {
     [Theory]
-    [ClassData(typeof(PawnDefinitionTestData))]
+    [ClassData(typeof(UnderagePawnDefinitionTestData))]
     public void UnderagePawnDefinition_evaluates_expected_positions(PieceTestCase testCase) =>
         TestMoves(testCase);
 }
 
-public class UnderagePawnDefinitionTestData : BasePawnDefinitionTestData
+public class UnderagePawnDefinitionTestData : PawnLikeTestData
 {
     public UnderagePawnDefinitionTestData()
     {
-        AddTestCases(PieceType.UnderagePawn, 2);
+        AddRegularMoveTests(PieceType.UnderagePawn, maxInitialMoveDistance: 2);
+        AddPromotionTests(PieceType.UnderagePawn);
     }
 }

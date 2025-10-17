@@ -7,8 +7,6 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
     private readonly Offset _direction = direction;
     private readonly Offset _chainCaptureDirection = chainCaptureDirection;
 
-    private readonly HashSet<PieceType> EnPassantType = [PieceType.Pawn, PieceType.UnderagePawn];
-
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
         var pawnEnPassant = EvaluatePawnEnPassant(board, position, movingPiece);
@@ -35,7 +33,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
         var lastMove = board.Moves.Count > 0 ? board.Moves[^1] : null;
         if (
             lastMove is null
-            || !EnPassantType.Contains(lastMove.Piece.Type)
+            || !GameLogicConstants.PawnLikePieces.Contains(lastMove.Piece.Type)
             || lastMove.Piece.Color == movingPiece.Color
             || lastMove.Piece.TimesMoved != 0
         )
