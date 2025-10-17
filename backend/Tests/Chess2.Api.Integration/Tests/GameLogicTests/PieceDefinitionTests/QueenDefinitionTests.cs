@@ -25,84 +25,88 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
             PieceTestCase
                 .From("e5", queen)
                 // vertical up
-                .GoesTo("e6")
-                .GoesTo("e7")
-                .GoesTo("e8")
-                .GoesTo("e9")
-                .GoesTo("e10")
+                .GoesTo("e6", "e7", "e8", "e9", "e10")
                 // vertical down
-                .GoesTo("e4")
-                .GoesTo("e3")
-                .GoesTo("e2")
-                .GoesTo("e1")
+                .GoesTo("e4", "e3", "e2", "e1")
                 // horizontal left
-                .GoesTo("d5")
-                .GoesTo("c5")
-                .GoesTo("b5")
-                .GoesTo("a5")
+                .GoesTo("d5", "c5", "b5", "a5")
                 // horizontal right
-                .GoesTo("f5")
-                .GoesTo("g5")
-                .GoesTo("h5")
-                .GoesTo("i5")
-                .GoesTo("j5")
+                .GoesTo("f5", "g5", "h5", "i5", "j5")
+                .GoesTo(
+                    "e5",
+                    spawns:
+                    [
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("j5")),
+                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("i5")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("h5")),
+                    ],
+                    captures: ["e5"],
+                    specialMoveType: SpecialMoveType.RadioactiveBetaDecay
+                ) // radioactive beta decay
                 // diagonal up-left
-                .GoesTo("d6")
-                .GoesTo("c7")
-                .GoesTo("b8")
-                .GoesTo("a9")
+                .GoesTo("d6", "c7", "b8", "a9")
                 // diagonal up-right
-                .GoesTo("f6")
-                .GoesTo("g7")
-                .GoesTo("h8")
-                .GoesTo("i9")
-                .GoesTo("j10")
+                .GoesTo("f6", "g7", "h8", "i9", "j10")
                 // diagonal down-left
-                .GoesTo("d4")
-                .GoesTo("c3")
-                .GoesTo("b2")
-                .GoesTo("a1")
+                .GoesTo("d4", "c3", "b2", "a1")
                 // diagonal down-right
-                .GoesTo("f4")
-                .GoesTo("g3")
-                .GoesTo("h2")
-                .GoesTo("i1")
-                .WithDescription("Open board from e5")
+                .GoesTo("f4", "g3", "h2", "i1")
+                .WithDescription("Open board from e5 (right decay)")
+        );
+
+        Add(
+            PieceTestCase
+                .From("f5", queen)
+                // vertical up
+                .GoesTo("f6", "f7", "f8", "f9", "f10")
+                // vertical down
+                .GoesTo("f4", "f3", "f2", "f1")
+                // horizontal left
+                .GoesTo("e5", "d5", "c5", "b5", "a5")
+                .GoesTo(
+                    "f5",
+                    spawns:
+                    [
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("a5")),
+                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("b5")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("c5")),
+                    ],
+                    captures: ["f5"],
+                    specialMoveType: SpecialMoveType.RadioactiveBetaDecay
+                ) // radioactive beta decay
+                // horizontal right
+                .GoesTo("g5", "h5", "i5", "j5")
+                // diagonal up-left
+                .GoesTo("e6", "d7", "c8", "b9", "a10")
+                // diagonal up-right
+                .GoesTo("g6", "h7", "i8", "j9")
+                // diagonal down-left
+                .GoesTo("e4", "d3", "c2", "b1")
+                // diagonal down-right
+                .GoesTo("g4", "h3", "i2", "j1")
+                .WithDescription("Open board from f5 (left decay)")
         );
 
         Add(
             PieceTestCase
                 .From("a1", queen)
                 // vertical up
-                .GoesTo("a2")
-                .GoesTo("a3")
-                .GoesTo("a4")
-                .GoesTo("a5")
-                .GoesTo("a6")
-                .GoesTo("a7")
-                .GoesTo("a8")
-                .GoesTo("a9")
-                .GoesTo("a10")
+                .GoesTo("a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10")
                 // horizontal right
-                .GoesTo("b1")
-                .GoesTo("c1")
-                .GoesTo("d1")
-                .GoesTo("e1")
-                .GoesTo("f1")
-                .GoesTo("g1")
-                .GoesTo("h1")
-                .GoesTo("i1")
-                .GoesTo("j1")
+                .GoesTo("b1", "c1", "d1", "e1", "f1", "g1", "h1", "i1", "j1")
+                .GoesTo(
+                    "a1",
+                    spawns:
+                    [
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("j1")),
+                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("i1")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("h1")),
+                    ],
+                    captures: ["a1"],
+                    specialMoveType: SpecialMoveType.RadioactiveBetaDecay
+                ) // radioactive beta decay
                 // diagonal up-right
-                .GoesTo("b2")
-                .GoesTo("c3")
-                .GoesTo("d4")
-                .GoesTo("e5")
-                .GoesTo("f6")
-                .GoesTo("g7")
-                .GoesTo("h8")
-                .GoesTo("i9")
-                .GoesTo("j10")
+                .GoesTo("b2", "c3", "d4", "e5", "f6", "g7", "h8", "i9", "j10")
                 .WithDescription("Queen in corner a1")
         );
 
@@ -117,21 +121,11 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("b5")
                 .GoesTo("c5", captures: ["c5"])
                 // vertical down
-                .GoesTo("a4")
-                .GoesTo("a3")
-                .GoesTo("a2")
-                .GoesTo("a1")
+                .GoesTo("a4", "a3", "a2", "a1")
                 // diagonal up-right
-                .GoesTo("b6")
-                .GoesTo("c7")
-                .GoesTo("d8")
-                .GoesTo("e9")
-                .GoesTo("f10")
+                .GoesTo("b6", "c7", "d8", "e9", "f10")
                 // diagonal down-right
-                .GoesTo("b4")
-                .GoesTo("c3")
-                .GoesTo("d2")
-                .GoesTo("e1")
+                .GoesTo("b4", "c3", "d2", "e1")
                 .WithDescription("Queen on edge a5 with blockers")
         );
 
@@ -160,21 +154,13 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .WithEnemyPieceAt("f6")
                 .WithEnemyPieceAt("d4")
                 .WithEnemyPieceAt("f4")
-                // vertical up
                 .GoesTo("e6", captures: ["e6"])
-                // vertical down
                 .GoesTo("e4", captures: ["e4"])
-                // horizontal left
                 .GoesTo("d5", captures: ["d5"])
-                // horizontal right
                 .GoesTo("f5", captures: ["f5"])
-                // diagonal up-left
                 .GoesTo("d6", captures: ["d6"])
-                // diagonal up-right
                 .GoesTo("f6", captures: ["f6"])
-                // diagonal down-left
                 .GoesTo("d4", captures: ["d4"])
-                // diagonal down-right
                 .GoesTo("f4", captures: ["f4"])
                 .WithDescription("Queen surrounded by enemy pieces - all moves are captures")
         );
