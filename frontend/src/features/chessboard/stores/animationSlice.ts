@@ -70,9 +70,7 @@ export const createAnimationSlice: StateCreator<
         set((state) => {
             state.animatingPieceMap = initialSpawnPositions;
         });
-        await new Promise<void>((resolve) =>
-            requestAnimationFrame(() => resolve()),
-        );
+        await new Promise<void>((resolve) => setTimeout(resolve));
     }
 
     async function markPiecesAsAnimating(pieceIds: PieceID[]) {
