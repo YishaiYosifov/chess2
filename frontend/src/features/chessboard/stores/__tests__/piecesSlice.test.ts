@@ -266,11 +266,13 @@ describe("PiecesSlice", () => {
                     moveOptions: createMoveOptions({ legalMoves }),
                 });
 
-                await store.getState().handleMousePieceDrop({
+                const result = await store.getState().handleMousePieceDrop({
                     mousePoint: mousePosition,
                     isDrag: false,
+                    isDoubleClick: false,
                 });
 
+                expect(result.success).toBe(true);
                 expectPieces({ id: "0", position: expectedPosition, piece });
             },
         );
@@ -292,9 +294,10 @@ describe("PiecesSlice", () => {
             const result = await store.getState().handleMousePieceDrop({
                 mousePoint: screenPoint({ x: 50, y: 50 }),
                 isDrag: false,
+                isDoubleClick: false,
             });
 
-            expect(result).toBe(false);
+            expect(result.success).toBe(false);
             expect(applyMoveTurnMock).not.toHaveBeenCalled();
             expect(screenToLogicalPointMock).not.toHaveBeenCalled();
             expect(getMoveForSelectionMock).not.toHaveBeenCalled();
@@ -320,6 +323,7 @@ describe("PiecesSlice", () => {
             const movePromise = store.getState().handleMousePieceDrop({
                 mousePoint: screenPoint({ x: 10, y: 10 }),
                 isDrag: false,
+                isDoubleClick: false,
             });
 
             expect(store.getState().isProcessingMove).toBe(true);
