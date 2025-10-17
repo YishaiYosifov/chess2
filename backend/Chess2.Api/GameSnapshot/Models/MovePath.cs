@@ -13,6 +13,7 @@ public record MovePath(
     IReadOnlyCollection<byte>? TriggerIdxs,
     IReadOnlyCollection<byte>? IntermediateIdxs,
     IReadOnlyList<MoveSideEffectPath>? SideEffects,
+    IReadOnlyList<PieceSpawnPath>? PieceSpawns,
     PieceType? PromotesTo
 )
 {
@@ -36,6 +37,12 @@ public record MovePath(
                     .SideEffects.Select(m => MoveSideEffectPath.FromMoveSideEffect(m, boardWidth))
                     .ToList()
                 : null;
+        var spawns =
+            move.PieceSpawns.Count != 0
+                ? move
+                    .PieceSpawns.Select(p => PieceSpawnPath.FromPieceSpawn(p, boardWidth))
+                    .ToList()
+                : null;
 
         return new(
             FromIdx: move.From.AsIndex(boardWidth),
@@ -45,6 +52,7 @@ public record MovePath(
             IntermediateIdxs: intermediates,
             SideEffects: sideEffects,
             PromotesTo: move.PromotesTo,
+            PieceSpawns: spawns,
             MoveKey: moveKey ?? new MoveKey(move)
         );
     }

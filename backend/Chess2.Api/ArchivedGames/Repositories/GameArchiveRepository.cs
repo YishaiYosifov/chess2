@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.Infrastructure;
-using Chess2.Api.LiveGame.Models;
 using Chess2.Api.Pagination.Extensions;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Models;
@@ -10,10 +9,6 @@ namespace Chess2.Api.ArchivedGames.Repositories;
 
 public interface IGameArchiveRepository
 {
-    Task<GameArchive?> GetGameArchiveByTokenAsync(
-        GameToken gameToken,
-        CancellationToken token = default
-    );
     Task AddArchiveAsync(GameArchive gameArchive, CancellationToken token = default);
     Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
         UserId userId,
@@ -26,18 +21,6 @@ public interface IGameArchiveRepository
 public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiveRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
-
-    public Task<GameArchive?> GetGameArchiveByTokenAsync(
-        GameToken gameToken,
-        CancellationToken token = default
-    ) =>
-        _dbContext
-            .GameArchives.Include(archive => archive.WhitePlayer)
-            .Include(archive => archive.BlackPlayer)
-            .Include(archive => archive.Moves)
-            .ThenInclude(moves => moves.SideEffects)
-            .Where(archive => archive.GameToken == gameToken)
-            .FirstOrDefaultAsync(token);
 
     public Task<List<GameArchive>> GetPaginatedArchivedGamesForUserAsync(
         UserId userId,

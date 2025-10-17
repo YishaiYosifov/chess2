@@ -33,6 +33,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<PlayerArchive> PlayerArchives { get; set; }
     public required DbSet<MoveArchive> MoveArchives { get; set; }
     public required DbSet<MoveSideEffectArchive> MoveSideEffectArchives { get; set; }
+    public required DbSet<PieceSpawnArchive> PieceSpawnArchives { get; set; }
 
     public required DbSet<UserQuestPoints> QuestPoints { get; set; }
 

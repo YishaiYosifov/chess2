@@ -89,10 +89,22 @@ public class ChessBoard
         // then move the pieces
         foreach (var (from, to) in steps)
         {
-            // we can safely assume that the piece exists here, as we checked it before
-            var piece = _board[from.Y, from.X]!;
+            if (!TryGetPieceAt(from, out var piece))
+                continue;
+
             _board[to.Y, to.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
             _board[from.Y, from.X] = null;
+        }
+
+        foreach (var spawn in move.PieceSpawns)
+        {
+            if (IsWithinBoundaries(spawn.Position))
+            {
+                _board[spawn.Position.Y, spawn.Position.X] = new Piece(
+                    Type: spawn.Type,
+                    Color: spawn.Color
+                );
+            }
         }
 
         if (move.PromotesTo is PieceType promotesTo)

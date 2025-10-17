@@ -15,6 +15,7 @@ namespace Chess2.Api.GameLogic.Models;
 /// <param name="Captures">Information about what pieces were captured and where</param>
 /// <param name="SideEffects">Any additional movement caused by this</param>
 /// <param name="SpecialMoveType">Indicates the type of move</param>
+/// <param name="PieceSpawns">Any new pieces to spawn</param>
 /// <param name="ForcedPriority">
 /// Indicates whether this move is forced, and if so, how strongly it should be prioritized.
 /// The move(s) with the highest <see cref="ForcedMovePriority"/> will be the only ones allowed
@@ -33,6 +34,7 @@ public record Move(
     IReadOnlyCollection<AlgebraicPoint> IntermediateSquares,
     IReadOnlyCollection<MoveCapture> Captures,
     IReadOnlyCollection<MoveSideEffect> SideEffects,
+    IReadOnlyCollection<PieceSpawn> PieceSpawns,
     SpecialMoveType SpecialMoveType,
     ForcedMovePriority ForcedPriority,
     PieceType? PromotesTo
@@ -46,6 +48,7 @@ public record Move(
         IEnumerable<AlgebraicPoint>? intermediateSquares = null,
         IEnumerable<MoveCapture>? captures = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
+        IEnumerable<PieceSpawn>? pieceSpawns = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
         PieceType? promotesTo = null
@@ -58,6 +61,7 @@ public record Move(
             IntermediateSquares: intermediateSquares?.ToList() ?? [],
             Captures: captures?.ToList() ?? [],
             SideEffects: sideEffects?.ToList() ?? [],
+            PieceSpawns: pieceSpawns?.ToList() ?? [],
             SpecialMoveType: specialMoveType,
             ForcedPriority: forcedPriority,
             PromotesTo: promotesTo

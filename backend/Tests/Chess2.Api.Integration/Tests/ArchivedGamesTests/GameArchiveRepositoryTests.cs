@@ -36,40 +36,6 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetGameArchiveByToken_finds_archive_and_all_its_navigation_properties()
-    {
-        var gameArchive = new GameArchiveFaker().Generate();
-        var otherGameArchive = new GameArchiveFaker().Generate();
-        await DbContext.GameArchives.AddAsync(gameArchive, CT);
-        await DbContext.GameArchives.AddAsync(otherGameArchive, CT);
-        await DbContext.SaveChangesAsync(CT);
-        DbContext.ChangeTracker.Clear();
-
-        var result = await _gameArchiveRepository.GetGameArchiveByTokenAsync(
-            gameArchive.GameToken,
-            CT
-        );
-
-        result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(gameArchive);
-    }
-
-    [Fact]
-    public async Task GetGameArchiveByToken_returns_null_when_archive_is_not_found()
-    {
-        var gameArchive = new GameArchiveFaker().Generate();
-        await DbContext.GameArchives.AddAsync(gameArchive, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _gameArchiveRepository.GetGameArchiveByTokenAsync(
-            "some random token",
-            CT
-        );
-
-        result.Should().BeNull();
-    }
-
-    [Fact]
     public async Task GetPaginatedArchivedGamesForUserAsync_skips_and_takes_correct_number_of_items()
     {
         var userId = "user123";

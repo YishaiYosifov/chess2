@@ -24,6 +24,10 @@ public class MoveArchiveFaker : Faker<MoveArchive>
             x => x.SideEffects,
             f => new MoveSideEffectArchiveFaker().Generate(f.Random.Number(1, 5))
         );
+        RuleFor(
+            x => x.PieceSpawns,
+            f => new PieceSpawnArchiveFaker().Generate(f.Random.Number(1, 5))
+        );
         RuleFor(x => x.PromotesTo, f => f.PickRandom<PieceType>());
     }
 }
