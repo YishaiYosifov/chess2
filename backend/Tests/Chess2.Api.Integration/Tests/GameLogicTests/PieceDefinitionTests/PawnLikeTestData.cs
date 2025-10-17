@@ -4,9 +4,9 @@ using Chess2.Api.TestInfrastructure.Utils;
 
 namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
 
-public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
+public abstract class PawnLikeTestData : TheoryData<PieceTestCase>
 {
-    protected void AddTestCases(PieceType pawnType, int maxInitialMoveDistance)
+    protected void AddRegularMoveTests(PieceType pawnType, int maxInitialMoveDistance)
     {
         var whitePawn = PieceFactory.White(pawnType, timesMoved: 0);
         var blackPawn = PieceFactory.Black(pawnType, timesMoved: 0);
@@ -254,8 +254,13 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .WithDescription("black pawn can capture long passant")
         );
         #endregion
+    }
 
-        #region promotion
+    public void AddPromotionTests(PieceType pawnType)
+    {
+        var movedWhitePawn = PieceFactory.White(pawnType, timesMoved: 1);
+        var movedBlackPawn = PieceFactory.Black(pawnType, timesMoved: 1);
+
         Add(
             PieceTestCase
                 .From("f9", movedWhitePawn)
@@ -281,6 +286,5 @@ public abstract class BasePawnDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("f1", promotesTo: PieceType.Checker)
                 .WithDescription("black pawn can promote")
         );
-        #endregion
     }
 }
