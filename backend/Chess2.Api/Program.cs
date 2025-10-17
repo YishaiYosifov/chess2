@@ -387,6 +387,7 @@ builder.Services.AddSingleton<ISanNotator, RegularNotator>();
 builder.Services.AddSingleton<ISanNotator, KingsideCastleNotator>();
 builder.Services.AddSingleton<ISanNotator, QueensideCastleNotator>();
 builder.Services.AddSingleton<ISanNotator, IlVaticanoNotator>();
+builder.Services.AddSingleton<ISanNotator, BetaDecayNotator>();
 
 builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();
