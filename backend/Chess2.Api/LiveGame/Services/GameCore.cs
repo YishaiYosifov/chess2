@@ -3,6 +3,7 @@ using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
+using Chess2.Api.LiveGame.SanNotation;
 using ErrorOr;
 
 namespace Chess2.Api.LiveGame.Services;
