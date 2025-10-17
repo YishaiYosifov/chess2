@@ -19,6 +19,8 @@ using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Infrastructure.OpenAPI;
 using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.LiveGame.Repositories;
+using Chess2.Api.LiveGame.SanNotation;
+using Chess2.Api.LiveGame.SanNotation.Notators;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.LiveGame.SignalR;
 using Chess2.Api.Lobby.Grains;
@@ -380,6 +382,11 @@ builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
 builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
 builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
+
+builder.Services.AddSingleton<ISanNotator, RegularNotator>();
+builder.Services.AddSingleton<ISanNotator, KingsideCastleNotator>();
+builder.Services.AddSingleton<ISanNotator, QueensideCastleNotator>();
+builder.Services.AddSingleton<ISanNotator, IlVaticanoNotator>();
 
 builder.Services.AddSingleton<IPieceDefinition, KingDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, QueenDefinition>();

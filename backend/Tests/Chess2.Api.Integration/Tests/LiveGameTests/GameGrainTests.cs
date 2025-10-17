@@ -4,6 +4,7 @@ using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
+using Chess2.Api.LiveGame.SanNotation;
 using Chess2.Api.LiveGame.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
