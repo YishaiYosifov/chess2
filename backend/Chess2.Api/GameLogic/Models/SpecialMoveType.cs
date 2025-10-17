@@ -8,4 +8,5 @@ public enum SpecialMoveType
     EnPassant,
     IlVaticano,
     KnooklearFusion,
+    RadioactiveBetaDecay,
 }
