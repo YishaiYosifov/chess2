@@ -42,21 +42,6 @@ describe("IntermediateSlice", () => {
         expect(result).toBeNull();
     });
 
-    it("should return null if nextIntermediates already in progress", async () => {
-        store.setState({
-            nextIntermediates: [logicalPoint({ x: 1, y: 1 })],
-        });
-        const result = await store
-            .getState()
-            .disambiguateDestination(
-                logicalPoint({ x: 0, y: 0 }),
-                [createFakeMove()],
-                "0",
-                createFakePieceMap(1),
-            );
-        expect(result).toBeNull();
-    });
-
     it("should return single move immediately if only one move with no intermediates", async () => {
         const move = createFakeMove({
             to: logicalPoint({ x: 1, y: 1 }),
