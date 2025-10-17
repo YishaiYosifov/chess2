@@ -55,6 +55,7 @@ public class PieceTestCase
         IEnumerable<string>? captures = null,
         IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
+        IEnumerable<PieceSpawn>? spawns = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
         PieceType? promotesTo = null
@@ -68,6 +69,7 @@ public class PieceTestCase
                 captures,
                 intermediates,
                 sideEffects,
+                spawns,
                 specialMoveType,
                 forcedPriority,
                 promotesTo
@@ -122,6 +124,7 @@ public class PieceTestCase
         IEnumerable<string>? captures = null,
         IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
+        IEnumerable<PieceSpawn>? spawns = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
         PieceType? promotesTo = null
@@ -134,6 +137,7 @@ public class PieceTestCase
             captures,
             intermediates,
             sideEffects,
+            spawns,
             specialMoveType,
             forcedPriority,
             promotesTo
@@ -167,6 +171,7 @@ public class PieceTestCase
         IEnumerable<string>? captures = null,
         IEnumerable<string>? intermediates = null,
         IEnumerable<MoveSideEffect>? sideEffects = null,
+        IEnumerable<PieceSpawn>? spawns = null,
         SpecialMoveType specialMoveType = SpecialMoveType.None,
         ForcedMovePriority forcedPriority = ForcedMovePriority.None,
         PieceType? promotesTo = null
@@ -192,6 +197,7 @@ public class PieceTestCase
             intermediateSquares: intermediates?.Select(x => new AlgebraicPoint(x)),
             captures: moveCaptures,
             sideEffects: sideEffects,
+            pieceSpawns: spawns,
             specialMoveType: specialMoveType,
             forcedPriority: forcedPriority,
             promotesTo: promotesTo
