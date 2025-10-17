@@ -24,7 +24,7 @@ export interface Move {
     captures: LogicalPoint[];
     intermediates: LogicalPoint[];
     sideEffects: MoveSideEffect[];
-    pieceSpawns: PieceSpawn[];
+    pieceSpawns: Piece[];
     promotesTo: PieceType | null;
 }
 
@@ -44,17 +44,12 @@ export interface MoveSideEffect {
     to: LogicalPoint;
 }
 
-export interface PieceSpawn {
-    type: PieceType;
-    color: GameColor | null;
-    position: LogicalPoint;
-}
-
 export type PieceID = string;
 
 export interface AnimationStep {
     newPieces: PieceMap;
     movedPieceIds: PieceID[];
+    initialSpawnPositions?: PieceMap;
 }
 
 export interface MoveAnimation {
