@@ -20,6 +20,7 @@ public class QueenDefinition : IPieceDefinition
             new SlideBehaviour(new Offset(X: -1, Y: 0)),
             new SlideBehaviour(new Offset(X: -1, Y: -1))
         ),
+        new RadioactiveBetaDecayRule(PieceType.Rook, PieceType.Bishop, PieceType.SterilePawn),
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
