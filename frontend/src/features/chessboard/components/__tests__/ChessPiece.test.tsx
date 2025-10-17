@@ -15,7 +15,10 @@ import {
 import ChessboardLayout from "../ChessboardLayout";
 import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockDom";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
-import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
+import {
+    createFakeMove,
+    createFakePiece,
+} from "@/lib/testUtils/fakers/chessboardFakers";
 import { createMoveOptions } from "../../lib/moveOptions";
 import getPieceImage from "../../lib/pieceImage";
 
@@ -200,17 +203,10 @@ describe("ChessPiece", () => {
 
         const startPos = logicalPoint({ x: 0, y: 9 });
         const destinationPos = logicalPoint({ x: 7, y: 5 });
-        const move: Move = {
+        const move = createFakeMove({
             from: startPos,
             to: destinationPos,
-            moveKey: "0",
-            triggers: [],
-            captures: [],
-            intermediates: [],
-            sideEffects: [],
-            pieceSpawns: [],
-            promotesTo: null,
-        };
+        });
         const legalMoves: LegalMoveMap = new Map([
             [pointToStr(startPos), [move]],
         ]);
@@ -248,17 +244,10 @@ describe("ChessPiece", () => {
 
         const startPos = logicalPoint({ x: 0, y: 9 });
         const destinationPos = logicalPoint({ x: 2, y: 3 });
-        const move: Move = {
+        const move: Move = createFakeMove({
             from: startPos,
             to: destinationPos,
-            moveKey: "0",
-            triggers: [],
-            captures: [],
-            intermediates: [],
-            sideEffects: [],
-            pieceSpawns: [],
-            promotesTo: null,
-        };
+        });
 
         const legalMoves: LegalMoveMap = new Map([
             [pointToStr(startPos), [move]],
@@ -364,5 +353,42 @@ describe("ChessPiece", () => {
             percentPosition: { x: 0, y: 0 },
         });
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
+    });
+
+    it("should show the double click indicator when a double click occurs", async () => {
+        const user = userEvent.setup();
+
+        const startPos = logicalPoint({ x: 0, y: 9 });
+        const move = createFakeMove({
+            from: startPos,
+            to: startPos,
+        });
+        const legalMoves: LegalMoveMap = new Map([
+            [pointToStr(startPos), [move]],
+        ]);
+
+        const { chessboard } = renderPiece({
+            logicalPosition: startPos,
+            legalMoves,
+        });
+
+        const coords = store.getState().logicalPointToScreenPoint(startPos);
+        await user.pointer([
+            {
+                target: chessboard,
+                coords,
+                keys: "[MouseLeft>]",
+            },
+            {
+                target: chessboard,
+                coords,
+                keys: "[/MouseLeft]",
+            },
+        ]);
+        vi.advanceTimersToNextFrame();
+
+        const indicator = screen.getByTestId("doubleClickIndicator");
+        expect(indicator).toBeInTheDocument();
+        expect(indicator).toBeVisible();
     });
 });

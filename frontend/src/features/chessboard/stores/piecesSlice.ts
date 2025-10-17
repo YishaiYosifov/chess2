@@ -30,13 +30,11 @@ export interface PiecesSlice {
     getMoveForSelection(dest: LogicalPoint): Promise<Move | null>;
 
     applyMoveTurn(move: Move): Promise<void>;
-    handleMousePieceDrop({
-        mousePoint,
-        isDrag,
-    }: {
+    handleMousePieceDrop(args: {
         mousePoint: ScreenPoint;
         isDrag: boolean;
-    }): Promise<boolean>;
+        isDoubleClick: boolean;
+    }): Promise<{ success: boolean; needsDoubleClick?: boolean }>;
 
     applyMove(move: Move): Promise<void>;
     applyMoveWithIntermediates(move: Move): Promise<void>;
@@ -117,7 +115,7 @@ export function createPiecesSlice(
          * Converts pixel coordinates to board position, accounting for viewing orientation,
          * then attempts to move the selected piece to that position.
          */
-        async handleMousePieceDrop({ mousePoint, isDrag }) {
+        async handleMousePieceDrop({ mousePoint, isDrag, isDoubleClick }) {
             const {
                 applyMoveTurn,
                 screenToLogicalPoint,
@@ -126,20 +124,26 @@ export function createPiecesSlice(
                 moveOptions,
                 isProcessingMove,
             } = get();
-            if (isProcessingMove) return false;
+            if (isProcessingMove) return { success: false };
 
             set((state) => {
                 state.isProcessingMove = true;
             });
             try {
                 const dest = screenToLogicalPoint(mousePoint);
-                if (!dest) return false;
+                if (!dest) return { success: false };
 
                 const move = await getMoveForSelection(dest);
 
+                const needsDoubleClick =
+                    move && pointEquals(move.from, move.to) && !isDoubleClick;
+                if (needsDoubleClick) {
+                    return { success: false, needsDoubleClick: true };
+                }
+
                 if (move) {
                     await applyMoveTurn(move);
-                    return true;
+                    return { success: true };
                 }
 
                 if (
@@ -149,7 +153,7 @@ export function createPiecesSlice(
                     flashLegalMoves();
                 }
 
-                return false;
+                return { success: false };
             } finally {
                 set((state) => {
                     state.isProcessingMove = false;

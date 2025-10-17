@@ -9,6 +9,7 @@ import ChessSquare from "./ChessSquare";
 import useBoardInteraction from "../hooks/useBoardInteraction";
 import getPieceImage from "../lib/pieceImage";
 import { ChessSquareRef } from "./CoordSquare";
+import DoubleClickIndicator, { DoubleClickRef } from "./DoubleClickIndicator";
 
 const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
@@ -32,8 +33,12 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         handleMousePieceDrop: x.handleMousePieceDrop,
     }));
 
+    const doubleClickRef = useRef<DoubleClickRef>(null);
+
     const offsetRef = useRef<Point | null>(null);
-    const moveOccurredOnPressRef = useRef<boolean>(false);
+    const moveOccurredOnPressRef = useRef(false);
+    const lastClickTime = useRef(0);
+
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
             if (moveOccurredOnPressRef.current) {
@@ -66,20 +71,28 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         async onDragEnd(point) {
-            await handleMousePieceDrop({
+            const { needsDoubleClick } = await handleMousePieceDrop({
                 mousePoint: point,
                 isDrag: true,
+                isDoubleClick: false,
             });
+            if (needsDoubleClick) doubleClickRef.current?.trigger();
+
             pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
         async onPress(info) {
             if (!isSelected || info.button != 0) return;
 
-            const didMove = await handleMousePieceDrop({
+            const now = Date.now();
+            const isDoubleClick = now - lastClickTime.current < 500;
+            lastClickTime.current = now;
+
+            const { success } = await handleMousePieceDrop({
                 mousePoint: info.point,
                 isDrag: false,
+                isDoubleClick,
             });
-            if (didMove) moveOccurredOnPressRef.current = true;
+            if (success) moveOccurredOnPressRef.current = true;
             pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
         },
     });
@@ -92,7 +105,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
             position={piece.position}
             className={clsx(
                 `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
-                select-none`,
+                transition-colors select-none`,
                 isAnimating && "transition-transform duration-100 ease-out",
                 isDragging && "z-30",
                 isRemoving && "opacity-50",
@@ -101,7 +114,9 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
             style={{
                 backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
             }}
-        />
+        >
+            <DoubleClickIndicator ref={doubleClickRef} />
+        </ChessSquare>
     );
 };
 
