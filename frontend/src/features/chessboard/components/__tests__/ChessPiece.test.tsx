@@ -2,10 +2,10 @@ import { render, screen } from "@testing-library/react";
 
 import { LogicalPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
-import { Move } from "../../lib/types";
+import { Move, Piece } from "../../lib/types";
 import { PieceMap } from "../../lib/types";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
-import userEvent from "@testing-library/user-event";
+import userEvent, { UserEvent } from "@testing-library/user-event";
 import { StoreApi } from "zustand";
 import {
     ChessboardStore,
@@ -109,6 +109,32 @@ describe("ChessPiece", () => {
             pieceInfo,
             chessboard,
         };
+    }
+
+    function renderPieceWithAnyLegalMoves(logicalPosition?: LogicalPoint) {
+        logicalPosition ??= logicalPoint({ x: 0, y: 9 });
+        return renderPiece({
+            logicalPosition,
+            legalMoves: [createFakeMove({ from: logicalPosition })],
+        });
+    }
+
+    async function pressPiece(
+        user: UserEvent,
+        piece: Piece,
+        chessboard: HTMLElement,
+    ) {
+        const coords = store
+            .getState()
+            .logicalPointToScreenPoint(piece.position);
+        await user.pointer([
+            {
+                target: chessboard,
+                coords,
+                keys: "[MouseLeft>]",
+            },
+            { keys: "[/MouseLeft]" },
+        ]);
     }
 
     it.each([
@@ -344,25 +370,12 @@ describe("ChessPiece", () => {
             to: startPos,
         });
 
-        const { chessboard } = renderPiece({
+        const { chessboard, pieceInfo } = renderPiece({
             logicalPosition: startPos,
             legalMoves: [move],
         });
 
-        const coords = store.getState().logicalPointToScreenPoint(startPos);
-        await user.pointer([
-            {
-                target: chessboard,
-                coords,
-                keys: "[MouseLeft>]",
-            },
-            {
-                target: chessboard,
-                coords,
-                keys: "[/MouseLeft]",
-            },
-        ]);
-        vi.advanceTimersToNextFrame();
+        await pressPiece(user, pieceInfo, chessboard);
 
         const indicator = screen.getByTestId("doubleClickIndicator");
         expect(indicator).toBeInTheDocument();
@@ -370,24 +383,9 @@ describe("ChessPiece", () => {
     });
 
     it("should render square highlight when the piece is selected", async () => {
-        const { pieceInfo, chessboard } = renderPiece({
-            logicalPosition: logicalPoint({ x: 1, y: 2 }),
-            legalMoves: [
-                createFakeMove({ from: logicalPoint({ x: 1, y: 2 }) }),
-            ],
-        });
-
         const user = userEvent.setup();
-        const { logicalPointToScreenPoint } = store.getState();
-
-        await user.pointer([
-            {
-                target: chessboard,
-                coords: logicalPointToScreenPoint(pieceInfo.position),
-                keys: "[MouseLeft]",
-            },
-        ]);
-        vi.advanceTimersToNextFrame();
+        const { pieceInfo, chessboard } = renderPieceWithAnyLegalMoves();
+        await pressPiece(user, pieceInfo, chessboard);
 
         const highlight = screen.getByTestId("pieceSquareHighlight");
         expect(highlight).toBeInTheDocument();
@@ -403,5 +401,16 @@ describe("ChessPiece", () => {
 
         const highlight = screen.queryByTestId("pieceSquareHighlight");
         expect(highlight).toBeNull();
+    });
+
+    it("should unselect the after clicking twice", async () => {
+        const user = userEvent.setup();
+        const { pieceInfo, chessboard } = renderPieceWithAnyLegalMoves();
+
+        await pressPiece(user, pieceInfo, chessboard);
+        expect(store.getState().selectedPieceId).toBe(CREATED_PIECE_ID);
+        await pressPiece(user, pieceInfo, chessboard);
+
+        expect(store.getState().selectedPieceId).toBeNull();
     });
 });
