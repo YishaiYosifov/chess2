@@ -21,6 +21,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         canDrag,
         screenPointToPiece,
         selectPiece,
+        unselectPiece,
         handleMousePieceDrop,
     } = useChessboardStore((x) => ({
         piece: x.animatingPieceMap?.get(id) ?? x.pieceMap.get(id),
@@ -30,6 +31,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         canDrag: x.canDrag,
         screenPointToPiece: x.screenPointToPiece,
         selectPiece: x.selectPiece,
+        unselectPiece: x.unselectPiece,
         handleMousePieceDrop: x.handleMousePieceDrop,
     }));
 
@@ -37,7 +39,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
 
     const offsetRef = useRef<Point | null>(null);
     const moveOccurredOnPressRef = useRef(false);
-    const lastClickTime = useRef(0);
+    const lastClickTimeRef = useRef(0);
+    const wasJustSelectedRef = useRef(false);
 
     const isDragging = useBoardInteraction({
         shouldStartDrag(info) {
@@ -53,9 +56,6 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         onDragStart() {
-            selectPiece(id);
-            lastClickTime.current = Date.now();
-
             const rect = pieceRef.current?.getBoundingClientRect();
             if (!rect) return;
 
@@ -63,6 +63,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
             const offsetX = rect.left + rect.width / 2;
             const offsetY = rect.top + rect.height / 2;
             offsetRef.current = { x: offsetX, y: offsetY };
+
+            wasJustSelectedRef.current = selectPiece(id);
         },
         onDragMove(point) {
             if (!offsetRef.current) return;
@@ -73,21 +75,25 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
 
         async onDragEnd(point) {
+            const now = Date.now();
+            const isDoubleClick = now - lastClickTimeRef.current < 500;
+            lastClickTimeRef.current = Date.now();
+
             const { needsDoubleClick } = await handleMousePieceDrop({
                 mousePoint: point,
                 isDrag: true,
-                isDoubleClick: false,
+                isDoubleClick,
             });
             if (needsDoubleClick) doubleClickRef.current?.trigger();
 
             pieceRef.current?.updateDraggingOffset({ x: 0, y: 0 });
+            if (!wasJustSelectedRef.current) unselectPiece();
         },
         async onPress(info) {
             if (!isSelected || info.button != 0) return;
 
             const now = Date.now();
-            const isDoubleClick = now - lastClickTime.current < 500;
-            lastClickTime.current = now;
+            const isDoubleClick = now - lastClickTimeRef.current < 500;
 
             const { success } = await handleMousePieceDrop({
                 mousePoint: info.point,
