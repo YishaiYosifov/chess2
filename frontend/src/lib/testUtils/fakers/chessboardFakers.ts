@@ -85,3 +85,11 @@ export function createFakeLegalMoveMapFromPieces(
     }
     return map;
 }
+
+export function createFakeLegalMoveMapFromMoves(moves: Move[]): LegalMoveMap {
+    const map: LegalMoveMap = new Map();
+    for (const move of moves) {
+        map.set(pointToStr(move.from), [move]);
+    }
+    return map;
+}
