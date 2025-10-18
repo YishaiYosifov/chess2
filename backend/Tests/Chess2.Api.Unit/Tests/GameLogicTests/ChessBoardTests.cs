@@ -37,6 +37,42 @@ public class ChessBoardTests
     }
 
     [Fact]
+    public void CopyConstructor_creates_independent_copy_of_board_and_moves()
+    {
+        ChessBoard original = new();
+        AlgebraicPoint pt = new("d4");
+        Piece piece = PieceFactory.White(PieceType.Queen);
+        original.PlacePiece(pt, piece);
+
+        Move move = new(from: new("d4"), to: new("d5"), piece: piece);
+        original.PlayMove(move);
+
+        ChessBoard copy = new(original);
+
+        copy.Height.Should().Be(original.Height);
+        copy.Width.Should().Be(original.Width);
+        copy.Moves.Should().BeEquivalentTo(original.Moves);
+
+        copy.EnumerateSquares()
+            .ToDictionary()
+            .Should()
+            .BeEquivalentTo(original.EnumerateSquares().ToDictionary());
+
+        AlgebraicPoint newPoint = new("a1");
+        Piece newPiece = PieceFactory.Black(PieceType.Rook);
+        copy.PlacePiece(newPoint, newPiece);
+
+        copy.PeekPieceAt(newPoint).Should().Be(newPiece);
+        original.PeekPieceAt(newPoint).Should().BeNull();
+
+        Move extraMove = new(from: new("d5"), to: new("d6"), piece: piece);
+        copy.PlayMove(extraMove);
+
+        copy.Moves.Should().HaveCount(original.Moves.Count + 1);
+        original.Moves.Should().HaveCount(1);
+    }
+
+    [Fact]
     public void TryGetPieceAt_returns_false_when_the_piece_is_not_found()
     {
         ChessBoard board = new();
