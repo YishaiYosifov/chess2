@@ -246,6 +246,22 @@ describe("LegalMovesSlice", () => {
         });
     });
 
+    describe("hideLegalMoves", () => {
+        it("should remove any highlighted legal moves", () => {
+            const piece = createFakePiece();
+            const move = createFakeMove({ from: piece.position });
+            const legalMoves = new Map([[pointToStr(piece.position), [move]]]);
+            store.setState({
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            store.getState().showLegalMoves(piece);
+            expect(store.getState().highlightedLegalMoves).toHaveLength(1);
+            store.getState().hideLegalMoves();
+            expect(store.getState().highlightedLegalMoves).toHaveLength(0);
+        });
+    });
+
     describe("setLegalMoves", () => {
         it("should update moveOptions in the store", () => {
             const legalMoves = createFakeLegalMoveMap();

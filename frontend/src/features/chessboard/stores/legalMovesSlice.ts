@@ -22,7 +22,8 @@ export interface LegalMovesSlice {
         pieceMap: PieceMap,
     ): Promise<Move | null>;
 
-    showLegalMoves(piece: Piece): void;
+    showLegalMoves(piece: Piece): boolean;
+    hideLegalMoves(): void;
     flashLegalMoves(): void;
 
     setLegalMoves(moveOptions: ProcessedMoveOptions): void;
@@ -107,6 +108,13 @@ export function createLegalMovesSlice(
                 state.highlightedLegalMoves = Array.from(
                     toHighlightPoints.values(),
                 );
+            });
+            return moves.length > 0;
+        },
+
+        hideLegalMoves() {
+            set((state) => {
+                state.highlightedLegalMoves = [];
             });
         },
 
