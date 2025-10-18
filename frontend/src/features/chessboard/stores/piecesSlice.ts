@@ -5,7 +5,7 @@ import { Move } from "../lib/types";
 import { PieceMap } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
-import { pointEquals, pointToStr } from "@/features/point/pointUtils";
+import { pointEquals } from "@/features/point/pointUtils";
 import {
     pointToPiece,
     simulateMove,
@@ -26,7 +26,8 @@ export interface PiecesSlice {
 
     onPieceMovement?: (move: Move) => Promise<void>;
 
-    selectPiece(pieceId: PieceID): void;
+    selectPiece(pieceId: PieceID): boolean;
+    unselectPiece(): void;
     getMoveForSelection(dest: LogicalPoint): Promise<Move | null>;
 
     applyMoveTurn(move: Move): Promise<void>;
@@ -63,18 +64,29 @@ export function createPiecesSlice(
         isProcessingMove: false,
 
         selectPiece(pieceId) {
-            const { showLegalMoves, pieceMap } = get();
+            const { showLegalMoves, pieceMap, selectedPieceId } = get();
             const piece = pieceMap.get(pieceId);
             if (!piece) {
                 console.warn(
                     `Cannot show legal moves, no piece was found with id ${pieceId}`,
                 );
-                return;
+                return false;
             }
+            if (pieceId === selectedPieceId) return false;
 
-            showLegalMoves(piece);
+            const hasLegalMoves = showLegalMoves(piece);
             set((state) => {
-                state.selectedPieceId = pieceId;
+                state.selectedPieceId = hasLegalMoves ? pieceId : null;
+            });
+
+            return hasLegalMoves;
+        },
+        unselectPiece() {
+            const { hideLegalMoves } = get();
+
+            hideLegalMoves();
+            set((state) => {
+                state.selectedPieceId = null;
             });
         },
 
@@ -163,13 +175,7 @@ export function createPiecesSlice(
 
         async getMoveForSelection(dest) {
             const { selectedPieceId, getLegalMove, pieceMap } = get();
-            if (!selectedPieceId) {
-                console.warn(
-                    `Could not execute piece movement to ${pointToStr(dest)} ` +
-                        "because no piece was selected",
-                );
-                return null;
-            }
+            if (!selectedPieceId) return null;
 
             const move = await getLegalMove(dest, selectedPieceId, pieceMap);
             return move;
