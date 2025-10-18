@@ -41,6 +41,81 @@ describe("PiecesSlice", () => {
         expect(newPieces).toEqual(expectedPieces);
     }
 
+    describe("selectPiece", () => {
+        it("should return false and warn if pieceId does not exist", () => {
+            const result = store.getState().selectPiece("nonexistent");
+            expect(result).toBe(false);
+        });
+
+        it("should return false if the piece is already selected", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            store.setState({
+                pieceMap: new Map([["0", piece]]),
+                selectedPieceId: "0",
+            });
+
+            const result = store.getState().selectPiece("0");
+
+            expect(result).toBe(false);
+            expect(store.getState().selectedPieceId).toBe("0");
+        });
+
+        it("should select a piece if it has legal moves", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const showLegalMovesMock = vi.fn(() => true);
+
+            store.setState({
+                pieceMap: new Map([["0", piece]]),
+                showLegalMoves: showLegalMovesMock,
+                selectedPieceId: null,
+            });
+
+            const result = store.getState().selectPiece("0");
+
+            expect(result).toBe(true);
+            expect(store.getState().selectedPieceId).toBe("0");
+            expect(showLegalMovesMock).toHaveBeenCalledWith(piece);
+        });
+
+        it("should not select a piece if it has no legal moves", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const showLegalMovesMock = vi.fn(() => false);
+
+            store.setState({
+                pieceMap: new Map([["0", piece]]),
+                showLegalMoves: showLegalMovesMock,
+                selectedPieceId: null,
+            });
+
+            const result = store.getState().selectPiece("0");
+
+            expect(result).toBe(false);
+            expect(store.getState().selectedPieceId).toBeNull();
+            expect(showLegalMovesMock).toHaveBeenCalledWith(piece);
+        });
+    });
+
+    describe("unselectPiece", () => {
+        it("should hide legal moves and clear selectedPieceId", () => {
+            const hideLegalMovesMock = vi.fn();
+            store.setState({
+                selectedPieceId: "0",
+                hideLegalMoves: hideLegalMovesMock,
+            });
+
+            store.getState().unselectPiece();
+
+            expect(hideLegalMovesMock).toHaveBeenCalled();
+            expect(store.getState().selectedPieceId).toBeNull();
+        });
+    });
+
     describe("applyMoveWithIntermediates", () => {
         it("should apply all intermediate steps and final move", async () => {
             const piece = createFakePiece({
