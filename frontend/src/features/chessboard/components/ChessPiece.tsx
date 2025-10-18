@@ -54,6 +54,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
 
         onDragStart() {
             selectPiece(id);
+            lastClickTime.current = Date.now();
+
             const rect = pieceRef.current?.getBoundingClientRect();
             if (!rect) return;
 
