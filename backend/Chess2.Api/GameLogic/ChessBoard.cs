@@ -37,6 +37,14 @@ public class ChessBoard
             InitializeBoard(pieces);
     }
 
+    public ChessBoard(ChessBoard board)
+    {
+        Height = board.Height;
+        Width = board.Width;
+        _board = (Piece?[,])board._board.Clone();
+        _moves = [.. board._moves];
+    }
+
     private void InitializeBoard(Dictionary<AlgebraicPoint, Piece> pieces)
     {
         foreach (var (pt, piece) in pieces)
