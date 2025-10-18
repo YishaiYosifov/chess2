@@ -14,6 +14,7 @@ public interface IGameResultDescriber
     GameEndStatus DrawByAgreement();
     GameEndStatus FiftyMoves();
     GameEndStatus ThreeFold();
+    GameEndStatus KingTouch();
 }
 
 public class GameResultDescriber : IGameResultDescriber
@@ -34,6 +35,8 @@ public class GameResultDescriber : IGameResultDescriber
     public GameEndStatus FiftyMoves() => new(GameResult.Draw, "Draw by 50 Moves Rule");
 
     public GameEndStatus DrawByAgreement() => new(GameResult.Draw, "Draw by Agreement");
+
+    public GameEndStatus KingTouch() => new(GameResult.Draw, "Draw by King Touch");
 
     private static GameResult GetResultByLoser(GameColor loser) =>
         loser.Match(whenWhite: GameResult.BlackWin, whenBlack: GameResult.WhiteWin);
