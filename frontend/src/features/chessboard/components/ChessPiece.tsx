@@ -99,26 +99,34 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
     });
 
-    if (!piece) return;
-
+    if (!piece) return null;
     return (
-        <ChessSquare
-            data-testid="piece"
-            position={piece.position}
-            className={clsx(
-                `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
-                transition-colors select-none`,
-                isAnimating && "transition-transform duration-100 ease-out",
-                isDragging && "z-30",
-                isRemoving && "opacity-50",
+        <>
+            <ChessSquare
+                data-testid="piece"
+                position={piece.position}
+                className={clsx(
+                    `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
+                    transition-colors select-none`,
+                    isAnimating && "transition-transform duration-100 ease-out",
+                    isDragging && "z-30",
+                    isRemoving && "opacity-50",
+                )}
+                ref={pieceRef}
+                style={{
+                    backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
+                }}
+            >
+                <DoubleClickIndicator ref={doubleClickRef} />
+            </ChessSquare>
+            {isSelected && (
+                <ChessSquare
+                    data-testid="pieceSquareHighlight"
+                    position={piece.position}
+                    className="bg-secondary/50 pointer-events-none z-5 touch-none"
+                />
             )}
-            ref={pieceRef}
-            style={{
-                backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
-            }}
-        >
-            <DoubleClickIndicator ref={doubleClickRef} />
-        </ChessSquare>
+        </>
     );
 };
 

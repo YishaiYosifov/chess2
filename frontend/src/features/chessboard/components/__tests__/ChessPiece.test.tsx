@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { LogicalPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
 import { Move } from "../../lib/types";
-import { LegalMoveMap } from "../../lib/types";
 import { PieceMap } from "../../lib/types";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import userEvent from "@testing-library/user-event";
@@ -16,6 +15,7 @@ import ChessboardLayout from "../ChessboardLayout";
 import { mockBoundingClientRect } from "@/lib/testUtils/mocks/mockDom";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import {
+    createFakeLegalMoveMapFromMoves,
     createFakeMove,
     createFakePiece,
 } from "@/lib/testUtils/fakers/chessboardFakers";
@@ -24,6 +24,7 @@ import getPieceImage from "../../lib/pieceImage";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
+    const CREATED_PIECE_ID = "0";
 
     const boardRect = {
         x: 0,
@@ -81,15 +82,17 @@ describe("ChessPiece", () => {
     function renderPiece({
         logicalPosition,
         legalMoves,
-    }: { logicalPosition?: LogicalPoint; legalMoves?: LegalMoveMap } = {}) {
+    }: { logicalPosition?: LogicalPoint; legalMoves?: Move[] } = {}) {
         logicalPosition ??= logicalPoint({ x: 0, y: 9 });
-        legalMoves ??= new Map();
+        legalMoves ??= [];
 
         const pieceInfo = createFakePiece({ position: logicalPosition });
-        const pieceMap: PieceMap = new Map([["0", pieceInfo]]);
+        const pieceMap: PieceMap = new Map([[CREATED_PIECE_ID, pieceInfo]]);
         store.setState({
             pieceMap,
-            moveOptions: createMoveOptions({ legalMoves }),
+            moveOptions: createMoveOptions({
+                legalMoves: createFakeLegalMoveMapFromMoves(legalMoves),
+            }),
         });
 
         const renderResults = render(
@@ -115,9 +118,7 @@ describe("ChessPiece", () => {
     ])(
         "should be in the correct position",
         (logicalPosition, percentPosition) => {
-            const { pieceInfo, piece } = renderPiece({
-                logicalPosition: logicalPosition,
-            });
+            const { pieceInfo, piece } = renderPiece({ logicalPosition });
 
             const expectedTransform = getExpectedTransform({ percentPosition });
             expect(piece).toHaveStyle(`
@@ -207,14 +208,11 @@ describe("ChessPiece", () => {
             from: startPos,
             to: destinationPos,
         });
-        const legalMoves: LegalMoveMap = new Map([
-            [pointToStr(startPos), [move]],
-        ]);
 
         const user = userEvent.setup();
         const { chessboard, piece } = renderPiece({
             logicalPosition: startPos,
-            legalMoves,
+            legalMoves: [move],
         });
 
         await user.pointer([
@@ -232,7 +230,7 @@ describe("ChessPiece", () => {
         vi.advanceTimersToNextFrame();
 
         const pieceMap = store.getState().pieceMap;
-        expect(pieceMap.get("0")?.position).toEqual(move.to);
+        expect(pieceMap.get(CREATED_PIECE_ID)?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 700, y: 400 },
         });
@@ -249,15 +247,11 @@ describe("ChessPiece", () => {
             to: destinationPos,
         });
 
-        const legalMoves: LegalMoveMap = new Map([
-            [pointToStr(startPos), [move]],
-        ]);
-
         const user = userEvent.setup();
 
         const { chessboard, piece } = renderPiece({
             logicalPosition: startPos,
-            legalMoves,
+            legalMoves: [move],
         });
 
         await user.pointer([
@@ -275,7 +269,7 @@ describe("ChessPiece", () => {
         vi.advanceTimersToNextFrame();
 
         const pieceMap = store.getState().pieceMap;
-        expect(pieceMap.get("0")?.position).toEqual(move.to);
+        expect(pieceMap.get(CREATED_PIECE_ID)?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 200, y: 600 },
         });
@@ -283,30 +277,21 @@ describe("ChessPiece", () => {
     });
 
     it("should prioritize animatingPieceMap over regular pieces", () => {
-        const pieceId = "0";
-        const normalPiece = createFakePiece({
-            position: logicalPoint({ x: 0, y: 0 }),
-        });
         const animatingPiece = createFakePiece({
             position: logicalPoint({ x: 7, y: 3 }),
         });
-
-        const pieceMap: PieceMap = new Map([[pieceId, normalPiece]]);
         const animatingPieceMap: PieceMap = new Map([
-            [pieceId, animatingPiece],
+            [CREATED_PIECE_ID, animatingPiece],
         ]);
 
-        store.setState({
-            pieceMap,
-            animatingPieceMap,
-        });
+        store.setState({ animatingPieceMap });
 
         const { piece } = renderPiece({
-            logicalPosition: normalPiece.position,
+            logicalPosition: logicalPoint({ x: 0, y: 0 }),
         });
 
         const expectedTransform = getExpectedTransform({
-            percentPosition: { x: 700, y: 600 }, // based on intermediate position { x: 7, y: 3 }
+            percentPosition: { x: 700, y: 600 }, // based on animating position { x: 7, y: 3 }
         });
 
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
@@ -315,20 +300,15 @@ describe("ChessPiece", () => {
     it.each([true, false])(
         "should set opacity to 50% when the piece is being removed",
         (isRemoving) => {
-            const piece = createFakePiece();
-            const pieceId = "0";
-
             store.setState({
-                removingPieces: isRemoving ? new Set([pieceId]) : new Set(),
+                removingPieces: isRemoving
+                    ? new Set(CREATED_PIECE_ID)
+                    : new Set(),
             });
 
-            const { piece: renderedPiece } = renderPiece({
-                logicalPosition: piece.position,
-            });
+            const { piece } = renderPiece();
 
-            expect(renderedPiece.classList.contains("opacity-50")).toBe(
-                isRemoving,
-            );
+            expect(piece.classList.contains("opacity-50")).toBe(isRemoving);
         },
     );
 
@@ -363,13 +343,10 @@ describe("ChessPiece", () => {
             from: startPos,
             to: startPos,
         });
-        const legalMoves: LegalMoveMap = new Map([
-            [pointToStr(startPos), [move]],
-        ]);
 
         const { chessboard } = renderPiece({
             logicalPosition: startPos,
-            legalMoves,
+            legalMoves: [move],
         });
 
         const coords = store.getState().logicalPointToScreenPoint(startPos);
@@ -390,5 +367,41 @@ describe("ChessPiece", () => {
         const indicator = screen.getByTestId("doubleClickIndicator");
         expect(indicator).toBeInTheDocument();
         expect(indicator).toBeVisible();
+    });
+
+    it("should render square highlight when the piece is selected", async () => {
+        const { pieceInfo, chessboard } = renderPiece({
+            logicalPosition: logicalPoint({ x: 1, y: 2 }),
+            legalMoves: [
+                createFakeMove({ from: logicalPoint({ x: 1, y: 2 }) }),
+            ],
+        });
+
+        const user = userEvent.setup();
+        const { logicalPointToScreenPoint } = store.getState();
+
+        await user.pointer([
+            {
+                target: chessboard,
+                coords: logicalPointToScreenPoint(pieceInfo.position),
+                keys: "[MouseLeft]",
+            },
+        ]);
+        vi.advanceTimersToNextFrame();
+
+        const highlight = screen.getByTestId("pieceSquareHighlight");
+        expect(highlight).toBeInTheDocument();
+
+        expect(highlight).toHaveAttribute(
+            "data-position",
+            pointToStr(pieceInfo.position),
+        );
+    });
+
+    it("should not render the highlight when the piece is not selected", async () => {
+        renderPiece();
+
+        const highlight = screen.queryByTestId("pieceSquareHighlight");
+        expect(highlight).toBeNull();
     });
 });
