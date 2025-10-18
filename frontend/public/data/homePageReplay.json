@@ -89,5 +89,57 @@
                 ]
             }
         ]
+    },
+    {
+        "startingFen": "rhnbqkbcar/pppdp1dppp/10/10/5p3+/+4P4/10/10/PPPDP1DPPP/RHNBQKBCAR",
+        "moves": [
+            { "from": { "x": 4, "y": 0 }, "to": { "x": 7, "y": 3 } },
+            {
+                "from": { "x": 1, "y": 9 },
+                "to": { "x": 2, "y": 7 }
+            },
+            {
+                "from": { "x": 7, "y": 3 },
+                "to": { "x": 7, "y": 3 },
+                "captures": [{ "x": 7, "y": 3 }],
+                "pieceSpawns": [
+                    { "type": 3, "color": 0, "position": { "x": 0, "y": 3 } },
+                    { "type": 4, "color": 0, "position": { "x": 1, "y": 3 } },
+                    { "type": 9, "color": 0, "position": { "x": 2, "y": 3 } }
+                ],
+                "specialMoveType": 6
+            }
+        ]
+    },
+    {
+        "startingFen": "r3q1r3/ppp1badkpp/2hn1c1p2/4p5/2b2p1H1+/+4P4/3BP1R1Q1/5C1A2/PPPDN1DPPP/R2B3K2",
+        "moves": [
+            {
+                "from": { "x": 2, "y": 5 },
+                "to": { "x": 4, "y": 7 }
+            },
+            {
+                "from": { "x": 7, "y": 5 },
+                "to": { "x": 6, "y": 7 }
+            },
+            {
+                "from": { "x": 4, "y": 7 },
+                "to": { "x": 8, "y": 3 }
+            },
+            {
+                "from": { "x": 6, "y": 3 },
+                "to": { "x": 6, "y": 7 },
+                "captures": [
+                    { "x": 6, "y": 7 },
+                    { "x": 6, "y": 8 },
+                    { "x": 7, "y": 8 },
+                    { "x": 7, "y": 7 },
+                    { "x": 5, "y": 8 },
+                    { "x": 5, "y": 7 }
+                ],
+                "specialMoveType": 5,
+                "promotesTo": 6
+            }
+        ]
     }
 ]
