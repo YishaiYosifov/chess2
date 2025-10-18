@@ -85,7 +85,15 @@ public class GameCore(
         {
             endStatus = _resultDescriber.KingCaptured(by: movingSide);
         }
-        else if (_drawEvaulator.TryEvaluateDraw(move, fen, state.AutoDrawState, out var drawReason))
+        else if (
+            _drawEvaulator.TryEvaluateDraw(
+                move,
+                fen,
+                new ChessBoard(state.Board),
+                state.AutoDrawState,
+                out var drawReason
+            )
+        )
         {
             endStatus = drawReason;
         }
