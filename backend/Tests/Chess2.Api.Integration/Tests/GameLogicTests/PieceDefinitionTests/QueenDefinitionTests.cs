@@ -36,9 +36,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                     "e5",
                     spawns:
                     [
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("j5")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("j5")),
                         new PieceSpawn(PieceType.Bishop, GameColor.White, new("i5")),
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("h5")),
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("h5")),
                     ],
                     captures: ["e5"],
                     specialMoveType: SpecialMoveType.RadioactiveBetaDecay
@@ -67,9 +67,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                     "f5",
                     spawns:
                     [
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("a5")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("a5")),
                         new PieceSpawn(PieceType.Bishop, GameColor.White, new("b5")),
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("c5")),
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("c5")),
                     ],
                     captures: ["f5"],
                     specialMoveType: SpecialMoveType.RadioactiveBetaDecay
@@ -98,9 +98,9 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                     "a1",
                     spawns:
                     [
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("j1")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("j1")),
                         new PieceSpawn(PieceType.Bishop, GameColor.White, new("i1")),
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("h1")),
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("h1")),
                     ],
                     captures: ["a1"],
                     specialMoveType: SpecialMoveType.RadioactiveBetaDecay
