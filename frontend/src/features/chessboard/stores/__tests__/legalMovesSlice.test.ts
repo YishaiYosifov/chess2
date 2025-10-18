@@ -4,6 +4,7 @@ import {
     createFakeLegalMoveMap,
     createFakeMove,
     createFakePiece,
+    createRandomPoint,
     createSequentialPieceMapFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { LegalMoveMap, Piece } from "../../lib/types";
@@ -248,15 +249,14 @@ describe("LegalMovesSlice", () => {
 
     describe("hideLegalMoves", () => {
         it("should remove any highlighted legal moves", () => {
-            const piece = createFakePiece();
-            const move = createFakeMove({ from: piece.position });
-            const legalMoves = new Map([[pointToStr(piece.position), [move]]]);
             store.setState({
-                moveOptions: createMoveOptions({ legalMoves }),
+                highlightedLegalMoves: [
+                    createRandomPoint(),
+                    createRandomPoint(),
+                    createRandomPoint(),
+                ],
             });
 
-            store.getState().showLegalMoves(piece);
-            expect(store.getState().highlightedLegalMoves).toHaveLength(1);
             store.getState().hideLegalMoves();
             expect(store.getState().highlightedLegalMoves).toHaveLength(0);
         });
