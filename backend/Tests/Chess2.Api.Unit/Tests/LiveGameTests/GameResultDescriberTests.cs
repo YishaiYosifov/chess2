@@ -81,4 +81,11 @@ public class GameResultDescriberTests
         var result = _describer.FiftyMoves();
         result.Should().Be(new GameEndStatus(GameResult.Draw, "Draw by 50 Moves Rule"));
     }
+
+    [Fact]
+    public void KingTouch_returns_the_correct_status()
+    {
+        var result = _describer.KingTouch();
+        result.Should().Be(new GameEndStatus(GameResult.Draw, "Draw by King Touch"));
+    }
 }

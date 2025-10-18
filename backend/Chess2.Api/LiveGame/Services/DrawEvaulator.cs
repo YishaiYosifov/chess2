@@ -11,8 +11,9 @@ public interface IDrawEvaulator
     bool TryEvaluateDraw(
         Move move,
         string fen,
+        ChessBoard board,
         AutoDrawState state,
-        [NotNullWhen(true)] out GameEndStatus? reason
+        [NotNullWhen(true)] out GameEndStatus? endStatus
     );
 }
 
@@ -37,6 +38,7 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
     public bool TryEvaluateDraw(
         Move move,
         string fen,
+        ChessBoard board,
         AutoDrawState state,
         [NotNullWhen(true)] out GameEndStatus? endStatus
     )
@@ -49,6 +51,11 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
         if (Is50Moves(move, state))
         {
             endStatus = _gameResultDescriber.FiftyMoves();
+            return true;
+        }
+        if (IsKingTouch(move, board))
+        {
+            endStatus = _gameResultDescriber.KingTouch();
             return true;
         }
 
@@ -75,5 +82,30 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
 
         state.HalfMoveClock++;
         return state.HalfMoveClock >= 100;
+    }
+
+    private static bool IsKingTouch(Move move, ChessBoard board)
+    {
+        if (move.Piece.Type is not PieceType.King)
+            return false;
+
+        for (var x = -1; x <= 1; x++)
+        {
+            for (var y = -1; y <= 1; y++)
+            {
+                if (y == 0 && x == 0)
+                    continue;
+
+                var position = move.To - new Offset(x, y);
+                if (
+                    board.TryGetPieceAt(position, out var touchingPiece)
+                    && touchingPiece.Type is PieceType.King
+                    && touchingPiece.Color != move.Piece.Color
+                )
+                    return true;
+            }
+        }
+
+        return false;
     }
 }
