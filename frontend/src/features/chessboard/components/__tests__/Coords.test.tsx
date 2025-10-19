@@ -7,6 +7,7 @@ import {
     createChessboardStore,
 } from "../../stores/chessboardStore";
 import ChessboardStoreContext from "../../contexts/chessboardStoreContext";
+import { GameColor } from "@/lib/apiClient";
 
 describe("Coords", () => {
     let store: StoreApi<ChessboardStore>;
@@ -45,27 +46,37 @@ describe("Coords", () => {
         }
     });
 
-    it("should position file labels along the top row", () => {
-        renderWithStore();
+    it.each([GameColor.WHITE, GameColor.BLACK])(
+        "should position file labels along the top row",
+        (viewingFrom) => {
+            store.setState({ viewingFrom });
+            renderWithStore();
 
-        files.forEach((file, x) => {
-            expect(screen.getByTestId(`coordsFile-${file}`)).toHaveAttribute(
-                "data-position",
-                pointToStr({ x, y: 9 }),
-            );
-        });
-    });
+            files.forEach((file, x) => {
+                const expectedX = viewingFrom === GameColor.WHITE ? x : 9 - x;
+                expect(
+                    screen.getByTestId(`coordsFile-${file}`),
+                ).toHaveAttribute(
+                    "data-position",
+                    pointToStr({ x: expectedX, y: 9 }),
+                );
+            });
+        },
+    );
 
-    it("should position rank labels along the right column", () => {
-        renderWithStore();
+    it.each([GameColor.WHITE, GameColor.BLACK])(
+        "should position rank labels along the right column",
+        (viewingFrom) => {
+            store.setState({ viewingFrom });
+            renderWithStore();
 
-        ranks.forEach((rank, y) => {
-            expect(screen.getByTestId(`coordsRank-${rank}`)).toHaveAttribute(
-                "data-position",
-                pointToStr({ x: 9, y }),
-            );
-        });
-    });
+            ranks.forEach((rank, y) => {
+                expect(
+                    screen.getByTestId(`coordsRank-${rank}`),
+                ).toHaveAttribute("data-position", pointToStr({ x: 9, y }));
+            });
+        },
+    );
 
     it("should apply alternating colors for file labels", () => {
         renderWithStore();
