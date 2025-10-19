@@ -6,6 +6,7 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IGameResultDescriber
 {
+    GameEndStatus KingSelfCapture(GameColor by);
     GameEndStatus KingCaptured(GameColor by);
     GameEndStatus Resignation(GameColor by);
     GameEndStatus Timeout(GameColor by);
@@ -22,6 +23,9 @@ public class GameResultDescriber : IGameResultDescriber
     public GameEndStatus KingCaptured(GameColor by) =>
         new(GetResultByWinner(by), $"{by} Captured the King");
 
+    public GameEndStatus KingSelfCapture(GameColor by) =>
+        new(GetResultByLoser(by), $"{by} Captured Their Own King");
+
     public GameEndStatus Aborted(GameColor by) => new(GameResult.Aborted, $"Game Aborted by {by}");
 
     public GameEndStatus Resignation(GameColor by) =>
@@ -30,7 +34,7 @@ public class GameResultDescriber : IGameResultDescriber
     public GameEndStatus Timeout(GameColor by) =>
         new(GetResultByLoser(by), $"{by.Invert()} Won by Timeout");
 
-    public GameEndStatus ThreeFold() => new(GameResult.Draw, "Draw by 3 Fold Repetition");
+    public GameEndStatus ThreeFold() => new(GameResult.Draw, "Draw by 3-Fold Repetition");
 
     public GameEndStatus FiftyMoves() => new(GameResult.Draw, "Draw by 50 Moves Rule");
 
