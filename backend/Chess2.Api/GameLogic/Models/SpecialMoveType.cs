@@ -9,4 +9,5 @@ public enum SpecialMoveType
     IlVaticano,
     KnooklearFusion,
     RadioactiveBetaDecay,
+    OmnipotentPawnSpawn,
 }
