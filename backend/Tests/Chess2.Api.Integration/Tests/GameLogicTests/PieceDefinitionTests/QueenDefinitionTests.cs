@@ -32,17 +32,6 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("d5", "c5", "b5", "a5")
                 // horizontal right
                 .GoesTo("f5", "g5", "h5", "i5", "j5")
-                .GoesTo(
-                    "e5",
-                    spawns:
-                    [
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("j5")),
-                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("i5")),
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("h5")),
-                    ],
-                    captures: ["e5"],
-                    specialMoveType: SpecialMoveType.RadioactiveBetaDecay
-                ) // radioactive beta decay
                 // diagonal up-left
                 .GoesTo("d6", "c7", "b8", "a9")
                 // diagonal up-right
@@ -51,40 +40,19 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("d4", "c3", "b2", "a1")
                 // diagonal down-right
                 .GoesTo("f4", "g3", "h2", "i1")
-                .WithDescription("Open board from e5 (right decay)")
-        );
-
-        Add(
-            PieceTestCase
-                .From("f5", queen)
-                // vertical up
-                .GoesTo("f6", "f7", "f8", "f9", "f10")
-                // vertical down
-                .GoesTo("f4", "f3", "f2", "f1")
-                // horizontal left
-                .GoesTo("e5", "d5", "c5", "b5", "a5")
+                // radioactive beta decay
                 .GoesTo(
-                    "f5",
+                    "e5",
                     spawns:
                     [
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("a5")),
-                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("b5")),
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("c5")),
+                        new PieceSpawn(PieceType.Rook, GameColor.White, new("d5")),
+                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("e6")),
+                        new PieceSpawn(PieceType.Horsey, GameColor.White, new("f5")),
                     ],
-                    captures: ["f5"],
+                    captures: ["e5"],
                     specialMoveType: SpecialMoveType.RadioactiveBetaDecay
-                ) // radioactive beta decay
-                // horizontal right
-                .GoesTo("g5", "h5", "i5", "j5")
-                // diagonal up-left
-                .GoesTo("e6", "d7", "c8", "b9", "a10")
-                // diagonal up-right
-                .GoesTo("g6", "h7", "i8", "j9")
-                // diagonal down-left
-                .GoesTo("e4", "d3", "c2", "b1")
-                // diagonal down-right
-                .GoesTo("g4", "h3", "i2", "j1")
-                .WithDescription("Open board from f5 (left decay)")
+                )
+                .WithDescription("Open board from e5")
         );
 
         Add(
@@ -94,17 +62,6 @@ public class QueenDefinitionTestData : TheoryData<PieceTestCase>
                 .GoesTo("a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10")
                 // horizontal right
                 .GoesTo("b1", "c1", "d1", "e1", "f1", "g1", "h1", "i1", "j1")
-                .GoesTo(
-                    "a1",
-                    spawns:
-                    [
-                        new PieceSpawn(PieceType.Rook, GameColor.White, new("j1")),
-                        new PieceSpawn(PieceType.Bishop, GameColor.White, new("i1")),
-                        new PieceSpawn(PieceType.SterilePawn, GameColor.White, new("h1")),
-                    ],
-                    captures: ["a1"],
-                    specialMoveType: SpecialMoveType.RadioactiveBetaDecay
-                ) // radioactive beta decay
                 // diagonal up-right
                 .GoesTo("b2", "c3", "d4", "e5", "f6", "g7", "h8", "i9", "j10")
                 .WithDescription("Queen in corner a1")
