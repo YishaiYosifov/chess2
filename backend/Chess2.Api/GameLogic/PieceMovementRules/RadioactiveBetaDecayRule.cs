@@ -12,10 +12,7 @@ public class RadioactiveBetaDecayRule(Dictionary<Offset, PieceType> decays) : IP
         foreach (var (offset, pieceType) in _decays)
         {
             var spawnPosition = position + offset;
-            if (
-                !board.IsWithinBoundaries(spawnPosition)
-                || board.PeekPieceAt(spawnPosition) is not null
-            )
+            if (!board.IsWithinBoundaries(spawnPosition) || !board.IsEmpty(spawnPosition))
                 yield break;
 
             spawns.Add(
