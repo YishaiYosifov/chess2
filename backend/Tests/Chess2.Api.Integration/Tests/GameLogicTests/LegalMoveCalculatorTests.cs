@@ -20,11 +20,32 @@ public class LegalMoveCalculatorTests : BaseIntegrationTest
     [Fact]
     public void Constructor_throws_if_not_all_piece_types_are_defined()
     {
-        var act = () => new LegalMoveCalculator([]);
+        var act = () => new LegalMoveCalculator([], []);
 
         act.Should()
             .Throw<InvalidOperationException>()
             .WithMessage("Could not find definitions for all pieces");
+    }
+
+    [Fact]
+    public void CalculateAllLegalMoves_includes_moves_from_forever_rules()
+    {
+        ChessBoard board = new();
+
+        Move lastMove = new(
+            from: new AlgebraicPoint("g2"),
+            to: new AlgebraicPoint("h3"),
+            piece: PieceFactory.Black(),
+            captures: [new MoveCapture(PieceFactory.White(), new AlgebraicPoint("h3"))]
+        );
+        board.PlacePiece(lastMove.From, lastMove.Piece);
+        board.PlayMove(lastMove);
+
+        var moves = _calculator.CalculateAllLegalMoves(board, GameColor.White).ToList();
+
+        moves
+            .Should()
+            .ContainSingle(move => move.SpecialMoveType == SpecialMoveType.OmnipotentPawnSpawn);
     }
 
     [Fact]
