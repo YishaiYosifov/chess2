@@ -12,13 +12,18 @@ public class RadioactiveBetaDecayRuleTests
     private readonly ChessBoard _board = new();
 
     [Fact]
-    public void Evaluate_yields_no_move_when_rank_not_empty()
+    public void Evaluate_yields_no_move_when_any_decay_space_blocked()
     {
         AlgebraicPoint origin = new("d4");
         _board.PlacePiece(origin, _movingPiece);
-        _board.PlacePiece(new AlgebraicPoint("b4"), PieceFactory.Black());
+        _board.PlacePiece(new AlgebraicPoint("e5"), PieceFactory.Black());
 
-        RadioactiveBetaDecayRule rule = new(PieceType.Pawn, PieceType.Horsey);
+        Dictionary<Offset, PieceType> decays = new()
+        {
+            [new Offset(1, 1)] = PieceType.Pawn,
+            [new Offset(2, 1)] = PieceType.Horsey,
+        };
+        RadioactiveBetaDecayRule rule = new(decays);
 
         var result = rule.Evaluate(_board, origin, _movingPiece).ToList();
 
@@ -26,68 +31,54 @@ public class RadioactiveBetaDecayRuleTests
     }
 
     [Fact]
-    public void Evaluate_spawns_pieces_from_opposite_edge_left_of_center()
+    public void Evaluate_spawns_pieces_at_specified_offsets()
     {
         AlgebraicPoint origin = new("c3");
         _board.PlacePiece(origin, _movingPiece);
 
-        PieceType[] decayInto = [PieceType.Pawn, PieceType.Horsey, PieceType.Bishop];
-        RadioactiveBetaDecayRule rule = new(decayInto);
+        Dictionary<Offset, PieceType> decays = new()
+        {
+            [new Offset(1, 0)] = PieceType.Pawn,
+            [new Offset(2, 0)] = PieceType.Horsey,
+            [new Offset(3, 0)] = PieceType.Bishop,
+        };
+        RadioactiveBetaDecayRule rule = new(decays);
 
         var result = rule.Evaluate(_board, origin, _movingPiece).ToList();
 
-        var expectedMove = CreateExpectedDecayMove(
-            origin,
-            _movingPiece,
-            decayInto,
-            startX: 9,
-            offsetX: -1
-        );
+        var expectedMove = CreateExpectedDecayMove(origin, _movingPiece, decays);
         result.Should().BeEquivalentTo([expectedMove]);
     }
 
     [Fact]
-    public void Evaluate_spawns_pieces_from_opposite_edge_right_of_center()
+    public void Evaluate_yields_no_move_when_board_edge_reached()
     {
-        AlgebraicPoint origin = new("f4");
+        AlgebraicPoint origin = new("a1");
         _board.PlacePiece(origin, _movingPiece);
 
-        PieceType[] decayInto = [PieceType.Rook, PieceType.Horsey];
-        RadioactiveBetaDecayRule rule = new(decayInto);
+        var decays = new Dictionary<Offset, PieceType>
+        {
+            [new Offset(-1, 0)] = PieceType.Pawn, // outside board
+        };
+        RadioactiveBetaDecayRule rule = new(decays);
 
         var result = rule.Evaluate(_board, origin, _movingPiece).ToList();
 
-        var expectedMove = CreateExpectedDecayMove(
-            origin,
-            _movingPiece,
-            decayInto,
-            startX: 0,
-            offsetX: 1
-        );
-        result.Should().BeEquivalentTo([expectedMove]);
+        result.Should().BeEmpty();
     }
 
     private static Move CreateExpectedDecayMove(
         AlgebraicPoint origin,
         Piece movingPiece,
-        PieceType[] decayInto,
-        int startX,
-        int offsetX
+        Dictionary<Offset, PieceType> decays
     )
     {
         List<PieceSpawn> spawns = [];
-        int x = startX;
-
-        foreach (var type in decayInto)
+        foreach (var (offset, type) in decays)
         {
             spawns.Add(
-                new PieceSpawn(
-                    Type: type,
-                    Color: movingPiece.Color,
-                    Position: new AlgebraicPoint(x, origin.Y)
-                )
+                new PieceSpawn(Type: type, Color: movingPiece.Color, Position: origin + offset)
             );
-            x += offsetX;
         }
 
         return new Move(
