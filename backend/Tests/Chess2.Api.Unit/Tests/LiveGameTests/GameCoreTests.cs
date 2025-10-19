@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Models;
 using Chess2.Api.LiveGame.SanNotation;
@@ -46,8 +45,8 @@ public class GameCoreTests
         Move[] allMoves = [m1, m2];
         MovePath[] movePaths =
         [
-            MovePath.FromMove(m1, GameConstants.BoardWidth),
-            MovePath.FromMove(m2, GameConstants.BoardWidth),
+            MovePath.FromMove(m1, GameLogicConstants.BoardWidth),
+            MovePath.FromMove(m2, GameLogicConstants.BoardWidth),
         ];
         byte[] movesEnc = [1, 2, 3];
 
@@ -151,7 +150,7 @@ public class GameCoreTests
         result.IsError.Should().BeFalse();
         MoveResult expected = new(
             Move: move,
-            MovePath: MovePath.FromMove(move, GameConstants.BoardWidth),
+            MovePath: MovePath.FromMove(move, GameLogicConstants.BoardWidth),
             San: "e4",
             EndStatus: null
         );
@@ -172,8 +171,8 @@ public class GameCoreTests
         List<Move> blackMoves = [blackMove1, blackMove2];
         List<MovePath> blackMovePaths =
         [
-            MovePath.FromMove(blackMove1, GameConstants.BoardWidth),
-            MovePath.FromMove(blackMove2, GameConstants.BoardWidth),
+            MovePath.FromMove(blackMove1, GameLogicConstants.BoardWidth),
+            MovePath.FromMove(blackMove2, GameLogicConstants.BoardWidth),
         ];
         byte[] encodedBlackMoves = [1, 2, 3];
 
@@ -323,7 +322,10 @@ public class GameCoreTests
     private static LegalMoveSet CreateLegalMoveSet(params Move[] moves) =>
         new(
             MoveMap: moves.ToDictionary(move => new MoveKey(move)),
-            MovePaths: [.. moves.Select(move => MovePath.FromMove(move, GameConstants.BoardWidth))],
+            MovePaths:
+            [
+                .. moves.Select(move => MovePath.FromMove(move, GameLogicConstants.BoardWidth)),
+            ],
             EncodedMoves: [1, 2, 3],
             HasForcedMoves: false
         );
