@@ -117,7 +117,7 @@ const ChessboardLayout = ({
             data-testid="chessboard"
             className={twMerge(
                 `grid-template-rows-10 relative grid cursor-pointer touch-none grid-cols-10
-                rounded-md bg-[url(/assets/board.svg)] bg-[length:100%] bg-no-repeat`,
+                rounded-md bg-[url(/assets/board.svg)] bg-[length:100%] bg-no-repeat select-none`,
                 className,
             )}
             style={{
