@@ -10,6 +10,19 @@ public class GameResultDescriberTests
     private readonly GameResultDescriber _describer = new();
 
     [Theory]
+    [InlineData(GameColor.White, GameResult.BlackWin, "White Captured Their Own King")]
+    [InlineData(GameColor.Black, GameResult.WhiteWin, "Black Captured Their Own King")]
+    public void KingSelfCapture_returns_the_correct_status(
+        GameColor loser,
+        GameResult expectedResult,
+        string expectedDescription
+    )
+    {
+        var result = _describer.KingSelfCapture(loser);
+        result.Should().Be(new GameEndStatus(expectedResult, expectedDescription));
+    }
+
+    [Theory]
     [InlineData(GameColor.White, GameResult.WhiteWin, "White Captured the King")]
     [InlineData(GameColor.Black, GameResult.BlackWin, "Black Captured the King")]
     public void KingCaptured_returns_the_correct_status(
@@ -72,7 +85,7 @@ public class GameResultDescriberTests
     public void ThreeFold_returns_the_correct_status()
     {
         var result = _describer.ThreeFold();
-        result.Should().Be(new GameEndStatus(GameResult.Draw, "Draw by 3 Fold Repetition"));
+        result.Should().Be(new GameEndStatus(GameResult.Draw, "Draw by 3-Fold Repetition"));
     }
 
     [Fact]
