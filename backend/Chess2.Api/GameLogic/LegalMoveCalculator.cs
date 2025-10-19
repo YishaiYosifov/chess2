@@ -33,7 +33,7 @@ public class LegalMoveCalculator : ILegalMoveCalculator
 
     public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer)
     {
-        foreach (var (position, piece) in board.EnumerateSquares())
+        foreach (var (position, piece) in board.EnumeratePieces())
         {
             foreach (var move in CalculateLegalMoves(board, position, movingPlayer))
                 yield return move;

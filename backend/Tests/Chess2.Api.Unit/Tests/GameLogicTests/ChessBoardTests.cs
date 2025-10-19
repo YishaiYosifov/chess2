@@ -32,7 +32,7 @@ public class ChessBoardTests
                 continue;
             }
 
-            piece.Should().NotBeNull().And.BeEquivalentTo(expectedPiece);
+            piece.Should().NotBeNull().And.Be(expectedPiece);
         }
     }
 
@@ -53,10 +53,8 @@ public class ChessBoardTests
         copy.Width.Should().Be(original.Width);
         copy.Moves.Should().BeEquivalentTo(original.Moves);
 
-        copy.EnumerateSquares()
-            .ToDictionary()
-            .Should()
-            .BeEquivalentTo(original.EnumerateSquares().ToDictionary());
+        copy.EnumerateSquares().Should().BeEquivalentTo(original.EnumerateSquares());
+        copy.EnumeratePieces().Should().BeEquivalentTo(original.EnumeratePieces());
 
         AlgebraicPoint newPoint = new("a1");
         Piece newPiece = PieceFactory.Black(PieceType.Rook);
@@ -64,6 +62,13 @@ public class ChessBoardTests
 
         copy.PeekPieceAt(newPoint).Should().Be(newPiece);
         original.PeekPieceAt(newPoint).Should().BeNull();
+
+        copy.GetAllPiecesWith(PieceType.Rook, GameColor.Black)
+            .Should()
+            .ContainSingle()
+            .Which.Should()
+            .Be(newPiece);
+        original.GetAllPiecesWith(PieceType.Rook, GameColor.Black).Should().BeEmpty();
 
         Move extraMove = new(from: new("d5"), to: new("d6"), piece: piece);
         copy.PlayMove(extraMove);
@@ -96,7 +101,7 @@ public class ChessBoardTests
 
         result.Should().BeTrue();
         resultPiece.Should().NotBeNull();
-        resultPiece.Should().BeEquivalentTo(piece);
+        resultPiece.Should().Be(piece);
     }
 
     [Fact]
@@ -138,6 +143,39 @@ public class ChessBoardTests
         board.PlacePiece(pt, PieceFactory.White());
 
         board.IsEmpty(pt).Should().BeFalse();
+    }
+
+    [Fact]
+    public void GetAllPiecesWith_returns_empty_list_when_no_pieces_exist()
+    {
+        ChessBoard board = new();
+
+        var pieces = board.GetAllPiecesWith(PieceType.Horsey, GameColor.White);
+
+        pieces.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void GetAllPiecesWith_returns_correct_pieces_by_type_and_color()
+    {
+        ChessBoard board = new();
+        var whitePawn1 = PieceFactory.White(PieceType.Pawn);
+        var whitePawn2 = PieceFactory.White(PieceType.Pawn);
+        var blackPawn = PieceFactory.Black(PieceType.Pawn);
+        var whiteKnight = PieceFactory.White(PieceType.Horsey);
+
+        board.PlacePiece(new("a2"), whitePawn1);
+        board.PlacePiece(new("b2"), whitePawn2);
+        board.PlacePiece(new("c2"), blackPawn);
+        board.PlacePiece(new("d2"), whiteKnight);
+
+        var whitePawns = board.GetAllPiecesWith(PieceType.Pawn, GameColor.White);
+        var blackPawns = board.GetAllPiecesWith(PieceType.Pawn, GameColor.Black);
+        var whiteKnights = board.GetAllPiecesWith(PieceType.Horsey, GameColor.White);
+
+        whitePawns.Should().BeEquivalentTo([whitePawn1, whitePawn2]);
+        blackPawns.Should().ContainSingle().Which.Should().Be(blackPawn);
+        whiteKnights.Should().ContainSingle().Which.Should().Be(whiteKnight);
     }
 
     [Fact]
@@ -257,9 +295,7 @@ public class ChessBoardTests
 
         board.PeekPieceAt(from).Should().BeNull();
         var promotedPiece = board.PeekPieceAt(to);
-        promotedPiece
-            .Should()
-            .BeEquivalentTo(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
+        promotedPiece.Should().Be(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
     }
 
     [Fact]
@@ -292,6 +328,72 @@ public class ChessBoardTests
         }
     }
 
+    [Fact]
+    public void PlacePiece_adds_piece()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.White();
+        AlgebraicPoint pt = new("a1");
+
+        board.PlacePiece(pt, piece);
+
+        var pieces = board.GetAllPiecesWith(piece.Type, GameColor.White);
+        pieces.Should().ContainSingle().Which.Should().Be(piece);
+    }
+
+    [Fact]
+    public void RemovePiece_removes_piece()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.Black();
+        AlgebraicPoint pt = new("d5");
+
+        board.PlacePiece(pt, piece);
+        board.RemovePiece(pt);
+
+        var pieces = board.GetAllPiecesWith(piece.Type, GameColor.Black);
+        pieces.Should().BeEmpty();
+        board.PeekPieceAt(pt).Should().BeNull();
+    }
+
+    [Fact]
+    public void MovePiece_moves_piece_and_updates_times_moved()
+    {
+        ChessBoard board = new();
+        var piece = PieceFactory.White();
+        AlgebraicPoint from = new("c1");
+        AlgebraicPoint to = new("e3");
+
+        board.PlacePiece(from, piece);
+        board.MovePiece(from, to);
+
+        board.PeekPieceAt(from).Should().BeNull();
+        var pieces = board.GetAllPiecesWith(piece.Type, GameColor.White);
+        pieces
+            .Should()
+            .ContainSingle()
+            .Which.Should()
+            .Be(piece with { TimesMoved = piece.TimesMoved + 1 });
+        board.PeekPieceAt(to).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void ModifyPiece_modifies_piece_by_action()
+    {
+        ChessBoard board = new();
+        var pawn = PieceFactory.White(PieceType.Pawn);
+        AlgebraicPoint pt = new("e2");
+
+        board.PlacePiece(pt, pawn);
+        board.ModifyPiece(pt, piece => piece with { Type = PieceType.Queen });
+
+        var pawns = board.GetAllPiecesWith(PieceType.Pawn, GameColor.White);
+        pawns.Should().BeEmpty();
+
+        var queens = board.GetAllPiecesWith(PieceType.Queen, GameColor.White);
+        queens.Should().ContainSingle().Which.Type.Should().Be(PieceType.Queen);
+    }
+
     [Theory]
     [InlineData(0, 0, true)]
     [InlineData(9, 9, true)]
@@ -313,5 +415,23 @@ public class ChessBoardTests
         var squares = board.EnumerateSquares();
 
         squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
+    }
+
+    [Fact]
+    public void EnumeratePieces_returns_all_pieces_correctly()
+    {
+        ChessBoard board = new();
+        Dictionary<AlgebraicPoint, Piece> piecesToPlace = new()
+        {
+            [new("a1")] = PieceFactory.White(PieceType.Rook),
+            [new("b2")] = PieceFactory.Black(PieceType.Pawn),
+            [new("c3")] = PieceFactory.White(PieceType.Horsey),
+        };
+        foreach (var (pt, piece) in piecesToPlace)
+            board.PlacePiece(pt, piece);
+
+        var enumerated = board.EnumeratePieces().ToDictionary();
+
+        enumerated.Should().BeEquivalentTo(piecesToPlace);
     }
 }
