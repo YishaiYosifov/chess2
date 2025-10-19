@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.LiveGame;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 
@@ -23,7 +22,7 @@ public class ChessBoardTests
         ChessBoard board = new(pieces);
 
         var squares = board.EnumerateSquares();
-        squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
+        squares.Should().HaveCount(GameLogicConstants.BoardWidth * GameLogicConstants.BoardHeight);
         foreach ((AlgebraicPoint point, Piece? piece) in board.EnumerateSquares())
         {
             if (point != expectedPt)
@@ -414,7 +413,7 @@ public class ChessBoardTests
 
         var squares = board.EnumerateSquares();
 
-        squares.Should().HaveCount(GameConstants.BoardWidth * GameConstants.BoardHeight);
+        squares.Should().HaveCount(GameLogicConstants.BoardWidth * GameLogicConstants.BoardHeight);
     }
 
     [Fact]

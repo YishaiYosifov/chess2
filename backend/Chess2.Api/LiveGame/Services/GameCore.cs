@@ -30,7 +30,11 @@ public class GameCoreState
 {
     [Id(0)]
     public ChessBoard Board { get; init; } =
-        new(GameConstants.StartingPosition, GameConstants.BoardHeight, GameConstants.BoardWidth);
+        new(
+            GameConstants.StartingPosition,
+            GameLogicConstants.BoardHeight,
+            GameLogicConstants.BoardWidth
+        );
 
     [Id(1)]
     public LegalMoveSet LegalMoves { get; set; } = new();
