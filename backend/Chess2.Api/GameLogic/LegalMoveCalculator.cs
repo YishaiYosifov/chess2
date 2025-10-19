@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.ForeverRules;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameLogic.PieceDefinitions;
 
 namespace Chess2.Api.GameLogic;
@@ -23,12 +24,18 @@ public interface ILegalMoveCalculator
 public class LegalMoveCalculator : ILegalMoveCalculator
 {
     private readonly Dictionary<PieceType, IPieceDefinition> _pieceDefinitions = [];
+    private readonly IEnumerable<IForeveRule> _foreverRules;
 
-    public LegalMoveCalculator(IEnumerable<IPieceDefinition> pieceDefinitions)
+    public LegalMoveCalculator(
+        IEnumerable<IPieceDefinition> pieceDefinitions,
+        IEnumerable<IForeveRule> foreverRules
+    )
     {
         _pieceDefinitions = pieceDefinitions.ToDictionary(definition => definition.Type);
         if (_pieceDefinitions.Count != Enum.GetNames<PieceType>().Length)
             throw new InvalidOperationException("Could not find definitions for all pieces");
+
+        _foreverRules = foreverRules;
     }
 
     public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer)
@@ -36,6 +43,12 @@ public class LegalMoveCalculator : ILegalMoveCalculator
         foreach (var (position, piece) in board.EnumeratePieces())
         {
             foreach (var move in CalculateLegalMoves(board, position, movingPlayer))
+                yield return move;
+        }
+
+        foreach (var rule in _foreverRules)
+        {
+            foreach (var move in rule.GetBehaviours(board, movingPlayer))
                 yield return move;
         }
     }
