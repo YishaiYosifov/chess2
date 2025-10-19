@@ -141,5 +141,36 @@
                 "promotesTo": 6
             }
         ]
+    },
+    {
+        "startingFen": "1r8/2R7/3n1c3r/p4p4/1p2p5/6k3/3D1H4/2PK6/1P1N6/10",
+        "moves": [
+            {
+                "from": { "x": 5, "y": 3 },
+                "to": { "x": 7, "y": 2 }
+            },
+            {
+                "from": { "x": 6, "y": 4 },
+                "to": { "x": 7, "y": 3 }
+            },
+            {
+                "from": { "x": 3, "y": 1 },
+                "to": { "x": 2, "y": 3 }
+            },
+            {
+                "from": { "x": 7, "y": 3 },
+                "to": { "x": 7, "y": 2 },
+                "captures": [{ "x": 7, "y": 2 }]
+            },
+            {
+                "from": { "x": 7, "y": 2 },
+                "to": { "x": 7, "y": 2 },
+                "captures": [{ "x": 7, "y": 2 }],
+                "pieceSpawns": [
+                    { "type": 2, "color": 0, "position": { "x": 7, "y": 2 } }
+                ],
+                "specialMoveType": 7
+            }
+        ]
     }
 ]
