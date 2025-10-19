@@ -1,7 +1,3 @@
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -11,6 +7,7 @@ using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
 using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.ForeverRules;
 using Chess2.Api.GameLogic.PieceDefinitions;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Infrastructure;
@@ -61,6 +58,10 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -401,6 +402,8 @@ builder.Services.AddSingleton<IPieceDefinition, SterilePawnDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, AntiqueenDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, TraitorRookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, CheckerDefinition>();
+
+builder.Services.AddSingleton<IForeveRule, OmnipotentPawnRule>();
 #endregion
 
 #region Game Chat
