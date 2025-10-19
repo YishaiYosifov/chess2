@@ -103,9 +103,9 @@
                 "to": { "x": 7, "y": 3 },
                 "captures": [{ "x": 7, "y": 3 }],
                 "pieceSpawns": [
-                    { "type": 3, "color": 0, "position": { "x": 0, "y": 3 } },
-                    { "type": 4, "color": 0, "position": { "x": 1, "y": 3 } },
-                    { "type": 9, "color": 0, "position": { "x": 2, "y": 3 } }
+                    { "type": 3, "color": 0, "position": { "x": 6, "y": 3 } },
+                    { "type": 9, "color": 0, "position": { "x": 7, "y": 4 } },
+                    { "type": 4, "color": 0, "position": { "x": 8, "y": 3 } }
                 ],
                 "specialMoveType": 6
             }
