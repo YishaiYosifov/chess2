@@ -1,6 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.LiveGame;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
 
@@ -14,14 +14,18 @@ public class ChessBoard
     [Id(1)]
     private readonly List<Move> _moves = [];
 
+    [Id(3)]
+    private readonly Dictionary<(PieceType, GameColor?), HashSet<AlgebraicPoint>> _piecePositions =
+    [];
+
     public IReadOnlyList<Move> Moves => _moves;
     public GameColor SideToMove => _moves.Count % 2 == 0 ? GameColor.White : GameColor.Black;
 
-    [Id(3)]
-    public int Height { get; private set; }
-
     [Id(4)]
-    public int Width { get; private set; }
+    public int Height { get; }
+
+    [Id(5)]
+    public int Width { get; }
 
     public ChessBoard(
         Dictionary<AlgebraicPoint, Piece>? pieces = null,
@@ -43,6 +47,11 @@ public class ChessBoard
         Width = board.Width;
         _board = (Piece?[,])board._board.Clone();
         _moves = [.. board._moves];
+
+        foreach (var kvp in board._piecePositions)
+        {
+            _piecePositions[kvp.Key] = [.. kvp.Value];
+        }
     }
 
     private void InitializeBoard(Dictionary<AlgebraicPoint, Piece> pieces)
@@ -50,7 +59,9 @@ public class ChessBoard
         foreach (var (pt, piece) in pieces)
         {
             if (IsWithinBoundaries(pt))
-                _board[pt.Y, pt.X] = piece;
+            {
+                PlacePiece(pt, piece);
+            }
         }
     }
 
@@ -69,6 +80,21 @@ public class ChessBoard
 
     public bool IsEmpty(AlgebraicPoint point) =>
         !IsWithinBoundaries(point) || _board[point.Y, point.X] is null;
+
+    public List<Piece> GetAllPiecesWith(PieceType type, GameColor? color)
+    {
+        (PieceType, GameColor?) key = (type, color);
+        if (!_piecePositions.TryGetValue(key, out var positions))
+            return [];
+
+        List<Piece> result = [];
+        foreach (var position in positions)
+        {
+            if (TryGetPieceAt(position, out var piece))
+                result.Add(piece);
+        }
+        return result;
+    }
 
     public void PlayMove(Move move)
     {
@@ -91,40 +117,68 @@ public class ChessBoard
         // apply captures first
         foreach (var capture in move.Captures)
         {
-            _board[capture.Position.Y, capture.Position.X] = null;
+            RemovePiece(capture.Position);
         }
 
         // then move the pieces
         foreach (var (from, to) in steps)
         {
-            if (!TryGetPieceAt(from, out var piece))
-                continue;
-
-            _board[to.Y, to.X] = piece with { TimesMoved = piece.TimesMoved + 1 };
-            _board[from.Y, from.X] = null;
+            MovePiece(from, to);
         }
 
         foreach (var spawn in move.PieceSpawns)
         {
-            if (IsWithinBoundaries(spawn.Position))
-            {
-                _board[spawn.Position.Y, spawn.Position.X] = new Piece(
-                    Type: spawn.Type,
-                    Color: spawn.Color
-                );
-            }
+            PlacePiece(spawn.Position, new Piece(Type: spawn.Type, Color: spawn.Color));
         }
 
         if (move.PromotesTo is PieceType promotesTo)
         {
-            var promotionPiece = _board[move.To.Y, move.To.X]!;
-            _board[move.To.Y, move.To.X] = promotionPiece with { Type = promotesTo };
+            ModifyPiece(move.To, piece => piece with { Type = promotesTo });
         }
 
         _moves.Add(move);
     }
 
-    public void PlacePiece(AlgebraicPoint point, Piece piece) => _board[point.Y, point.X] = piece;
+    public void PlacePiece(AlgebraicPoint point, Piece piece)
+    {
+        _board[point.Y, point.X] = piece;
+
+        (PieceType, GameColor?) key = (piece.Type, piece.Color);
+        if (_piecePositions.TryGetValue(key, out var positions))
+            positions.Add(point);
+        else
+            _piecePositions[key] = [point];
+    }
+
+    public void RemovePiece(AlgebraicPoint point)
+    {
+        if (!TryGetPieceAt(point, out var piece))
+            return;
+
+        _board[point.Y, point.X] = null;
+
+        (PieceType, GameColor?) key = (piece.Type, piece.Color);
+        if (_piecePositions.TryGetValue(key, out var positions))
+            positions.Remove(point);
+    }
+
+    public void MovePiece(AlgebraicPoint from, AlgebraicPoint to)
+    {
+        if (!TryGetPieceAt(from, out var piece))
+            return;
+
+        RemovePiece(from);
+        PlacePiece(to, piece with { TimesMoved = piece.TimesMoved + 1 });
+    }
+
+    public void ModifyPiece(AlgebraicPoint point, Func<Piece, Piece> modifyAction)
+    {
+        if (!TryGetPieceAt(point, out var piece))
+            return;
+
+        RemovePiece(point);
+        PlacePiece(point, modifyAction(piece));
+    }
 
     public bool IsWithinBoundaries(AlgebraicPoint point) =>
         point.Y >= 0 && point.Y < Height && point.X >= 0 && point.X < Width;
@@ -136,6 +190,18 @@ public class ChessBoard
             for (int x = 0; x < Width; x++)
             {
                 yield return (new AlgebraicPoint(x, y), _board[y, x]);
+            }
+        }
+    }
+
+    public IEnumerable<(AlgebraicPoint Position, Piece Occupant)> EnumeratePieces()
+    {
+        foreach (var positions in _piecePositions.Values)
+        {
+            foreach (var position in positions)
+            {
+                if (TryGetPieceAt(position, out var piece))
+                    yield return (position, piece);
             }
         }
     }
