@@ -1,5 +1,4 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.LiveGame;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.GameLogic;
@@ -11,7 +10,7 @@ public class ChessBoard
     [Id(0)]
     private readonly Piece?[,] _board;
 
-    [Id(1)]
+    [Id(2)]
     private readonly List<Move> _moves = [];
 
     [Id(3)]
@@ -29,8 +28,8 @@ public class ChessBoard
 
     public ChessBoard(
         Dictionary<AlgebraicPoint, Piece>? pieces = null,
-        int height = GameConstants.BoardHeight,
-        int width = GameConstants.BoardWidth
+        int height = GameLogicConstants.BoardHeight,
+        int width = GameLogicConstants.BoardWidth
     )
     {
         Height = height;

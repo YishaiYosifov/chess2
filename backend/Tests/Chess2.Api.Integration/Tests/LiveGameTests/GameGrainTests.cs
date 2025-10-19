@@ -1,6 +1,6 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame;
 using Chess2.Api.LiveGame.Errors;
 using Chess2.Api.LiveGame.Grains;
 using Chess2.Api.LiveGame.Models;
@@ -211,7 +211,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             - 2 * 1000; // removed elapsed time
 
         MoveSnapshot expectedMoveSnapshot = new(
-            Path: MovePath.FromMove(move, GameConstants.BoardWidth),
+            Path: MovePath.FromMove(move, GameLogicConstants.BoardWidth),
             San: _sanCalculator.CalculateSan(
                 move,
                 _gameCore.GetLegalMovesOf(GameColor.White, _state.CurrentGame!.Core).AllMoves

@@ -57,7 +57,4 @@ public static class GameConstants
         [new AlgebraicPoint("j10")] = new Piece(PieceType.Rook, GameColor.Black),
         #endregion
     };
-
-    public const int BoardWidth = 10;
-    public const int BoardHeight = 10;
 }
