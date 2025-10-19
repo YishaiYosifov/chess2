@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.LiveGame.Errors;
@@ -80,10 +81,10 @@ public class GameCore(
         var fen = _fenCalculator.CalculateFen(state.Board);
 
         GameEndStatus? endStatus = null;
-        bool isKingCapture = !HasKingSurvivedMove(move, state.Board);
-        if (isKingCapture)
+        var winStatus = EvaluateKingCaptureResult(move, state.Board, movingSide: movingSide);
+        if (winStatus is not null)
         {
-            endStatus = _resultDescriber.KingCaptured(by: movingSide);
+            endStatus = winStatus;
         }
         else if (
             _drawEvaulator.TryEvaluateDraw(
@@ -99,7 +100,11 @@ public class GameCore(
         }
 
         var path = MovePath.FromMove(move, state.Board.Width);
-        var san = _sanCalculator.CalculateSan(move, state.LegalMoves.AllMoves, isKingCapture);
+        var san = _sanCalculator.CalculateSan(
+            move,
+            state.LegalMoves.AllMoves,
+            isKingCapture: winStatus is not null
+        );
         MoveResult moveResult = new(move, path, san, endStatus);
 
         state.LegalMoves = CalculateAllLegalMoves(state.Board);
@@ -141,20 +146,27 @@ public class GameCore(
         );
     }
 
-    private static bool HasKingSurvivedMove(Move move, ChessBoard board)
+    private GameEndStatus? EvaluateKingCaptureResult(
+        Move move,
+        ChessBoard board,
+        GameColor movingSide
+    )
     {
         if (
             move.Captures is null
             || !move.Captures.Any(x => x.CapturedPiece.Type is PieceType.King)
         )
-            return true;
+            return null;
 
-        var test = board.EnumerateSquares().Where(x => x.Occupant is not null).ToList();
-        var sideToCheck = board.SideToMove;
-        return board
-            .EnumerateSquares()
-            .Any(square =>
-                square.Occupant?.Type is PieceType.King && square.Occupant.Color == sideToCheck
-            );
+        bool opponentOutOfKings =
+            board.GetAllPiecesWith(PieceType.King, movingSide.Invert()).Count == 0;
+        if (opponentOutOfKings)
+            return _resultDescriber.KingCaptured(by: movingSide);
+
+        bool isSelfCapture = board.GetAllPiecesWith(PieceType.King, movingSide).Count == 0;
+        if (isSelfCapture)
+            return _resultDescriber.KingSelfCapture(by: movingSide);
+
+        return null;
     }
 }
