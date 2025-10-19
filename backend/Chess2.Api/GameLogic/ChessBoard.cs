@@ -10,20 +10,20 @@ public class ChessBoard
     [Id(0)]
     private readonly Piece?[,] _board;
 
-    [Id(2)]
+    [Id(1)]
     private readonly List<Move> _moves = [];
 
-    [Id(3)]
+    [Id(2)]
     private readonly Dictionary<(PieceType, GameColor?), HashSet<AlgebraicPoint>> _piecePositions =
     [];
 
     public IReadOnlyList<Move> Moves => _moves;
     public GameColor SideToMove => _moves.Count % 2 == 0 ? GameColor.White : GameColor.Black;
 
-    [Id(4)]
+    [Id(3)]
     public int Height { get; }
 
-    [Id(5)]
+    [Id(4)]
     public int Width { get; }
 
     public ChessBoard(
