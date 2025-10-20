@@ -8,15 +8,12 @@ import clsx from "clsx";
 import useRematch from "../../hooks/useRematch";
 
 const GameOverControls = () => {
-    const pool = useLiveChessStore((x) => x.pool);
+    const { pool, viewer } = useLiveChessStore((x) => ({
+        pool: x.pool,
+        viewer: x.viewer,
+    }));
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
-    const {
-        toggleRematch,
-        requestRematch,
-        isRequestingRematch,
-        isRematchRequested,
-    } = useRematch();
 
     return (
         <>
@@ -28,28 +25,41 @@ const GameOverControls = () => {
             >
                 {isSeeking ? "Searching..." : "New Game"}
             </GameControlButton>
-            {isRematchRequested ? (
-                <GameControlButton
-                    icon={ArrowPathIcon}
-                    onClick={requestRematch}
-                    className="bg-secondary enabled:hover:bg-card enabled:hover:text-text text-black"
-                    data-testid="gameOverControlsRematch"
-                >
-                    Rematch?
-                </GameControlButton>
-            ) : (
-                <GameControlButton
-                    icon={ArrowPathIcon}
-                    className={clsx(
-                        isRequestingRematch && "animate-subtle-ping",
-                    )}
-                    onClick={toggleRematch}
-                    data-testid="gameOverControlsRematch"
-                >
-                    Rematch
-                </GameControlButton>
-            )}
+            {viewer.playerColor !== null && <RematchControls />}
         </>
     );
 };
 export default GameOverControls;
+
+const RematchControls = () => {
+    const {
+        toggleRematch,
+        requestRematch,
+        isRequestingRematch,
+        isRematchRequested,
+    } = useRematch();
+
+    if (isRematchRequested) {
+        return (
+            <GameControlButton
+                icon={ArrowPathIcon}
+                onClick={requestRematch}
+                className="bg-secondary enabled:hover:bg-card enabled:hover:text-text text-black"
+                data-testid="gameOverControlsRematch"
+            >
+                Rematch?
+            </GameControlButton>
+        );
+    } else {
+        return (
+            <GameControlButton
+                icon={ArrowPathIcon}
+                className={clsx(isRequestingRematch && "animate-subtle-ping")}
+                onClick={toggleRematch}
+                data-testid="gameOverControlsRematch"
+            >
+                Rematch
+            </GameControlButton>
+        );
+    }
+};

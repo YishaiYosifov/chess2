@@ -1,5 +1,3 @@
-import { redirect } from "next/navigation";
-
 import LiveChessboard from "@/features/liveGame/components/LiveChessboard";
 import WithSession from "@/features/auth/hocs/WithSession";
 import { getGame, getPreferences } from "@/lib/apiClient";
@@ -14,7 +12,7 @@ export default async function GamePage({
 }) {
     return (
         <WithSession>
-            {async ({ user, accessToken }) => {
+            {async ({ accessToken }) => {
                 const { gameToken } = await params;
 
                 const [game, preferences] = await Promise.all([
@@ -26,14 +24,6 @@ export default async function GamePage({
                     ),
                     dataOrThrow(getPreferences({ auth: () => accessToken })),
                 ]);
-
-                // if the user is not participating in the game, they shouldn't be here
-                // TODO: allow spectating
-                if (
-                    user.userId != game.whitePlayer.userId &&
-                    user.userId != game.blackPlayer.userId
-                )
-                    redirect("/");
 
                 return (
                     <LiveChessboard
