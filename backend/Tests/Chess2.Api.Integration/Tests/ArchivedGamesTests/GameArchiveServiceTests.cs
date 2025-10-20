@@ -167,13 +167,11 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             GameToken: archive.GameToken,
             WhitePlayer: new PlayerSummaryDto(
                 UserId: archive.WhitePlayer.UserId,
-                IsAuthenticated: archive.WhitePlayer.IsAuthenticated,
                 UserName: archive.WhitePlayer.UserName,
                 Rating: archive.WhitePlayer.NewRating
             ),
             BlackPlayer: new PlayerSummaryDto(
                 UserId: archive.BlackPlayer.UserId,
-                IsAuthenticated: archive.BlackPlayer.IsAuthenticated,
                 UserName: archive.BlackPlayer.UserName,
                 Rating: archive.BlackPlayer.NewRating
             ),
@@ -204,7 +202,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
         {
             UserId = player.UserId,
             UserName = player.UserName,
-            IsAuthenticated = player.IsAuthenticated,
             CountryCode = player.CountryCode,
             Color = player.Color,
             NewRating = player.Rating + ratingChange,
