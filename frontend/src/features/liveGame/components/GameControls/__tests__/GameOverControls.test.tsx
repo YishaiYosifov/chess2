@@ -141,7 +141,7 @@ describe("GameOverControls", () => {
         expect(useRematchMock.requestRematch).toHaveBeenCalledOnce();
     });
 
-    it("should not render rematch controls when viewer is a spectator", () => {
+    it("should not render rematch button when viewer is a spectator", () => {
         liveChessStore.setState({
             viewer: { playerColor: null, userId: crypto.randomUUID() },
         });

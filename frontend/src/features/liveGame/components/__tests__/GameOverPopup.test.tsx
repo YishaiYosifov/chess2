@@ -167,4 +167,18 @@ describe("GameOverPopup", () => {
         expect(screen.getByText("NEW GAME")).toBeInTheDocument();
         expect(screen.getByText("REMATCH")).toBeInTheDocument();
     });
+
+    it("should not render rematch button when viewer is a spectator", () => {
+        store.setState({
+            viewer: { playerColor: null, userId: crypto.randomUUID() },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        expect(screen.queryByTestId("REMATCH")).not.toBeInTheDocument();
+    });
 });
