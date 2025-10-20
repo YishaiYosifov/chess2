@@ -1,52 +1,83 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
 public class CastleRule : IPieceMovementRule
 {
-    private const int KingCastlingStepCount = 2;
-    private readonly PieceType _allowCaptureBlockingPieceType = PieceType.Bishop;
+    private const int KingDestStep = 2;
+    private const int RookDestStep = 1;
+
+    private readonly HashSet<PieceType> _allowCaptureBlockingPieceType = [PieceType.Bishop];
 
     public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
     {
         if (movingPiece.TimesMoved > 0)
             yield break;
 
-        int rookXKingside = board.Width - 1;
-        var castleKingside = GetCastlingMovesInDirection(
-            rookXKingside,
-            directionX: 1,
+        foreach (var move in GetKingSide(board, position, movingPiece))
+            yield return move;
+
+        foreach (var move in GetQueenSide(board, position, movingPiece))
+            yield return move;
+
+        foreach (var move in GetVertical(board, position, movingPiece))
+            yield return move;
+    }
+
+    private IEnumerable<Move> GetKingSide(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    ) =>
+        GetCastlingMovesInDirection(
+            rookPosition: new AlgebraicPoint(board.Width - 1, position.Y),
             board,
             movingPiece,
             position,
             SpecialMoveType.KingsideCastle
         );
-        foreach (var move in castleKingside)
-            yield return move;
 
-        int rookXQueenside = 0;
-        var castleQueenside = GetCastlingMovesInDirection(
-            rookXQueenside,
-            directionX: -1,
+    private IEnumerable<Move> GetQueenSide(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    ) =>
+        GetCastlingMovesInDirection(
+            rookPosition: new AlgebraicPoint(0, position.Y),
             board,
             movingPiece,
             position,
             SpecialMoveType.QueensideCastle
         );
-        foreach (var move in castleQueenside)
-            yield return move;
+
+    private IEnumerable<Move> GetVertical(
+        ChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
+    {
+        if (movingPiece.Color is null)
+            return [];
+
+        var rookY = movingPiece.Color.Value.Match(whenWhite: board.Height - 1, whenBlack: 0);
+        return GetCastlingMovesInDirection(
+            rookPosition: new AlgebraicPoint(position.X, rookY),
+            board,
+            movingPiece,
+            position,
+            SpecialMoveType.VerticalCastle
+        );
     }
 
     private IEnumerable<Move> GetCastlingMovesInDirection(
-        int rookX,
-        int directionX,
+        AlgebraicPoint rookPosition,
         ChessBoard board,
         Piece movingPiece,
         AlgebraicPoint position,
         SpecialMoveType moveType
     )
     {
-        AlgebraicPoint rookPosition = new(rookX, position.Y);
         if (
             !board.TryGetPieceAt(rookPosition, out var rook)
             || rook.TimesMoved > 0
@@ -55,53 +86,60 @@ public class CastleRule : IPieceMovementRule
         )
             yield break;
 
-        var targetPosition = new AlgebraicPoint(
-            position.X + KingCastlingStepCount * directionX,
-            position.Y
-        );
-        var targetRookPosition = new AlgebraicPoint(
-            position.X + ((KingCastlingStepCount - 1) * directionX),
-            position.Y
-        );
+        AlgebraicPoint? targetPosition = null;
+        AlgebraicPoint? targetRookPosition = null;
 
         List<AlgebraicPoint> trigger = [];
         List<MoveCapture> captures = [];
-        for (int x = position.X + directionX; x != rookX; x += directionX)
+
+        int dx = rookPosition.X - position.X;
+        int dy = rookPosition.Y - position.Y;
+        int steps = Math.Max(Math.Abs(dx), Math.Abs(dy));
+        for (int step = 1; step < steps; step++)
         {
-            AlgebraicPoint currentSquare = new(x, position.Y);
+            AlgebraicPoint currentSquare = new(
+                position.X + step * dx / steps,
+                position.Y + step * dy / steps
+            );
             if (!board.IsWithinBoundaries(currentSquare))
-                break;
+                yield break;
+
+            if (step == RookDestStep)
+                targetRookPosition = currentSquare;
+            else if (step == KingDestStep)
+                targetPosition = currentSquare;
 
             var pieceOnSquare = board.PeekPieceAt(currentSquare);
             if (pieceOnSquare is null)
             {
-                bool isAdjacentToKing = Math.Abs(currentSquare.X - position.X) == 1;
                 // we don't want to add the target position if it is the current square
                 // because target position is already a trigger
-                if (currentSquare != targetPosition && !isAdjacentToKing)
+                if (step != 1 && step != KingDestStep)
                     trigger.Add(currentSquare);
                 continue;
             }
 
-            var isCapturedAllowed =
-                pieceOnSquare.Type == _allowCaptureBlockingPieceType
+            bool isCapturedAllowed =
+                _allowCaptureBlockingPieceType.Contains(pieceOnSquare.Type)
                 && pieceOnSquare.Color == movingPiece.Color;
-            var isCaptureOnLandingSquare =
-                currentSquare == targetPosition || currentSquare == targetRookPosition;
+            bool isCaptureOnLandingSquare = step == KingDestStep || step == RookDestStep;
             if (!isCapturedAllowed || !isCaptureOnLandingSquare)
                 yield break;
 
             captures.Add(new MoveCapture(currentSquare, board));
         }
 
+        if (targetPosition is null || targetRookPosition is null)
+            yield break;
+
         MoveSideEffect rookSideEffect = new(
             From: rookPosition,
-            To: targetRookPosition,
+            To: targetRookPosition.Value,
             Piece: rook
         );
         yield return new Move(
             position,
-            targetPosition,
+            targetPosition.Value,
             movingPiece,
             triggerSquares: trigger,
             captures: captures,
