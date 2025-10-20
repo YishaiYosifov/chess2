@@ -36,7 +36,10 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip username={userMock.userName} isAuthenticated>
+            <ProfileTooltip
+                username={userMock.userName}
+                userId={userMock.userId}
+            >
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -68,7 +71,10 @@ describe("ProfileTooltip", () => {
     it("should render all ratings in tooltip", async () => {
         const user = userEvent.setup();
         render(
-            <ProfileTooltip username={userMock.userName} isAuthenticated>
+            <ProfileTooltip
+                username={userMock.userName}
+                userId={userMock.userId}
+            >
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -92,7 +98,10 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip username={userMock.userName} isAuthenticated>
+            <ProfileTooltip
+                username={userMock.userName}
+                userId={userMock.userId}
+            >
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -113,7 +122,10 @@ describe("ProfileTooltip", () => {
         render(
             <>
                 <div data-testid="outside">Outside</div>
-                <ProfileTooltip username={userMock.userName} isAuthenticated>
+                <ProfileTooltip
+                    username={userMock.userName}
+                    userId={userMock.userId}
+                >
                     <div>Trigger</div>
                 </ProfileTooltip>
             </>,
@@ -132,7 +144,7 @@ describe("ProfileTooltip", () => {
         render(
             <ProfileTooltip
                 username={userMock.userName}
-                isAuthenticated={false}
+                userId={"guest:" + userMock.userId}
             >
                 <div>Trigger</div>
             </ProfileTooltip>,

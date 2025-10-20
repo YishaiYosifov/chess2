@@ -76,7 +76,7 @@ const ChallengeNotification = ({
             <div className="min-w-0 flex-1">
                 <ProfileTooltip
                     username={challenge.requester.userName}
-                    isAuthenticated={challenge.requester.isAuthenticated}
+                    userId={challenge.requester.userId}
                 >
                     <p
                         className="truncate"
