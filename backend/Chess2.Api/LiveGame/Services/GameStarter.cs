@@ -60,7 +60,6 @@ public class GameStarter(
 
         return new GamePlayer(
             UserId: userId,
-            IsAuthenticated: user is not null,
             Color: color,
             UserName: user?.UserName ?? "Guest",
             CountryCode: user?.CountryCode ?? "XX",
