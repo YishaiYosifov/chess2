@@ -10,23 +10,16 @@ import Popup, { PopupRef } from "@/components/Popup";
 import useRematch from "../hooks/useRematch";
 
 const GameOverPopup = () => {
-    const { whitePlayer, blackPlayer, resultData, playerColor, pool } =
+    const { whitePlayer, blackPlayer, resultData, viewer, pool } =
         useLiveChessStore((x) => ({
             whitePlayer: x.whitePlayer,
             blackPlayer: x.blackPlayer,
             resultData: x.resultData,
-            playerColor: x.viewer.playerColor,
+            viewer: x.viewer,
             pool: x.pool,
         }));
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
-    const {
-        toggleRematch,
-        requestRematch,
-        isRequestingRematch,
-        isRematchRequested,
-    } = useRematch();
-
     const popupRef = useRef<PopupRef>(null);
 
     useEffect(() => {
@@ -49,7 +42,7 @@ const GameOverPopup = () => {
                     resultData.result === GameResult.WHITE_WIN
                         ? GameColor.WHITE
                         : GameColor.BLACK;
-                return playerColor === winColor ? "VICTORY" : "YOU LOST";
+                return viewer.playerColor === winColor ? "VICTORY" : "YOU LOST";
             default:
                 return "GAME OVER";
         }
@@ -86,29 +79,44 @@ const GameOverPopup = () => {
                 >
                     {isSeeking ? "SEARCHING..." : "NEW GAME"}
                 </Button>
-                {isRematchRequested ? (
-                    <Button
-                        onClick={requestRematch}
-                        className="bg-secondary flex-1 text-black"
-                    >
-                        REMATCH?
-                    </Button>
-                ) : (
-                    <Button
-                        onClick={toggleRematch}
-                        className={clsx(
-                            "flex-1",
-                            isRequestingRematch && "animate-subtle-ping",
-                        )}
-                    >
-                        REMATCH
-                    </Button>
-                )}
+                {viewer.playerColor !== null && <RematchButton />}
             </div>
         </Popup>
     );
 };
 export default GameOverPopup;
+
+const RematchButton = () => {
+    const {
+        toggleRematch,
+        requestRematch,
+        isRequestingRematch,
+        isRematchRequested,
+    } = useRematch();
+
+    if (isRematchRequested) {
+        return (
+            <Button
+                onClick={requestRematch}
+                className="bg-secondary flex-1 text-black"
+            >
+                REMATCH?
+            </Button>
+        );
+    } else {
+        return (
+            <Button
+                onClick={toggleRematch}
+                className={clsx(
+                    "flex-1",
+                    isRequestingRematch && "animate-subtle-ping",
+                )}
+            >
+                REMATCH
+            </Button>
+        );
+    }
+};
 
 const PopupCardProfile = ({
     player,
