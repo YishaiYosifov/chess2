@@ -140,4 +140,20 @@ describe("GameOverControls", () => {
         await user.click(screen.getByTestId("gameOverControlsRematch"));
         expect(useRematchMock.requestRematch).toHaveBeenCalledOnce();
     });
+
+    it("should not render rematch controls when viewer is a spectator", () => {
+        liveChessStore.setState({
+            viewer: { playerColor: null, userId: crypto.randomUUID() },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={liveChessStore}>
+                <GameOverControls />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        expect(
+            screen.queryByTestId("gameOverControlsRematch"),
+        ).not.toBeInTheDocument();
+    });
 });
