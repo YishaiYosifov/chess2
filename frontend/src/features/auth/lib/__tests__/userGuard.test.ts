@@ -2,7 +2,7 @@ import {
     createFakeGuestUser,
     createFakePrivateUser,
 } from "@/lib/testUtils/fakers/userFaker";
-import { isAuthed, isGuest } from "../userGuard";
+import { isAuthed, isGuest, isIdAuthed } from "../userGuard";
 
 describe("isAuthed", () => {
     it("should return true for authed", () => {
@@ -29,5 +29,19 @@ describe("isGuest", () => {
 
     it("should return true for null", () => {
         expect(isGuest(null)).toBe(true);
+    });
+});
+
+describe("isIdAuthed", () => {
+    it("should return true for authed userId", () => {
+        expect(isIdAuthed(crypto.randomUUID())).toBe(true);
+    });
+
+    it("should return false for guest userId", () => {
+        expect(isIdAuthed("guest:" + crypto.randomUUID())).toBe(false);
+    });
+
+    it("should return false for null userId", () => {
+        expect(isIdAuthed(null)).toBe(false);
     });
 });

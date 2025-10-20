@@ -27,7 +27,7 @@ const DirectChallengeView = () => {
             />
             <ProfileTooltip
                 username={recipient.userName}
-                isAuthenticated={recipient.isAuthenticated}
+                userId={recipient.userId}
             >
                 <p
                     data-testid="directChallengeViewUserName"

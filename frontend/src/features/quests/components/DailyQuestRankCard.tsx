@@ -20,7 +20,7 @@ const DailyQuestRankCard = ({
     const percentile = ((totalPlayers - currentRank) / totalPlayers) * 100;
     return (
         <Card className="w-full items-center justify-between sm:flex-row">
-            <MinimalProfileView profile={{ ...user, isAuthenticated: true }}>
+            <MinimalProfileView profile={user}>
                 <p className="ml-auto" data-testid="dailyQuestRankPoints">
                     {questPoints} points
                 </p>

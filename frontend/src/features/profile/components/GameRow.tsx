@@ -71,7 +71,7 @@ const GameRow = ({
                 <div className="flex flex-col justify-between">
                     <ProfileTooltip
                         username={game.whitePlayer.userName}
-                        isAuthenticated={game.whitePlayer.isAuthenticated}
+                        userId={game.whitePlayer.userId}
                     >
                         <p data-testid="gameRowWhiteUsername">
                             {game.whitePlayer.userName}
@@ -79,7 +79,7 @@ const GameRow = ({
                     </ProfileTooltip>
                     <ProfileTooltip
                         username={game.blackPlayer.userName}
-                        isAuthenticated={game.blackPlayer.isAuthenticated}
+                        userId={game.blackPlayer.userId}
                     >
                         <p
                             className="text-text/50"

@@ -28,7 +28,7 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
             <div className="flex items-center gap-3">
                 <ProfileTooltip
                     username={player.userName}
-                    isAuthenticated={player.isAuthenticated}
+                    userId={player.userId}
                 >
                     <ProfilePicture userId={player.userId} size={50} />
                     <p className="truncate">{player.userName}</p>

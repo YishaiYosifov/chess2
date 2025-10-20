@@ -10,6 +10,7 @@ import {
 } from "@/lib/apiClient";
 
 import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import { isIdAuthed } from "@/features/auth/lib/userGuard";
 import ProfilePicture from "./ProfilePicture";
 import constants from "@/lib/constants";
 import Card from "@/components/ui/Card";
@@ -18,11 +19,11 @@ import Flag from "./Flag";
 
 const ProfileTooltip = ({
     username,
-    isAuthenticated,
+    userId,
     children,
 }: {
     username: string;
-    isAuthenticated: boolean;
+    userId: string;
     children?: React.ReactNode;
 }) => {
     const [profile, setProfile] = useState<PublicUser>();
@@ -81,7 +82,7 @@ const ProfileTooltip = ({
         };
     }, [open, refs.floating]);
 
-    if (!isAuthenticated) return children;
+    if (!isIdAuthed(userId)) return children;
     return (
         <>
             <div
