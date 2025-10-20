@@ -168,10 +168,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         if (!TryGetCurrentGame(out var game))
             return Task.FromResult<ErrorOr<GameState>>(GameErrors.GameNotFound);
 
-        GamePlayer? player = null;
-        if (forUserId is not null && !game.Players.TryGetPlayerById(forUserId, out player))
-            return Task.FromResult<ErrorOr<GameState>>(GameErrors.PlayerInvalid);
-
+        GamePlayer? player = game.Players.GetPlayerById(forUserId);
         var gameState = GetGameState(game, player);
         return Task.FromResult<ErrorOr<GameState>>(gameState);
     }

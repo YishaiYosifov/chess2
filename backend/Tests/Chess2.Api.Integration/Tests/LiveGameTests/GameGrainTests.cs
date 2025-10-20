@@ -126,6 +126,18 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
+    public async Task GetStateAsync_returns_empty_move_options_if_player_is_spectator()
+    {
+        var grain = await CreateGrainAsync();
+        await StartGameAsync(grain);
+
+        var result = await grain.GetStateAsync("random user id");
+
+        result.IsError.Should().BeFalse();
+        result.Value.MoveOptions.Should().BeEquivalentTo(new MoveOptions());
+    }
+
+    [Fact]
     public async Task GetStateAsync_returns_empty_move_options_if_game_is_over()
     {
         var grain = await CreateGrainAsync();
