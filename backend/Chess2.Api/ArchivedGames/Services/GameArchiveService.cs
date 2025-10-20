@@ -102,13 +102,11 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             archive.GameToken,
             new PlayerSummaryDto(
                 UserId: archive.WhitePlayer.UserId,
-                IsAuthenticated: archive.WhitePlayer.IsAuthenticated,
                 UserName: archive.WhitePlayer.UserName,
                 Rating: archive.WhitePlayer.NewRating
             ),
             new PlayerSummaryDto(
                 UserId: archive.BlackPlayer.UserId,
-                IsAuthenticated: archive.BlackPlayer.IsAuthenticated,
                 UserName: archive.BlackPlayer.UserName,
                 Rating: archive.BlackPlayer.NewRating
             ),
@@ -126,7 +124,6 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             Color = player.Color,
             UserId = player.UserId,
             UserName = player.UserName,
-            IsAuthenticated = player.IsAuthenticated,
             FinalTimeRemaining = timeRemaining,
             CountryCode = player.CountryCode,
             NewRating = player.Rating + (ratingChange ?? 0),

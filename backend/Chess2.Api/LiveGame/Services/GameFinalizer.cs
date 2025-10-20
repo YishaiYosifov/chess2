@@ -109,7 +109,7 @@ public class GameFinalizer(
         GameResultData result
     )
     {
-        if (!player.IsAuthenticated)
+        if (!player.UserId.IsAuthed)
             return;
 
         var grain = _grainFactory.GetGrain<IQuestGrain>(player.UserId);

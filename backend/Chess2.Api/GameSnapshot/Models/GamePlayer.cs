@@ -7,7 +7,6 @@ namespace Chess2.Api.GameSnapshot.Models;
 [Alias("Chess2.Api.GameSnapshot.Models.GamePlayer")]
 public record GamePlayer(
     UserId UserId,
-    bool IsAuthenticated,
     GameColor Color,
     string UserName,
     string CountryCode,

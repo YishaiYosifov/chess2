@@ -7,11 +7,11 @@ namespace Chess2.Api.Profile.DTOs;
 [method: JsonConstructor]
 [GenerateSerializer]
 [Alias("Chess2.Api.Profile.DTOs.MinimalProfile")]
-public record MinimalProfile(UserId UserId, bool IsAuthenticated, string UserName)
+public record MinimalProfile(UserId UserId, string UserName)
 {
     public MinimalProfile(AuthedUser user)
-        : this(user.Id, IsAuthenticated: true, user.UserName ?? "Unknown") { }
+        : this(user.Id, user.UserName ?? "Unknown") { }
 
     public MinimalProfile(UserId userId, AuthedUser? user)
-        : this(userId, IsAuthenticated: user is not null, user?.UserName ?? "Guest") { }
+        : this(userId, user?.UserName ?? "Guest") { }
 }
