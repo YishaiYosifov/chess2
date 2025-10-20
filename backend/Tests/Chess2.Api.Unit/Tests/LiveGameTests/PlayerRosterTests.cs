@@ -21,19 +21,27 @@ public class PlayerRosterTests
     public void TryGetPlayerById_returns_the_correct_player()
     {
         _playerRoster.TryGetPlayerById(_whitePlayer.UserId, out var foundWhite).Should().BeTrue();
-        foundWhite.Should().BeEquivalentTo(_whitePlayer);
+        foundWhite.Should().Be(_whitePlayer);
 
         _playerRoster.TryGetPlayerById(_blackPlayer.UserId, out var foundBlack).Should().BeTrue();
-        foundBlack.Should().BeEquivalentTo(_blackPlayer);
+        foundBlack.Should().Be(_blackPlayer);
 
         _playerRoster.TryGetPlayerById("notfound", out var notFound).Should().BeFalse();
         notFound.Should().BeNull();
     }
 
     [Fact]
+    public void GetPlayerById_returns_the_correct_player()
+    {
+        _playerRoster.GetPlayerById(_whitePlayer.UserId).Should().Be(_whitePlayer);
+        _playerRoster.GetPlayerById(_blackPlayer.UserId).Should().Be(_blackPlayer);
+        _playerRoster.GetPlayerById("notfound").Should().BeNull();
+    }
+
+    [Fact]
     public void GetPlayerByColor_returns_the_correct_player()
     {
-        _playerRoster.GetPlayerByColor(GameColor.White).Should().BeEquivalentTo(_whitePlayer);
-        _playerRoster.GetPlayerByColor(GameColor.Black).Should().BeEquivalentTo(_blackPlayer);
+        _playerRoster.GetPlayerByColor(GameColor.White).Should().Be(_whitePlayer);
+        _playerRoster.GetPlayerByColor(GameColor.Black).Should().Be(_blackPlayer);
     }
 }
