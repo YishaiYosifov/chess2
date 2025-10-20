@@ -41,7 +41,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.IsSuccessful.Should().BeTrue();
 
         var gameState = response.Content;
         gameState.Should().NotBeNull();
@@ -57,7 +57,7 @@ public class GameControllerTests : BaseFunctionalTest
 
         var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.IsSuccessful.Should().BeTrue();
 
         var gameState = response.Content;
         gameState.Should().NotBeNull();
@@ -71,7 +71,7 @@ public class GameControllerTests : BaseFunctionalTest
     }
 
     [Fact]
-    public async Task GetGame_returns_403_for_guest_not_in_game()
+    public async Task GetGame_returns_gane_state_for_guest_not_in_game()
     {
         var gameToken = await _gameStarter.StartGameAsync(
             UserId.Guest(),
@@ -82,11 +82,14 @@ public class GameControllerTests : BaseFunctionalTest
 
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.IsSuccessful.Should().BeTrue();
+
+        response.Content.Should().NotBeNull();
+        response.Content.MoveOptions.Should().BeEquivalentTo(new MoveOptions());
     }
 
     [Fact]
-    public async Task GetGame_returns_403_for_authed_user_not_in_game()
+    public async Task GetGame_returns_game_state_for_authed_user_not_in_game()
     {
         var gameToken = await _gameStarter.StartGameAsync(
             UserId.Guest(),
@@ -98,7 +101,10 @@ public class GameControllerTests : BaseFunctionalTest
         await AuthUtils.AuthenticateAsync(ApiClient);
         var response = await ApiClient.Api.GetGameAsync(gameToken);
 
-        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        response.IsSuccessful.Should().BeTrue();
+
+        response.Content.Should().NotBeNull();
+        response.Content.MoveOptions.Should().BeEquivalentTo(new MoveOptions());
     }
 
     [Fact]

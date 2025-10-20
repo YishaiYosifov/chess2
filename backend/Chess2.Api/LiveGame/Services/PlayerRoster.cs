@@ -12,13 +12,17 @@ public record PlayerRoster(GamePlayer WhitePlayer, GamePlayer BlackPlayer)
 {
     public bool TryGetPlayerById(UserId? userId, [NotNullWhen(true)] out GamePlayer? player)
     {
-        player = null;
-        if (WhitePlayer.UserId == userId)
-            player = WhitePlayer;
-        else if (BlackPlayer.UserId == userId)
-            player = BlackPlayer;
-
+        player = GetPlayerById(userId);
         return player is not null;
+    }
+
+    public GamePlayer? GetPlayerById(UserId? userId)
+    {
+        if (WhitePlayer.UserId == userId)
+            return WhitePlayer;
+        else if (BlackPlayer.UserId == userId)
+            return BlackPlayer;
+        return null;
     }
 
     public GamePlayer GetPlayerByColor(GameColor color) =>
