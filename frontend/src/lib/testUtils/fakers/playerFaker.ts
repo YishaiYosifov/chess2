@@ -7,7 +7,6 @@ export function createFakePlayer(
 ): GamePlayer {
     return {
         userId: faker.string.uuid(),
-        isAuthenticated: true,
         color,
         userName: faker.internet.username(),
         countryCode: faker.location.countryCode(),

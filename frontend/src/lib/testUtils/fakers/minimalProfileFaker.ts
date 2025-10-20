@@ -9,7 +9,6 @@ export function createFakeMinimalProfile(
 ): MinimalProfile {
     return {
         userId: faker.string.uuid(),
-        isAuthenticated: true,
         userName: faker.internet.username(),
         ...overrides,
     };

@@ -13,3 +13,8 @@ export function isGuest(user: SessionUser | null): user is GuestUser {
     const type: GuestUser["type"] = "guest";
     return user.type === type;
 }
+
+export function isIdAuthed(userId: string | null): boolean {
+    if (userId === null) return false;
+    return !userId.startsWith("guest:");
+}

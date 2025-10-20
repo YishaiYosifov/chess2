@@ -76,7 +76,6 @@ export type PagedResultOfMinimalProfile = {
 
 export type MinimalProfile = {
     userId: string;
-    isAuthenticated: boolean;
     userName: string;
 };
 
@@ -240,7 +239,6 @@ export type TimeControlSettings = {
 
 export type GamePlayer = {
     userId: string;
-    isAuthenticated: boolean;
     color: GameColor;
     userName: string;
     countryCode: string;
@@ -399,7 +397,6 @@ export type GameSummary = {
 
 export type PlayerSummary = {
     userId: string;
-    isAuthenticated: boolean;
     userName: string;
     rating?: number | null;
 };
