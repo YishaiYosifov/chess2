@@ -1,5 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.GameLogic.Models;
 
 namespace Chess2.Api.GameLogic;
 
@@ -132,7 +132,7 @@ public class ChessBoard
 
         if (move.PromotesTo is PieceType promotesTo)
         {
-            ModifyPiece(move.To, piece => piece with { Type = promotesTo });
+            ModifyPiece(move.To, piece => piece with { Type = promotesTo, TimesMoved = 0 });
         }
 
         _moves.Add(move);

@@ -280,7 +280,7 @@ public class ChessBoardTests
     }
 
     [Fact]
-    public void PlayMove_with_promotion_replaces_piece_type()
+    public void PlayMove_with_promotion_replaces_piece_type_and_reset_times_moved()
     {
         ChessBoard board = new();
         Piece pawn = PieceFactory.White(PieceType.Pawn);
@@ -294,7 +294,7 @@ public class ChessBoardTests
 
         board.PeekPieceAt(from).Should().BeNull();
         var promotedPiece = board.PeekPieceAt(to);
-        promotedPiece.Should().Be(new Piece(PieceType.Queen, pawn.Color, pawn.TimesMoved + 1));
+        promotedPiece.Should().Be(new Piece(PieceType.Queen, pawn.Color, TimesMoved: 0));
     }
 
     [Fact]
