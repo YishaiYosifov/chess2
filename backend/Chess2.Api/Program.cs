@@ -1,3 +1,7 @@
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -58,10 +62,6 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -387,6 +387,7 @@ builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 builder.Services.AddSingleton<ISanNotator, RegularNotator>();
 builder.Services.AddSingleton<ISanNotator, KingsideCastleNotator>();
 builder.Services.AddSingleton<ISanNotator, QueensideCastleNotator>();
+builder.Services.AddSingleton<ISanNotator, VerticalCastleNotator>();
 builder.Services.AddSingleton<ISanNotator, IlVaticanoNotator>();
 builder.Services.AddSingleton<ISanNotator, BetaDecayNotator>();
 builder.Services.AddSingleton<ISanNotator, OmnipotentPawnNotator>();
