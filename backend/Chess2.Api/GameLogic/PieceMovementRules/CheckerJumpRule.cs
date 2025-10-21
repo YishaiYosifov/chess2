@@ -6,7 +6,11 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
 {
     private readonly Offset[] _offsets = offsets;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         foreach (var offset in _offsets)
         foreach (
@@ -25,7 +29,7 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
     }
 
     private IEnumerable<Move> FindCaptureSequences(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint origin,
         AlgebraicPoint currentPosition,
         Piece movingPiece,

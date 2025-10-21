@@ -26,7 +26,7 @@ public class RookDefinition : IPieceDefinition
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer

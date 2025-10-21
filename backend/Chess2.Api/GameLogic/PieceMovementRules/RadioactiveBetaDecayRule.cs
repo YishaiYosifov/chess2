@@ -6,7 +6,11 @@ public class RadioactiveBetaDecayRule(Dictionary<Offset, PieceType> decays) : IP
 {
     private readonly Dictionary<Offset, PieceType> _decays = decays;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         List<PieceSpawn> spawns = [];
         foreach (var (offset, pieceType) in _decays)
