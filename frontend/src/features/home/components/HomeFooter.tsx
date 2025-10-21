@@ -23,9 +23,8 @@ const HomeFooter = () => {
                         >
                             r/AnarchyChess
                         </Link>
-                        . Developed by a single person (that person being me :])
-                        over a couple of years, it&apos;s full of weird pieces,
-                        rules, and whatever came out of that subreddit.
+                        . This website is literally just a shitpost that I spend
+                        a stupid amount of time on.
                     </p>
                 </div>
 
