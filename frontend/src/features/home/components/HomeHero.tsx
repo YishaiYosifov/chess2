@@ -21,6 +21,7 @@ const HomeHero = () => {
                 <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl">
                     CHESS 2
                 </h1>
+                <h2 className="text-3xl xl:text-end">The Anarchy Update</h2>
 
                 <Image
                     src={Knook}
