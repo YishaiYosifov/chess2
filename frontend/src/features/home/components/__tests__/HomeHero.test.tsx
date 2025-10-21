@@ -11,6 +11,7 @@ describe("HomeHero", () => {
         const heroTitle = screen.getByTestId("homeHeroBanner");
         expect(heroTitle).toHaveTextContent("CHESS 2");
         expect(heroTitle).toHaveTextContent("WELCOME TO");
+        expect(heroTitle).toHaveTextContent("The Anarchy Update");
     });
 
     it("should render the knook image", () => {
