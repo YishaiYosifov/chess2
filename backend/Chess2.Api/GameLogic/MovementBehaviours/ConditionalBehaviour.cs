@@ -3,17 +3,17 @@
 namespace Chess2.Api.GameLogic.MovementBehaviours;
 
 public class ConditionalBehaviour(
-    Func<ChessBoard, AlgebraicPoint, Piece, bool> predicate,
+    Func<IReadOnlyChessBoard, AlgebraicPoint, Piece, bool> predicate,
     IMovementBehaviour? trueBranch,
     IMovementBehaviour? falseBranch
 ) : IMovementBehaviour
 {
-    private readonly Func<ChessBoard, AlgebraicPoint, Piece, bool> _predicate = predicate;
+    private readonly Func<IReadOnlyChessBoard, AlgebraicPoint, Piece, bool> _predicate = predicate;
     private readonly IMovementBehaviour? _trueBranch = trueBranch;
     private readonly IMovementBehaviour? _falseBranch = falseBranch;
 
     public IEnumerable<AlgebraicPoint> Evaluate(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     ) =>

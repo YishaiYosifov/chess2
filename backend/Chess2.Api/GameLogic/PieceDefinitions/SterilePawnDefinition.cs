@@ -8,7 +8,7 @@ public class SterilePawnDefinition : BasePawnDefinition
     public override PieceType Type => PieceType.SterilePawn;
 
     public override IEnumerable<IPieceMovementRule> GetBehaviours(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer

@@ -5,7 +5,7 @@ namespace Chess2.Api.GameLogic.ForeverRules;
 
 public class OmnipotentPawnRule : IForeveRule
 {
-    public IEnumerable<Move> GetBehaviours(ChessBoard board, GameColor movingPlayer)
+    public IEnumerable<Move> GetBehaviours(IReadOnlyChessBoard board, GameColor movingPlayer)
     {
         if (board.Moves.Count == 0)
             yield break;

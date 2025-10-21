@@ -19,7 +19,11 @@ public class KnooklearFusionRule(PieceType fuseWith, params IPieceMovementRule[]
         new Offset(X: -1, Y: -1),
     ];
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         foreach (var rule in rules)
         {
@@ -38,7 +42,7 @@ public class KnooklearFusionRule(PieceType fuseWith, params IPieceMovementRule[]
         }
     }
 
-    private Move BecomeDeathTheDestroyerOfWorlds(ChessBoard board, Move move)
+    private Move BecomeDeathTheDestroyerOfWorlds(IReadOnlyChessBoard board, Move move)
     {
         var position = move.To;
         List<MoveCapture> captures = [.. move.Captures];

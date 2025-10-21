@@ -4,5 +4,5 @@ namespace Chess2.Api.GameLogic.ForeverRules;
 
 public interface IForeveRule
 {
-    IEnumerable<Move> GetBehaviours(ChessBoard board, GameColor movingPlayer);
+    IEnumerable<Move> GetBehaviours(IReadOnlyChessBoard board, GameColor movingPlayer);
 }

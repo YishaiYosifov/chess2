@@ -10,7 +10,11 @@ public class CastleRule : IPieceMovementRule
 
     private readonly HashSet<PieceType> _allowCaptureBlockingPieceType = [PieceType.Bishop];
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         if (movingPiece.TimesMoved > 0)
             yield break;
@@ -26,7 +30,7 @@ public class CastleRule : IPieceMovementRule
     }
 
     private IEnumerable<Move> GetKingSide(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     ) =>
@@ -39,7 +43,7 @@ public class CastleRule : IPieceMovementRule
         );
 
     private IEnumerable<Move> GetQueenSide(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     ) =>
@@ -52,7 +56,7 @@ public class CastleRule : IPieceMovementRule
         );
 
     private IEnumerable<Move> GetVertical(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     )
@@ -72,7 +76,7 @@ public class CastleRule : IPieceMovementRule
 
     private IEnumerable<Move> GetCastlingMovesInDirection(
         AlgebraicPoint rookPosition,
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         Piece movingPiece,
         AlgebraicPoint position,
         SpecialMoveType moveType
