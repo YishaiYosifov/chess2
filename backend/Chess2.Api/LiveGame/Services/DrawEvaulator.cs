@@ -11,7 +11,7 @@ public interface IDrawEvaulator
     bool TryEvaluateDraw(
         Move move,
         string fen,
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AutoDrawState state,
         [NotNullWhen(true)] out GameEndStatus? endStatus
     );
@@ -38,7 +38,7 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
     public bool TryEvaluateDraw(
         Move move,
         string fen,
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AutoDrawState state,
         [NotNullWhen(true)] out GameEndStatus? endStatus
     )
@@ -84,7 +84,7 @@ public class DrawEvaulator(IGameResultDescriber gameResultDescriber) : IDrawEvau
         return state.HalfMoveClock >= 100;
     }
 
-    private static bool IsKingTouch(Move move, ChessBoard board)
+    private static bool IsKingTouch(Move move, IReadOnlyChessBoard board)
     {
         if (move.Piece.Type is not PieceType.King)
             return false;

@@ -4,15 +4,19 @@ namespace Chess2.Api.GameLogic.PieceMovementRules;
 
 public class ForcedMoveRule(
     ForcedMovePriority priority,
-    Func<ChessBoard, Move, bool> predicate,
+    Func<IReadOnlyChessBoard, Move, bool> predicate,
     params IPieceMovementRule[] rules
 ) : IPieceMovementRule
 {
     private readonly IPieceMovementRule[] _rules = rules;
     private readonly ForcedMovePriority _priority = priority;
-    private readonly Func<ChessBoard, Move, bool> _predicate = predicate;
+    private readonly Func<IReadOnlyChessBoard, Move, bool> _predicate = predicate;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         foreach (var rule in _rules)
         {

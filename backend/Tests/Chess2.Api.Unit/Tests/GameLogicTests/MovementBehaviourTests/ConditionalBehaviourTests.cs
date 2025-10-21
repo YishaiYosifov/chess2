@@ -35,11 +35,11 @@ public class ConditionalBehaviourTests
     public ConditionalBehaviourTests()
     {
         _mockTrueBranch
-            .Evaluate(Arg.Any<ChessBoard>(), Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())
+            .Evaluate(_board, Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())
             .Returns(_trueBranchPoints);
 
         _mockFalseBranch
-            .Evaluate(Arg.Any<ChessBoard>(), Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())
+            .Evaluate(_board, Arg.Any<AlgebraicPoint>(), Arg.Any<Piece>())
             .Returns(_falseBranchPoints);
 
         _board.PlacePiece(_from, _piece);

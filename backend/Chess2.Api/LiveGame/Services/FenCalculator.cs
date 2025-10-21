@@ -7,14 +7,14 @@ namespace Chess2.Api.LiveGame.Services;
 
 public interface IFenCalculator
 {
-    string CalculateFen(ChessBoard board);
+    string CalculateFen(IReadOnlyChessBoard board);
 }
 
 public class FenCalculator(IPieceToLetter pieceToLetter) : IFenCalculator
 {
     private readonly IPieceToLetter _pieceToLetter = pieceToLetter;
 
-    public string CalculateFen(ChessBoard board)
+    public string CalculateFen(IReadOnlyChessBoard board)
     {
         var sb = new StringBuilder();
 

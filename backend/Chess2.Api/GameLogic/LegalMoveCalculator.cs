@@ -13,9 +13,9 @@ public record PieceRule(
 
 public interface ILegalMoveCalculator
 {
-    IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer);
+    IEnumerable<Move> CalculateAllLegalMoves(IReadOnlyChessBoard board, GameColor movingPlayer);
     IEnumerable<Move> CalculateLegalMoves(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         GameColor movingPlayer
     );
@@ -38,7 +38,10 @@ public class LegalMoveCalculator : ILegalMoveCalculator
         _foreverRules = foreverRules;
     }
 
-    public IEnumerable<Move> CalculateAllLegalMoves(ChessBoard board, GameColor movingPlayer)
+    public IEnumerable<Move> CalculateAllLegalMoves(
+        IReadOnlyChessBoard board,
+        GameColor movingPlayer
+    )
     {
         foreach (var (position, piece) in board.EnumeratePieces())
         {
@@ -54,7 +57,7 @@ public class LegalMoveCalculator : ILegalMoveCalculator
     }
 
     public IEnumerable<Move> CalculateLegalMoves(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         GameColor movingPlayer
     )

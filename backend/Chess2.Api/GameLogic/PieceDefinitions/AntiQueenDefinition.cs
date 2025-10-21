@@ -23,7 +23,7 @@ public class AntiqueenDefinition : IPieceDefinition
     ];
 
     public IEnumerable<IPieceMovementRule> GetBehaviours(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer

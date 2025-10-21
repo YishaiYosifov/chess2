@@ -5,7 +5,7 @@ namespace Chess2.Api.GameLogic;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.GameLogic.ChessBoard")]
-public class ChessBoard
+public class ChessBoard : IReadOnlyChessBoard
 {
     [Id(0)]
     private readonly Piece?[,] _board;
@@ -38,19 +38,6 @@ public class ChessBoard
         _board = new Piece[height, width];
         if (pieces is not null)
             InitializeBoard(pieces);
-    }
-
-    public ChessBoard(ChessBoard board)
-    {
-        Height = board.Height;
-        Width = board.Width;
-        _board = (Piece?[,])board._board.Clone();
-        _moves = [.. board._moves];
-
-        foreach (var kvp in board._piecePositions)
-        {
-            _piecePositions[kvp.Key] = [.. kvp.Value];
-        }
     }
 
     private void InitializeBoard(Dictionary<AlgebraicPoint, Piece> pieces)

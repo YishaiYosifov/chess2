@@ -8,7 +8,7 @@ public class SlideBehaviour(Offset offset, int? max = null) : IMovementBehaviour
     private readonly int? _max = max;
 
     public IEnumerable<AlgebraicPoint> Evaluate(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     )

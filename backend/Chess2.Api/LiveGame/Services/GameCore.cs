@@ -94,7 +94,7 @@ public class GameCore(
             _drawEvaulator.TryEvaluateDraw(
                 move,
                 fen,
-                new ChessBoard(state.Board),
+                state.Board,
                 state.AutoDrawState,
                 out var drawReason
             )

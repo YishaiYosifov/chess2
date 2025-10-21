@@ -10,14 +10,14 @@ public abstract class BasePawnDefinition : IPieceDefinition
     public abstract PieceType Type { get; }
 
     public abstract IEnumerable<IPieceMovementRule> GetBehaviours(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer
     );
 
     protected IEnumerable<IPieceMovementRule> GetPawnBehaviours(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         Piece movingPiece,
         int maxInitialMoveDistance,
         bool canPromote = true

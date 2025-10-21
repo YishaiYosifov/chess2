@@ -7,7 +7,11 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
     private readonly Offset _direction = direction;
     private readonly Offset _chainCaptureDirection = chainCaptureDirection;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         var pawnEnPassant = EvaluatePawnEnPassant(board, position, movingPiece);
         if (pawnEnPassant is null)
@@ -21,7 +25,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
     }
 
     private Move? EvaluatePawnEnPassant(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     )
@@ -65,7 +69,7 @@ public class EnPassantRule(Offset direction, Offset chainCaptureDirection) : IPi
     }
 
     private IEnumerable<Move> EvaluateEnPassantChain(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         Piece movingPiece,
         Move pawnEnPassant
     )

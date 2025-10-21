@@ -7,7 +7,11 @@ public class NoCaptureRule(params IMovementBehaviour[] movementBehaviours) : IPi
 {
     private readonly IMovementBehaviour[] _movementBehaviours = movementBehaviours;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         foreach (var behaviour in _movementBehaviours)
         {

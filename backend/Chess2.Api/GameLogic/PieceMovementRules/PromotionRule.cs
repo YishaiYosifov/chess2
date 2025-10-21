@@ -3,16 +3,20 @@
 namespace Chess2.Api.GameLogic.PieceMovementRules;
 
 public class PromotionRule(
-    Func<ChessBoard, Move, bool> predicate,
+    Func<IReadOnlyChessBoard, Move, bool> predicate,
     IReadOnlyCollection<PieceType> promotesTo,
     params IPieceMovementRule[] pieceRules
 ) : IPieceMovementRule
 {
     private readonly IPieceMovementRule[] _pieceRules = pieceRules;
-    private readonly Func<ChessBoard, Move, bool> _predicate = predicate;
+    private readonly Func<IReadOnlyChessBoard, Move, bool> _predicate = predicate;
     private readonly IReadOnlyCollection<PieceType> _promotesTo = promotesTo;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         foreach (var rule in _pieceRules)
         {

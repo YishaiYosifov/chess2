@@ -7,7 +7,11 @@ public class IlVaticanoRule(Offset stepOffset, int partnerDistance = 3) : IPiece
     private readonly Offset _stepOffset = stepOffset;
     private readonly int _partnerDistance = partnerDistance;
 
-    public IEnumerable<Move> Evaluate(ChessBoard board, AlgebraicPoint position, Piece movingPiece)
+    public IEnumerable<Move> Evaluate(
+        IReadOnlyChessBoard board,
+        AlgebraicPoint position,
+        Piece movingPiece
+    )
     {
         var partnerPiecePosition = position + (_stepOffset * _partnerDistance);
         if (

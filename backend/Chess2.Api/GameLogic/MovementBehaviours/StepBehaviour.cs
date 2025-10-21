@@ -7,7 +7,7 @@ public class StepBehaviour(Offset offset) : IMovementBehaviour
     private readonly Offset _offset = offset;
 
     public IEnumerable<AlgebraicPoint> Evaluate(
-        ChessBoard board,
+        IReadOnlyChessBoard board,
         AlgebraicPoint position,
         Piece movingPiece
     )
