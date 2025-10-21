@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.Challenges.Models;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;

@@ -1,5 +1,5 @@
-﻿using Chess2.Api.LiveGame.Entities;
-using Chess2.Api.LiveGame.Repositories;
+﻿using Chess2.Api.Game.Entities;
+using Chess2.Api.Game.Repositories;
 using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

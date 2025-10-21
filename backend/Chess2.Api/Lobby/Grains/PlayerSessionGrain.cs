@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;

@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Chess2.Api.GameLogic.Models;
-using Chess2.Api.LiveGame.SanNotation.Notators;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.SanNotation.Notators;
+using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 

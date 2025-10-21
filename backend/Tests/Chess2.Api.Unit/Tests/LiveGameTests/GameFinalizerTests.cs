@@ -2,8 +2,8 @@
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;

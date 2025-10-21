@@ -1,4 +1,4 @@
-﻿using Chess2.Api.LiveGame.Services;
+﻿using Chess2.Api.Game.Services;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;

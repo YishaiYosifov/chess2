@@ -3,7 +3,7 @@ using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;

@@ -1,10 +1,10 @@
 ﻿using Chess2.Api.GameLogic;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Errors;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.SanNotation;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Errors;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.SanNotation;
+using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

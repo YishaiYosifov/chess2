@@ -2,8 +2,8 @@
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Infrastructure;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;

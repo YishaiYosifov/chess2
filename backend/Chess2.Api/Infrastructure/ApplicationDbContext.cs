@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.Auth.Entities;
-using Chess2.Api.LiveGame.Entities;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Entities;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Preferences.Entities;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;

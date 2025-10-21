@@ -1,7 +1,7 @@
-﻿using Chess2.Api.LiveGame.Entities;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Repositories;
-using Chess2.Api.LiveGame.Services;
+﻿using Chess2.Api.Game.Entities;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Repositories;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure;

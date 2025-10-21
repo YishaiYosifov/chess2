@@ -1,5 +1,5 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;

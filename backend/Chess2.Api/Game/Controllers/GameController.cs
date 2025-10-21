@@ -5,7 +5,7 @@ using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.LiveGame.Grains;
+using Chess2.Api.Game.Grains;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Shared.Models;
 using FluentValidation;
