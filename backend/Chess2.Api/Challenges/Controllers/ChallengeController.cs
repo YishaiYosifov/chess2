@@ -2,10 +2,12 @@
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Errors;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Matchmaking.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,22 +19,29 @@ namespace Chess2.Api.Challenges.Controllers;
 public class ChallengeController(
     IGrainFactory grains,
     IChallengeRequestCreator challengeRequestCreator,
-    IAuthService authService
+    IAuthService authService,
+    IValidator<TimeControlSettings> timeControlValidator
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IChallengeRequestCreator _challengeRequestCreator = challengeRequestCreator;
     private readonly IAuthService _authService = authService;
+    private readonly IValidator<TimeControlSettings> _timeControlValidator = timeControlValidator;
 
     [HttpPut]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ChallengeRequest>> CreateChallenge(
         [FromQuery] string? recipientId,
         PoolKey pool
     )
     {
+        var validationResult = _timeControlValidator.Validate(pool.TimeControl);
+        if (!validationResult.IsValid)
+            return validationResult.Errors.ToErrorList().ToActionResult();
+
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
