@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
-using Chess2.Api.LiveGame.SignalR;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
+using Chess2.Api.Game.SignalR;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;

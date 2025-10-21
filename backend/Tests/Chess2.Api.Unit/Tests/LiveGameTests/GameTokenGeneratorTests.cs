@@ -1,6 +1,6 @@
-﻿using Chess2.Api.LiveGame.Grains;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+﻿using Chess2.Api.Game.Grains;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Shared.Services;
 using FluentAssertions;
 using NSubstitute;

@@ -1,5 +1,5 @@
-﻿using Chess2.Api.LiveGame.Services;
-using Chess2.Api.LiveGame.SignalR;
+﻿using Chess2.Api.Game.Services;
+using Chess2.Api.Game.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using NSubstitute;
 

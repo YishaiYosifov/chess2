@@ -1,8 +1,8 @@
 ﻿using System.Net;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Grains;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Grains;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;

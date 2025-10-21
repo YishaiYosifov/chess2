@@ -2,7 +2,7 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;

@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Services;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
