@@ -1,6 +1,6 @@
 ﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;

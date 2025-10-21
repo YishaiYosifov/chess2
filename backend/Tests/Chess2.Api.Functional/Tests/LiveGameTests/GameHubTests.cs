@@ -1,4 +1,4 @@
-﻿using Chess2.Api.LiveGame.Services;
+﻿using Chess2.Api.Game.Services;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using Chess2.Api.TestInfrastructure.Utils;

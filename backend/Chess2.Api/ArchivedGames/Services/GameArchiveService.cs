@@ -2,7 +2,7 @@
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;

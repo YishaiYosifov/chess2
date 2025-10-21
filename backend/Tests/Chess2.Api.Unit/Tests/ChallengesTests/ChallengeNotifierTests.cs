@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
-using Chess2.Api.LiveGame.Models;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;

@@ -1,4 +1,4 @@
-﻿using Chess2.Api.LiveGame.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Lobby.SignalR;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;

@@ -1,7 +1,7 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
-using Chess2.Api.LiveGame.Models;
-using Chess2.Api.LiveGame.Services;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
