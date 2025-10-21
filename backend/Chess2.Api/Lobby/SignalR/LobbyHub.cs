@@ -1,12 +1,14 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Infrastructure.SignalR;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services;
 using Chess2.Api.Profile.Models;
 using ErrorOr;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Chess2.Api.Lobby.SignalR;
@@ -22,16 +24,25 @@ public class LobbyHub(
     ILogger<LobbyHub> logger,
     ISeekerCreator seekerCreator,
     IGrainFactory grains,
-    IAuthService authService
+    IAuthService authService,
+    IValidator<TimeControlSettings> timeControlValidator
 ) : Chess2Hub<ILobbyHubClient>
 {
     private readonly ILogger<LobbyHub> _logger = logger;
     private readonly ISeekerCreator _seekerCreator = seekerCreator;
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
+    private readonly IValidator<TimeControlSettings> _timeControlValidator = timeControlValidator;
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)
     {
+        var validationResult = _timeControlValidator.Validate(timeControl);
+        if (!validationResult.IsValid)
+        {
+            await HandleErrors(validationResult.Errors.ToErrorList());
+            return;
+        }
+
         var userResult = await _authService.GetLoggedInUserAsync(Context.User);
         if (userResult.IsError)
         {
@@ -55,6 +66,13 @@ public class LobbyHub(
 
     public async Task SeekCasualAsync(TimeControlSettings timeControl)
     {
+        var validationResult = _timeControlValidator.Validate(timeControl);
+        if (!validationResult.IsValid)
+        {
+            await HandleErrors(validationResult.Errors.ToErrorList());
+            return;
+        }
+
         var seekerResult = await _authService.MatchAuthTypeAsync<Seeker>(
             Context.User,
             whenAuthed: async user => await _seekerCreator.CreateAuthedCasualSeekerAsync(user),

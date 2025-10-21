@@ -1,7 +1,3 @@
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -10,20 +6,22 @@ using Chess2.Api.Auth.Services;
 using Chess2.Api.Auth.Services.OAuthAuthenticators;
 using Chess2.Api.Challenges.Services;
 using Chess2.Api.Challenges.SignalR;
-using Chess2.Api.GameLogic;
-using Chess2.Api.GameLogic.ForeverRules;
-using Chess2.Api.GameLogic.PieceDefinitions;
-using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Infrastructure;
-using Chess2.Api.Infrastructure.ActionFilters;
-using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Infrastructure.OpenAPI;
-using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.Game.Repositories;
 using Chess2.Api.Game.SanNotation;
 using Chess2.Api.Game.SanNotation.Notators;
 using Chess2.Api.Game.Services;
 using Chess2.Api.Game.SignalR;
+using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.ForeverRules;
+using Chess2.Api.GameLogic.PieceDefinitions;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.GameSnapshot.Services;
+using Chess2.Api.GameSnapshot.Validators;
+using Chess2.Api.Infrastructure;
+using Chess2.Api.Infrastructure.ActionFilters;
+using Chess2.Api.Infrastructure.Extensions;
+using Chess2.Api.Infrastructure.OpenAPI;
+using Chess2.Api.Infrastructure.Sharding;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Lobby.SignalR;
@@ -62,6 +60,10 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -361,6 +363,8 @@ builder.Host.UseOrleans(siloBuilder =>
 builder.Services.AddSingleton<ILobbyNotifier, LobbyNotifier>();
 builder.Services.AddSingleton<IOpenSeekNotifier, OpenSeekNotifier>();
 builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();
+
+builder.Services.AddSingleton<IValidator<TimeControlSettings>, TimeControlSettingsValidator>();
 #endregion
 
 #region Game
