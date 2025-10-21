@@ -18,6 +18,34 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
     }
 
     [Fact]
+    public async Task SeekRatedAsync_with_invalid_time_control_returns_an_error()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        await using LobbyHubClient conn = new(await AuthedSignalRAsync(LobbyHubClient.Path, user));
+
+        await conn.SeekRatedAsync(new TimeControlSettings(4912, -5), CT);
+        var errors = await conn.GetNextErrorsAsync(CT);
+
+        errors.Should().HaveCountGreaterThanOrEqualTo(1);
+        errors.Should().AllSatisfy(x => x.Code.Should().Be("General.Validation"));
+    }
+
+    [Fact]
+    public async Task SeekCasualAsync_with_invalid_time_control_returns_an_error()
+    {
+        await using LobbyHubClient conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
+
+        await conn.SeekCasualAsync(new TimeControlSettings(56, 531), CT);
+        var errors = await conn.GetNextErrorsAsync(CT);
+
+        errors.Should().HaveCountGreaterThanOrEqualTo(1);
+        errors.Should().AllSatisfy(x => x.Code.Should().Be("General.Validation"));
+    }
+
+    [Fact]
     public async Task SeekCasualAsync_guest_vs_guest_matches()
     {
         await using LobbyHubClient conn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
@@ -124,7 +152,7 @@ public class LobbyHubTests(Chess2WebApplicationFactory factory) : BaseFunctional
 
         await conn.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
 
-        var result = await conn.WaitForErrorAsync(CT);
+        var result = await conn.GetNextErrorsAsync(CT);
 
         result.Should().ContainSingle().Which.Code.Should().Be("General.Unauthorized");
     }

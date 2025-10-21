@@ -12,8 +12,8 @@ public class PoolKeyFaker : RecordFaker<PoolKey>
         RuleFor(
             x => x.TimeControl,
             f => new TimeControlSettings(
-                BaseSeconds: f.Random.Number(100, 1000),
-                IncrementSeconds: f.Random.Number(10, 100)
+                BaseSeconds: f.PickRandom<int>(TimeControlSettings.AllowedBaseSeconds),
+                IncrementSeconds: f.PickRandom<int>(TimeControlSettings.AllowedIncrementSeconds)
             )
         );
     }

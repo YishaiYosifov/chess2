@@ -2,7 +2,7 @@
 using Chess2.Api.GameSnapshot.Services;
 using FluentAssertions;
 
-namespace Chess2.Api.Unit.Tests;
+namespace Chess2.Api.Unit.Tests.GameSnapshotTests;
 
 public class TimeControlTranslatorTests : BaseUnitTest
 {

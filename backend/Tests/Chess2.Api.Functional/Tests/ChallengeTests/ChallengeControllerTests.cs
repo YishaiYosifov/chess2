@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Challenges.Models;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -72,6 +73,21 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         var challenge = await CreateChallengeAsync(_requester);
         challenge.Requester.UserId.Should().Be(_requester.Id);
         challenge.Recipient.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task CreateChallenge_rejects_invalid_time_control()
+    {
+        AuthUtils.AuthenticateGuest(ApiClient);
+
+        var result = await ApiClient.Api.CreateChallengeAsync(
+            null,
+            new PoolKeyFaker(PoolType.Casual)
+                .RuleFor(x => x.TimeControl, new TimeControlSettings(1234, 55))
+                .Generate()
+        );
+
+        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
