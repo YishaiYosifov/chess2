@@ -16,8 +16,8 @@ describe("NewPiecesGuide", () => {
 
         const titles = [
             "Knook",
-            "Checker",
             "Underage Pawn",
+            "Checker",
             "Traitor Rook (Neutral Piece)",
             "Antiqueen",
         ];

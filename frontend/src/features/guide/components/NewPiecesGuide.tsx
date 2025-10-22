@@ -29,6 +29,16 @@ const NewPiecesGuide = () => {
             />
 
             <GuideCard
+                title="Underage Pawn"
+                points={[
+                    "Moves like a normal pawn.",
+                    "First move = 2 squares (unlike standard pawns which now move 3).",
+                    "If seen by a bishop, that bishop MUST capture it. Even if it's your own bishop.",
+                ]}
+                images={[underagepawn1, underagepawn2]}
+            />
+
+            <GuideCard
                 title="Checker"
                 points={[
                     "Moves up to two squares diagonally in any direction.",
@@ -37,16 +47,6 @@ const NewPiecesGuide = () => {
                     "Reaching the back rank promotes it into a king, giving you an extra life.",
                 ]}
                 images={[checker1, checker2, checker3]}
-            />
-
-            <GuideCard
-                title="Underage Pawn"
-                points={[
-                    "Moves like a normal pawn.",
-                    "First move = 2 squares (unlike standard pawns which now move 3).",
-                    "If seen by a bishop, that bishop MUST capture it. Even if it's your own bishop.",
-                ]}
-                images={[underagepawn1, underagepawn2]}
             />
 
             <GuideCard
