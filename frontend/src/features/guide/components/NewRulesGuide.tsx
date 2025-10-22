@@ -25,6 +25,10 @@ import Card from "@/components/ui/Card";
 const NewRulesGuide = () => {
     return (
         <Card className="gap-5 p-5">
+            <h2 className="text-6xl">New Rules</h2>
+
+            <hr className="text-secondary/50" />
+
             <GuideCard
                 title="King Capture"
                 points={[

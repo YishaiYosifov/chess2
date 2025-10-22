@@ -15,6 +15,10 @@ import GuideCard from "./GuideCard";
 const NewPiecesGuide = () => {
     return (
         <Card className="gap-5 p-5">
+            <h2 className="text-6xl">New Pieces</h2>
+
+            <hr className="text-secondary/50" />
+
             <GuideCard
                 title="Knook"
                 points={[
