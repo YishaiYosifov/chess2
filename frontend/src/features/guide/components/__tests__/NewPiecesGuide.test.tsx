@@ -4,6 +4,13 @@ import NewPiecesGuide from "../NewPiecesGuide";
 vi.mock("next/image");
 
 describe("NewPiecesGuide", () => {
+    it("should render the main heading", () => {
+        render(<NewPiecesGuide />);
+        expect(
+            screen.getByRole("heading", { name: /New Pieces/i }),
+        ).toBeInTheDocument();
+    });
+
     it("should render all guide cards with correct titles", () => {
         render(<NewPiecesGuide />);
 
