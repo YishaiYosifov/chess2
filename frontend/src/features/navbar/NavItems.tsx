@@ -9,6 +9,7 @@ import {
     CalendarIcon,
     HomeIcon,
     ArrowLeftEndOnRectangleIcon,
+    BookOpenIcon,
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
@@ -123,5 +124,17 @@ export const LowerNavItems = ({
             </NavItem>
         </>
     );
-    return hasAccessCookie && authedLinks;
+    return (
+        <>
+            <NavItem
+                as={Link}
+                href={constants.PATHS.GUIDE}
+                icon={<BookOpenIcon />}
+                isCollapsed={isCollapsed}
+            >
+                Guide
+            </NavItem>
+            {hasAccessCookie && authedLinks}
+        </>
+    );
 };
