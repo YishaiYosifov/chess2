@@ -14,6 +14,9 @@ import kingcapture2 from "@public/assets/examples/kingcapture2.png";
 import forcedenpassant1 from "@public/assets/examples/forcedenpassant1.png";
 import forcedenpassant2 from "@public/assets/examples/forcedenpassant2.png";
 import forcedenpassant3 from "@public/assets/examples/forcedenpassant3.png";
+import omnipotentpawn1 from "@public/assets/examples/omnipotentpawn1.png";
+import omnipotentpawn2 from "@public/assets/examples/omnipotentpawn2.png";
+import omnipotentpawn3 from "@public/assets/examples/omnipotentpawn3.png";
 import knooklearfusion1 from "@public/assets/examples/knooklearfusion1.png";
 import knooklearfusion2 from "@public/assets/examples/knooklearfusion2.png";
 import queenbetadecay1 from "@public/assets/examples/queenbetadecay1.png";
@@ -81,6 +84,16 @@ const NewRulesGuide = () => {
                     "Your bishops can swap places and capture both enemy pieces in one move.",
                 ]}
                 images={[ilvaticano1, ilvaticano2]}
+            />
+
+            <GuideCard
+                title="Omnipotent Pawn"
+                points={[
+                    "Exists on a fixed square: h3 for white, h8 for black.",
+                    "If one of your pieces is captured on your Omnipotent Pawn square, you may immediately respond.",
+                    "Double click the opponent piece that just captured, and your Omnipotent Pawn spawns on the square and captures it.",
+                ]}
+                images={[omnipotentpawn1, omnipotentpawn2, omnipotentpawn3]}
             />
 
             <GuideCard

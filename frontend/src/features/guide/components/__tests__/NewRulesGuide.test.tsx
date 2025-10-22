@@ -21,6 +21,7 @@ describe("NewRulesGuide", () => {
             "Forced En Passant",
             "Long Passant",
             "Il Vaticano",
+            "Omnipotent Pawn",
             "Vertical Castling",
             "Knooklear Fusion",
             "Queen Beta Decay",
