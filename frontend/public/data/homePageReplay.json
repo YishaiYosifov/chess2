@@ -172,5 +172,6 @@
                 "specialMoveType": 7
             }
         ]
-    }
+    },
+    { "startingFen": "10/5P4/7B2/6H3/2b7/3p6/1q8/9R/2k4b2/5K4", "moves": [] }
 ]
