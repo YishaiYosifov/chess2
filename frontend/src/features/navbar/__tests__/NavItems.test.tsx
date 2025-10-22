@@ -45,9 +45,13 @@ describe("UpperNavItems", () => {
 });
 
 describe("LowerNavItems", () => {
-    it("should not render LowerNavItems when not authenticated", () => {
+    it("should render with the correct href when not authenticated", () => {
         render(<LowerNavItems hasAccessCookie={false} />);
 
+        expect(screen.queryByText("Guide")?.closest("a")).toHaveAttribute(
+            "href",
+            constants.PATHS.GUIDE,
+        );
         expect(screen.queryByText("Settings")).not.toBeInTheDocument();
         expect(screen.queryByText("Logout")).not.toBeInTheDocument();
     });
@@ -55,6 +59,10 @@ describe("LowerNavItems", () => {
     it("should render with the correct href when authenticated", () => {
         render(<LowerNavItems hasAccessCookie={true} />);
 
+        expect(screen.queryByText("Guide")?.closest("a")).toHaveAttribute(
+            "href",
+            constants.PATHS.GUIDE,
+        );
         expect(screen.getByText("Settings").closest("a")).toHaveAttribute(
             "href",
             constants.PATHS.SETTINGS_BASE,
