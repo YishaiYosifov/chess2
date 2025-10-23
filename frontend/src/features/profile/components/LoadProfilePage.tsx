@@ -110,7 +110,7 @@ const LoadProfilePage = async ({
     });
 
     return (
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-6">
+        <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-5 p-6">
             <Profile
                 profile={profile}
                 questPoints={questPoints}
@@ -127,7 +127,7 @@ const LoadProfilePage = async ({
                 initialGameResults={games}
                 profileViewpoint={profile}
             />
-        </div>
+        </main>
     );
 };
 export default LoadProfilePage;

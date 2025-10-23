@@ -4,9 +4,9 @@ import { ReactNode } from "react";
 
 export default function SettingsLayout({ children }: { children: ReactNode }) {
     return (
-        <div className="flex w-full justify-center gap-5 p-5">
+        <main className="flex flex-1 justify-center gap-5 p-5">
             <SettingsSelector />
             <SettingsPageSwitcher>{children}</SettingsPageSwitcher>
-        </div>
+        </main>
     );
 }
