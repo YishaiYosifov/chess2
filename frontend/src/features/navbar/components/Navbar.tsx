@@ -12,9 +12,9 @@ const Navbar = async () => {
 
     return (
         <>
-            <NavMobile isLoggedIn={isLoggedIn} />
+            <NavMobile hasAccessCookie={isLoggedIn} />
             <NavDesktop
-                isLoggedIn={isLoggedIn}
+                hasAccessCookie={isLoggedIn}
                 isCollapsedInitialState={isNavCollapsed}
             />
         </>
