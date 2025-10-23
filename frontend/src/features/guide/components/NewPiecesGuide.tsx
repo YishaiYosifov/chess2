@@ -12,9 +12,9 @@ import antiqueen1 from "@public/assets/examples/antiqueen1.png";
 import Card from "@/components/ui/Card";
 import GuideCard from "./GuideCard";
 
-const NewPiecesGuide = () => {
+const NewPiecesGuide = ({ id }: { id?: string }) => {
     return (
-        <Card className="gap-5 p-5">
+        <Card className="scroll-mt-5 gap-5 p-5" id={id}>
             <h2 className="text-6xl">New Pieces</h2>
 
             <hr className="text-secondary/50" />
