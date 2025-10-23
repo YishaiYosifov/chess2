@@ -63,7 +63,7 @@ export default async function QuestsPage() {
                 ]);
 
                 return (
-                    <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-6 p-5">
+                    <main className="mx-auto flex max-w-6xl flex-1 flex-col items-center gap-6 p-5">
                         {dailyQuest ? (
                             <DailyQuestCard initialQuest={dailyQuest} />
                         ) : (
@@ -77,7 +77,7 @@ export default async function QuestsPage() {
                         />
 
                         <QuestLeaderboard initialLeaderboard={leaderboard} />
-                    </div>
+                    </main>
                 );
             }}
         </WithOptionalAuthedUser>
