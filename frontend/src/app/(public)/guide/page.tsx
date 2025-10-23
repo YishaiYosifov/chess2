@@ -6,7 +6,7 @@ export const metadata = { title: "Guide - Chess 2" };
 
 export default function GuidePage() {
     return (
-        <main className="flex flex-1 justify-center gap-5 p-5">
+        <main className="flex flex-1 justify-center gap-3 p-5">
             <GuideSide
                 piecesGuideHref="#pieces-guide"
                 rulesGuideHref="#rules-guide"
