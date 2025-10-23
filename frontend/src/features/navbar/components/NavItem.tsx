@@ -24,7 +24,7 @@ const NavItem = <TProps extends React.ElementType = typeof Link>({
         <Component
             {...(props as React.ComponentProps<TProps>)}
             className={twMerge(
-                "flex items-center gap-4 transition-opacity hover:opacity-70",
+                "flex cursor-pointer items-center gap-4 transition-opacity hover:opacity-70",
                 className,
             )}
         >
