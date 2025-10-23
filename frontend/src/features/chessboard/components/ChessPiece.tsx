@@ -120,20 +120,10 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
                     isRemoving && "opacity-50",
                 )}
                 ref={pieceRef}
-                style={
-                    {
-                        // backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
-                    }
-                }
+                style={{
+                    backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
+                }}
             >
-                <Image
-                    src={getPieceImage(piece.type, piece.color)}
-                    alt="piece"
-                    className="h-full w-full"
-                    width={0}
-                    height={0}
-                    unoptimized
-                />
                 <DoubleClickIndicator ref={doubleClickRef} />
             </ChessSquare>
             {isSelected && (

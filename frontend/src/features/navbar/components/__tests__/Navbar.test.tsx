@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 
 import {
     mockJsCookie,
@@ -30,8 +30,10 @@ describe("Navbar Component", () => {
             const page = await Navbar();
             render(page);
 
-            const navDesktop = screen.getByTestId("navDesktop");
-            expect(navDesktop).toHaveAttribute(
+            const sidebar = within(
+                screen.getByTestId("navDesktop"),
+            ).getByTestId("sidebar");
+            expect(sidebar).toHaveAttribute(
                 "data-is-collapsed",
                 isCollapsed.toString(),
             );
