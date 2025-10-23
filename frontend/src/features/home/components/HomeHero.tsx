@@ -10,8 +10,8 @@ const HomeHero = () => {
     return (
         <header
             className="bg-checkerboard relative flex flex-col items-center justify-center gap-3
-                overflow-hidden bg-[#151515] bg-[length:10rem_10rem] bg-center p-3 py-30
-                md:gap-10 md:px-10 xl:flex-row xl:items-start xl:gap-20"
+                overflow-hidden bg-[#151515] bg-[length:10rem_10rem] bg-center p-3 py-10
+                md:gap-10 md:px-10 xl:flex-row xl:items-start xl:gap-20 xl:py-30"
         >
             <div
                 className="relative flex h-full flex-col text-center text-nowrap xl:text-start"
