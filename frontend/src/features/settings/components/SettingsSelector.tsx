@@ -13,7 +13,7 @@ const SettingsSelector = () => {
     return (
         <Card
             className={clsx(
-                "h-full w-full gap-0 p-0 md:max-w-80",
+                "sticky top-5 max-h-[calc(100vh-2.5rem)] w-full gap-0 p-0 md:max-w-80",
                 isBaseSettings ? "flex" : "hidden md:flex",
             )}
         >
