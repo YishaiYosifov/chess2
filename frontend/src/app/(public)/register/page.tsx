@@ -18,7 +18,7 @@ export default async function RegisterPage() {
     if (cookieStore.has(constants.COOKIES.IS_LOGGED_IN)) redirect("/");
 
     return (
-        <div className="grid max-h-screen w-full justify-items-center md:grid-cols-[1.2fr_1.5fr]">
+        <main className="grid max-h-screen flex-1 justify-items-center md:grid-cols-[1.2fr_1.5fr]">
             <section className="m-auto flex max-h-full max-w-2xl flex-col items-center gap-10 overflow-auto p-10">
                 <Image src={LogoText} alt="logo" className="h-auto w-auto" />
 
@@ -36,6 +36,6 @@ export default async function RegisterPage() {
                 </div>
             </section>
             <AuthPageImage />
-        </div>
+        </main>
     );
 }
