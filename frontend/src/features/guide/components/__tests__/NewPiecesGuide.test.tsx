@@ -29,4 +29,9 @@ describe("NewPiecesGuide", () => {
             expect(titleElements[i]).toHaveTextContent(title);
         });
     });
+
+    it("should attach the id", () => {
+        const { container } = render(<NewPiecesGuide id="pieces-guide" />);
+        expect(container.firstChild).toHaveAttribute("id", "pieces-guide");
+    });
 });

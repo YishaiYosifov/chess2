@@ -25,9 +25,9 @@ import queenbetadecay2 from "@public/assets/examples/queenbetadecay2.png";
 import GuideCard from "@/features/guide/components/GuideCard";
 import Card from "@/components/ui/Card";
 
-const NewRulesGuide = () => {
+const NewRulesGuide = ({ id }: { id?: string }) => {
     return (
-        <Card className="gap-5 p-5">
+        <Card className="scroll-mt-5 gap-5 p-5" id={id}>
             <h2 className="text-6xl">New Rules</h2>
 
             <hr className="text-secondary/50" />
