@@ -145,6 +145,10 @@
     }
 }
 
+html {
+    @apply scroll-smooth;
+}
+
 .apexcharts-svg {
     border-radius: 10px;
 }
