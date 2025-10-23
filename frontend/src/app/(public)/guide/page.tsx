@@ -2,6 +2,8 @@ import GuideSide from "@/features/guide/components/GuideSide";
 import NewPiecesGuide from "@/features/guide/components/NewPiecesGuide";
 import NewRulesGuide from "@/features/guide/components/NewRulesGuide";
 
+export const metadata = { title: "Guide - Chess 2" };
+
 export default function GuidePage() {
     return (
         <main className="flex flex-1 justify-center gap-5 p-5">
