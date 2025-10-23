@@ -1,5 +1,4 @@
 import { memo, useRef } from "react";
-import Image from "next/image";
 import clsx from "clsx";
 
 import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
