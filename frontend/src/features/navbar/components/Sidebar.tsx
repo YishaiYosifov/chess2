@@ -22,7 +22,7 @@ const Sidebar = ({
         <aside
             className={clsx(
                 `border-secondary/50 bg-navbar fixed z-50 flex h-full flex-col justify-between
-                gap-10 overflow-auto border-r p-7 text-3xl transition-[width]`,
+                gap-10 overflow-auto border-r p-5 text-3xl transition-[width]`,
                 isCollapsed && "items-center",
                 getSidebarCollapseWidthCls(isCollapsed),
             )}
@@ -38,7 +38,7 @@ const Sidebar = ({
             >
                 <Link
                     href="/"
-                    className="hidden md:flex"
+                    className="hidden pb-3 md:flex"
                     data-testid="sidebarLogo"
                 >
                     {isCollapsed ? (
@@ -53,6 +53,7 @@ const Sidebar = ({
                         />
                     )}
                 </Link>
+
                 <UpperNavItems
                     hasAccessCookie={hasAccessCookie}
                     isCollapsed={isCollapsed}
