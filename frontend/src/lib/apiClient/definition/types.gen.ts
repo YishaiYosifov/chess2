@@ -1053,6 +1053,7 @@ export type CreateChallengeData = {
 };
 
 export type CreateChallengeErrors = {
+    400: ApiProblemDetails;
     401: ApiProblemDetails;
     403: ApiProblemDetails;
     404: ApiProblemDetails;
