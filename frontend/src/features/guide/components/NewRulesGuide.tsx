@@ -53,7 +53,7 @@ const NewRulesGuide = ({ id }: { id?: string }) => {
             <GuideCard
                 title="Self-Bishop Castle Capture"
                 points={[
-                    "Your own bishop blocks castling.",
+                    "Your own bishop is blocking castling by occupying a square your king or rook would land on after castling.",
                     "You may still castle, capturing your own bishop in the process.",
                 ]}
                 images={[bishopcastle1, bishopcastle2]}
