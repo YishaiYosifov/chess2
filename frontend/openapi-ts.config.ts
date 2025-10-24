@@ -11,7 +11,7 @@ export default defineConfig({
         ...defaultPlugins,
         {
             name: "@hey-api/client-next",
-            runtimeConfigPath: "./src/lib/apiClient/apiClientConfig.ts",
+            runtimeConfigPath: "@/lib/apiClient/apiClientConfig",
         },
         {
             name: "@hey-api/typescript",
