@@ -2,6 +2,7 @@
 
 import { createSseClient } from "../core/serverSentEvents.gen";
 import type { HttpMethod } from "../core/types.gen";
+import { getValidRequestBody } from "../core/utils.gen";
 import type {
     Client,
     Config,
@@ -59,12 +60,12 @@ export const createClient = (config: Config = {}): Client => {
             await opts.requestValidator(opts);
         }
 
-        if (opts.body && opts.bodySerializer) {
+        if (opts.body !== undefined && opts.bodySerializer) {
             opts.serializedBody = opts.bodySerializer(opts.body);
         }
 
         // remove Content-Type header if body is empty to avoid sending invalid requests
-        if (opts.serializedBody === undefined || opts.serializedBody === "") {
+        if (opts.body === undefined || opts.serializedBody === "") {
             opts.headers.delete("Content-Type");
         }
 
@@ -78,7 +79,7 @@ export const createClient = (config: Config = {}): Client => {
         // @ts-expect-error
         const { opts, url } = await beforeRequest(options);
 
-        for (const fn of interceptors.request._fns) {
+        for (const fn of interceptors.request.fns) {
             if (fn) {
                 await fn(opts);
             }
@@ -87,12 +88,14 @@ export const createClient = (config: Config = {}): Client => {
         // fetch must be assigned here, otherwise it would throw the error:
         // TypeError: Failed to execute 'fetch' on 'Window': Illegal invocation
         const _fetch = opts.fetch!;
-        let response = await _fetch(url, {
+        const requestInit: ReqInit = {
             ...opts,
-            body: opts.serializedBody as ReqInit["body"],
-        });
+            body: getValidRequestBody(opts),
+        };
 
-        for (const fn of interceptors.response._fns) {
+        let response = await _fetch(url, requestInit);
+
+        for (const fn of interceptors.response.fns) {
             if (fn) {
                 response = await fn(response, opts);
             }
@@ -103,20 +106,38 @@ export const createClient = (config: Config = {}): Client => {
         };
 
         if (response.ok) {
-            if (
-                response.status === 204 ||
-                response.headers.get("Content-Length") === "0"
-            ) {
-                return {
-                    data: {},
-                    ...result,
-                };
-            }
-
             const parseAs =
                 (opts.parseAs === "auto"
                     ? getParseAs(response.headers.get("Content-Type"))
                     : opts.parseAs) ?? "json";
+
+            if (
+                response.status === 204 ||
+                response.headers.get("Content-Length") === "0"
+            ) {
+                let emptyData: any;
+                switch (parseAs) {
+                    case "arrayBuffer":
+                    case "blob":
+                    case "text":
+                        emptyData = await response[parseAs]();
+                        break;
+                    case "formData":
+                        emptyData = new FormData();
+                        break;
+                    case "stream":
+                        emptyData = response.body;
+                        break;
+                    case "json":
+                    default:
+                        emptyData = {};
+                        break;
+                }
+                return {
+                    data: emptyData,
+                    ...result,
+                };
+            }
 
             let data: any;
             switch (parseAs) {
@@ -162,7 +183,7 @@ export const createClient = (config: Config = {}): Client => {
         const error = jsonError ?? textError;
         let finalError = error;
 
-        for (const fn of interceptors.error._fns) {
+        for (const fn of interceptors.error.fns) {
             if (fn) {
                 finalError = (await fn(error, response, opts)) as string;
             }
@@ -192,6 +213,21 @@ export const createClient = (config: Config = {}): Client => {
                 body: opts.body as BodyInit | null | undefined,
                 headers: opts.headers as unknown as Record<string, string>,
                 method,
+                onRequest: async (url, init) => {
+                    let request = new Request(url, init);
+                    const requestInit = {
+                        ...init,
+                        method: init.method as Config["method"],
+                        url,
+                    };
+                    for (const fn of interceptors.request.fns) {
+                        if (fn) {
+                            await fn(requestInit);
+                            request = new Request(requestInit.url, requestInit);
+                        }
+                    }
+                    return request;
+                },
                 url,
             });
         };
