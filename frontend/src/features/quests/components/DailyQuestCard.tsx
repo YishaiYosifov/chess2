@@ -1,0 +1,170 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import {
+    collectQuestReward,
+    Quest,
+    QuestDifficulty,
+    replaceDailyQuest,
+} from "@/lib/apiClient";
+
+import NewQuestCountdown from "./NewQuestCountdown";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import constants from "@/lib/constants";
+import ProgressBar from "@/components/ui/ProgressBar";
+
+const DailyQuestCard = ({ initialQuest }: { initialQuest: Quest }) => {
+    const [quest, setQuest] = useState(initialQuest);
+    const [error, setError] = useState("");
+    const [isFetching, setIsFetching] = useState(false);
+    const router = useRouter();
+
+    const percentDone = (quest.progress / quest.target) * 100;
+    const difficultyText =
+        QuestDifficulty[quest.difficulty].charAt(0).toUpperCase() +
+        QuestDifficulty[quest.difficulty].slice(1).toLowerCase();
+    const isCompleted = quest.progress >= quest.target;
+
+    const difficultyColor = {
+        [QuestDifficulty.EASY]: "text-green-400",
+        [QuestDifficulty.MEDIUM]: "text-yellow-400",
+        [QuestDifficulty.HARD]: "text-red-400",
+    };
+
+    async function replaceQuest() {
+        setIsFetching(true);
+
+        try {
+            const { error, data: newQuest } = await replaceDailyQuest();
+            if (error || !newQuest) {
+                setError("Failed to replace quest");
+                console.error(error);
+                return;
+            }
+
+            setQuest(newQuest);
+            router.refresh();
+        } finally {
+            setIsFetching(false);
+        }
+    }
+
+    async function collectReward() {
+        setIsFetching(true);
+        try {
+            const { error } = await collectQuestReward();
+            if (error) {
+                setError("Failed to collect reward");
+                console.error(error);
+                return;
+            }
+
+            setQuest({ ...quest, rewardCollected: true });
+            router.refresh();
+        } finally {
+            setIsFetching(false);
+        }
+    }
+
+    const renderActionButton = () => {
+        if (!isCompleted && quest.canReplace)
+            return (
+                <Button
+                    data-testid="dailyQuestReplaceButton"
+                    onClick={replaceQuest}
+                    className="py-1"
+                    disabled={isFetching}
+                >
+                    Replace
+                </Button>
+            );
+
+        if (isCompleted && !quest.rewardCollected)
+            return (
+                <Button
+                    data-testid="dailyQuestCollectButton"
+                    onClick={collectReward}
+                    className="py-1"
+                    disabled={isFetching}
+                >
+                    Collect Reward
+                </Button>
+            );
+
+        if (isCompleted && quest.rewardCollected)
+            return (
+                <p
+                    data-testid="dailyQuestCollectedRewardText"
+                    className={difficultyColor[quest.difficulty]}
+                >
+                    +{quest.difficulty} points
+                </p>
+            );
+
+        return null;
+    };
+
+    return (
+        <Card className="h-fit w-full gap-5 p-6">
+            {/* header */}
+            <h1
+                className="text-center text-4xl text-balance"
+                data-testid="dailyQuestTitle"
+            >
+                Daily Quest:{" "}
+                {constants.QUEST_WEEKDAY_NAMES[new Date().getDay()]}
+            </h1>
+
+            <hr className="text-secondary/50" />
+
+            {/* quest */}
+            <div className="flex flex-col gap-2">
+                <p
+                    className="text-center text-lg text-balance sm:text-start"
+                    data-testid="dailyQuestDescription"
+                >
+                    <span
+                        className={difficultyColor[quest.difficulty]}
+                        data-testid="dailyQuestDifficulty"
+                    >
+                        {difficultyText}:
+                    </span>{" "}
+                    {quest.description}
+                </p>
+
+                <div className="flex items-center gap-3">
+                    <ProgressBar percent={percentDone} />
+
+                    <p
+                        className="text-text/70 min-w-[40px] text-center text-sm font-medium"
+                        data-testid="dailyQuestProgressText"
+                    >
+                        {quest.progress}/{quest.target}
+                    </p>
+
+                    {renderActionButton()}
+                </div>
+
+                {error && (
+                    <p className="text-error" data-testid="dailyQueryError">
+                        {error}
+                    </p>
+                )}
+
+                {/* footer */}
+                <div className="text-text/70 flex flex-wrap justify-center gap-x-3 sm:justify-between">
+                    <NewQuestCountdown />
+
+                    <span data-testid="dailyQuestStreak">
+                        {quest.streak > 0 && "🔥"}
+                        {quest.streak} Day{quest.streak == 1 ? "" : "s"} Streak
+                    </span>
+                </div>
+            </div>
+        </Card>
+    );
+};
+export default DailyQuestCard;

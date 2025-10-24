@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+@layer utilities {
+    /* prettier-ignore */
+    .toggle-btn {
+        @apply 
+            [&>span::after]:translate-y-0
+            [&>span::after]:rotate-45
+            [&>span::before]:translate-y-0
+            [&>span::before]:-rotate-45
+            [&>span]:bg-transparent
+            [&>span]:rotate-[360deg];
+    }
+
+    *::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: #171717;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: #959596;
+        border-radius: 100vh;
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+        background: #959596;
+    }
+
+    .bg-checkerboard {
+        background-image: var(--background-checkerboard);
+    }
+}
+
+@theme {
+    --color-text: #efedf4;
+    --color-background: #100c14;
+    --color-navbar: #08050b;
+    --color-primary: #5b2f52;
+    --color-secondary: #b8abce;
+    --color-card: #1d1721;
+    --color-link: #60a5fa;
+    --color-error: #f87171;
+
+    --background-checkerboard: repeating-conic-gradient(
+        #111111 0% 25%,
+        transparent 0% 50%
+    );
+
+    --animate-double-tap:
+        double-tap 0.5s steps(1), end-fade-opacity 0.7s forwards;
+    --animate-lite-pulse: lite-pulse 2s infinite;
+    --animate-wiggle: wiggle 1s ease-in-out infinite;
+    --animate-freakout: blink 0.5s infinite, wiggle 0.1s ease-in-out infinite;
+    --animate-flash-once: flash 0.5s ease-in-out;
+    --animate-subtle-ping: subtle-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+
+    @keyframes double-tap {
+        0%,
+        50%,
+        100% {
+            transform: scale(1);
+        }
+
+        20%,
+        70% {
+            transform: scale(1.5);
+        }
+    }
+
+    @keyframes end-fade-opacity {
+        70% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes lite-pulse {
+        0%,
+        100% {
+            opacity: 0.9;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes blink {
+        0%,
+        50% {
+            color: red;
+        }
+        50.01%,
+        100% {
+            color: white;
+        }
+    }
+
+    @keyframes wiggle {
+        0% {
+            transform: rotate(-4deg) translateY(0px);
+        }
+        25% {
+            transform: translateY(-2px);
+        }
+        50% {
+            transform: rotate(4deg) translateY(0px);
+        }
+        75% {
+            transform: translateY(2px);
+        }
+        100% {
+            transform: rotate(-4deg) translateY(0px);
+        }
+    }
+
+    @keyframes flash {
+        0%,
+        100% {
+            opacity: 1;
+            background-color: transparent;
+            transform: scale(1);
+        }
+        50% {
+            background-color: #b8abce80;
+            transform: scale(1.05);
+        }
+    }
+
+    @keyframes subtle-ping {
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.3;
+        }
+    }
+}
+
+html {
+    @apply scroll-smooth;
+}
+
+.apexcharts-svg {
+    border-radius: 10px;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.seek-enter {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+}
+.seek-enter-active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: all 0.2s ease-out;
+}
+.seek-exit {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.seek-exit-active {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition: all 0.2s ease-out;
+}
