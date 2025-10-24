@@ -84,9 +84,9 @@ describe("Coords", () => {
         files.forEach((file, x) => {
             const el = screen.getByTestId(`coordsFile-${file}`);
             if (x % 2 === 0) {
-                expect(el.className).toContain("text-[#b58863]");
+                expect(el.className).toContain("text-[#577298]");
             } else {
-                expect(el.className).toContain("text-[#f0d9b5]");
+                expect(el.className).toContain("text-[#e9e9d4]");
             }
         });
     });
@@ -97,9 +97,9 @@ describe("Coords", () => {
         ranks.forEach((rank, y) => {
             const el = screen.getByTestId(`coordsRank-${rank}`);
             if (y % 2 === 0) {
-                expect(el.className).toContain("text-[#b58863]");
+                expect(el.className).toContain("text-[#577298]");
             } else {
-                expect(el.className).toContain("text-[#f0d9b5]");
+                expect(el.className).toContain("text-[#e9e9d4]");
             }
         });
     });
