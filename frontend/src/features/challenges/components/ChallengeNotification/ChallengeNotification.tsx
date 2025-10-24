@@ -9,7 +9,7 @@ import {
     PoolType,
 } from "@/lib/apiClient";
 
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import TimeControlIcon from "@/features/lobby/components/TimeControlIcon";
 import ProfileTooltip from "@/features/profile/components/ProfileTooltip";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";

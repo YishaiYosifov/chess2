@@ -1,6 +1,6 @@
 import { FireIcon } from "@heroicons/react/24/outline";
 
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import TimeControlIcon from "@/features/lobby/components/TimeControlIcon";
 import { OpenSeek } from "@/features/lobby/lib/types";
 import { PoolType } from "@/lib/apiClient";
 import useLobbyStore from "@/features/lobby/stores/lobbyStore";
