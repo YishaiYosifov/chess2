@@ -1,5 +1,5 @@
 import Card from "@/components/ui/Card";
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import TimeControlIcon from "@/features/lobby/components/TimeControlIcon";
 import { TimeControl } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 

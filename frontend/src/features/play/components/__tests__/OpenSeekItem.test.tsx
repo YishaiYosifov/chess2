@@ -10,7 +10,7 @@ import { useLobbyEmitter } from "@/features/lobby/hooks/useLobbyHub";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
 
-vi.mock("@/features/lobby/Components/TimeControlIcon", () => ({
+vi.mock("@/features/lobby/components/TimeControlIcon", () => ({
     default: ({ timeControl }: { timeControl: TimeControl }) => (
         <div data-testid="timeControlIcon">{timeControl}</div>
     ),
