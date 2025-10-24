@@ -6,7 +6,7 @@ import Card from "@/components/ui/Card";
 import { RatingOverview } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import clsx from "clsx";
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import TimeControlIcon from "@/features/lobby/components/TimeControlIcon";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 

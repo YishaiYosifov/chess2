@@ -6,7 +6,7 @@ import "../globals.css";
 
 import ChallengeNotificationRenderer from "@/features/challenges/components/ChallengeNotification/ChallengeNotificationRenderer";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import LobbyHandler from "@/features/lobby/Components/LobbyHandler";
+import LobbyHandler from "@/features/lobby/components/LobbyHandler";
 import Navbar from "@/features/navbar/components/Navbar";
 import clsx from "clsx";
 

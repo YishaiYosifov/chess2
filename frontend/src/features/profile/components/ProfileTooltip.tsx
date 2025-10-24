@@ -9,7 +9,7 @@ import {
     PublicUser,
 } from "@/lib/apiClient";
 
-import TimeControlIcon from "@/features/lobby/Components/TimeControlIcon";
+import TimeControlIcon from "@/features/lobby/components/TimeControlIcon";
 import { isIdAuthed } from "@/features/auth/lib/userGuard";
 import ProfilePicture from "./ProfilePicture";
 import constants from "@/lib/constants";
