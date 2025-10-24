@@ -26,8 +26,8 @@ const Coords = () => {
                         className={clsx(
                             "flex items-end px-1 select-none",
                             viewerX % 2 === 0
-                                ? "text-[#b58863]"
-                                : "text-[#f0d9b5]",
+                                ? "text-[#577298]"
+                                : "text-[#e9e9d4]",
                         )}
                     >
                         {file}
@@ -42,7 +42,7 @@ const Coords = () => {
                     position={viewPoint({ x: 9, y })}
                     className={clsx(
                         "flex justify-end px-1 select-none",
-                        y % 2 === 0 ? "text-[#b58863]" : "text-[#f0d9b5]",
+                        y % 2 === 0 ? "text-[#577298]" : "text-[#e9e9d4]",
                     )}
                 >
                     {rank}
