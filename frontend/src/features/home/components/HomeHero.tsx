@@ -27,7 +27,7 @@ const HomeHero = () => {
                     src={Knook}
                     alt="knook"
                     width={700}
-                    className="absolute -bottom-100 -left-60 hidden max-w-none rotate-15 xl:block"
+                    className="absolute -bottom-107 -left-60 hidden max-w-none rotate-15 xl:block"
                     priority
                 />
             </div>
