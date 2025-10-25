@@ -9,6 +9,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { GameResult, GameSummary, PublicUser } from "@/lib/apiClient";
 import ProfileTooltip from "./ProfileTooltip";
+import { twMerge } from "tailwind-merge";
 
 const GameRow = ({
     game,
@@ -26,14 +27,6 @@ const GameRow = ({
 
     const isDraw = game.result === GameResult.DRAW;
     const isWinner = game.result === winCondition;
-
-    const GameLink = () => (
-        <Link
-            data-testid="gameRowLink"
-            className="absolute top-0 right-0 left-0"
-            href={`/game/${game.gameToken}`}
-        />
-    );
 
     // Format the game date
     const formattedDate = new Date(game.createdAt).toLocaleDateString("en-us", {
@@ -58,6 +51,22 @@ const GameRow = ({
         return game.result === winResult ? "1" : "0";
     }
 
+    const GameLink = ({
+        className,
+        children,
+    }: {
+        className?: string;
+        children?: React.ReactNode;
+    }) => (
+        <Link
+            data-testid="gameRowLink"
+            className={twMerge("flex flex-1 p-4", className)}
+            href={`/game/${game.gameToken}`}
+        >
+            {children}
+        </Link>
+    );
+
     return (
         <tr
             data-testid={`gameRow-${game.gameToken}`}
@@ -66,9 +75,9 @@ const GameRow = ({
                 "whitespace-nowrap",
             )}
         >
-            <td className="relative p-4">
+            <td className="relative">
                 <GameLink />
-                <div className="flex flex-col justify-between">
+                <div className="absolute top-0 bottom-0 flex flex-col justify-center">
                     <ProfileTooltip
                         username={game.whitePlayer.userName}
                         userId={game.whitePlayer.userId}
@@ -91,9 +100,8 @@ const GameRow = ({
                 </div>
             </td>
 
-            <td className="relative p-4">
-                <GameLink />
-                <div className="flex items-center gap-3">
+            <td>
+                <GameLink className="items-center gap-3">
                     <div className="flex w-3 flex-col justify-between">
                         <span data-testid="gameRowScoreWhite">
                             {getScore(GameResult.WHITE_WIN)}
@@ -104,15 +112,13 @@ const GameRow = ({
                         </span>
                     </div>
                     <span className="size-7">{ResultsIcon}</span>
-                </div>
+                </GameLink>
             </td>
 
-            <td className="relative p-4">
-                <GameLink />
-
-                <div>
+            <td>
+                <GameLink>
                     <span data-testid="gameRowDate">{formattedDate}</span>
-                </div>
+                </GameLink>
             </td>
         </tr>
     );
