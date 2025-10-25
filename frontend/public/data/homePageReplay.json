@@ -173,5 +173,38 @@
             }
         ]
     },
-    { "startingFen": "10/5P4/7B2/6H3/2b7/3p6/1q8/9R/2k4b2/5K4", "moves": [] }
+    {
+        "startingFen": "10/5P4/1b6b1/10/6q1qp/7pp1/10/R9/2k7/5K3R",
+        "moves": [
+            {
+                "from": { "x": 5, "y": 8 },
+                "to": { "x": 5, "y": 9 },
+                "promotesTo": 3
+            },
+            {
+                "from": { "x": 8, "y": 4 },
+                "to": { "x": 8, "y": 3 }
+            },
+            {
+                "from": { "x": 5, "y": 0 },
+                "to": { "x": 5, "y": 2 },
+                "sideEffects": [
+                    {
+                        "from": { "x": 5, "y": 9 },
+                        "to": { "x": 5, "y": 1 }
+                    }
+                ],
+                "specialMoveType": 3
+            },
+            {
+                "from": { "x": 2, "y": 1 },
+                "to": { "x": 2, "y": 0 }
+            },
+            {
+                "from": { "x": 9, "y": 0 },
+                "to": { "x": 2, "y": 0 },
+                "captures": [{ "x": 2, "y": 0 }]
+            }
+        ]
+    }
 ]
