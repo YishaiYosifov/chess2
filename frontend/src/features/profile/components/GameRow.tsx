@@ -5,11 +5,10 @@ import {
 } from "@heroicons/react/24/outline";
 
 import Link from "next/link";
-
 import clsx from "clsx";
+
 import { GameResult, GameSummary, PublicUser } from "@/lib/apiClient";
 import ProfileTooltip from "./ProfileTooltip";
-import { twMerge } from "tailwind-merge";
 
 const GameRow = ({
     game,
@@ -51,20 +50,12 @@ const GameRow = ({
         return game.result === winResult ? "1" : "0";
     }
 
-    const GameLink = ({
-        className,
-        children,
-    }: {
-        className?: string;
-        children?: React.ReactNode;
-    }) => (
+    const GameLink = () => (
         <Link
             data-testid="gameRowLink"
-            className={twMerge("flex flex-1 p-4", className)}
+            className="absolute inset-0"
             href={`/game/${game.gameToken}`}
-        >
-            {children}
-        </Link>
+        />
     );
 
     return (
@@ -75,9 +66,9 @@ const GameRow = ({
                 "whitespace-nowrap",
             )}
         >
-            <td className="relative">
+            <td className="relative flex">
                 <GameLink />
-                <div className="absolute top-0 bottom-0 flex flex-col justify-center p-4">
+                <div className="relative flex flex-col justify-center py-4 pl-4">
                     <ProfileTooltip
                         username={game.whitePlayer.userName}
                         userId={game.whitePlayer.userId}
@@ -100,8 +91,9 @@ const GameRow = ({
                 </div>
             </td>
 
-            <td>
-                <GameLink className="items-center gap-3">
+            <td className="relative p-4">
+                <GameLink />
+                <div className="flex items-center gap-3">
                     <div className="flex w-3 flex-col justify-between">
                         <span data-testid="gameRowScoreWhite">
                             {getScore(GameResult.WHITE_WIN)}
@@ -112,13 +104,12 @@ const GameRow = ({
                         </span>
                     </div>
                     <span className="size-7">{ResultsIcon}</span>
-                </GameLink>
+                </div>
             </td>
 
-            <td>
-                <GameLink>
-                    <span data-testid="gameRowDate">{formattedDate}</span>
-                </GameLink>
+            <td className="relative p-4">
+                <GameLink />
+                <span data-testid="gameRowDate">{formattedDate}</span>
             </td>
         </tr>
     );
