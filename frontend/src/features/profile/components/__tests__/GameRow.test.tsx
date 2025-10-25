@@ -17,11 +17,15 @@ describe("GameRow", () => {
 
     it("should display the correct usernames", () => {
         render(
-            <GameRow
-                game={gameSummaryMock}
-                profileViewpoint={userMock}
-                index={0}
-            />,
+            <table>
+                <tbody>
+                    <GameRow
+                        game={gameSummaryMock}
+                        profileViewpoint={userMock}
+                        index={0}
+                    />
+                </tbody>
+            </table>,
         );
 
         expect(screen.getByTestId("gameRowWhiteUsername").textContent).toBe(
@@ -42,11 +46,15 @@ describe("GameRow", () => {
             gameSummaryMock.result = result;
 
             render(
-                <GameRow
-                    game={gameSummaryMock}
-                    profileViewpoint={userMock}
-                    index={0}
-                />,
+                <table>
+                    <tbody>
+                        <GameRow
+                            game={gameSummaryMock}
+                            profileViewpoint={userMock}
+                            index={0}
+                        />
+                    </tbody>
+                </table>,
             );
 
             expect(screen.getByTestId("gameRowScoreWhite").textContent).toBe(
@@ -60,11 +68,15 @@ describe("GameRow", () => {
 
     it("should display the correct game link", () => {
         render(
-            <GameRow
-                game={gameSummaryMock}
-                profileViewpoint={userMock}
-                index={0}
-            />,
+            <table>
+                <tbody>
+                    <GameRow
+                        game={gameSummaryMock}
+                        profileViewpoint={userMock}
+                        index={0}
+                    />
+                </tbody>
+            </table>,
         );
         screen
             .getAllByTestId("gameRowLink")
@@ -77,11 +89,15 @@ describe("GameRow", () => {
 
     it("should display the correct date", () => {
         render(
-            <GameRow
-                game={gameSummaryMock}
-                profileViewpoint={userMock}
-                index={0}
-            />,
+            <table>
+                <tbody>
+                    <GameRow
+                        game={gameSummaryMock}
+                        profileViewpoint={userMock}
+                        index={0}
+                    />
+                </tbody>
+            </table>,
         );
 
         const formattedDate = new Date(

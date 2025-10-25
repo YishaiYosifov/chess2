@@ -89,7 +89,7 @@ const ProfileTooltip = ({
                 onClick={loadProfile}
                 ref={refs.setReference}
                 data-testid="profileTooltipChildren"
-                className="flex min-w-0 cursor-pointer items-center gap-3"
+                className="flex w-fit min-w-0 cursor-pointer items-center gap-3"
             >
                 {children}
             </div>
