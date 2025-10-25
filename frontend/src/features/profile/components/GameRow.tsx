@@ -77,7 +77,7 @@ const GameRow = ({
         >
             <td className="relative">
                 <GameLink />
-                <div className="absolute top-0 bottom-0 flex flex-col justify-center">
+                <div className="absolute top-0 bottom-0 flex flex-col justify-center p-4">
                     <ProfileTooltip
                         username={game.whitePlayer.userName}
                         userId={game.whitePlayer.userId}
