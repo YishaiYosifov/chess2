@@ -65,7 +65,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         RatedSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName!,
-            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
+            ExcludeUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             Rating: expectedRating,
             CreatedAt: _fakeNow
         );
@@ -85,7 +85,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         CasualSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
+            ExcludeUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             CreatedAt: _fakeNow
         );
 
@@ -102,7 +102,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         CasualSeeker expectedSeeker = new(
             UserId: userId,
             UserName: "Guest",
-            BlockedUserIds: [],
+            ExcludeUserIds: [],
             CreatedAt: _fakeNow
         );
 
@@ -138,7 +138,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         OpenRatedSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
+            ExcludeUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
             Ratings: expectedRatings,
             CreatedAt: _fakeNow
         );

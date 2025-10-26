@@ -17,7 +17,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         RatedSeeker seeker = new(
             userId,
             userId,
-            BlockedUserIds: [],
+            ExcludeUserIds: [],
             Rating: new SeekerRating(
                 rating,
                 AllowedMatchRatingDifference,
@@ -56,7 +56,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     {
         RatedSeeker blocked = new RatedSeekerFaker(rating: 1200).Generate();
         RatedSeeker normal = new RatedSeekerFaker(rating: 1200)
-            .RuleFor(x => x.BlockedUserIds, [blocked.UserId])
+            .RuleFor(x => x.ExcludeUserIds, [blocked.UserId])
             .Generate();
         Pool.AddSeeker(blocked);
         Pool.AddSeeker(normal);
