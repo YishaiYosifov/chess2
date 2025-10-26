@@ -43,7 +43,7 @@ public class SeekerTests
             "username1",
             [],
             DateTimeOffset.UtcNow,
-            new SeekerRating(1500, 100, TimeControl.Blitz)
+            new SeekerRating(1500, AllowedRatingRange: 100, TimeControl.Blitz)
         );
 
         RatedSeeker seeker2 = new(
@@ -51,7 +51,7 @@ public class SeekerTests
             "username2",
             [],
             DateTimeOffset.UtcNow,
-            new SeekerRating(1550, 50, TimeControl.Blitz)
+            new SeekerRating(1550, AllowedRatingRange: 50, TimeControl.Blitz)
         );
 
         RatedSeeker seeker3 = new(
@@ -59,7 +59,7 @@ public class SeekerTests
             "username3",
             [],
             DateTimeOffset.UtcNow,
-            new SeekerRating(1700, 50, TimeControl.Blitz)
+            new SeekerRating(1700, AllowedRatingRange: 50, TimeControl.Blitz)
         );
 
         seeker1.IsCompatibleWith(seeker2).Should().BeTrue();
@@ -74,7 +74,7 @@ public class SeekerTests
             "username1",
             [],
             DateTimeOffset.UtcNow,
-            new SeekerRating(1500, 100, TimeControl.Rapid)
+            new SeekerRating(1500, AllowedRatingRange: 100, TimeControl.Rapid)
         );
 
         OpenRatedSeeker openSeeker = new(
@@ -106,7 +106,7 @@ public class SeekerTests
             "username1",
             [],
             DateTimeOffset.UtcNow,
-            new SeekerRating(1500, 100, TimeControl.Rapid)
+            new SeekerRating(1500, AllowedRatingRange: 100, TimeControl.Rapid)
         );
         CasualSeeker casualSeeker = new("user2", "username2", [], DateTimeOffset.UtcNow);
 
@@ -116,12 +116,43 @@ public class SeekerTests
     [Fact]
     public void SeekerRating_IsWithinRatingRange_checks_rating_range_correctly()
     {
-        var rating = new SeekerRating(1500, 100, TimeControl.Blitz);
+        SeekerRating rating = new(Value: 1500, AllowedRatingRange: 100, TimeControl.Blitz);
 
         rating.IsWithinRatingRange(1500).Should().BeTrue();
         rating.IsWithinRatingRange(1400).Should().BeTrue();
         rating.IsWithinRatingRange(1600).Should().BeTrue();
         rating.IsWithinRatingRange(1399).Should().BeFalse();
         rating.IsWithinRatingRange(1601).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RatedSeeker_IsCompatibleWith_allows_any_rating_when_allowed_rating_range_is_null()
+    {
+        RatedSeeker seeker1 = new(
+            "user1",
+            "username1",
+            [],
+            DateTimeOffset.UtcNow,
+            new SeekerRating(1500, AllowedRatingRange: null, TimeControl.Blitz)
+        );
+
+        RatedSeeker seeker2 = new(
+            "user2",
+            "username2",
+            [],
+            DateTimeOffset.UtcNow,
+            new SeekerRating(1000, AllowedRatingRange: 50, TimeControl.Blitz)
+        );
+
+        RatedSeeker seeker3 = new(
+            "user3",
+            "username3",
+            [],
+            DateTimeOffset.UtcNow,
+            new SeekerRating(2000, AllowedRatingRange: 100, TimeControl.Blitz)
+        );
+
+        seeker1.IsCompatibleWith(seeker2).Should().BeTrue();
+        seeker1.IsCompatibleWith(seeker3).Should().BeTrue();
     }
 }

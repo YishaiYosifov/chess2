@@ -58,14 +58,14 @@ public record RatedSeeker(
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.SeekerRating")]
-public record SeekerRating(int Value, int AllowedRatingRange, TimeControl TimeControl)
+public record SeekerRating(int Value, int? AllowedRatingRange, TimeControl TimeControl)
 {
-    public int MinRating => Value - AllowedRatingRange;
+    public int? MinRating => Value - AllowedRatingRange;
 
-    public int MaxRating => Value + AllowedRatingRange;
+    public int? MaxRating => Value + AllowedRatingRange;
 
     public bool IsWithinRatingRange(int checkRating) =>
-        checkRating >= MinRating && checkRating <= MaxRating;
+        AllowedRatingRange is null || (checkRating >= MinRating && checkRating <= MaxRating);
 }
 
 [GenerateSerializer]
