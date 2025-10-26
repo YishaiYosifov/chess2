@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
@@ -57,7 +57,9 @@ public class RatedMatchmakingPool : IMatchmakingPool
             if (alreadyMatched.Contains(seeker.Seek.UserId))
                 continue;
 
-            var startIdx = BinarySearchLow(seekersByRating, seeker.Seek.Rating.MinRating);
+            var startIdx = seeker.Seek.Rating.MinRating is null
+                ? 0
+                : BinarySearchLow(seekersByRating, seeker.Seek.Rating.MinRating.Value);
             var bestMatch = FindBestMatch(seeker, seekersByRating, alreadyMatched, startIdx);
             if (bestMatch is null)
             {
@@ -120,9 +122,6 @@ public class RatedMatchmakingPool : IMatchmakingPool
     {
         if (!a.Seek.IsCompatibleWith(b.Seek) || !b.Seek.IsCompatibleWith(a.Seek))
             return null;
-
-        if (a.Seek.Rating is null || b.Seek.Rating is null)
-            return 0;
 
         return Math.Abs(a.Seek.Rating.Value - b.Seek.Rating.Value)
             - Math.Max(MissBonus(a), MissBonus(b));

@@ -12,17 +12,17 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     private const int AllowedMatchRatingDifference = 300;
     protected override RatedMatchmakingPool Pool { get; } = new();
 
-    private RatedSeeker AddSeeker(UserId userId, int rating)
+    private RatedSeeker AddSeeker(
+        UserId userId,
+        int rating,
+        int? allowedDifference = AllowedMatchRatingDifference
+    )
     {
         RatedSeeker seeker = new(
             userId,
             userId,
             ExcludeUserIds: [],
-            Rating: new SeekerRating(
-                rating,
-                AllowedMatchRatingDifference,
-                TimeControl: TimeControl.Blitz
-            ),
+            Rating: new SeekerRating(rating, allowedDifference, TimeControl: TimeControl.Blitz),
             CreatedAt: DateTime.UtcNow
         );
         Pool.AddSeeker(seeker);
@@ -30,6 +30,17 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
     }
 
     protected override Seeker AddSeeker(UserId userId) => AddSeeker(userId, 1200);
+
+    [Fact]
+    public void CalculateMatches_matches_seekers_when_allowed_difference_is_null()
+    {
+        var seeker1 = AddSeeker("user1", 1200, null);
+        var seeker2 = AddSeeker("user2", 1800, null);
+
+        var matches = Pool.CalculateMatches();
+
+        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker2));
+    }
 
     [Fact]
     public void CalculateMatches_matches_compatible_seekers_within_range()
