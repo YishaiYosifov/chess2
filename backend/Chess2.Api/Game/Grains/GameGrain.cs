@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Infrastructure;
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;

@@ -8,12 +8,12 @@ namespace Chess2.Api.Matchmaking.Models;
 public record Seeker(
     UserId UserId,
     string UserName,
-    HashSet<UserId> BlockedUserIds,
+    HashSet<UserId> ExcludeUserIds,
     DateTimeOffset CreatedAt
 )
 {
     public virtual bool IsCompatibleWith(Seeker other) =>
-        UserId != other.UserId && !BlockedUserIds.Contains(other.UserId);
+        UserId != other.UserId && !ExcludeUserIds.Contains(other.UserId);
 }
 
 [GenerateSerializer]
@@ -21,19 +21,19 @@ public record Seeker(
 public record CasualSeeker(
     UserId UserId,
     string UserName,
-    HashSet<UserId> BlockedUserIds,
+    HashSet<UserId> ExcludeUserIds,
     DateTimeOffset CreatedAt
-) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt);
+) : Seeker(UserId, UserName, ExcludeUserIds, CreatedAt);
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Matchmaking.Models.RatedSeeker")]
 public record RatedSeeker(
     UserId UserId,
     string UserName,
-    HashSet<UserId> BlockedUserIds,
+    HashSet<UserId> ExcludeUserIds,
     DateTimeOffset CreatedAt,
     SeekerRating Rating
-) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt)
+) : Seeker(UserId, UserName, ExcludeUserIds, CreatedAt)
 {
     public override bool IsCompatibleWith(Seeker other)
     {
@@ -73,10 +73,10 @@ public record SeekerRating(int Value, int AllowedRatingRange, TimeControl TimeCo
 public record OpenRatedSeeker(
     UserId UserId,
     string UserName,
-    HashSet<UserId> BlockedUserIds,
+    HashSet<UserId> ExcludeUserIds,
     DateTimeOffset CreatedAt,
     Dictionary<TimeControl, int> Ratings
-) : Seeker(UserId, UserName, BlockedUserIds, CreatedAt)
+) : Seeker(UserId, UserName, ExcludeUserIds, CreatedAt)
 {
     public override bool IsCompatibleWith(Seeker other) => base.IsCompatibleWith(other);
 }
