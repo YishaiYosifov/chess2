@@ -55,7 +55,7 @@ public class SeekerCreator(
         return new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: blocked,
+            ExcludeUserIds: blocked,
             CreatedAt: _timeProvider.GetUtcNow(),
             Rating: new(
                 Value: rating,
@@ -81,7 +81,7 @@ public class SeekerCreator(
         return new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: blocked,
+            ExcludeUserIds: blocked,
             CreatedAt: _timeProvider.GetUtcNow(),
             Ratings: ratings
         );
@@ -94,7 +94,7 @@ public class SeekerCreator(
         new(
             UserId: user.Id,
             UserName: user.UserName ?? "unknown",
-            BlockedUserIds: await _blockService.GetAllBlockedUserIdsAsync(user.Id, token),
+            ExcludeUserIds: await _blockService.GetAllBlockedUserIdsAsync(user.Id, token),
             CreatedAt: _timeProvider.GetUtcNow()
         );
 
@@ -102,7 +102,7 @@ public class SeekerCreator(
         new(
             UserId: userId,
             UserName: "Guest",
-            BlockedUserIds: [],
+            ExcludeUserIds: [],
             CreatedAt: _timeProvider.GetUtcNow()
         );
 }
