@@ -68,6 +68,19 @@ public class ProfileController(
         return Ok(dto);
     }
 
+    [HttpGet("by-id/{userId}")]
+    [ProducesResponseType<PublicUser>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PublicUser>> GetUserById(string userId)
+    {
+        var result = await _userManager.FindByIdAsync(userId);
+        if (result is null)
+            return ProfileErrors.NotFound.ToActionResult();
+
+        PublicUser dto = new(result);
+        return Ok(dto);
+    }
+
     [HttpPut("edit-profile")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]

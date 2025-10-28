@@ -42,26 +42,52 @@ public class GetUserTests(Chess2WebApplicationFactory factory) : BaseFunctionalT
     }
 
     [Fact]
-    public async Task GetUser_with_an_existing_user()
+    public async Task GetUserByUsername_with_an_existing_user()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetUserAsync(user.UserName!);
+        var response = await ApiClient.Api.GetUserByUsernameAsync(user.UserName!);
 
         response.IsSuccessful.Should().BeTrue();
         response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
     }
 
     [Fact]
-    public async Task GetUser_with_a_non_existing_user()
+    public async Task GetUserByUsername_with_a_non_existing_user()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var response = await ApiClient.Api.GetUserAsync("wrong username doesn't exist");
+        var response = await ApiClient.Api.GetUserByUsernameAsync("wrong username doesn't exist");
+
+        response.IsSuccessful.Should().BeFalse();
+        response.Content.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetUserById_with_an_existing_user()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetUserByIdAsync(user.Id);
+
+        response.IsSuccessful.Should().BeTrue();
+        response.Content.Should().BeEquivalentTo(user, opts => opts.ExcludingMissingMembers());
+    }
+
+    [Fact]
+    public async Task GetUserById_with_a_non_existing_user()
+    {
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var response = await ApiClient.Api.GetUserByIdAsync("non-existing-user-id");
 
         response.IsSuccessful.Should().BeFalse();
         response.Content.Should().BeNull();
