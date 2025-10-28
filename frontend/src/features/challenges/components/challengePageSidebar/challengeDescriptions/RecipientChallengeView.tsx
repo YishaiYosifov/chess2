@@ -14,10 +14,7 @@ const RecipientChallengeView = () => {
             />
 
             <ProfilePicture userId={requester.userId} size={200} />
-            <ProfileTooltip
-                username={requester.userName}
-                userId={requester.userId}
-            >
+            <ProfileTooltip userId={requester.userId}>
                 <p
                     data-testid="recipientChallengeViewUserName"
                     className="text-lg"

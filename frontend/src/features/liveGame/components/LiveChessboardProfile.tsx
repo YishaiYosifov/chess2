@@ -26,10 +26,7 @@ const LiveChessboardProfile = ({ side }: { side: ProfileSide }) => {
     return (
         <div className="flex max-w-screen items-center justify-between">
             <div className="flex items-center gap-3">
-                <ProfileTooltip
-                    username={player.userName}
-                    userId={player.userId}
-                >
+                <ProfileTooltip userId={player.userId}>
                     <ProfilePicture userId={player.userId} size={50} />
                     <p className="truncate">{player.userName}</p>
                 </ProfileTooltip>

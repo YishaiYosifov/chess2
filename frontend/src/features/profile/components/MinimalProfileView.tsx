@@ -20,7 +20,7 @@ const MinimalProfileView = ({
             )}
             data-testid="minimalProfileRow"
         >
-            <ProfileTooltip username={profile.userName} userId={profile.userId}>
+            <ProfileTooltip userId={profile.userId}>
                 <ProfilePicture userId={profile.userId} size={80} />
                 <p
                     className="truncate text-lg"
