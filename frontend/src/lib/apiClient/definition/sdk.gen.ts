@@ -84,6 +84,9 @@ import type {
     GetStarredUsersResponses,
     GetStarsReceivedCountData,
     GetStarsReceivedCountResponses,
+    GetUserByIdData,
+    GetUserByIdErrors,
+    GetUserByIdResponses,
     GetUserByUsernameData,
     GetUserByUsernameErrors,
     GetUserByUsernameResponses,
@@ -380,6 +383,19 @@ export const getUserByUsername = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Profile/by-username/{username}",
+        ...options,
+    });
+};
+
+export const getUserById = <ThrowOnError extends boolean = false>(
+    options: Options<GetUserByIdData, ThrowOnError>,
+) => {
+    return (options.client ?? client).get<
+        GetUserByIdResponses,
+        GetUserByIdErrors,
+        ThrowOnError
+    >({
+        url: "/api/Profile/by-id/{userId}",
         ...options,
     });
 };

@@ -69,18 +69,12 @@ const GameRow = ({
             <td className="relative flex">
                 <GameLink />
                 <div className="relative flex flex-col justify-center py-4 pl-4">
-                    <ProfileTooltip
-                        username={game.whitePlayer.userName}
-                        userId={game.whitePlayer.userId}
-                    >
+                    <ProfileTooltip userId={game.whitePlayer.userId}>
                         <p data-testid="gameRowWhiteUsername">
                             {game.whitePlayer.userName}
                         </p>
                     </ProfileTooltip>
-                    <ProfileTooltip
-                        username={game.blackPlayer.userName}
-                        userId={game.blackPlayer.userId}
-                    >
+                    <ProfileTooltip userId={game.blackPlayer.userId}>
                         <p
                             className="text-text/50"
                             data-testid="gameRowBlackUsername"

@@ -5,7 +5,7 @@ import clsx from "clsx";
 import {
     CurrentRatingStatus,
     getCurrentRatings,
-    getUserByUsername,
+    getUserById,
     PublicUser,
 } from "@/lib/apiClient";
 
@@ -18,11 +18,9 @@ import Link from "next/link";
 import Flag from "./Flag";
 
 const ProfileTooltip = ({
-    username,
     userId,
     children,
 }: {
-    username: string;
     userId: string;
     children?: React.ReactNode;
 }) => {
@@ -42,8 +40,8 @@ const ProfileTooltip = ({
 
         let fetchedProfile: PublicUser | null = null;
         if (!profile) {
-            const { error: profileError, data } = await getUserByUsername({
-                path: { username },
+            const { error: profileError, data } = await getUserById({
+                path: { userId },
             });
             if (profileError || data === undefined) {
                 console.error(profileError);

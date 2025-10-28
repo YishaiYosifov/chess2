@@ -873,6 +873,28 @@ export type GetUserByUsernameResponses = {
 export type GetUserByUsernameResponse =
     GetUserByUsernameResponses[keyof GetUserByUsernameResponses];
 
+export type GetUserByIdData = {
+    body?: never;
+    path: {
+        userId: string;
+    };
+    query?: never;
+    url: "/api/Profile/by-id/{userId}";
+};
+
+export type GetUserByIdErrors = {
+    404: ApiProblemDetails;
+};
+
+export type GetUserByIdError = GetUserByIdErrors[keyof GetUserByIdErrors];
+
+export type GetUserByIdResponses = {
+    200: PublicUser;
+};
+
+export type GetUserByIdResponse =
+    GetUserByIdResponses[keyof GetUserByIdResponses];
+
 export type EditProfileSettingsData = {
     body: ProfileEditRequest;
     path?: never;

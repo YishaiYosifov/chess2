@@ -25,10 +25,7 @@ const DirectChallengeView = () => {
                 className={clsx(!isOver && "animate-subtle-ping")}
                 size={200}
             />
-            <ProfileTooltip
-                username={recipient.userName}
-                userId={recipient.userId}
-            >
+            <ProfileTooltip userId={recipient.userId}>
                 <p
                     data-testid="directChallengeViewUserName"
                     className="text-lg"
