@@ -1,9 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
-import {
-    getCurrentRatings,
-    getUserByUsername,
-    TimeControl,
-} from "@/lib/apiClient";
+import { getCurrentRatings, getUserById, TimeControl } from "@/lib/apiClient";
 import { createFakeCurrentRatingStatus } from "@/lib/testUtils/fakers/currentRatingStatusFaker";
 import { createFakeUser } from "@/lib/testUtils/fakers/userFaker";
 import userEvent from "@testing-library/user-event";
@@ -18,11 +14,11 @@ describe("ProfileTooltip", () => {
         createFakeCurrentRatingStatus({ timeControl: TimeControl.BULLET }),
     ];
 
-    const getUserByUsernameMock = vi.mocked(getUserByUsername);
+    const getUserByIdMock = vi.mocked(getUserById);
     const getCurrentRatingsMock = vi.mocked(getCurrentRatings);
 
     beforeEach(() => {
-        getUserByUsernameMock.mockResolvedValue({
+        getUserByIdMock.mockResolvedValue({
             data: userMock,
             response: new Response(),
         });
@@ -36,10 +32,7 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip
-                username={userMock.userName}
-                userId={userMock.userId}
-            >
+            <ProfileTooltip userId={userMock.userId}>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -60,8 +53,8 @@ describe("ProfileTooltip", () => {
         ).toBeInTheDocument();
         expect(within(tooltip).getByTestId("flag")).toBeInTheDocument();
 
-        expect(getUserByUsernameMock).toHaveBeenCalledExactlyOnceWith({
-            path: { username: userMock.userName },
+        expect(getUserByIdMock).toHaveBeenCalledExactlyOnceWith({
+            path: { userId: userMock.userId },
         });
         expect(getCurrentRatingsMock).toHaveBeenCalledExactlyOnceWith({
             path: { userId: userMock.userId },
@@ -71,10 +64,7 @@ describe("ProfileTooltip", () => {
     it("should render all ratings in tooltip", async () => {
         const user = userEvent.setup();
         render(
-            <ProfileTooltip
-                username={userMock.userName}
-                userId={userMock.userId}
-            >
+            <ProfileTooltip userId={userMock.userId}>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -98,10 +88,7 @@ describe("ProfileTooltip", () => {
         const user = userEvent.setup();
 
         render(
-            <ProfileTooltip
-                username={userMock.userName}
-                userId={userMock.userId}
-            >
+            <ProfileTooltip userId={userMock.userId}>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
@@ -112,7 +99,7 @@ describe("ProfileTooltip", () => {
         await user.click(trigger);
         await user.click(trigger);
 
-        expect(getUserByUsername).toHaveBeenCalledOnce();
+        expect(getUserByIdMock).toHaveBeenCalledOnce();
         expect(getCurrentRatings).toHaveBeenCalledOnce();
     });
 
@@ -122,10 +109,7 @@ describe("ProfileTooltip", () => {
         render(
             <>
                 <div data-testid="outside">Outside</div>
-                <ProfileTooltip
-                    username={userMock.userName}
-                    userId={userMock.userId}
-                >
+                <ProfileTooltip userId={userMock.userId}>
                     <div>Trigger</div>
                 </ProfileTooltip>
             </>,
@@ -142,10 +126,7 @@ describe("ProfileTooltip", () => {
 
     it("should just render children when no authenticated", () => {
         render(
-            <ProfileTooltip
-                username={userMock.userName}
-                userId={"guest:" + userMock.userId}
-            >
+            <ProfileTooltip userId={"guest:" + userMock.userId}>
                 <div>Trigger</div>
             </ProfileTooltip>,
         );
