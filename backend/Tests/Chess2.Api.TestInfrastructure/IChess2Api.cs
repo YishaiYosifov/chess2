@@ -41,7 +41,10 @@ public interface IChess2Api
     Task<IApiResponse<GuestUser>> GetSessionUserGuestAsync();
 
     [Get("/api/profile/by-username/{username}")]
-    Task<IApiResponse<PublicUser>> GetUserAsync(string username);
+    Task<IApiResponse<PublicUser>> GetUserByUsernameAsync(string username);
+
+    [Get("/api/profile/by-id/{userId}")]
+    Task<IApiResponse<PublicUser>> GetUserByIdAsync(string userId);
 
     [Put("/api/profile/edit-profile")]
     Task<IApiResponse> EditProfileAsync(ProfileEditRequest profileEdit);
