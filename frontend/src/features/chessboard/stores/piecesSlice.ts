@@ -29,6 +29,7 @@ export interface PiecesSlice {
     selectPiece(pieceId: PieceID): boolean;
     unselectPiece(): void;
     getMoveForSelection(dest: LogicalPoint): Promise<Move | null>;
+    detectNeedsDoubleClick(dest: LogicalPoint): boolean;
 
     applyMoveTurn(move: Move): Promise<void>;
     handleMousePieceDrop(args: {
@@ -133,6 +134,7 @@ export function createPiecesSlice(
                 screenToLogicalPoint,
                 flashLegalMoves,
                 getMoveForSelection,
+                detectNeedsDoubleClick,
                 moveOptions,
                 isProcessingMove,
             } = get();
@@ -145,14 +147,11 @@ export function createPiecesSlice(
                 const dest = screenToLogicalPoint(mousePoint);
                 if (!dest) return { success: false };
 
-                const move = await getMoveForSelection(dest);
-
-                const needsDoubleClick =
-                    move && pointEquals(move.from, move.to) && !isDoubleClick;
-                if (needsDoubleClick) {
+                const needsDoubleClick = detectNeedsDoubleClick(dest);
+                if (needsDoubleClick && !isDoubleClick)
                     return { success: false, needsDoubleClick: true };
-                }
 
+                const move = await getMoveForSelection(dest);
                 if (move) {
                     await applyMoveTurn(move);
                     return { success: true };
@@ -171,6 +170,16 @@ export function createPiecesSlice(
                     state.isProcessingMove = false;
                 });
             }
+        },
+
+        detectNeedsDoubleClick(dest) {
+            const { selectedPieceId, pieceMap } = get();
+            if (!selectedPieceId) return false;
+
+            const piece = pieceMap.get(selectedPieceId);
+            if (!piece) return false;
+
+            return pointEquals(piece.position, dest);
         },
 
         async getMoveForSelection(dest) {
