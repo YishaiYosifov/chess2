@@ -239,6 +239,64 @@ describe("PiecesSlice", () => {
         });
     });
 
+    describe("detectNeedsDoubleClick", () => {
+        it("should return false if no piece is selected", () => {
+            store.setState({
+                selectedPieceId: null,
+                pieceMap: new Map(),
+            });
+
+            const result = store
+                .getState()
+                .detectNeedsDoubleClick(logicalPoint({ x: 1, y: 1 }));
+            expect(result).toBe(false);
+        });
+
+        it("should return false if the selected piece is not found in pieceMap", () => {
+            store.setState({
+                selectedPieceId: "0",
+                pieceMap: new Map(), // no piece with id "0"
+            });
+
+            const result = store
+                .getState()
+                .detectNeedsDoubleClick(logicalPoint({ x: 1, y: 1 }));
+            expect(result).toBe(false);
+        });
+
+        it("should return true if the destination equals the selected piece's position", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 2, y: 3 }),
+            });
+
+            store.setState({
+                selectedPieceId: "0",
+                pieceMap: new Map([["0", piece]]),
+            });
+
+            const result = store
+                .getState()
+                .detectNeedsDoubleClick(logicalPoint({ x: 2, y: 3 }));
+            expect(result).toBe(true);
+        });
+
+        it("should return false if the destination is not the selected piece's position", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 2, y: 3 }),
+            });
+
+            store.setState({
+                selectedPieceId: "0",
+                pieceMap: new Map([["0", piece]]),
+            });
+
+            const result = store
+                .getState()
+                .detectNeedsDoubleClick(logicalPoint({ x: 3, y: 3 }));
+            expect(result).toBe(false);
+        });
+    });
+
     describe("getMoveForSelection", () => {
         it("should return null if no piece selected", async () => {
             store.setState({ selectedPieceId: null });
