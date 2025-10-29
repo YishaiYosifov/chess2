@@ -124,8 +124,8 @@ const NewRulesGuide = ({ id }: { id?: string }) => {
                 title="Queen Beta Decay"
                 points={[
                     "You may split your queen into a rook, knight and a pawn by double clicking your queen if there's space.",
-                    "The spawned pawn cannot promote.",
-                    "The rook and knight can perform Knooklear Fusion later for massive effect.",
+                    "The spawned pawn can promote like a normal pawn, but not to a queen.",
+                    "The rook and knight can later perform Knooklear Fusion for massive effect.",
                 ]}
                 images={[queenbetadecay1, queenbetadecay2]}
             />
