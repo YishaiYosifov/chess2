@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Utils;
 
@@ -17,7 +18,10 @@ public class UnderagePawnDefinitionTestData : PawnLikeTestData
 {
     public UnderagePawnDefinitionTestData()
     {
-        AddRegularMoveTests(PieceType.UnderagePawn, maxInitialMoveDistance: 2);
-        AddPromotionTests(PieceType.UnderagePawn);
+        AddMoveTests(
+            PieceType.UnderagePawn,
+            maxInitialMoveDistance: 2,
+            promotesTo: GameLogicConstants.PromotablePieces
+        );
     }
 }

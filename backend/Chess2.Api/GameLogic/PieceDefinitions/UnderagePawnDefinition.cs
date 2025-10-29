@@ -12,5 +12,11 @@ public class UnderagePawnDefinition : BasePawnDefinition
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer
-    ) => GetPawnBehaviours(board, movingPiece, maxInitialMoveDistance: 2);
+    ) =>
+        GetPawnBehaviours(
+            board,
+            movingPiece,
+            maxInitialMoveDistance: 2,
+            promotesTo: GameLogicConstants.PromotablePieces
+        );
 }

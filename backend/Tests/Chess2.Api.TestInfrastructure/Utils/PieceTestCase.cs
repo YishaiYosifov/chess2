@@ -159,6 +159,15 @@ public class PieceTestCase
         return this;
     }
 
+    public PieceTestCase ForEach<T>(IEnumerable<T> items, Action<T, PieceTestCase> action)
+    {
+        foreach (var item in items)
+        {
+            action(item, this);
+        }
+        return this;
+    }
+
     public override string ToString() =>
         string.IsNullOrWhiteSpace(TestDecription)
             ? $"Piece under test at {Origin}"

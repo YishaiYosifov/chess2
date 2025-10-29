@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Utils;
 
@@ -17,7 +18,10 @@ public class PawnDefinitionTestData : PawnLikeTestData
 {
     public PawnDefinitionTestData()
     {
-        AddRegularMoveTests(PieceType.Pawn, maxInitialMoveDistance: 3);
-        AddPromotionTests(PieceType.Pawn);
+        AddMoveTests(
+            PieceType.Pawn,
+            maxInitialMoveDistance: 3,
+            promotesTo: GameLogicConstants.PromotablePieces
+        );
     }
 }

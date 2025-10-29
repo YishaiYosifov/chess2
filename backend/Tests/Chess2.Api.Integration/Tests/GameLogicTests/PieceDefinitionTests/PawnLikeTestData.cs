@@ -6,7 +6,11 @@ namespace Chess2.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;
 
 public abstract class PawnLikeTestData : TheoryData<PieceTestCase>
 {
-    protected void AddRegularMoveTests(PieceType pawnType, int maxInitialMoveDistance)
+    protected void AddMoveTests(
+        PieceType pawnType,
+        int maxInitialMoveDistance,
+        IReadOnlyCollection<PieceType> promotesTo
+    )
     {
         var whitePawn = PieceFactory.White(pawnType, timesMoved: 0);
         var blackPawn = PieceFactory.Black(pawnType, timesMoved: 0);
@@ -254,37 +258,27 @@ public abstract class PawnLikeTestData : TheoryData<PieceTestCase>
                 .WithDescription("black pawn can capture long passant")
         );
         #endregion
-    }
 
-    public void AddPromotionTests(PieceType pawnType)
-    {
-        var movedWhitePawn = PieceFactory.White(pawnType, timesMoved: 1);
-        var movedBlackPawn = PieceFactory.Black(pawnType, timesMoved: 1);
-
+        #region promotion
         Add(
             PieceTestCase
                 .From("f9", movedWhitePawn)
-                .GoesTo("f10", promotesTo: PieceType.Queen)
-                .GoesTo("f10", promotesTo: PieceType.Rook)
-                .GoesTo("f10", promotesTo: PieceType.Bishop)
-                .GoesTo("f10", promotesTo: PieceType.Horsey)
-                .GoesTo("f10", promotesTo: PieceType.Knook)
-                .GoesTo("f10", promotesTo: PieceType.Antiqueen)
-                .GoesTo("f10", promotesTo: PieceType.Checker)
+                .ForEach(
+                    promotesTo,
+                    (promoteType, testCase) => testCase.GoesTo("f10", promotesTo: promoteType)
+                )
                 .WithDescription("white pawn can promote")
         );
 
         Add(
             PieceTestCase
                 .From("f2", movedBlackPawn)
-                .GoesTo("f1", promotesTo: PieceType.Queen)
-                .GoesTo("f1", promotesTo: PieceType.Rook)
-                .GoesTo("f1", promotesTo: PieceType.Bishop)
-                .GoesTo("f1", promotesTo: PieceType.Horsey)
-                .GoesTo("f1", promotesTo: PieceType.Knook)
-                .GoesTo("f1", promotesTo: PieceType.Antiqueen)
-                .GoesTo("f1", promotesTo: PieceType.Checker)
+                .ForEach(
+                    promotesTo,
+                    (promoteType, testCase) => testCase.GoesTo("f1", promotesTo: promoteType)
+                )
                 .WithDescription("black pawn can promote")
         );
+        #endregion
     }
 }
