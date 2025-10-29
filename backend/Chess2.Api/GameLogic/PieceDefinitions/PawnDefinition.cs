@@ -12,5 +12,11 @@ public class PawnDefinition : BasePawnDefinition
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer
-    ) => GetPawnBehaviours(board, movingPiece, maxInitialMoveDistance: 3);
+    ) =>
+        GetPawnBehaviours(
+            board,
+            movingPiece,
+            maxInitialMoveDistance: 3,
+            promotesTo: GameLogicConstants.PromotablePieces
+        );
 }

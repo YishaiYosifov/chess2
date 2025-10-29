@@ -20,7 +20,7 @@ public abstract class BasePawnDefinition : IPieceDefinition
         IReadOnlyChessBoard board,
         Piece movingPiece,
         int maxInitialMoveDistance,
-        bool canPromote = true
+        IReadOnlyCollection<PieceType> promotesTo
     )
     {
         if (movingPiece.Color is null)
@@ -58,15 +58,13 @@ public abstract class BasePawnDefinition : IPieceDefinition
             ),
         ];
 
-        return canPromote
-            ?
-            [
-                new PromotionRule(
-                    (_, move) => move.To.Y == promotionY,
-                    promotesTo: GameLogicConstants.PromotablePieces,
-                    behaviour
-                ),
-            ]
-            : behaviour;
+        return
+        [
+            new PromotionRule(
+                (_, move) => move.To.Y == promotionY,
+                promotesTo: promotesTo,
+                behaviour
+            ),
+        ];
     }
 }
