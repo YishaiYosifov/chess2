@@ -5,7 +5,7 @@ import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
 import { StateCreator } from "zustand";
 import { ChessboardStore } from "./chessboardStore";
-import { pointToStr } from "@/features/point/pointUtils";
+import { pointEquals, pointToStr } from "@/features/point/pointUtils";
 import { PieceType } from "@/lib/apiClient";
 
 export interface LegalMovesSliceProps {
@@ -25,6 +25,8 @@ export interface LegalMovesSlice {
     showLegalMoves(piece: Piece): boolean;
     hideLegalMoves(): void;
     flashLegalMoves(): void;
+
+    hasMovesFromTo(from: LogicalPoint, to: LogicalPoint): boolean;
 
     setLegalMoves(moveOptions: ProcessedMoveOptions): void;
 }
@@ -80,6 +82,16 @@ export function createLegalMovesSlice(
                 piece,
             });
             return availablePromotions.get(promoteTo) ?? null;
+        },
+
+        hasMovesFromTo(from, to) {
+            const { moveOptions } = get();
+            const movesFromOrigin = moveOptions.legalMoves.get(
+                pointToStr(from),
+            );
+            if (!movesFromOrigin) return false;
+
+            return movesFromOrigin.some((move) => pointEquals(move.to, to));
         },
 
         showLegalMoves(piece) {

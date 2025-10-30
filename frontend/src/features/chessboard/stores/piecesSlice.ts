@@ -173,13 +173,16 @@ export function createPiecesSlice(
         },
 
         detectNeedsDoubleClick(dest) {
-            const { selectedPieceId, pieceMap } = get();
+            const { selectedPieceId, pieceMap, hasMovesFromTo } = get();
             if (!selectedPieceId) return false;
 
             const piece = pieceMap.get(selectedPieceId);
             if (!piece) return false;
 
-            return pointEquals(piece.position, dest);
+            return (
+                pointEquals(piece.position, dest) &&
+                hasMovesFromTo(piece.position, dest)
+            );
         },
 
         async getMoveForSelection(dest) {
