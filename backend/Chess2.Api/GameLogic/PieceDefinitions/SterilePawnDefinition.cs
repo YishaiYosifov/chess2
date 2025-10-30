@@ -7,7 +7,7 @@ public class SterilePawnDefinition : BasePawnDefinition
 {
     public override PieceType Type => PieceType.SterilePawn;
 
-    private static IReadOnlyCollection<PieceType> _promotesTo =
+    private static readonly IReadOnlyCollection<PieceType> _promotesTo =
     [
         .. GameLogicConstants.PromotablePieces.Where(x => x is not PieceType.Queen),
     ];
@@ -17,5 +17,12 @@ public class SterilePawnDefinition : BasePawnDefinition
         AlgebraicPoint position,
         Piece movingPiece,
         GameColor movingPlayer
-    ) => GetPawnBehaviours(board, movingPiece, maxInitialMoveDistance: 1, promotesTo: _promotesTo);
+    ) =>
+        GetPawnBehaviours(
+            board,
+            position,
+            movingPiece,
+            maxInitialMoveDistance: 1,
+            promotesTo: _promotesTo
+        );
 }
