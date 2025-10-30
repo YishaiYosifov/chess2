@@ -262,6 +262,74 @@ describe("LegalMovesSlice", () => {
         });
     });
 
+    describe("hasMovesFromTo", () => {
+        it("should return false if there are no moves from the given 'from' position", () => {
+            const move = createFakeMove({
+                from: logicalPoint({ x: 0, y: 0 }),
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+
+            store.setState({
+                moveOptions: {
+                    legalMoves: new Map([[pointToStr(move.from), [move]]]),
+                    hasForcedMoves: false,
+                },
+            });
+
+            const result = store
+                .getState()
+                .hasMovesFromTo(logicalPoint({ x: 1, y: 1 }), move.to);
+            expect(result).toBe(false);
+        });
+
+        it("should return false if there are moves from 'from' but none to the 'to' position", () => {
+            const move = createFakeMove({
+                from: logicalPoint({ x: 0, y: 0 }),
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+
+            store.setState({
+                moveOptions: {
+                    legalMoves: new Map([[pointToStr(move.from), [move]]]),
+                    hasForcedMoves: false,
+                },
+            });
+
+            const result = store
+                .getState()
+                .hasMovesFromTo(move.from, logicalPoint({ x: 1, y: 1 }));
+            expect(result).toBe(false);
+        });
+
+        it("should return true if there is at least one move from 'from' to 'to'", () => {
+            const move1 = createFakeMove({
+                from: logicalPoint({ x: 0, y: 0 }),
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+            const move2 = createFakeMove({
+                from: logicalPoint({ x: 0, y: 0 }),
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+
+            store.setState({
+                moveOptions: {
+                    legalMoves: new Map([
+                        [pointToStr(move1.from), [move1, move2]],
+                    ]),
+                    hasForcedMoves: false,
+                },
+            });
+
+            const result = store
+                .getState()
+                .hasMovesFromTo(
+                    logicalPoint({ x: 0, y: 0 }),
+                    logicalPoint({ x: 1, y: 1 }),
+                );
+            expect(result).toBe(true);
+        });
+    });
+
     describe("setLegalMoves", () => {
         it("should update moveOptions in the store", () => {
             const legalMoves = createFakeLegalMoveMap();
