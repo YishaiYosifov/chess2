@@ -72,18 +72,6 @@ public abstract class PawnLikeTestData : TheoryData<PieceTestCase>
 
         Add(
             PieceTestCase
-                .From("e10", movedWhitePawn)
-                .WithDescription("white pawn at top of board has no forward moves")
-        );
-
-        Add(
-            PieceTestCase
-                .From("e1", movedBlackPawn)
-                .WithDescription("black pawn at bottom of board has no forward moves")
-        );
-
-        Add(
-            PieceTestCase
                 .From("e4", movedWhitePawn)
                 .WithEnemyPieceAt("f5")
                 .GoesTo("e5")
@@ -278,6 +266,26 @@ public abstract class PawnLikeTestData : TheoryData<PieceTestCase>
                     (promoteType, testCase) => testCase.GoesTo("f1", promotesTo: promoteType)
                 )
                 .WithDescription("black pawn can promote")
+        );
+
+        Add(
+            PieceTestCase
+                .From("f10", movedWhitePawn)
+                .ForEach(
+                    promotesTo,
+                    (promoteType, testCase) => testCase.GoesTo("f10", promotesTo: promoteType)
+                )
+                .WithDescription("white pawn can promote if it's already on promotion square")
+        );
+
+        Add(
+            PieceTestCase
+                .From("f1", movedBlackPawn)
+                .ForEach(
+                    promotesTo,
+                    (promoteType, testCase) => testCase.GoesTo("f1", promotesTo: promoteType)
+                )
+                .WithDescription("black pawn can promote if it's already on promotion square")
         );
         #endregion
     }

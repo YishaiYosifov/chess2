@@ -18,6 +18,7 @@ public abstract class BasePawnDefinition : IPieceDefinition
 
     protected IEnumerable<IPieceMovementRule> GetPawnBehaviours(
         IReadOnlyChessBoard board,
+        AlgebraicPoint position,
         Piece movingPiece,
         int maxInitialMoveDistance,
         IReadOnlyCollection<PieceType> promotesTo
@@ -30,7 +31,7 @@ public abstract class BasePawnDefinition : IPieceDefinition
         var direction = color.Match(whenWhite: 1, whenBlack: -1);
         int promotionY = color.Match(whenWhite: board.Height - 1, whenBlack: 0);
 
-        IPieceMovementRule[] behaviour =
+        List<IPieceMovementRule> behaviour =
         [
             new NoCaptureRule(
                 new ConditionalBehaviour(
@@ -57,6 +58,9 @@ public abstract class BasePawnDefinition : IPieceDefinition
                 chainCaptureDirection: new Offset(X: 0, Y: -direction)
             ),
         ];
+
+        if (position.Y == promotionY)
+            behaviour.Add(new MoveToSelfRule());
 
         return
         [

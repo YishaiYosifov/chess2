@@ -15,6 +15,7 @@ public class PawnDefinition : BasePawnDefinition
     ) =>
         GetPawnBehaviours(
             board,
+            position,
             movingPiece,
             maxInitialMoveDistance: 3,
             promotesTo: GameLogicConstants.PromotablePieces

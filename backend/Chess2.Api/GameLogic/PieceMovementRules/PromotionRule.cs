@@ -5,10 +5,10 @@ namespace Chess2.Api.GameLogic.PieceMovementRules;
 public class PromotionRule(
     Func<IReadOnlyChessBoard, Move, bool> predicate,
     IReadOnlyCollection<PieceType> promotesTo,
-    params IPieceMovementRule[] pieceRules
+    params IEnumerable<IPieceMovementRule> pieceRules
 ) : IPieceMovementRule
 {
-    private readonly IPieceMovementRule[] _pieceRules = pieceRules;
+    private readonly IPieceMovementRule[] _pieceRules = [.. pieceRules];
     private readonly Func<IReadOnlyChessBoard, Move, bool> _predicate = predicate;
     private readonly IReadOnlyCollection<PieceType> _promotesTo = promotesTo;
 
