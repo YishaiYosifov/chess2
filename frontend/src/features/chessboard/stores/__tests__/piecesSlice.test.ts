@@ -264,36 +264,95 @@ describe("PiecesSlice", () => {
             expect(result).toBe(false);
         });
 
-        it("should return true if the destination equals the selected piece's position", () => {
+        it("should return false if the destination equals the piece position but there is no legal move there", () => {
             const piece = createFakePiece({
-                position: logicalPoint({ x: 2, y: 3 }),
+                position: logicalPoint({ x: 1, y: 1 }),
+            });
+
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 2, y: 2 }),
             });
 
             store.setState({
                 selectedPieceId: "0",
                 pieceMap: new Map([["0", piece]]),
+                moveOptions: {
+                    legalMoves: new Map([[pointToStr(piece.position), [move]]]),
+                    hasForcedMoves: false,
+                },
             });
 
-            const result = store
-                .getState()
-                .detectNeedsDoubleClick(logicalPoint({ x: 2, y: 3 }));
-            expect(result).toBe(true);
+            const result = store.getState().detectNeedsDoubleClick(move.to);
+            expect(result).toBe(false);
         });
 
-        it("should return false if the destination is not the selected piece's position", () => {
+        it("should return false if the destination is not the piece position but there is a legal move there", () => {
             const piece = createFakePiece({
-                position: logicalPoint({ x: 2, y: 3 }),
+                position: logicalPoint({ x: 1, y: 1 }),
+            });
+
+            const moveToPiece = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+            const moveToSelect = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 2, y: 2 }),
             });
 
             store.setState({
                 selectedPieceId: "0",
                 pieceMap: new Map([["0", piece]]),
+                moveOptions: {
+                    legalMoves: new Map([
+                        [
+                            pointToStr(piece.position),
+                            [moveToPiece, moveToSelect],
+                        ],
+                    ]),
+                    hasForcedMoves: false,
+                },
             });
 
             const result = store
                 .getState()
-                .detectNeedsDoubleClick(logicalPoint({ x: 3, y: 3 }));
+                .detectNeedsDoubleClick(moveToSelect.to);
             expect(result).toBe(false);
+        });
+
+        it("should return true if the destination is the picee position and there is a legal move there", () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 1, y: 1 }),
+            });
+
+            const moveToSelect = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+            const anotherMove = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 2, y: 2 }),
+            });
+
+            store.setState({
+                selectedPieceId: "0",
+                pieceMap: new Map([["0", piece]]),
+                moveOptions: {
+                    legalMoves: new Map([
+                        [
+                            pointToStr(piece.position),
+                            [moveToSelect, anotherMove],
+                        ],
+                    ]),
+                    hasForcedMoves: false,
+                },
+            });
+
+            const result = store
+                .getState()
+                .detectNeedsDoubleClick(moveToSelect.to);
+            expect(result).toBe(true);
         });
     });
 
