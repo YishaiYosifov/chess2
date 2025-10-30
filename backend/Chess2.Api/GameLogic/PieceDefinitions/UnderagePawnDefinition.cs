@@ -15,6 +15,7 @@ public class UnderagePawnDefinition : BasePawnDefinition
     ) =>
         GetPawnBehaviours(
             board,
+            position,
             movingPiece,
             maxInitialMoveDistance: 2,
             promotesTo: GameLogicConstants.PromotablePieces
