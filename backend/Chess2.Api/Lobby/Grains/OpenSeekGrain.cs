@@ -3,7 +3,6 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using Orleans.Streams;
@@ -134,12 +133,12 @@ public class OpenSeekGrain(
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         var openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
-            MatchmakingStreamConstants.OpenSeekCreatedStream
+            nameof(OpenSeekCreatedEvent)
         );
         await openSeekCreatedStream.SubscribeAsync(OnSeekCreated);
 
         var openSeekRemovedStream = streamProvider.GetStream<OpenSeekRemovedEvent>(
-            MatchmakingStreamConstants.OpenSeekRemovedStream
+            nameof(OpenSeekRemovedEvent)
         );
         await openSeekRemovedStream.SubscribeAsync(OnSeekEnded);
 
