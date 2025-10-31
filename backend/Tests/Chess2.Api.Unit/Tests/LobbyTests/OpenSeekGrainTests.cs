@@ -5,7 +5,6 @@ using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Models;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using NSubstitute;
@@ -44,14 +43,14 @@ public class OpenSeekGrainTests : BaseGrainTest
 
     private TestStream<OpenSeekCreatedEvent> ProbeOpenSeekCreatedStream() =>
         Silo.AddStreamProbe<OpenSeekCreatedEvent>(
-            MatchmakingStreamConstants.OpenSeekCreatedStream,
+            nameof(OpenSeekCreatedEvent),
             streamNamespace: null,
             Streaming.StreamProvider
         );
 
     private TestStream<OpenSeekRemovedEvent> ProbeOpenSeekRemovedStream() =>
         Silo.AddStreamProbe<OpenSeekRemovedEvent>(
-            MatchmakingStreamConstants.OpenSeekRemovedStream,
+            nameof(OpenSeekRemovedEvent),
             streamNamespace: null,
             Streaming.StreamProvider
         );
