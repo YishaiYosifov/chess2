@@ -1,12 +1,11 @@
-﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Infrastructure;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
 using FluentAssertions;
@@ -52,14 +51,14 @@ public class MatchmakingGrainTests : BaseGrainTest
 
     private TestStream<OpenSeekCreatedEvent> ProbeOpenSeekCreatedStream() =>
         Silo.AddStreamProbe<OpenSeekCreatedEvent>(
-            MatchmakingStreamConstants.OpenSeekCreatedStream,
+            nameof(OpenSeekCreatedEvent),
             null,
             Streaming.StreamProvider
         );
 
     private TestStream<OpenSeekRemovedEvent> ProbeOpenSeekRemovedStream() =>
         Silo.AddStreamProbe<OpenSeekRemovedEvent>(
-            MatchmakingStreamConstants.OpenSeekRemovedStream,
+            nameof(OpenSeekRemovedEvent),
             null,
             Streaming.StreamProvider
         );

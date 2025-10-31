@@ -1,10 +1,9 @@
-﻿using Chess2.Api.Infrastructure;
-using Chess2.Api.Game.Models;
+﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Errors;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Matchmaking.Services.Pools;
-using Chess2.Api.Matchmaking.Stream;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using ErrorOr;
@@ -264,10 +263,10 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     {
         _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         _openSeekCreatedStream = _streamProvider.GetStream<OpenSeekCreatedEvent>(
-            MatchmakingStreamConstants.OpenSeekCreatedStream
+            nameof(OpenSeekCreatedEvent)
         );
         _openSeekRemovedStream = _streamProvider.GetStream<OpenSeekRemovedEvent>(
-            MatchmakingStreamConstants.OpenSeekRemovedStream
+            nameof(OpenSeekRemovedEvent)
         );
 
         this.RegisterGrainTimer(
