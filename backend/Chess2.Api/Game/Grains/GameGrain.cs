@@ -16,10 +16,18 @@ namespace Chess2.Api.Game.Grains;
 public interface IGameGrain : IGrainWithStringKey
 {
     [Alias("StartGameAsync")]
-    Task StartGameAsync(GamePlayer whitePlayer, GamePlayer blackPlayer, PoolKey pool);
+    Task StartGameAsync(
+        GamePlayer whitePlayer,
+        GamePlayer blackPlayer,
+        PoolKey pool,
+        CancellationToken token = default
+    );
 
     [Alias("SyncRevisionAsync")]
-    Task<ErrorOr<Success>> SyncRevisionAsync(ConnectionId connectionId);
+    Task<ErrorOr<Success>> SyncRevisionAsync(
+        ConnectionId connectionId,
+        CancellationToken token = default
+    );
 
     [Alias("IsGameOngoingAsync")]
     Task<bool> DoesGameExistAsync();
@@ -31,16 +39,20 @@ public interface IGameGrain : IGrainWithStringKey
     Task<ErrorOr<PlayerRoster>> GetPlayersAsync();
 
     [Alias("RequestGameEndAsync")]
-    Task<ErrorOr<Success>> RequestGameEndAsync(UserId byUserId);
+    Task<ErrorOr<Success>> RequestGameEndAsync(UserId byUserId, CancellationToken token = default);
 
     [Alias("RequestDrawAsync")]
-    Task<ErrorOr<Success>> RequestDrawAsync(UserId byUserId);
+    Task<ErrorOr<Success>> RequestDrawAsync(UserId byUserId, CancellationToken token = default);
 
     [Alias("DeclineDrawAsync")]
-    Task<ErrorOr<Success>> DeclineDrawAsync(UserId byUserId);
+    Task<ErrorOr<Success>> DeclineDrawAsync(UserId byUserId, CancellationToken token = default);
 
     [Alias("MovePieceAsync")]
-    Task<ErrorOr<Success>> MovePieceAsync(UserId byUserId, MoveKey key);
+    Task<ErrorOr<Success>> MovePieceAsync(
+        UserId byUserId,
+        MoveKey key,
+        CancellationToken token = default
+    );
 }
 
 [GenerateSerializer]
@@ -125,7 +137,12 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         _gameFinalizer = gameFinalizer;
     }
 
-    public async Task StartGameAsync(GamePlayer whitePlayer, GamePlayer blackPlayer, PoolKey pool)
+    public async Task StartGameAsync(
+        GamePlayer whitePlayer,
+        GamePlayer blackPlayer,
+        PoolKey pool,
+        CancellationToken token = default
+    )
     {
         PlayerRoster players = new(whitePlayer, blackPlayer);
         GameCoreState core = new();
@@ -150,10 +167,13 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             dueTime: TimeSpan.Zero,
             period: TimeSpan.FromSeconds(1)
         );
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
     }
 
-    public async Task<ErrorOr<Success>> SyncRevisionAsync(ConnectionId connectionId)
+    public async Task<ErrorOr<Success>> SyncRevisionAsync(
+        ConnectionId connectionId,
+        CancellationToken token = default
+    )
     {
         if (!TryGetCurrentGame(out var game))
             return GameErrors.GameNotFound;
@@ -178,7 +198,10 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             TryGetCurrentGame(out var game) ? game.Players : GameErrors.GameNotFound
         );
 
-    public async Task<ErrorOr<Success>> RequestGameEndAsync(UserId byUserId)
+    public async Task<ErrorOr<Success>> RequestGameEndAsync(
+        UserId byUserId,
+        CancellationToken token = default
+    )
     {
         if (!TryGetCurrentGame(out var game))
             return GameErrors.GameNotFound;
@@ -198,12 +221,15 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             byUserId,
             endStatus.Result
         );
-        await EndGameAsync(endStatus, game);
+        await EndGameAsync(endStatus, game, token);
 
         return Result.Success;
     }
 
-    public async Task<ErrorOr<Success>> RequestDrawAsync(UserId byUserId)
+    public async Task<ErrorOr<Success>> RequestDrawAsync(
+        UserId byUserId,
+        CancellationToken token = default
+    )
     {
         if (!TryGetCurrentGame(out var game))
             return GameErrors.GameNotFound;
@@ -212,7 +238,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         if (game.DrawRequest.HasPendingRequest(player.Color))
         {
-            await EndGameAsync(_resultDescriber.DrawByAgreement(), game);
+            await EndGameAsync(_resultDescriber.DrawByAgreement(), game, token);
             return Result.Success;
         }
 
@@ -225,11 +251,14 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             game.DrawRequest.GetState(),
             game.NotifierState
         );
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         return Result.Success;
     }
 
-    public async Task<ErrorOr<Success>> DeclineDrawAsync(UserId byUserId)
+    public async Task<ErrorOr<Success>> DeclineDrawAsync(
+        UserId byUserId,
+        CancellationToken token = default
+    )
     {
         if (!TryGetCurrentGame(out var game))
             return GameErrors.GameNotFound;
@@ -244,11 +273,15 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             game.DrawRequest.GetState(),
             game.NotifierState
         );
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         return Result.Success;
     }
 
-    public async Task<ErrorOr<Success>> MovePieceAsync(UserId byUserId, MoveKey key)
+    public async Task<ErrorOr<Success>> MovePieceAsync(
+        UserId byUserId,
+        MoveKey key,
+        CancellationToken token = default
+    )
     {
         if (!TryGetCurrentGame(out var game))
             return GameErrors.GameNotFound;
@@ -299,14 +332,14 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         );
 
         if (moveResult.EndStatus is not null)
-            await EndGameAsync(moveResult.EndStatus, game);
+            await EndGameAsync(moveResult.EndStatus, game, token);
         else
-            await _state.WriteStateAsync();
+            await _state.WriteStateAsync(token);
 
         return Result.Success;
     }
 
-    private async Task HandleClockTickAsync()
+    private async Task HandleClockTickAsync(CancellationToken token = default)
     {
         if (!TryGetCurrentGame(out var game))
             return;
@@ -323,10 +356,14 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             player.UserId
         );
 
-        await EndGameAsync(_resultDescriber.Timeout(sideToMove), game);
+        await EndGameAsync(_resultDescriber.Timeout(sideToMove), game, token);
     }
 
-    private async Task EndGameAsync(GameEndStatus endStatus, GameData game)
+    private async Task EndGameAsync(
+        GameEndStatus endStatus,
+        GameData game,
+        CancellationToken token = default
+    )
     {
         _clock.CommitTurn(_core.SideToMove(game.Core), game.ClockState);
         var state = GetGameState(game: game);
@@ -335,7 +372,8 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             _token,
             state,
             endStatus,
-            game.Core.Board.Moves
+            game.Core.Board.Moves,
+            token
         );
         await _gameNotifier.NotifyGameEndedAsync(_token, game.Result, game.NotifierState);
 

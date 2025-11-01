@@ -1,11 +1,11 @@
-﻿using Chess2.Api.GameLogic;
-using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Game.Errors;
+﻿using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Grains;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.SanNotation;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
@@ -83,7 +83,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         ConnectionId connectionId = "test-connection";
 
-        var result = await grain.SyncRevisionAsync(connectionId);
+        var result = await grain.SyncRevisionAsync(connectionId, ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
 
@@ -142,7 +142,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
-        await grain.RequestGameEndAsync(_whitePlayer.UserId);
+        await grain.RequestGameEndAsync(_whitePlayer.UserId, ApiTestBase.CT);
 
         var result = await grain.GetStateAsync(_whitePlayer.UserId);
 
@@ -156,7 +156,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
 
-        var result = await grain.RequestDrawAsync(_whitePlayer.UserId);
+        var result = await grain.RequestDrawAsync(_whitePlayer.UserId, ApiTestBase.CT);
         result.IsError.Should().BeFalse();
 
         await _gameNotifierMock
@@ -178,8 +178,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
 
-        await grain.RequestDrawAsync(_whitePlayer.UserId);
-        await grain.RequestDrawAsync(_blackPlayer.UserId);
+        await grain.RequestDrawAsync(_whitePlayer.UserId, ApiTestBase.CT);
+        await grain.RequestDrawAsync(_blackPlayer.UserId, ApiTestBase.CT);
 
         await TestGameEndedAsync(grain, _gameResultDescriber.DrawByAgreement());
     }
@@ -190,8 +190,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
 
-        await grain.RequestDrawAsync(_whitePlayer.UserId);
-        await grain.DeclineDrawAsync(_blackPlayer.UserId);
+        await grain.RequestDrawAsync(_whitePlayer.UserId, ApiTestBase.CT);
+        await grain.DeclineDrawAsync(_blackPlayer.UserId, ApiTestBase.CT);
 
         await _gameNotifierMock
             .Received(1)
@@ -266,7 +266,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         var result = await grain.MovePieceAsync(
             _whitePlayer.UserId,
-            new(from: new AlgebraicPoint("e2"), to: new AlgebraicPoint("e8"))
+            new(from: new AlgebraicPoint("e2"), to: new AlgebraicPoint("e8")),
+            ApiTestBase.CT
         );
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.MoveInvalid);
@@ -289,9 +290,17 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             var (whiteFrom, whiteTo) = i % 2 == 0 ? whiteMove1 : whiteMove2;
             var (blackFrom, blackTo) = i % 2 == 0 ? blackMove1 : blackMove2;
 
-            await grain.MovePieceAsync(_whitePlayer.UserId, new(whiteFrom, whiteTo));
+            await grain.MovePieceAsync(
+                _whitePlayer.UserId,
+                new(whiteFrom, whiteTo),
+                ApiTestBase.CT
+            );
             _gameNotifierMock.ClearReceivedCalls();
-            await grain.MovePieceAsync(_blackPlayer.UserId, new(blackFrom, blackTo));
+            await grain.MovePieceAsync(
+                _blackPlayer.UserId,
+                new(blackFrom, blackTo),
+                ApiTestBase.CT
+            );
         }
 
         // (1 white move + 1 black move) * 4 times - 1 that results in a draw
@@ -309,12 +318,12 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         // move the f pawn to e6, and then move the e pawn to e6
         // which creates a position with en passant
-        await grain.MovePieceAsync(_whitePlayer.UserId, new(new("f2"), new("f5")));
-        await grain.MovePieceAsync(_blackPlayer.UserId, new(new("f9"), new("f8")));
-        await grain.MovePieceAsync(_whitePlayer.UserId, new(new("f5"), new("f6")));
+        await grain.MovePieceAsync(_whitePlayer.UserId, new(new("f2"), new("f5")), ApiTestBase.CT);
+        await grain.MovePieceAsync(_blackPlayer.UserId, new(new("f9"), new("f8")), ApiTestBase.CT);
+        await grain.MovePieceAsync(_whitePlayer.UserId, new(new("f5"), new("f6")), ApiTestBase.CT);
 
         _gameNotifierMock.ClearReceivedCalls();
-        await grain.MovePieceAsync(_blackPlayer.UserId, new(new("e9"), new("e6")));
+        await grain.MovePieceAsync(_blackPlayer.UserId, new(new("e9"), new("e6")), ApiTestBase.CT);
 
         await _gameNotifierMock
             .Received(1)
@@ -334,8 +343,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
 
-        await grain.RequestDrawAsync(_whitePlayer.UserId);
-        await grain.DeclineDrawAsync(_blackPlayer.UserId);
+        await grain.RequestDrawAsync(_whitePlayer.UserId, ApiTestBase.CT);
+        await grain.DeclineDrawAsync(_blackPlayer.UserId, ApiTestBase.CT);
 
         var initialState = await grain.GetStateAsync();
         var drawCooldown = initialState.Value.DrawState.WhiteCooldown;
@@ -359,7 +368,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
 
-        await grain.RequestDrawAsync(_whitePlayer.UserId);
+        await grain.RequestDrawAsync(_whitePlayer.UserId, ApiTestBase.CT);
 
         await MakeLegalMoveAsync(grain, _whitePlayer);
         await MakeLegalMoveAsync(grain, _blackPlayer);
@@ -383,7 +392,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await StartGameAsync(grain);
 
         // No moves or just one move = still abortable
-        await grain.RequestGameEndAsync(_whitePlayer.UserId);
+        await grain.RequestGameEndAsync(_whitePlayer.UserId, ApiTestBase.CT);
 
         await TestGameEndedAsync(grain, _gameResultDescriber.Aborted(GameColor.White));
     }
@@ -400,7 +409,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         await MakeLegalMoveAsync(grain, _whitePlayer);
 
         _stateStats.ResetCounts();
-        await grain.RequestGameEndAsync(_whitePlayer.UserId);
+        await grain.RequestGameEndAsync(_whitePlayer.UserId, ApiTestBase.CT);
         _stateStats.Writes.Should().Be(0);
 
         await TestGameEndedAsync(grain, _gameResultDescriber.Resignation(GameColor.White));

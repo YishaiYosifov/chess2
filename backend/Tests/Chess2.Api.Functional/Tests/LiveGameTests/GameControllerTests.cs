@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Game.Grains;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -35,7 +35,8 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             guest1,
             guest2,
-            new PoolKey(PoolType.Casual, new(600, 0))
+            new PoolKey(PoolType.Casual, new(600, 0)),
+            CT
         );
         AuthUtils.AuthenticateGuest(ApiClient, guest1);
 
@@ -76,7 +77,8 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             UserId.Guest(),
             UserId.Guest(),
-            new PoolKey(PoolType.Casual, new(600, 0))
+            new PoolKey(PoolType.Casual, new(600, 0)),
+            CT
         );
         AuthUtils.AuthenticateGuest(ApiClient, UserId.Guest());
 
@@ -94,7 +96,8 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             UserId.Guest(),
             UserId.Guest(),
-            new PoolKey(PoolType.Casual, new(600, 0))
+            new PoolKey(PoolType.Casual, new(600, 0)),
+            CT
         );
 
         // authenticate with a different user
@@ -129,7 +132,7 @@ public class GameControllerTests : BaseFunctionalTest
         var startGame = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
         await _grains
             .GetGrain<IGameGrain>(startGame.GameToken)
-            .RequestGameEndAsync(startGame.User2.Id);
+            .RequestGameEndAsync(startGame.User2.Id, CT);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, startGame.User1);
         var response = await ApiClient.Api.GetGameAsync(startGame.GameToken);
@@ -160,9 +163,10 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             guest1,
             guest2,
-            new PoolKey(PoolType.Casual, new(600, 0))
+            new PoolKey(PoolType.Casual, new(600, 0)),
+            CT
         );
-        await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(guest2);
+        await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(guest2, CT);
 
         AuthUtils.AuthenticateGuest(ApiClient, guest1);
         var response = await ApiClient.Api.GetGameAsync(gameToken);
@@ -195,7 +199,8 @@ public class GameControllerTests : BaseFunctionalTest
         var gameToken = await _gameStarter.StartGameAsync(
             authedUser.Id,
             guestId,
-            new PoolKey(PoolType.Casual, new(300, 5))
+            new PoolKey(PoolType.Casual, new(300, 5)),
+            CT
         );
 
         await AssertMixedPlayersGameState(authedUser, rating, guestId, gameToken);

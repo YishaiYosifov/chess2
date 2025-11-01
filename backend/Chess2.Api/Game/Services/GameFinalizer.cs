@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -70,10 +70,10 @@ public class GameFinalizer(
         await NotifyQuestAsync(gameToken, state.BlackPlayer, gameMoves, result);
         await _grainFactory
             .GetGrain<IPlayerSessionGrain>(state.WhitePlayer.UserId)
-            .GameEndedAsync(gameToken);
+            .GameEndedAsync(gameToken, token);
         await _grainFactory
             .GetGrain<IPlayerSessionGrain>(state.BlackPlayer.UserId)
-            .GameEndedAsync(gameToken);
+            .GameEndedAsync(gameToken, token);
 
         return result;
     }

@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Game.Models;
-using Chess2.Api.Game.Services;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -104,8 +104,8 @@ public class GameFinalizerTests : BaseUnitTest
             CT
         );
 
-        await whitePlayerSessionGrain.Received(1).GameEndedAsync(_gameToken);
-        await blackPlayerSessionGrain.Received(1).GameEndedAsync(_gameToken);
+        await whitePlayerSessionGrain.Received(1).GameEndedAsync(_gameToken, CT);
+        await blackPlayerSessionGrain.Received(1).GameEndedAsync(_gameToken, CT);
     }
 
     [Fact]
@@ -136,10 +136,10 @@ public class GameFinalizerTests : BaseUnitTest
 
         await whiteQuestGrain
             .Received(1)
-            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData));
+            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData), CT);
         await whiteQuestGrain
             .Received(1)
-            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData));
+            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData), CT);
     }
 
     [Fact]

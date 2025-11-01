@@ -16,13 +16,17 @@ namespace Chess2.Api.Matchmaking.Grains;
 public interface IMatchmakingGrain : IGrainWithStringKey
 {
     [Alias("AddSeekAsync")]
-    Task AddSeekAsync(Seeker seeker, ISeekObserver observer);
+    Task AddSeekAsync(Seeker seeker, ISeekObserver observer, CancellationToken token = default);
 
     [Alias("CancelSeekAsync")]
-    Task<bool> TryCancelSeekAsync(UserId userId);
+    Task<bool> TryCancelSeekAsync(UserId userId, CancellationToken token = default);
 
     [Alias("MatchWithSeeker")]
-    Task<ErrorOr<GameToken>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith);
+    Task<ErrorOr<GameToken>> MatchWithSeekerAsync(
+        Seeker seeker,
+        UserId matchWith,
+        CancellationToken token = default
+    );
 }
 
 [Alias("Chess2.Api.Matchmaking.Grains.IMatchmakingGrain`1")]
@@ -79,26 +83,34 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         _settings = settings.Value.Lobby;
     }
 
-    public async Task AddSeekAsync(Seeker seeker, ISeekObserver handler)
+    public async Task AddSeekAsync(
+        Seeker seeker,
+        ISeekObserver handler,
+        CancellationToken token = default
+    )
     {
         _logger.LogInformation("Received create seek from {UserId}", seeker.UserId);
 
         _state.State.Pool.AddSeeker(seeker);
         _state.State.SeekObservers[seeker.UserId] = handler;
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         _pendingSeekBroadcast[seeker.UserId] = seeker;
     }
 
-    public async Task<bool> TryCancelSeekAsync(UserId userId)
+    public async Task<bool> TryCancelSeekAsync(UserId userId, CancellationToken token = default)
     {
         _logger.LogInformation("Received cancel seek from {UserId}", userId);
         var result = await TryRemoveSeekerAsync(userId);
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         return result;
     }
 
-    public async Task<ErrorOr<GameToken>> MatchWithSeekerAsync(Seeker seeker, UserId matchWith)
+    public async Task<ErrorOr<GameToken>> MatchWithSeekerAsync(
+        Seeker seeker,
+        UserId matchWith,
+        CancellationToken token = default
+    )
     {
         if (
             !_state.State.Pool.TryGetSeeker(matchWith, out var matchWithSeeker)
@@ -114,12 +126,17 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
 
         try
         {
-            var gameToken = await _gameStarter.StartGameAsync(seeker.UserId, matchWith, _key);
+            var gameToken = await _gameStarter.StartGameAsync(
+                seeker.UserId,
+                matchWith,
+                _key,
+                token
+            );
 
-            await matchWithObserver.SeekMatchedAsync(gameToken, _key);
+            await matchWithObserver.SeekMatchedAsync(gameToken, _key, token);
             await BroadcastSeekRemoval(matchWith);
             _state.State.Pool.RemoveSeeker(matchWith);
-            await _state.WriteStateAsync();
+            await _state.WriteStateAsync(token);
             return gameToken;
         }
         finally
@@ -128,7 +145,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         }
     }
 
-    private async Task ExecuteWaveAsync()
+    private async Task ExecuteWaveAsync(CancellationToken token = default)
     {
         var matches = _state.State.Pool.CalculateMatches();
 
@@ -154,7 +171,8 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 seeker1,
                 seeker1Handler,
                 seeker2,
-                seeker2Handler
+                seeker2Handler,
+                token
             );
             if (!didGameStart)
                 continue;
@@ -167,7 +185,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 removedUserSeeks.Add(seeker2.UserId);
         }
 
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         if (removedUserSeeks.Count > 0)
         {
@@ -193,7 +211,8 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         Seeker seeker1,
         ISeekObserver seeker1Observer,
         Seeker seeker2,
-        ISeekObserver seeker2Observer
+        ISeekObserver seeker2Observer,
+        CancellationToken token = default
     )
     {
         try
@@ -203,10 +222,15 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             if (!seeker1Reserved || !seeker2Reserved)
                 return false;
 
-            var gameToken = await _gameStarter.StartGameAsync(seeker1.UserId, seeker2.UserId, _key);
+            var gameToken = await _gameStarter.StartGameAsync(
+                seeker1.UserId,
+                seeker2.UserId,
+                _key,
+                token
+            );
 
-            await seeker1Observer.SeekMatchedAsync(gameToken, _key);
-            await seeker2Observer.SeekMatchedAsync(gameToken, _key);
+            await seeker1Observer.SeekMatchedAsync(gameToken, _key, token);
+            await seeker2Observer.SeekMatchedAsync(gameToken, _key, token);
             return true;
         }
         finally
@@ -216,7 +240,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         }
     }
 
-    private async Task TimeoutSeeksAsync()
+    private async Task TimeoutSeeksAsync(CancellationToken token = default)
     {
         var now = _timeProvider.GetUtcNow();
         var timedOutSeekers = _state
@@ -232,7 +256,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             );
             await TryRemoveSeekerAsync(seeker.UserId);
         }
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
     }
 
     private async Task<bool> TryRemoveSeekerAsync(UserId userId)

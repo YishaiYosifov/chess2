@@ -2,10 +2,10 @@
 using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
-using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Game.Grains;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -138,7 +138,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var challenge = await CreateAsync(grain, _requester, _recipient);
 
         ConnectionId connId = "conn id";
-        var result = await grain.SubscribeAsync(userId, connId);
+        var result = await grain.SubscribeAsync(userId, connId, ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
         await _challengeNotifierMock
@@ -153,7 +153,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var challenge = await CreateAsync(grain, _requester, recipient: null);
 
         ConnectionId connId = "test conn id";
-        var result = await grain.SubscribeAsync("random user", connId);
+        var result = await grain.SubscribeAsync("random user", connId, ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
         await _challengeNotifierMock
@@ -167,7 +167,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.SubscribeAsync("random user", "conn id");
+        var result = await grain.SubscribeAsync("random user", "conn id", ApiTestBase.CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.NotFound);
@@ -184,7 +184,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         var challenge = await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.GetAsync(requestedBy: requestedBy);
+        var result = await grain.GetAsync(requestedBy: requestedBy, token: ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEquivalentTo(challenge);
@@ -196,7 +196,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         var challenge = await CreateAsync(grain, _requester, recipient: null);
 
-        var result = await grain.GetAsync("random-user");
+        var result = await grain.GetAsync("random-user", ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
         result.Value.Should().BeEquivalentTo(challenge);
@@ -208,7 +208,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.GetAsync(requestedBy: "some random");
+        var result = await grain.GetAsync(requestedBy: "some random", token: ApiTestBase.CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.NotFound);
@@ -220,7 +220,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.CancelAsync(cancelledBy: "some random");
+        var result = await grain.CancelAsync(cancelledBy: "some random", token: ApiTestBase.CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.NotFound);
@@ -234,7 +234,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.CancelAsync(cancelledBy);
+        var result = await grain.CancelAsync(cancelledBy, ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
 
@@ -250,7 +250,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_requesterId);
+        var result = await grain.AcceptAsync(_requesterId, ApiTestBase.CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.NotFound);
@@ -262,7 +262,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         var grain = await CreateGrainAsync();
         var challenge = await CreateAsync(grain, _requester, _recipient);
 
-        var result = await grain.AcceptAsync(_recipientId);
+        var result = await grain.AcceptAsync(_recipientId, ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
 
@@ -286,7 +286,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual)
         );
 
-        var result = await grain.AcceptAsync("random-user");
+        var result = await grain.AcceptAsync("random-user", ApiTestBase.CT);
 
         result.IsError.Should().BeFalse();
 
@@ -310,7 +310,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
 
-        var result = await grain.AcceptAsync(UserId.Guest());
+        var result = await grain.AcceptAsync(UserId.Guest(), ApiTestBase.CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ChallengeErrors.AuthedOnlyPool);
