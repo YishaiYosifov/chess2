@@ -1,8 +1,8 @@
-﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Game.Errors;
+﻿using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Grains;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -62,7 +62,7 @@ public class RematchGrainTests : BaseGrainTest
         _gameGrainMock.GetStateAsync(forUserId: null).Returns(GameErrors.GameNotFound);
         var grain = await CreateGrainAsync();
 
-        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
+        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn", CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.GameNotFound);
@@ -77,7 +77,7 @@ public class RematchGrainTests : BaseGrainTest
             .Returns(_gameState with { ResultData = null });
         var grain = await CreateGrainAsync();
 
-        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn");
+        var result = await grain.RequestAsync(_gameState.WhitePlayer.UserId, "test conn", CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.GameNotOver);
@@ -91,7 +91,7 @@ public class RematchGrainTests : BaseGrainTest
         var player = _gameState.WhitePlayer;
         var connection = "white-conn";
 
-        var result = await grain.RequestAsync(player.UserId, connection);
+        var result = await grain.RequestAsync(player.UserId, connection, CT);
 
         result.IsError.Should().BeFalse();
         _state.WhiteConnections.Should().Contain(connection);
@@ -122,14 +122,15 @@ public class RematchGrainTests : BaseGrainTest
             .StartGameAsync(
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId,
-                _gameState.Pool
+                _gameState.Pool,
+                CT
             )
             .Returns(createdGameToken);
 
         var grain = await CreateGrainAsync();
 
-        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white conn");
-        var result = await grain.RequestAsync(_gameState.BlackPlayer.UserId, "black conn");
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white conn", CT);
+        var result = await grain.RequestAsync(_gameState.BlackPlayer.UserId, "black conn", CT);
 
         result.IsError.Should().BeFalse();
         _stateStats.Clears.Should().Be(1);
@@ -148,7 +149,7 @@ public class RematchGrainTests : BaseGrainTest
         var grain = await CreateGrainAsync();
         var invalidPlayer = "invalid-player-id";
 
-        var result = await grain.RequestAsync(invalidPlayer, "conn");
+        var result = await grain.RequestAsync(invalidPlayer, "conn", CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.PlayerInvalid);
@@ -158,9 +159,9 @@ public class RematchGrainTests : BaseGrainTest
     public async Task CancelAsync_clears_state_and_notifies()
     {
         var grain = await CreateGrainAsync();
-        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn", CT);
 
-        var result = await grain.CancelAsync(_gameState.WhitePlayer.UserId);
+        var result = await grain.CancelAsync(_gameState.WhitePlayer.UserId, CT);
 
         result.IsError.Should().BeFalse();
         _stateStats.Clears.Should().Be(1);
@@ -176,11 +177,11 @@ public class RematchGrainTests : BaseGrainTest
     public async Task CancelAsync_rejects_invalid_player()
     {
         var grain = await CreateGrainAsync();
-        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn", CT);
 
         var invalidPlayer = "invalid-player-id";
 
-        var result = await grain.CancelAsync(invalidPlayer);
+        var result = await grain.CancelAsync(invalidPlayer, CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.PlayerInvalid);
@@ -194,9 +195,9 @@ public class RematchGrainTests : BaseGrainTest
         var player = _gameState.WhitePlayer;
         var connection = "white-conn";
 
-        await grain.RequestAsync(player.UserId, connection);
+        await grain.RequestAsync(player.UserId, connection, CT);
 
-        var result = await grain.RemoveConnectionAsync(player.UserId, connection);
+        var result = await grain.RemoveConnectionAsync(player.UserId, connection, CT);
 
         result.IsError.Should().BeFalse();
         _state.WhiteConnections.Should().BeEmpty();
@@ -213,10 +214,10 @@ public class RematchGrainTests : BaseGrainTest
 
         var player = _gameState.WhitePlayer;
 
-        await grain.RequestAsync(player.UserId, "conn1");
-        await grain.RequestAsync(player.UserId, "conn2");
+        await grain.RequestAsync(player.UserId, "conn1", CT);
+        await grain.RequestAsync(player.UserId, "conn2", CT);
 
-        var result = await grain.RemoveConnectionAsync(player.UserId, "conn1");
+        var result = await grain.RemoveConnectionAsync(player.UserId, "conn1", CT);
 
         result.IsError.Should().BeFalse();
         _state.WhiteConnections.Should().ContainSingle().Which.Should().Be((ConnectionId)"conn2");
@@ -227,10 +228,10 @@ public class RematchGrainTests : BaseGrainTest
     public async Task RemoveConnectionAsync_rejects_invalid_player()
     {
         var grain = await CreateGrainAsync();
-        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn", CT);
         var invalidPlayer = "invalid-player-id";
 
-        var result = await grain.RemoveConnectionAsync(invalidPlayer, "conn");
+        var result = await grain.RemoveConnectionAsync(invalidPlayer, "conn", CT);
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(GameErrors.PlayerInvalid);
@@ -241,7 +242,7 @@ public class RematchGrainTests : BaseGrainTest
     {
         var grain = await CreateGrainAsync();
 
-        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn");
+        await grain.RequestAsync(_gameState.WhitePlayer.UserId, "white-conn", CT);
 
         await Silo.FireAllReminders();
 

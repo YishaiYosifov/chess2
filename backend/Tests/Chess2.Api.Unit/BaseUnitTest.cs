@@ -9,7 +9,7 @@ public class BaseUnitTest
 {
     protected readonly Fixture Fixture = new();
 
-    protected static CancellationToken CT => TestContext.Current.CancellationToken;
+    protected static CancellationToken CT => CT;
 
     public BaseUnitTest()
     {

@@ -9,11 +9,15 @@ public interface ISeekObserver : IGrainObserver
 {
     [OneWay]
     [Alias("SeekMatched")]
-    public Task SeekMatchedAsync(GameToken gameToken, PoolKey pool);
+    public Task SeekMatchedAsync(
+        GameToken gameToken,
+        PoolKey pool,
+        CancellationToken token = default
+    );
 
     [OneWay]
     [Alias("SeekRemoved")]
-    public Task SeekRemovedAsync(PoolKey pool);
+    public Task SeekRemovedAsync(PoolKey pool, CancellationToken token = default);
 
     [Alias("TryReserveMatchAsync")]
     Task<bool> TryReserveSeekAsync(PoolKey pool);

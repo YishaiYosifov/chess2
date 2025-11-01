@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Infrastructure;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.Extensions;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Services;
 using Chess2.Api.Matchmaking.Grains;
@@ -16,24 +16,30 @@ namespace Chess2.Api.Lobby.Grains;
 public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
 {
     [Alias("CreateSeekAsync")]
-    Task<ErrorOr<Created>> CreateSeekAsync(ConnectionId connectionId, Seeker seeker, PoolKey pool);
+    Task<ErrorOr<Created>> CreateSeekAsync(
+        ConnectionId connectionId,
+        Seeker seeker,
+        PoolKey pool,
+        CancellationToken token = default
+    );
 
     [Alias("CleanupConnectionAsync")]
-    Task CleanupConnectionAsync(ConnectionId connectionId);
+    Task CleanupConnectionAsync(ConnectionId connectionId, CancellationToken token = default);
 
     [Alias("CancelSeekAsync")]
-    Task CancelSeekAsync(PoolKey pool);
+    Task CancelSeekAsync(PoolKey pool, CancellationToken token = default);
 
     [Alias("MatchWithOpenSeekAsync")]
     Task<ErrorOr<Created>> MatchWithOpenSeekAsync(
         ConnectionId connectionId,
         Seeker seeker,
         UserId matchWith,
-        PoolKey pool
+        PoolKey pool,
+        CancellationToken token = default
     );
 
     [Alias("GameEndedAsync")]
-    Task GameEndedAsync(GameToken gameToken);
+    Task GameEndedAsync(GameToken gameToken, CancellationToken token = default);
 }
 
 [GenerateSerializer]
@@ -80,7 +86,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     public async Task<ErrorOr<Created>> CreateSeekAsync(
         ConnectionId connectionId,
         Seeker seeker,
-        PoolKey pool
+        PoolKey pool,
+        CancellationToken token = default
     )
     {
         if (HasReachedGameLimit())
@@ -90,29 +97,33 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             return PlayerSessionErrors.ConnectionInGame;
 
         var matchmakingGrain = GrainFactory.GetMatchmakingGrain(pool);
-        await matchmakingGrain.AddSeekAsync(seeker, this.AsSafeReference<ISeekObserver>());
+        await matchmakingGrain.AddSeekAsync(seeker, this.AsSafeReference<ISeekObserver>(), token);
 
         _state.State.ConnectionMap.AddConnectionToPool(connectionId, pool);
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         return Result.Created;
     }
 
-    public async Task CleanupConnectionAsync(ConnectionId connectionId)
+    public async Task CleanupConnectionAsync(
+        ConnectionId connectionId,
+        CancellationToken token = default
+    )
     {
-        await RemoveConnectionFromPoolsAsync(connectionId);
+        await RemoveConnectionFromPoolsAsync(connectionId, token);
         _connectionsRecentlyMatched.Remove(connectionId);
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
     }
 
-    public Task CancelSeekAsync(PoolKey pool) =>
-        GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
+    public Task CancelSeekAsync(PoolKey pool, CancellationToken token = default) =>
+        GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId, token);
 
     public async Task<ErrorOr<Created>> MatchWithOpenSeekAsync(
         ConnectionId connectionId,
         Seeker seeker,
         UserId matchWith,
-        PoolKey pool
+        PoolKey pool,
+        CancellationToken token = default
     )
     {
         if (HasReachedGameLimit())
@@ -123,35 +134,39 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
 
         var startGameResult = await GrainFactory
             .GetMatchmakingGrain(pool)
-            .MatchWithSeekerAsync(seeker, matchWith);
+            .MatchWithSeekerAsync(seeker, matchWith, token);
         if (startGameResult.IsError)
             return startGameResult.Errors;
         var gameToken = startGameResult.Value;
 
-        await OnGameFoundAsync(gameToken, [connectionId], pool);
-        await _state.WriteStateAsync();
+        await OnGameFoundAsync(gameToken, [connectionId], pool, token);
+        await _state.WriteStateAsync(token);
         return Result.Created;
     }
 
-    public async Task GameEndedAsync(GameToken gameToken)
+    public async Task GameEndedAsync(GameToken gameToken, CancellationToken token = default)
     {
         _state.State.ActiveGameTokens.Remove(gameToken);
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
     }
 
-    public async Task SeekMatchedAsync(GameToken gameToken, PoolKey pool)
+    public async Task SeekMatchedAsync(
+        GameToken gameToken,
+        PoolKey pool,
+        CancellationToken token = default
+    )
     {
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
-        await OnGameFoundAsync(gameToken, poolConnectionIds, pool);
-        await _state.WriteStateAsync();
+        await OnGameFoundAsync(gameToken, poolConnectionIds, pool, token);
+        await _state.WriteStateAsync(token);
     }
 
-    public async Task SeekRemovedAsync(PoolKey pool)
+    public async Task SeekRemovedAsync(PoolKey pool, CancellationToken token = default)
     {
         _poolConnectionReservations.Remove(pool);
 
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
     }
 
@@ -185,7 +200,8 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     private async Task OnGameFoundAsync(
         GameToken gameToken,
         IEnumerable<ConnectionId> connectionIds,
-        PoolKey pool
+        PoolKey pool,
+        CancellationToken token = default
     )
     {
         _state.State.ActiveGameTokens.Add(gameToken);
@@ -195,27 +211,30 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         _connectionsRecentlyMatched.UnionWith(connectionIds);
 
         foreach (var connectionId in connectionIds)
-            await RemoveConnectionFromPoolsAsync(connectionId);
+            await RemoveConnectionFromPoolsAsync(connectionId, token);
 
         if (HasReachedGameLimit())
-            await CancelAllSeeksAsync();
+            await CancelAllSeeksAsync(token);
     }
 
-    private async Task CancelAllSeeksAsync()
+    private async Task CancelAllSeeksAsync(CancellationToken token = default)
     {
         foreach (var pool in _state.State.ConnectionMap.ActivePools)
         {
-            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
+            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId, token);
         }
         _state.State.ConnectionMap.RemoveAllPools();
     }
 
-    private async Task RemoveConnectionFromPoolsAsync(ConnectionId connectionId)
+    private async Task RemoveConnectionFromPoolsAsync(
+        ConnectionId connectionId,
+        CancellationToken token = default
+    )
     {
         var removedPools = _state.State.ConnectionMap.RemoveConnection(connectionId);
         foreach (var pool in removedPools)
         {
-            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId);
+            await GrainFactory.GetMatchmakingGrain(pool).TryCancelSeekAsync(_userId, token);
         }
     }
 

@@ -1,8 +1,8 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Grains;
+using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Game.Grains;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -13,7 +13,12 @@ namespace Chess2.Api.Game.Services;
 
 public interface IGameStarter
 {
-    Task<GameToken> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool);
+    Task<GameToken> StartGameAsync(
+        UserId userId1,
+        UserId userId2,
+        PoolKey pool,
+        CancellationToken token = default
+    );
 }
 
 public class GameStarter(
@@ -30,17 +35,22 @@ public class GameStarter(
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IGrainFactory _grains = grains;
 
-    public async Task<GameToken> StartGameAsync(UserId userId1, UserId userId2, PoolKey pool)
+    public async Task<GameToken> StartGameAsync(
+        UserId userId1,
+        UserId userId2,
+        PoolKey pool,
+        CancellationToken token = default
+    )
     {
-        var token = await _gameTokenGenerator.GenerateUniqueGameToken();
+        var gameToken = await _gameTokenGenerator.GenerateUniqueGameToken();
         // TODO: choose white and black based on each player last game
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, pool.TimeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
 
-        var gameGrain = _grains.GetGrain<IGameGrain>(token);
-        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool);
+        var gameGrain = _grains.GetGrain<IGameGrain>(gameToken);
+        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, token);
 
-        return token;
+        return gameToken;
     }
 
     private async Task<GamePlayer> CreatePlayer(

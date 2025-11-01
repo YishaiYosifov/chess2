@@ -13,17 +13,17 @@ namespace Chess2.Api.Quests.Grains;
 public interface IQuestGrain : IGrainWithStringKey
 {
     [Alias("CollectRewardAsync")]
-    Task<ErrorOr<int>> CollectRewardAsync();
+    Task<ErrorOr<int>> CollectRewardAsync(CancellationToken token = default);
 
     [Alias("GetGuestAsync")]
-    Task<QuestDto> GetQuestAsync();
+    Task<QuestDto> GetQuestAsync(CancellationToken token = default);
 
     [OneWay]
     [Alias("OnGameOverAsync")]
-    Task OnGameOverAsync(GameQuestSnapshot snapshot);
+    Task OnGameOverAsync(GameQuestSnapshot snapshot, CancellationToken token = default);
 
     [Alias("ReplaceQuestAsync")]
-    Task<ErrorOr<QuestDto>> ReplaceQuestAsync();
+    Task<ErrorOr<QuestDto>> ReplaceQuestAsync(CancellationToken token = default);
 }
 
 [GenerateSerializer]
@@ -82,26 +82,26 @@ public class QuestGrain(
     private readonly IRandomQuestProvider _questProvider = questProvider;
     private readonly TimeProvider _timeProvider = timeProvider;
 
-    public async Task<QuestDto> GetQuestAsync()
+    public async Task<QuestDto> GetQuestAsync(CancellationToken token = default)
     {
         var quest = GetOrSelectQuest();
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         return ToDto(quest);
     }
 
-    public async Task<ErrorOr<QuestDto>> ReplaceQuestAsync()
+    public async Task<ErrorOr<QuestDto>> ReplaceQuestAsync(CancellationToken token = default)
     {
         if (!_state.State.CanReplace)
             return QuestErrors.CanotReplace;
 
         var quest = SelectNewQuest();
         _state.State.CanReplace = false;
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         return ToDto(quest);
     }
 
-    public async Task<ErrorOr<int>> CollectRewardAsync()
+    public async Task<ErrorOr<int>> CollectRewardAsync(CancellationToken token = default)
     {
         if (_state.State.RewardCollected)
             return QuestErrors.NoRewardToCollect;
@@ -111,15 +111,15 @@ public class QuestGrain(
             return QuestErrors.NoRewardToCollect;
 
         var userId = this.GetPrimaryKeyString();
-        await _questService.IncrementQuestPointsAsync(userId, (int)quest.Difficulty);
+        await _questService.IncrementQuestPointsAsync(userId, (int)quest.Difficulty, token);
 
         _state.State.MarkRewardCollected();
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         return (int)quest.Difficulty;
     }
 
-    public async Task OnGameOverAsync(GameQuestSnapshot snapshot)
+    public async Task OnGameOverAsync(GameQuestSnapshot snapshot, CancellationToken token = default)
     {
         var quest = GetOrSelectQuest();
         if (quest.IsCompleted)
@@ -129,7 +129,7 @@ public class QuestGrain(
         if (quest.IsCompleted)
             _state.State.CompleteQuest();
 
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
     }
 
     private QuestInstance GetOrSelectQuest()

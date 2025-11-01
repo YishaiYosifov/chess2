@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.Challenges.Errors;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
-using Chess2.Api.Infrastructure;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
@@ -16,19 +16,26 @@ namespace Chess2.Api.Challenges.Grains;
 public interface IChallengeGrain : IGrainWithStringKey
 {
     [Alias("CreateAsync")]
-    Task CreateAsync(ChallengeRequest challenge);
+    Task CreateAsync(ChallengeRequest challenge, CancellationToken token = default);
 
     [Alias("GetAsync")]
-    public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy);
+    public Task<ErrorOr<ChallengeRequest>> GetAsync(
+        UserId requestedBy,
+        CancellationToken token = default
+    );
 
     [Alias("CancelAsync")]
-    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
+    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy, CancellationToken token = default);
 
     [Alias("AcceptAsync")]
-    Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy);
+    Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy, CancellationToken token = default);
 
     [Alias("SubscribeAsync")]
-    Task<ErrorOr<Success>> SubscribeAsync(UserId userId, ConnectionId connectionId);
+    Task<ErrorOr<Success>> SubscribeAsync(
+        UserId userId,
+        ConnectionId connectionId,
+        CancellationToken token = default
+    );
 }
 
 [GenerateSerializer]
@@ -71,7 +78,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         _challengeId = this.GetPrimaryKeyString();
     }
 
-    public async Task CreateAsync(ChallengeRequest challenge)
+    public async Task CreateAsync(ChallengeRequest challenge, CancellationToken token = default)
     {
         await this.RegisterOrUpdateReminder(
             TimeoutReminderName,
@@ -80,7 +87,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         );
 
         _state.State.Request = challenge;
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         if (challenge.Recipient is not null)
         {
@@ -102,7 +109,11 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         );
     }
 
-    public async Task<ErrorOr<Success>> SubscribeAsync(UserId userId, ConnectionId connectionId)
+    public async Task<ErrorOr<Success>> SubscribeAsync(
+        UserId userId,
+        ConnectionId connectionId,
+        CancellationToken token = default
+    )
     {
         var request = _state.State.Request;
         if (request is null)
@@ -115,7 +126,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Result.Success;
     }
 
-    public Task<ErrorOr<ChallengeRequest>> GetAsync(UserId requestedBy)
+    public Task<ErrorOr<ChallengeRequest>> GetAsync(
+        UserId requestedBy,
+        CancellationToken token = default
+    )
     {
         var request = _state.State.Request;
         if (request is null)
@@ -127,7 +141,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         return Task.FromResult<ErrorOr<ChallengeRequest>>(request);
     }
 
-    public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
+    public async Task<ErrorOr<Deleted>> CancelAsync(
+        UserId cancelledBy,
+        CancellationToken token = default
+    )
     {
         if (!IsUserRequester(cancelledBy) && !IsUserRecipient(cancelledBy))
             return ChallengeErrors.NotFound;
@@ -138,11 +155,14 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             cancelledBy
         );
 
-        await ApplyCancellationAsync(cancelledBy);
+        await ApplyCancellationAsync(cancelledBy, token);
         return Result.Deleted;
     }
 
-    public async Task<ErrorOr<GameToken>> AcceptAsync(UserId acceptedBy)
+    public async Task<ErrorOr<GameToken>> AcceptAsync(
+        UserId acceptedBy,
+        CancellationToken token = default
+    )
     {
         var request = _state.State.Request;
         if (request is null)
@@ -157,11 +177,12 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         var gameToken = await _gameStarter.StartGameAsync(
             userId1: request.Requester.UserId,
             userId2: acceptedBy,
-            request.Pool
+            request.Pool,
+            token: token
         );
         await _challengeNotifier.NotifyChallengeAccepted(gameToken, _challengeId);
 
-        await TearDownChallengeAsync();
+        await TearDownChallengeAsync(token);
         _logger.LogInformation("Challenge {ChallengeId} accepted", _challengeId);
 
         return gameToken;
@@ -176,7 +197,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         await ApplyCancellationAsync(cancelledBy: null);
     }
 
-    private async Task ApplyCancellationAsync(UserId? cancelledBy)
+    private async Task ApplyCancellationAsync(
+        UserId? cancelledBy,
+        CancellationToken token = default
+    )
     {
         if (_state.State.Request is not null)
             await _challengeNotifier.NotifyChallengeCancelled(
@@ -184,10 +208,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
                 _challengeId
             );
 
-        await TearDownChallengeAsync();
+        await TearDownChallengeAsync(token);
     }
 
-    private async Task TearDownChallengeAsync()
+    private async Task TearDownChallengeAsync(CancellationToken token = default)
     {
         if (_state.State.Request?.Recipient is not null)
         {
@@ -196,7 +220,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
                 .RecordChallengeRemovedAsync(_challengeId);
         }
 
-        await _state.ClearStateAsync();
+        await _state.ClearStateAsync(token);
         var reminder = await this.GetReminder(TimeoutReminderName);
         if (reminder is not null)
             await this.UnregisterReminder(reminder);
