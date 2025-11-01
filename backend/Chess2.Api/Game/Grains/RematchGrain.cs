@@ -1,7 +1,7 @@
-﻿using Chess2.Api.GameLogic.Extensions;
-using Chess2.Api.Infrastructure;
-using Chess2.Api.Game.Errors;
+﻿using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic.Extensions;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
@@ -14,13 +14,21 @@ namespace Chess2.Api.Game.Grains;
 public interface IRematchGrain : IGrainWithStringKey
 {
     [Alias("RequestAsync")]
-    Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId);
+    Task<ErrorOr<Created>> RequestAsync(
+        UserId requestedBy,
+        ConnectionId connectionId,
+        CancellationToken token = default
+    );
 
     [Alias("CancelAsync")]
-    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy);
+    Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy, CancellationToken token = default);
 
     [Alias("RemoveConnectionAsync")]
-    Task<ErrorOr<Deleted>> RemoveConnectionAsync(UserId ofUserId, ConnectionId connectionId);
+    Task<ErrorOr<Deleted>> RemoveConnectionAsync(
+        UserId ofUserId,
+        ConnectionId connectionId,
+        CancellationToken token = default
+    );
 }
 
 [GenerateSerializer]
@@ -57,9 +65,13 @@ public class RematchGrain(
     private readonly IRematchNotifier _rematchNotifier = rematchNotifier;
     private readonly IGameStarter _gameStarter = gameStarter;
 
-    public async Task<ErrorOr<Created>> RequestAsync(UserId requestedBy, ConnectionId connectionId)
+    public async Task<ErrorOr<Created>> RequestAsync(
+        UserId requestedBy,
+        ConnectionId connectionId,
+        CancellationToken token = default
+    )
     {
-        var requestResult = await FetchRematchRequest();
+        var requestResult = await FetchRematchRequest(token);
         if (requestResult.IsError)
             return requestResult.Errors;
         var request = requestResult.Value;
@@ -75,7 +87,7 @@ public class RematchGrain(
 
         if (_state.State.WhiteConnections.Count > 0 && _state.State.BlackConnections.Count > 0)
         {
-            await AcceptRematchAsync(request);
+            await AcceptRematchAsync(request, token);
             return Result.Created;
         }
 
@@ -84,7 +96,7 @@ public class RematchGrain(
             _settings.RematchLifetime,
             _settings.RematchLifetime
         );
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         var opponent = request.Players.GetPlayerByColor(player.Color.Invert());
         await _rematchNotifier.NotifyRematchRequestedAsync(opponent.UserId);
@@ -92,7 +104,10 @@ public class RematchGrain(
         return Result.Created;
     }
 
-    public async Task<ErrorOr<Deleted>> CancelAsync(UserId cancelledBy)
+    public async Task<ErrorOr<Deleted>> CancelAsync(
+        UserId cancelledBy,
+        CancellationToken token = default
+    )
     {
         var request = _state.State.Request;
         if (request is null)
@@ -101,13 +116,14 @@ public class RematchGrain(
         if (!request.Players.TryGetPlayerById(cancelledBy, out var _))
             return GameErrors.PlayerInvalid;
 
-        await TearDownRematchAsync();
+        await TearDownRematchAsync(token);
         return Result.Deleted;
     }
 
     public async Task<ErrorOr<Deleted>> RemoveConnectionAsync(
         UserId ofUserId,
-        ConnectionId connectionId
+        ConnectionId connectionId,
+        CancellationToken token = default
     )
     {
         var request = _state.State.Request;
@@ -125,11 +141,11 @@ public class RematchGrain(
 
         if (playerConnections.Count == 0)
         {
-            await TearDownRematchAsync();
+            await TearDownRematchAsync(token);
             return Result.Deleted;
         }
 
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
         return Result.Deleted;
     }
 
@@ -140,7 +156,9 @@ public class RematchGrain(
         await TearDownRematchAsync();
     }
 
-    private async Task<ErrorOr<RematchRequest>> FetchRematchRequest()
+    private async Task<ErrorOr<RematchRequest>> FetchRematchRequest(
+        CancellationToken token = default
+    )
     {
         if (_state.State.Request is not null)
             return _state.State.Request;
@@ -158,27 +176,28 @@ public class RematchGrain(
         RematchRequest request = new(players, Pool: game.Pool);
 
         _state.State.Request = request;
-        await _state.WriteStateAsync();
+        await _state.WriteStateAsync(token);
 
         return request;
     }
 
-    private async Task AcceptRematchAsync(RematchRequest request)
+    private async Task AcceptRematchAsync(RematchRequest request, CancellationToken token = default)
     {
         var gameToken = await _gameStarter.StartGameAsync(
             request.Players.WhitePlayer.UserId,
             request.Players.BlackPlayer.UserId,
-            pool: request.Pool
+            pool: request.Pool,
+            token: token
         );
         await _rematchNotifier.NotifyRematchAccepted(
             gameToken,
             request.Players.WhitePlayer.UserId,
             request.Players.BlackPlayer.UserId
         );
-        await _state.ClearStateAsync();
+        await _state.ClearStateAsync(token);
     }
 
-    private async Task TearDownRematchAsync()
+    private async Task TearDownRematchAsync(CancellationToken token = default)
     {
         var request = _state.State.Request;
         if (request is not null)
@@ -189,6 +208,6 @@ public class RematchGrain(
             );
         }
 
-        await _state.ClearStateAsync();
+        await _state.ClearStateAsync(token);
     }
 }
