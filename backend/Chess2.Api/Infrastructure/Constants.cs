@@ -7,8 +7,10 @@ public static class Streaming
 
 public static class StorageNames
 {
+    public const string TournamentPlayerState = "TournamentPlayerState";
     public const string PlayerSessionState = "PlayerSessionState";
     public const string MatchmakingState = "MatchmakingState";
+    public const string TournamentState = "TournamentState";
     public const string ChallengeState = "ChallengeState";
     public const string RematchState = "RematchState";
     public const string QuestState = "QuestState";
