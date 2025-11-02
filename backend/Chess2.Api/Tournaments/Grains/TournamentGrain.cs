@@ -2,6 +2,7 @@
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Tournaments.Errors;
+using Chess2.Api.Tournaments.Models;
 using ErrorOr;
 
 namespace Chess2.Api.Tournaments.Grains;
@@ -17,7 +18,7 @@ public interface ITournamentGrain : IGrainWithStringKey
     );
 
     [Alias("JoinAsync")]
-    Task<ErrorOr<Success>> JoinAsync(UserId userId, CancellationToken token = default);
+    Task<ErrorOr<Created>> JoinAsync(UserId userId, CancellationToken token = default);
 }
 
 [GenerateSerializer]
@@ -59,14 +60,29 @@ public class TournamentGrain(
         if (_state.State.Tournament is not null)
             return TournamentErrors.TournamentAlreadyExists;
 
-        _state.State.Tournament = new Tournament { HostedBy = hostedBy, TimeControl = timeControl };
+        _state.State.Tournament = new Tournament()
+        {
+            HostedBy = hostedBy,
+            TimeControl = timeControl,
+        };
         await _state.WriteStateAsync(token);
 
         return Result.Created;
     }
 
-    public Task<ErrorOr<Success>> JoinAsync(UserId userId, CancellationToken token = default)
+    public async Task<ErrorOr<Created>> JoinAsync(UserId userId, CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        TournamentPlayerGrainKey key = new(
+            TournamentId: this.GetPrimaryKeyString(),
+            UserId: userId
+        );
+
+        var playerGrain = GrainFactory.GetGrain<ITournamentPlayerGrain>(key.ToKey());
+        var createResult = await playerGrain.CreateAsync(
+            _state.State.Tournament!.TimeControl,
+            token
+        );
+
+        return createResult;
     }
 }
