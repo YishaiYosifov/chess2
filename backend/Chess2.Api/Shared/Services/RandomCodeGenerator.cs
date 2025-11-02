@@ -5,7 +5,7 @@ namespace Chess2.Api.Shared.Services;
 
 public interface IRandomCodeGenerator
 {
-    string GenerateBase62Code(int length);
+    string Generate(int length);
 }
 
 public class RandomCodeGenerator : IRandomCodeGenerator
@@ -13,17 +13,13 @@ public class RandomCodeGenerator : IRandomCodeGenerator
     private const string TokenCharSet =
         "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-    public string GenerateBase62Code(int length)
+    public string Generate(int length)
     {
-        var bytes = new byte[length];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-
-        var result = new StringBuilder(length);
-        foreach (var b in bytes)
+        StringBuilder result = new(length);
+        for (int i = 0; i < length; i++)
         {
-            // Map byte to 0-61 range (Base62)
-            result.Append(TokenCharSet[b % TokenCharSet.Length]);
+            int index = RandomNumberGenerator.GetInt32(TokenCharSet.Length);
+            result.Append(TokenCharSet[index]);
         }
 
         return result.ToString();
