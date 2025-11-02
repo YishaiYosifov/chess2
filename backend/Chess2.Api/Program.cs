@@ -1,3 +1,7 @@
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Chess2.Api.ArchivedGames.Repositories;
 using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Auth.Errors;
@@ -60,10 +64,6 @@ using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -369,7 +369,6 @@ builder.Services.AddSingleton<IValidator<TimeControlSettings>, TimeControlSettin
 
 #region Game
 builder.Services.AddScoped<IGameStarter, GameStarter>();
-builder.Services.AddSingleton<IGameTokenGenerator, GameTokenGenerator>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
