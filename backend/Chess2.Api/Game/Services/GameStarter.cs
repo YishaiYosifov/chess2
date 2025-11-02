@@ -6,6 +6,7 @@ using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -23,16 +24,16 @@ public interface IGameStarter
 
 public class GameStarter(
     IGrainFactory grains,
-    IGameTokenGenerator gameTokenGenerator,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    ITimeControlTranslator timeControlTranslator
+    ITimeControlTranslator timeControlTranslator,
+    IRandomCodeGenerator randomCodeGenerator
 ) : IGameStarter
 {
-    private readonly IGameTokenGenerator _gameTokenGenerator = gameTokenGenerator;
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
+    private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
     private readonly IGrainFactory _grains = grains;
 
     public async Task<GameToken> StartGameAsync(
@@ -42,7 +43,8 @@ public class GameStarter(
         CancellationToken token = default
     )
     {
-        var gameToken = await _gameTokenGenerator.GenerateUniqueGameToken();
+        GameToken gameToken = _randomCodeGenerator.Generate(16);
+
         // TODO: choose white and black based on each player last game
         var whitePlayer = await CreatePlayer(userId1, GameColor.White, pool.TimeControl);
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
