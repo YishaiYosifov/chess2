@@ -26,7 +26,7 @@ public class GameTokenGeneratorTests
         GameToken existingToken = "existingToken";
         GameToken nonExistingToken = "nonExistingToken";
         _randomCodeGeneratorMock
-            .GenerateBase62Code(Arg.Any<int>())
+            .Generate(Arg.Any<int>())
             .ReturnsForAnyArgs(existingToken.Value, nonExistingToken.Value);
 
         var existingTokenGrain = Substitute.For<IGameGrain>();

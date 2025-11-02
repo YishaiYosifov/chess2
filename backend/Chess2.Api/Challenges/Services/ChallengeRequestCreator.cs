@@ -58,7 +58,7 @@ public class ChallengeRequestCreator(
         var expiresAt = _timeProvider.GetUtcNow().UtcDateTime + _settings.ChallengeLifetime;
         var requester = await _userManager.FindByIdAsync(requesterId);
         MinimalProfile requesterProfile = new(requesterId, requester);
-        var challengeId = CreateChallengeId();
+        ChallengeId challengeId = _randomCodeGenerator.Generate(16);
 
         var challengeResult = recipientId is null
             ? CreateChallengeWithoutRecipient(challengeId, requesterProfile, pool, expiresAt)
@@ -70,11 +70,6 @@ public class ChallengeRequestCreator(
                 expiresAt
             );
         return challengeResult;
-    }
-
-    private ChallengeId CreateChallengeId()
-    {
-        return _randomCodeGenerator.GenerateBase62Code(16);
     }
 
     private ChallengeRequest CreateChallengeWithoutRecipient(
