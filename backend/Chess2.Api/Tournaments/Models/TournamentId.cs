@@ -1,0 +1,21 @@
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
+using Chess2.Api.Infrastructure;
+using NJsonSchema;
+using NJsonSchema.Annotations;
+
+namespace Chess2.Api.Tournaments.Models;
+
+[GenerateSerializer]
+[Alias("Chess2.Api.Shared.Models.TournamentId")]
+[JsonConverter(typeof(StructStringJsonConverter<TournamentId>))]
+[TypeConverter(typeof(StructStringTypeConverter<TournamentId>))]
+[JsonSchema(JsonObjectType.String)]
+public readonly record struct TournamentId(string Value)
+{
+    public static implicit operator string(TournamentId id) => id.Value;
+
+    public static implicit operator TournamentId(string value) => new(value);
+
+    public override string ToString() => Value;
+}
