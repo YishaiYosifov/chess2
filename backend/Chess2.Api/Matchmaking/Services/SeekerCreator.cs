@@ -26,6 +26,12 @@ public interface ISeekerCreator
         AuthedUser user,
         CancellationToken token = default
     );
+    Task<RatedSeeker> CreateRatedSeekerAsync(
+        AuthedUser user,
+        TimeControlSettings timeControlSettings,
+        int? allowedRatingRange,
+        CancellationToken token = default
+    );
 }
 
 public class SeekerCreator(
@@ -45,6 +51,7 @@ public class SeekerCreator(
     public async Task<RatedSeeker> CreateRatedSeekerAsync(
         AuthedUser user,
         TimeControlSettings timeControlSettings,
+        int? allowedRatingRange,
         CancellationToken token = default
     )
     {
@@ -59,11 +66,23 @@ public class SeekerCreator(
             CreatedAt: _timeProvider.GetUtcNow(),
             Rating: new(
                 Value: rating,
-                AllowedRatingRange: _settings.AllowedMatchRatingDifference,
+                AllowedRatingRange: allowedRatingRange,
                 TimeControl: timeControl
             )
         );
     }
+
+    public async Task<RatedSeeker> CreateRatedSeekerAsync(
+        AuthedUser user,
+        TimeControlSettings timeControlSettings,
+        CancellationToken token = default
+    ) =>
+        await CreateRatedSeekerAsync(
+            user,
+            timeControlSettings,
+            _settings.AllowedMatchRatingDifference,
+            token
+        );
 
     public async Task<OpenRatedSeeker> CreateRatedOpenSeekerAsync(
         AuthedUser user,

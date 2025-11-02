@@ -45,7 +45,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task RatedSeekerAsync_retuns_returns_expected_rated_seeker()
+    public async Task CreateRatedSeekerAsync_retuns_returns_expected_rated_seeker()
     {
         var user = new AuthedUserFaker().Generate();
         var rating = new CurrentRatingFaker(user, timeControl: TimeControl.Blitz).Generate();
@@ -62,6 +62,46 @@ public class SeekerCreatorTests : BaseIntegrationTest
             AllowedRatingRange: _lobbySettings.AllowedMatchRatingDifference,
             TimeControl: TimeControl.Blitz
         );
+        RatedSeeker expectedSeeker = new(
+            UserId: user.Id,
+            UserName: user.UserName!,
+            ExcludeUserIds: [.. blockedUsers.Select(b => b.BlockedUserId)],
+            Rating: expectedRating,
+            CreatedAt: _fakeNow
+        );
+
+        seeker.Should().BeEquivalentTo(expectedSeeker);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(150)]
+    public async Task CreateRatedSeekerAsync_respects_provided_allowed_rating_range(
+        int? allowedRatingRange
+    )
+    {
+        var user = new AuthedUserFaker().Generate();
+        var ratingValue = 1200;
+        var blockedUsers = new BlockedUserFaker(user.Id).Generate(2);
+        await DbContext.AddAsync(user, CT);
+        await DbContext.AddRangeAsync(blockedUsers, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var timeControlSettings = new TimeControlSettings { BaseSeconds = 300 };
+
+        var seeker = await _seekerCreator.CreateRatedSeekerAsync(
+            user,
+            timeControlSettings,
+            allowedRatingRange,
+            CT
+        );
+
+        SeekerRating expectedRating = new(
+            Value: ratingValue,
+            AllowedRatingRange: allowedRatingRange,
+            TimeControl: TimeControl.Blitz
+        );
+
         RatedSeeker expectedSeeker = new(
             UserId: user.Id,
             UserName: user.UserName!,
