@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.ArchivedGames.Entities;
 
+[PrimaryKey(nameof(GameToken))]
 public class GameArchive
 {
-    public int Id { get; set; }
     public required GameToken GameToken { get; set; }
     public required GameResult Result { get; set; }
     public required string ResultDescription { get; set; }

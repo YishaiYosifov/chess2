@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Services;
-using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
@@ -75,7 +75,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                 expectedArchive,
                 options =>
                     options
-                        .Excluding(x => x.Id)
                         .Excluding(x => x.CreatedAt)
                         .Excluding(x => x.WhitePlayerId)
                         .Excluding(x => x.WhitePlayer.Id)
