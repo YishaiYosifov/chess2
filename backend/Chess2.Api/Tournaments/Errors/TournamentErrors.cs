@@ -16,4 +16,10 @@ public static class TournamentErrors
 
     public static Error CannotEnterTournament =>
         Error.Forbidden(ErrorCodes.TournamentCannotEnter, "You cannot enter this tournament");
+
+    public static Error NotPartOfTournament =>
+        Error.Conflict(
+            ErrorCodes.TournamentNotPartOf,
+            "You cannot perform this action because you are not part of this tournament"
+        );
 }

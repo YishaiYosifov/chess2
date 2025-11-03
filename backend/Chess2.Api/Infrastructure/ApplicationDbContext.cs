@@ -49,6 +49,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<UserQuestPoints>().Navigation(x => x.User).AutoInclude();
 
+        builder.Entity<TournamentPlayer>().Navigation(x => x.User).AutoInclude();
+
         base.OnModelCreating(builder);
     }
 

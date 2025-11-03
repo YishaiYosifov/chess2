@@ -74,4 +74,5 @@ public static class ErrorCodes
     public const string TournamentAlreadyExists = "Tournament.AlreadyExists";
     public const string TournamentNotFound = "Tournament.NotFound";
     public const string TournamentCannotEnter = "Tournament.CannotEnter";
+    public const string TournamentNotPartOf = "Tournament.NotPartOf";
 }

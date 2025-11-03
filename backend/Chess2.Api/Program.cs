@@ -47,6 +47,7 @@ using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Repository;
 using Chess2.Api.Social.Services;
 using Chess2.Api.Tournaments.Repositories;
+using Chess2.Api.Tournaments.Services;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.UserRating.Services;
 using ErrorOr;
@@ -466,6 +467,7 @@ builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
 #region Tournaments
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITournamentPlayerRepository, TournamentPlayerRepository>();
+builder.Services.AddScoped<ITournamentService, TournamentService>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
