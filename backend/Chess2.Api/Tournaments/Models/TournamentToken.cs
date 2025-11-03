@@ -8,14 +8,14 @@ namespace Chess2.Api.Tournaments.Models;
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Shared.Models.TournamentId")]
-[JsonConverter(typeof(StructStringJsonConverter<TournamentId>))]
-[TypeConverter(typeof(StructStringTypeConverter<TournamentId>))]
+[JsonConverter(typeof(StructStringJsonConverter<TournamentToken>))]
+[TypeConverter(typeof(StructStringTypeConverter<TournamentToken>))]
 [JsonSchema(JsonObjectType.String)]
-public readonly record struct TournamentId(string Value)
+public readonly record struct TournamentToken(string Value)
 {
-    public static implicit operator string(TournamentId id) => id.Value;
+    public static implicit operator string(TournamentToken id) => id.Value;
 
-    public static implicit operator TournamentId(string value) => new(value);
+    public static implicit operator TournamentToken(string value) => new(value);
 
     public override string ToString() => Value;
 }
