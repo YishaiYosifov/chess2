@@ -2,7 +2,7 @@
 
 namespace Chess2.Api.Tournaments.Models;
 
-public record TournamentPlayerGrainKey(TournamentId TournamentId, UserId UserId)
+public record TournamentPlayerGrainKey(TournamentToken TournamentId, UserId UserId)
 {
     public string ToKey() => $"{TournamentId}:{UserId}";
 
