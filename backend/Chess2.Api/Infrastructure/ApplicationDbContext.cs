@@ -7,6 +7,7 @@ using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Quests.Entities;
 using Chess2.Api.Social.Entities;
+using Chess2.Api.Tournaments.Entities;
 using Chess2.Api.Tournaments.Models;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.AspNetCore.Identity;
