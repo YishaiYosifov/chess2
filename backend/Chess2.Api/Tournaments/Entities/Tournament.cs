@@ -1,13 +1,14 @@
 ﻿using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Tournaments.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Tournaments.Entities;
 
+[PrimaryKey(nameof(TournamentToken))]
 public class Tournament
 {
-    public int Id { get; set; }
-    public required TournamentToken Token { get; set; }
+    public required TournamentToken TournamentToken { get; set; }
 
     public required UserId HostedBy { get; set; }
     public required PoolType PoolType { get; set; }
