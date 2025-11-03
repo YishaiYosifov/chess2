@@ -1,8 +1,8 @@
 ﻿using Bogus;
 using Chess2.Api.ArchivedGames.Entities;
+using Chess2.Api.Game.Models;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 
@@ -23,7 +23,6 @@ public class GameArchiveFaker : Faker<GameArchive>
     )
     {
         StrictMode(true);
-        RuleFor(x => x.Id, 0);
         RuleFor(x => x.GameToken, f => (GameToken)f.Random.Guid().ToString()[..16]);
         RuleFor(x => x.Result, f => f.PickRandom<GameResult>());
         RuleFor(x => x.ResultDescription, "some description");
