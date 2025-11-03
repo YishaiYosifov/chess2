@@ -66,7 +66,7 @@ public class GameStarter(
         int? rating = user is null
             ? null
             : await _ratingService.GetRatingAsync(
-                user,
+                user.Id,
                 _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
             );
 

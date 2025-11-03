@@ -18,7 +18,7 @@ public interface IRatingService
         CancellationToken token = default
     );
     Task<int> GetRatingAsync(
-        AuthedUser user,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     );
@@ -53,12 +53,12 @@ public class RatingService(
     private readonly GameSettings _settings = settings.Value.Game;
 
     public async Task<int> GetRatingAsync(
-        AuthedUser user,
+        UserId userId,
         TimeControl timeControl,
         CancellationToken token = default
     )
     {
-        var rating = await _currentRatingRepository.GetRatingAsync(user.Id, timeControl, token);
+        var rating = await _currentRatingRepository.GetRatingAsync(userId, timeControl, token);
         return rating is null ? _settings.DefaultRating : rating.Value;
     }
 
@@ -159,8 +159,8 @@ public class RatingService(
         CancellationToken token = default
     )
     {
-        var whiteRating = await GetRatingAsync(whiteUser, timeControl, token);
-        var blackRating = await GetRatingAsync(blackUser, timeControl, token);
+        var whiteRating = await GetRatingAsync(whiteUser.Id, timeControl, token);
+        var blackRating = await GetRatingAsync(blackUser.Id, timeControl, token);
 
         var ratingChange = CalculateRatingChange(whiteRating, blackRating, result);
         if (ratingChange.WhiteChange != 0)

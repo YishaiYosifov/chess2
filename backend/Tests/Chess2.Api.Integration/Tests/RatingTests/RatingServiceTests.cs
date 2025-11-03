@@ -27,7 +27,7 @@ public class RatingServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Blitz, CT);
+        var ratingValue = await _ratingService.GetRatingAsync(user.Id, TimeControl.Blitz, CT);
 
         ratingValue.Should().Be(AppSettings.Game.DefaultRating);
 
@@ -48,7 +48,7 @@ public class RatingServiceTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user, rating);
         await DbContext.SaveChangesAsync(CT);
 
-        var ratingValue = await _ratingService.GetRatingAsync(user, TimeControl.Rapid, CT);
+        var ratingValue = await _ratingService.GetRatingAsync(user.Id, TimeControl.Rapid, CT);
 
         ratingValue.Should().Be(rating.Value);
     }
@@ -320,8 +320,16 @@ public class RatingServiceTests : BaseIntegrationTest
         );
         await DbContext.SaveChangesAsync(CT);
 
-        var newWhiteRating = await _ratingService.GetRatingAsync(whiteUser, TimeControl.Blitz, CT);
-        var newBlackRating = await _ratingService.GetRatingAsync(blackUser, TimeControl.Blitz, CT);
+        var newWhiteRating = await _ratingService.GetRatingAsync(
+            whiteUser.Id,
+            TimeControl.Blitz,
+            CT
+        );
+        var newBlackRating = await _ratingService.GetRatingAsync(
+            blackUser.Id,
+            TimeControl.Blitz,
+            CT
+        );
 
         newWhiteRating.Should().Be(whiteRating + expectedWhiteRatingChange);
         newBlackRating.Should().Be(blackRating + expectedBlackRatingChange);

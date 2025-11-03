@@ -56,7 +56,7 @@ public class SeekerCreator(
     )
     {
         var timeControl = _timeControlTranslator.FromSeconds(timeControlSettings.BaseSeconds);
-        var rating = await _ratingService.GetRatingAsync(user, timeControl, token);
+        var rating = await _ratingService.GetRatingAsync(user.Id, timeControl, token);
         var blocked = await _blockService.GetAllBlockedUserIdsAsync(user.Id, token);
 
         return new(
@@ -92,7 +92,7 @@ public class SeekerCreator(
         Dictionary<TimeControl, int> ratings = [];
         foreach (var timeControl in Enum.GetValues<TimeControl>())
         {
-            var rating = await _ratingService.GetRatingAsync(user, timeControl, token);
+            var rating = await _ratingService.GetRatingAsync(user.Id, timeControl, token);
             ratings[timeControl] = rating;
         }
         var blocked = await _blockService.GetAllBlockedUserIdsAsync(user.Id, token);
