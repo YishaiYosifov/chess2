@@ -13,7 +13,11 @@ public interface ITournamentPlayerRepository
         TournamentToken tournamentToken,
         CancellationToken token
     );
-    Task RemovePlayerByIdAsync(UserId userId, CancellationToken token = default);
+    Task RemovePlayerByIdAsync(
+        UserId userId,
+        TournamentToken tournamentToken,
+        CancellationToken token = default
+    );
 }
 
 public class TournamentPlayerRepository(ApplicationDbContext dbContext)
@@ -24,8 +28,16 @@ public class TournamentPlayerRepository(ApplicationDbContext dbContext)
     public async Task AddPlayerAsync(TournamentPlayer player, CancellationToken token = default) =>
         await _dbContext.TournamentPlayers.AddAsync(player, token);
 
-    public Task RemovePlayerByIdAsync(UserId userId, CancellationToken token = default) =>
-        _dbContext.TournamentPlayers.Where(x => x.UserId == userId).ExecuteDeleteAsync(token);
+    public Task RemovePlayerByIdAsync(
+        UserId userId,
+        TournamentToken tournamentToken,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .TournamentPlayers.Where(x =>
+                x.UserId == userId && x.TournamentToken == tournamentToken
+            )
+            .ExecuteDeleteAsync(token);
 
     public Task<List<TournamentPlayer>> GetAllPlayersOfTournamentAsync(
         TournamentToken tournamentToken,

@@ -1,5 +1,4 @@
-﻿using Chess2.Api.Matchmaking.Models;
-using Chess2.Api.Profile.Models;
+﻿using Chess2.Api.Profile.Models;
 using Chess2.Api.Tournaments.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +10,6 @@ public class Tournament
     public required TournamentToken TournamentToken { get; set; }
 
     public required UserId HostedBy { get; set; }
-    public required PoolType PoolType { get; set; }
     public required int BaseSeconds { get; set; }
     public required int IncrementSeconds { get; set; }
 }
