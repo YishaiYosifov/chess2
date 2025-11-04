@@ -72,7 +72,7 @@ const ChallengePopup: ForwardRefRenderFunction<
         }
         setError(null);
 
-        router.push(`${constants.PATHS.CHALLENGE}/${challenge.challengeId}`);
+        router.push(`${constants.PATHS.CHALLENGE}/${challenge.challengeToken}`);
     }
 
     return (

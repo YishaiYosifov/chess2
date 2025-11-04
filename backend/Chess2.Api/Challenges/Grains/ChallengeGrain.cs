@@ -51,7 +51,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     public const string TimeoutReminderName = "ChallengeTimeoutReminder";
     public const string StateName = "challenge";
 
-    private readonly ChallengeId _challengeId;
+    private readonly ChallengeToken _challengeToken;
 
     private readonly ILogger<ChallengeGrain> _logger;
     private readonly IPersistentState<ChallengeGrainStorage> _state;
@@ -75,7 +75,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         _challengeNotifier = challengeNotifier;
         _gameStarter = gameStarter;
 
-        _challengeId = this.GetPrimaryKeyString();
+        _challengeToken = this.GetPrimaryKeyString();
     }
 
     public async Task CreateAsync(ChallengeRequest challenge, CancellationToken token = default)
@@ -101,8 +101,8 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         }
 
         _logger.LogInformation(
-            "Challenge {ChallengeId} created by {RequesterId} for {RecipientId}, expires at {ExpiresAt}",
-            challenge.ChallengeId,
+            "Challenge {ChallengeToken} created by {RequesterId} for {RecipientId}, expires at {ExpiresAt}",
+            challenge.ChallengeToken,
             challenge.Requester.UserId,
             challenge.Recipient?.UserId,
             challenge.ExpiresAt
@@ -122,7 +122,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (request.Recipient is not null && IsUserSpectator(userId))
             return ChallengeErrors.NotFound;
 
-        await _challengeNotifier.SubscribeToChallengeAsync(connectionId, _challengeId);
+        await _challengeNotifier.SubscribeToChallengeAsync(connectionId, _challengeToken);
         return Result.Success;
     }
 
@@ -150,8 +150,8 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             return ChallengeErrors.NotFound;
 
         _logger.LogInformation(
-            "Challenge {ChallengeId} cancelled by {CancelledBy}",
-            _challengeId,
+            "Challenge {ChallengeToken} cancelled by {CancelledBy}",
+            _challengeToken,
             cancelledBy
         );
 
@@ -180,10 +180,10 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             request.Pool,
             token: token
         );
-        await _challengeNotifier.NotifyChallengeAccepted(gameToken, _challengeId);
+        await _challengeNotifier.NotifyChallengeAccepted(gameToken, _challengeToken);
 
         await TearDownChallengeAsync(token);
-        _logger.LogInformation("Challenge {ChallengeId} accepted", _challengeId);
+        _logger.LogInformation("Challenge {ChallengeToken} accepted", _challengeToken);
 
         return gameToken;
     }
@@ -193,7 +193,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (reminderName != TimeoutReminderName)
             return;
 
-        _logger.LogInformation("Challenge {ChallengeId} expired", _challengeId);
+        _logger.LogInformation("Challenge {ChallengeToken} expired", _challengeToken);
         await ApplyCancellationAsync(cancelledBy: null);
     }
 
@@ -205,7 +205,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (_state.State.Request is not null)
             await _challengeNotifier.NotifyChallengeCancelled(
                 cancelledBy: cancelledBy,
-                _challengeId
+                _challengeToken
             );
 
         await TearDownChallengeAsync(token);
@@ -217,7 +217,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         {
             await GrainFactory
                 .GetGrain<IChallengeInboxGrain>(_state.State.Request.Recipient.UserId)
-                .RecordChallengeRemovedAsync(_challengeId);
+                .RecordChallengeRemovedAsync(_challengeToken);
         }
 
         await _state.ClearStateAsync(token);

@@ -14,19 +14,19 @@ public interface IChallengeInboxGrain : IGrainWithStringKey
 
     [Alias("RecordChallengeRemovedAsync")]
     [OneWay]
-    Task RecordChallengeRemovedAsync(ChallengeId challengeId);
+    Task RecordChallengeRemovedAsync(ChallengeToken challengeToken);
 }
 
 public class ChallengeInboxGrain : Grain, IChallengeInboxGrain
 {
-    private readonly Dictionary<ChallengeId, ChallengeRequest> _incomingChallenges = [];
+    private readonly Dictionary<ChallengeToken, ChallengeRequest> _incomingChallenges = [];
 
     public Task<List<ChallengeRequest>> GetIncomingChallengesAsync() =>
         Task.FromResult(_incomingChallenges.Values.ToList());
 
     public Task RecordChallengeCreatedAsync(ChallengeRequest challenge) =>
-        Task.FromResult(_incomingChallenges[challenge.ChallengeId] = challenge);
+        Task.FromResult(_incomingChallenges[challenge.ChallengeToken] = challenge);
 
-    public Task RecordChallengeRemovedAsync(ChallengeId challengeId) =>
-        Task.FromResult(_incomingChallenges.Remove(challengeId));
+    public Task RecordChallengeRemovedAsync(ChallengeToken challengeToken) =>
+        Task.FromResult(_incomingChallenges.Remove(challengeToken));
 }

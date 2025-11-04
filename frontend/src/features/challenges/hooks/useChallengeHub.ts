@@ -7,8 +7,11 @@ import { useMemo } from "react";
 
 export type ChallengeClientEvents = {
     ChallengeReceivedAsync: [challenge: ChallengeRequest];
-    ChallengeCancelledAsync: [cancelledBy: string | null, challengeId: string];
-    ChallengeAcceptedAsync: [gameToken: string, challengeId: string];
+    ChallengeCancelledAsync: [
+        cancelledBy: string | null,
+        challengeToken: string,
+    ];
+    ChallengeAcceptedAsync: [gameToken: string, challengeToken: string];
 };
 
 export const useChallengeEvent = signalREventHookFactory<ChallengeClientEvents>(
@@ -18,15 +21,15 @@ export const useChallengeEvent = signalREventHookFactory<ChallengeClientEvents>(
 export function useChallengeInstanceEvent<
     TEventName extends Extract<keyof ChallengeClientEvents, string>,
 >(
-    challengeId: string,
+    challengeToken: string,
     eventName: TEventName,
     onEvent?: (...args: ChallengeClientEvents[TEventName]) => void,
 ) {
     const url = useMemo(() => {
         const u = new URL(constants.SIGNALR_PATHS.CHALLENGE);
-        u.searchParams.append("challengeId", challengeId);
+        u.searchParams.append("challengeToken", challengeToken);
         return u.toString();
-    }, [challengeId]);
+    }, [challengeToken]);
 
     return useSignalREvent<ChallengeClientEvents, TEventName>(
         url,

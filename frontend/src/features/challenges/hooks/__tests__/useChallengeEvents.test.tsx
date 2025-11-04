@@ -29,8 +29,8 @@ describe("useChallengeEvents", () => {
         challengeStore = createChallengeStore({ challenge: challengeMock });
 
         useChallengeInstanceEventMock.mockImplementation(
-            (challengeId, event, handler) => {
-                if (challengeId === challengeMock.challengeId)
+            (challengeToken, event, handler) => {
+                if (challengeToken === challengeMock.challengeToken)
                     challengeEventHandlers[event] = handler;
             },
         );
@@ -40,13 +40,13 @@ describe("useChallengeEvents", () => {
         const routerMock = mockRouter();
         const gameToken = "test game token";
         renderHook(() =>
-            useChallengeEvents(challengeStore, challengeMock.challengeId),
+            useChallengeEvents(challengeStore, challengeMock.challengeToken),
         );
 
         await act(() =>
             challengeEventHandlers["ChallengeAcceptedAsync"]?.(
                 gameToken,
-                challengeMock.challengeId,
+                challengeMock.challengeToken,
             ),
         );
 
@@ -58,7 +58,7 @@ describe("useChallengeEvents", () => {
     it("should not redirect when ChallengeAcceptedAsync with the wrong challenge id", async () => {
         const routerMock = mockRouter();
         renderHook(() =>
-            useChallengeEvents(challengeStore, challengeMock.challengeId),
+            useChallengeEvents(challengeStore, challengeMock.challengeToken),
         );
 
         await act(() =>
@@ -74,13 +74,13 @@ describe("useChallengeEvents", () => {
     it("should mark as cancelled when ChallengeCancelledAsync with the right challenge id", async () => {
         const cancelledBy = "cancelled by";
         renderHook(() =>
-            useChallengeEvents(challengeStore, challengeMock.challengeId),
+            useChallengeEvents(challengeStore, challengeMock.challengeToken),
         );
 
         await act(() =>
             challengeEventHandlers["ChallengeCancelledAsync"]?.(
                 cancelledBy,
-                challengeMock.challengeId,
+                challengeMock.challengeToken,
             ),
         );
 
@@ -90,7 +90,7 @@ describe("useChallengeEvents", () => {
 
     it("should not do anything when ChallengeCancelledAsync with the wrong challenge id", async () => {
         renderHook(() =>
-            useChallengeEvents(challengeStore, challengeMock.challengeId),
+            useChallengeEvents(challengeStore, challengeMock.challengeToken),
         );
 
         await act(() =>
