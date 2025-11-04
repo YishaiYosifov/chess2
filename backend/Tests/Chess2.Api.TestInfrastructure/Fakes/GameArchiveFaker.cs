@@ -23,7 +23,7 @@ public class GameArchiveFaker : Faker<GameArchive>
     )
     {
         StrictMode(true);
-        RuleFor(x => x.GameToken, f => (GameToken)f.Random.Guid().ToString()[..16]);
+        RuleFor(x => x.GameToken, f => (GameToken)f.Random.AlphaNumeric(16));
         RuleFor(x => x.Result, f => f.PickRandom<GameResult>());
         RuleFor(x => x.ResultDescription, "some description");
         RuleFor(x => x.InitialFen, "10/10/10/10/10/10/10/10/10/10");
