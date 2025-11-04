@@ -98,7 +98,11 @@ public class TournamentService(
         CancellationToken token = default
     )
     {
-        await _tournamentPlayerRepository.RemovePlayerByIdAsync(userId, tournamentToken, token);
+        await _tournamentPlayerRepository.RemovePlayerFromTournamentAsync(
+            userId,
+            tournamentToken,
+            token
+        );
         await _unitOfWork.CompleteAsync(token);
     }
 
