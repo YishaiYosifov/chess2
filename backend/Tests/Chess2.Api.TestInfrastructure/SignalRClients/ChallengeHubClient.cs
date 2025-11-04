@@ -1,9 +1,9 @@
-﻿using Chess2.Api.Challenges.Models;
+﻿using System.Threading.Channels;
+using Chess2.Api.Challenges.Models;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Channels;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
@@ -16,18 +16,18 @@ public class ChallengeHubClient : BaseHubClient
 
     private readonly Channel<(
         UserId CancelledBy,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )> _cancelledChallengesChannel = Channel.CreateUnbounded<(
         UserId CancelledBy,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )>();
 
     private readonly Channel<(
         GameToken GameToken,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )> _acceptedChallengesChannel = Channel.CreateUnbounded<(
         GameToken GameToken,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )>();
 
     public ChallengeHubClient(HubConnection connection)
@@ -38,16 +38,16 @@ public class ChallengeHubClient : BaseHubClient
             challenge => _incomingChallengesChannel.Writer.TryWrite(challenge)
         );
 
-        connection.On<UserId, ChallengeId>(
+        connection.On<UserId, ChallengeToken>(
             "ChallengeCancelledAsync",
-            (cancelledBy, challengeId) =>
-                _cancelledChallengesChannel.Writer.TryWrite((cancelledBy, challengeId))
+            (cancelledBy, challengeToken) =>
+                _cancelledChallengesChannel.Writer.TryWrite((cancelledBy, challengeToken))
         );
 
-        connection.On<string, ChallengeId>(
+        connection.On<string, ChallengeToken>(
             "ChallengeAcceptedAsync",
-            (gameToken, challengeId) =>
-                _acceptedChallengesChannel.Writer.TryWrite((gameToken, challengeId))
+            (gameToken, challengeToken) =>
+                _acceptedChallengesChannel.Writer.TryWrite((gameToken, challengeToken))
         );
     }
 

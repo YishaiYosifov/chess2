@@ -559,7 +559,7 @@ export const cancelChallenge = <ThrowOnError extends boolean = false>(
         CancelChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/by-id/{challengeId}",
+        url: "/api/Challenge/by-id/{challengeToken}",
         ...options,
     });
 };
@@ -572,7 +572,7 @@ export const getChallenge = <ThrowOnError extends boolean = false>(
         GetChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/by-id/{challengeId}",
+        url: "/api/Challenge/by-id/{challengeToken}",
         ...options,
     });
 };
@@ -585,7 +585,7 @@ export const acceptChallenge = <ThrowOnError extends boolean = false>(
         AcceptChallengeErrors,
         ThrowOnError
     >({
-        url: "/api/Challenge/by-id/{challengeId}/accept",
+        url: "/api/Challenge/by-id/{challengeToken}/accept",
         ...options,
     });
 };

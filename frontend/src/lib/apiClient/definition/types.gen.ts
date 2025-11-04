@@ -411,7 +411,7 @@ export type PlayerSummary = {
 };
 
 export type ChallengeRequest = {
-    challengeId: string;
+    challengeToken: string;
     requester: MinimalProfile;
     recipient?: MinimalProfile | null;
     timeControl: TimeControl;
@@ -459,6 +459,10 @@ export enum ErrorCode {
     CHALLENGE_AUTHED_ONLY_POOL = "Challenge.AuthedOnlyPool",
     CHALLENGE_CANNOT_ACCEPT = "Challenge.CannotAccept",
     CHALLENGE_NOT_FOUND = "Challenge.NotFound",
+    TOURNAMENT_ALREADY_EXISTS = "Tournament.AlreadyExists",
+    TOURNAMENT_NOT_FOUND = "Tournament.NotFound",
+    TOURNAMENT_CANNOT_ENTER = "Tournament.CannotEnter",
+    TOURNAMENT_NOT_PART_OF = "Tournament.NotPartOf",
 }
 
 export type GetRatingArchivesData = {
@@ -1103,10 +1107,10 @@ export type CreateChallengeResponse =
 export type CancelChallengeData = {
     body?: never;
     path: {
-        challengeId: string;
+        challengeToken: string;
     };
     query?: never;
-    url: "/api/Challenge/by-id/{challengeId}";
+    url: "/api/Challenge/by-id/{challengeToken}";
 };
 
 export type CancelChallengeErrors = {
@@ -1127,10 +1131,10 @@ export type CancelChallengeResponse =
 export type GetChallengeData = {
     body?: never;
     path: {
-        challengeId: string;
+        challengeToken: string;
     };
     query?: never;
-    url: "/api/Challenge/by-id/{challengeId}";
+    url: "/api/Challenge/by-id/{challengeToken}";
 };
 
 export type GetChallengeErrors = {
@@ -1150,10 +1154,10 @@ export type GetChallengeResponse =
 export type AcceptChallengeData = {
     body?: never;
     path: {
-        challengeId: string;
+        challengeToken: string;
     };
     query?: never;
-    url: "/api/Challenge/by-id/{challengeId}/accept";
+    url: "/api/Challenge/by-id/{challengeToken}/accept";
 };
 
 export type AcceptChallengeErrors = {

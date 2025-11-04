@@ -30,7 +30,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
 
         var challenge1 = new ChallengeRequestFaker().Generate();
         var challenge2 = new ChallengeRequestFaker()
-            .RuleFor(x => x.ChallengeId, challenge1.ChallengeId)
+            .RuleFor(x => x.ChallengeToken, challenge1.ChallengeToken)
             .Generate();
 
         await grain.RecordChallengeCreatedAsync(challenge1);
@@ -50,7 +50,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
 
         await grain.RecordChallengeCreatedAsync(challenge);
         await grain.RecordChallengeCreatedAsync(someOtherChallenge);
-        await grain.RecordChallengeRemovedAsync(challenge.ChallengeId);
+        await grain.RecordChallengeRemovedAsync(challenge.ChallengeToken);
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().ContainSingle().Which.Should().BeEquivalentTo(someOtherChallenge);
@@ -61,7 +61,7 @@ public class ChallengeInboxGrainTests : BaseGrainTest
     {
         var grain = await Silo.CreateGrainAsync<ChallengeInboxGrain>(_userId);
 
-        await grain.RecordChallengeRemovedAsync(new ChallengeId("nonexistent-challenge"));
+        await grain.RecordChallengeRemovedAsync(new ChallengeToken("nonexistent-challenge"));
 
         var incoming = await grain.GetIncomingChallengesAsync();
         incoming.Should().BeEmpty();

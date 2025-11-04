@@ -7,7 +7,7 @@ namespace Chess2.Api.Challenges.Models;
 [GenerateSerializer]
 [Alias("Chess2.Api.Challenges.Models.IncomingChallenge")]
 public record ChallengeRequest(
-    ChallengeId ChallengeId,
+    ChallengeToken ChallengeToken,
     MinimalProfile Requester,
     MinimalProfile? Recipient,
     TimeControl TimeControl,

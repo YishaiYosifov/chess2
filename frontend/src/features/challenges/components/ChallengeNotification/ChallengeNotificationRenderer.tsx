@@ -26,7 +26,10 @@ function reducer(state: State, action: Action): State {
         case "add": {
             if (state.incoming.size >= MAX_CHALLENGES) {
                 const newOverflow = new Map(state.overflow);
-                newOverflow.set(action.challenge.challengeId, action.challenge);
+                newOverflow.set(
+                    action.challenge.challengeToken,
+                    action.challenge,
+                );
                 return {
                     ...state,
                     overflow: newOverflow,
@@ -34,7 +37,7 @@ function reducer(state: State, action: Action): State {
             }
 
             const newIncoming = new Map(state.incoming);
-            newIncoming.set(action.challenge.challengeId, action.challenge);
+            newIncoming.set(action.challenge.challengeToken, action.challenge);
             return { ...state, incoming: newIncoming };
         }
 
@@ -67,13 +70,13 @@ function reducer(state: State, action: Action): State {
 const ChallengeNotificationRenderer = () => {
     const [show, setShow] = useState(false);
     const [state, dispatch] = useReducer(reducer, {
-        incoming: new Map(),
-        overflow: new Map(),
+        incoming: new Map<string, ChallengeRequest>(),
+        overflow: new Map<string, ChallengeRequest>(),
     });
 
     useChallengeEvent("ChallengeReceivedAsync", addChallenge);
-    useChallengeEvent("ChallengeCancelledAsync", (_, challengeId) =>
-        removeChallenge(challengeId),
+    useChallengeEvent("ChallengeCancelledAsync", (_, challengeToken) =>
+        removeChallenge(challengeToken),
     );
 
     function addChallenge(challenge: ChallengeRequest) {
@@ -84,8 +87,8 @@ const ChallengeNotificationRenderer = () => {
         });
     }
 
-    function removeChallenge(challengeId: string) {
-        dispatch({ type: "remove", id: challengeId });
+    function removeChallenge(challengeToken: string) {
+        dispatch({ type: "remove", id: challengeToken });
     }
 
     async function declineAll() {
@@ -117,7 +120,7 @@ const ChallengeNotificationRenderer = () => {
                         .toReversed()
                         .map((challenge) => (
                             <ChallengeNotification
-                                key={challenge.challengeId}
+                                key={challenge.challengeToken}
                                 challenge={challenge}
                                 removeChallenge={removeChallenge}
                             />

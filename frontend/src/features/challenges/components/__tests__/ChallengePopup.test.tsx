@@ -129,7 +129,7 @@ describe("ChallengePopup", () => {
             },
         });
         expect(routerMock.push).toHaveBeenCalledWith(
-            `${constants.PATHS.CHALLENGE}/${challengeMock.challengeId}`,
+            `${constants.PATHS.CHALLENGE}/${challengeMock.challengeToken}`,
         );
     });
 
@@ -301,7 +301,7 @@ describe("ChallengePopup", () => {
             },
         });
         expect(routerMock.push).toHaveBeenCalledWith(
-            `${constants.PATHS.CHALLENGE}/${challengeMock.challengeId}`,
+            `${constants.PATHS.CHALLENGE}/${challengeMock.challengeToken}`,
         );
     });
 

@@ -21,7 +21,7 @@ const ChallengeNotification = ({
     removeChallenge,
 }: {
     challenge: ChallengeRequest;
-    removeChallenge: (challengeId: string) => void;
+    removeChallenge: (challengeToken: string) => void;
 }) => {
     const [isInAction, setIsInAction] = useState(false);
     const [error, setError] = useState<string>();
@@ -31,14 +31,14 @@ const ChallengeNotification = ({
         setIsInAction(true);
         try {
             const { error } = await cancelChallenge({
-                path: { challengeId: challenge.challengeId },
+                path: { challengeToken: challenge.challengeToken },
             });
             if (error) {
                 console.error(error);
                 setError("Failed to decline");
                 return;
             }
-            removeChallenge(challenge.challengeId);
+            removeChallenge(challenge.challengeToken);
         } finally {
             setIsInAction(false);
         }
@@ -48,7 +48,7 @@ const ChallengeNotification = ({
         setIsInAction(true);
         try {
             const { error, data: gameToken } = await acceptChallenge({
-                path: { challengeId: challenge.challengeId },
+                path: { challengeToken: challenge.challengeToken },
             });
             if (error || gameToken === undefined) {
                 console.error(error);
@@ -56,7 +56,7 @@ const ChallengeNotification = ({
                 return;
             }
 
-            removeChallenge(challenge.challengeId);
+            removeChallenge(challenge.challengeToken);
             router.push(`${constants.PATHS.GAME}/${gameToken}`);
         } finally {
             setIsInAction(false);
@@ -66,7 +66,7 @@ const ChallengeNotification = ({
     return (
         <Card
             className="w-100 max-w-full flex-row items-center"
-            data-testid={`challengeNotification-${challenge.challengeId}`}
+            data-testid={`challengeNotification-${challenge.challengeToken}`}
         >
             <TimeControlIcon
                 timeControl={challenge.timeControl}

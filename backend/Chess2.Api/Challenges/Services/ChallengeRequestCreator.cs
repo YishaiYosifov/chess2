@@ -58,12 +58,12 @@ public class ChallengeRequestCreator(
         var expiresAt = _timeProvider.GetUtcNow().UtcDateTime + _settings.ChallengeLifetime;
         var requester = await _userManager.FindByIdAsync(requesterId);
         MinimalProfile requesterProfile = new(requesterId, requester);
-        ChallengeId challengeId = _randomCodeGenerator.Generate(16);
+        ChallengeToken challengeToken = _randomCodeGenerator.Generate(16);
 
         var challengeResult = recipientId is null
-            ? CreateChallengeWithoutRecipient(challengeId, requesterProfile, pool, expiresAt)
+            ? CreateChallengeWithoutRecipient(challengeToken, requesterProfile, pool, expiresAt)
             : await CreateChallengeWithRecipientAsync(
-                challengeId,
+                challengeToken,
                 requesterProfile,
                 recipientId.Value,
                 pool,
@@ -73,14 +73,14 @@ public class ChallengeRequestCreator(
     }
 
     private ChallengeRequest CreateChallengeWithoutRecipient(
-        ChallengeId challengeId,
+        ChallengeToken challengeToken,
         MinimalProfile requester,
         PoolKey pool,
         DateTime expiresAt
-    ) => BuildChallenge(challengeId, requester, recipient: null, pool, expiresAt);
+    ) => BuildChallenge(challengeToken, requester, recipient: null, pool, expiresAt);
 
     private async Task<ErrorOr<ChallengeRequest>> CreateChallengeWithRecipientAsync(
-        ChallengeId challengeId,
+        ChallengeToken challengeToken,
         MinimalProfile requester,
         UserId recipientId,
         PoolKey pool,
@@ -103,7 +103,7 @@ public class ChallengeRequestCreator(
             return ChallengeErrors.RecipientNotAccepting;
 
         ChallengeRequest challenge = BuildChallenge(
-            challengeId,
+            challengeToken,
             requester,
             new MinimalProfile(recipient),
             pool,
@@ -114,14 +114,14 @@ public class ChallengeRequestCreator(
     }
 
     private ChallengeRequest BuildChallenge(
-        ChallengeId challengeId,
+        ChallengeToken challengeToken,
         MinimalProfile requester,
         MinimalProfile? recipient,
         PoolKey pool,
         DateTime expiresAt
     ) =>
         new(
-            ChallengeId: challengeId,
+            ChallengeToken: challengeToken,
             Requester: requester,
             Recipient: recipient,
             TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),

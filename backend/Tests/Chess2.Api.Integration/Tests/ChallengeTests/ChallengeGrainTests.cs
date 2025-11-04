@@ -32,7 +32,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     private readonly ChallengeInboxGrain _recipientInbox = new();
     private readonly AuthedUser _recipient;
 
-    private readonly ChallengeId _challengeId = "test challenge";
+    private readonly ChallengeToken _challengeToken = "test challenge";
 
     private readonly IGrainFactory _grainFactory;
     private readonly ChallengeSettings _settings;
@@ -80,7 +80,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
     }
 
     private Task<ChallengeGrain> CreateGrainAsync() =>
-        Silo.CreateGrainAsync<ChallengeGrain>(_challengeId);
+        Silo.CreateGrainAsync<ChallengeGrain>(_challengeToken);
 
     [Fact]
     public async Task CreateAsync_sets_challenge_up_correctly()
@@ -143,7 +143,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         result.IsError.Should().BeFalse();
         await _challengeNotifierMock
             .Received(1)
-            .SubscribeToChallengeAsync(connId, challenge.ChallengeId);
+            .SubscribeToChallengeAsync(connId, challenge.ChallengeToken);
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         result.IsError.Should().BeFalse();
         await _challengeNotifierMock
             .Received(1)
-            .SubscribeToChallengeAsync(connId, challenge.ChallengeId);
+            .SubscribeToChallengeAsync(connId, challenge.ChallengeToken);
     }
 
     [Fact]
@@ -240,7 +240,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 
@@ -326,7 +326,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy: null, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 
@@ -340,7 +340,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _challengeId);
+            .NotifyChallengeCancelled(cancelledBy: null, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 
@@ -358,7 +358,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         pool ??= new PoolKeyFaker().Generate();
         ChallengeRequest challenge = new(
-            _challengeId,
+            _challengeToken,
             Requester: new(requester),
             Recipient: recipient is null ? null : new(recipient),
             TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
@@ -377,7 +377,9 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         UserId recipientId
     )
     {
-        await _challengeNotifierMock.Received(1).NotifyChallengeAccepted(gameToken, _challengeId);
+        await _challengeNotifierMock
+            .Received(1)
+            .NotifyChallengeAccepted(gameToken, _challengeToken);
 
         var gameStateResult = await _grainFactory.GetGrain<IGameGrain>(gameToken).GetStateAsync();
         gameStateResult.IsError.Should().BeFalse();

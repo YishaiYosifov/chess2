@@ -1,9 +1,9 @@
 ﻿using Chess2.Api.Challenges.Grains;
 using Chess2.Api.Challenges.Models;
 using Chess2.Api.Challenges.Services;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Infrastructure.SignalR;
-using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -13,15 +13,15 @@ namespace Chess2.Api.Challenges.SignalR;
 public interface IChallengeHubClient : IChess2HubClient
 {
     public Task ChallengeReceivedAsync(ChallengeRequest challenge);
-    public Task ChallengeCancelledAsync(UserId? cancelledBy, ChallengeId challengeId);
-    public Task ChallengeAcceptedAsync(GameToken gameToken, ChallengeId challengeId);
+    public Task ChallengeCancelledAsync(UserId? cancelledBy, ChallengeToken challengeToken);
+    public Task ChallengeAcceptedAsync(GameToken gameToken, ChallengeToken challengeToken);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
 public class ChallengeHub(IGrainFactory grains, IChallengeNotifier challengeNotifier)
     : Chess2Hub<IChallengeHubClient>
 {
-    private const string ChallengeIdQueryParam = "challengeId";
+    private const string ChallengeTokenQueryParam = "challengeToken";
 
     private readonly IChallengeNotifier _challengeNotifier = challengeNotifier;
     private readonly IGrainFactory _grains = grains;
@@ -33,12 +33,12 @@ public class ChallengeHub(IGrainFactory grains, IChallengeNotifier challengeNoti
             if (!TryGetUserId(out var userId))
                 return;
 
-            ChallengeId? challengeId = Context
+            ChallengeToken? challengeToken = Context
                 .GetHttpContext()
-                ?.Request.Query[ChallengeIdQueryParam]
+                ?.Request.Query[ChallengeTokenQueryParam]
                 .ToString();
-            if (!string.IsNullOrWhiteSpace(challengeId))
-                await SubscribeToChallenge(userId, challengeId.Value);
+            if (!string.IsNullOrWhiteSpace(challengeToken))
+                await SubscribeToChallenge(userId, challengeToken.Value);
             else
                 await NotifyOfIncoming(userId);
         }
@@ -48,9 +48,9 @@ public class ChallengeHub(IGrainFactory grains, IChallengeNotifier challengeNoti
         }
     }
 
-    private async Task SubscribeToChallenge(UserId userId, ChallengeId challengeId)
+    private async Task SubscribeToChallenge(UserId userId, ChallengeToken challengeToken)
     {
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeToken);
         var result = await challengeGrain.SubscribeAsync(userId, Context.ConnectionId);
         if (result.IsError)
             await HandleErrors(result.Errors);

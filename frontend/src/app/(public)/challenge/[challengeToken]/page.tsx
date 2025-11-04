@@ -9,16 +9,16 @@ export const metadata = { title: "Challenge - Chess 2" };
 export default async function ChallengePage({
     params,
 }: {
-    params: Promise<{ challengeId: string }>;
+    params: Promise<{ challengeToken: string }>;
 }) {
-    const { challengeId } = await params;
+    const { challengeToken } = await params;
 
     return (
         <WithSession>
             {async ({ accessToken }) => {
                 const challenge = await dataOrThrow(
                     getChallenge({
-                        path: { challengeId },
+                        path: { challengeToken },
                         auth: () => accessToken,
                     }),
                 );
