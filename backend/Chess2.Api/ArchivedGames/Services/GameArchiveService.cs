@@ -1,8 +1,8 @@
 ﻿using Chess2.Api.ArchivedGames.Entities;
 using Chess2.Api.ArchivedGames.Models;
 using Chess2.Api.ArchivedGames.Repositories;
-using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Game.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
@@ -154,7 +154,6 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             MoveNumber = moveNumber,
             San = moveSnapshot.San,
             TimeLeft = moveSnapshot.TimeLeft,
-            MoveKey = path.MoveKey,
             FromIdx = path.FromIdx,
             ToIdx = path.ToIdx,
             Captures = path.CapturedIdxs?.ToList() ?? [],

@@ -218,7 +218,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     TimeLeft = move.TimeLeft,
                     MoveNumber = index,
                     San = move.San,
-                    MoveKey = move.Path.MoveKey,
                     FromIdx = move.Path.FromIdx,
                     ToIdx = move.Path.ToIdx,
                     Captures = move.Path.CapturedIdxs?.ToList() ?? [],
