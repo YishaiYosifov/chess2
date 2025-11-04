@@ -76,7 +76,7 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
             .Should()
             .BeEquivalentTo(
                 new ChallengeRequest(
-                    ChallengeId: challenge.ChallengeId,
+                    ChallengeToken: challenge.ChallengeToken,
                     Requester: new MinimalProfile(requester),
                     Recipient: null,
                     Pool: pool,
@@ -84,7 +84,7 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
                     ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
                 )
             );
-        challenge.ChallengeId.Value.Should().HaveLength(16);
+        challenge.ChallengeToken.Value.Should().HaveLength(16);
     }
 
     [Fact]
@@ -109,7 +109,7 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
             .Should()
             .BeEquivalentTo(
                 new ChallengeRequest(
-                    ChallengeId: challenge.ChallengeId,
+                    ChallengeToken: challenge.ChallengeToken,
                     Requester: new MinimalProfile(requester),
                     Recipient: new MinimalProfile(recipient),
                     Pool: pool,
@@ -117,7 +117,7 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
                     ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
                 )
             );
-        challenge.ChallengeId.Value.Should().HaveLength(16);
+        challenge.ChallengeToken.Value.Should().HaveLength(16);
     }
 
     [Fact]

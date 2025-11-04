@@ -32,7 +32,7 @@ const ChallengeFooter = () => {
         setIsInAction(true);
         try {
             const { error, data: gameToken } = await acceptChallenge({
-                path: { challengeId: challenge.challengeId },
+                path: { challengeToken: challenge.challengeToken },
             });
             if (error || gameToken === undefined) {
                 console.error(error);
@@ -50,7 +50,7 @@ const ChallengeFooter = () => {
         setIsInAction(true);
         try {
             const { error } = await cancelChallenge({
-                path: { challengeId: challenge.challengeId },
+                path: { challengeToken: challenge.challengeToken },
             });
             if (error) {
                 console.error(error);

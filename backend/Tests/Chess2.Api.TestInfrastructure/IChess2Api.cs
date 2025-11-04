@@ -159,14 +159,14 @@ public interface IChess2Api
         PoolKey pool
     );
 
-    [Get("/api/challenge/by-id/{challengeId}")]
-    Task<IApiResponse<ChallengeRequest>> GetChallengeAsync(string challengeId);
+    [Get("/api/challenge/by-id/{challengeToken}")]
+    Task<IApiResponse<ChallengeRequest>> GetChallengeAsync(string challengeToken);
 
-    [Delete("/api/challenge/by-id/{challengeId}")]
-    Task<IApiResponse> CancelChallengeAsync(string challengeId);
+    [Delete("/api/challenge/by-id/{challengeToken}")]
+    Task<IApiResponse> CancelChallengeAsync(string challengeToken);
 
-    [Post("/api/challenge/by-id/{challengeId}/accept")]
-    Task<IApiResponse<string>> AcceptChallengeAsync(string challengeId);
+    [Post("/api/challenge/by-id/{challengeToken}/accept")]
+    Task<IApiResponse<string>> AcceptChallengeAsync(string challengeToken);
 
     [Delete("/api/challenge/incoming")]
     Task<IApiResponse> CancelAllIncomingChallengesAsync();

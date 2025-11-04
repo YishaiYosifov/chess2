@@ -66,41 +66,41 @@ public class ChallengeNotifierTests
     [Fact]
     public async Task NotifyChallengeCancelledAsync_notifies_the_group()
     {
-        ChallengeId challengeId = "challenge-123";
+        ChallengeToken challengeToken = "challenge-123";
         UserId? cancelledBy = "cancelled by";
 
         var groupProxyMock = Substitute.For<IChallengeHubClient>();
-        _clientsMock.Group(challengeId).Returns(groupProxyMock);
+        _clientsMock.Group(challengeToken).Returns(groupProxyMock);
 
-        await _notifier.NotifyChallengeCancelled(cancelledBy, challengeId);
+        await _notifier.NotifyChallengeCancelled(cancelledBy, challengeToken);
 
-        await groupProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeId);
+        await groupProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeToken);
     }
 
     [Fact]
     public async Task NotifyChallengeAcceptedAsync_notifies_the_group()
     {
-        ChallengeId challengeId = "challenge-accepted";
+        ChallengeToken challengeToken = "challenge-accepted";
         GameToken gameToken = "game-token-xyz";
 
         var groupProxyMock = Substitute.For<IChallengeHubClient>();
-        _clientsMock.Group(challengeId).Returns(groupProxyMock);
+        _clientsMock.Group(challengeToken).Returns(groupProxyMock);
 
-        await _notifier.NotifyChallengeAccepted(gameToken, challengeId);
+        await _notifier.NotifyChallengeAccepted(gameToken, challengeToken);
 
-        await groupProxyMock.Received(1).ChallengeAcceptedAsync(gameToken, challengeId);
+        await groupProxyMock.Received(1).ChallengeAcceptedAsync(gameToken, challengeToken);
     }
 
     [Fact]
     public async Task SubscribeToChallengeAsync_adds_connection_to_group()
     {
         ConnectionId connId = "conn-123";
-        ChallengeId challengeId = "challenge-123";
+        ChallengeToken challengeToken = "challenge-123";
 
-        await _notifier.SubscribeToChallengeAsync(connId, challengeId);
+        await _notifier.SubscribeToChallengeAsync(connId, challengeToken);
 
         await _groupManagerMock
             .Received(1)
-            .AddToGroupAsync(connId, challengeId, Arg.Any<CancellationToken>());
+            .AddToGroupAsync(connId, challengeToken, Arg.Any<CancellationToken>());
     }
 }

@@ -7,7 +7,7 @@ export function createFakeChallengeRequest(
     overrides?: Partial<ChallengeRequest>,
 ): ChallengeRequest {
     return {
-        challengeId: faker.string.alpha(16),
+        challengeToken: faker.string.alpha(16),
         requester: createFakeMinimalProfile(),
         recipient: createFakeMinimalProfile(),
         timeControl: faker.helpers.enumValue(TimeControl),

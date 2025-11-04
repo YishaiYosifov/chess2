@@ -6,29 +6,29 @@ import constants from "@/lib/constants";
 
 export default function useChallengeEvents(
     challengeStore: StoreApi<ChallengeStore>,
-    challengeId: string,
+    challengeToken: string,
 ) {
     const router = useRouter();
 
     useChallengeInstanceEvent(
-        challengeId,
+        challengeToken,
         "ChallengeAcceptedAsync",
-        (gameToken, challengeId) => {
-            const currentChallengeId =
-                challengeStore.getState().challenge.challengeId;
-            if (challengeId !== currentChallengeId) return;
+        (gameToken, challengeToken) => {
+            const currentChallengeToken =
+                challengeStore.getState().challenge.challengeToken;
+            if (challengeToken !== currentChallengeToken) return;
 
             router.push(`${constants.PATHS.GAME}/${gameToken}`);
         },
     );
 
     useChallengeInstanceEvent(
-        challengeId,
+        challengeToken,
         "ChallengeCancelledAsync",
-        (cancelledBy, challengeId) => {
+        (cancelledBy, challengeToken) => {
             const { challenge: currentChallenge, setCancelled } =
                 challengeStore.getState();
-            if (challengeId !== currentChallenge.challengeId) return;
+            if (challengeToken !== currentChallenge.challengeToken) return;
             setCancelled(cancelledBy);
         },
     );

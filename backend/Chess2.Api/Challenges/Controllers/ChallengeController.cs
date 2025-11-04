@@ -55,49 +55,49 @@ public class ChallengeController(
             return challengeRequestResult.Errors.ToActionResult();
         var challengeRequest = challengeRequestResult.Value;
 
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeRequest.ChallengeId);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeRequest.ChallengeToken);
         await challengeGrain.CreateAsync(challengeRequest);
         return Ok(challengeRequest);
     }
 
-    [HttpGet("by-id/{challengeId}")]
+    [HttpGet("by-id/{challengeToken}")]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ChallengeRequest>> GetChallenge(string challengeId)
+    public async Task<ActionResult<ChallengeRequest>> GetChallenge(string challengeToken)
     {
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeToken);
         var result = await challengeGrain.GetAsync(requestedBy: userIdResult.Value);
         return result.Match(Ok, errors => errors.ToActionResult());
     }
 
-    [HttpDelete("by-id/{challengeId}")]
+    [HttpDelete("by-id/{challengeToken}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> CancelChallenge(string challengeId)
+    public async Task<ActionResult> CancelChallenge(string challengeToken)
     {
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeToken);
         var result = await challengeGrain.CancelAsync(userIdResult.Value);
         return result.Match(value => NoContent(), errors => errors.ToActionResult());
     }
 
-    [HttpPost("by-id/{challengeId}/accept")]
+    [HttpPost("by-id/{challengeToken}/accept")]
     [ProducesResponseType<string>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<string>> AcceptChallenge(string challengeId)
+    public async Task<ActionResult<string>> AcceptChallenge(string challengeToken)
     {
         var userIdResult = _authService.GetUserId(User);
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeId);
+        var challengeGrain = _grains.GetGrain<IChallengeGrain>(challengeToken);
         var result = await challengeGrain.AcceptAsync(userIdResult.Value);
         return result.Match(value => Ok(value.Value), errors => errors.ToActionResult());
     }
@@ -116,7 +116,7 @@ public class ChallengeController(
         var challenges = await inboxGrain.GetIncomingChallengesAsync();
         foreach (var challenge in challenges)
         {
-            var challengeGrain = _grains.GetGrain<IChallengeGrain>(challenge.ChallengeId);
+            var challengeGrain = _grains.GetGrain<IChallengeGrain>(challenge.ChallengeToken);
             await challengeGrain.CancelAsync(userId);
         }
 

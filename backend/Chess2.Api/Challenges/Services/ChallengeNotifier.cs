@@ -9,11 +9,11 @@ namespace Chess2.Api.Challenges.Services;
 
 public interface IChallengeNotifier
 {
-    Task NotifyChallengeAccepted(GameToken gameToken, ChallengeId challengeId);
-    Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeId challengeId);
+    Task NotifyChallengeAccepted(GameToken gameToken, ChallengeToken challengeToken);
+    Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeToken challengeToken);
     Task NotifyChallengeReceived(ConnectionId recipientConnectionId, ChallengeRequest challenge);
     Task NotifyChallengeReceived(UserId recipientId, ChallengeRequest challenge);
-    Task SubscribeToChallengeAsync(ConnectionId connectionId, ChallengeId challengeId);
+    Task SubscribeToChallengeAsync(ConnectionId connectionId, ChallengeToken challengeToken);
 }
 
 public class ChallengeNotifier(IHubContext<ChallengeHub, IChallengeHubClient> hub)
@@ -29,12 +29,14 @@ public class ChallengeNotifier(IHubContext<ChallengeHub, IChallengeHubClient> hu
         ChallengeRequest challenge
     ) => _hub.Clients.Client(recipientConnectionId).ChallengeReceivedAsync(challenge);
 
-    public Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeId challengeId) =>
-        _hub.Clients.Group(challengeId).ChallengeCancelledAsync(cancelledBy, challengeId);
+    public Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeToken challengeToken) =>
+        _hub.Clients.Group(challengeToken).ChallengeCancelledAsync(cancelledBy, challengeToken);
 
-    public Task NotifyChallengeAccepted(GameToken gameToken, ChallengeId challengeId) =>
-        _hub.Clients.Group(challengeId).ChallengeAcceptedAsync(gameToken, challengeId);
+    public Task NotifyChallengeAccepted(GameToken gameToken, ChallengeToken challengeToken) =>
+        _hub.Clients.Group(challengeToken).ChallengeAcceptedAsync(gameToken, challengeToken);
 
-    public Task SubscribeToChallengeAsync(ConnectionId connectionId, ChallengeId challengeId) =>
-        _hub.Groups.AddToGroupAsync(connectionId, challengeId);
+    public Task SubscribeToChallengeAsync(
+        ConnectionId connectionId,
+        ChallengeToken challengeToken
+    ) => _hub.Groups.AddToGroupAsync(connectionId, challengeToken);
 }

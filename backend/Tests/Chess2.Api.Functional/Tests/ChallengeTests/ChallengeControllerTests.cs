@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Challenges.Models;
+﻿using System.Net;
+using Chess2.Api.Challenges.Models;
 using Chess2.Api.Game.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
@@ -8,7 +9,6 @@ using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.SignalRClients;
 using FluentAssertions;
-using System.Net;
 
 namespace Chess2.Api.Functional.Tests.ChallengeTests;
 
@@ -99,7 +99,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         var challenge = await CreateChallengeAsync(_requester, _recipient);
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _requester);
 
-        var result = await ApiClient.Api.GetChallengeAsync(challenge.ChallengeId);
+        var result = await ApiClient.Api.GetChallengeAsync(challenge.ChallengeToken);
 
         result.IsSuccessful.Should().BeTrue();
         result.Content.Should().NotBeNull();
@@ -116,19 +116,20 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         await using ChallengeInstanceHubClient recipientConn = new(
             await AuthedSignalRAsync(
-                ChallengeInstanceHubClient.Path(challenge.ChallengeId),
+                ChallengeInstanceHubClient.Path(challenge.ChallengeToken),
                 _recipient
             )
         );
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
-        var cancelResult = await ApiClient.Api.CancelChallengeAsync(challenge.ChallengeId);
+        var cancelResult = await ApiClient.Api.CancelChallengeAsync(challenge.ChallengeToken);
 
         cancelResult.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var cancelledEvent = await recipientConn.GetNextCancelledChallengeAsync(CT);
-        cancelledEvent.ChallengeId.Should().Be(challenge.ChallengeId);
-        cancelledEvent.CancelledBy.Should().Be(_recipient.Id);
+        var (cancelledBy, cancelledChallengeToken) =
+            await recipientConn.GetNextCancelledChallengeAsync(CT);
+        cancelledBy.Should().Be(_recipient.Id);
+        cancelledChallengeToken.Should().Be(challenge.ChallengeToken);
     }
 
     [Fact]
@@ -141,22 +142,23 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         await using ChallengeInstanceHubClient requesterConn = new(
             await AuthedSignalRAsync(
-                ChallengeInstanceHubClient.Path(challenge.ChallengeId),
+                ChallengeInstanceHubClient.Path(challenge.ChallengeToken),
                 _requester
             )
         );
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
-        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
+        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeToken);
 
         result.IsSuccessful.Should().BeTrue();
         result.Content.Should().NotBeNull();
 
-        var accepted = await requesterConn.GetNextAcceptedChallengeAsync(CT);
-        accepted.ChallengeId.Should().Be(challenge.ChallengeId);
-        accepted.GameToken.Should().Be((GameToken)result.Content);
+        var (acceptedGameToken, acceptedChallengeToken) =
+            await requesterConn.GetNextAcceptedChallengeAsync(CT);
+        acceptedGameToken.Should().Be((GameToken)result.Content);
+        acceptedChallengeToken.Should().Be(challenge.ChallengeToken);
 
-        var createdGameStateResult = await ApiClient.Api.GetGameAsync(accepted.GameToken);
+        var createdGameStateResult = await ApiClient.Api.GetGameAsync(acceptedGameToken);
         createdGameStateResult.IsSuccessful.Should().BeTrue();
         createdGameStateResult.Content.Should().NotBeNull();
         createdGameStateResult.Content.Pool.Should().Be(challenge.Pool);
@@ -180,7 +182,7 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
         );
 
         AuthUtils.AuthenticateGuest(ApiClient);
-        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeId);
+        var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeToken);
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -203,10 +205,10 @@ public class ChallengeControllerTests(Chess2WebApplicationFactory factory)
 
         cancelResponse.IsSuccessful.Should().BeTrue();
 
-        var get1 = await ApiClient.Api.GetChallengeAsync(challenge1.ChallengeId);
+        var get1 = await ApiClient.Api.GetChallengeAsync(challenge1.ChallengeToken);
         get1.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
-        var get2 = await ApiClient.Api.GetChallengeAsync(challenge2.ChallengeId);
+        var get2 = await ApiClient.Api.GetChallengeAsync(challenge2.ChallengeToken);
         get2.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 

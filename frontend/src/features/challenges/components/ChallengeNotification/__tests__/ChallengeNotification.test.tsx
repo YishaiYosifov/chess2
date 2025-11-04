@@ -46,7 +46,7 @@ describe("ChallengeNotification", () => {
 
         expect(
             screen.getByTestId(
-                `challengeNotification-${challenge.challengeId}`,
+                `challengeNotification-${challenge.challengeToken}`,
             ),
         ).toBeInTheDocument();
         expect(
@@ -89,11 +89,11 @@ describe("ChallengeNotification", () => {
         await user.click(screen.getByTestId("challengeNotificationDecline"));
 
         expect(cancelChallenge).toHaveBeenCalledWith({
-            path: { challengeId: challenge.challengeId },
+            path: { challengeToken: challenge.challengeToken },
         });
 
         expect(removeChallenge).toHaveBeenCalledExactlyOnceWith(
-            challenge.challengeId,
+            challenge.challengeToken,
         );
         expect(routerMock.push).not.toHaveBeenCalled();
     });
@@ -136,9 +136,9 @@ describe("ChallengeNotification", () => {
         await user.click(screen.getByTestId("challengeNotificationAccept"));
 
         expect(acceptChallenge).toHaveBeenCalledWith({
-            path: { challengeId: challenge.challengeId },
+            path: { challengeToken: challenge.challengeToken },
         });
-        expect(removeChallenge).toHaveBeenCalledWith(challenge.challengeId);
+        expect(removeChallenge).toHaveBeenCalledWith(challenge.challengeToken);
         expect(routerMock.push).toHaveBeenCalledWith(
             `${constants.PATHS.GAME}/${gameToken}`,
         );

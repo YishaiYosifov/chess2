@@ -57,12 +57,12 @@ describe("ChallengeNotificationRenderer", () => {
 
         expect(
             screen.getByTestId(
-                `challengeNotification-${challenge1.challengeId}`,
+                `challengeNotification-${challenge1.challengeToken}`,
             ),
         ).toBeInTheDocument();
         expect(
             screen.getByTestId(
-                `challengeNotification-${challenge2.challengeId}`,
+                `challengeNotification-${challenge2.challengeToken}`,
             ),
         ).toBeInTheDocument();
 
@@ -86,14 +86,14 @@ describe("ChallengeNotificationRenderer", () => {
         for (let i = 0; i < MAX_CHALLENGES; i++) {
             expect(
                 screen.getByTestId(
-                    `challengeNotification-${challenges[i].challengeId}`,
+                    `challengeNotification-${challenges[i].challengeToken}`,
                 ),
             ).toBeInTheDocument();
         }
 
         expect(
             screen.queryByTestId(
-                `challengeNotification-${challenges[5].challengeId}`,
+                `challengeNotification-${challenges[5].challengeToken}`,
             ),
         ).not.toBeInTheDocument();
 
@@ -117,13 +117,13 @@ describe("ChallengeNotificationRenderer", () => {
         await act(() =>
             challengeEventHandlers["ChallengeCancelledAsync"]?.(
                 null,
-                challenges[0].challengeId,
+                challenges[0].challengeToken,
             ),
         );
 
         expect(
             screen.getByTestId(
-                `challengeNotification-${challenges[5].challengeId}`,
+                `challengeNotification-${challenges[5].challengeToken}`,
             ),
         ).toBeInTheDocument();
 

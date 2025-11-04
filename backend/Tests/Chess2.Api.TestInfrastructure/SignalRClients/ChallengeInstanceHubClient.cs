@@ -1,61 +1,63 @@
-﻿using Chess2.Api.Challenges.Models;
+﻿using System.Threading.Channels;
+using Chess2.Api.Challenges.Models;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Channels;
 
 namespace Chess2.Api.TestInfrastructure.SignalRClients;
 
 public class ChallengeInstanceHubClient : BaseHubClient
 {
-    public static string Path(ChallengeId challengeId) =>
-        $"/api/hub/challenge?challengeId={challengeId}";
+    public static string Path(ChallengeToken challengeToken) =>
+        $"/api/hub/challenge?challengeToken={challengeToken}";
 
     private readonly Channel<(
         UserId CancelledBy,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )> _cancelledChallengesChannel = Channel.CreateUnbounded<(
         UserId CancelledBy,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )>();
 
     private readonly Channel<(
         GameToken GameToken,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )> _acceptedChallengesChannel = Channel.CreateUnbounded<(
         GameToken GameToken,
-        ChallengeId ChallengeId
+        ChallengeToken ChallengeToken
     )>();
 
     public ChallengeInstanceHubClient(HubConnection connection)
         : base(connection)
     {
-        connection.On<UserId, ChallengeId>(
+        connection.On<UserId, ChallengeToken>(
             "ChallengeCancelledAsync",
-            (cancelledBy, challengeId) =>
-                _cancelledChallengesChannel.Writer.TryWrite((cancelledBy, challengeId))
+            (cancelledBy, challengeToken) =>
+                _cancelledChallengesChannel.Writer.TryWrite((cancelledBy, challengeToken))
         );
 
-        connection.On<string, ChallengeId>(
+        connection.On<string, ChallengeToken>(
             "ChallengeAcceptedAsync",
-            (gameToken, challengeId) =>
-                _acceptedChallengesChannel.Writer.TryWrite((gameToken, challengeId))
+            (gameToken, challengeToken) =>
+                _acceptedChallengesChannel.Writer.TryWrite((gameToken, challengeToken))
         );
     }
 
-    public async Task<(UserId CancelledBy, ChallengeId ChallengeId)> GetNextCancelledChallengeAsync(
-        CancellationToken token = default
-    )
+    public async Task<(
+        UserId CancelledBy,
+        ChallengeToken ChallengeToken
+    )> GetNextCancelledChallengeAsync(CancellationToken token = default)
     {
         using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
-        var challengeId = await _cancelledChallengesChannel.Reader.ReadAsync(cts.Token);
-        return challengeId;
+        var challengeToken = await _cancelledChallengesChannel.Reader.ReadAsync(cts.Token);
+        return challengeToken;
     }
 
-    public async Task<(GameToken GameToken, ChallengeId ChallengeId)> GetNextAcceptedChallengeAsync(
-        CancellationToken token = default
-    )
+    public async Task<(
+        GameToken GameToken,
+        ChallengeToken ChallengeToken
+    )> GetNextAcceptedChallengeAsync(CancellationToken token = default)
     {
         using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var accepted = await _acceptedChallengesChannel.Reader.ReadAsync(cts.Token);
