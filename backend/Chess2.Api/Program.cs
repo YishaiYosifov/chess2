@@ -467,7 +467,7 @@ builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
 #region Tournaments
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 builder.Services.AddScoped<ITournamentPlayerRepository, TournamentPlayerRepository>();
-builder.Services.AddScoped<ITournamentService, TournamentService>();
+builder.Services.AddScoped<ITournamentPlayerService, TournamentPlayerService>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();

@@ -18,20 +18,19 @@ using NSubstitute;
 
 namespace Chess2.Api.Integration.Tests.TournamentTests;
 
-public class TournamentServiceTests : BaseIntegrationTest
+public class TournamentPlayerServiceTests : BaseIntegrationTest
 {
-    private readonly TournamentService _tournamentService;
+    private readonly TournamentPlayerService _playerService;
 
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
-    public TournamentServiceTests(Chess2WebApplicationFactory factory)
+    public TournamentPlayerServiceTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
-        _tournamentService = new TournamentService(
-            Scope.ServiceProvider.GetRequiredService<ITournamentRepository>(),
+        _playerService = new TournamentPlayerService(
             Scope.ServiceProvider.GetRequiredService<ITournamentPlayerRepository>(),
             Scope.ServiceProvider.GetRequiredService<IRatingService>(),
             Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>(),
@@ -41,53 +40,21 @@ public class TournamentServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task RegisterTournamentAsync_adds_correct_tournament()
-    {
-        TournamentToken tournamentToken = "test tournament token";
-        UserId hostedBy = "test user id";
-        TimeControlSettings timeControl = new(10, 20);
-
-        await _tournamentService.RegisterTournamentAsync(
-            tournamentToken,
-            hostedBy,
-            timeControl,
-            TournamentFormat.Arena,
-            CT
-        );
-
-        Tournament expectedTournament = new()
-        {
-            TournamentToken = tournamentToken,
-            HostedBy = hostedBy,
-            BaseSeconds = timeControl.BaseSeconds,
-            IncrementSeconds = timeControl.IncrementSeconds,
-            Format = TournamentFormat.Arena,
-        };
-        var inDb = await DbContext.Tournaments.AsNoTracking().ToListAsync(CT);
-        inDb.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedTournament);
-    }
-
-    [Fact]
     public async Task AddPlayerAsync_adds_correct_player()
     {
-        TournamentToken tournamentToken = "test tournament token";
+        var tournament = new TournamentFaker().RuleFor(x => x.BaseSeconds, 10).Generate();
         var user = new AuthedUserFaker().Generate();
         var rating = new CurrentRatingFaker(user, timeControl: TimeControl.Bullet).Generate();
-        await DbContext.AddRangeAsync(user, rating);
+        await DbContext.AddRangeAsync(tournament, user, rating);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _tournamentService.AddPlayerAsync(
-            user,
-            tournamentToken,
-            new TimeControlSettings(10, 0),
-            CT
-        );
+        var result = await _playerService.AddPlayerAsync(user, tournament, CT);
 
         TournamentPlayer expectedPlayer = new()
         {
             UserId = user.Id,
             User = user,
-            TournamentToken = tournamentToken,
+            TournamentToken = tournament.TournamentToken,
             Rating = rating.Value,
         };
 
@@ -108,12 +75,7 @@ public class TournamentServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(player, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _tournamentService.IncrementScoreForAsync(
-            player.UserId,
-            player.TournamentToken,
-            100,
-            CT
-        );
+        await _playerService.IncrementScoreForAsync(player.UserId, player.TournamentToken, 100, CT);
 
         var inDb = await DbContext.TournamentPlayers.AsNoTracking().ToListAsync(CT);
         player.Score += 100;
@@ -127,7 +89,7 @@ public class TournamentServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(player, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _tournamentService.RemovePlayerAsync(player.UserId, player.TournamentToken, CT);
+        await _playerService.RemovePlayerAsync(player.UserId, player.TournamentToken, CT);
 
         var inDb = await DbContext.TournamentPlayers.AsNoTracking().ToListAsync(CT);
         inDb.Should().BeEmpty();
@@ -136,9 +98,8 @@ public class TournamentServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetTournamentPlayersAsync_creates_the_correct_player_states()
     {
-        TournamentToken tournamentToken = "test tournament token";
-        var player1 = new TournamentPlayerFaker()
-            .RuleFor(x => x.TournamentToken, tournamentToken)
+        var tournament = new TournamentFaker().Generate();
+        var player1 = new TournamentPlayerFaker(tournament: tournament)
             .RuleFor(x => x.Score, 100)
             .RuleFor(x => x.LastOpponent, UserId.Authed())
             .Generate();
@@ -146,23 +107,27 @@ public class TournamentServiceTests : BaseIntegrationTest
             player1.User,
             timeControl: TimeControl.Classical
         ).Generate();
-        var player2 = new TournamentPlayerFaker()
-            .RuleFor(x => x.TournamentToken, tournamentToken)
+
+        var player2 = new TournamentPlayerFaker(tournament: tournament)
             .RuleFor(x => x.Score, 200)
             .Generate();
         var player2Rating = new CurrentRatingFaker(
             player1.User,
             timeControl: TimeControl.Classical
         ).Generate();
+
         var otherPlayer = new TournamentPlayerFaker().Generate();
-        await DbContext.AddRangeAsync(player1, player1Rating, player2, player2Rating, otherPlayer);
+        await DbContext.AddRangeAsync(
+            tournament,
+            player1,
+            player1Rating,
+            player2,
+            player2Rating,
+            otherPlayer
+        );
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _tournamentService.GetTournamentPlayersAsync(
-            tournamentToken,
-            new TimeControlSettings(30000, 0),
-            CT
-        );
+        var result = await _playerService.GetTournamentPlayersAsync(tournament, CT);
 
         result
             .Should()

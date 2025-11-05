@@ -13,4 +13,6 @@ public class Tournament
     public required int BaseSeconds { get; set; }
     public required int IncrementSeconds { get; set; }
     public required TournamentFormat Format { get; set; }
+
+    public bool HasStarted { get; set; }
 }

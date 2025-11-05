@@ -11,30 +11,21 @@ using Chess2.Api.UserRating.Services;
 
 namespace Chess2.Api.Tournaments.Services;
 
-public interface ITournamentService
+public interface ITournamentPlayerService
 {
     Task<TournamentPlayerState> AddPlayerAsync(
         AuthedUser user,
-        TournamentToken tournamentToken,
-        TimeControlSettings timeControlSettings,
+        Tournament tournament,
         CancellationToken token = default
     );
     Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
-        TournamentToken tournamentToken,
-        TimeControlSettings timeControlSettings,
+        Tournament tournament,
         CancellationToken token = default
     );
     Task IncrementScoreForAsync(
         UserId userId,
         TournamentToken tournamentToken,
         int incrementBy,
-        CancellationToken token = default
-    );
-    Task RegisterTournamentAsync(
-        TournamentToken tournamentToken,
-        UserId hostedBy,
-        TimeControlSettings timeControl,
-        TournamentFormat format,
         CancellationToken token = default
     );
     Task RemovePlayerAsync(
@@ -44,16 +35,14 @@ public interface ITournamentService
     );
 }
 
-public class TournamentService(
-    ITournamentRepository tournamentRepository,
+public class TournamentPlayerService(
     ITournamentPlayerRepository tournamentPlayerRepository,
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider
-) : ITournamentService
+) : ITournamentPlayerService
 {
-    private readonly ITournamentRepository _tournamentRepository = tournamentRepository;
     private readonly ITournamentPlayerRepository _tournamentPlayerRepository =
         tournamentPlayerRepository;
     private readonly IRatingService _ratingService = ratingService;
@@ -61,40 +50,19 @@ public class TournamentService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly TimeProvider _timeProvider = timeProvider;
 
-    public async Task RegisterTournamentAsync(
-        TournamentToken tournamentToken,
-        UserId hostedBy,
-        TimeControlSettings timeControl,
-        TournamentFormat format,
-        CancellationToken token = default
-    )
-    {
-        Tournament tournament = new()
-        {
-            TournamentToken = tournamentToken,
-            HostedBy = hostedBy,
-            BaseSeconds = timeControl.BaseSeconds,
-            IncrementSeconds = timeControl.IncrementSeconds,
-            Format = format,
-        };
-        await _tournamentRepository.AddTournamentAsync(tournament, token);
-        await _unitOfWork.CompleteAsync(token);
-    }
-
     public async Task<TournamentPlayerState> AddPlayerAsync(
         AuthedUser user,
-        TournamentToken tournamentToken,
-        TimeControlSettings timeControlSettings,
+        Tournament tournament,
         CancellationToken token = default
     )
     {
-        var timeControl = _timeControlTranslator.FromSeconds(timeControlSettings.BaseSeconds);
+        var timeControl = _timeControlTranslator.FromSeconds(tournament.BaseSeconds);
         var rating = await _ratingService.GetRatingAsync(user.Id, timeControl, token);
         TournamentPlayer player = new()
         {
             UserId = user.Id,
             User = user,
-            TournamentToken = tournamentToken,
+            TournamentToken = tournament.TournamentToken,
             Rating = rating,
         };
         await _tournamentPlayerRepository.AddPlayerAsync(player, token);
@@ -134,14 +102,13 @@ public class TournamentService(
     }
 
     public async Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
-        TournamentToken tournamentToken,
-        TimeControlSettings timeControlSettings,
+        Tournament tournament,
         CancellationToken token = default
     )
     {
-        var timeControl = _timeControlTranslator.FromSeconds(timeControlSettings.BaseSeconds);
+        var timeControl = _timeControlTranslator.FromSeconds(tournament.BaseSeconds);
         var players = await _tournamentPlayerRepository.GetAllPlayersOfTournamentAsync(
-            tournamentToken,
+            tournament.TournamentToken,
             token
         );
 
