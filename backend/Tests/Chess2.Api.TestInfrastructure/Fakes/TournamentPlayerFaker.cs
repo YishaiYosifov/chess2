@@ -8,11 +8,14 @@ namespace Chess2.Api.TestInfrastructure.Fakes;
 
 public class TournamentPlayerFaker : Faker<TournamentPlayer>
 {
-    public TournamentPlayerFaker(AuthedUser? user = null)
+    public TournamentPlayerFaker(AuthedUser? user = null, Tournament? tournament = null)
     {
         StrictMode(true);
         RuleFor(x => x.Id, 0);
-        RuleFor(x => x.TournamentToken, f => (TournamentToken)f.Random.AlphaNumeric(16));
+        RuleFor(
+            x => x.TournamentToken,
+            f => tournament?.TournamentToken ?? (TournamentToken)f.Random.AlphaNumeric(16)
+        );
         RuleFor(x => x.User, f => user ?? new AuthedUserFaker().Generate());
         RuleFor(x => x.UserId, (f, x) => x.User.Id);
         RuleFor(x => x.LastOpponent, (UserId?)null);
