@@ -1,9 +1,11 @@
 ﻿using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Infrastructure;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
+using Chess2.Api.Shared.Services;
+using Chess2.Api.Tournaments.Entities;
 using Chess2.Api.Tournaments.Errors;
 using Chess2.Api.Tournaments.Models;
+using Chess2.Api.Tournaments.Repositories;
 using Chess2.Api.Tournaments.Services;
 using Chess2.Api.Tournaments.TournamentFormats;
 using ErrorOr;
@@ -16,7 +18,7 @@ public interface ITournamentGrain<TFormat> : IGrainWithStringKey
     where TFormat : ITournamentFormat
 {
     [Alias("CreateTournamentAsync")]
-    Task<ErrorOr<Created>> CreateTournamentAsync(
+    Task<ErrorOr<Created>> CreateAsync(
         UserId hostedBy,
         TimeControlSettings timeControl,
         CancellationToken token = default
@@ -29,75 +31,71 @@ public interface ITournamentGrain<TFormat> : IGrainWithStringKey
     Task<ErrorOr<Deleted>> LeaveAsync(UserId userId, CancellationToken token = default);
 }
 
-[GenerateSerializer]
-[Alias("Chess2.Api.Tournaments.Grains.Tournament")]
-public record TournamentState(UserId HostedBy, TimeControlSettings TimeControl);
-
-[GenerateSerializer]
-[Alias("Chess2.Api.Tournaments.Grains.TournamentGrainState")]
-public class TournamentGrainState
-{
-    [Id(0)]
-    public TournamentState? Tournament { get; set; }
-}
-
-public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFormat>
+public class TournamentGrain<TFormat>(
+    ILogger<TournamentGrain<TFormat>> logger,
+    UserManager<AuthedUser> userManager,
+    ITournamentPlayerService tournamentPlayerService,
+    ITournamentRepository tournamentRepository,
+    IUnitOfWork unitOfWork
+) : Grain, IGrainBase, ITournamentGrain<TFormat>
     where TFormat : ITournamentFormat, new()
 {
     public const string StateName = "tournament";
 
-    private readonly ILogger<TournamentGrain<TFormat>> _logger;
-    private readonly IPersistentState<TournamentGrainState> _state;
-    private readonly UserManager<AuthedUser> _userManager;
-    private readonly ITournamentService _tournamentService;
+    private readonly ILogger<TournamentGrain<TFormat>> _logger = logger;
+    private readonly UserManager<AuthedUser> _userManager = userManager;
+    private readonly ITournamentPlayerService _tournamentPlayerService = tournamentPlayerService;
+    private readonly ITournamentRepository _tournamentRepository = tournamentRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    private readonly ITournamentFormat _format;
+    private readonly ITournamentFormat _format = new TFormat();
 
-    private readonly TournamentToken _token;
-    private Dictionary<UserId, TournamentPlayerState> _seekers = [];
+    private Dictionary<UserId, TournamentPlayerState> _players = [];
+    private Tournament? _tournament;
 
-    public TournamentGrain(
-        ILogger<TournamentGrain<TFormat>> logger,
-        [PersistentState(StateName, StorageNames.TournamentState)]
-            IPersistentState<TournamentGrainState> state,
-        UserManager<AuthedUser> userManager,
-        ITournamentService tournamentService
-    )
-    {
-        _logger = logger;
-        _state = state;
-        _userManager = userManager;
-        _tournamentService = tournamentService;
-        _format = new TFormat();
-
-        _token = this.GetPrimaryKeyString();
-    }
-
-    public async Task<ErrorOr<Created>> CreateTournamentAsync(
+    public async Task<ErrorOr<Created>> CreateAsync(
         UserId hostedBy,
         TimeControlSettings timeControl,
         CancellationToken token = default
     )
     {
-        if (_state.State.Tournament is not null)
+        if (_tournament is not null)
             return TournamentErrors.TournamentAlreadyExists;
 
-        _state.State.Tournament = new TournamentState(hostedBy, timeControl);
-        await _state.WriteStateAsync(token);
-        await _tournamentService.RegisterTournamentAsync(
-            _token,
-            hostedBy,
-            timeControl,
-            _format.Format,
-            token
-        );
+        _tournament = new()
+        {
+            TournamentToken = this.GetPrimaryKeyString(),
+            HostedBy = hostedBy,
+            BaseSeconds = timeControl.BaseSeconds,
+            IncrementSeconds = timeControl.IncrementSeconds,
+            Format = _format.Format,
+        };
+        await _tournamentRepository.AddTournamentAsync(_tournament, token);
+        await _unitOfWork.CompleteAsync(token);
 
         return Result.Created;
     }
 
+    public async Task<ErrorOr<Success>> StartAsync(
+        UserId startedBy,
+        CancellationToken token = default
+    )
+    {
+        if (_tournament is null)
+            return TournamentErrors.TournamentNotFound;
+        if (startedBy != _tournament.HostedBy)
+            return TournamentErrors.NoHostPermissions;
+
+        _tournament.HasStarted = true;
+        _tournamentRepository.UpdateTournament(_tournament);
+        await _unitOfWork.CompleteAsync(token);
+
+        return Result.Success;
+    }
+
     public async Task<ErrorOr<Created>> JoinAsync(UserId userId, CancellationToken token = default)
     {
-        if (_state.State.Tournament is null)
+        if (_tournament is null)
             return TournamentErrors.TournamentNotFound;
 
         if (!userId.IsAuthed)
@@ -109,44 +107,51 @@ public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFor
             _logger.LogWarning(
                 "Cannot find user {UserId} that tried to join tournament {TournamentId}",
                 userId,
-                _token
+                _tournament.TournamentToken
             );
             return TournamentErrors.CannotEnterTournament;
         }
 
-        var seeker = await _tournamentService.AddPlayerAsync(
-            user,
-            _token,
-            _state.State.Tournament.TimeControl,
-            token
-        );
-        _seekers[user.Id] = seeker;
+        var seeker = await _tournamentPlayerService.AddPlayerAsync(user, _tournament, token);
+        _players[user.Id] = seeker;
 
         return Result.Created;
     }
 
     public async Task<ErrorOr<Deleted>> LeaveAsync(UserId userId, CancellationToken token = default)
     {
-        if (_state.State.Tournament is null)
+        if (_tournament is null)
             return TournamentErrors.TournamentNotFound;
 
-        if (!_seekers.ContainsKey(userId))
+        if (!_players.ContainsKey(userId))
             return TournamentErrors.NotPartOfTournament;
 
-        await _tournamentService.RemovePlayerAsync(userId, _token, token);
-        _seekers.Remove(userId);
+        await _tournamentPlayerService.RemovePlayerAsync(
+            userId,
+            _tournament.TournamentToken,
+            token
+        );
+        _players.Remove(userId);
         return Result.Deleted;
     }
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
-        if (_state.State.Tournament is not null)
+        _tournament = await _tournamentRepository.GetByTokenAsync(
+            tournamentToken: this.GetPrimaryKeyString(),
+            cancellationToken
+        );
+
+        if (_tournament is not null)
         {
-            _seekers = await _tournamentService.GetTournamentPlayersAsync(
-                _token,
-                _state.State.Tournament.TimeControl,
+            _players = await _tournamentPlayerService.GetTournamentPlayersAsync(
+                _tournament,
                 cancellationToken
             );
+        }
+        else
+        {
+            DeactivateOnIdle();
         }
 
         await base.OnActivateAsync(cancellationToken);
