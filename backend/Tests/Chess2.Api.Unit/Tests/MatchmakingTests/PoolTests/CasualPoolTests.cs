@@ -41,7 +41,9 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
         var matches = Pool.CalculateMatches();
 
         matches.Should().HaveCount(2);
-        matches.Should().BeEquivalentTo([(seeker1, seeker2), (seeker3, seeker4)]);
+        matches
+            .Should()
+            .BeEquivalentTo([(seeker1.UserId, seeker2.UserId), (seeker3.UserId, seeker4.UserId)]);
     }
 
     [Fact]
@@ -53,7 +55,7 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
 
         var matches = Pool.CalculateMatches();
 
-        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker2));
+        matches.Should().ContainSingle().Which.Should().Be((seeker1.UserId, seeker2.UserId));
     }
 
     [Fact]
@@ -87,6 +89,6 @@ public class CasualPoolTests : BasePoolTests<CasualMatchmakingPool>
         var matches = Pool.CalculateMatches();
 
         // user1 and user3 can match, user2 blocks user1 so no match
-        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker3));
+        matches.Should().ContainSingle().Which.Should().Be((seeker1.UserId, seeker3.UserId));
     }
 }

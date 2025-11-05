@@ -45,10 +45,10 @@ public class RatedMatchmakingPool : IMatchmakingPool
         return seeker is not null;
     }
 
-    public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
+    public List<(UserId User1, UserId User2)> CalculateMatches()
     {
-        var matches = new List<(Seeker, Seeker)>();
-        var alreadyMatched = new HashSet<string>();
+        List<(UserId, UserId)> matches = [];
+        HashSet<string> alreadyMatched = [];
 
         var seekersByRating = _seekers.Values.OrderBy(x => x.Seek.Rating.Value).ToList();
 
@@ -67,7 +67,7 @@ public class RatedMatchmakingPool : IMatchmakingPool
                 continue;
             }
 
-            matches.Add((seeker.Seek, bestMatch.Seek));
+            matches.Add((seeker.Seek.UserId, bestMatch.Seek.UserId));
             alreadyMatched.Add(seeker.Seek.UserId);
             alreadyMatched.Add(bestMatch.Seek.UserId);
         }
