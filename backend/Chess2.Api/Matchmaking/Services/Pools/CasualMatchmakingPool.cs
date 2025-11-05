@@ -1,6 +1,6 @@
-﻿using Chess2.Api.Matchmaking.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Chess2.Api.Matchmaking.Services.Pools;
 
@@ -23,10 +23,10 @@ public class CasualMatchmakingPool : IMatchmakingPool
     public bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker) =>
         _seekers.TryGetValue(userId, out seeker);
 
-    public List<(Seeker seeker1, Seeker seeker2)> CalculateMatches()
+    public List<(UserId User1, UserId User2)> CalculateMatches()
     {
-        var matches = new List<(Seeker, Seeker)>();
-        var unmatchedSeekers = new List<Seeker>(_seekers.Values);
+        List<(UserId, UserId)> matches = [];
+        List<Seeker> unmatchedSeekers = [.. _seekers.Values];
         var matchedIds = new HashSet<string>();
 
         for (int i = 0; i < unmatchedSeekers.Count; i++)
@@ -44,7 +44,7 @@ public class CasualMatchmakingPool : IMatchmakingPool
                 if (!seeker.IsCompatibleWith(candidate) || !candidate.IsCompatibleWith(seeker))
                     continue;
 
-                matches.Add((seeker, candidate));
+                matches.Add((seeker.UserId, candidate.UserId));
                 matchedIds.Add(seeker.UserId);
                 matchedIds.Add(candidate.UserId);
                 break;

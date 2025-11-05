@@ -14,5 +14,5 @@ public interface IMatchmakingPool
     bool HasSeeker(UserId userId);
     public bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker);
 
-    List<(Seeker seeker1, Seeker seeker2)> CalculateMatches();
+    List<(UserId User1, UserId User2)> CalculateMatches();
 }
