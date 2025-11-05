@@ -17,7 +17,7 @@ namespace Chess2.Api.Tournaments.Grains;
 public interface ITournamentGrain<TFormat> : IGrainWithStringKey
     where TFormat : ITournamentFormat
 {
-    [Alias("CreateTournamentAsync")]
+    [Alias("CreateAsync")]
     Task<ErrorOr<Created>> CreateAsync(
         UserId hostedBy,
         TimeControlSettings timeControl,
