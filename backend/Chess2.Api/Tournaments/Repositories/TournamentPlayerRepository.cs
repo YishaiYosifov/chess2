@@ -13,7 +13,7 @@ public interface ITournamentPlayerRepository
         TournamentToken tournamentToken,
         CancellationToken token
     );
-    Task IncrementScoreFor(
+    Task IncrementScoreForAsync(
         UserId userId,
         TournamentToken tournamentToken,
         int incrementBy,
@@ -34,7 +34,7 @@ public class TournamentPlayerRepository(ApplicationDbContext dbContext)
     public async Task AddPlayerAsync(TournamentPlayer player, CancellationToken token = default) =>
         await _dbContext.TournamentPlayers.AddAsync(player, token);
 
-    public Task IncrementScoreFor(
+    public Task IncrementScoreForAsync(
         UserId userId,
         TournamentToken tournamentToken,
         int incrementBy,

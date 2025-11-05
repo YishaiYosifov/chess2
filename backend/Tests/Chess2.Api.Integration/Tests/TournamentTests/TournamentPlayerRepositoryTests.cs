@@ -48,7 +48,7 @@ public class TournamentPlayerRepositoryTests : BaseIntegrationTest
         );
         await DbContext.SaveChangesAsync(CT);
 
-        await _repository.IncrementScoreFor(
+        await _repository.IncrementScoreForAsync(
             user.Id,
             playerInTournament.TournamentToken,
             incrementBy,
