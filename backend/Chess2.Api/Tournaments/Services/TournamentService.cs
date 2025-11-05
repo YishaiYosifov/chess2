@@ -19,9 +19,15 @@ public interface ITournamentService
         TimeControlSettings timeControlSettings,
         CancellationToken token = default
     );
-    Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayers(
+    Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
         TournamentToken tournamentToken,
         TimeControlSettings timeControlSettings,
+        CancellationToken token = default
+    );
+    Task IncrementScoreForAsync(
+        UserId userId,
+        TournamentToken tournamentToken,
+        int incrementBy,
         CancellationToken token = default
     );
     Task RegisterTournamentAsync(
@@ -42,7 +48,8 @@ public class TournamentService(
     ITournamentPlayerRepository tournamentPlayerRepository,
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
-    IUnitOfWork unitOfWork
+    IUnitOfWork unitOfWork,
+    TimeProvider timeProvider
 ) : ITournamentService
 {
     private readonly ITournamentRepository _tournamentRepository = tournamentRepository;
@@ -51,6 +58,7 @@ public class TournamentService(
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task RegisterTournamentAsync(
         TournamentToken tournamentToken,
@@ -92,6 +100,22 @@ public class TournamentService(
         return CreateSeekerFromPlayer(player, timeControl);
     }
 
+    public async Task IncrementScoreForAsync(
+        UserId userId,
+        TournamentToken tournamentToken,
+        int incrementBy,
+        CancellationToken token = default
+    )
+    {
+        await _tournamentPlayerRepository.IncrementScoreForAsync(
+            userId,
+            tournamentToken,
+            incrementBy,
+            token
+        );
+        await _unitOfWork.CompleteAsync(token);
+    }
+
     public async Task RemovePlayerAsync(
         UserId userId,
         TournamentToken tournamentToken,
@@ -106,7 +130,7 @@ public class TournamentService(
         await _unitOfWork.CompleteAsync(token);
     }
 
-    public async Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayers(
+    public async Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
         TournamentToken tournamentToken,
         TimeControlSettings timeControlSettings,
         CancellationToken token = default
@@ -126,7 +150,7 @@ public class TournamentService(
         return result;
     }
 
-    private static TournamentPlayerState CreateSeekerFromPlayer(
+    private TournamentPlayerState CreateSeekerFromPlayer(
         TournamentPlayer player,
         TimeControl timeControl
     )
@@ -139,8 +163,8 @@ public class TournamentService(
         RatedSeeker seeker = new(
             UserId: player.UserId,
             UserName: player.User.UserName ?? "Unknown",
-            ExcludeUserIds: player.LastOpponent is not null ? [player.LastOpponent.Value] : [],
-            CreatedAt: DateTimeOffset.UtcNow,
+            ExcludeUserIds: player.LastOpponent is null ? [] : [player.LastOpponent.Value],
+            CreatedAt: _timeProvider.GetUtcNow(),
             Rating: seekerRating
         );
 
