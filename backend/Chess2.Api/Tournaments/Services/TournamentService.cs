@@ -34,6 +34,7 @@ public interface ITournamentService
         TournamentToken tournamentToken,
         UserId hostedBy,
         TimeControlSettings timeControl,
+        TournamentFormat format,
         CancellationToken token = default
     );
     Task RemovePlayerAsync(
@@ -64,6 +65,7 @@ public class TournamentService(
         TournamentToken tournamentToken,
         UserId hostedBy,
         TimeControlSettings timeControl,
+        TournamentFormat format,
         CancellationToken token = default
     )
     {
@@ -73,6 +75,7 @@ public class TournamentService(
             HostedBy = hostedBy,
             BaseSeconds = timeControl.BaseSeconds,
             IncrementSeconds = timeControl.IncrementSeconds,
+            Format = format,
         };
         await _tournamentRepository.AddTournamentAsync(tournament, token);
         await _unitOfWork.CompleteAsync(token);

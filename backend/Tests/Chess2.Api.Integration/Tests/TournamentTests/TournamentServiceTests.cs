@@ -51,6 +51,7 @@ public class TournamentServiceTests : BaseIntegrationTest
             tournamentToken,
             hostedBy,
             timeControl,
+            TournamentFormat.Arena,
             CT
         );
 
@@ -60,6 +61,7 @@ public class TournamentServiceTests : BaseIntegrationTest
             HostedBy = hostedBy,
             BaseSeconds = timeControl.BaseSeconds,
             IncrementSeconds = timeControl.IncrementSeconds,
+            Format = TournamentFormat.Arena,
         };
         var inDb = await DbContext.Tournaments.AsNoTracking().ToListAsync(CT);
         inDb.Should().ContainSingle().Which.Should().BeEquivalentTo(expectedTournament);
