@@ -59,7 +59,6 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     private readonly TimeProvider _timeProvider;
     private readonly LobbySettings _settings;
 
-    private IStreamProvider _streamProvider = null!;
     private IAsyncStream<OpenSeekCreatedEvent> _openSeekCreatedStream = null!;
     private IAsyncStream<OpenSeekRemovedEvent> _openSeekRemovedStream = null!;
 
@@ -280,11 +279,11 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
-        _streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        _openSeekCreatedStream = _streamProvider.GetStream<OpenSeekCreatedEvent>(
+        var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+        _openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
             nameof(OpenSeekCreatedEvent)
         );
-        _openSeekRemovedStream = _streamProvider.GetStream<OpenSeekRemovedEvent>(
+        _openSeekRemovedStream = streamProvider.GetStream<OpenSeekRemovedEvent>(
             nameof(OpenSeekRemovedEvent)
         );
 
