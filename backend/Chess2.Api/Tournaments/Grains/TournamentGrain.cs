@@ -42,7 +42,7 @@ public class TournamentGrainState
 }
 
 public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFormat>
-    where TFormat : ITournamentFormat
+    where TFormat : ITournamentFormat, new()
 {
     public const string StateName = "tournament";
 
@@ -50,6 +50,8 @@ public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFor
     private readonly IPersistentState<TournamentGrainState> _state;
     private readonly UserManager<AuthedUser> _userManager;
     private readonly ITournamentService _tournamentService;
+
+    private readonly ITournamentFormat _format;
 
     private readonly TournamentToken _token;
     private Dictionary<UserId, TournamentPlayerState> _seekers = [];
@@ -66,6 +68,7 @@ public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFor
         _state = state;
         _userManager = userManager;
         _tournamentService = tournamentService;
+        _format = new TFormat();
 
         _token = this.GetPrimaryKeyString();
     }
@@ -81,7 +84,13 @@ public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFor
 
         _state.State.Tournament = new TournamentState(hostedBy, timeControl);
         await _state.WriteStateAsync(token);
-        await _tournamentService.RegisterTournamentAsync(_token, hostedBy, timeControl, token);
+        await _tournamentService.RegisterTournamentAsync(
+            _token,
+            hostedBy,
+            timeControl,
+            _format.Format,
+            token
+        );
 
         return Result.Created;
     }

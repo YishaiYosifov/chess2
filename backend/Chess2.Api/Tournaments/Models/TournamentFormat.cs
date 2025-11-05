@@ -1,6 +1,6 @@
 ﻿namespace Chess2.Api.Tournaments.Models;
 
-public enum TournamentType
+public enum TournamentFormat
 {
     Swiss,
     Arena,
