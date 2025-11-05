@@ -14,6 +14,12 @@ public static class TournamentErrors
     public static Error TournamentNotFound =>
         Error.NotFound(ErrorCodes.TournamentNotFound, "Tournament not found for the given ID");
 
+    public static Error NoHostPermissions =>
+        Error.Forbidden(
+            ErrorCodes.TournamentNoHostPermissions,
+            "You must be the host to perform this action"
+        );
+
     public static Error CannotEnterTournament =>
         Error.Forbidden(ErrorCodes.TournamentCannotEnter, "You cannot enter this tournament");
 
