@@ -13,6 +13,12 @@ public interface ITournamentPlayerRepository
         TournamentToken tournamentToken,
         CancellationToken token
     );
+    Task IncrementScoreFor(
+        UserId userId,
+        TournamentToken tournamentToken,
+        int incrementBy,
+        CancellationToken token = default
+    );
     Task RemovePlayerFromTournamentAsync(
         UserId userId,
         TournamentToken tournamentToken,
@@ -27,6 +33,21 @@ public class TournamentPlayerRepository(ApplicationDbContext dbContext)
 
     public async Task AddPlayerAsync(TournamentPlayer player, CancellationToken token = default) =>
         await _dbContext.TournamentPlayers.AddAsync(player, token);
+
+    public Task IncrementScoreFor(
+        UserId userId,
+        TournamentToken tournamentToken,
+        int incrementBy,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .TournamentPlayers.Where(x =>
+                x.UserId == userId && x.TournamentToken == tournamentToken
+            )
+            .ExecuteUpdateAsync(
+                setters => setters.SetProperty(x => x.Score, x => x.Score + incrementBy),
+                token
+            );
 
     public Task RemovePlayerFromTournamentAsync(
         UserId userId,

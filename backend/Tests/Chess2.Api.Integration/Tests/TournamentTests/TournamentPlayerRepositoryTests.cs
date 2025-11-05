@@ -29,6 +29,40 @@ public class TournamentPlayerRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task IncrementScoreFor_increments_score_for_the_correct_player()
+    {
+        int incrementBy = 59;
+        var user = new AuthedUserFaker().Generate();
+        var playerInTournament = new TournamentPlayerFaker(user)
+            .RuleFor(x => x.Score, 10)
+            .Generate();
+        var playerOutsideTournament = new TournamentPlayerFaker(user).Generate();
+        var otherPlayerInTournament = new TournamentPlayerFaker()
+            .RuleFor(x => x.TournamentToken, playerInTournament.TournamentToken)
+            .Generate();
+        await DbContext.AddRangeAsync(
+            user,
+            playerInTournament,
+            playerOutsideTournament,
+            otherPlayerInTournament
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        await _repository.IncrementScoreFor(
+            user.Id,
+            playerInTournament.TournamentToken,
+            incrementBy,
+            CT
+        );
+        await DbContext.SaveChangesAsync(CT);
+
+        var inDb = await DbContext.TournamentPlayers.AsNoTracking().ToListAsync(CT);
+        playerInTournament.Score += incrementBy;
+        inDb.Should()
+            .BeEquivalentTo([playerInTournament, playerOutsideTournament, otherPlayerInTournament]);
+    }
+
+    [Fact]
     public async Task RemovePlayerFromTournamentAsync_removes_player_from_just_one_tournament()
     {
         var user = new AuthedUserFaker().Generate();
