@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameSnapshot.Models;
+﻿using System.Runtime.CompilerServices;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
@@ -18,7 +19,7 @@ public interface ITournamentPlayerService
         Tournament tournament,
         CancellationToken token = default
     );
-    Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
+    IAsyncEnumerable<TournamentPlayerState> GetTournamentPlayersAsync(
         Tournament tournament,
         CancellationToken token = default
     );
@@ -101,9 +102,9 @@ public class TournamentPlayerService(
         await _unitOfWork.CompleteAsync(token);
     }
 
-    public async Task<Dictionary<UserId, TournamentPlayerState>> GetTournamentPlayersAsync(
+    public async IAsyncEnumerable<TournamentPlayerState> GetTournamentPlayersAsync(
         Tournament tournament,
-        CancellationToken token = default
+        [EnumeratorCancellation] CancellationToken token = default
     )
     {
         var timeControl = _timeControlTranslator.FromSeconds(tournament.BaseSeconds);
@@ -112,12 +113,10 @@ public class TournamentPlayerService(
             token
         );
 
-        Dictionary<UserId, TournamentPlayerState> result = [];
         foreach (var player in players)
         {
-            result[player.UserId] = CreateSeekerFromPlayer(player, timeControl);
+            yield return CreateSeekerFromPlayer(player, timeControl);
         }
-        return result;
     }
 
     private TournamentPlayerState CreateSeekerFromPlayer(
