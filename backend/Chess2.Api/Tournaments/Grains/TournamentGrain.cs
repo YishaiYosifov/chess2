@@ -4,7 +4,6 @@ using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Tournaments.Entities;
 using Chess2.Api.Tournaments.Errors;
-using Chess2.Api.Tournaments.Models;
 using Chess2.Api.Tournaments.Repositories;
 using Chess2.Api.Tournaments.Services;
 using Chess2.Api.Tournaments.TournamentFormats;
@@ -53,7 +52,6 @@ public class TournamentGrain<TFormat>(
 
     private readonly ITournamentFormat _format = new TFormat();
 
-    private Dictionary<UserId, TournamentPlayerState> _players = [];
     private Tournament? _tournament;
 
     public async Task<ErrorOr<Created>> CreateAsync(
@@ -115,8 +113,8 @@ public class TournamentGrain<TFormat>(
             return TournamentErrors.CannotEnterTournament;
         }
 
-        var seeker = await _tournamentPlayerService.AddPlayerAsync(user, _tournament, token);
-        _players[user.Id] = seeker;
+        var player = await _tournamentPlayerService.AddPlayerAsync(user, _tournament, token);
+        _format.AddPlayer(player);
 
         return Result.Created;
     }
@@ -126,7 +124,7 @@ public class TournamentGrain<TFormat>(
         if (_tournament is null)
             return TournamentErrors.TournamentNotFound;
 
-        if (!_players.ContainsKey(userId))
+        if (!_format.HasPlayer(userId))
             return TournamentErrors.NotPartOfTournament;
 
         await _tournamentPlayerService.RemovePlayerAsync(
@@ -134,7 +132,8 @@ public class TournamentGrain<TFormat>(
             _tournament.TournamentToken,
             token
         );
-        _players.Remove(userId);
+        _format.RemovePlayer(userId);
+
         return Result.Deleted;
     }
 
@@ -147,10 +146,12 @@ public class TournamentGrain<TFormat>(
 
         if (_tournament is not null)
         {
-            _players = await _tournamentPlayerService.GetTournamentPlayersAsync(
+            var players = _tournamentPlayerService.GetTournamentPlayersAsync(
                 _tournament,
                 cancellationToken
             );
+            await foreach (var player in players)
+                _format.AddPlayer(player);
         }
         else
         {

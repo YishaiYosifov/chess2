@@ -127,16 +127,16 @@ public class TournamentPlayerServiceTests : BaseIntegrationTest
         );
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _playerService.GetTournamentPlayersAsync(tournament, CT);
-
+        var result = new List<TournamentPlayerState>();
+        await foreach (var item in _playerService.GetTournamentPlayersAsync(tournament, CT))
+            result.Add(item);
         result
             .Should()
             .BeEquivalentTo(
-                new Dictionary<UserId, TournamentPlayerState>()
-                {
-                    [player1.UserId] = CreateTournamentPlayerState(player1, player1Rating),
-                    [player2.UserId] = CreateTournamentPlayerState(player2, player2Rating),
-                }
+                [
+                    CreateTournamentPlayerState(player1, player1Rating),
+                    CreateTournamentPlayerState(player2, player2Rating),
+                ]
             );
     }
 
