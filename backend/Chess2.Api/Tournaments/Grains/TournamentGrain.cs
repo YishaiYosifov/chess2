@@ -133,7 +133,7 @@ public class TournamentGrain<TFormat> : Grain, IGrainBase, ITournamentGrain<TFor
     {
         if (_state.State.Tournament is not null)
         {
-            _seekers = await _tournamentService.GetTournamentPlayers(
+            _seekers = await _tournamentService.GetTournamentPlayersAsync(
                 _token,
                 _state.State.Tournament.TimeControl,
                 cancellationToken
