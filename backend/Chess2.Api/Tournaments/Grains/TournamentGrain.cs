@@ -29,6 +29,9 @@ public interface ITournamentGrain<TFormat> : IGrainWithStringKey
 
     [Alias("LeaveAsync")]
     Task<ErrorOr<Deleted>> LeaveAsync(UserId userId, CancellationToken token = default);
+
+    [Alias("StartAsync")]
+    Task<ErrorOr<Success>> StartAsync(UserId startedBy, CancellationToken token = default);
 }
 
 public class TournamentGrain<TFormat>(
