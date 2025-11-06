@@ -1,7 +1,7 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.GameSnapshot.Models;
-using Chess2.Api.Game.Errors;
+﻿using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Grains;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -131,5 +131,11 @@ public class GameGrainTests : BaseGrainTest
     }
 
     private Task StartGameAsync(GameGrain grain) =>
-        grain.StartGameAsync(whitePlayer: _whitePlayer, blackPlayer: _blackPlayer, pool: _pool);
+        grain.StartGameAsync(
+            whitePlayer: _whitePlayer,
+            blackPlayer: _blackPlayer,
+            pool: _pool,
+            fromTournament: null,
+            CT
+        );
 }

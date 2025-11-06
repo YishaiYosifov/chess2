@@ -36,7 +36,7 @@ public class GameControllerTests : BaseFunctionalTest
             guest1,
             guest2,
             new PoolKey(PoolType.Casual, new(600, 0)),
-            CT
+            token: CT
         );
         AuthUtils.AuthenticateGuest(ApiClient, guest1);
 
@@ -78,7 +78,7 @@ public class GameControllerTests : BaseFunctionalTest
             UserId.Guest(),
             UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0)),
-            CT
+            token: CT
         );
         AuthUtils.AuthenticateGuest(ApiClient, UserId.Guest());
 
@@ -97,7 +97,7 @@ public class GameControllerTests : BaseFunctionalTest
             UserId.Guest(),
             UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0)),
-            CT
+            token: CT
         );
 
         // authenticate with a different user
@@ -164,7 +164,7 @@ public class GameControllerTests : BaseFunctionalTest
             guest1,
             guest2,
             new PoolKey(PoolType.Casual, new(600, 0)),
-            CT
+            token: CT
         );
         await _grains.GetGrain<IGameGrain>(gameToken).RequestGameEndAsync(guest2, CT);
 
@@ -200,7 +200,7 @@ public class GameControllerTests : BaseFunctionalTest
             authedUser.Id,
             guestId,
             new PoolKey(PoolType.Casual, new(300, 5)),
-            CT
+            token: CT
         );
 
         await AssertMixedPlayersGameState(authedUser, rating, guestId, gameToken);

@@ -4,5 +4,5 @@ namespace Chess2.Api.Unit;
 
 public class BaseGrainTest : TestKitBase
 {
-    protected static CancellationToken CT => CT;
+    protected static CancellationToken CT => TestContext.Current.CancellationToken;
 }

@@ -2,13 +2,16 @@
 using Chess2.Api.Game.Errors;
 using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.Tournaments.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
+using Orleans.Streams;
 
 namespace Chess2.Api.Game.Grains;
 
@@ -20,6 +23,7 @@ public interface IGameGrain : IGrainWithStringKey
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
+        TournamentToken? fromTournament,
         CancellationToken token = default
     );
 
@@ -37,6 +41,9 @@ public interface IGameGrain : IGrainWithStringKey
 
     [Alias("GetPlayersAsync")]
     Task<ErrorOr<PlayerRoster>> GetPlayersAsync();
+
+    [Alias("GetMovesAsync")]
+    Task<ErrorOr<IReadOnlyList<Move>>> GetMovesAsync();
 
     [Alias("RequestGameEndAsync")]
     Task<ErrorOr<Success>> RequestGameEndAsync(UserId byUserId, CancellationToken token = default);
@@ -60,31 +67,34 @@ public interface IGameGrain : IGrainWithStringKey
 public class GameData()
 {
     [Id(1)]
-    public required PlayerRoster Players { get; set; }
+    public required TournamentToken? TournamentToken { get; init; }
 
     [Id(2)]
-    public required PoolKey Pool { get; set; }
+    public required PlayerRoster Players { get; init; }
 
     [Id(3)]
-    public required string InitialFen { get; set; }
+    public required PoolKey Pool { get; init; }
 
     [Id(4)]
-    public List<MoveSnapshot> MoveSnapshots { get; set; } = [];
+    public required string InitialFen { get; init; }
 
     [Id(5)]
-    public required GameCoreState Core { get; set; }
+    public List<MoveSnapshot> MoveSnapshots { get; init; } = [];
 
     [Id(6)]
-    public required DrawRequestState DrawRequest { get; set; }
+    public required GameCoreState Core { get; init; }
 
     [Id(7)]
-    public required GameClockState ClockState { get; set; }
+    public required DrawRequestState DrawRequest { get; init; }
 
     [Id(8)]
-    public required GameNotifierState NotifierState { get; set; }
+    public required GameClockState ClockState { get; init; }
 
     [Id(9)]
-    public GameResultData? Result;
+    public required GameNotifierState NotifierState { get; init; }
+
+    [Id(10)]
+    public GameResultData? Result { get; set; }
 }
 
 [GenerateSerializer]
@@ -141,6 +151,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
+        TournamentToken? fromTournament,
         CancellationToken token = default
     )
     {
@@ -152,6 +163,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         _state.State.CurrentGame = new()
         {
+            TournamentToken = fromTournament,
             Players = players,
             Pool = pool,
             InitialFen = _core.StartGame(core),
@@ -194,8 +206,15 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
     }
 
     public Task<ErrorOr<PlayerRoster>> GetPlayersAsync() =>
-        Task.FromResult<ErrorOr<PlayerRoster>>(
-            TryGetCurrentGame(out var game) ? game.Players : GameErrors.GameNotFound
+        Task.FromResult(
+            TryGetCurrentGame(out var game) ? game.Players.ToErrorOr() : GameErrors.GameNotFound
+        );
+
+    public Task<ErrorOr<IReadOnlyList<Move>>> GetMovesAsync() =>
+        Task.FromResult(
+            TryGetCurrentGame(out var game)
+                ? game.Core.Board.Moves.ToErrorOr()
+                : GameErrors.GameNotFound
         );
 
     public async Task<ErrorOr<Success>> RequestGameEndAsync(
@@ -368,14 +387,24 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         _clock.CommitTurn(_core.SideToMove(game.Core), game.ClockState);
         var state = GetGameState(game: game);
 
-        game.Result = await _gameFinalizer.FinalizeGameAsync(
-            _token,
-            state,
-            endStatus,
-            game.Core.Board.Moves,
-            token
-        );
+        game.Result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus, token);
         await _gameNotifier.NotifyGameEndedAsync(_token, game.Result, game.NotifierState);
+
+        var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+        GameEndedEvent endedEvent = new(_token, game.Result);
+
+        await streamProvider
+            .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.Players.WhitePlayer.UserId)
+            .OnNextAsync(endedEvent);
+        await streamProvider
+            .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.Players.BlackPlayer.UserId)
+            .OnNextAsync(endedEvent);
+        if (game.TournamentToken is not null)
+        {
+            await streamProvider
+                .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.TournamentToken)
+                .OnNextAsync(endedEvent);
+        }
 
         _clockTimer?.Dispose();
         _clockTimer = null;

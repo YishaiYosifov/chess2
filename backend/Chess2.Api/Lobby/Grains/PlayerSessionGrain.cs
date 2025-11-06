@@ -9,6 +9,7 @@ using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
+using Orleans.Streams;
 
 namespace Chess2.Api.Lobby.Grains;
 
@@ -37,9 +38,6 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
         PoolKey pool,
         CancellationToken token = default
     );
-
-    [Alias("GameEndedAsync")]
-    Task GameEndedAsync(GameToken gameToken, CancellationToken token = default);
 }
 
 [GenerateSerializer]
@@ -51,6 +49,9 @@ public class PlayerSessionState
 
     [Id(1)]
     public HashSet<string> ActiveGameTokens { get; } = [];
+
+    [Id(2)]
+    public StreamSubscriptionHandle<GameEndedEvent>? GameEndedEventSubscription { get; set; }
 }
 
 public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
@@ -144,12 +145,6 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
         return Result.Created;
     }
 
-    public async Task GameEndedAsync(GameToken gameToken, CancellationToken token = default)
-    {
-        _state.State.ActiveGameTokens.Remove(gameToken);
-        await _state.WriteStateAsync(token);
-    }
-
     public async Task SeekMatchedAsync(
         GameToken gameToken,
         PoolKey pool,
@@ -195,6 +190,33 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
     {
         _poolConnectionReservations.Remove(pool);
         return Task.CompletedTask;
+    }
+
+    public override async Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+        var stream = streamProvider.GetStream<GameEndedEvent>(
+            nameof(GameEndedEvent),
+            this.GetPrimaryKeyString()
+        );
+
+        if (_state.State.GameEndedEventSubscription is null)
+        {
+            _state.State.GameEndedEventSubscription = await stream.SubscribeAsync(OnGameEndedAsync);
+            await _state.WriteStateAsync(cancellationToken);
+        }
+        else
+        {
+            await _state.State.GameEndedEventSubscription.ResumeAsync(OnGameEndedAsync);
+        }
+
+        await base.OnActivateAsync(cancellationToken);
+    }
+
+    private async Task OnGameEndedAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
+    {
+        _state.State.ActiveGameTokens.Remove(@event.GameToken);
+        await _state.WriteStateAsync();
     }
 
     private async Task OnGameFoundAsync(

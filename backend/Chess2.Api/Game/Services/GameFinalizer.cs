@@ -1,12 +1,9 @@
 ﻿using Chess2.Api.ArchivedGames.Services;
 using Chess2.Api.Game.Models;
-using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
-using Chess2.Api.Quests.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.UserRating.Models;
 using Chess2.Api.UserRating.Services;
@@ -20,7 +17,6 @@ public interface IGameFinalizer
         GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
-        IReadOnlyList<Move> gameMoves,
         CancellationToken token = default
     );
 }
@@ -30,7 +26,6 @@ public class GameFinalizer(
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
     ITimeControlTranslator timeControlTranslator,
-    IGrainFactory grainFactory,
     IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
@@ -38,14 +33,12 @@ public class GameFinalizer(
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
-    private readonly IGrainFactory _grainFactory = grainFactory;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameResultData> FinalizeGameAsync(
         GameToken gameToken,
         GameState state,
         GameEndStatus endStatus,
-        IReadOnlyList<Move> gameMoves,
         CancellationToken token = default
     )
     {
@@ -65,16 +58,6 @@ public class GameFinalizer(
             WhiteRatingChange: ratingChange?.WhiteChange,
             BlackRatingChange: ratingChange?.BlackChange
         );
-
-        await NotifyQuestAsync(gameToken, state.WhitePlayer, gameMoves, result);
-        await NotifyQuestAsync(gameToken, state.BlackPlayer, gameMoves, result);
-        await _grainFactory
-            .GetGrain<IPlayerSessionGrain>(state.WhitePlayer.UserId)
-            .GameEndedAsync(gameToken, token);
-        await _grainFactory
-            .GetGrain<IPlayerSessionGrain>(state.BlackPlayer.UserId)
-            .GameEndedAsync(gameToken, token);
-
         return result;
     }
 
@@ -100,19 +83,5 @@ public class GameFinalizer(
             token
         );
         return ratingChange;
-    }
-
-    private async Task NotifyQuestAsync(
-        GameToken gameToken,
-        GamePlayer player,
-        IReadOnlyList<Move> gameMoves,
-        GameResultData result
-    )
-    {
-        if (!player.UserId.IsAuthed)
-            return;
-
-        var grain = _grainFactory.GetGrain<IQuestGrain>(player.UserId);
-        await grain.OnGameOverAsync(new(gameToken, player.Color, gameMoves, result));
     }
 }

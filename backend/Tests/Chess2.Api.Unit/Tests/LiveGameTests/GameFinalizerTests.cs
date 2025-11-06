@@ -4,10 +4,8 @@ using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
-using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
-using Chess2.Api.Quests.Grains;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.Utils;
@@ -30,8 +28,6 @@ public class GameFinalizerTests : BaseUnitTest
         Substitute.For<IGameArchiveService>();
     private readonly IUnitOfWork _unitOfWorkMock = Substitute.For<IUnitOfWork>();
 
-    private readonly IGrainFactory _grainFactory = Substitute.For<IGrainFactory>();
-
     private readonly GameToken _gameToken = "test game token 123";
     private readonly TimeControl _timeControl = TimeControl.Rapid;
     private readonly TimeControlSettings _timeControlSettings = new(
@@ -46,7 +42,6 @@ public class GameFinalizerTests : BaseUnitTest
             _ratingServiceMock,
             _gameArchiveServiceMock,
             new TimeControlTranslator(),
-            _grainFactory,
             _unitOfWorkMock
         );
     }
@@ -63,7 +58,7 @@ public class GameFinalizerTests : BaseUnitTest
             .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, _timeControl, CT)
             .Returns(ratingChange);
 
-        var result = await _gameFinalizer.FinalizeGameAsync(_gameToken, state, endStatus, [], CT);
+        var result = await _gameFinalizer.FinalizeGameAsync(_gameToken, state, endStatus, CT);
 
         result
             .Should()
@@ -85,64 +80,6 @@ public class GameFinalizerTests : BaseUnitTest
     }
 
     [Fact]
-    public async Task FinalizeGame_notifies_player_sessions()
-    {
-        var (whiteUser, whitePlayer, blackUser, blackPlayer) = CreatePlayers();
-
-        var whitePlayerSessionGrain = Substitute.For<IPlayerSessionGrain>();
-        var blackPlayerSessionGrain = Substitute.For<IPlayerSessionGrain>();
-        _grainFactory.GetGrain<IPlayerSessionGrain>(whiteUser.Id).Returns(whitePlayerSessionGrain);
-        _grainFactory.GetGrain<IPlayerSessionGrain>(blackUser.Id).Returns(blackPlayerSessionGrain);
-
-        var state = CreateRatedGameState(whitePlayer, blackPlayer);
-
-        await _gameFinalizer.FinalizeGameAsync(
-            _gameToken,
-            state,
-            new(GameResult.Aborted, "desc"),
-            [],
-            CT
-        );
-
-        await whitePlayerSessionGrain.Received(1).GameEndedAsync(_gameToken, CT);
-        await blackPlayerSessionGrain.Received(1).GameEndedAsync(_gameToken, CT);
-    }
-
-    [Fact]
-    public async Task FinalizeGame_notifies_quests()
-    {
-        var (whiteUser, whitePlayer, blackUser, blackPlayer) = CreatePlayers();
-        var state = CreateRatedGameState(whitePlayer, blackPlayer);
-        RatingChange ratingChange = new(15, -15);
-        GameEndStatus endStatus = new(Result: GameResult.WhiteWin, ResultDescription: "desc");
-        _ratingServiceMock
-            .UpdateRatingForResultAsync(whiteUser, blackUser, endStatus.Result, _timeControl, CT)
-            .Returns(ratingChange);
-
-        var whiteQuestGrain = Substitute.For<IQuestGrain>();
-        var blackQuestGrain = Substitute.For<IQuestGrain>();
-        _grainFactory.GetGrain<IQuestGrain>(whiteUser.Id).Returns(whiteQuestGrain);
-        _grainFactory.GetGrain<IQuestGrain>(blackUser.Id).Returns(blackQuestGrain);
-
-        var moves = new MoveFaker().Generate(5);
-
-        var resultData = await _gameFinalizer.FinalizeGameAsync(
-            _gameToken,
-            state,
-            endStatus,
-            moves,
-            CT
-        );
-
-        await whiteQuestGrain
-            .Received(1)
-            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData), CT);
-        await whiteQuestGrain
-            .Received(1)
-            .OnGameOverAsync(new(_gameToken, GameColor.White, moves, resultData), CT);
-    }
-
-    [Fact]
     public async Task FinalizeGameAsync_aborted_game_does_not_call_rating_service()
     {
         var (_, whitePlayer, _, blackPlayer) = CreatePlayers();
@@ -153,7 +90,6 @@ public class GameFinalizerTests : BaseUnitTest
             _gameToken,
             state,
             new(GameResult.Aborted, "desc"),
-            [],
             CT
         );
 
@@ -172,7 +108,6 @@ public class GameFinalizerTests : BaseUnitTest
             _gameToken,
             state,
             new(GameResult.WhiteWin, "desc"),
-            [],
             CT
         );
 
