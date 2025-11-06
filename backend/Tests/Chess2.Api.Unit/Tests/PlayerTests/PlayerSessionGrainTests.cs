@@ -1,5 +1,6 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Lobby.Errors;
 using Chess2.Api.Lobby.Grains;
 using Chess2.Api.Lobby.Services;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
+using Orleans.TestKit.Streams;
 
 namespace Chess2.Api.Unit.Tests.PlayerTests;
 
@@ -54,6 +56,13 @@ public class PlayerSessionGrainTests : BaseGrainTest
             .State;
         _stateStats = Silo.StorageManager.GetStorageStats(PlayerSessionGrain.StateName)!;
     }
+
+    private TestStream<GameEndedEvent> ProbeGameEndedStream() =>
+        Silo.AddStreamProbe<GameEndedEvent>(
+            _userId,
+            streamNamespace: nameof(GameEndedEvent),
+            Streaming.StreamProvider
+        );
 
     [Fact]
     public async Task CreateSeekAsync_adds_seek_and_registers_connection()
@@ -430,6 +439,27 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await _matchmakingNotifierMock
             .DidNotReceiveWithAnyArgs()
             .NotifyGameFoundAsync(default!, default!);
+    }
+
+    [Fact]
+    public async Task GameEndedEvent_removes_games_from_active_games()
+    {
+        var pool = new PoolKeyFaker(PoolType.Rated).Generate();
+        var seeker = new RatedSeekerFaker(_userId).Generate();
+
+        var streamProbe = ProbeGameEndedStream();
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
+
+        await grain.CreateSeekAsync("conn1", seeker, pool, CT);
+        await grain.SeekMatchedAsync("game1", pool, CT);
+
+        _state.ActiveGameTokens.Should().Contain("game1");
+
+        await streamProbe.OnNextAsync(
+            new GameEndedEvent("game1", new GameResultDataFaker().Generate())
+        );
+
+        _state.ActiveGameTokens.Should().NotContain("game1");
     }
 
     private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)

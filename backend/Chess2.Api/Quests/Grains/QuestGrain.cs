@@ -1,11 +1,13 @@
-﻿using Chess2.Api.Infrastructure;
+﻿using Chess2.Api.Game.Grains;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Quests.Errors;
 using Chess2.Api.Quests.Services;
 using ErrorOr;
-using Orleans.Concurrency;
+using Orleans.Streams;
 
 namespace Chess2.Api.Quests.Grains;
 
@@ -17,10 +19,6 @@ public interface IQuestGrain : IGrainWithStringKey
 
     [Alias("GetGuestAsync")]
     Task<QuestDto> GetQuestAsync(CancellationToken token = default);
-
-    [OneWay]
-    [Alias("OnGameOverAsync")]
-    Task OnGameOverAsync(GameQuestSnapshot snapshot, CancellationToken token = default);
 
     [Alias("ReplaceQuestAsync")]
     Task<ErrorOr<QuestDto>> ReplaceQuestAsync(CancellationToken token = default);
@@ -41,6 +39,9 @@ public class QuestGrainStorage
 
     [Id(5)]
     public int Streak { get; set; }
+
+    [Id(6)]
+    public StreamSubscriptionHandle<GameEndedEvent>? GameEndedEventSubscription { get; set; }
 
     public void CompleteQuest()
     {
@@ -119,17 +120,56 @@ public class QuestGrain(
         return (int)quest.Difficulty;
     }
 
-    public async Task OnGameOverAsync(GameQuestSnapshot snapshot, CancellationToken token = default)
+    public override async Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+        var stream = streamProvider.GetStream<GameEndedEvent>(
+            nameof(GameEndedEvent),
+            this.GetPrimaryKeyString()
+        );
+
+        if (_state.State.GameEndedEventSubscription is null)
+        {
+            _state.State.GameEndedEventSubscription = await stream.SubscribeAsync(OnGameEndedAsync);
+            await _state.WriteStateAsync(cancellationToken);
+        }
+        else
+        {
+            await _state.State.GameEndedEventSubscription.ResumeAsync(OnGameEndedAsync);
+        }
+
+        await base.OnActivateAsync(cancellationToken);
+    }
+
+    private async Task OnGameEndedAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
     {
         var quest = GetOrSelectQuest();
         if (quest.IsCompleted)
             return;
 
+        var game = GrainFactory.GetGrain<IGameGrain>(@event.GameToken);
+
+        var playersResult = await game.GetPlayersAsync();
+        if (playersResult.IsError)
+            return;
+
+        if (!playersResult.Value.TryGetPlayerById(this.GetPrimaryKeyString(), out var player))
+            return;
+
+        var movesResult = await game.GetMovesAsync();
+        if (movesResult.IsError)
+            return;
+
+        GameQuestSnapshot snapshot = new(
+            PlayerColor: player.Color,
+            MoveHistory: movesResult.Value,
+            ResultData: @event.EndStatus
+        );
         quest.ApplySnapshot(snapshot);
         if (quest.IsCompleted)
             _state.State.CompleteQuest();
 
-        await _state.WriteStateAsync(token);
+        await _state.WriteStateAsync();
     }
 
     private QuestInstance GetOrSelectQuest()

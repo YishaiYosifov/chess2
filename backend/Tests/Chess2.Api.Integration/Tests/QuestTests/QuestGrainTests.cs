@@ -1,5 +1,10 @@
-﻿using Chess2.Api.GameLogic.Models;
-using Chess2.Api.Profile.Models;
+﻿using Chess2.Api.Game.Grains;
+using Chess2.Api.Game.Models;
+using Chess2.Api.Game.Services;
+using Chess2.Api.GameLogic.Models;
+using Chess2.Api.GameSnapshot.Models;
+using Chess2.Api.Infrastructure;
+using Chess2.Api.Profile.Entities;
 using Chess2.Api.QuestLogic;
 using Chess2.Api.QuestLogic.Models;
 using Chess2.Api.QuestLogic.QuestConditions;
@@ -14,7 +19,9 @@ using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using Orleans.TestKit;
 using Orleans.TestKit.Storage;
+using Orleans.TestKit.Streams;
 
 namespace Chess2.Api.Integration.Tests.QuestTests;
 
@@ -23,11 +30,15 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly IRandomQuestProvider _randomQuestProviderMock =
         Substitute.For<IRandomQuestProvider>();
+    private readonly IGameGrain _gameGrainMock = Substitute.For<IGameGrain>();
     private readonly IQuestService _questService;
+
     private readonly List<QuestVariant> _questVariants;
 
     private readonly TestStorageStats _stateStats;
 
+    private readonly GameToken _testGameToken = "test game token";
+    private readonly AuthedUser _testUser;
     private DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
     private int _usedVariantIdx = 0;
     private QuestInstance? _lastInstance;
@@ -45,6 +56,22 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
+        _testUser = new AuthedUserFaker().Generate();
+        _gameGrainMock.GetMovesAsync().Returns(new List<Move>());
+        _gameGrainMock
+            .GetPlayersAsync()
+            .Returns(
+                new PlayerRoster(
+                    new GamePlayerFaker(GameColor.White)
+                        .RuleFor(x => x.UserId, _testUser.Id)
+                        .Generate(),
+                    new GamePlayerFaker(GameColor.Black).Generate()
+                )
+            );
+        Silo.AddProbe(id =>
+            id.ToString() == _testGameToken ? _gameGrainMock : Substitute.For<IGameGrain>()
+        );
+
         Silo.ServiceProvider.AddService(_randomQuestProviderMock);
         Silo.ServiceProvider.AddService(_questService);
         Silo.ServiceProvider.AddService(_timeProviderMock);
@@ -53,8 +80,15 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         _stateStats = Silo.StorageManager.GetStorageStats(QuestGrain.StateName)!;
     }
 
-    private async Task<IQuestGrain> CreateGrainAsync(UserId? userId = null) =>
-        await Silo.CreateGrainAsync<QuestGrain>(userId ?? "user1");
+    private TestStream<GameEndedEvent> ProbeGameEndedStream() =>
+        Silo.AddStreamProbe<GameEndedEvent>(
+            _testUser.Id,
+            streamNamespace: nameof(GameEndedEvent),
+            Streaming.StreamProvider
+        );
+
+    private async Task<IQuestGrain> CreateGrainAsync() =>
+        await Silo.CreateGrainAsync<QuestGrain>(_testUser.Id);
 
     private QuestVariant SetupSelectableVariant(DateTimeOffset? date = null)
     {
@@ -113,7 +147,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                 )
             );
 
-        _stateStats.Writes.Should().Be(1);
+        _stateStats.Writes.Should().BeGreaterThan(1);
     }
 
     [Fact]
@@ -162,13 +196,15 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_increments_progress()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 2);
-        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
+        var gameOverStream = ProbeGameEndedStream();
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync(ApiTestBase.CT);
         _stateStats.ResetCounts();
 
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
 
         var quest = await grain.GetQuestAsync(ApiTestBase.CT);
         quest.Progress.Should().Be(1);
@@ -179,12 +215,14 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_does_nothing_if_conditions_not_met()
     {
         SetupSelectableVariant();
-        var snapshot = new GameQuestSnapshotFaker().RuleForLoss(GameColor.White).Generate();
 
+        var gameOverStream = ProbeGameEndedStream();
         var grain = await CreateGrainAsync();
         await grain.GetQuestAsync(ApiTestBase.CT);
 
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.BlackWin))
+        );
 
         var quest = await grain.GetQuestAsync(ApiTestBase.CT);
         quest.Progress.Should().Be(0);
@@ -194,12 +232,14 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_completes_quest_and_updates_state()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
+        var gameOverStream = ProbeGameEndedStream();
         var grain = await CreateGrainAsync();
         var initialQuest = await grain.GetQuestAsync(ApiTestBase.CT);
 
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
 
         SetupSelectableVariant();
         var questAfterCompletion = await grain.GetQuestAsync(ApiTestBase.CT);
@@ -217,13 +257,15 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task OnGameOverAsync_increments_streak_across_multiple_days()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
+        var gameOverStream = ProbeGameEndedStream();
         var grain = await CreateGrainAsync();
 
         // day 1
         await grain.GetQuestAsync(ApiTestBase.CT);
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
         var quest1 = await grain.GetQuestAsync(ApiTestBase.CT);
         quest1.Streak.Should().Be(1);
 
@@ -232,7 +274,9 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
         await grain.GetQuestAsync(ApiTestBase.CT);
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
         var quest2 = await grain.GetQuestAsync(ApiTestBase.CT);
         quest2.Streak.Should().Be(2);
     }
@@ -241,13 +285,15 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     public async Task Streak_resets_if_a_day_is_missed()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
+        var gameOverStream = ProbeGameEndedStream();
         var grain = await CreateGrainAsync();
 
         // day 1 complete quest
         await grain.GetQuestAsync(ApiTestBase.CT);
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
         (await grain.GetQuestAsync(ApiTestBase.CT)).Streak.Should().Be(1);
 
         // skip a day
@@ -343,15 +389,17 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     [Fact]
     public async Task CollectRewardAsync_applies_reward_once()
     {
-        var questPoints = new UserQuestPointsFaker().Generate();
+        var questPoints = new UserQuestPointsFaker(_testUser).Generate();
         await ApiTestBase.DbContext.AddAsync(questPoints, ApiTestBase.CT);
         await ApiTestBase.DbContext.SaveChangesAsync(ApiTestBase.CT);
 
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
-        var snapshot = new GameQuestSnapshotFaker().RuleForWin(GameColor.White).Generate();
 
-        var grain = await CreateGrainAsync(questPoints.UserId);
-        await grain.OnGameOverAsync(snapshot, ApiTestBase.CT);
+        var gameOverStream = ProbeGameEndedStream();
+        var grain = await CreateGrainAsync();
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(_testGameToken, new GameResultDataFaker(GameResult.WhiteWin))
+        );
 
         var pointsGameOver = await _questService.GetQuestPointsAsync(
             questPoints.UserId,
