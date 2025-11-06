@@ -7,6 +7,7 @@ using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Services;
+using Chess2.Api.Tournaments.Models;
 using Chess2.Api.UserRating.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,6 +19,7 @@ public interface IGameStarter
         UserId userId1,
         UserId userId2,
         PoolKey pool,
+        TournamentToken? fromTournament = null,
         CancellationToken token = default
     );
 }
@@ -40,6 +42,7 @@ public class GameStarter(
         UserId userId1,
         UserId userId2,
         PoolKey pool,
+        TournamentToken? fromTournament = null,
         CancellationToken token = default
     )
     {
@@ -50,7 +53,7 @@ public class GameStarter(
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
 
         var gameGrain = _grains.GetGrain<IGameGrain>(gameToken);
-        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, token);
+        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, fromTournament, token);
 
         return gameToken;
     }
