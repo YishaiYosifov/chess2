@@ -321,11 +321,13 @@ builder.Host.UseOrleans(siloBuilder =>
     siloBuilder.UseLocalhostClustering();
     siloBuilder.AddMemoryStreams(Streaming.StreamProvider).AddMemoryGrainStorage("PubSubStore");
 
-    siloBuilder.Configure<GrainCollectionOptions>(options =>
-    {
-        options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
-            TimeSpan.FromMinutes(5);
-    });
+    siloBuilder.Configure(
+        (GrainCollectionOptions options) =>
+        {
+            options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
+                TimeSpan.FromMinutes(5);
+        }
+    );
 
     siloBuilder.ConfigureServices(services =>
     {
@@ -334,12 +336,7 @@ builder.Host.UseOrleans(siloBuilder =>
             ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
         );
     });
-    siloBuilder.AddMemoryGrainStorage(StorageNames.PlayerSessionState);
-    siloBuilder.AddMemoryGrainStorage(StorageNames.MatchmakingState);
-    siloBuilder.AddMemoryGrainStorage(StorageNames.ChallengeState);
-    siloBuilder.AddMemoryGrainStorage(StorageNames.RematchState);
-    siloBuilder.AddMemoryGrainStorage(StorageNames.QuestState);
-    siloBuilder.AddMemoryGrainStorage(StorageNames.GameState);
+    siloBuilder.AddMemoryGrainStorage(Storage.StorageProvider);
 
     siloBuilder.UseAdoNetReminderService(options =>
     {

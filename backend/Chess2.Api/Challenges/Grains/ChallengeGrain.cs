@@ -62,7 +62,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     public ChallengeGrain(
         ILogger<ChallengeGrain> logger,
-        [PersistentState(StateName, StorageNames.ChallengeState)]
+        [PersistentState(StateName, Storage.StorageProvider)]
             IPersistentState<ChallengeGrainStorage> state,
         IOptions<AppSettings> settings,
         IChallengeNotifier challengeNotifier,
