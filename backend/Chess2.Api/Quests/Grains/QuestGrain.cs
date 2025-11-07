@@ -69,6 +69,7 @@ public class QuestGrainStorage
 }
 
 public class QuestGrain(
+    ILogger<QuestGrain> logger,
     [PersistentState(QuestGrain.StateName, Storage.StorageProvider)]
         IPersistentState<QuestGrainStorage> state,
     IQuestService questService,
@@ -78,6 +79,7 @@ public class QuestGrain(
 {
     public const string StateName = "quest";
 
+    private readonly ILogger<QuestGrain> _logger = logger;
     private readonly IPersistentState<QuestGrainStorage> _state = state;
     private readonly IQuestService _questService = questService;
     private readonly IRandomQuestProvider _questProvider = questProvider;
@@ -151,14 +153,35 @@ public class QuestGrain(
 
         var playersResult = await game.GetPlayersAsync();
         if (playersResult.IsError)
+        {
+            _logger.LogWarning(
+                "Could not find players for quest on game {GameToken}, {Errors}",
+                @event.GameToken,
+                playersResult.Errors
+            );
             return;
+        }
 
         if (!playersResult.Value.TryGetPlayerById(this.GetPrimaryKeyString(), out var player))
+        {
+            _logger.LogWarning(
+                "Could not find player {UserId} for quest on game {GameToken}",
+                this.GetPrimaryKeyString(),
+                @event.GameToken
+            );
             return;
+        }
 
         var movesResult = await game.GetMovesAsync();
         if (movesResult.IsError)
+        {
+            _logger.LogWarning(
+                "Could not find moves for quest on game {GameToken}, {Errors}",
+                @event.GameToken,
+                movesResult.Errors
+            );
             return;
+        }
 
         GameQuestSnapshot snapshot = new(
             PlayerColor: player.Color,
