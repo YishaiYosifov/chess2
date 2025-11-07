@@ -5,14 +5,9 @@ public static class Streaming
     public const string StreamProvider = "InMemoryProvider";
 }
 
-public static class StorageNames
+public static class Storage
 {
-    public const string PlayerSessionState = "PlayerSessionState";
-    public const string MatchmakingState = "MatchmakingState";
-    public const string ChallengeState = "ChallengeState";
-    public const string RematchState = "RematchState";
-    public const string QuestState = "QuestState";
-    public const string GameState = "GameState";
+    public const string StorageProvider = "GameState";
 }
 
 public static class AuthPolicies

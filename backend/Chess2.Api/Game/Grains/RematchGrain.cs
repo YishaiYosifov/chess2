@@ -50,7 +50,7 @@ public class RematchGrainState
 }
 
 public class RematchGrain(
-    [PersistentState(RematchGrain.StateName, StorageNames.RematchState)]
+    [PersistentState(RematchGrain.StateName, Storage.StorageProvider)]
         IPersistentState<RematchGrainState> state,
     IOptions<AppSettings> settings,
     IRematchNotifier rematchNotifier,

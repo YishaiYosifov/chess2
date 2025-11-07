@@ -69,7 +69,7 @@ public class QuestGrainStorage
 }
 
 public class QuestGrain(
-    [PersistentState(QuestGrain.StateName, StorageNames.QuestState)]
+    [PersistentState(QuestGrain.StateName, Storage.StorageProvider)]
         IPersistentState<QuestGrainStorage> state,
     IQuestService questService,
     IRandomQuestProvider questProvider,
