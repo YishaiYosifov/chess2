@@ -137,6 +137,6 @@ public class TournamentPlayerService(
             Rating: seekerRating
         );
 
-        return new(seeker, player.Score);
+        return new(seeker, player.Score, player.InGame);
     }
 }
