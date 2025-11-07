@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Tournaments.Models;
@@ -18,5 +19,6 @@ public class TournamentPlayer
     public UserId? LastOpponent { get; set; }
     public required int Rating { get; set; }
 
+    public GameToken? InGame { get; set; }
     public int Score { get; set; } = 0;
 }
