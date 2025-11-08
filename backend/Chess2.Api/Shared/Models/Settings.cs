@@ -8,6 +8,7 @@ public class AppSettings
     public required GameSettings Game { get; set; }
     public required JwtSettings Jwt { get; set; }
     public required ChallengeSettings Challenge { get; set; }
+    public required TournamentSettings Tournament { get; set; }
 
     public required string OAuthRedirectUrl { get; set; }
 
@@ -23,6 +24,11 @@ public class AppSettings
 public class ChallengeSettings
 {
     public TimeSpan ChallengeLifetime { get; set; }
+}
+
+public class TournamentSettings
+{
+    public TimeSpan ArenaWaveEvery { get; set; }
 }
 
 public class LobbySettings
