@@ -12,7 +12,6 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.TestInfrastructure;
 using Chess2.Api.TestInfrastructure.Fakes;
 using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
-using Chess2.Api.Tournaments.Models;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -26,7 +25,6 @@ namespace Chess2.Api.Integration.Tests.LiveGameTests;
 public class GameGrainTests : BaseOrleansIntegrationTest
 {
     private readonly GameToken _gameToken = "testtoken";
-    private readonly TournamentToken _tournamentToken = "testtournament";
     private readonly PoolKey _pool = new(
         PoolType.Rated,
         new(BaseSeconds: 600, IncrementSeconds: 5)
@@ -48,7 +46,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private readonly GameGrainState _state;
     private readonly TestStorageStats _stateStats;
 
-    private readonly TestStream<GameEndedEvent> _tournamentGameEndedStream;
     private readonly TestStream<GameEndedEvent> _whiteGameEndedStream;
     private readonly TestStream<GameEndedEvent> _blackGameEndedStream;
 
@@ -79,7 +76,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         _state = Silo.StorageManager.GetStorage<GameGrainState>(GameGrain.StateName).State;
         _stateStats = Silo.StorageManager.GetStorageStats(GameGrain.StateName)!;
 
-        _tournamentGameEndedStream = ProbeGameEndedStream(_tournamentToken);
         _whiteGameEndedStream = ProbeGameEndedStream(_whitePlayer.UserId);
         _blackGameEndedStream = ProbeGameEndedStream(_blackPlayer.UserId);
     }
@@ -480,8 +476,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKey(
                 PoolType: poolType ?? _pool.PoolType,
                 TimeControl: timeControl ?? _pool.TimeControl
-            ),
-            fromTournament: _tournamentToken
+            )
         );
         _stateStats.ResetCounts();
     }
@@ -502,11 +497,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
                 _state.CurrentGame!.NotifierState
             );
 
-        _tournamentGameEndedStream.VerifySend(e =>
-            e.GameToken == _gameToken
-            && e.EndStatus.Result == expectedEndStatus.Result
-            && e.EndStatus.ResultDescription == expectedEndStatus.ResultDescription
-        );
         _whiteGameEndedStream.VerifySend(e =>
             e.GameToken == _gameToken
             && e.EndStatus.Result == expectedEndStatus.Result
