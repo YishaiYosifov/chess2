@@ -61,6 +61,7 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
                 HighestStreak = 1,
             };
             await _repository.AddAsync(streak, token);
+            await _unitOfWork.CompleteAsync(token);
             return;
         }
 
