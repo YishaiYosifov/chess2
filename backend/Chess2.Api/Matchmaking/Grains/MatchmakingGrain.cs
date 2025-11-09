@@ -222,7 +222,13 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             if (!seeker1Reserved || !seeker2Reserved)
                 return false;
 
-            var gameToken = await _gameStarter.StartGameAsync(userId1, userId2, _key, token: token);
+            var gameToken = await _gameStarter.StartGameAsync(
+                userId1,
+                userId2,
+                _key,
+                GameSource.Matchmaking,
+                token: token
+            );
 
             await seeker1Observer.SeekMatchedAsync(gameToken, _key, token);
             await seeker2Observer.SeekMatchedAsync(gameToken, _key, token);
