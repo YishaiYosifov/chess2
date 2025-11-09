@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Chess2.Api.Game.Services;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.GameSnapshot.Services;
 using Chess2.Api.Matchmaking.Models;
@@ -23,15 +24,10 @@ public interface ITournamentPlayerService
         Tournament tournament,
         CancellationToken token = default
     );
-    Task IncrementScoreForAsync(
-        UserId userId,
-        TournamentToken tournamentToken,
-        int incrementBy,
-        CancellationToken token = default
-    );
-    Task RemovePlayerAsync(
-        UserId userId,
-        TournamentToken tournamentToken,
+    Task MatchPlayersAsync(
+        UserId userId1,
+        UserId userId2,
+        Tournament tournament,
         CancellationToken token = default
     );
 }
@@ -41,6 +37,7 @@ public class TournamentPlayerService(
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
     IUnitOfWork unitOfWork,
+    IGameStarter gameStarter,
     TimeProvider timeProvider
 ) : ITournamentPlayerService
 {
@@ -49,6 +46,7 @@ public class TournamentPlayerService(
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IGameStarter _gameStarter = gameStarter;
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public async Task<TournamentPlayerState> AddPlayerAsync(
@@ -72,36 +70,6 @@ public class TournamentPlayerService(
         return CreateSeekerFromPlayer(player, timeControl);
     }
 
-    public async Task IncrementScoreForAsync(
-        UserId userId,
-        TournamentToken tournamentToken,
-        int incrementBy,
-        CancellationToken token = default
-    )
-    {
-        await _tournamentPlayerRepository.IncrementScoreForAsync(
-            userId,
-            tournamentToken,
-            incrementBy,
-            token
-        );
-        await _unitOfWork.CompleteAsync(token);
-    }
-
-    public async Task RemovePlayerAsync(
-        UserId userId,
-        TournamentToken tournamentToken,
-        CancellationToken token = default
-    )
-    {
-        await _tournamentPlayerRepository.RemovePlayerFromTournamentAsync(
-            userId,
-            tournamentToken,
-            token
-        );
-        await _unitOfWork.CompleteAsync(token);
-    }
-
     public async IAsyncEnumerable<TournamentPlayerState> GetTournamentPlayersAsync(
         Tournament tournament,
         [EnumeratorCancellation] CancellationToken token = default
@@ -117,6 +85,33 @@ public class TournamentPlayerService(
         {
             yield return CreateSeekerFromPlayer(player, timeControl);
         }
+    }
+
+    public async Task MatchPlayersAsync(
+        UserId userId1,
+        UserId userId2,
+        Tournament tournament,
+        CancellationToken token = default
+    )
+    {
+        PoolKey pool = new(
+            PoolType.Rated,
+            TimeControl: new(tournament.BaseSeconds, tournament.IncrementSeconds)
+        );
+        var gameToken = await _gameStarter.StartGameAsync(
+            userId1,
+            userId2,
+            pool,
+            fromTournament: tournament.TournamentToken,
+            token
+        );
+        await _tournamentPlayerRepository.SetPlayersGameAsync(
+            userId2,
+            userId2,
+            tournament.TournamentToken,
+            gameToken,
+            token
+        );
     }
 
     private TournamentPlayerState CreateSeekerFromPlayer(

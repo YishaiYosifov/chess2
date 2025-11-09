@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Infrastructure;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Infrastructure;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Tournaments.Entities;
 using Chess2.Api.Tournaments.Models;
@@ -22,6 +23,13 @@ public interface ITournamentPlayerRepository
     Task RemovePlayerFromTournamentAsync(
         UserId userId,
         TournamentToken tournamentToken,
+        CancellationToken token = default
+    );
+    Task SetPlayersGameAsync(
+        UserId userId1,
+        UserId userId2,
+        TournamentToken tournamentToken,
+        GameToken? gameToken,
         CancellationToken token = default
     );
 }
@@ -48,6 +56,19 @@ public class TournamentPlayerRepository(ApplicationDbContext dbContext)
                 setters => setters.SetProperty(x => x.Score, x => x.Score + incrementBy),
                 token
             );
+
+    public Task SetPlayersGameAsync(
+        UserId userId1,
+        UserId userId2,
+        TournamentToken tournamentToken,
+        GameToken? gameToken,
+        CancellationToken token = default
+    ) =>
+        _dbContext
+            .TournamentPlayers.Where(x =>
+                x.UserId == userId1 || x.UserId == userId2 && x.TournamentToken == tournamentToken
+            )
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.InGame, gameToken), token);
 
     public Task RemovePlayerFromTournamentAsync(
         UserId userId,
