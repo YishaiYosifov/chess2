@@ -66,6 +66,7 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             BlackPlayer = blackArchive,
             InitialFen = state.InitialFen,
             Moves = moves,
+            GameSource = state.GameSource,
             PoolType = state.Pool.PoolType,
             BaseSeconds = state.Pool.TimeControl.BaseSeconds,
             IncrementSeconds = state.Pool.TimeControl.IncrementSeconds,
