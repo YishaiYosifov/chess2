@@ -40,9 +40,6 @@ public class QuestGrainStorage
     [Id(5)]
     public int Streak { get; set; }
 
-    [Id(6)]
-    public StreamSubscriptionHandle<GameEndedEvent>? GameEndedEventSubscription { get; set; }
-
     public void CompleteQuest()
     {
         if (Quest is null)
