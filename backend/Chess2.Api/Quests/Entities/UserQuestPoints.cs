@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Quests.Entities;
 
+[PrimaryKey(nameof(UserId))]
 public class UserQuestPoints
 {
-    public int Id { get; set; }
-
     public required UserId UserId { get; set; }
 
     [ForeignKey(nameof(UserId))]
