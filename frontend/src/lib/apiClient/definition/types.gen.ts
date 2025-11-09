@@ -459,10 +459,6 @@ export enum ErrorCode {
     CHALLENGE_AUTHED_ONLY_POOL = "Challenge.AuthedOnlyPool",
     CHALLENGE_CANNOT_ACCEPT = "Challenge.CannotAccept",
     CHALLENGE_NOT_FOUND = "Challenge.NotFound",
-    TOURNAMENT_ALREADY_EXISTS = "Tournament.AlreadyExists",
-    TOURNAMENT_NOT_FOUND = "Tournament.NotFound",
-    TOURNAMENT_CANNOT_ENTER = "Tournament.CannotEnter",
-    TOURNAMENT_NOT_PART_OF = "Tournament.NotPartOf",
 }
 
 export type GetRatingArchivesData = {
