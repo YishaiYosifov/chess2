@@ -46,6 +46,8 @@ using Chess2.Api.Shared.Models;
 using Chess2.Api.Shared.Services;
 using Chess2.Api.Social.Repository;
 using Chess2.Api.Social.Services;
+using Chess2.Api.Streaks.Repositories;
+using Chess2.Api.Streaks.Services;
 using Chess2.Api.UserRating.Repositories;
 using Chess2.Api.UserRating.Services;
 using ErrorOr;
@@ -457,6 +459,11 @@ builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>(
 #region Challenges
 builder.Services.AddSingleton<IChallengeNotifier, ChallengeNotifier>();
 builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
+#endregion
+
+#region Streaks
+builder.Services.AddScoped<IStreakRepository, StreakRepository>();
+builder.Services.AddScoped<IStreakService, StreakService>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
