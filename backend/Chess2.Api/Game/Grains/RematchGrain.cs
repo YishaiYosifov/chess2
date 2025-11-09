@@ -1,4 +1,5 @@
 ﻿using Chess2.Api.Game.Errors;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Game.Services;
 using Chess2.Api.GameLogic.Extensions;
 using Chess2.Api.Infrastructure;
@@ -187,6 +188,7 @@ public class RematchGrain(
             request.Players.WhitePlayer.UserId,
             request.Players.BlackPlayer.UserId,
             pool: request.Pool,
+            gameSource: GameSource.Rematch,
             token: token
         );
         await _rematchNotifier.NotifyRematchAccepted(

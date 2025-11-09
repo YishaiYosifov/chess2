@@ -178,6 +178,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
             userId1: request.Requester.UserId,
             userId2: acceptedBy,
             request.Pool,
+            GameSource.Challenge,
             token: token
         );
         await _challengeNotifier.NotifyChallengeAccepted(gameToken, _challengeToken);
