@@ -76,7 +76,7 @@ public class QuestRepositoryTests : BaseIntegrationTest
 
         var result = await _repository.GetUserPointsAsync(points.UserId, CT);
         result.Should().NotBeNull();
-        result.Should().BeEquivalentTo(points, options => options.Excluding(x => x.Id));
+        result.Should().BeEquivalentTo(points);
     }
 
     [Fact]
@@ -88,10 +88,7 @@ public class QuestRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var inDb = await DbContext.QuestPoints.AsNoTracking().ToListAsync(CT);
-        inDb.Should()
-            .ContainSingle()
-            .Which.Should()
-            .BeEquivalentTo(newPoints, options => options.Excluding(x => x.Id));
+        inDb.Should().ContainSingle().Which.Should().BeEquivalentTo(newPoints);
     }
 
     [Fact]

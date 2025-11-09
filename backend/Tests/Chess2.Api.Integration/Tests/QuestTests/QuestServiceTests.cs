@@ -106,8 +106,7 @@ public class QuestServiceTests : BaseIntegrationTest
                     UserId = user.Id,
                     User = user,
                     Points = points,
-                },
-                options => options.Excluding(x => x.Id)
+                }
             );
     }
 
@@ -138,8 +137,7 @@ public class QuestServiceTests : BaseIntegrationTest
                     UserId = existing.UserId,
                     User = existing.User,
                     Points = expectedPoints,
-                },
-                options => options.Excluding(x => x.Id)
+                }
             );
     }
 
