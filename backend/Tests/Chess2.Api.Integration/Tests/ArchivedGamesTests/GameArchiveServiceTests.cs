@@ -52,6 +52,7 @@ public class GameArchiveServiceTests : BaseIntegrationTest
             ResultDescription = endStatus.ResultDescription,
             InitialFen = gameState.InitialFen,
 
+            GameSource = gameState.GameSource,
             PoolType = gameState.Pool.PoolType,
             BaseSeconds = gameState.Pool.TimeControl.BaseSeconds,
             IncrementSeconds = gameState.Pool.TimeControl.IncrementSeconds,
