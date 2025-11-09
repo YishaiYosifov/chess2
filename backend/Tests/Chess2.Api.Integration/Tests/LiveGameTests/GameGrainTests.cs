@@ -124,6 +124,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state.CurrentGame!.Core);
         GameState expectedGameState = new(
             Revision: _state.CurrentGame.NotifierState.Revision,
+            GameSource: _state.CurrentGame.GameSource,
             Pool: _pool,
             WhitePlayer: _whitePlayer,
             BlackPlayer: _blackPlayer,
@@ -476,7 +477,9 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             pool: new PoolKey(
                 PoolType: poolType ?? _pool.PoolType,
                 TimeControl: timeControl ?? _pool.TimeControl
-            )
+            ),
+            GameSource.Unknown,
+            ApiTestBase.CT
         );
         _stateStats.ResetCounts();
     }

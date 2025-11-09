@@ -22,6 +22,7 @@ public interface IGameGrain : IGrainWithStringKey
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
+        GameSource gameSource,
         CancellationToken token = default
     );
 
@@ -68,27 +69,30 @@ public class GameData()
     public required PlayerRoster Players { get; init; }
 
     [Id(2)]
-    public required PoolKey Pool { get; init; }
+    public required GameSource GameSource { get; init; }
 
     [Id(3)]
-    public required string InitialFen { get; init; }
+    public required PoolKey Pool { get; init; }
 
     [Id(4)]
-    public List<MoveSnapshot> MoveSnapshots { get; init; } = [];
+    public required string InitialFen { get; init; }
 
     [Id(5)]
-    public required GameCoreState Core { get; init; }
+    public List<MoveSnapshot> MoveSnapshots { get; init; } = [];
 
     [Id(6)]
-    public required DrawRequestState DrawRequest { get; init; }
+    public required GameCoreState Core { get; init; }
 
     [Id(7)]
-    public required GameClockState ClockState { get; init; }
+    public required DrawRequestState DrawRequest { get; init; }
 
     [Id(8)]
-    public required GameNotifierState NotifierState { get; init; }
+    public required GameClockState ClockState { get; init; }
 
     [Id(9)]
+    public required GameNotifierState NotifierState { get; init; }
+
+    [Id(10)]
     public GameResultData? Result { get; set; }
 }
 
@@ -147,6 +151,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
+        GameSource gameSource,
         CancellationToken token = default
     )
     {
@@ -159,6 +164,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         _state.State.CurrentGame = new()
         {
             Players = players,
+            GameSource = gameSource,
             Pool = pool,
             InitialFen = _core.StartGame(core),
             Core = core,
@@ -417,6 +423,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         GameState gameState = new(
             Revision: game.NotifierState.Revision,
+            GameSource: game.GameSource,
             Pool: game.Pool,
             WhitePlayer: game.Players.WhitePlayer,
             BlackPlayer: game.Players.BlackPlayer,

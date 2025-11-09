@@ -129,6 +129,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 seeker.UserId,
                 matchWith,
                 _key,
+                GameSource.Matchmaking,
                 token: token
             );
 

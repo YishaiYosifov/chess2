@@ -123,6 +123,7 @@ public class RematchGrainTests : BaseGrainTest
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId,
                 _gameState.Pool,
+                GameSource.Rematch,
                 token: CT
             )
             .Returns(createdGameToken);

@@ -18,6 +18,7 @@ public interface IGameStarter
         UserId userId1,
         UserId userId2,
         PoolKey pool,
+        GameSource gameSource = GameSource.Unknown,
         CancellationToken token = default
     );
 }
@@ -40,6 +41,7 @@ public class GameStarter(
         UserId userId1,
         UserId userId2,
         PoolKey pool,
+        GameSource gameSource = GameSource.Unknown,
         CancellationToken token = default
     )
     {
@@ -50,7 +52,7 @@ public class GameStarter(
         var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
 
         var gameGrain = _grains.GetGrain<IGameGrain>(gameToken);
-        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, token);
+        await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, gameSource, token);
 
         return gameToken;
     }

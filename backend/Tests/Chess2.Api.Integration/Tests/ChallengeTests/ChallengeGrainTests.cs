@@ -385,6 +385,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         gameStateResult.IsError.Should().BeFalse();
         var gameState = gameStateResult.Value;
         gameState.Pool.Should().Be(fromChallenge.Pool);
+        gameState.GameSource.Should().Be(GameSource.Challenge);
 
         UserId[] playerUserIds = [gameState.WhitePlayer.UserId, gameState.BlackPlayer.UserId];
         playerUserIds.Should().BeEquivalentTo([requesterId, recipientId]);

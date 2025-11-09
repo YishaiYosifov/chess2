@@ -1,4 +1,5 @@
-﻿using Chess2.Api.GameLogic.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.GameLogic.Models;
 using Chess2.Api.GameSnapshot.Models;
 using Chess2.Api.Matchmaking.Models;
 
@@ -10,6 +11,7 @@ public class GameStateFaker : RecordFaker<GameState>
     {
         StrictMode(true);
         RuleFor(x => x.Revision, f => f.Random.Number(1, 100));
+        RuleFor(x => x.GameSource, f => f.PickRandom<GameSource>());
         RuleFor(
             x => x.Pool,
             f => new PoolKey(

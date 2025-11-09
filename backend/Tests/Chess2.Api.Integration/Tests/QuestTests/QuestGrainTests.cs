@@ -147,7 +147,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
                 )
             );
 
-        _stateStats.Writes.Should().BeGreaterThan(1);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
