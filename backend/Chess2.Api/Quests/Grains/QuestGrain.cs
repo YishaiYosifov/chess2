@@ -68,6 +68,7 @@ public class QuestGrainStorage
     public void MarkRewardCollected() => RewardCollected = true;
 }
 
+[ImplicitStreamSubscription(nameof(GameEndedEvent))]
 public class QuestGrain(
     ILogger<QuestGrain> logger,
     [PersistentState(QuestGrain.StateName, Storage.StorageProvider)]
@@ -75,7 +76,7 @@ public class QuestGrain(
     IQuestService questService,
     IRandomQuestProvider questProvider,
     TimeProvider timeProvider
-) : Grain, IQuestGrain
+) : Grain, IQuestGrain, IAsyncObserver<GameEndedEvent>
 {
     public const string StateName = "quest";
 
@@ -129,21 +130,12 @@ public class QuestGrain(
             nameof(GameEndedEvent),
             this.GetPrimaryKeyString()
         );
-
-        if (_state.State.GameEndedEventSubscription is null)
-        {
-            _state.State.GameEndedEventSubscription = await stream.SubscribeAsync(OnGameEndedAsync);
-            await _state.WriteStateAsync(cancellationToken);
-        }
-        else
-        {
-            await _state.State.GameEndedEventSubscription.ResumeAsync(OnGameEndedAsync);
-        }
+        await stream.SubscribeAsync(this);
 
         await base.OnActivateAsync(cancellationToken);
     }
 
-    private async Task OnGameEndedAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
+    public async Task OnNextAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
     {
         var quest = GetOrSelectQuest();
         if (quest.IsCompleted)
@@ -193,6 +185,12 @@ public class QuestGrain(
             _state.State.CompleteQuest();
 
         await _state.WriteStateAsync();
+    }
+
+    public Task OnErrorAsync(Exception ex)
+    {
+        _logger.LogError(ex, "Error in quest grain game stream");
+        return Task.CompletedTask;
     }
 
     private QuestInstance GetOrSelectQuest()

@@ -50,12 +50,14 @@ public class PlayerSessionState
 
     [Id(1)]
     public HashSet<string> ActiveGameTokens { get; } = [];
-
-    [Id(2)]
-    public StreamSubscriptionHandle<GameEndedEvent>? GameEndedEventSubscription { get; set; }
 }
 
-public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
+[ImplicitStreamSubscription(nameof(GameEndedEvent))]
+public class PlayerSessionGrain
+    : Grain,
+        IGrainBase,
+        IPlayerSessionGrain,
+        IAsyncObserver<GameEndedEvent>
 {
     public const string StateName = "playerSession";
 
@@ -200,24 +202,21 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IGrainBase
             nameof(GameEndedEvent),
             this.GetPrimaryKeyString()
         );
-
-        if (_state.State.GameEndedEventSubscription is null)
-        {
-            _state.State.GameEndedEventSubscription = await stream.SubscribeAsync(OnGameEndedAsync);
-            await _state.WriteStateAsync(cancellationToken);
-        }
-        else
-        {
-            await _state.State.GameEndedEventSubscription.ResumeAsync(OnGameEndedAsync);
-        }
+        await stream.SubscribeAsync(this);
 
         await base.OnActivateAsync(cancellationToken);
     }
 
-    private async Task OnGameEndedAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
+    public async Task OnNextAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
     {
         _state.State.ActiveGameTokens.Remove(@event.GameToken);
         await _state.WriteStateAsync();
+    }
+
+    public Task OnErrorAsync(Exception ex)
+    {
+        _logger.LogError(ex, "Error in player session grain game stream");
+        return Task.CompletedTask;
     }
 
     private async Task OnGameFoundAsync(
