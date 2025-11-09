@@ -104,7 +104,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.Should().BeTrue();
         _state.Pool.Seekers.Should().BeEmpty();
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
-        await observer.Received(1).SeekRemovedAsync(_testPoolKey, CT);
+        await observer.Received(1).SeekRemovedAsync(_testPoolKey, Arg.Any<CancellationToken>());
         removedStream.Sends.Should().Be(0); // no broadcast if it was never pending
     }
 
@@ -132,7 +132,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         await grain.TryCancelSeekAsync(seeker.UserId, CT);
 
         removedStream.VerifySend(e => e.UserId == seeker.UserId && e.Pool == _testPoolKey);
-        await observer.Received(1).SeekRemovedAsync(_testPoolKey, CT);
+        await observer.Received(1).SeekRemovedAsync(_testPoolKey, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -157,7 +157,7 @@ public class MatchmakingGrainTests : BaseGrainTest
                 seeker2.UserId,
                 _testPoolKey,
                 GameSource.Matchmaking,
-                token: CT
+                token: Arg.Any<CancellationToken>()
             )
             .Returns(gameToken);
 
@@ -165,8 +165,12 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         await observer1.Received(1).ReleaseReservationAsync(_testPoolKey);
         await observer2.Received(1).ReleaseReservationAsync(_testPoolKey);
-        await observer1.Received(1).SeekMatchedAsync(gameToken, _testPoolKey, CT);
-        await observer2.Received(1).SeekMatchedAsync(gameToken, _testPoolKey, CT);
+        await observer1
+            .Received(1)
+            .SeekMatchedAsync(gameToken, _testPoolKey, Arg.Any<CancellationToken>());
+        await observer2
+            .Received(1)
+            .SeekMatchedAsync(gameToken, _testPoolKey, Arg.Any<CancellationToken>());
 
         _state.Pool.Seekers.Should().BeEmpty();
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
@@ -233,8 +237,12 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         _state.Pool.Seekers.Should().ContainSingle().Which.Should().Be(otherSeeker);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
-        await observerTimedOut.Received(1).SeekRemovedAsync(_testPoolKey, CT);
-        await observerOther.DidNotReceiveWithAnyArgs().SeekRemovedAsync(default!, CT);
+        await observerTimedOut
+            .Received(1)
+            .SeekRemovedAsync(_testPoolKey, Arg.Any<CancellationToken>());
+        await observerOther
+            .DidNotReceiveWithAnyArgs()
+            .SeekRemovedAsync(default!, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -257,7 +265,7 @@ public class MatchmakingGrainTests : BaseGrainTest
                 matchWithSeeker.UserId,
                 _testPoolKey,
                 GameSource.Matchmaking,
-                token: CT
+                token: Arg.Any<CancellationToken>()
             )
             .Returns(gameToken);
 
@@ -295,7 +303,7 @@ public class MatchmakingGrainTests : BaseGrainTest
                 matchWithSeeker.UserId,
                 _testPoolKey,
                 GameSource.Matchmaking,
-                token: CT
+                token: Arg.Any<CancellationToken>()
             )
             .Returns("gameToken");
 
@@ -322,7 +330,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, default, default!);
         await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
         await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
         _state.Pool.Seekers.Should().Contain(matchWithSeeker);
@@ -341,7 +349,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, default, default!);
     }
 
     [Fact]
@@ -362,7 +370,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, default, default!);
         _state.Pool.Seekers.Should().Contain(ratedSeeker);
         await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
     }
