@@ -7,8 +7,6 @@ using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Quests.Entities;
 using Chess2.Api.Social.Entities;
-using Chess2.Api.Tournaments.Entities;
-using Chess2.Api.Tournaments.Models;
 using Chess2.Api.UserRating.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -39,17 +37,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public required DbSet<UserQuestPoints> QuestPoints { get; set; }
 
-    public required DbSet<Tournament> Tournaments { get; set; }
-    public required DbSet<TournamentPlayer> TournamentPlayers { get; set; }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<StarredUser>().Navigation(x => x.Starred).AutoInclude();
         builder.Entity<BlockedUser>().Navigation(x => x.Blocked).AutoInclude();
-
         builder.Entity<UserQuestPoints>().Navigation(x => x.User).AutoInclude();
-
-        builder.Entity<TournamentPlayer>().Navigation(x => x.User).AutoInclude();
 
         base.OnModelCreating(builder);
     }
@@ -62,9 +54,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         configurationBuilder
             .Properties<GameToken>()
             .HaveConversion<StructStringValueConverter<GameToken>>();
-        configurationBuilder
-            .Properties<TournamentToken>()
-            .HaveConversion<StructStringValueConverter<TournamentToken>>();
         base.ConfigureConventions(configurationBuilder);
     }
 }

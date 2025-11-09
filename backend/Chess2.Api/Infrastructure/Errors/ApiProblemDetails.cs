@@ -70,10 +70,4 @@ public static class ErrorCodes
     public const string ChallengeAuthedOnlyPool = "Challenge.AuthedOnlyPool";
     public const string ChallengeCannotAccept = "Challenge.CannotAccept";
     public const string ChallengeNotFound = "Challenge.NotFound";
-
-    public const string TournamentAlreadyExists = "Tournament.AlreadyExists";
-    public const string TournamentNotFound = "Tournament.NotFound";
-    public const string TournamentNoHostPermissions = "Tournament.NoHostPermissions";
-    public const string TournamentCannotEnter = "Tournament.CannotEnter";
-    public const string TournamentNotPartOf = "Tournament.NotPartOf";
 }

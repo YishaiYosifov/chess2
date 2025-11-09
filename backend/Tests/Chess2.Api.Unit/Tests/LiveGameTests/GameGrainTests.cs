@@ -131,11 +131,5 @@ public class GameGrainTests : BaseGrainTest
     }
 
     private Task StartGameAsync(GameGrain grain) =>
-        grain.StartGameAsync(
-            whitePlayer: _whitePlayer,
-            blackPlayer: _blackPlayer,
-            pool: _pool,
-            fromTournament: null,
-            CT
-        );
+        grain.StartGameAsync(whitePlayer: _whitePlayer, blackPlayer: _blackPlayer, pool: _pool, CT);
 }

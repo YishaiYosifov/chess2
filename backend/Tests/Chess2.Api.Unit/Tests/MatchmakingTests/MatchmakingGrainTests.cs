@@ -314,7 +314,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, CT);
         await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
         await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
         _state.Pool.Seekers.Should().Contain(matchWithSeeker);
@@ -333,7 +333,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, CT);
     }
 
     [Fact]
@@ -354,7 +354,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, CT);
+            .StartGameAsync(default!, default!, default!, CT);
         _state.Pool.Seekers.Should().Contain(ratedSeeker);
         await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
     }

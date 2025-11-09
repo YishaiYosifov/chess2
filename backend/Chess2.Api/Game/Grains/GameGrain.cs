@@ -8,7 +8,6 @@ using Chess2.Api.Infrastructure;
 using Chess2.Api.Matchmaking.Models;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
-using Chess2.Api.Tournaments.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 using Orleans.Streams;
@@ -23,7 +22,6 @@ public interface IGameGrain : IGrainWithStringKey
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
-        TournamentToken? fromTournament,
         CancellationToken token = default
     );
 
@@ -67,33 +65,30 @@ public interface IGameGrain : IGrainWithStringKey
 public class GameData()
 {
     [Id(1)]
-    public required TournamentToken? TournamentToken { get; init; }
-
-    [Id(2)]
     public required PlayerRoster Players { get; init; }
 
-    [Id(3)]
+    [Id(2)]
     public required PoolKey Pool { get; init; }
 
-    [Id(4)]
+    [Id(3)]
     public required string InitialFen { get; init; }
 
-    [Id(5)]
+    [Id(4)]
     public List<MoveSnapshot> MoveSnapshots { get; init; } = [];
 
-    [Id(6)]
+    [Id(5)]
     public required GameCoreState Core { get; init; }
 
-    [Id(7)]
+    [Id(6)]
     public required DrawRequestState DrawRequest { get; init; }
 
-    [Id(8)]
+    [Id(7)]
     public required GameClockState ClockState { get; init; }
 
-    [Id(9)]
+    [Id(8)]
     public required GameNotifierState NotifierState { get; init; }
 
-    [Id(10)]
+    [Id(9)]
     public GameResultData? Result { get; set; }
 }
 
@@ -152,7 +147,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         GamePlayer whitePlayer,
         GamePlayer blackPlayer,
         PoolKey pool,
-        TournamentToken? fromTournament,
         CancellationToken token = default
     )
     {
@@ -164,7 +158,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         _state.State.CurrentGame = new()
         {
-            TournamentToken = fromTournament,
             Players = players,
             Pool = pool,
             InitialFen = _core.StartGame(core),
@@ -400,12 +393,6 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         await streamProvider
             .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.Players.BlackPlayer.UserId)
             .OnNextAsync(endedEvent);
-        if (game.TournamentToken is not null)
-        {
-            await streamProvider
-                .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.TournamentToken)
-                .OnNextAsync(endedEvent);
-        }
 
         _clockTimer?.Dispose();
         _clockTimer = null;
