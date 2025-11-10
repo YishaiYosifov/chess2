@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Pagination.Models;
-using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Streaks.Entities;
 using Chess2.Api.Streaks.Models;
 using Chess2.Api.Streaks.Services;
@@ -39,13 +38,7 @@ public class StreakServiceTests : BaseIntegrationTest
 
         var result = await _service.GetPaginatedLeaderboardAsync(pagination, CT);
 
-        var expected = streaks[..3]
-            .Select(x => new StreakDto(
-                new MinimalProfile(x.User),
-                x.HighestStreak,
-                [.. x.HighestStreakGames]
-            ))
-            .ToList();
+        var expected = streaks[..3].Select(x => new StreakDto(x)).ToList();
         result.Items.Should().BeEquivalentTo(expected);
         result.TotalCount.Should().Be(streaks.Count);
         result.Page.Should().Be(pagination.Page);
@@ -62,7 +55,26 @@ public class StreakServiceTests : BaseIntegrationTest
         var streakToTest = streaks[2];
         var result = await _service.GetRankingAsync(streakToTest.UserId, CT);
 
-        result.Should().Be(streaks.Count(u => u.HighestStreak > streakToTest.HighestStreak) + 1);
+        UserStreakRank expectedRank = new(
+            Rank: streaks.Count(u => u.HighestStreak > streakToTest.HighestStreak) + 1,
+            Streak: new StreakDto(streakToTest)
+        );
+        result.Should().Be(expectedRank);
+    }
+
+    [Fact]
+    public async Task GetRankingAsync_finds_correct_ranking_when_no_streak_is_recorded()
+    {
+        var streaks = new UserStreakFaker().Generate(5);
+        var user = new AuthedUserFaker().Generate();
+        await DbContext.AddRangeAsync(streaks, CT);
+        await DbContext.AddAsync(user, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _service.GetRankingAsync(user.Id, CT);
+
+        UserStreakRank expectedRank = new(Rank: streaks.Count + 1, Streak: null);
+        result.Should().Be(expectedRank);
     }
 
     [Fact]

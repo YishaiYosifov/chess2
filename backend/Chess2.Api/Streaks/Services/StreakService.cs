@@ -1,6 +1,5 @@
 ﻿using Chess2.Api.Game.Models;
 using Chess2.Api.Pagination.Models;
-using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
 using Chess2.Api.Shared.Models;
@@ -19,7 +18,7 @@ public interface IStreakService
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task<int> GetRankingAsync(UserId userId, CancellationToken token = default);
+    Task<UserStreakRank> GetRankingAsync(UserId userId, CancellationToken token = default);
     Task IncrementStreakAsync(
         AuthedUser user,
         GameToken gameWon,
@@ -41,22 +40,21 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
         var totalCount = await _repository.GetTotalCountAsync(token);
 
         return new(
-            Items: streaks.Select(streak => new StreakDto(
-                new MinimalProfile(streak.User),
-                streak.HighestStreak,
-                [.. streak.HighestStreakGames]
-            )),
+            Items: streaks.Select(streak => new StreakDto(streak)),
             TotalCount: totalCount,
             Page: pagination.Page,
             PageSize: pagination.PageSize
         );
     }
 
-    public async Task<int> GetRankingAsync(UserId userId, CancellationToken token = default)
+    public async Task<UserStreakRank> GetRankingAsync(
+        UserId userId,
+        CancellationToken token = default
+    )
     {
-        var streak = await GetHighestStreakAsync(userId, token);
-        var position = await _repository.GetRankingAsync(streak, token);
-        return position;
+        var streak = await _repository.GetUserStreakAsync(userId, token);
+        var position = await _repository.GetRankingAsync(streak?.HighestStreak ?? 0, token);
+        return new(Rank: position, Streak: streak is null ? null : new StreakDto(streak));
     }
 
     public async Task<int> GetHighestStreakAsync(UserId userId, CancellationToken token = default)
