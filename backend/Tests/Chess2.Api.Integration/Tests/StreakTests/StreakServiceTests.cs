@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Pagination.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Streaks.Entities;
 using Chess2.Api.Streaks.Models;
@@ -78,11 +79,12 @@ public class StreakServiceTests : BaseIntegrationTest
     [Fact]
     public async Task IncrementStreakAsync_adds_streak_when_no_streak_exists()
     {
+        GameToken gameToken = "test game token";
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(user, CT);
+        await _service.IncrementStreakAsync(user, gameToken, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         UserStreak expectedStreak = new()
@@ -90,7 +92,9 @@ public class StreakServiceTests : BaseIntegrationTest
             UserId = user.Id,
             User = user,
             CurrentStreak = 1,
+            CurrentStreakGames = [gameToken],
             HighestStreak = 1,
+            HighestStreakGames = [gameToken],
         };
         inDb.Should().BeEquivalentTo(expectedStreak);
     }
@@ -98,35 +102,40 @@ public class StreakServiceTests : BaseIntegrationTest
     [Fact]
     public async Task IncrementStreakAsync_increments_streak_by_one_when_exists()
     {
+        GameToken gameToken = "test game token";
         var streak = new UserStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 10)
-            .RuleFor(x => x.HighestStreak, 20)
+            .RuleFor(x => x.CurrentStreak, 5)
+            .RuleFor(x => x.HighestStreak, 10)
             .Generate();
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(streak.User, CT);
+        await _service.IncrementStreakAsync(streak.User, gameToken, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;
+        streak.CurrentStreakGames.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
     [Fact]
     public async Task IncrementStreakAsync_sets_highest_streak_when_current_streak_exceeds()
     {
+        GameToken gameToken = "test game token";
         var streak = new UserStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 10)
-            .RuleFor(x => x.HighestStreak, 10)
+            .RuleFor(x => x.CurrentStreak, 3)
+            .RuleFor(x => x.HighestStreak, 3)
             .Generate();
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(streak.User, CT);
+        await _service.IncrementStreakAsync(streak.User, gameToken, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;
+        streak.CurrentStreakGames.Add(gameToken);
         streak.HighestStreak++;
+        streak.HighestStreakGames.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
@@ -144,6 +153,7 @@ public class StreakServiceTests : BaseIntegrationTest
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak = 0;
+        streak.CurrentStreakGames = [];
         inDb.Should().BeEquivalentTo(streak);
     }
 }

@@ -17,7 +17,7 @@ public interface IStreakRepository
     Task<int> GetRankingAsync(int highestStreak, CancellationToken token = default);
     Task<int> GetTotalCountAsync(CancellationToken token = default);
     Task<UserStreak?> GetUserStreakAsync(UserId userId, CancellationToken token = default);
-    Task SetStreakAsync(UserId userId, int streak, CancellationToken token = default);
+    Task ClearCurrentStreakAsync(UserId userId, CancellationToken token = default);
 }
 
 public class StreakRepository(ApplicationDbContext dbContext) : IStreakRepository
@@ -27,11 +27,14 @@ public class StreakRepository(ApplicationDbContext dbContext) : IStreakRepositor
     public async Task AddAsync(UserStreak streak, CancellationToken token = default) =>
         await _dbContext.Streaks.AddAsync(streak, token);
 
-    public Task SetStreakAsync(UserId userId, int streak, CancellationToken token = default) =>
+    public Task ClearCurrentStreakAsync(UserId userId, CancellationToken token = default) =>
         _dbContext
             .Streaks.Where(x => x.UserId == userId)
             .ExecuteUpdateAsync(
-                setters => setters.SetProperty(x => x.CurrentStreak, streak),
+                setters =>
+                    setters
+                        .SetProperty(x => x.CurrentStreak, 0)
+                        .SetProperty(x => x.CurrentStreakGames, new List<string>()),
                 token
             );
 
