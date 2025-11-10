@@ -42,7 +42,8 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
         return new(
             Items: streaks.Select(streak => new StreakDto(
                 new MinimalProfile(streak.User),
-                streak.HighestStreak
+                streak.HighestStreak,
+                [.. streak.HighestStreakGames]
             )),
             TotalCount: totalCount,
             Page: pagination.Page,
