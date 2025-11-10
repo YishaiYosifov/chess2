@@ -53,6 +53,19 @@ public class StreakServiceTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task GetRankingAsync_finds_correct_ranking()
+    {
+        var streaks = new UserStreakFaker().Generate(5);
+        await DbContext.AddRangeAsync(streaks, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var streakToTest = streaks[2];
+        var result = await _service.GetRankingAsync(streakToTest.UserId, CT);
+
+        result.Should().Be(streaks.Count(u => u.HighestStreak > streakToTest.HighestStreak) + 1);
+    }
+
+    [Fact]
     public async Task GetHighestStreakAsync_returns_user_highest_streak_when_exists()
     {
         var userStreak = new UserStreakFaker()

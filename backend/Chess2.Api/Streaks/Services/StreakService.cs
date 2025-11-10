@@ -19,6 +19,7 @@ public interface IStreakService
         PaginationQuery pagination,
         CancellationToken token = default
     );
+    Task<int> GetRankingAsync(UserId userId, CancellationToken token = default);
     Task IncrementStreakAsync(
         AuthedUser user,
         GameToken gameWon,
@@ -49,6 +50,13 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
             Page: pagination.Page,
             PageSize: pagination.PageSize
         );
+    }
+
+    public async Task<int> GetRankingAsync(UserId userId, CancellationToken token = default)
+    {
+        var streak = await GetHighestStreakAsync(userId, token);
+        var position = await _repository.GetRankingAsync(streak, token);
+        return position;
     }
 
     public async Task<int> GetHighestStreakAsync(UserId userId, CancellationToken token = default)
