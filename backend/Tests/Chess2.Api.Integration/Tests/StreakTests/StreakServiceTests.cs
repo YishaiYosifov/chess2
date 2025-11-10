@@ -40,7 +40,11 @@ public class StreakServiceTests : BaseIntegrationTest
         var result = await _service.GetPaginatedLeaderboardAsync(pagination, CT);
 
         var expected = streaks[..3]
-            .Select(x => new StreakDto(new MinimalProfile(x.User), x.HighestStreak))
+            .Select(x => new StreakDto(
+                new MinimalProfile(x.User),
+                x.HighestStreak,
+                [.. x.HighestStreakGames]
+            ))
             .ToList();
         result.Items.Should().BeEquivalentTo(expected);
         result.TotalCount.Should().Be(streaks.Count);
