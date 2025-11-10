@@ -8,6 +8,7 @@ using Chess2.Api.Preferences.DTOs;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Shared.Models;
+using Chess2.Api.Streaks.Models;
 using Chess2.Api.UserRating.Models;
 using Refit;
 
@@ -170,5 +171,15 @@ public interface IChess2Api
 
     [Delete("/api/challenge/incoming")]
     Task<IApiResponse> CancelAllIncomingChallengesAsync();
+    #endregion
+
+    #region Streaks
+    [Get("/api/streak/leaderboard")]
+    Task<IApiResponse<PagedResult<StreakDto>>> GetStreakLeaderboardAsync(
+        [Query] PaginationQuery pagination
+    );
+
+    [Get("/api/streak/leaderboard/me")]
+    Task<IApiResponse<UserStreakRank>> GetMyStreakRankingAsync();
     #endregion
 }
