@@ -66,6 +66,9 @@ import type {
     GetMyQuestRankingData,
     GetMyQuestRankingErrors,
     GetMyQuestRankingResponses,
+    GetMyStreakRankingData,
+    GetMyStreakRankingErrors,
+    GetMyStreakRankingResponses,
     GetPreferencesData,
     GetPreferencesErrors,
     GetPreferencesResponses,
@@ -84,6 +87,8 @@ import type {
     GetStarredUsersResponses,
     GetStarsReceivedCountData,
     GetStarsReceivedCountResponses,
+    GetStreakLeaderboardData,
+    GetStreakLeaderboardResponses,
     GetUserByIdData,
     GetUserByIdErrors,
     GetUserByIdResponses,
@@ -162,6 +167,32 @@ export const getCurrentRatings = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Rating/{userId}",
+        ...options,
+    });
+};
+
+export const getStreakLeaderboard = <ThrowOnError extends boolean = false>(
+    options?: Options<GetStreakLeaderboardData, ThrowOnError>,
+) => {
+    return (options?.client ?? client).get<
+        GetStreakLeaderboardResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/api/Streak/leaderboard",
+        ...options,
+    });
+};
+
+export const getMyStreakRanking = <ThrowOnError extends boolean = false>(
+    options?: Options<GetMyStreakRankingData, ThrowOnError>,
+) => {
+    return (options?.client ?? client).get<
+        GetMyStreakRankingResponses,
+        GetMyStreakRankingErrors,
+        ThrowOnError
+    >({
+        url: "/api/Streak/leaderboard/me",
         ...options,
     });
 };

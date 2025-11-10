@@ -75,17 +75,41 @@ export type CurrentRatingStatus = {
     rating: number;
 };
 
-export type PagedResultOfMinimalProfile = {
-    items: Array<MinimalProfile>;
+export type PagedResultOfQuestPointsDto = {
+    items: Array<UserQuestPoints>;
     totalCount: number;
     page: number;
     pageSize: number;
     totalPages: number;
 };
 
+export type UserQuestPoints = {
+    profile: MinimalProfile;
+    questPoints: number;
+};
+
 export type MinimalProfile = {
     userId: string;
     userName: string;
+};
+
+export type UserStreakRank = {
+    rank: number;
+    streak?: Streak | null;
+};
+
+export type Streak = {
+    profile: MinimalProfile;
+    highestStreak: number;
+    highestStreakGames: Array<string>;
+};
+
+export type PagedResultOfMinimalProfile = {
+    items: Array<MinimalProfile>;
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
 };
 
 export type Quest = {
@@ -112,19 +136,6 @@ export enum QuestDifficulty {
      */
     HARD = 20,
 }
-
-export type PagedResultOfQuestPointsDto = {
-    items: Array<UserQuestPoints>;
-    totalCount: number;
-    page: number;
-    pageSize: number;
-    totalPages: number;
-};
-
-export type UserQuestPoints = {
-    profile: MinimalProfile;
-    questPoints: number;
-};
 
 export type SessionUser = {
     userId: string;
@@ -213,6 +224,7 @@ export enum InteractionLevel {
 
 export type GameState = {
     revision: number;
+    gameSource: GameSource;
     pool: PoolKey;
     whitePlayer: GamePlayer;
     blackPlayer: GamePlayer;
@@ -224,6 +236,25 @@ export type GameState = {
     drawState: DrawState;
     resultData?: GameResultData | null;
 };
+
+export enum GameSource {
+    /**
+     * Unknown
+     */
+    UNKNOWN = 0,
+    /**
+     * Matchmaking
+     */
+    MATCHMAKING = 1,
+    /**
+     * Challenge
+     */
+    CHALLENGE = 2,
+    /**
+     * Rematch
+     */
+    REMATCH = 3,
+}
 
 export type PoolKey = {
     poolType: PoolType;
@@ -508,6 +539,44 @@ export type GetCurrentRatingsResponses = {
 
 export type GetCurrentRatingsResponse =
     GetCurrentRatingsResponses[keyof GetCurrentRatingsResponses];
+
+export type GetStreakLeaderboardData = {
+    body?: never;
+    path?: never;
+    query?: {
+        Page?: number;
+        PageSize?: number;
+    };
+    url: "/api/Streak/leaderboard";
+};
+
+export type GetStreakLeaderboardResponses = {
+    200: PagedResultOfQuestPointsDto;
+};
+
+export type GetStreakLeaderboardResponse =
+    GetStreakLeaderboardResponses[keyof GetStreakLeaderboardResponses];
+
+export type GetMyStreakRankingData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/api/Streak/leaderboard/me";
+};
+
+export type GetMyStreakRankingErrors = {
+    401: ApiProblemDetails;
+};
+
+export type GetMyStreakRankingError =
+    GetMyStreakRankingErrors[keyof GetMyStreakRankingErrors];
+
+export type GetMyStreakRankingResponses = {
+    200: UserStreakRank;
+};
+
+export type GetMyStreakRankingResponse =
+    GetMyStreakRankingResponses[keyof GetMyStreakRankingResponses];
 
 export type GetStarredUsersData = {
     body?: never;
