@@ -82,7 +82,7 @@ public class StreakServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(user.Id, CT);
+        await _service.IncrementStreakAsync(user, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         UserStreak expectedStreak = new()
@@ -105,7 +105,7 @@ public class StreakServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(streak.UserId, CT);
+        await _service.IncrementStreakAsync(streak.User, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;
@@ -122,7 +122,7 @@ public class StreakServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await _service.IncrementStreakAsync(streak.UserId, CT);
+        await _service.IncrementStreakAsync(streak.User, CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;

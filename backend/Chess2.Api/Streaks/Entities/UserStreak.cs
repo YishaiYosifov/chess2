@@ -11,7 +11,7 @@ public class UserStreak
     public required UserId UserId { get; set; }
 
     [ForeignKey(nameof(UserId))]
-    public AuthedUser User { get; set; } = null!;
+    public required AuthedUser User { get; set; }
 
     public int HighestStreak { get; set; }
     public int CurrentStreak { get; set; }
