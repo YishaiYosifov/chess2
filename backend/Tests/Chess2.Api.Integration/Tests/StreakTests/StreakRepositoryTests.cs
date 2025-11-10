@@ -31,18 +31,22 @@ public class StreakRepositoryTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task SetStreakAsync_sets_streak_for_user()
+    public async Task ClearCurrentStreakAsync_resets_current_streak_for_user()
     {
-        var user1Streak = new UserStreakFaker().RuleFor(x => x.CurrentStreak, 0).Generate();
-        var user2Streak = new UserStreakFaker().RuleFor(x => x.CurrentStreak, 0).Generate();
+        var user1Streak = new UserStreakFaker()
+            .RuleFor(x => x.CurrentStreak, 5)
+            .RuleFor(x => x.HighestStreak, 10)
+            .Generate();
+        var user2Streak = new UserStreakFaker().RuleFor(x => x.CurrentStreak, 5).Generate();
         await DbContext.AddRangeAsync(user1Streak, user2Streak);
         await DbContext.SaveChangesAsync(CT);
 
-        await _repository.SetStreakAsync(user1Streak.UserId, 69, CT);
+        await _repository.ClearCurrentStreakAsync(user1Streak.UserId, CT);
         await DbContext.SaveChangesAsync(CT);
 
         var inDb = await DbContext.Streaks.AsNoTracking().ToListAsync(CT);
-        user1Streak.CurrentStreak = 69;
+        user1Streak.CurrentStreak = 0;
+        user1Streak.CurrentStreakGames = [];
         inDb.Should().BeEquivalentTo([user1Streak, user2Streak]);
     }
 

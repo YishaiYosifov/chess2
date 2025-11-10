@@ -1,4 +1,5 @@
-﻿using Chess2.Api.Pagination.Models;
+﻿using Chess2.Api.Game.Models;
+using Chess2.Api.Pagination.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Profile.Entities;
 using Chess2.Api.Profile.Models;
@@ -18,7 +19,11 @@ public interface IStreakService
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task IncrementStreakAsync(AuthedUser user, CancellationToken token = default);
+    Task IncrementStreakAsync(
+        AuthedUser user,
+        GameToken gameWon,
+        CancellationToken token = default
+    );
 }
 
 public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork) : IStreakService
@@ -51,35 +56,51 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
         return streak is null ? 0 : streak.HighestStreak;
     }
 
-    public async Task IncrementStreakAsync(AuthedUser user, CancellationToken token = default)
+    public async Task IncrementStreakAsync(
+        AuthedUser user,
+        GameToken gameWon,
+        CancellationToken token = default
+    )
     {
         var streak = await _repository.GetUserStreakAsync(user.Id, token);
         if (streak is null)
         {
-            await StartNewStreakAsync(user, token);
+            await StartNewStreakAsync(user, gameWon, token);
             await _unitOfWork.CompleteAsync(token);
             return;
         }
 
         streak.CurrentStreak++;
-        streak.HighestStreak = Math.Max(streak.CurrentStreak, streak.HighestStreak);
+        streak.CurrentStreakGames.Add(gameWon);
+
+        if (streak.CurrentStreak > streak.HighestStreak)
+        {
+            streak.HighestStreak = streak.CurrentStreak;
+            streak.HighestStreakGames = streak.CurrentStreakGames;
+        }
         await _unitOfWork.CompleteAsync(token);
     }
 
     public async Task EndStreakAsync(UserId userId, CancellationToken token = default)
     {
-        await _repository.SetStreakAsync(userId, streak: 0, token);
+        await _repository.ClearCurrentStreakAsync(userId, token);
         await _unitOfWork.CompleteAsync(token);
     }
 
-    private async Task StartNewStreakAsync(AuthedUser user, CancellationToken token = default)
+    private async Task StartNewStreakAsync(
+        AuthedUser user,
+        GameToken gameWon,
+        CancellationToken token = default
+    )
     {
         UserStreak streak = new()
         {
             UserId = user.Id,
             User = user,
             CurrentStreak = 1,
+            CurrentStreakGames = [gameWon],
             HighestStreak = 1,
+            HighestStreakGames = [gameWon],
         };
         await _repository.AddAsync(streak, token);
     }

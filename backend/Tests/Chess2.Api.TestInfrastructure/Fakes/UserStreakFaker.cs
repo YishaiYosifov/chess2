@@ -10,7 +10,19 @@ public class UserStreakFaker : Faker<UserStreak>
         StrictMode(true);
         RuleFor(x => x.User, f => new AuthedUserFaker().Generate());
         RuleFor(x => x.UserId, (f, x) => x.User.Id);
+
         RuleFor(x => x.CurrentStreak, f => f.Random.Number(0, 100));
+        RuleFor(
+            x => x.CurrentStreakGames,
+            (f, x) =>
+                [.. Enumerable.Range(0, x.CurrentStreak).Select(_ => f.Random.AlphaNumeric(16))]
+        );
+
         RuleFor(x => x.HighestStreak, f => f.Random.Number(0, 100));
+        RuleFor(
+            x => x.HighestStreakGames,
+            (f, x) =>
+                [.. Enumerable.Range(0, x.HighestStreak).Select(_ => f.Random.AlphaNumeric(16))]
+        );
     }
 }

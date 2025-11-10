@@ -14,5 +14,8 @@ public class UserStreak
     public required AuthedUser User { get; set; }
 
     public int HighestStreak { get; set; }
+    public ICollection<string> HighestStreakGames { get; set; } = [];
+
     public int CurrentStreak { get; set; }
+    public ICollection<string> CurrentStreakGames { get; set; } = [];
 }
