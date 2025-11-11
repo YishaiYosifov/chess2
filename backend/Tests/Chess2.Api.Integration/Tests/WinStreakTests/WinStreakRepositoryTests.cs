@@ -46,7 +46,7 @@ public class WinStreakRepositoryTests : BaseIntegrationTest
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().ToListAsync(CT);
         user1Streak.CurrentStreak = 0;
-        user1Streak.CurrentStreakGames = [];
+        user1Streak.CurrentStreakGameTokens = [];
         inDb.Should().BeEquivalentTo([user1Streak, user2Streak]);
     }
 

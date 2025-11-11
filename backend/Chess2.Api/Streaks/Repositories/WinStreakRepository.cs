@@ -34,7 +34,7 @@ public class WinStreakRepository(ApplicationDbContext dbContext) : IWinStreakRep
                 setters =>
                     setters
                         .SetProperty(x => x.CurrentStreak, 0)
-                        .SetProperty(x => x.CurrentStreakGames, new List<string>()),
+                        .SetProperty(x => x.CurrentStreakGameTokens, new List<string>()),
                 token
             );
 

@@ -13,14 +13,14 @@ public class UserWinStreakFaker : Faker<UserWinStreak>
 
         RuleFor(x => x.CurrentStreak, f => f.Random.Number(0, 100));
         RuleFor(
-            x => x.CurrentStreakGames,
+            x => x.CurrentStreakGameTokens,
             (f, x) =>
                 [.. Enumerable.Range(0, x.CurrentStreak).Select(_ => f.Random.AlphaNumeric(16))]
         );
 
         RuleFor(x => x.HighestStreak, f => f.Random.Number(0, 100));
         RuleFor(
-            x => x.HighestStreakGames,
+            x => x.HighestStreakGameTokens,
             (f, x) =>
                 [.. Enumerable.Range(0, x.HighestStreak).Select(_ => f.Random.AlphaNumeric(16))]
         );

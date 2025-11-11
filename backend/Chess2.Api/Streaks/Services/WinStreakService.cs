@@ -76,12 +76,12 @@ public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitO
         }
 
         streak.CurrentStreak++;
-        streak.CurrentStreakGames.Add(gameWon);
+        streak.CurrentStreakGameTokens.Add(gameWon);
 
         if (streak.CurrentStreak > streak.HighestStreak)
         {
             streak.HighestStreak = streak.CurrentStreak;
-            streak.HighestStreakGames = streak.CurrentStreakGames;
+            streak.HighestStreakGameTokens = streak.CurrentStreakGameTokens;
         }
         await _unitOfWork.CompleteAsync(token);
     }
@@ -103,9 +103,9 @@ public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitO
             UserId = user.Id,
             User = user,
             CurrentStreak = 1,
-            CurrentStreakGames = [gameWon],
+            CurrentStreakGameTokens = [gameWon],
             HighestStreak = 1,
-            HighestStreakGames = [gameWon],
+            HighestStreakGameTokens = [gameWon],
         };
         await _repository.AddAsync(streak, token);
     }
