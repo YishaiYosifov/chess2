@@ -18,6 +18,6 @@ public record WinStreakDto(
         : this(
             Profile: new MinimalProfile(streak.User),
             HighestStreak: streak.HighestStreak,
-            HighestStreakGames: [.. streak.HighestStreakGames]
+            HighestStreakGames: [.. streak.HighestStreakGameTokens]
         ) { }
 }

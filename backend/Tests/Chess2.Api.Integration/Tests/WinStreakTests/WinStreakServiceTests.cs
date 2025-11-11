@@ -98,9 +98,9 @@ public class WinStreakServiceTests : BaseIntegrationTest
             UserId = user.Id,
             User = user,
             CurrentStreak = 1,
-            CurrentStreakGames = [gameToken],
+            CurrentStreakGameTokens = [gameToken],
             HighestStreak = 1,
-            HighestStreakGames = [gameToken],
+            HighestStreakGameTokens = [gameToken],
         };
         inDb.Should().BeEquivalentTo(expectedStreak);
     }
@@ -120,7 +120,7 @@ public class WinStreakServiceTests : BaseIntegrationTest
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;
-        streak.CurrentStreakGames.Add(gameToken);
+        streak.CurrentStreakGameTokens.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
@@ -139,9 +139,9 @@ public class WinStreakServiceTests : BaseIntegrationTest
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak++;
-        streak.CurrentStreakGames.Add(gameToken);
+        streak.CurrentStreakGameTokens.Add(gameToken);
         streak.HighestStreak++;
-        streak.HighestStreakGames.Add(gameToken);
+        streak.HighestStreakGameTokens.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
@@ -159,7 +159,7 @@ public class WinStreakServiceTests : BaseIntegrationTest
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
         streak.CurrentStreak = 0;
-        streak.CurrentStreakGames = [];
+        streak.CurrentStreakGameTokens = [];
         inDb.Should().BeEquivalentTo(streak);
     }
 }
