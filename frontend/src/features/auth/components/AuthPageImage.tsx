@@ -5,7 +5,7 @@ const AuthPageImage = () => {
     return (
         <section
             className="border-secondary/50 bg-checkerboard sticky hidden h-screen w-full border-l
-                bg-[#151515] bg-[length:10rem_10rem] bg-center select-none md:block"
+                bg-center select-none md:block"
         >
             <Image
                 src={Knook}
