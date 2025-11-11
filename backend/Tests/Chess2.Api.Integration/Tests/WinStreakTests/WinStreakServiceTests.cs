@@ -46,24 +46,25 @@ public class WinStreakServiceTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task GetRankingAsync_finds_correct_ranking()
+    public async Task GetMyStatsAsync_finds_correct_stats()
     {
         var streaks = new UserWinStreakFaker().Generate(5);
         await DbContext.AddRangeAsync(streaks, CT);
         await DbContext.SaveChangesAsync(CT);
 
         var streakToTest = streaks[2];
-        var result = await _service.GetRankingAsync(streakToTest.UserId, CT);
+        var result = await _service.GetMyStatsAsync(streakToTest.UserId, CT);
 
         MyWinStreakStats expectedRank = new(
             Rank: streaks.Count(u => u.HighestStreak > streakToTest.HighestStreak) + 1,
-            Streak: new WinStreakDto(streakToTest)
+            HighestStreak: streakToTest.HighestStreak,
+            CurrentStreak: streakToTest.CurrentStreak
         );
         result.Should().Be(expectedRank);
     }
 
     [Fact]
-    public async Task GetRankingAsync_finds_correct_ranking_when_no_streak_is_recorded()
+    public async Task GetMyStatsAsync_finds_correct_stats_when_no_streak_is_recorded()
     {
         var streaks = new UserWinStreakFaker().Generate(5);
         var user = new AuthedUserFaker().Generate();
@@ -71,42 +72,14 @@ public class WinStreakServiceTests : BaseIntegrationTest
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var result = await _service.GetRankingAsync(user.Id, CT);
+        var result = await _service.GetMyStatsAsync(user.Id, CT);
 
-        MyWinStreakStats expectedRank = new(Rank: streaks.Count + 1, Streak: null);
+        MyWinStreakStats expectedRank = new(
+            Rank: streaks.Count + 1,
+            HighestStreak: 0,
+            CurrentStreak: 0
+        );
         result.Should().Be(expectedRank);
-    }
-
-    [Fact]
-    public async Task GetHighestStreakAsync_returns_user_highest_streak_when_exists()
-    {
-        var userStreak = new UserWinStreakFaker()
-            .RuleFor(x => x.HighestStreak, 1000)
-            .RuleFor(x => x.CurrentStreak, 500)
-            .Generate();
-        var otherUserStreak = new UserWinStreakFaker()
-            .RuleFor(x => x.HighestStreak, 500)
-            .Generate();
-        await DbContext.AddRangeAsync(userStreak, otherUserStreak);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _service.GetHighestStreakAsync(userStreak.UserId, CT);
-
-        result.Should().Be(userStreak.HighestStreak);
-    }
-
-    [Fact]
-    public async Task GetHighestStreakAsync_returns_zero_when_no_streak_exists()
-    {
-        var otherUserStreak = new UserWinStreakFaker()
-            .RuleFor(x => x.HighestStreak, 500)
-            .Generate();
-        await DbContext.AddAsync(otherUserStreak, CT);
-        await DbContext.SaveChangesAsync(CT);
-
-        var result = await _service.GetHighestStreakAsync("non existing", CT);
-
-        result.Should().Be(0);
     }
 
     [Fact]
