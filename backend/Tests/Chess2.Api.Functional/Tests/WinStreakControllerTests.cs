@@ -52,7 +52,11 @@ public class WinStreakControllerTests(Chess2WebApplicationFactory factory)
         var response = await ApiClient.Api.GetMyWinStreakStatsAsync();
 
         response.IsSuccessful.Should().BeTrue();
-        MyWinStreakStats expectedRank = new(Rank: higherStreak.Count + 1, Streak: new(streak));
+        MyWinStreakStats expectedRank = new(
+            Rank: higherStreak.Count + 1,
+            HighestStreak: streak.CurrentStreak,
+            CurrentStreak: streak.CurrentStreak
+        );
         response.Content.Should().BeEquivalentTo(expectedRank);
     }
 

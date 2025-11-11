@@ -49,7 +49,7 @@ public class WinStreakController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var rank = await _winStreakService.GetRankingAsync(userIdResult.Value, token);
+        var rank = await _winStreakService.GetMyStatsAsync(userIdResult.Value, token);
         return Ok(rank);
     }
 }
