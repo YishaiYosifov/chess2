@@ -66,9 +66,9 @@ import type {
     GetMyQuestRankingData,
     GetMyQuestRankingErrors,
     GetMyQuestRankingResponses,
-    GetMyStreakRankingData,
-    GetMyStreakRankingErrors,
-    GetMyStreakRankingResponses,
+    GetMyWinStreakStatsData,
+    GetMyWinStreakStatsErrors,
+    GetMyWinStreakStatsResponses,
     GetPreferencesData,
     GetPreferencesErrors,
     GetPreferencesResponses,
@@ -87,8 +87,6 @@ import type {
     GetStarredUsersResponses,
     GetStarsReceivedCountData,
     GetStarsReceivedCountResponses,
-    GetStreakLeaderboardData,
-    GetStreakLeaderboardResponses,
     GetUserByIdData,
     GetUserByIdErrors,
     GetUserByIdResponses,
@@ -97,6 +95,8 @@ import type {
     GetUserByUsernameResponses,
     GetUserQuestPointsData,
     GetUserQuestPointsResponses,
+    GetWinStreakLeaderboardData,
+    GetWinStreakLeaderboardResponses,
     LogoutData,
     LogoutResponses,
     OAuthCallbackData,
@@ -171,28 +171,28 @@ export const getCurrentRatings = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const getStreakLeaderboard = <ThrowOnError extends boolean = false>(
-    options?: Options<GetStreakLeaderboardData, ThrowOnError>,
+export const getWinStreakLeaderboard = <ThrowOnError extends boolean = false>(
+    options?: Options<GetWinStreakLeaderboardData, ThrowOnError>,
 ) => {
     return (options?.client ?? client).get<
-        GetStreakLeaderboardResponses,
+        GetWinStreakLeaderboardResponses,
         unknown,
         ThrowOnError
     >({
-        url: "/api/Streak/leaderboard",
+        url: "/api/WinStreak/leaderboard",
         ...options,
     });
 };
 
-export const getMyStreakRanking = <ThrowOnError extends boolean = false>(
-    options?: Options<GetMyStreakRankingData, ThrowOnError>,
+export const getMyWinStreakStats = <ThrowOnError extends boolean = false>(
+    options?: Options<GetMyWinStreakStatsData, ThrowOnError>,
 ) => {
     return (options?.client ?? client).get<
-        GetMyStreakRankingResponses,
-        GetMyStreakRankingErrors,
+        GetMyWinStreakStatsResponses,
+        GetMyWinStreakStatsErrors,
         ThrowOnError
     >({
-        url: "/api/Streak/leaderboard/me",
+        url: "/api/WinStreak/me",
         ...options,
     });
 };
