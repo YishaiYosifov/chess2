@@ -38,9 +38,7 @@ describe("DailyQuestRankCard", () => {
 
         expect(
             screen.getByTestId("dailyQuestRankPercentile"),
-        ).toHaveTextContent(
-            `You're in the top ${expectedPercentile.toFixed(1)}%! Keep going!`,
-        );
+        ).toHaveTextContent(`That's top ${expectedPercentile.toFixed(1)}%!`);
     });
 
     it("should not render if not logged in", () => {
@@ -69,7 +67,7 @@ describe("DailyQuestRankCard", () => {
 
         expect(
             screen.getByTestId("dailyQuestRankPercentile"),
-        ).toHaveTextContent("You're in the top 99.0%! Keep going!");
+        ).toHaveTextContent("That's top 99.0%!");
     });
 
     it("should calculate percentile correctly for last rank", () => {
@@ -84,6 +82,25 @@ describe("DailyQuestRankCard", () => {
         );
         expect(
             screen.getByTestId("dailyQuestRankPercentile"),
-        ).toHaveTextContent("You're in the top 0.0%! Keep going!");
+        ).toHaveTextContent("That's top 0.0%!");
+    });
+
+    it("should handle 0 players", () => {
+        render(
+            <SessionProvider user={userMock}>
+                <DailyQuestRankCard
+                    questPoints={0}
+                    currentRank={1}
+                    totalPlayers={0}
+                />
+            </SessionProvider>,
+        );
+
+        expect(screen.getByTestId("dailyQuestRankNumber")).toHaveTextContent(
+            "-",
+        );
+        expect(
+            screen.getByTestId("dailyQuestRankPercentile"),
+        ).toHaveTextContent("No players yet!");
     });
 });
