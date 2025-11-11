@@ -33,16 +33,18 @@ const DailyQuestRankCard = ({
                         className="text-2xl font-extrabold text-amber-400"
                         data-testid="dailyQuestRankNumber"
                     >
-                        #{currentRank}
+                        {totalPlayers > 0 ? `#${currentRank}` : "-"}
                     </p>
                     <ProgressBar percent={percentile} />
                 </div>
 
                 <p
-                    className="text-text/70 text-sm"
+                    className="text-text/70 text-sm text-nowrap"
                     data-testid="dailyQuestRankPercentile"
                 >
-                    You&apos;re in the top {percentile.toFixed(1)}%! Keep going!
+                    {totalPlayers > 0
+                        ? `That's top ${percentile.toFixed(1)}%!`
+                        : "No players yet!"}
                 </p>
             </div>
         </Card>
