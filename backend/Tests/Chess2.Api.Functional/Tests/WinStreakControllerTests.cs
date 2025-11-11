@@ -12,7 +12,7 @@ public class WinStreakControllerTests(Chess2WebApplicationFactory factory)
     : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task GetStreakLeaderboard_returns_correct_leaderboard()
+    public async Task GetWinStreakLeaderboard_returns_correct_leaderboard()
     {
         List<UserWinStreak> streaks =
         [

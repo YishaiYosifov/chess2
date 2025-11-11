@@ -25,7 +25,7 @@ public class WinStreakGrainTests : BaseGrainTest
     private readonly GameToken _gameToken = "test game token";
 
     private readonly IGameGrain _gameGrainMock = Substitute.For<IGameGrain>();
-    private readonly IWinStreakService _streakService = Substitute.For<IWinStreakService>();
+    private readonly IWinStreakService _winStreakService = Substitute.For<IWinStreakService>();
     private readonly UserManager<AuthedUser> _userManagerMock =
         UserManagerMockUtils.CreateUserManagerMock();
 
@@ -46,7 +46,7 @@ public class WinStreakGrainTests : BaseGrainTest
             return Substitute.For<IGameGrain>();
         });
 
-        Silo.ServiceProvider.AddService(_streakService);
+        Silo.ServiceProvider.AddService(_winStreakService);
         Silo.ServiceProvider.AddService(_userManagerMock);
 
         _whiteUser = new AuthedUserFaker().RuleFor(x => x.Id, _gameState.WhitePlayer.UserId);
@@ -73,7 +73,7 @@ public class WinStreakGrainTests : BaseGrainTest
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
         );
 
-        _streakService.ReceivedCalls().Should().BeEmpty();
+        _winStreakService.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class WinStreakGrainTests : BaseGrainTest
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
         );
 
-        _streakService.ReceivedCalls().Should().BeEmpty();
+        _winStreakService.ReceivedCalls().Should().BeEmpty();
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class WinStreakGrainTests : BaseGrainTest
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
         );
 
-        _streakService.ReceivedCalls().Should().BeEmpty();
+        _winStreakService.ReceivedCalls().Should().BeEmpty();
     }
 
     [Theory]
@@ -124,7 +124,7 @@ public class WinStreakGrainTests : BaseGrainTest
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 
-        _streakService.ReceivedCalls().Should().BeEmpty();
+        _winStreakService.ReceivedCalls().Should().BeEmpty();
     }
 
     [Theory]
@@ -143,10 +143,10 @@ public class WinStreakGrainTests : BaseGrainTest
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 
-        await _streakService
+        await _winStreakService
             .Received()
             .IncrementStreakAsync(user, _gameToken, Arg.Any<CancellationToken>());
-        await _streakService.DidNotReceiveWithAnyArgs().EndStreakAsync(default, default!);
+        await _winStreakService.DidNotReceiveWithAnyArgs().EndStreakAsync(default, default!);
     }
 
     [Theory]
@@ -162,8 +162,8 @@ public class WinStreakGrainTests : BaseGrainTest
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 
-        await _streakService.Received().EndStreakAsync(user.Id, Arg.Any<CancellationToken>());
-        await _streakService
+        await _winStreakService.Received().EndStreakAsync(user.Id, Arg.Any<CancellationToken>());
+        await _winStreakService
             .DidNotReceiveWithAnyArgs()
             .IncrementStreakAsync(default!, default, default!);
     }
