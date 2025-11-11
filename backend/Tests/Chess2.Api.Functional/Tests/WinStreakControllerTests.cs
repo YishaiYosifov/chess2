@@ -16,10 +16,10 @@ public class WinStreakControllerTests(Chess2WebApplicationFactory factory)
     {
         List<UserWinStreak> streaks =
         [
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 4),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 3),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 2),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 1),
+            new UserWinStreakFaker(highestStreak: 4),
+            new UserWinStreakFaker(highestStreak: 3),
+            new UserWinStreakFaker(highestStreak: 2),
+            new UserWinStreakFaker(highestStreak: 1),
         ];
         await DbContext.AddRangeAsync(streaks, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -39,10 +39,10 @@ public class WinStreakControllerTests(Chess2WebApplicationFactory factory)
     }
 
     [Fact]
-    public async Task GetMyStreakRanking_returns_correct_rank()
+    public async Task GetMyWinStreakStats_returns_correct_rank()
     {
-        var streak = new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 3).Generate();
-        var higherStreak = new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 4).Generate(5);
+        var streak = new UserWinStreakFaker(highestStreak: 3).Generate();
+        var higherStreak = new UserWinStreakFaker(highestStreak: 4).Generate(5);
         await DbContext.AddAsync(streak, CT);
         await DbContext.AddRangeAsync(higherStreak, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -54,8 +54,8 @@ public class WinStreakControllerTests(Chess2WebApplicationFactory factory)
         response.IsSuccessful.Should().BeTrue();
         MyWinStreakStats expectedRank = new(
             Rank: higherStreak.Count + 1,
-            HighestStreak: streak.CurrentStreak,
-            CurrentStreak: streak.CurrentStreak
+            HighestStreak: streak.HighestStreakGames.Count,
+            CurrentStreak: streak.CurrentStreakGames.Count
         );
         response.Content.Should().BeEquivalentTo(expectedRank);
     }

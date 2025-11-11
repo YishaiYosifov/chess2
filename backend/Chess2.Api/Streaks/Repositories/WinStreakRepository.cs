@@ -31,10 +31,7 @@ public class WinStreakRepository(ApplicationDbContext dbContext) : IWinStreakRep
         _dbContext
             .WinStreaks.Where(x => x.UserId == userId)
             .ExecuteUpdateAsync(
-                setters =>
-                    setters
-                        .SetProperty(x => x.CurrentStreak, 0)
-                        .SetProperty(x => x.CurrentStreakGameTokens, new List<string>()),
+                setters => setters.SetProperty(x => x.CurrentStreakGames, new List<string>()),
                 token
             );
 
@@ -48,7 +45,7 @@ public class WinStreakRepository(ApplicationDbContext dbContext) : IWinStreakRep
         CancellationToken token = default
     ) =>
         _dbContext
-            .WinStreaks.OrderByDescending(x => x.HighestStreak)
+            .WinStreaks.OrderByDescending(x => x.HighestStreakGames.Count)
             .Paginate(pagination)
             .ToListAsync(token);
 
@@ -56,5 +53,8 @@ public class WinStreakRepository(ApplicationDbContext dbContext) : IWinStreakRep
         _dbContext.WinStreaks.CountAsync(token);
 
     public async Task<int> GetRankingAsync(int highestStreak, CancellationToken token = default) =>
-        await _dbContext.WinStreaks.CountAsync(x => x.HighestStreak > highestStreak, token) + 1;
+        await _dbContext.WinStreaks.CountAsync(
+            x => x.HighestStreakGames.Count > highestStreak,
+            token
+        ) + 1;
 }

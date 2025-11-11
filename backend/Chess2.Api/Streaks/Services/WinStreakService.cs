@@ -53,11 +53,11 @@ public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitO
     )
     {
         var streak = await _repository.GetUserStreakAsync(userId, token);
-        var rank = await _repository.GetRankingAsync(streak?.HighestStreak ?? 0, token);
+        var rank = await _repository.GetRankingAsync(streak?.HighestStreakGames.Count ?? 0, token);
         return new(
             Rank: rank,
-            HighestStreak: streak?.HighestStreak ?? 0,
-            CurrentStreak: streak?.CurrentStreak ?? 0
+            HighestStreak: streak?.HighestStreakGames.Count ?? 0,
+            CurrentStreak: streak?.CurrentStreakGames.Count ?? 0
         );
     }
 
@@ -75,14 +75,10 @@ public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitO
             return;
         }
 
-        streak.CurrentStreak++;
-        streak.CurrentStreakGameTokens.Add(gameWon);
+        streak.CurrentStreakGames.Add(gameWon);
+        if (streak.CurrentStreakGames.Count > streak.HighestStreakGames.Count)
+            streak.HighestStreakGames = streak.CurrentStreakGames;
 
-        if (streak.CurrentStreak > streak.HighestStreak)
-        {
-            streak.HighestStreak = streak.CurrentStreak;
-            streak.HighestStreakGameTokens = streak.CurrentStreakGameTokens;
-        }
         await _unitOfWork.CompleteAsync(token);
     }
 
@@ -102,10 +98,8 @@ public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitO
         {
             UserId = user.Id,
             User = user,
-            CurrentStreak = 1,
-            CurrentStreakGameTokens = [gameWon],
-            HighestStreak = 1,
-            HighestStreakGameTokens = [gameWon],
+            CurrentStreakGames = [gameWon],
+            HighestStreakGames = [gameWon],
         };
         await _repository.AddAsync(streak, token);
     }
