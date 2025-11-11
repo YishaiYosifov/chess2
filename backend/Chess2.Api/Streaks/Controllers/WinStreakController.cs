@@ -14,12 +14,12 @@ namespace Chess2.Api.Streaks.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class WinStreakController(
-    IWinStreakService streakService,
+    IWinStreakService winStreakService,
     IAuthService authService,
     IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
-    private readonly IWinStreakService _streakService = streakService;
+    private readonly IWinStreakService _winStreakService = winStreakService;
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
@@ -34,7 +34,7 @@ public class WinStreakController(
         if (!validationResult.IsValid)
             return validationResult.Errors.ToErrorList().ToActionResult();
 
-        var leaderboard = await _streakService.GetPaginatedLeaderboardAsync(pagination, token);
+        var leaderboard = await _winStreakService.GetPaginatedLeaderboardAsync(pagination, token);
         return Ok(leaderboard);
     }
 
@@ -49,7 +49,7 @@ public class WinStreakController(
         if (userIdResult.IsError)
             return userIdResult.Errors.ToActionResult();
 
-        var rank = await _streakService.GetRankingAsync(userIdResult.Value, token);
+        var rank = await _winStreakService.GetRankingAsync(userIdResult.Value, token);
         return Ok(rank);
     }
 }

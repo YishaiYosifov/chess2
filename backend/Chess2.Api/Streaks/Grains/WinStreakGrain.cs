@@ -19,12 +19,12 @@ public interface IWinStreakGrain : IGrainWithStringKey;
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
 public class WinStreakGrain(
     ILogger<WinStreakGrain> logger,
-    IWinStreakService streakService,
+    IWinStreakService winStreakService,
     UserManager<AuthedUser> userManager
 ) : Grain, IWinStreakGrain, IAsyncObserver<GameEndedEvent>
 {
     private readonly ILogger<WinStreakGrain> _logger = logger;
-    private readonly IWinStreakService _streakService = streakService;
+    private readonly IWinStreakService _winStreakService = winStreakService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
@@ -80,9 +80,9 @@ public class WinStreakGrain(
             @event.EndStatus.Result
             == playerColor.Match(whenWhite: GameResult.WhiteWin, whenBlack: GameResult.BlackWin);
         if (isWin)
-            await _streakService.IncrementStreakAsync(user, @event.GameToken);
+            await _winStreakService.IncrementStreakAsync(user, @event.GameToken);
         else
-            await _streakService.EndStreakAsync(user.Id);
+            await _winStreakService.EndStreakAsync(user.Id);
     }
 
     public Task OnErrorAsync(Exception ex)
