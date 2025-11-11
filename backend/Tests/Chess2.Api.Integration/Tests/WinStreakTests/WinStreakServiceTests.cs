@@ -26,10 +26,10 @@ public class WinStreakServiceTests : BaseIntegrationTest
     {
         List<UserWinStreak> streaks =
         [
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 4).Generate(),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 3).Generate(),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 2).Generate(),
-            new UserWinStreakFaker().RuleFor(x => x.HighestStreak, 1).Generate(),
+            new UserWinStreakFaker(highestStreak: 4).Generate(),
+            new UserWinStreakFaker(highestStreak: 3).Generate(),
+            new UserWinStreakFaker(highestStreak: 2).Generate(),
+            new UserWinStreakFaker(highestStreak: 1).Generate(),
         ];
         await DbContext.AddRangeAsync(streaks, CT);
         await DbContext.SaveChangesAsync(CT);
@@ -56,9 +56,11 @@ public class WinStreakServiceTests : BaseIntegrationTest
         var result = await _service.GetMyStatsAsync(streakToTest.UserId, CT);
 
         MyWinStreakStats expectedRank = new(
-            Rank: streaks.Count(u => u.HighestStreak > streakToTest.HighestStreak) + 1,
-            HighestStreak: streakToTest.HighestStreak,
-            CurrentStreak: streakToTest.CurrentStreak
+            Rank: streaks.Count(u =>
+                u.HighestStreakGames.Count > streakToTest.HighestStreakGames.Count
+            ) + 1,
+            HighestStreak: streakToTest.HighestStreakGames.Count,
+            CurrentStreak: streakToTest.CurrentStreakGames.Count
         );
         result.Should().Be(expectedRank);
     }
@@ -97,10 +99,8 @@ public class WinStreakServiceTests : BaseIntegrationTest
         {
             UserId = user.Id,
             User = user,
-            CurrentStreak = 1,
-            CurrentStreakGameTokens = [gameToken],
-            HighestStreak = 1,
-            HighestStreakGameTokens = [gameToken],
+            CurrentStreakGames = [gameToken],
+            HighestStreakGames = [gameToken],
         };
         inDb.Should().BeEquivalentTo(expectedStreak);
     }
@@ -109,18 +109,14 @@ public class WinStreakServiceTests : BaseIntegrationTest
     public async Task IncrementStreakAsync_increments_streak_by_one_when_exists()
     {
         GameToken gameToken = "test game token";
-        var streak = new UserWinStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 5)
-            .RuleFor(x => x.HighestStreak, 10)
-            .Generate();
+        var streak = new UserWinStreakFaker(currentStreak: 5, highestStreak: 10).Generate();
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
         await _service.IncrementStreakAsync(streak.User, gameToken, CT);
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
-        streak.CurrentStreak++;
-        streak.CurrentStreakGameTokens.Add(gameToken);
+        streak.CurrentStreakGames.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
@@ -128,38 +124,29 @@ public class WinStreakServiceTests : BaseIntegrationTest
     public async Task IncrementStreakAsync_sets_highest_streak_when_current_streak_exceeds()
     {
         GameToken gameToken = "test game token";
-        var streak = new UserWinStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 3)
-            .RuleFor(x => x.HighestStreak, 3)
-            .Generate();
+        var streak = new UserWinStreakFaker(currentStreak: 3, highestStreak: 3).Generate();
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
         await _service.IncrementStreakAsync(streak.User, gameToken, CT);
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
-        streak.CurrentStreak++;
-        streak.CurrentStreakGameTokens.Add(gameToken);
-        streak.HighestStreak++;
-        streak.HighestStreakGameTokens.Add(gameToken);
+        streak.CurrentStreakGames.Add(gameToken);
+        streak.HighestStreakGames.Add(gameToken);
         inDb.Should().BeEquivalentTo(inDb);
     }
 
     [Fact]
     public async Task EndStreakAsync_sets_streaks_to_zero()
     {
-        var streak = new UserWinStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 10)
-            .RuleFor(x => x.HighestStreak, 10)
-            .Generate();
+        var streak = new UserWinStreakFaker(currentStreak: 10, highestStreak: 10).Generate();
         await DbContext.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
         await _service.EndStreakAsync(streak.UserId, CT);
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().SingleAsync(CT);
-        streak.CurrentStreak = 0;
-        streak.CurrentStreakGameTokens = [];
+        streak.CurrentStreakGames = [];
         inDb.Should().BeEquivalentTo(streak);
     }
 }

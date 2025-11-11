@@ -8,16 +8,11 @@ namespace Chess2.Api.Streaks.Models;
 
 [DisplayName("WinStreak")]
 [method: JsonConstructor]
-public record WinStreakDto(
-    MinimalProfile Profile,
-    int HighestStreak,
-    IReadOnlyCollection<GameToken> HighestStreakGames
-)
+public record WinStreakDto(MinimalProfile Profile, IReadOnlyList<GameToken> HighestStreakGameTokens)
 {
     public WinStreakDto(UserWinStreak streak)
         : this(
             Profile: new MinimalProfile(streak.User),
-            HighestStreak: streak.HighestStreak,
-            HighestStreakGames: [.. streak.HighestStreakGameTokens]
+            HighestStreakGameTokens: [.. streak.HighestStreakGames]
         ) { }
 }

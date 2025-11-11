@@ -33,11 +33,8 @@ public class WinStreakRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task ClearCurrentStreakAsync_resets_current_streak_for_user()
     {
-        var user1Streak = new UserWinStreakFaker()
-            .RuleFor(x => x.CurrentStreak, 5)
-            .RuleFor(x => x.HighestStreak, 10)
-            .Generate();
-        var user2Streak = new UserWinStreakFaker().RuleFor(x => x.CurrentStreak, 5).Generate();
+        var user1Streak = new UserWinStreakFaker(currentStreak: 5, highestStreak: 10).Generate();
+        var user2Streak = new UserWinStreakFaker(currentStreak: 5).Generate();
         await DbContext.AddRangeAsync(user1Streak, user2Streak);
         await DbContext.SaveChangesAsync(CT);
 
@@ -45,8 +42,7 @@ public class WinStreakRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var inDb = await DbContext.WinStreaks.AsNoTracking().ToListAsync(CT);
-        user1Streak.CurrentStreak = 0;
-        user1Streak.CurrentStreakGameTokens = [];
+        user1Streak.CurrentStreakGames = [];
         inDb.Should().BeEquivalentTo([user1Streak, user2Streak]);
     }
 
@@ -78,7 +74,7 @@ public class WinStreakRepositoryTests : BaseIntegrationTest
         );
 
         var expected = streaks
-            .OrderByDescending(x => x.HighestStreak)
+            .OrderByDescending(x => x.HighestStreakGames.Count)
             .Skip(page * pageSize)
             .Take(pageSize)
             .ToList();
@@ -107,8 +103,14 @@ public class WinStreakRepositoryTests : BaseIntegrationTest
         await DbContext.SaveChangesAsync(CT);
 
         var streakToTest = streaks[2];
-        var result = await _repository.GetRankingAsync(streakToTest.HighestStreak, CT);
+        var result = await _repository.GetRankingAsync(streakToTest.HighestStreakGames.Count, CT);
 
-        result.Should().Be(streaks.Count(x => x.HighestStreak > streakToTest.HighestStreak) + 1);
+        result
+            .Should()
+            .Be(
+                streaks.Count(x =>
+                    x.HighestStreakGames.Count > streakToTest.HighestStreakGames.Count
+                ) + 1
+            );
     }
 }
