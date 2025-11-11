@@ -3,9 +3,9 @@ using Chess2.Api.Streaks.Entities;
 
 namespace Chess2.Api.TestInfrastructure.Fakes;
 
-public class UserStreakFaker : Faker<UserStreak>
+public class UserWinStreakFaker : Faker<UserWinStreak>
 {
-    public UserStreakFaker()
+    public UserWinStreakFaker()
     {
         StrictMode(true);
         RuleFor(x => x.User, f => new AuthedUserFaker().Generate());

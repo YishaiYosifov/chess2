@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Chess2.Api.Streaks.Entities;
 
 [PrimaryKey(nameof(UserId))]
-public class UserStreak
+public class UserWinStreak
 {
     public required UserId UserId { get; set; }
 

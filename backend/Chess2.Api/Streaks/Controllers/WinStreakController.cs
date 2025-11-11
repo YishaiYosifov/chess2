@@ -13,19 +13,19 @@ namespace Chess2.Api.Streaks.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class StreakController(
-    IStreakService streakService,
+public class WinStreakController(
+    IWinStreakService streakService,
     IAuthService authService,
     IValidator<PaginationQuery> paginationValidator
 ) : Controller
 {
-    private readonly IStreakService _streakService = streakService;
+    private readonly IWinStreakService _streakService = streakService;
     private readonly IAuthService _authService = authService;
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet("leaderboard")]
     [ProducesResponseType<PagedResult<QuestPointsDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetStreakLeaderboard(
+    public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetWinStreakLeaderboard(
         [FromQuery] PaginationQuery pagination,
         CancellationToken token = default
     )
@@ -38,10 +38,10 @@ public class StreakController(
         return Ok(leaderboard);
     }
 
-    [HttpGet("leaderboard/me")]
-    [ProducesResponseType<UserStreakRank>(StatusCodes.Status200OK)]
+    [HttpGet("me")]
+    [ProducesResponseType<MyWinStreakStats>(StatusCodes.Status200OK)]
     [Authorize]
-    public async Task<ActionResult<UserStreakRank>> GetMyStreakRanking(
+    public async Task<ActionResult<MyWinStreakStats>> GetMyWinStreakStats(
         CancellationToken token = default
     )
     {

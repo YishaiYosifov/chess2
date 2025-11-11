@@ -18,14 +18,14 @@ using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Streams;
 
-namespace Chess2.Api.Unit.Tests.StreakTests;
+namespace Chess2.Api.Unit.Tests.WinStreakTests;
 
-public class StreakGrainTests : BaseGrainTest
+public class WinStreakGrainTests : BaseGrainTest
 {
     private readonly GameToken _gameToken = "test game token";
 
     private readonly IGameGrain _gameGrainMock = Substitute.For<IGameGrain>();
-    private readonly IStreakService _streakService = Substitute.For<IStreakService>();
+    private readonly IWinStreakService _streakService = Substitute.For<IWinStreakService>();
     private readonly UserManager<AuthedUser> _userManagerMock =
         UserManagerMockUtils.CreateUserManagerMock();
 
@@ -37,7 +37,7 @@ public class StreakGrainTests : BaseGrainTest
     private readonly AuthedUser _whiteUser;
     private readonly AuthedUser _blackUser;
 
-    public StreakGrainTests()
+    public WinStreakGrainTests()
     {
         Silo.AddProbe(id =>
         {
@@ -67,7 +67,7 @@ public class StreakGrainTests : BaseGrainTest
     {
         var userId = UserId.Guest();
         var streamProbe = ProbeGameEndedStream(userId);
-        await Silo.CreateGrainAsync<StreakGrain>(userId);
+        await Silo.CreateGrainAsync<WinStreakGrain>(userId);
 
         await streamProbe.OnNextAsync(
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
@@ -84,7 +84,7 @@ public class StreakGrainTests : BaseGrainTest
             .Returns(_gameState with { Pool = new PoolKeyFaker(PoolType.Casual).Generate() });
 
         var streamProbe = ProbeGameEndedStream(_gameState.WhitePlayer.UserId);
-        await Silo.CreateGrainAsync<StreakGrain>(_gameState.WhitePlayer.UserId);
+        await Silo.CreateGrainAsync<WinStreakGrain>(_gameState.WhitePlayer.UserId);
 
         await streamProbe.OnNextAsync(
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
@@ -101,7 +101,7 @@ public class StreakGrainTests : BaseGrainTest
             .Returns(_gameState with { GameSource = GameSource.Challenge });
 
         var streamProbe = ProbeGameEndedStream(_gameState.WhitePlayer.UserId);
-        await Silo.CreateGrainAsync<StreakGrain>(_gameState.WhitePlayer.UserId);
+        await Silo.CreateGrainAsync<WinStreakGrain>(_gameState.WhitePlayer.UserId);
 
         await streamProbe.OnNextAsync(
             new(_gameToken, new GameResultDataFaker(GameResult.WhiteWin).Generate())
@@ -120,7 +120,7 @@ public class StreakGrainTests : BaseGrainTest
         _gameGrainMock.GetStateAsync().Returns(_gameState);
 
         var streamProbe = ProbeGameEndedStream(_gameState.WhitePlayer.UserId);
-        await Silo.CreateGrainAsync<StreakGrain>(_gameState.WhitePlayer.UserId);
+        await Silo.CreateGrainAsync<WinStreakGrain>(_gameState.WhitePlayer.UserId);
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 
@@ -139,7 +139,7 @@ public class StreakGrainTests : BaseGrainTest
 
         var user = playerColor.Match(whenWhite: _whiteUser, whenBlack: _blackUser);
         var streamProbe = ProbeGameEndedStream(user.Id);
-        await Silo.CreateGrainAsync<StreakGrain>(user.Id);
+        await Silo.CreateGrainAsync<WinStreakGrain>(user.Id);
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 
@@ -158,7 +158,7 @@ public class StreakGrainTests : BaseGrainTest
 
         var user = playerColor.Match(whenWhite: _whiteUser, whenBlack: _blackUser);
         var streamProbe = ProbeGameEndedStream(user.Id);
-        await Silo.CreateGrainAsync<StreakGrain>(user.Id);
+        await Silo.CreateGrainAsync<WinStreakGrain>(user.Id);
 
         await streamProbe.OnNextAsync(new(_gameToken, new GameResultDataFaker(result).Generate()));
 

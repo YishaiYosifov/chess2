@@ -10,15 +10,15 @@ using Chess2.Api.Streaks.Repositories;
 
 namespace Chess2.Api.Streaks.Services;
 
-public interface IStreakService
+public interface IWinStreakService
 {
     Task EndStreakAsync(UserId userId, CancellationToken token = default);
     Task<int> GetHighestStreakAsync(UserId userId, CancellationToken token = default);
-    Task<PagedResult<StreakDto>> GetPaginatedLeaderboardAsync(
+    Task<PagedResult<WinStreakDto>> GetPaginatedLeaderboardAsync(
         PaginationQuery pagination,
         CancellationToken token = default
     );
-    Task<UserStreakRank> GetRankingAsync(UserId userId, CancellationToken token = default);
+    Task<MyWinStreakStats> GetRankingAsync(UserId userId, CancellationToken token = default);
     Task IncrementStreakAsync(
         AuthedUser user,
         GameToken gameWon,
@@ -26,12 +26,13 @@ public interface IStreakService
     );
 }
 
-public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork) : IStreakService
+public class WinStreakService(IWinStreakRepository repository, IUnitOfWork unitOfWork)
+    : IWinStreakService
 {
-    private readonly IStreakRepository _repository = repository;
+    private readonly IWinStreakRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-    public async Task<PagedResult<StreakDto>> GetPaginatedLeaderboardAsync(
+    public async Task<PagedResult<WinStreakDto>> GetPaginatedLeaderboardAsync(
         PaginationQuery pagination,
         CancellationToken token = default
     )
@@ -40,21 +41,21 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
         var totalCount = await _repository.GetTotalCountAsync(token);
 
         return new(
-            Items: streaks.Select(streak => new StreakDto(streak)),
+            Items: streaks.Select(streak => new WinStreakDto(streak)),
             TotalCount: totalCount,
             Page: pagination.Page,
             PageSize: pagination.PageSize
         );
     }
 
-    public async Task<UserStreakRank> GetRankingAsync(
+    public async Task<MyWinStreakStats> GetRankingAsync(
         UserId userId,
         CancellationToken token = default
     )
     {
         var streak = await _repository.GetUserStreakAsync(userId, token);
         var position = await _repository.GetRankingAsync(streak?.HighestStreak ?? 0, token);
-        return new(Rank: position, Streak: streak is null ? null : new StreakDto(streak));
+        return new(Rank: position, Streak: streak is null ? null : new WinStreakDto(streak));
     }
 
     public async Task<int> GetHighestStreakAsync(UserId userId, CancellationToken token = default)
@@ -100,7 +101,7 @@ public class StreakService(IStreakRepository repository, IUnitOfWork unitOfWork)
         CancellationToken token = default
     )
     {
-        UserStreak streak = new()
+        UserWinStreak streak = new()
         {
             UserId = user.Id,
             User = user,
