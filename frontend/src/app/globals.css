@@ -32,6 +32,8 @@
 
     .bg-checkerboard {
         background-image: var(--background-checkerboard);
+        background-color: #151515;
+        background-size: 10rem 10rem;
     }
 }
 
