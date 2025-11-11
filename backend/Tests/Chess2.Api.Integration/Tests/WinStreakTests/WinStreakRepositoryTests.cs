@@ -6,45 +6,45 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Chess2.Api.Integration.Tests.StreakTests;
+namespace Chess2.Api.Integration.Tests.WinStreakTests;
 
-public class StreakRepositoryTests : BaseIntegrationTest
+public class WinStreakRepositoryTests : BaseIntegrationTest
 {
-    private readonly IStreakRepository _repository;
+    private readonly IWinStreakRepository _repository;
 
-    public StreakRepositoryTests(Chess2WebApplicationFactory factory)
+    public WinStreakRepositoryTests(Chess2WebApplicationFactory factory)
         : base(factory)
     {
-        _repository = Scope.ServiceProvider.GetRequiredService<IStreakRepository>();
+        _repository = Scope.ServiceProvider.GetRequiredService<IWinStreakRepository>();
     }
 
     [Fact]
     public async Task AddAsync_adds_streak()
     {
-        var streak = new UserStreakFaker().Generate();
+        var streak = new UserWinStreakFaker().Generate();
 
         await _repository.AddAsync(streak, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var inDb = await DbContext.Streaks.AsNoTracking().ToListAsync(CT);
+        var inDb = await DbContext.WinStreaks.AsNoTracking().ToListAsync(CT);
         inDb.Should().ContainSingle().Which.Should().BeEquivalentTo(streak);
     }
 
     [Fact]
     public async Task ClearCurrentStreakAsync_resets_current_streak_for_user()
     {
-        var user1Streak = new UserStreakFaker()
+        var user1Streak = new UserWinStreakFaker()
             .RuleFor(x => x.CurrentStreak, 5)
             .RuleFor(x => x.HighestStreak, 10)
             .Generate();
-        var user2Streak = new UserStreakFaker().RuleFor(x => x.CurrentStreak, 5).Generate();
+        var user2Streak = new UserWinStreakFaker().RuleFor(x => x.CurrentStreak, 5).Generate();
         await DbContext.AddRangeAsync(user1Streak, user2Streak);
         await DbContext.SaveChangesAsync(CT);
 
         await _repository.ClearCurrentStreakAsync(user1Streak.UserId, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var inDb = await DbContext.Streaks.AsNoTracking().ToListAsync(CT);
+        var inDb = await DbContext.WinStreaks.AsNoTracking().ToListAsync(CT);
         user1Streak.CurrentStreak = 0;
         user1Streak.CurrentStreakGames = [];
         inDb.Should().BeEquivalentTo([user1Streak, user2Streak]);
@@ -53,8 +53,8 @@ public class StreakRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetUserStreaksAsync_returns_streak_of_user()
     {
-        var user1Streak = new UserStreakFaker().Generate();
-        var user2Streak = new UserStreakFaker().Generate();
+        var user1Streak = new UserWinStreakFaker().Generate();
+        var user2Streak = new UserWinStreakFaker().Generate();
         await DbContext.AddRangeAsync(user1Streak, user2Streak);
         await DbContext.SaveChangesAsync(CT);
 
@@ -68,7 +68,7 @@ public class StreakRepositoryTests : BaseIntegrationTest
     {
         int page = 1;
         int pageSize = 3;
-        var streaks = new UserStreakFaker().Generate(10);
+        var streaks = new UserWinStreakFaker().Generate(10);
         await DbContext.AddRangeAsync(streaks, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -90,7 +90,7 @@ public class StreakRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetTotalCountAsync_returns_the_number_of_users_with_streaks()
     {
-        var questPoints = new UserStreakFaker().Generate(4);
+        var questPoints = new UserWinStreakFaker().Generate(4);
         await DbContext.AddRangeAsync(questPoints, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -101,7 +101,7 @@ public class StreakRepositoryTests : BaseIntegrationTest
     [Fact]
     public async Task GetRankingAsync_finds_user_position()
     {
-        var streaks = new UserStreakFaker().Generate(5);
+        var streaks = new UserWinStreakFaker().Generate(5);
 
         await DbContext.AddRangeAsync(streaks, CT);
         await DbContext.SaveChangesAsync(CT);

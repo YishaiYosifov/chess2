@@ -462,8 +462,8 @@ builder.Services.AddScoped<IChallengeRequestCreator, ChallengeRequestCreator>();
 #endregion
 
 #region Streaks
-builder.Services.AddScoped<IStreakRepository, StreakRepository>();
-builder.Services.AddScoped<IStreakService, StreakService>();
+builder.Services.AddScoped<IWinStreakRepository, WinStreakRepository>();
+builder.Services.AddScoped<IWinStreakService, WinStreakService>();
 #endregion
 
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();

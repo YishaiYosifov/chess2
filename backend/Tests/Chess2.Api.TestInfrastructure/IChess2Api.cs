@@ -173,13 +173,13 @@ public interface IChess2Api
     Task<IApiResponse> CancelAllIncomingChallengesAsync();
     #endregion
 
-    #region Streaks
-    [Get("/api/streak/leaderboard")]
-    Task<IApiResponse<PagedResult<StreakDto>>> GetStreakLeaderboardAsync(
+    #region Win Streaks
+    [Get("/api/winStreak/leaderboard")]
+    Task<IApiResponse<PagedResult<WinStreakDto>>> GetWinStreakLeaderboardAsync(
         [Query] PaginationQuery pagination
     );
 
-    [Get("/api/streak/leaderboard/me")]
-    Task<IApiResponse<UserStreakRank>> GetMyStreakRankingAsync();
+    [Get("/api/winStreak/me")]
+    Task<IApiResponse<MyWinStreakStats>> GetMyWinStreakStatsAsync();
     #endregion
 }

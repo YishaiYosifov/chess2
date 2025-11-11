@@ -38,14 +38,14 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public required DbSet<UserQuestPoints> QuestPoints { get; set; }
 
-    public required DbSet<UserStreak> Streaks { get; set; }
+    public required DbSet<UserWinStreak> WinStreaks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<StarredUser>().Navigation(x => x.Starred).AutoInclude();
         builder.Entity<BlockedUser>().Navigation(x => x.Blocked).AutoInclude();
         builder.Entity<UserQuestPoints>().Navigation(x => x.User).AutoInclude();
-        builder.Entity<UserStreak>().Navigation(x => x.User).AutoInclude();
+        builder.Entity<UserWinStreak>().Navigation(x => x.User).AutoInclude();
 
         base.OnModelCreating(builder);
     }

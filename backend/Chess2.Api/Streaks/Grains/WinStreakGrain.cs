@@ -14,17 +14,17 @@ using Orleans.Streams;
 namespace Chess2.Api.Streaks.Grains;
 
 [Alias("Chess2.Api.Streaks.Grains.IStreakGrain")]
-public interface IStreakGrain : IGrainWithStringKey;
+public interface IWinStreakGrain : IGrainWithStringKey;
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
-public class StreakGrain(
-    ILogger<StreakGrain> logger,
-    IStreakService streakService,
+public class WinStreakGrain(
+    ILogger<WinStreakGrain> logger,
+    IWinStreakService streakService,
     UserManager<AuthedUser> userManager
-) : Grain, IStreakGrain, IAsyncObserver<GameEndedEvent>
+) : Grain, IWinStreakGrain, IAsyncObserver<GameEndedEvent>
 {
-    private readonly ILogger<StreakGrain> _logger = logger;
-    private readonly IStreakService _streakService = streakService;
+    private readonly ILogger<WinStreakGrain> _logger = logger;
+    private readonly IWinStreakService _streakService = streakService;
     private readonly UserManager<AuthedUser> _userManager = userManager;
 
     public override async Task OnActivateAsync(CancellationToken cancellationToken)

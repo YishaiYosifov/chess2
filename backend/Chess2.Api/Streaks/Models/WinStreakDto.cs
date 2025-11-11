@@ -1,20 +1,20 @@
-﻿using Chess2.Api.Game.Models;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
+using Chess2.Api.Game.Models;
 using Chess2.Api.Profile.DTOs;
 using Chess2.Api.Streaks.Entities;
-using System.ComponentModel;
-using System.Text.Json.Serialization;
 
 namespace Chess2.Api.Streaks.Models;
 
-[DisplayName("Streak")]
+[DisplayName("WinStreak")]
 [method: JsonConstructor]
-public record StreakDto(
+public record WinStreakDto(
     MinimalProfile Profile,
     int HighestStreak,
     IReadOnlyCollection<GameToken> HighestStreakGames
 )
 {
-    public StreakDto(UserStreak streak)
+    public WinStreakDto(UserWinStreak streak)
         : this(
             Profile: new MinimalProfile(streak.User),
             HighestStreak: streak.HighestStreak,

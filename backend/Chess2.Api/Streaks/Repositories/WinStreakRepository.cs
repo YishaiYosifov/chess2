@@ -7,29 +7,29 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chess2.Api.Streaks.Repositories;
 
-public interface IStreakRepository
+public interface IWinStreakRepository
 {
-    Task AddAsync(UserStreak streak, CancellationToken token = default);
-    Task<List<UserStreak>> GetPaginatedLeaderboardAsync(
+    Task AddAsync(UserWinStreak streak, CancellationToken token = default);
+    Task<List<UserWinStreak>> GetPaginatedLeaderboardAsync(
         PaginationQuery pagination,
         CancellationToken token = default
     );
     Task<int> GetRankingAsync(int highestStreak, CancellationToken token = default);
     Task<int> GetTotalCountAsync(CancellationToken token = default);
-    Task<UserStreak?> GetUserStreakAsync(UserId userId, CancellationToken token = default);
+    Task<UserWinStreak?> GetUserStreakAsync(UserId userId, CancellationToken token = default);
     Task ClearCurrentStreakAsync(UserId userId, CancellationToken token = default);
 }
 
-public class StreakRepository(ApplicationDbContext dbContext) : IStreakRepository
+public class WinStreakRepository(ApplicationDbContext dbContext) : IWinStreakRepository
 {
     private readonly ApplicationDbContext _dbContext = dbContext;
 
-    public async Task AddAsync(UserStreak streak, CancellationToken token = default) =>
-        await _dbContext.Streaks.AddAsync(streak, token);
+    public async Task AddAsync(UserWinStreak streak, CancellationToken token = default) =>
+        await _dbContext.WinStreaks.AddAsync(streak, token);
 
     public Task ClearCurrentStreakAsync(UserId userId, CancellationToken token = default) =>
         _dbContext
-            .Streaks.Where(x => x.UserId == userId)
+            .WinStreaks.Where(x => x.UserId == userId)
             .ExecuteUpdateAsync(
                 setters =>
                     setters
@@ -38,21 +38,23 @@ public class StreakRepository(ApplicationDbContext dbContext) : IStreakRepositor
                 token
             );
 
-    public Task<UserStreak?> GetUserStreakAsync(UserId userId, CancellationToken token = default) =>
-        _dbContext.Streaks.Where(x => x.UserId == userId).FirstOrDefaultAsync(token);
+    public Task<UserWinStreak?> GetUserStreakAsync(
+        UserId userId,
+        CancellationToken token = default
+    ) => _dbContext.WinStreaks.Where(x => x.UserId == userId).FirstOrDefaultAsync(token);
 
-    public Task<List<UserStreak>> GetPaginatedLeaderboardAsync(
+    public Task<List<UserWinStreak>> GetPaginatedLeaderboardAsync(
         PaginationQuery pagination,
         CancellationToken token = default
     ) =>
         _dbContext
-            .Streaks.OrderByDescending(x => x.HighestStreak)
+            .WinStreaks.OrderByDescending(x => x.HighestStreak)
             .Paginate(pagination)
             .ToListAsync(token);
 
     public Task<int> GetTotalCountAsync(CancellationToken token = default) =>
-        _dbContext.Streaks.CountAsync(token);
+        _dbContext.WinStreaks.CountAsync(token);
 
     public async Task<int> GetRankingAsync(int highestStreak, CancellationToken token = default) =>
-        await _dbContext.Streaks.CountAsync(x => x.HighestStreak > highestStreak, token) + 1;
+        await _dbContext.WinStreaks.CountAsync(x => x.HighestStreak > highestStreak, token) + 1;
 }
