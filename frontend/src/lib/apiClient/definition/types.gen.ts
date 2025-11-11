@@ -93,15 +93,10 @@ export type MinimalProfile = {
     userName: string;
 };
 
-export type UserStreakRank = {
+export type MyWinStreakStats = {
     rank: number;
-    streak?: Streak | null;
-};
-
-export type Streak = {
-    profile: MinimalProfile;
     highestStreak: number;
-    highestStreakGames: Array<string>;
+    currentStreak: number;
 };
 
 export type PagedResultOfMinimalProfile = {
@@ -540,43 +535,43 @@ export type GetCurrentRatingsResponses = {
 export type GetCurrentRatingsResponse =
     GetCurrentRatingsResponses[keyof GetCurrentRatingsResponses];
 
-export type GetStreakLeaderboardData = {
+export type GetWinStreakLeaderboardData = {
     body?: never;
     path?: never;
     query?: {
         Page?: number;
         PageSize?: number;
     };
-    url: "/api/Streak/leaderboard";
+    url: "/api/WinStreak/leaderboard";
 };
 
-export type GetStreakLeaderboardResponses = {
+export type GetWinStreakLeaderboardResponses = {
     200: PagedResultOfQuestPointsDto;
 };
 
-export type GetStreakLeaderboardResponse =
-    GetStreakLeaderboardResponses[keyof GetStreakLeaderboardResponses];
+export type GetWinStreakLeaderboardResponse =
+    GetWinStreakLeaderboardResponses[keyof GetWinStreakLeaderboardResponses];
 
-export type GetMyStreakRankingData = {
+export type GetMyWinStreakStatsData = {
     body?: never;
     path?: never;
     query?: never;
-    url: "/api/Streak/leaderboard/me";
+    url: "/api/WinStreak/me";
 };
 
-export type GetMyStreakRankingErrors = {
+export type GetMyWinStreakStatsErrors = {
     401: ApiProblemDetails;
 };
 
-export type GetMyStreakRankingError =
-    GetMyStreakRankingErrors[keyof GetMyStreakRankingErrors];
+export type GetMyWinStreakStatsError =
+    GetMyWinStreakStatsErrors[keyof GetMyWinStreakStatsErrors];
 
-export type GetMyStreakRankingResponses = {
-    200: UserStreakRank;
+export type GetMyWinStreakStatsResponses = {
+    200: MyWinStreakStats;
 };
 
-export type GetMyStreakRankingResponse =
-    GetMyStreakRankingResponses[keyof GetMyStreakRankingResponses];
+export type GetMyWinStreakStatsResponse =
+    GetMyWinStreakStatsResponses[keyof GetMyWinStreakStatsResponses];
 
 export type GetStarredUsersData = {
     body?: never;
