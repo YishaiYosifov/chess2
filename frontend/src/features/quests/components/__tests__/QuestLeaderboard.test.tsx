@@ -29,6 +29,7 @@ describe("QuestLeaderboard", () => {
                 `questLeaderboardPoints-${firstItem.profile.userId}`,
             ),
         ).toHaveTextContent(`${firstItem.questPoints} points`);
+        expect(screen.queryByText("No Players Yet")).not.toBeInTheDocument();
     });
 
     it("should apply podium colors and icons correctly", () => {
@@ -87,5 +88,15 @@ describe("QuestLeaderboard", () => {
                 `questLeaderboardRankDisplay-${newItem.profile.userId}`,
             ),
         ).toBeInTheDocument();
+    });
+
+    it("should display no players text when there are no leaderboard spots", () => {
+        const firstPage = createFakePagedUserQuestPoints({
+            pagination: { totalCount: 0 },
+        });
+
+        render(<QuestLeaderboard initialLeaderboard={firstPage} />);
+
+        expect(screen.getByText("No Players Yet")).toBeInTheDocument();
     });
 });
