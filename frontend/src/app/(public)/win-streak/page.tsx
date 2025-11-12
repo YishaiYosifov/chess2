@@ -11,8 +11,7 @@ export default async function WinStreakPage() {
                     src={thumbnail}
                     alt="challenge thumbnail"
                     width={400}
-                    className="border-secondary mx-auto my-auto h-min rounded-md border-5 object-contain
-                        lg:border-l-0"
+                    className="mx-auto my-auto h-min rounded-xl object-contain"
                 />
 
                 <div className="flex flex-col justify-between gap-5">
