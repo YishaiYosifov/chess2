@@ -1,7 +1,7 @@
 "use client";
 
+import RankDisplay from "@/components/RankDisplay";
 import Card from "@/components/ui/Card";
-import ProgressBar from "@/components/ui/ProgressBar";
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
 import MinimalProfileView from "@/features/profile/components/MinimalProfileView";
 
@@ -17,7 +17,6 @@ const DailyQuestRankCard = ({
     const user = useAuthedUser();
     if (user === null || !currentRank) return null;
 
-    const percentile = ((totalPlayers - currentRank) / totalPlayers) * 100;
     return (
         <Card className="w-full items-center justify-between sm:flex-row">
             <MinimalProfileView profile={user}>
@@ -26,27 +25,7 @@ const DailyQuestRankCard = ({
                 </p>
             </MinimalProfileView>
 
-            <div className="w-full sm:w-auto">
-                <h2 className="text-xl font-bold">Your Rank</h2>
-                <div className="flex items-center gap-3">
-                    <p
-                        className="text-2xl font-extrabold text-amber-400"
-                        data-testid="dailyQuestRankNumber"
-                    >
-                        {totalPlayers > 0 ? `#${currentRank}` : "-"}
-                    </p>
-                    <ProgressBar percent={percentile} />
-                </div>
-
-                <p
-                    className="text-text/70 text-sm text-nowrap"
-                    data-testid="dailyQuestRankPercentile"
-                >
-                    {totalPlayers > 0
-                        ? `That's top ${percentile.toFixed(1)}%!`
-                        : "No players yet!"}
-                </p>
-            </div>
+            <RankDisplay rank={currentRank} totalPlayers={totalPlayers} />
         </Card>
     );
 };
