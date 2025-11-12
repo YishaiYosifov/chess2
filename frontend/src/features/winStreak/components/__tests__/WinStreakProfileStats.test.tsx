@@ -2,49 +2,53 @@ import { render, screen } from "@testing-library/react";
 
 import { createFakePrivateUser } from "@/lib/testUtils/fakers/userFaker";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
-import DailyQuestRankCard from "../DailyQuestRankCard";
+import WinStreakProfileStats from "../WinStreakProfile";
+import { MyWinStreakStats } from "@/lib/apiClient";
 
-describe("DailyQuestRankCard", () => {
+describe("WinStreakProfileStats", () => {
     const userMock = createFakePrivateUser();
 
-    it("should render the card with correct user info and quest points", () => {
-        const questPoints = 15;
-        const currentRank = 23;
-        const totalPlayers = 456;
+    it("should render the card with correct user info and streaks", () => {
+        const stats: MyWinStreakStats = {
+            rank: 10,
+            highestStreak: 100,
+            currentStreak: 10,
+        };
+        const totalPlayers = 100;
 
         render(
             <SessionProvider user={userMock}>
-                <DailyQuestRankCard
-                    questPoints={questPoints}
-                    currentRank={currentRank}
+                <WinStreakProfileStats
+                    stats={stats}
                     totalPlayers={totalPlayers}
                 />
             </SessionProvider>,
         );
 
+        const streakText = screen.getByTestId("winStreakProfileStatsStreaks");
+        expect(streakText).toHaveTextContent(
+            `Highest Streak: ${stats.highestStreak}`,
+        );
+        expect(streakText).toHaveTextContent(
+            `Current Streak: ${stats.currentStreak}`,
+        );
+
         expect(
             screen.getByTestId("minimalProfileRowUsername"),
         ).toHaveTextContent(userMock.userName);
-        expect(screen.getByTestId("dailyQuestRankPoints")).toHaveTextContent(
-            `${questPoints} points`,
-        );
         expect(screen.getByTestId("rankDisplayNumber")).toHaveTextContent(
-            `#${currentRank}`,
+            `#${stats.rank}`,
         );
-
-        const expectedPercentile =
-            ((totalPlayers - currentRank) / totalPlayers) * 100;
         expect(screen.getByTestId("rankDisplayPercentile")).toHaveTextContent(
-            `That's top ${expectedPercentile.toFixed(1)}%!`,
+            `That's top 90.0%!`,
         );
     });
 
     it("should not render if not logged in", () => {
         const { container } = render(
             <SessionProvider user={null} fetchAttempted>
-                <DailyQuestRankCard
-                    questPoints={12}
-                    currentRank={34}
+                <WinStreakProfileStats
+                    stats={{ rank: 1, highestStreak: 2, currentStreak: 3 }}
                     totalPlayers={56}
                 />
             </SessionProvider>,
