@@ -37,17 +37,27 @@ const QuestLeaderboard = ({
                 fetchItems={getQuestLeaderboard}
                 initialPaged={initialLeaderboard}
             >
-                {({ items, page, pageSize }) => (
-                    <div className="grid grid-cols-[max-content_1fr] gap-3">
-                        {items.map((profileQuestPoints, index) => (
-                            <QuestLeaderboardItem
-                                profileQuestPoints={profileQuestPoints}
-                                index={index}
-                                overallPosition={page * pageSize + index + 1}
-                                key={profileQuestPoints.profile.userId}
-                            />
-                        ))}
-                    </div>
+                {({ items, page, pageSize, totalCount }) => (
+                    <>
+                        {totalCount === 0 && (
+                            <p className="text-error text-center text-2xl">
+                                No Players Yet
+                            </p>
+                        )}
+
+                        <div className="grid grid-cols-[max-content_1fr] gap-3">
+                            {items.map((profileQuestPoints, index) => (
+                                <QuestLeaderboardItem
+                                    profileQuestPoints={profileQuestPoints}
+                                    index={index}
+                                    overallPosition={
+                                        page * pageSize + index + 1
+                                    }
+                                    key={profileQuestPoints.profile.userId}
+                                />
+                            ))}
+                        </div>
+                    </>
                 )}
             </PaginatedItemsRenderer>
         </Card>
