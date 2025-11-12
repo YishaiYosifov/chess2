@@ -7,8 +7,10 @@ const RankDisplay = ({
     rank: number;
     totalPlayers: number;
 }) => {
-    const percentile =
-        ((totalPlayers - Math.min(totalPlayers, rank)) / totalPlayers) * 100;
+    const percentile = Math.max(
+        ((totalPlayers - rank) / totalPlayers) * 100,
+        0,
+    );
     return (
         <div className="my-auto w-full sm:w-auto" data-testid="rankDisplay">
             <h2 className="text-xl font-bold">Your Rank</h2>
