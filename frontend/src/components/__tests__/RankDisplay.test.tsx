@@ -33,4 +33,15 @@ describe("RankDisplay", () => {
             "No players yet!",
         );
     });
+
+    it("should handle when rank > total players", () => {
+        render(<RankDisplay rank={11} totalPlayers={10} />);
+
+        expect(screen.getByTestId("rankDisplayNumber")).toHaveTextContent(
+            "#11",
+        );
+        expect(screen.getByTestId("rankDisplayPercentile")).toHaveTextContent(
+            "That's top 0.0%!",
+        );
+    });
 });
