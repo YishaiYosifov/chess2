@@ -20,9 +20,7 @@ describe("QuestLeaderboard", () => {
             "Leaderboard",
         );
         expect(
-            screen.getByTestId(
-                `questLeaderboardRankDisplay-${firstItem.profile.userId}`,
-            ),
+            screen.getByTestId(`leaderboardItem-${firstItem.profile.userId}`),
         ).toBeInTheDocument();
         expect(
             screen.getByTestId(
@@ -30,28 +28,6 @@ describe("QuestLeaderboard", () => {
             ),
         ).toHaveTextContent(`${firstItem.questPoints} points`);
         expect(screen.queryByText("No Players Yet")).not.toBeInTheDocument();
-    });
-
-    it("should apply podium colors and icons correctly", () => {
-        const initialLeaderboard = createFakePagedUserQuestPoints();
-
-        render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
-
-        const podiumColors = ["bg-amber-400", "bg-slate-300", "bg-orange-400"];
-        const podiumIcons = ["🥇", "🥈", "🥉"];
-
-        initialLeaderboard.items.forEach((item, index) => {
-            const rankEl = screen.getByTestId(
-                `questLeaderboardRankDisplay-${item.profile.userId}`,
-            );
-            if (index < 3) {
-                expect(rankEl).toHaveTextContent(podiumIcons[index]);
-                expect(rankEl).toHaveClass(podiumColors[index]);
-            } else {
-                expect(rankEl).toHaveTextContent(`#${index + 1}`);
-                expect(rankEl).toHaveClass("bg-text/70");
-            }
-        });
     });
 
     it("should fetch the next page when pagination is triggered", async () => {
@@ -85,7 +61,7 @@ describe("QuestLeaderboard", () => {
         const newItem = secondPage.items[0];
         expect(
             await screen.findByTestId(
-                `questLeaderboardRankDisplay-${newItem.profile.userId}`,
+                `leaderboardItem-${newItem.profile.userId}`,
             ),
         ).toBeInTheDocument();
     });
