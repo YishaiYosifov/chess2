@@ -6,6 +6,7 @@ import WithOptionalAuthedUser from "@/features/auth/hocs/WithOptionalAuthedUser"
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import { getMyWinStreakStats, getWinStreakLeaderboard } from "@/lib/apiClient";
 import constants from "@/lib/constants";
+import WinStreakLeaderboard from "@/features/winStreak/components/WinStreakLeaderboard";
 
 export const metadata = { title: "Win Streak Challenge - Chess 2" };
 
@@ -50,6 +51,10 @@ export default async function WinStreakPage() {
                                 totalPlayers={leaderboard.totalCount}
                             />
                         )}
+
+                        <WinStreakLeaderboard
+                            initialLeaderboard={leaderboard}
+                        />
                     </main>
                 );
             }}

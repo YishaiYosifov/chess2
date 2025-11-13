@@ -24,9 +24,7 @@ const QuestLeaderboard = ({
                 className="flex flex-col flex-wrap items-center justify-center gap-2 sm:flex-row
                     sm:justify-between"
             >
-                <h1 className="text-2xl" data-testid="questLeaderboardTitle">
-                    Quest Leaderboard
-                </h1>
+                <h1 className="text-2xl">Quest Leaderboard</h1>
 
                 <LeaderboardResetCountdown />
             </div>
