@@ -38,6 +38,8 @@ const GameOverPopup = () => {
                 return "DRAW";
             case GameResult.WHITE_WIN:
             case GameResult.BLACK_WIN:
+                if (viewer.playerColor === null) return "GAME OVER";
+
                 const winColor =
                     resultData.result === GameResult.WHITE_WIN
                         ? GameColor.WHITE
