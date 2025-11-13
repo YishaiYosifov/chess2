@@ -16,9 +16,7 @@ describe("QuestLeaderboard", () => {
 
         render(<QuestLeaderboard initialLeaderboard={initialLeaderboard} />);
 
-        expect(screen.getByTestId("questLeaderboardTitle")).toHaveTextContent(
-            "Leaderboard",
-        );
+        expect(screen.getByRole("heading")).toHaveTextContent("Leaderboard");
         expect(
             screen.getByTestId(`leaderboardItem-${firstItem.profile.userId}`),
         ).toBeInTheDocument();
