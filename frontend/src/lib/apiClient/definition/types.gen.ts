@@ -75,17 +75,17 @@ export type CurrentRatingStatus = {
     rating: number;
 };
 
-export type PagedResultOfQuestPointsDto = {
-    items: Array<UserQuestPoints>;
+export type PagedResultOfWinStreakDto = {
+    items: Array<WinStreak>;
     totalCount: number;
     page: number;
     pageSize: number;
     totalPages: number;
 };
 
-export type UserQuestPoints = {
+export type WinStreak = {
     profile: MinimalProfile;
-    questPoints: number;
+    highestStreakGameTokens: Array<string>;
 };
 
 export type MinimalProfile = {
@@ -131,6 +131,19 @@ export enum QuestDifficulty {
      */
     HARD = 20,
 }
+
+export type PagedResultOfQuestPointsDto = {
+    items: Array<UserQuestPoints>;
+    totalCount: number;
+    page: number;
+    pageSize: number;
+    totalPages: number;
+};
+
+export type UserQuestPoints = {
+    profile: MinimalProfile;
+    questPoints: number;
+};
 
 export type SessionUser = {
     userId: string;
@@ -546,7 +559,7 @@ export type GetWinStreakLeaderboardData = {
 };
 
 export type GetWinStreakLeaderboardResponses = {
-    200: PagedResultOfQuestPointsDto;
+    200: PagedResultOfWinStreakDto;
 };
 
 export type GetWinStreakLeaderboardResponse =
