@@ -48,7 +48,7 @@ describe("GameOverPopup", () => {
         store.setState({
             resultData: {
                 result: GameResult.WHITE_WIN,
-                resultDescription: "White Won by Checkmate",
+                resultDescription: "White Won by King Capture",
                 whiteRatingChange: 12,
                 blackRatingChange: -10,
             },
@@ -62,7 +62,9 @@ describe("GameOverPopup", () => {
 
         expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
         expect(screen.getByText("VICTORY")).toBeInTheDocument();
-        expect(screen.getByText("White Won by Checkmate")).toBeInTheDocument();
+        expect(
+            screen.getByText("White Won by King Capture"),
+        ).toBeInTheDocument();
         expect(screen.getByText("+12")).toBeInTheDocument();
         expect(screen.getByText("-10")).toBeInTheDocument();
     });
@@ -171,6 +173,10 @@ describe("GameOverPopup", () => {
     it("should not render rematch button when viewer is a spectator", () => {
         store.setState({
             viewer: { playerColor: null, userId: crypto.randomUUID() },
+            resultData: {
+                result: GameResult.WHITE_WIN,
+                resultDescription: "test",
+            },
         });
 
         render(
@@ -180,5 +186,25 @@ describe("GameOverPopup", () => {
         );
 
         expect(screen.queryByTestId("REMATCH")).not.toBeInTheDocument();
+    });
+
+    it("should show 'GAME OVER' when viewer is a spectator", async () => {
+        store.setState({
+            viewer: { playerColor: null, userId: crypto.randomUUID() },
+            resultData: {
+                result: GameResult.BLACK_WIN,
+                resultDescription: "Black Won on Time",
+            },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameOverPopup />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        expect(screen.getByTestId("gameOverPopup")).toBeInTheDocument();
+        expect(screen.getByText("GAME OVER")).toBeInTheDocument();
+        expect(screen.getByText("Black Won on Time")).toBeInTheDocument();
     });
 });
