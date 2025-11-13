@@ -22,6 +22,9 @@ describe("WinStreakLeaderboard", () => {
         expect(
             screen.getByTestId(`leaderboardItem-${firstItem.profile.userId}`),
         ).toBeInTheDocument();
+        expect(
+            screen.getByTestId("winStreakLeaderboardCountdown"),
+        ).toBeInTheDocument();
 
         const firstItemElement = screen.getAllByTestId(
             "winStreakLeaderboardItem",
