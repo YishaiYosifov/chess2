@@ -16,7 +16,7 @@ public class UserWinStreakFaker : Faker<UserWinStreak>
             f =>
                 [
                     .. Enumerable
-                        .Range(0, currentStreak ?? f.Random.Number(0, 20))
+                        .Range(0, currentStreak ?? f.IndexFaker + 1)
                         .Select(_ => f.Random.AlphaNumeric(16)),
                 ]
         );
@@ -25,7 +25,7 @@ public class UserWinStreakFaker : Faker<UserWinStreak>
             f =>
                 [
                     .. Enumerable
-                        .Range(0, highestStreak ?? f.Random.Number(0, 20))
+                        .Range(0, highestStreak ?? f.IndexFaker + 2)
                         .Select(_ => f.Random.AlphaNumeric(16)),
                 ]
         );
