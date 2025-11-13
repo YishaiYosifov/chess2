@@ -241,6 +241,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
             endStatus.Result
         );
         await EndGameAsync(endStatus, game, token);
+        await _state.WriteStateAsync(token);
 
         return Result.Success;
     }
@@ -258,6 +259,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         if (game.DrawRequest.HasPendingRequest(player.Color))
         {
             await EndGameAsync(_resultDescriber.DrawByAgreement(), game, token);
+            await _state.WriteStateAsync(token);
             return Result.Success;
         }
 
@@ -352,8 +354,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
 
         if (moveResult.EndStatus is not null)
             await EndGameAsync(moveResult.EndStatus, game, token);
-        else
-            await _state.WriteStateAsync(token);
+        await _state.WriteStateAsync(token);
 
         return Result.Success;
     }
@@ -376,6 +377,7 @@ public class GameGrain : Grain, IGameGrain, IGrainBase
         );
 
         await EndGameAsync(_resultDescriber.Timeout(sideToMove), game, token);
+        await _state.WriteStateAsync(token);
     }
 
     private async Task EndGameAsync(

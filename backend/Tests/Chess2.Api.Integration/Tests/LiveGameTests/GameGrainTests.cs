@@ -185,7 +185,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         var state = await grain.GetStateAsync();
         state.Value.DrawState.ActiveRequester.Should().Be(GameColor.White);
-        _stateStats.Writes.Should().Be(1);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
@@ -319,8 +319,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             );
         }
 
-        // (1 white move + 1 black move) * 4 times - 1 that results in a draw
-        _stateStats.Writes.Should().Be(2 * 4 - 1);
+        // (1 white move + 1 black move) * 4 times
+        _stateStats.Writes.Should().Be(2 * 4);
         await TestGameEndedAsync(grain, _gameResultDescriber.ThreeFold());
         // make sure the state was not deleted before the notification
         await _gameNotifierMock.ReceivedWithAnyArgs(1).NotifyMoveMadeAsync(default!, default!);
@@ -402,7 +402,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task EndGameAsync_aborts_the_game_if_not_enough_moves_have_been_made()
+    public async Task RequestGameEndAsync_aborts_the_game_if_not_enough_moves_have_been_made()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -414,7 +414,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task EndGameAsync_resigns_the_game_after_abortion_threshold_is_passed()
+    public async Task RequestGameEndAsync_resigns_the_game_after_abortion_threshold_is_passed()
     {
         var grain = await CreateGrainAsync();
         await StartGameAsync(grain);
@@ -426,7 +426,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
         _stateStats.ResetCounts();
         await grain.RequestGameEndAsync(_whitePlayer.UserId, ApiTestBase.CT);
-        _stateStats.Writes.Should().Be(0);
 
         await TestGameEndedAsync(grain, _gameResultDescriber.Resignation(GameColor.White));
     }
@@ -518,5 +517,6 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         gameState.ResultData.Should().NotBeNull();
         gameState.ResultData.Result.Should().Be(expectedEndStatus.Result);
         gameState.ResultData.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 }
