@@ -79,7 +79,7 @@ const WinStreakLeaderboardItem = ({
                             <Link
                                 key={token}
                                 href={`${constants.PATHS.GAME}/${token}`}
-                                className="bg-primary rounded-md p-3"
+                                className="bg-secondary/50 rounded-md p-3"
                             >
                                 Game #{i + 1}
                             </Link>
