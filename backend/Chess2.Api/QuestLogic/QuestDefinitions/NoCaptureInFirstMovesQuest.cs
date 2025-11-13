@@ -27,6 +27,10 @@ public class NoCaptureInFirstMovesQuest : IQuestDefinition
                         new FirstOwnMoveOccurredMetric(new IsMoveCapture()),
                         greaterThanEqual: minMoves * 2
                     ),
+                    new GreaterThanEqualCondition(
+                        new MoveCountMetric(),
+                        greaterThanEqual: minMoves
+                    ),
                 ]
         );
 }
