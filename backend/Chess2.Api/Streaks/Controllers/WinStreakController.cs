@@ -1,7 +1,6 @@
 ﻿using Chess2.Api.Auth.Services;
 using Chess2.Api.Infrastructure.Extensions;
 using Chess2.Api.Pagination.Models;
-using Chess2.Api.Quests.DTOs;
 using Chess2.Api.Shared.Models;
 using Chess2.Api.Streaks.Models;
 using Chess2.Api.Streaks.Services;
@@ -24,8 +23,8 @@ public class WinStreakController(
     private readonly IValidator<PaginationQuery> _paginationValidator = paginationValidator;
 
     [HttpGet("leaderboard")]
-    [ProducesResponseType<PagedResult<QuestPointsDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResult<QuestPointsDto>>> GetWinStreakLeaderboard(
+    [ProducesResponseType<PagedResult<WinStreakDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<WinStreakDto>>> GetWinStreakLeaderboard(
         [FromQuery] PaginationQuery pagination,
         CancellationToken token = default
     )
