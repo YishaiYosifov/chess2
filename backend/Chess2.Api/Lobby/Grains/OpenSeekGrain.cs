@@ -47,7 +47,7 @@ public class OpenSeekGrain(
     ILogger<OpenSeekGrain> logger,
     IOpenSeekNotifier openSeekNotifier,
     ITimeControlTranslator timeControlTranslator
-) : Grain, IOpenSeekGrain, IGrainBase
+) : Grain, IOpenSeekGrain
 {
     public const int RefetchTimer = 0;
 

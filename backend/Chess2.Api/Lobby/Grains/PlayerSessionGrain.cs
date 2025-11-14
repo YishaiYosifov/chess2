@@ -53,11 +53,7 @@ public class PlayerSessionState
 }
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
-public class PlayerSessionGrain
-    : Grain,
-        IGrainBase,
-        IPlayerSessionGrain,
-        IAsyncObserver<GameEndedEvent>
+public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<GameEndedEvent>
 {
     public const string StateName = "playerSession";
 
