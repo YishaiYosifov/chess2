@@ -1,3 +1,4 @@
+import HomeWinStreakAd from "@/features/home/components/HomeWinStreakAd";
 import HomeIntroSection from "@/features/home/components/HomeIntroSection";
 import HomeFooter from "@/features/home/components/HomeFooter";
 import HomeHero from "@/features/home/components/HomeHero";
@@ -9,6 +10,7 @@ const HomePage = async () => {
         <div className="flex flex-1 flex-col">
             <HomeHero />
             <HomeIntroSection />
+            <HomeWinStreakAd />
             <HomeFooter />
         </div>
     );
