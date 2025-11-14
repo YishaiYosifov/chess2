@@ -45,7 +45,7 @@ describe("WinStreakObjective", () => {
         ).toBeInTheDocument();
         expect(
             screen.getByText(
-                /Play rated matches throughout the week, each consecutive win adds to your streak/i,
+                /Play rated matches until the leaderboard locks, each consecutive win adds to your streak/i,
             ),
         ).toBeInTheDocument();
         expect(

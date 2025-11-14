@@ -23,7 +23,7 @@ const WinStreakObjective = () => {
             />
             <ObjectiveCard
                 title="How to Play"
-                text="Play rated matches throughout the week, each consecutive
+                text="Play rated matches until the leaderboard locks, each consecutive
                     win adds to your streak. Lose once, and your streak resets!"
             />
             <ObjectiveCard
