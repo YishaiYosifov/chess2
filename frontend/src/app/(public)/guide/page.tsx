@@ -2,7 +2,7 @@ import GuideSide from "@/features/guide/components/GuideSide";
 import NewPiecesGuide from "@/features/guide/components/NewPiecesGuide";
 import NewRulesGuide from "@/features/guide/components/NewRulesGuide";
 
-export const metadata = { title: "Guide - Chess 2" };
+export const metadata = { title: "Guide - Anarchy Chess" };
 
 export default function GuidePage() {
     return (

@@ -3,7 +3,7 @@ import OpenSeekDirectory from "@/features/play/components/OpenSeekDirectory";
 import WithOptionalSession from "@/features/auth/hocs/WithOptionalSession";
 import PlayOptions from "@/features/play/components/PlayOptions";
 
-export const metadata = { title: "Play - Chess 2" };
+export const metadata = { title: "Play - Anarchy Chess" };
 
 export default function PlayPage() {
     return (

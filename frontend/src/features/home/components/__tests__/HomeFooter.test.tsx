@@ -3,19 +3,19 @@ import HomeFooter from "../HomeFooter";
 import constants from "@/lib/constants";
 
 describe("HomeFooter", () => {
-    it("should render footer section with About Chess 2 text", () => {
+    it("should render footer section with About Anarchy Chess text", () => {
         render(<HomeFooter />);
 
         const footer = screen.getByRole("contentinfo");
         expect(footer).toBeInTheDocument();
 
         const about = within(footer).getByRole("heading", {
-            name: /About Chess 2/i,
+            name: /About Anarchy Chess/i,
         });
         expect(about).toBeInTheDocument();
 
         const aboutText = screen.getByText(
-            /Chess 2 is my reimagining of chess/i,
+            /Anarchy Chess is my reimagining of chess/i,
         );
         expect(aboutText).toBeInTheDocument();
 

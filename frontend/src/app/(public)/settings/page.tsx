@@ -1,3 +1,3 @@
 import ProfileSettingsPage from "./profile/page";
-export const metadata = { title: "Settings - Chess 2" };
+export const metadata = { title: "Settings - Anarchy Chess" };
 export default ProfileSettingsPage;

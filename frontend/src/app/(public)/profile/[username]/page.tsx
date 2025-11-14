@@ -6,7 +6,7 @@ type Params = Promise<{ username: string }>;
 export async function generateMetadata({ params }: { params: Params }) {
     const { username } = await params;
     return {
-        title: `${username} - Chess 2 Profile - Chess 2`,
+        title: `${username} - Anarchy Chess Profile - Anarchy Chess`,
     };
 }
 

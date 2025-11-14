@@ -18,8 +18,8 @@ const HomeHero = () => {
                 data-testid="homeHeroBanner"
             >
                 <p className="text-4xl sm:text-5xl">WELCOME TO</p>
-                <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl">
-                    CHESS 2
+                <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl xl:ml-10">
+                    CHESS
                 </h1>
                 <h2 className="text-3xl xl:text-end">The Anarchy Update</h2>
 
@@ -27,7 +27,7 @@ const HomeHero = () => {
                     src={Knook}
                     alt="knook"
                     width={700}
-                    className="absolute -bottom-107 -left-60 hidden max-w-none rotate-15 xl:block"
+                    className="absolute -bottom-107 -left-70 hidden max-w-none rotate-15 xl:block"
                     priority
                 />
             </div>

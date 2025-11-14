@@ -13,9 +13,9 @@ const HomeFooter = () => {
                     className="col-span-2 flex flex-col items-center gap-3 text-center md:col-span-1
                         md:items-start md:text-start"
                 >
-                    <h2 className="text-2xl font-bold">About Chess 2</h2>
+                    <h2 className="text-2xl font-bold">About Anarchy Chess</h2>
                     <p className="text-text/70 text-sm">
-                        Chess 2 is my reimagining of chess inspired by the
+                        Anarchy Chess is my reimagining of chess inspired by the
                         ridiculous and stupid ideas of{" "}
                         <Link
                             href="https://reddit.com/r/anarchychess"

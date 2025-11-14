@@ -8,7 +8,7 @@ import { getMyWinStreakStats, getWinStreakLeaderboard } from "@/lib/apiClient";
 import constants from "@/lib/constants";
 import WinStreakLeaderboard from "@/features/winStreak/components/WinStreakLeaderboard";
 
-export const metadata = { title: "Win Streak Challenge - Chess 2" };
+export const metadata = { title: "Win Streak Challenge - Anarchy Chess" };
 
 export default async function WinStreakPage() {
     return (

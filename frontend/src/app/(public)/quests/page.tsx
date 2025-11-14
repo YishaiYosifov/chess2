@@ -13,7 +13,7 @@ import QuestLeaderboard from "@/features/quests/components/QuestLeaderboard";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import constants from "@/lib/constants";
 
-export const metadata = { title: "Quests - Chess 2" };
+export const metadata = { title: "Quests - Anarchy Chess" };
 
 export default async function QuestsPage() {
     return (
