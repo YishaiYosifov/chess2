@@ -36,7 +36,7 @@ const HomeHero = () => {
                 <Card className="border-secondary relative col-span-2 gap-5 border-4 p-2">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-4xl text-balance sm:text-5xl">
-                            PLAY CHESS 2!
+                            PLAY ANARCHY CHESS!
                         </h1>
                         <p className="text-sm md:text-lg">
                             Experience the stupidest chess variant of all time
