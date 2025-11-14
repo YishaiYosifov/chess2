@@ -6,7 +6,7 @@ export const metadata = { title: "Home - Chess 2" };
 
 const HomePage = async () => {
     return (
-        <div className="flex flex-1 flex-col gap-10">
+        <div className="flex flex-1 flex-col">
             <HomeHero />
             <HomeIntroSection />
             <HomeFooter />
