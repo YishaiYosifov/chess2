@@ -3,7 +3,7 @@ import WithSession from "@/features/auth/hocs/WithSession";
 import { getGame, getPreferences } from "@/lib/apiClient";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 
-export const metadata = { title: "Live Game - Chess 2" };
+export const metadata = { title: "Live Game - Anarchy Chess" };
 
 export default async function GamePage({
     params,

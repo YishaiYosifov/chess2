@@ -11,7 +11,7 @@ import AuthPageImage from "@/features/auth/components/AuthPageImage";
 import OAuthButton from "@/features/auth/components/OAuthButton";
 import constants, { OAuthProvider } from "@/lib/constants";
 
-export const metadata = { title: "Login - Chess 2" };
+export const metadata = { title: "Login - Anarchy Chess" };
 
 export default async function RegisterPage() {
     const cookieStore = await cookies();

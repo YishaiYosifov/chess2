@@ -30,7 +30,7 @@ describe("PlayOptions", () => {
                 <PlayOptions />
             </SessionProvider>,
         );
-        expect(screen.getByText("Play Chess 2")).toBeInTheDocument();
+        expect(screen.getByText("Play Anarchy Chess")).toBeInTheDocument();
         expect(screen.getByTestId("playOptions")).toBeInTheDocument();
     });
 

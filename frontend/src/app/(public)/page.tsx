@@ -3,7 +3,7 @@ import HomeIntroSection from "@/features/home/components/HomeIntroSection";
 import HomeFooter from "@/features/home/components/HomeFooter";
 import HomeHero from "@/features/home/components/HomeHero";
 
-export const metadata = { title: "Home - Chess 2" };
+export const metadata = { title: "Home - Anarchy Chess" };
 
 const HomePage = async () => {
     return (
