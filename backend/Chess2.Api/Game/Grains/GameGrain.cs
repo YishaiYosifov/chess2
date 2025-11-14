@@ -63,7 +63,7 @@ public interface IGameGrain : IGrainWithStringKey
 
 [GenerateSerializer]
 [Alias("Chess2.Api.Game.Grains.GameData")]
-public class GameData()
+public class GameData
 {
     [Id(1)]
     public required PlayerRoster Players { get; init; }
@@ -104,9 +104,9 @@ public class GameGrainState
     public GameData? CurrentGame { get; set; }
 }
 
-public class GameGrain : Grain, IGameGrain
+public class GameGrain : Grain, IGameGrain, IRemindable
 {
-    public const string ClockTimerKey = "tickClock";
+    public const string ClockReminder = "clockReminder";
     public const string StateName = "game";
 
     private readonly string _token;
@@ -179,6 +179,12 @@ public class GameGrain : Grain, IGameGrain
             dueTime: TimeSpan.Zero,
             period: TimeSpan.FromSeconds(1)
         );
+        await this.RegisterOrUpdateReminder(
+            ClockReminder,
+            dueTime: TimeSpan.FromMinutes(5),
+            period: TimeSpan.FromMinutes(5)
+        );
+
         await _state.WriteStateAsync(token);
     }
 
@@ -359,6 +365,23 @@ public class GameGrain : Grain, IGameGrain
         return Result.Success;
     }
 
+    public Task ReceiveReminder(string reminderName, TickStatus status)
+    {
+        if (
+            reminderName != ClockReminder
+            || !TryGetCurrentGame(out var game)
+            || game.Result is not null
+        )
+            return Task.CompletedTask;
+
+        _clockTimer = this.RegisterGrainTimer(
+            callback: HandleClockTickAsync,
+            dueTime: TimeSpan.Zero,
+            period: TimeSpan.FromSeconds(1)
+        );
+        return Task.CompletedTask;
+    }
+
     private async Task HandleClockTickAsync(CancellationToken token = default)
     {
         if (!TryGetCurrentGame(out var game))
@@ -401,6 +424,10 @@ public class GameGrain : Grain, IGameGrain
         await streamProvider
             .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.Players.BlackPlayer.UserId)
             .OnNextAsync(endedEvent);
+
+        var reminder = await this.GetReminder(ClockReminder);
+        if (reminder is not null)
+            await this.UnregisterReminder(reminder);
 
         _clockTimer?.Dispose();
         _clockTimer = null;
