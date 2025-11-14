@@ -20,9 +20,9 @@ describe("HomeHero", () => {
         expect(image).toBeInTheDocument();
     });
 
-    it("should render the main 'PLAY CHESS 2!' card with button", () => {
+    it("should render the main 'PLAY ANARCHY CHESS!' card with button", () => {
         render(<HomeHero />);
-        expect(screen.getByText("PLAY CHESS 2!")).toBeInTheDocument();
+        expect(screen.getByText("PLAY ANARCHY CHESS!")).toBeInTheDocument();
         expect(
             screen.getByText(/stupidest chess variant/i),
         ).toBeInTheDocument();
