@@ -15,6 +15,7 @@ using Chess2.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Moq;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
@@ -87,7 +88,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             Streaming.StreamProvider
         );
 
-    private async Task<IGameGrain> CreateGrainAsync() =>
+    private async Task<GameGrain> CreateGrainAsync() =>
         await Silo.CreateGrainAsync<GameGrain>(_gameToken);
 
     [Fact]
@@ -455,7 +456,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     private Move GetLegalMoveFor(GamePlayer player) =>
         _gameCore.GetLegalMovesOf(player.Color, _state.CurrentGame!.Core).MoveMap.First().Value;
 
-    private async Task<Move> MakeLegalMoveAsync(IGameGrain grain, GamePlayer player)
+    private async Task<Move> MakeLegalMoveAsync(GameGrain grain, GamePlayer player)
     {
         var move = GetLegalMoveFor(player);
         await grain.MovePieceAsync(player.UserId, key: new MoveKey(move));
@@ -463,7 +464,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
     }
 
     private async Task StartGameAsync(
-        IGameGrain grain,
+        GameGrain grain,
         GamePlayer? whitePlayer = null,
         GamePlayer? blackPlayer = null,
         TimeControlSettings? timeControl = null,
@@ -483,7 +484,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         _stateStats.ResetCounts();
     }
 
-    private async Task TestGameEndedAsync(IGameGrain grain, GameEndStatus expectedEndStatus)
+    private async Task TestGameEndedAsync(GameGrain grain, GameEndStatus expectedEndStatus)
     {
         await _gameNotifierMock
             .Received(1)
@@ -518,5 +519,12 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         gameState.ResultData.Result.Should().Be(expectedEndStatus.Result);
         gameState.ResultData.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+
+        Silo.ReminderRegistry.Mock.Verify(x =>
+            x.UnregisterReminder(
+                Silo.GetGrainId(grain),
+                It.Is<IGrainReminder>(r => r.ReminderName == GameGrain.ClockReminder)
+            )
+        );
     }
 }

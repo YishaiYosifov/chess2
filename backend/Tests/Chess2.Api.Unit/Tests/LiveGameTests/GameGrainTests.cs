@@ -10,6 +10,7 @@ using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
+using Orleans.TestKit;
 
 namespace Chess2.Api.Unit.Tests.LiveGameTests;
 
@@ -27,7 +28,7 @@ public class GameGrainTests : BaseGrainTest
     }
 
     [Fact]
-    public async Task StartGame_initializes_the_game_and_transitions_to_playing_state()
+    public async Task StartGameAsync_initializes_the_game_and_transitions_to_playing_state()
     {
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
         Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(0);
@@ -43,6 +44,59 @@ public class GameGrainTests : BaseGrainTest
                 It.IsAny<It.IsAnyType>(),
                 new() { DueTime = TimeSpan.Zero, Period = TimeSpan.FromSeconds(1) }
             )
+        );
+        Silo.ReminderRegistry.Mock.Verify(x =>
+            x.RegisterOrUpdateReminder(
+                Silo.GetGrainId(grain),
+                GameGrain.ClockReminder,
+                TimeSpan.FromMinutes(5),
+                TimeSpan.FromMinutes(5)
+            )
+        );
+    }
+
+    [Fact]
+    public async Task ReceiveReminder_restarts_clock_timer_when_game_is_not_over()
+    {
+        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+        await StartGameAsync(grain);
+        Silo.TimerRegistry.Mock.Reset();
+
+        await Silo.FireAllReminders();
+
+        var context = Silo.GetContextFromGrain(grain);
+        Silo.TimerRegistry.Mock.Verify(x =>
+            x.RegisterGrainTimer(
+                context,
+                It.IsAny<Func<It.IsAnyType, CancellationToken, Task>>(),
+                It.IsAny<It.IsAnyType>(),
+                new() { DueTime = TimeSpan.Zero, Period = TimeSpan.FromSeconds(1) }
+            )
+        );
+    }
+
+    [Fact]
+    public async Task ReceiveReminder_ignores_when_game_is_over()
+    {
+        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+        await StartGameAsync(grain);
+        Silo.TimerRegistry.Mock.Reset();
+
+        var state = Silo.StorageManager.GetStorage<GameGrainState>(GameGrain.StateName);
+        state.State.CurrentGame!.Result = new GameResultDataFaker().Generate();
+        await state.WriteStateAsync(CT);
+
+        await Silo.FireAllReminders();
+
+        Silo.TimerRegistry.Mock.Verify(
+            x =>
+                x.RegisterGrainTimer(
+                    It.IsAny<IGrainContext>(),
+                    It.IsAny<Func<It.IsAnyType, CancellationToken, Task>>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<GrainTimerCreationOptions>()
+                ),
+            Times.Never
         );
     }
 
