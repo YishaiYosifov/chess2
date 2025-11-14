@@ -32,7 +32,7 @@ public interface IGameChatGrain : IGrainWithStringKey
     );
 }
 
-public class GameChatGrain : Grain, IGameChatGrain, IGrainBase
+public class GameChatGrain : Grain, IGameChatGrain
 {
     private readonly string _gameToken;
 

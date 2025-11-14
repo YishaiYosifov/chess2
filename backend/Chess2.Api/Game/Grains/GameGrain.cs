@@ -104,7 +104,7 @@ public class GameGrainState
     public GameData? CurrentGame { get; set; }
 }
 
-public class GameGrain : Grain, IGameGrain, IGrainBase
+public class GameGrain : Grain, IGameGrain
 {
     public const string ClockTimerKey = "tickClock";
     public const string StateName = "game";
