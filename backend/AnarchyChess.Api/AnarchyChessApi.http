@@ -1,0 +1,6 @@
+@AnarchyChess.Api_HostAddress = http://localhost:5116
+
+GET {{AnarchyChess.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

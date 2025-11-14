@@ -1,0 +1,55 @@
+﻿using AnarchyChess.Api.Preferences.DTOs;
+using AnarchyChess.Api.Preferences.Models;
+using AnarchyChess.Api.Profile.Models;
+using AnarchyChess.Api.Social.Services;
+
+namespace AnarchyChess.Api.Preferences.Services;
+
+public interface IInteractionLevelGate
+{
+    Task<bool> CanInteractWithAsync(
+        Func<PreferenceDto, InteractionLevel> getInteractionLevel,
+        UserId requesterId,
+        UserId recipientId
+    );
+}
+
+public class InteractionLevelGate(
+    IPreferenceService preferenceService,
+    IBlockService blockService,
+    IStarService starService
+) : IInteractionLevelGate
+{
+    private readonly IPreferenceService _preferenceService = preferenceService;
+    private readonly IBlockService _blockService = blockService;
+    private readonly IStarService _starService = starService;
+
+    public async Task<bool> CanInteractWithAsync(
+        Func<PreferenceDto, InteractionLevel> getInteractionLevel,
+        UserId requesterId,
+        UserId recipientId
+    )
+    {
+        var preference = await _preferenceService.GetPreferencesAsync(recipientId);
+        var interactionLevel = getInteractionLevel(preference);
+        if (interactionLevel is InteractionLevel.NoOne)
+            return false;
+
+        if (interactionLevel is InteractionLevel.LoggedIn && requesterId.IsGuest)
+            return false;
+
+        if (await _blockService.HasBlockedAsync(byUserId: recipientId, blockedUserId: requesterId))
+            return false;
+
+        if (
+            interactionLevel is InteractionLevel.Starred
+            && !await _starService.HasStarredAsync(
+                byUserId: recipientId,
+                starredUserId: requesterId
+            )
+        )
+            return false;
+
+        return true;
+    }
+}
