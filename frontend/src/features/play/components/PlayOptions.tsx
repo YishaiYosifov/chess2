@@ -31,7 +31,7 @@ const PlayOptions = () => {
 
     return (
         <Card data-testid="playOptions" className="items-center gap-7 pt-10">
-            <h1 className="text-5xl">Play Anarchy Chess</h1>
+            <h1 className="text-center text-5xl">Play Anarchy Chess</h1>
 
             <div className="flex w-full flex-col">
                 {showPoolToggle && (
