@@ -1,38 +1,37 @@
 services:
-  chess2.api:
-    image: ${DOCKER_REGISTRY-}chess2api
-    build:
-      context: .
-      dockerfile: Chess2.Api/Dockerfile
-    depends_on:
-      - postgres
-      - dragonfly
-    restart: unless-stopped
+    anarchychess.api:
+        image: ${DOCKER_REGISTRY-}anarchychessapi
+        build:
+            context: .
+            dockerfile: AnarchyChess.Api/Dockerfile
+        depends_on:
+            - postgres
+            - dragonfly
+        restart: unless-stopped
 
-  postgres:
-    image: postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgresdata:/var/lib/postgresql/data
-    restart: unless-stopped
+    postgres:
+        image: postgres
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgresdata:/var/lib/postgresql/data
+        restart: unless-stopped
 
-  dragonfly:
-    image: docker.dragonflydb.io/dragonflydb/dragonfly
-    ulimits:
-      memlock: -1
-    environment:
-      DFLY_requirepass: ${DFLY_requirepass}
-    ports:
-      - "6379:6379"
-    volumes:
-      - dragonflydata:/data
-    restart: unless-stopped
+    dragonfly:
+        image: docker.dragonflydb.io/dragonflydb/dragonfly
+        ulimits:
+            memlock: -1
+        environment:
+            DFLY_requirepass: ${DFLY_requirepass}
+        ports:
+            - "6379:6379"
+        volumes:
+            - dragonflydata:/data
+        restart: unless-stopped
 
 volumes:
-  dragonflydata:
-  postgresdata:
-  
+    dragonflydata:
+    postgresdata:

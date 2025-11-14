@@ -1,0 +1,168 @@
+﻿using AnarchyChess.Api.ArchivedGames.Entities;
+using AnarchyChess.Api.ArchivedGames.Models;
+using AnarchyChess.Api.ArchivedGames.Repositories;
+using AnarchyChess.Api.Game.Models;
+using AnarchyChess.Api.GameSnapshot.Models;
+using AnarchyChess.Api.Pagination.Models;
+using AnarchyChess.Api.Profile.Models;
+using AnarchyChess.Api.Shared.Models;
+using AnarchyChess.Api.UserRating.Models;
+
+namespace AnarchyChess.Api.ArchivedGames.Services;
+
+public interface IGameArchiveService
+{
+    Task<GameArchive> CreateArchiveAsync(
+        GameToken gameToken,
+        GameState state,
+        GameEndStatus endStatus,
+        RatingChange? ratingChange,
+        CancellationToken token = default
+    );
+    Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
+        UserId userId,
+        PaginationQuery pagination,
+        CancellationToken token = default
+    );
+}
+
+public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : IGameArchiveService
+{
+    private readonly IGameArchiveRepository _gameArchiveRepository = gameArchiveRepository;
+
+    public async Task<GameArchive> CreateArchiveAsync(
+        GameToken gameToken,
+        GameState state,
+        GameEndStatus endStatus,
+        RatingChange? ratingChange,
+        CancellationToken token = default
+    )
+    {
+        var whiteArchive = CreatePlayerArchive(
+            state.WhitePlayer,
+            ratingChange?.WhiteChange,
+            state.Clocks.WhiteClock
+        );
+        var blackArchive = CreatePlayerArchive(
+            state.BlackPlayer,
+            ratingChange?.BlackChange,
+            state.Clocks.BlackClock
+        );
+        List<MoveArchive> moves = [];
+        for (int i = 0; i < state.MoveHistory.Count; i++)
+        {
+            var moveArchive = CreateMoveArchive(state.MoveHistory.ElementAt(i), i);
+            moves.Add(moveArchive);
+        }
+
+        GameArchive gameArchive = new()
+        {
+            GameToken = gameToken,
+            Result = endStatus.Result,
+            ResultDescription = endStatus.ResultDescription,
+            WhitePlayerId = whiteArchive.Id,
+            WhitePlayer = whiteArchive,
+            BlackPlayerId = blackArchive.Id,
+            BlackPlayer = blackArchive,
+            InitialFen = state.InitialFen,
+            Moves = moves,
+            GameSource = state.GameSource,
+            PoolType = state.Pool.PoolType,
+            BaseSeconds = state.Pool.TimeControl.BaseSeconds,
+            IncrementSeconds = state.Pool.TimeControl.IncrementSeconds,
+        };
+
+        await _gameArchiveRepository.AddArchiveAsync(gameArchive, token);
+        return gameArchive;
+    }
+
+    public async Task<PagedResult<GameSummaryDto>> GetPaginatedResultsAsync(
+        UserId userId,
+        PaginationQuery pagination,
+        CancellationToken token = default
+    )
+    {
+        var archives = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
+            userId,
+            pagination,
+            token
+        );
+        var totalCount = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, token);
+
+        var summeries = archives.Select(CreateGameSummary);
+        return new(
+            Items: summeries,
+            TotalCount: totalCount,
+            Page: pagination.Page,
+            PageSize: pagination.PageSize
+        );
+    }
+
+    private static GameSummaryDto CreateGameSummary(GameArchive archive) =>
+        new(
+            archive.GameToken,
+            new PlayerSummaryDto(
+                UserId: archive.WhitePlayer.UserId,
+                UserName: archive.WhitePlayer.UserName,
+                Rating: archive.WhitePlayer.NewRating
+            ),
+            new PlayerSummaryDto(
+                UserId: archive.BlackPlayer.UserId,
+                UserName: archive.BlackPlayer.UserName,
+                Rating: archive.BlackPlayer.NewRating
+            ),
+            archive.Result,
+            CreatedAt: archive.CreatedAt
+        );
+
+    private static PlayerArchive CreatePlayerArchive(
+        GamePlayer player,
+        int? ratingChange,
+        double timeRemaining
+    ) =>
+        new()
+        {
+            Color = player.Color,
+            UserId = player.UserId,
+            UserName = player.UserName,
+            FinalTimeRemaining = timeRemaining,
+            CountryCode = player.CountryCode,
+            NewRating = player.Rating + (ratingChange ?? 0),
+            RatingChange = ratingChange,
+        };
+
+    private static MoveArchive CreateMoveArchive(MoveSnapshot moveSnapshot, int moveNumber)
+    {
+        var path = moveSnapshot.Path;
+        var sideEffects =
+            path.SideEffects?.Select(x => new MoveSideEffectArchive
+                {
+                    FromIdx = x.FromIdx,
+                    ToIdx = x.ToIdx,
+                })
+                .ToList() ?? [];
+        var pieceSpawns =
+            path.PieceSpawns?.Select(x => new PieceSpawnArchive
+                {
+                    Type = x.Type,
+                    Color = x.Color,
+                    PosIdx = x.PosIdx,
+                })
+                .ToList() ?? [];
+
+        return new()
+        {
+            MoveNumber = moveNumber,
+            San = moveSnapshot.San,
+            TimeLeft = moveSnapshot.TimeLeft,
+            FromIdx = path.FromIdx,
+            ToIdx = path.ToIdx,
+            Captures = path.CapturedIdxs?.ToList() ?? [],
+            Triggers = path.TriggerIdxs?.ToList() ?? [],
+            Intermediates = path.IntermediateIdxs?.ToList() ?? [],
+            SideEffects = sideEffects,
+            PieceSpawns = pieceSpawns,
+            PromotesTo = path.PromotesTo,
+        };
+    }
+}

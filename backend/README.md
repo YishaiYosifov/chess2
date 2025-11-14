@@ -1,6 +1,6 @@
 # Setup
 
-To initialize oauth, run in the Chess2.API project
+To initialize oauth, run in the AnarchyChess.API project
 
 ```bash
 dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
