@@ -17,7 +17,7 @@ const HomeHero = () => {
                 className="relative flex h-full flex-col text-center text-nowrap xl:text-start"
                 data-testid="homeHeroBanner"
             >
-                <p className="text-4xl sm:text-5xl">WELCOME TO</p>
+                <p className="text-4xl sm:text-5xl">Welcome To</p>
                 <h1 className="text-7xl min-[375px]:text-8xl sm:text-9xl xl:ml-10">
                     CHESS
                 </h1>
