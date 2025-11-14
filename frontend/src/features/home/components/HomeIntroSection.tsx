@@ -66,8 +66,8 @@ const HomeIntroSection = () => {
                         }, // p-5 + p-5 + sidebar
                     },
                 ]}
-                defaultOffset={{ width: 500, height: 0, maxSize: 400 }}
-                className="justify-self-center"
+                defaultOffset={{ width: 700, height: 0, maxSize: 400 }}
+                className="my-auto justify-self-center"
                 replays={typedHomePageReplay}
                 canDrag={false}
             />
