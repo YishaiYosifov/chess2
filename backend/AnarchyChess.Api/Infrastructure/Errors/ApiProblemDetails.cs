@@ -72,4 +72,6 @@ public static class ErrorCodes
     public const string ChallengeNotFound = "Challenge.NotFound";
 
     public const string DonationWebhookInvalidJson = "Donation.Webhook.InvalidJson";
+    public const string DonationWebhookInvalidVerificationCode =
+        "Donation.Webhook.InvalidVerificationCode";
 }
