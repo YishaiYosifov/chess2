@@ -470,6 +470,7 @@ builder.Services.AddScoped<IWinStreakService, WinStreakService>();
 
 #region Donations
 builder.Services.AddScoped<IKofiWebhookService, KofiWebhookService>();
+builder.Services.AddScoped<IDonationWallService, DonationWallService>();
 builder.Services.AddScoped<IDonationRepository, DonationRepository>();
 #endregion
 
