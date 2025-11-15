@@ -11,6 +11,7 @@ import {
     ArrowLeftEndOnRectangleIcon,
     BookOpenIcon,
 } from "@heroicons/react/24/outline";
+import { HeartIcon } from "@heroicons/react/16/solid";
 
 import Link from "next/link";
 
@@ -84,14 +85,14 @@ export const UpperNavItems = ({
                 Quests
             </NavItem>
             {hasAccessCookie ? authedLinks : unauthedLinks}
-            {/* <NavItem
+            <NavItem
                 as={Link}
-                href="/donate"
+                href={constants.PATHS.DONATE}
                 icon={<HeartIcon color="red" />}
                 isCollapsed={isCollapsed}
             >
                 Donate
-            </NavItem> */}
+            </NavItem>
         </>
     );
 };
