@@ -51,6 +51,7 @@ public class KofiWebhookService(
             );
             return Result.Updated;
         }
+
         await RecordDonationAsync(kofiDonation, token);
         await _unitOfWork.CompleteAsync(token);
 
