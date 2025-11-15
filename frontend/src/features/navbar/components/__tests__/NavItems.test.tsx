@@ -27,11 +27,10 @@ describe("UpperNavItems", () => {
             "href",
             constants.PATHS.QUESTS,
         );
-        // TODO
-        // expect(screen.getByText("Donate").closest("a")).toHaveAttribute(
-        //     "href",
-        //     "/donate",
-        // );
+        expect(screen.getByText("Donate").closest("a")).toHaveAttribute(
+            "href",
+            constants.PATHS.DONATE,
+        );
     });
 
     it("should render with the correct href when authenticated", () => {
