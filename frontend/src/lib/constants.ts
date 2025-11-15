@@ -30,7 +30,7 @@ const PATHS = {
     REGISTER: "/register",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
-    DONATE: "/donate",
+    DONATE: "https://ko-fi.com/anarchychess",
     GAME: "/game",
     PLAY: "/play",
     GUIDE: "/guide",
