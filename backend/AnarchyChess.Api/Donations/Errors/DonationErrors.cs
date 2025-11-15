@@ -10,4 +10,9 @@ public static class DonationErrors
             ErrorCodes.DonationWebhookInvalidJson,
             "The provided webhook JSON is invalid"
         );
+    public static Error InvalidWebhookVerificationCode =>
+        Error.Unauthorized(
+            ErrorCodes.DonationWebhookInvalidVerificationCode,
+            "The provided webhook verification code is invalid"
+        );
 }
