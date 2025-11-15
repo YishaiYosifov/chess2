@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.Donations.Services;
+using AnarchyChess.Api.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AnarchyChess.Api.Donations.Controllers;
@@ -12,7 +13,7 @@ public class DonationsController(IKofiWebhookService kofiWebhookService) : Contr
     [HttpPost("webhook")]
     public async Task<ActionResult> KofiWebhook([FromForm] string data)
     {
-        await _kofiWebhookService.ReceiveWebhookAsync(data);
-        return Ok();
+        var result = await _kofiWebhookService.ReceiveWebhookAsync(data);
+        return result.Match(onValue: value => Ok(), onError: errors => errors.ToActionResult());
     }
 }
