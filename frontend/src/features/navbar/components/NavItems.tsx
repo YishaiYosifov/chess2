@@ -2,7 +2,6 @@
 
 import {
     PlayIcon,
-    PlusIcon,
     Cog6ToothIcon,
     UserCircleIcon,
     BoltSlashIcon,
@@ -25,39 +24,6 @@ export const UpperNavItems = ({
     hasAccessCookie: boolean;
     isCollapsed?: boolean;
 }) => {
-    const authedLinks = (
-        <NavItem
-            as={Link}
-            href="/profile"
-            icon={<UserCircleIcon />}
-            isCollapsed={isCollapsed}
-        >
-            Profile
-        </NavItem>
-    );
-    const unauthedLinks = (
-        <>
-            <NavItem
-                as={Link}
-                href="/register"
-                icon={<PlusIcon />}
-                isCollapsed={isCollapsed}
-                className="text-secondary rounded-md"
-            >
-                Sign Up
-            </NavItem>
-            <NavItem
-                as={Link}
-                href="/register"
-                icon={<ArrowLeftEndOnRectangleIcon />}
-                isCollapsed={isCollapsed}
-                className="text-secondary rounded-md"
-            >
-                Login
-            </NavItem>
-        </>
-    );
-
     return (
         <>
             <NavItem
@@ -84,7 +50,17 @@ export const UpperNavItems = ({
             >
                 Quests
             </NavItem>
-            {hasAccessCookie ? authedLinks : unauthedLinks}
+
+            {hasAccessCookie && (
+                <NavItem
+                    as={Link}
+                    href="/profile"
+                    icon={<UserCircleIcon />}
+                    isCollapsed={isCollapsed}
+                >
+                    Profile
+                </NavItem>
+            )}
             <NavItem
                 as={Link}
                 href={constants.PATHS.DONATE}
@@ -93,6 +69,20 @@ export const UpperNavItems = ({
             >
                 Donate
             </NavItem>
+
+            {!hasAccessCookie && (
+                <NavItem
+                    as={Link}
+                    href="/register"
+                    icon={<ArrowLeftEndOnRectangleIcon />}
+                    isCollapsed={isCollapsed}
+                    className="text-secondary rounded-md"
+                >
+                    <div className="flex flex-col gap-1">
+                        <span>Sign In</span>
+                    </div>
+                </NavItem>
+            )}
         </>
     );
 };
