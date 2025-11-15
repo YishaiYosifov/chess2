@@ -1,5 +1,6 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Entities;
 using AnarchyChess.Api.Auth.Entities;
+using AnarchyChess.Api.Donations.Entities;
 using AnarchyChess.Api.Game.Entities;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Preferences.Entities;
@@ -39,6 +40,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public required DbSet<UserQuestPoints> QuestPoints { get; set; }
 
     public required DbSet<UserWinStreak> WinStreaks { get; set; }
+
+    public required DbSet<Donation> Donations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
