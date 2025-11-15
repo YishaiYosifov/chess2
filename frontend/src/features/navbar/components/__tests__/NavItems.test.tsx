@@ -7,11 +7,7 @@ describe("UpperNavItems", () => {
     it("should render with the correct href when not authenticated", () => {
         render(<UpperNavItems hasAccessCookie={false} />);
 
-        expect(screen.getByText("Login").closest("a")).toHaveAttribute(
-            "href",
-            constants.PATHS.REGISTER,
-        );
-        expect(screen.getByText("Sign Up").closest("a")).toHaveAttribute(
+        expect(screen.getByText("Sign In").closest("a")).toHaveAttribute(
             "href",
             constants.PATHS.REGISTER,
         );
@@ -31,6 +27,8 @@ describe("UpperNavItems", () => {
             "href",
             constants.PATHS.DONATE,
         );
+
+        expect(screen.queryByText("Profile")).not.toBeInTheDocument();
     });
 
     it("should render with the correct href when authenticated", () => {
@@ -40,6 +38,7 @@ describe("UpperNavItems", () => {
             "href",
             constants.PATHS.PROFILE,
         );
+        expect(screen.queryByText("Sign In")).not.toBeInTheDocument();
     });
 });
 
