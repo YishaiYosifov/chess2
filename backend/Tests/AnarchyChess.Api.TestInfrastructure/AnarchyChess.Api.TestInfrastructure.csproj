@@ -38,5 +38,9 @@
   <ItemGroup>
     <ProjectCapability Remove="TestContainer" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Scripts\**\*.*" Link="Scripts\%(RecursiveDir)%(Filename)%(Extension)"  CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
     
 </Project>
