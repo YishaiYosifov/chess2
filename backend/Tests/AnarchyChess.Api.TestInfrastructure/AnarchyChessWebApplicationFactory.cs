@@ -1,5 +1,4 @@
-﻿using System.Data.Common;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using AnarchyChess.Api.Infrastructure;
 using FluentStorage;
@@ -12,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
+using Orleans.Providers;
 using Refit;
 using Respawn;
 using Serilog;
@@ -42,7 +42,7 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
         .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
         .Build();
 
-    private DbConnection _dbConnection = null!;
+    private NpgsqlConnection _dbConnection = null!;
     private Respawner _respawner = null!;
     private IDatabase _redisDb = null!;
 
@@ -58,6 +58,22 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                         .UseNpgsql(_dbContainer.GetConnectionString())
                         .UseSnakeCaseNamingConvention()
                 );
+                services.AddAdoNetGrainStorage(
+                    ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME,
+                    options =>
+                    {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = _dbContainer.GetConnectionString();
+                    }
+                );
+                services.UseAdoNetReminderService(services =>
+                {
+                    services.Configure(options =>
+                    {
+                        options.Invariant = "Npgsql";
+                        options.ConnectionString = _dbContainer.GetConnectionString();
+                    });
+                });
 
                 services.RemoveAll<IConnectionMultiplexer>();
                 services.AddSingleton<IConnectionMultiplexer>(
@@ -125,8 +141,8 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
         await _redisContainer.StartAsync();
         await _azuriteContainer.StartAsync();
 
-        await InitializeDbContainer();
-        await InitializeRespawner();
+        _dbConnection = await InitializeDbContainerAsync();
+        _respawner = await InitializeRespawnerAsync(_dbConnection);
         InitializeRedisContainer();
     }
 
@@ -145,21 +161,38 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
         _redisDb = redisConnection.GetDatabase();
     }
 
-    private async Task InitializeDbContainer()
+    private async Task<NpgsqlConnection> InitializeDbContainerAsync()
     {
+        var connection = new NpgsqlConnection(_dbContainer.GetConnectionString());
+        await connection.OpenAsync();
+
+        await SetupAdoNetAsync(connection);
         using var scope = Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await dbContext.Database.EnsureCreatedAsync();
+
+        return connection;
     }
 
-    private async Task InitializeRespawner()
+    private static async Task SetupAdoNetAsync(NpgsqlConnection connection)
     {
-        _dbConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
-        await _dbConnection.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(
-            _dbConnection,
-            new() { DbAdapter = DbAdapter.Postgres }
-        );
+        var sqlDir = Path.Combine(AppContext.BaseDirectory, "Scripts/Orleans");
+        var scripts = Directory.GetFiles(sqlDir, "*.sql", SearchOption.AllDirectories).Order();
+        foreach (var file in scripts)
+        {
+            var sql = await File.ReadAllTextAsync(file);
+            await using var cmd = new NpgsqlCommand(sql, connection);
+            var result = await cmd.ExecuteNonQueryAsync();
+        }
     }
+
+    private static Task<Respawner> InitializeRespawnerAsync(NpgsqlConnection connection) =>
+        Respawner.CreateAsync(
+            connection,
+            new()
+            {
+                DbAdapter = DbAdapter.Postgres,
+                TablesToIgnore = ["orleansquery", "orleansreminderstable", "orleansstorage"],
+            }
+        );
 }
