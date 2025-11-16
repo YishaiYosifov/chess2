@@ -151,10 +151,6 @@ builder.Services.AddSingleton(
 );
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddScoped<ICurrentRatingRepository, CurrentRatingRepository>();
-builder.Services.AddScoped<IRatingArchiveRepository, RatingArchiveRepository>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 #endregion
 
 #region Authentication
@@ -307,6 +303,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddSingleton<IAuthCookieSetter, AuthCookieSetter>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 builder.Services.AddScoped<IOAuthAuthenticator, GoogleOAuthAuthenticator>();
 builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
@@ -377,7 +374,6 @@ builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
 builder.Services.AddSingleton<IGameResultDescriber, GameResultDescriber>();
 builder.Services.AddSingleton<IGameNotifier, GameNotifier>();
-builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddSingleton<IRematchNotifier, RematchNotifier>();
 
 builder.Services.AddTransient<IGameCore, GameCore>();
@@ -412,6 +408,12 @@ builder.Services.AddSingleton<IPieceDefinition, TraitorRookDefinition>();
 builder.Services.AddSingleton<IPieceDefinition, CheckerDefinition>();
 
 builder.Services.AddSingleton<IForeveRule, OmnipotentPawnRule>();
+#endregion
+
+#region Rating
+builder.Services.AddScoped<IRatingService, RatingService>();
+builder.Services.AddScoped<ICurrentRatingRepository, CurrentRatingRepository>();
+builder.Services.AddScoped<IRatingArchiveRepository, RatingArchiveRepository>();
 #endregion
 
 #region Game Chat
