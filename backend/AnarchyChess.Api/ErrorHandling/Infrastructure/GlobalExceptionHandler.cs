@@ -2,7 +2,7 @@
 using ErrorOr;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace AnarchyChess.Api.Infrastructure;
+namespace AnarchyChess.Api.ErrorHandling.Infrastructure;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
