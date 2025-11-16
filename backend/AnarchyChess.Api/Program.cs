@@ -466,12 +466,6 @@ builder.Services.AddScoped<IWinStreakRepository, WinStreakRepository>();
 builder.Services.AddScoped<IWinStreakService, WinStreakService>();
 #endregion
 
-#region Donations
-builder.Services.AddScoped<IKofiWebhookService, KofiWebhookService>();
-builder.Services.AddScoped<IDonationWallService, DonationWallService>();
-builder.Services.AddScoped<IDonationRepository, DonationRepository>();
-#endregion
-
 builder.Services.AddSingleton<IShardRouter, ShardRouter>();
 builder.Services.AddSingleton<IRandomCodeGenerator, RandomCodeGenerator>();
 builder.Services.AddSingleton<IRandomProvider, RandomProvider>();
