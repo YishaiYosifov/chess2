@@ -65,8 +65,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     private readonly Dictionary<UserId, Seeker> _pendingSeekBroadcast = [];
 
     public MatchmakingGrain(
-        [PersistentState(StateName, Storage.StorageProvider)]
-            IPersistentState<MatchmakingGrainState<TPool>> state,
+        [PersistentState(StateName)] IPersistentState<MatchmakingGrainState<TPool>> state,
         ILogger<MatchmakingGrain<TPool>> logger,
         IGameStarter gameStarter,
         IOptions<AppSettings> settings,

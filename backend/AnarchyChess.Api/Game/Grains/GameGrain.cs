@@ -125,8 +125,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
 
     public GameGrain(
         ILogger<GameGrain> logger,
-        [PersistentState(StateName, Storage.StorageProvider)]
-            IPersistentState<GameGrainState> state,
+        [PersistentState(StateName)] IPersistentState<GameGrainState> state,
         IOptions<AppSettings> settings,
         IGameCore core,
         IGameClock clock,

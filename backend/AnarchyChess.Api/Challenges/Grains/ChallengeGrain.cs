@@ -3,7 +3,6 @@ using AnarchyChess.Api.Challenges.Models;
 using AnarchyChess.Api.Challenges.Services;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
-using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
@@ -62,8 +61,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
 
     public ChallengeGrain(
         ILogger<ChallengeGrain> logger,
-        [PersistentState(StateName, Storage.StorageProvider)]
-            IPersistentState<ChallengeGrainStorage> state,
+        [PersistentState(StateName)] IPersistentState<ChallengeGrainStorage> state,
         IOptions<AppSettings> settings,
         IChallengeNotifier challengeNotifier,
         IGameStarter gameStarter

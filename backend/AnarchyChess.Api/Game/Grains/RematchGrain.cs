@@ -2,7 +2,6 @@
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.GameLogic.Extensions;
-using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
@@ -51,8 +50,7 @@ public class RematchGrainState
 }
 
 public class RematchGrain(
-    [PersistentState(RematchGrain.StateName, Storage.StorageProvider)]
-        IPersistentState<RematchGrainState> state,
+    [PersistentState(RematchGrain.StateName)] IPersistentState<RematchGrainState> state,
     IOptions<AppSettings> settings,
     IRematchNotifier rematchNotifier,
     IGameStarter gameStarter

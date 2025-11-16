@@ -68,8 +68,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     private readonly LobbySettings _settings;
 
     public PlayerSessionGrain(
-        [PersistentState(StateName, Storage.StorageProvider)]
-            IPersistentState<PlayerSessionState> state,
+        [PersistentState(StateName)] IPersistentState<PlayerSessionState> state,
         ILogger<PlayerSessionGrain> logger,
         ILobbyNotifier matchmakingNotifier,
         IOptions<AppSettings> settings
