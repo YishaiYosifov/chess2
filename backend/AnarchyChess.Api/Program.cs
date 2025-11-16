@@ -336,7 +336,11 @@ builder.Host.UseOrleans(siloBuilder =>
             ServiceDescriptor.Singleton<ISpecializableCodec, GeneratedArrayExpressionCodec>()
         );
     });
-    siloBuilder.AddMemoryGrainStorage(Storage.StorageProvider);
+    siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
+    {
+        options.ConnectionString = appSettings.DatabaseConnString;
+        options.Invariant = "Npgsql";
+    });
 
     siloBuilder.UseAdoNetReminderService(options =>
     {

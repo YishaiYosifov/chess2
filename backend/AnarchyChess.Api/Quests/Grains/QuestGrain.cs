@@ -68,8 +68,7 @@ public class QuestGrainStorage
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
 public class QuestGrain(
     ILogger<QuestGrain> logger,
-    [PersistentState(QuestGrain.StateName, Storage.StorageProvider)]
-        IPersistentState<QuestGrainStorage> state,
+    [PersistentState(QuestGrain.StateName)] IPersistentState<QuestGrainStorage> state,
     IQuestService questService,
     IRandomQuestProvider questProvider,
     TimeProvider timeProvider
