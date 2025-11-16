@@ -117,7 +117,7 @@ public class RematchGrain(
         if (!request.Players.TryGetPlayerById(cancelledBy, out var _))
             return GameErrors.PlayerInvalid;
 
-        await TearDownRematchAsync(token);
+        await CancelRematchAsync(token);
         return Result.Deleted;
     }
 
@@ -142,7 +142,7 @@ public class RematchGrain(
 
         if (playerConnections.Count == 0)
         {
-            await TearDownRematchAsync(token);
+            await CancelRematchAsync(token);
             return Result.Deleted;
         }
 
@@ -154,7 +154,7 @@ public class RematchGrain(
     {
         if (reminderName != ExpirationReminderName)
             return;
-        await TearDownRematchAsync();
+        await CancelRematchAsync();
     }
 
     private async Task<ErrorOr<RematchRequest>> FetchRematchRequest(
@@ -196,10 +196,10 @@ public class RematchGrain(
             request.Players.WhitePlayer.UserId,
             request.Players.BlackPlayer.UserId
         );
-        await _state.ClearStateAsync(token);
+        await TearDownRematchAsync(token);
     }
 
-    private async Task TearDownRematchAsync(CancellationToken token = default)
+    private async Task CancelRematchAsync(CancellationToken token = default)
     {
         var request = _state.State.Request;
         if (request is not null)
@@ -209,6 +209,14 @@ public class RematchGrain(
                 request.Players.BlackPlayer.UserId
             );
         }
+        await TearDownRematchAsync(token);
+    }
+
+    private async Task TearDownRematchAsync(CancellationToken token = default)
+    {
+        var expirationReminder = await this.GetReminder(ExpirationReminderName);
+        if (expirationReminder is not null)
+            await this.UnregisterReminder(expirationReminder);
 
         await _state.ClearStateAsync(token);
     }

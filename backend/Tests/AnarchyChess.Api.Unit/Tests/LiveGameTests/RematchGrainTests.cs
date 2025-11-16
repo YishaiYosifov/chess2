@@ -8,6 +8,7 @@ using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using Moq;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;
@@ -134,7 +135,6 @@ public class RematchGrainTests : BaseGrainTest
         var result = await grain.RequestAsync(_gameState.BlackPlayer.UserId, "black conn", CT);
 
         result.IsError.Should().BeFalse();
-        _stateStats.Clears.Should().Be(1);
         await _rematchNotifierMock
             .Received(1)
             .NotifyRematchAccepted(
@@ -142,6 +142,7 @@ public class RematchGrainTests : BaseGrainTest
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId
             );
+        AssertToreDown(grain);
     }
 
     [Fact]
@@ -165,13 +166,13 @@ public class RematchGrainTests : BaseGrainTest
         var result = await grain.CancelAsync(_gameState.WhitePlayer.UserId, CT);
 
         result.IsError.Should().BeFalse();
-        _stateStats.Clears.Should().Be(1);
         await _rematchNotifierMock
             .Received(1)
             .NotifyRematchCancelledAsync(
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId
             );
+        AssertToreDown(grain);
     }
 
     [Fact]
@@ -202,10 +203,10 @@ public class RematchGrainTests : BaseGrainTest
 
         result.IsError.Should().BeFalse();
         _state.WhiteConnections.Should().BeEmpty();
-        _stateStats.Clears.Should().Be(1);
         await _rematchNotifierMock
             .Received(1)
             .NotifyRematchCancelledAsync(player.UserId, _gameState.BlackPlayer.UserId);
+        AssertToreDown(grain);
     }
 
     [Fact]
@@ -247,12 +248,23 @@ public class RematchGrainTests : BaseGrainTest
 
         await Silo.FireAllReminders();
 
-        _stateStats.Clears.Should().Be(1);
         await _rematchNotifierMock
             .Received(1)
             .NotifyRematchCancelledAsync(
                 _gameState.WhitePlayer.UserId,
                 _gameState.BlackPlayer.UserId
             );
+        AssertToreDown(grain);
+    }
+
+    private void AssertToreDown(RematchGrain grain)
+    {
+        Silo.ReminderRegistry.Mock.Verify(x =>
+            x.UnregisterReminder(
+                Silo.GetGrainId(grain),
+                It.Is<IGrainReminder>(r => r.ReminderName == RematchGrain.ExpirationReminderName)
+            )
+        );
+        _stateStats.Clears.Should().Be(1);
     }
 }
