@@ -48,7 +48,7 @@ public class GameGrainTests : BaseGrainTest
         Silo.ReminderRegistry.Mock.Verify(x =>
             x.RegisterOrUpdateReminder(
                 Silo.GetGrainId(grain),
-                GameGrain.ClockReminder,
+                GameGrain.ClockReactivationReminder,
                 TimeSpan.FromMinutes(5),
                 TimeSpan.FromMinutes(5)
             )
@@ -56,13 +56,53 @@ public class GameGrainTests : BaseGrainTest
     }
 
     [Fact]
-    public async Task ReceiveReminder_restarts_clock_timer_when_game_is_not_over()
+    public async Task ReceiveReminder_does_nothing_when_game_is_not_over()
     {
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
         await StartGameAsync(grain);
         Silo.TimerRegistry.Mock.Reset();
 
         await Silo.FireAllReminders();
+
+        var context = Silo.GetContextFromGrain(grain);
+        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(1);
+        Silo.ReminderRegistry.Mock.Verify(
+            x => x.UnregisterReminder(It.IsAny<GrainId>(), It.IsAny<IGrainReminder>()),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task ReceiveReminder_unregisters_itself_when_game_is_over()
+    {
+        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+        await StartGameAsync(grain);
+        Silo.TimerRegistry.Mock.Reset();
+
+        var state = Silo.StorageManager.GetStorage<GameGrainState>(GameGrain.StateName);
+        state.State.CurrentGame!.Result = new GameResultDataFaker().Generate();
+        await state.WriteStateAsync(CT);
+
+        await Silo.FireAllReminders();
+
+        Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(1);
+        Silo.ReminderRegistry.Mock.Verify(x =>
+            x.UnregisterReminder(
+                Silo.GetGrainId(grain),
+                It.Is<IGrainReminder>(r => r.ReminderName == GameGrain.ClockReactivationReminder)
+            )
+        );
+    }
+
+    [Fact]
+    public async Task OnActivateAsync_restarts_timer_when_game_is_not_over()
+    {
+        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+        await StartGameAsync(grain);
+        Silo.TimerRegistry.Mock.Reset();
+
+        await Silo.DeactivateAsync(grain, cancellationToken: CT);
+        await grain.OnActivateAsync(CT);
 
         var context = Silo.GetContextFromGrain(grain);
         Silo.TimerRegistry.Mock.Verify(x =>
@@ -76,7 +116,7 @@ public class GameGrainTests : BaseGrainTest
     }
 
     [Fact]
-    public async Task ReceiveReminder_ignores_when_game_is_over()
+    public async Task OnActivateAsync_doesnt_restart_timer_when_game_is_over()
     {
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
         await StartGameAsync(grain);
@@ -86,7 +126,28 @@ public class GameGrainTests : BaseGrainTest
         state.State.CurrentGame!.Result = new GameResultDataFaker().Generate();
         await state.WriteStateAsync(CT);
 
-        await Silo.FireAllReminders();
+        await Silo.DeactivateAsync(grain, cancellationToken: CT);
+        await grain.OnActivateAsync(CT);
+
+        Silo.TimerRegistry.Mock.Verify(
+            x =>
+                x.RegisterGrainTimer(
+                    It.IsAny<IGrainContext>(),
+                    It.IsAny<Func<It.IsAnyType, CancellationToken, Task>>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<GrainTimerCreationOptions>()
+                ),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task OnActivateAsync_doesnt_restart_timer_when_game_doesnt_exist()
+    {
+        var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
+
+        await Silo.DeactivateAsync(grain, cancellationToken: CT);
+        await grain.OnActivateAsync(CT);
 
         Silo.TimerRegistry.Mock.Verify(
             x =>
