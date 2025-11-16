@@ -40,8 +40,8 @@ const HomeIntroSection = () => {
                     />
                 </p>
 
-                <Link href={constants.PATHS.PLAY} className="w-full">
-                    <Button className="bg-secondary mt-5 w-full max-w-sm text-3xl text-black">
+                <Link href={constants.PATHS.PLAY} className="w-full max-w-sm">
+                    <Button className="bg-secondary mt-5 w-full text-3xl text-black">
                         PLAY NOW
                     </Button>
                 </Link>
