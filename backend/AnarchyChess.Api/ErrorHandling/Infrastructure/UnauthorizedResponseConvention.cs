@@ -1,9 +1,8 @@
-﻿using AnarchyChess.Api.Infrastructure.Errors;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
-namespace AnarchyChess.Api.Infrastructure;
+namespace AnarchyChess.Api.ErrorHandling.Infrastructure;
 
 /// <summary>
 /// Automatically apply [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]

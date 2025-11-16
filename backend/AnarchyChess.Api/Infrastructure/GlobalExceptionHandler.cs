@@ -1,4 +1,4 @@
-﻿using AnarchyChess.Api.Infrastructure.Extensions;
+﻿using AnarchyChess.Api.ErrorHandling.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Diagnostics;
 

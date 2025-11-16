@@ -13,7 +13,7 @@ import constants, { OAuthProvider } from "@/lib/constants";
 
 export const metadata = { title: "Login - Anarchy Chess" };
 
-export default async function RegisterPage() {
+export default async function LoginPage() {
     const cookieStore = await cookies();
     if (cookieStore.has(constants.COOKIES.IS_LOGGED_IN)) redirect("/");
 

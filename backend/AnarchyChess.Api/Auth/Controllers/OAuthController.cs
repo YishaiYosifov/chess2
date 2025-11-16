@@ -1,5 +1,5 @@
 ﻿using AnarchyChess.Api.Auth.Services;
-using AnarchyChess.Api.Infrastructure.Extensions;
+using AnarchyChess.Api.ErrorHandling.Extensions;
 using AnarchyChess.Api.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -19,7 +19,7 @@ public class OAuthController(
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IOAuthProviderNameNormalizer _oAuthProviderNameNormalizer =
         oAuthProviderNameNormalizer;
-    private readonly AppSettings _settings = settings.Value;
+    private readonly AuthSettings _settings = settings.Value.Auth;
 
     [HttpGet("{provider}/callback")]
     public async Task<ActionResult> OAuthCallback(

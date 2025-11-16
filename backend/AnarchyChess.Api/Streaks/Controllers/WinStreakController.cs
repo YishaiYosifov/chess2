@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.ErrorHandling.Extensions;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Pagination.Models;
 using AnarchyChess.Api.Shared.Models;

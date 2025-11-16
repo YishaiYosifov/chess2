@@ -10,6 +10,9 @@ using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
 using AnarchyChess.Api.Challenges.Services;
 using AnarchyChess.Api.Challenges.SignalR;
+using AnarchyChess.Api.ErrorHandling.Extensions;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
+using AnarchyChess.Api.ErrorHandling.OpenApi;
 using AnarchyChess.Api.Game.Repositories;
 using AnarchyChess.Api.Game.SanNotation;
 using AnarchyChess.Api.Game.SanNotation.Notators;
@@ -22,7 +25,6 @@ using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.GameSnapshot.Validators;
 using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Infrastructure.ActionFilters;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Infrastructure.OpenAPI;
 using AnarchyChess.Api.Infrastructure.Sharding;
@@ -277,7 +279,10 @@ builder
                 options.SetRedirectUri("api/oauth/discord/callback");
             });
 
-        options.UseAspNetCore().EnableRedirectionEndpointPassthrough();
+        options
+            .UseAspNetCore()
+            .EnableRedirectionEndpointPassthrough()
+            .EnableStatusCodePagesIntegration();
         options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
     });
 
@@ -496,6 +501,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(AllowCorsOriginName);
 
+app.UseStatusCodePagesWithReExecute("/error");
 app.UseAuthentication();
 app.UseAuthorization();
 

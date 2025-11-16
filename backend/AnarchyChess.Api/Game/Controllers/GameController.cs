@@ -1,11 +1,12 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Models;
 using AnarchyChess.Api.ArchivedGames.Services;
 using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.ErrorHandling.Extensions;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
+using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Infrastructure.Errors;
 using AnarchyChess.Api.Infrastructure.Extensions;
-using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.Pagination.Models;
 using AnarchyChess.Api.Shared.Models;
 using FluentValidation;

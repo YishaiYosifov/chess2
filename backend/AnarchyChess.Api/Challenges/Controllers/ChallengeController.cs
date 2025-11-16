@@ -2,9 +2,10 @@
 using AnarchyChess.Api.Challenges.Grains;
 using AnarchyChess.Api.Challenges.Models;
 using AnarchyChess.Api.Challenges.Services;
+using AnarchyChess.Api.ErrorHandling.Extensions;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Infrastructure.Errors;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Matchmaking.Models;
 using FluentValidation;
