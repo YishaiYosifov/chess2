@@ -1,9 +1,9 @@
-﻿using AnarchyChess.Api.Infrastructure.Extensions;
+﻿using AnarchyChess.Api.ErrorHandling.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace AnarchyChess.Api.Infrastructure.ActionFilters;
+namespace AnarchyChess.Api.ErrorHandling.Infrastructure;
 
 public class ReformatValidationProblemAttribute : ActionFilterAttribute
 {

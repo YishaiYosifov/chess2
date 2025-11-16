@@ -1,7 +1,7 @@
-﻿using AnarchyChess.Api.Infrastructure.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+using AnarchyChess.Api.ErrorHandling.Extensions;
 using ErrorOr;
 using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics.CodeAnalysis;
 
 namespace AnarchyChess.Api.Infrastructure.SignalR;
 

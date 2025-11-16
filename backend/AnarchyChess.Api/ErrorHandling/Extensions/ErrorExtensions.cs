@@ -1,9 +1,9 @@
-﻿using AnarchyChess.Api.Infrastructure.Errors;
+﻿using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using AnarchyChess.Api.Infrastructure.SignalR;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AnarchyChess.Api.Infrastructure.Extensions;
+namespace AnarchyChess.Api.ErrorHandling.Extensions;
 
 public static class ErrorExtensions
 {

@@ -1,6 +1,7 @@
 ﻿using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.ErrorHandling.Extensions;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Infrastructure.Errors;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Profile.DTOs;
 using AnarchyChess.Api.Profile.Entities;

@@ -1,6 +1,6 @@
 ﻿using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.ErrorHandling.Extensions;
 using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Preferences.DTOs;
 using AnarchyChess.Api.Preferences.Services;
 using Microsoft.AspNetCore.Authorization;

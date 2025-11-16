@@ -1,4 +1,4 @@
-﻿using AnarchyChess.Api.Infrastructure.Errors;
+﻿using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using ErrorOr;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Identity;

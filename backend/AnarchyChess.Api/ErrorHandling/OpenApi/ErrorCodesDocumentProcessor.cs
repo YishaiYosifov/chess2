@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using AnarchyChess.Api.Infrastructure.Errors;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -8,7 +8,7 @@ using NJsonSchema;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
-namespace AnarchyChess.Api.Infrastructure.OpenAPI;
+namespace AnarchyChess.Api.ErrorHandling.OpenApi;
 
 /// <summary>
 /// Unfortunately <see cref="Error.Code" /> is a string so openapi doesn't know what it can be.

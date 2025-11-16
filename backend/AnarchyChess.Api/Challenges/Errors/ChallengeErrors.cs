@@ -1,4 +1,4 @@
-﻿using AnarchyChess.Api.Infrastructure.Errors;
+﻿using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using ErrorOr;
 
 namespace AnarchyChess.Api.Challenges.Errors;

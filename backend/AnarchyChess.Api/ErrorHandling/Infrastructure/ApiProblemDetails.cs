@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace AnarchyChess.Api.Infrastructure.Errors;
+namespace AnarchyChess.Api.ErrorHandling.Infrastructure;
 
 public class ApiProblemDetails : ProblemDetails
 {

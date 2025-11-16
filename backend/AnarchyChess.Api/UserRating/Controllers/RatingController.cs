@@ -1,5 +1,5 @@
-﻿using AnarchyChess.Api.Infrastructure.Errors;
-using AnarchyChess.Api.Infrastructure.Extensions;
+﻿using AnarchyChess.Api.ErrorHandling.Extensions;
+using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.UserRating.Models;
 using AnarchyChess.Api.UserRating.Services;

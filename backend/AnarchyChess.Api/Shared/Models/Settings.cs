@@ -4,12 +4,11 @@ public class AppSettings
 {
     public string[] CorsOrigins { get; set; } = [];
 
+    public required AuthSettings Auth { get; set; }
     public required LobbySettings Lobby { get; set; }
     public required GameSettings Game { get; set; }
     public required JwtSettings Jwt { get; set; }
     public required ChallengeSettings Challenge { get; set; }
-
-    public required string OAuthRedirectUrl { get; set; }
 
     public required string CSRFHeader { get; set; }
 
@@ -18,6 +17,12 @@ public class AppSettings
     public required string BlobStorageConnString { get; set; }
 
     public TimeSpan UsernameEditCooldown { get; set; }
+}
+
+public class AuthSettings
+{
+    public required string OAuthRedirectUrl { get; set; }
+    public required string LoginPageUrl { get; set; }
 }
 
 public class ChallengeSettings
