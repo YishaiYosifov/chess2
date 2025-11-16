@@ -70,8 +70,4 @@ public static class ErrorCodes
     public const string ChallengeAuthedOnlyPool = "Challenge.AuthedOnlyPool";
     public const string ChallengeCannotAccept = "Challenge.CannotAccept";
     public const string ChallengeNotFound = "Challenge.NotFound";
-
-    public const string DonationWebhookInvalidJson = "Donation.Webhook.InvalidJson";
-    public const string DonationWebhookInvalidVerificationCode =
-        "Donation.Webhook.InvalidVerificationCode";
 }
