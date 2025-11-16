@@ -6,6 +6,7 @@ namespace AnarchyChess.Api.Game.Services;
 public interface IGameClock
 {
     double CalculateTimeLeft(GameColor color, GameClockState state);
+    void CommitLastTurn(GameColor color, GameClockState state);
     double CommitTurn(GameColor color, GameClockState state);
     void Reset(TimeControlSettings timeControl, GameClockState state);
     ClockSnapshot ToSnapshot(GameClockState state);
@@ -24,6 +25,9 @@ public class GameClockState
 
     [Id(2)]
     public long LastUpdated { get; set; }
+
+    [Id(3)]
+    public bool IsFrozen { get; set; }
 }
 
 public class GameClock(TimeProvider timeProvider) : IGameClock
@@ -31,7 +35,12 @@ public class GameClock(TimeProvider timeProvider) : IGameClock
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public ClockSnapshot ToSnapshot(GameClockState state) =>
-        new(state.Clocks[GameColor.White], state.Clocks[GameColor.Black], state.LastUpdated);
+        new(
+            state.Clocks[GameColor.White],
+            state.Clocks[GameColor.Black],
+            state.LastUpdated,
+            state.IsFrozen
+        );
 
     public void Reset(TimeControlSettings timeControl, GameClockState state)
     {
@@ -52,7 +61,16 @@ public class GameClock(TimeProvider timeProvider) : IGameClock
 
     public double CalculateTimeLeft(GameColor color, GameClockState state)
     {
+        if (state.IsFrozen)
+            return state.Clocks[color];
+
         var elapsedMs = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds() - state.LastUpdated;
         return state.Clocks[color] - elapsedMs;
+    }
+
+    public void CommitLastTurn(GameColor color, GameClockState state)
+    {
+        CommitTurn(color, state);
+        state.IsFrozen = true;
     }
 }

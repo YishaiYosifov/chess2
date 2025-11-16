@@ -29,7 +29,8 @@ public class GameStateFaker : RecordFaker<GameState>
             f => new ClockSnapshot(
                 WhiteClock: f.Random.Double(1000, 100000),
                 BlackClock: f.Random.Double(1000, 100000),
-                LastUpdated: f.Random.Double(1000000, 10000000)
+                LastUpdated: f.Random.Double(1000000, 10000000),
+                IsFrozen: false
             )
         );
         RuleFor(x => x.SideToMove, f => f.PickRandom<GameColor>());

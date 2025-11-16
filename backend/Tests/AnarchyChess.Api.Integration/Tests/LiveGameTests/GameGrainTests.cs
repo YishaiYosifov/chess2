@@ -120,7 +120,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         ClockSnapshot expectedClock = new(
             WhiteClock: _pool.TimeControl.BaseSeconds * 1000,
             BlackClock: _pool.TimeControl.BaseSeconds * 1000,
-            LastUpdated: _fakeNow.ToUnixTimeMilliseconds()
+            LastUpdated: _fakeNow.ToUnixTimeMilliseconds(),
+            IsFrozen: false
         );
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.White, _state.CurrentGame!.Core);
         GameState expectedGameState = new(
@@ -250,7 +251,8 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         ClockSnapshot expectedClock = new(
             WhiteClock: expectedTimeLeft,
             BlackClock: _pool.TimeControl.BaseSeconds * 1000,
-            LastUpdated: in2Seconds.ToUnixTimeMilliseconds()
+            LastUpdated: in2Seconds.ToUnixTimeMilliseconds(),
+            IsFrozen: false
         );
         var legalMoves = _gameCore.GetLegalMovesOf(GameColor.Black, _state.CurrentGame!.Core);
         await _gameNotifierMock
@@ -518,6 +520,9 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         gameState.ResultData.Should().NotBeNull();
         gameState.ResultData.Result.Should().Be(expectedEndStatus.Result);
         gameState.ResultData.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
+
+        gameState.Clocks.IsFrozen.Should().BeTrue();
+
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
 
         Silo.ReminderRegistry.Mock.Verify(x =>
