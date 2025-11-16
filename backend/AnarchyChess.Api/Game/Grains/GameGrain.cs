@@ -418,7 +418,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
         CancellationToken token = default
     )
     {
-        _clock.CommitTurn(_core.SideToMove(game.Core), game.ClockState);
+        _clock.CommitLastTurn(_core.SideToMove(game.Core), game.ClockState);
         var state = GetGameState(game: game);
 
         game.Result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus, token);

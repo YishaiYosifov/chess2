@@ -16,11 +16,11 @@ const GameClock = ({ color }: { color: GameColor }) => {
     const isGameOver = Boolean(result);
 
     const calculateTimeLeft = useCallback(() => {
-        if (!isTicking || !clocks.lastUpdated) return baseTimeLeft;
+        if (!isTicking || clocks.isFrozen) return baseTimeLeft;
 
         const timePassed = new Date().valueOf() - clocks.lastUpdated;
         return baseTimeLeft - timePassed;
-    }, [clocks.lastUpdated, baseTimeLeft, isTicking]);
+    }, [clocks.lastUpdated, clocks.isFrozen, baseTimeLeft, isTicking]);
 
     const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
 

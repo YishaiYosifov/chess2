@@ -1,6 +1,6 @@
-﻿using AnarchyChess.Api.GameLogic.Models;
+﻿using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.Game.Services;
 using FluentAssertions;
 using NSubstitute;
 
@@ -31,6 +31,7 @@ public class GameClockTests
         _state.Clocks[GameColor.Black].Should().Be(300_000);
         _state.TimeControl.Should().Be(timeControl);
         _state.LastUpdated.Should().Be(now.ToUnixTimeMilliseconds());
+        _state.IsFrozen.Should().BeFalse();
     }
 
     [Fact]
@@ -53,11 +54,12 @@ public class GameClockTests
     }
 
     [Fact]
-    public void CalculateTimeLeft_returns_clock_minus_elapsed()
+    public void CalculateTimeLeft_returns_clock_minus_elapsed_when_not_frozen()
     {
         _state.Clocks[GameColor.White] = 90_000;
         _state.Clocks[GameColor.Black] = 90_000;
         _state.LastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _state.IsFrozen = false;
 
         int elapsed = 15_000;
         var now = DateTimeOffset.FromUnixTimeMilliseconds(_state.LastUpdated + elapsed);
@@ -69,17 +71,35 @@ public class GameClockTests
     }
 
     [Fact]
+    public void CalculateTimeLeft_returns_clock_as_is_when_frozen()
+    {
+        _state.Clocks[GameColor.White] = 50_000;
+        _state.IsFrozen = true;
+        _state.LastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+
+        // Even if time has passed, frozen clock should not decrease
+        var now = DateTimeOffset.FromUnixTimeMilliseconds(_state.LastUpdated + 10_000);
+        _timeProviderMock.GetUtcNow().Returns(now);
+
+        var timeLeft = _clock.CalculateTimeLeft(GameColor.White, _state);
+
+        timeLeft.Should().Be(50_000);
+    }
+
+    [Fact]
     public void ToSnapshot_returns_snapshot_with_correct_values()
     {
         _state.Clocks[GameColor.White] = 50_000;
         _state.Clocks[GameColor.Black] = 60_000;
         _state.LastUpdated = 1234567890;
+        _state.IsFrozen = true;
 
         var snapshot = _clock.ToSnapshot(_state);
 
         snapshot.WhiteClock.Should().Be(50_000);
         snapshot.BlackClock.Should().Be(60_000);
         snapshot.LastUpdated.Should().Be(1234567890);
+        snapshot.IsFrozen.Should().BeTrue();
     }
 
     [Fact]
@@ -110,5 +130,23 @@ public class GameClockTests
         var timeLeft = _clock.CalculateTimeLeft(GameColor.White, _state);
 
         timeLeft.Should().Be(-5_000);
+    }
+
+    [Fact]
+    public void CommitLastTurn_freezes_clock_and_updates_time()
+    {
+        _state.Clocks[GameColor.White] = 100_000;
+        _state.TimeControl = new TimeControlSettings(BaseSeconds: 100, IncrementSeconds: 10);
+        _state.LastUpdated = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        _state.IsFrozen = false;
+
+        var now = DateTimeOffset.FromUnixTimeMilliseconds(_state.LastUpdated + 2_000);
+        _timeProviderMock.GetUtcNow().Returns(now);
+
+        _clock.CommitLastTurn(GameColor.White, _state);
+
+        _state.IsFrozen.Should().BeTrue();
+        _state.Clocks[GameColor.White].Should().Be(108_000); // 100000 - 2000 + 10000
+        _state.LastUpdated.Should().Be(now.ToUnixTimeMilliseconds());
     }
 }

@@ -1,8 +1,8 @@
-﻿using AnarchyChess.Api.GameLogic.Models;
-using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.Game.Models;
+﻿using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.Game.SignalR;
+using AnarchyChess.Api.GameLogic.Models;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
@@ -63,7 +63,12 @@ public class GameNotifierTests
             GameToken: _gameToken,
             Move: new MoveSnapshotFaker().Generate(),
             MoveNumber: 5,
-            Clocks: new ClockSnapshot(10, 20, 1000),
+            Clocks: new ClockSnapshot(
+                WhiteClock: 10,
+                BlackClock: 20,
+                LastUpdated: 1000,
+                IsFrozen: false
+            ),
             SideToMove: GameColor.White,
             SideToMoveUserId: _userId,
             LegalMoves: [1, 2, 3],

@@ -307,7 +307,8 @@ export enum GameColor {
 export type Clocks = {
     whiteClock: number;
     blackClock: number;
-    lastUpdated?: number | null;
+    lastUpdated: number;
+    isFrozen: boolean;
 };
 
 export type MoveSnapshot = {
