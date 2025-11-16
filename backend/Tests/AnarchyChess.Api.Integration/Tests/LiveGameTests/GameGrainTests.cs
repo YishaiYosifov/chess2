@@ -523,7 +523,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
         Silo.ReminderRegistry.Mock.Verify(x =>
             x.UnregisterReminder(
                 Silo.GetGrainId(grain),
-                It.Is<IGrainReminder>(r => r.ReminderName == GameGrain.ClockReminder)
+                It.Is<IGrainReminder>(r => r.ReminderName == GameGrain.ClockReactivationReminder)
             )
         );
     }

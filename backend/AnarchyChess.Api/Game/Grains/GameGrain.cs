@@ -106,7 +106,7 @@ public class GameGrainState
 
 public class GameGrain : Grain, IGameGrain, IRemindable
 {
-    public const string ClockReminder = "clockReminder";
+    public const string ClockReactivationReminder = "clockReactivationReminder";
     public const string StateName = "game";
 
     private readonly string _token;
@@ -180,7 +180,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
             period: TimeSpan.FromSeconds(1)
         );
         await this.RegisterOrUpdateReminder(
-            ClockReminder,
+            ClockReactivationReminder,
             dueTime: TimeSpan.FromMinutes(5),
             period: TimeSpan.FromMinutes(5)
         );
@@ -365,21 +365,31 @@ public class GameGrain : Grain, IGameGrain, IRemindable
         return Result.Success;
     }
 
-    public Task ReceiveReminder(string reminderName, TickStatus status)
+    public async Task ReceiveReminder(string reminderName, TickStatus status)
     {
-        if (
-            reminderName != ClockReminder
-            || !TryGetCurrentGame(out var game)
-            || game.Result is not null
-        )
-            return Task.CompletedTask;
+        if (reminderName != ClockReactivationReminder)
+            return;
 
-        _clockTimer = this.RegisterGrainTimer(
-            callback: HandleClockTickAsync,
-            dueTime: TimeSpan.Zero,
-            period: TimeSpan.FromSeconds(1)
-        );
-        return Task.CompletedTask;
+        if (TryGetCurrentGame(out var game) && game.Result is null)
+            return;
+
+        var reminder = await this.GetReminder(ClockReactivationReminder);
+        if (reminder is not null)
+            await this.UnregisterReminder(reminder);
+    }
+
+    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        if (TryGetCurrentGame(out var game) && game.Result is null)
+        {
+            _clockTimer = this.RegisterGrainTimer(
+                callback: HandleClockTickAsync,
+                dueTime: TimeSpan.Zero,
+                period: TimeSpan.FromSeconds(1)
+            );
+        }
+
+        return base.OnActivateAsync(cancellationToken);
     }
 
     private async Task HandleClockTickAsync(CancellationToken token = default)
@@ -425,7 +435,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
             .GetStream<GameEndedEvent>(nameof(GameEndedEvent), game.Players.BlackPlayer.UserId)
             .OnNextAsync(endedEvent);
 
-        var reminder = await this.GetReminder(ClockReminder);
+        var reminder = await this.GetReminder(ClockReactivationReminder);
         if (reminder is not null)
             await this.UnregisterReminder(reminder);
 
