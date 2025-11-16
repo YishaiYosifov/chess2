@@ -23,10 +23,11 @@ const HomeWinStreakAd = () => {
                 </p>
                 <WinStreakLeaderboardCountdown />
 
-                <Link href={constants.PATHS.WIN_STREAK} className="w-full">
-                    <Button className="mt-5 w-full max-w-sm text-3xl">
-                        JOIN NOW
-                    </Button>
+                <Link
+                    href={constants.PATHS.WIN_STREAK}
+                    className="w-full max-w-sm"
+                >
+                    <Button className="mt-5 w-full text-3xl">JOIN NOW</Button>
                 </Link>
             </div>
 
