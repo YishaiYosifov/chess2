@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Entities;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Pagination.Extensions;
 using AnarchyChess.Api.Pagination.Models;
@@ -33,6 +34,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
             .Where(archive =>
                 archive.WhitePlayer.UserId == userId || archive.BlackPlayer.UserId == userId
             )
+            .Where(archive => archive.Result != GameResult.Aborted)
             .OrderByDescending(archive => archive.CreatedAt)
             .Paginate(pagination)
             .ToListAsync(token);

@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Repositories;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
@@ -39,8 +40,14 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     public async Task GetPaginatedArchivedGamesForUserAsync_skips_and_takes_correct_number_of_items()
     {
         var userId = "user123";
-        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(5);
+        var archives = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(5);
+        var otherUserArchives = new GameArchiveFaker(whiteUserId: "other user")
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(5);
         await DbContext.AddRangeAsync(archives, CT);
+        await DbContext.AddRangeAsync(otherUserArchives, CT);
         await DbContext.SaveChangesAsync(CT);
 
         var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
@@ -53,6 +60,33 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
             .Should()
             .BeEquivalentTo(archives.OrderByDescending(a => a.CreatedAt).Skip(2).Take(2));
         result.Should().BeInDescendingOrder(a => a.CreatedAt);
+    }
+
+    [Fact]
+    public async Task GetPaginatedArchivedGamesForUserAsync_ignores_aborted_games()
+    {
+        var userId = "user123";
+
+        var validArchives = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(3);
+
+        var abortedArchives = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, GameResult.Aborted)
+            .Generate(2);
+
+        await DbContext.AddRangeAsync(validArchives, CT);
+        await DbContext.AddRangeAsync(abortedArchives, CT);
+        await DbContext.SaveChangesAsync(CT);
+
+        var result = await _gameArchiveRepository.GetPaginatedArchivedGamesForUserAsync(
+            userId,
+            pagination: new(Page: 0, PageSize: 10),
+            CT
+        );
+
+        result.Should().HaveCount(validArchives.Count);
+        result.Should().BeEquivalentTo(validArchives);
     }
 
     [Fact]
