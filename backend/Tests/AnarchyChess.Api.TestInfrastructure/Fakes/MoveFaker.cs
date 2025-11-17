@@ -1,6 +1,6 @@
-﻿using Bogus;
-using AnarchyChess.Api.GameLogic.Extensions;
+﻿using AnarchyChess.Api.GameLogic.Extensions;
 using AnarchyChess.Api.GameLogic.Models;
+using Bogus;
 
 namespace AnarchyChess.Api.TestInfrastructure.Fakes;
 
@@ -39,7 +39,7 @@ public class MoveFaker : RecordFaker<Move>
 
     public static Faker<Move> Capture(
         GameColor forColor,
-        PieceType[] captureTypes,
+        IEnumerable<PieceType> captureTypes,
         PieceType? pieceType = null
     ) =>
         new MoveFaker(forColor, pieceType).RuleFor(
