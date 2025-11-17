@@ -4,8 +4,11 @@ using AnarchyChess.Api.QuestLogic.MoveConditions;
 
 namespace AnarchyChess.Api.QuestLogic.QuestConditions;
 
+[GenerateSerializer]
+[Alias("AnarchyChess.Api.QuestLogic.QuestConditions.OpponentMoveOccurredCondition")]
 public class OpponentMoveOccurredCondition(params IMoveCondition[] moveConditions) : IQuestCondition
 {
+    [Id(0)]
     private readonly IMoveCondition[] _moveConditions = moveConditions;
 
     public bool Evaluate(GameQuestSnapshot snapshot)
