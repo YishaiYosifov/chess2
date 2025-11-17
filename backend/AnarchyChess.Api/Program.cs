@@ -471,6 +471,7 @@ builder.Services.AddSingleton<IQuestDefinition, WinGameWith2KingsQuest>();
 builder.Services.AddSingleton<IQuestDefinition, WinFastQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PerformVerticalCastlingQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PerformKnooklearFusionQuest>();
+builder.Services.AddSingleton<IQuestDefinition, CaptureWithKingQuest>();
 #endregion
 
 #region Challenges
