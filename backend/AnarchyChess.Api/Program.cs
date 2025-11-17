@@ -466,6 +466,7 @@ builder.Services.AddSingleton<IQuestDefinition, CappedCapturesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PromoteToAllQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CheckerHopQuest>();
+builder.Services.AddSingleton<IQuestDefinition, PerformIlVaticano>();
 #endregion
 
 #region Challenges
