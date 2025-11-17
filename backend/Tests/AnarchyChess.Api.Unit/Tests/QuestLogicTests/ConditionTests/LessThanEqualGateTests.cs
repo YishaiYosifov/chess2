@@ -13,7 +13,7 @@ public class LessThanEqualGateTests
     [InlineData(5, 10, true)]
     [InlineData(10, 10, true)]
     [InlineData(15, 10, false)]
-    public void Evaluate_returns_1_if_bellow_or_equal_to_value(
+    public void Evaluate_returns_true_if_bellow_or_equal_to_value(
         int innerProgress,
         int lessThanEqualProgress,
         bool expectedResult

@@ -13,7 +13,7 @@ public class GreaterThanEqualConditionTests
     [InlineData(5, 10, false)]
     [InlineData(10, 10, true)]
     [InlineData(15, 10, true)]
-    public void Evaluate_returns_1_if_above_or_equal_to_max(
+    public void Evaluate_returns_true_if_above_or_equal_to_max(
         int innerProgress,
         int greaterThanEqualProgress,
         bool expectedResult
