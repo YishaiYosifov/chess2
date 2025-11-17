@@ -1,5 +1,6 @@
 ﻿using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.Game.Models;
+using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.QuestLogic;
 using AnarchyChess.Api.QuestLogic.Models;
@@ -137,45 +138,10 @@ public class QuestGrain(
         if (quest.IsCompleted)
             return;
 
-        var game = GrainFactory.GetGrain<IGameGrain>(@event.GameToken);
-
-        var playersResult = await game.GetPlayersAsync();
-        if (playersResult.IsError)
-        {
-            _logger.LogWarning(
-                "Could not find players for quest on game {GameToken}, {Errors}",
-                @event.GameToken,
-                playersResult.Errors
-            );
+        var snapshot = await GetQuestSnapshotFromGameEnd(@event);
+        if (snapshot is null)
             return;
-        }
 
-        if (!playersResult.Value.TryGetPlayerById(this.GetPrimaryKeyString(), out var player))
-        {
-            _logger.LogWarning(
-                "Could not find player {UserId} for quest on game {GameToken}",
-                this.GetPrimaryKeyString(),
-                @event.GameToken
-            );
-            return;
-        }
-
-        var movesResult = await game.GetMovesAsync();
-        if (movesResult.IsError)
-        {
-            _logger.LogWarning(
-                "Could not find moves for quest on game {GameToken}, {Errors}",
-                @event.GameToken,
-                movesResult.Errors
-            );
-            return;
-        }
-
-        GameQuestSnapshot snapshot = new(
-            PlayerColor: player.Color,
-            MoveHistory: movesResult.Value,
-            ResultData: @event.EndStatus
-        );
         quest.ApplySnapshot(snapshot);
         if (quest.IsCompleted)
             _state.State.CompleteQuest();
@@ -218,4 +184,50 @@ public class QuestGrain(
             RewardCollected: _state.State.RewardCollected,
             Streak: _state.State.Streak
         );
+
+    private async Task<GameQuestSnapshot?> GetQuestSnapshotFromGameEnd(GameEndedEvent @event)
+    {
+        var game = GrainFactory.GetGrain<IGameGrain>(@event.GameToken);
+
+        var gameStateResult = await game.GetStateAsync();
+        if (gameStateResult.IsError)
+        {
+            _logger.LogWarning(
+                "Could not find state for quest on game {GameToken}, {Errors}",
+                @event.GameToken,
+                gameStateResult.Errors
+            );
+            return null;
+        }
+        var gameState = gameStateResult.Value;
+
+        PlayerRoster players = new(gameState.WhitePlayer, gameState.BlackPlayer);
+        if (!players.TryGetPlayerById(this.GetPrimaryKeyString(), out var player))
+        {
+            _logger.LogWarning(
+                "Could not find player {UserId} for quest on game {GameToken}",
+                this.GetPrimaryKeyString(),
+                @event.GameToken
+            );
+            return null;
+        }
+
+        var movesResult = await game.GetMovesAsync();
+        if (movesResult.IsError)
+        {
+            _logger.LogWarning(
+                "Could not find moves for quest on game {GameToken}, {Errors}",
+                @event.GameToken,
+                movesResult.Errors
+            );
+            return null;
+        }
+
+        return new(
+            PlayerColor: player.Color,
+            MoveHistory: movesResult.Value,
+            ResultData: @event.EndStatus,
+            FinalGameState: gameState
+        );
+    }
 }
