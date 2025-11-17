@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.GameLogic.Models;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.TestInfrastructure.Serializers;
 using Xunit.Sdk;
 
@@ -12,4 +13,9 @@ using Xunit.Sdk;
     typeof(JsonXUnitSerializer<Offset>),
     typeof(Offset),
     typeof(IEnumerable<Offset>)
+)]
+
+[assembly: RegisterXunitSerializer(
+    typeof(JsonXUnitSerializer<TimeControlSettings>),
+    typeof(TimeControlSettings)
 )]
