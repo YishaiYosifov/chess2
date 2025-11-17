@@ -10,14 +10,17 @@ public class IsMoveOfPieceTests
     [Fact]
     public void Evaluate_returns_true_for_matching_piece_type()
     {
-        var move = new MoveFaker(pieceType: PieceType.Bishop);
-        new IsMoveOfPiece(PieceType.Bishop).Evaluate(move).Should().BeTrue();
+        var move = new MoveFaker(pieceType: PieceType.Horsey);
+        new IsMoveOfPiece(PieceType.Bishop, PieceType.Rook, PieceType.Horsey)
+            .Evaluate(move)
+            .Should()
+            .BeTrue();
     }
 
     [Fact]
     public void Evaluate_returns_false_for_non_matching_piece_type()
     {
-        var move = new MoveFaker(pieceType: PieceType.Bishop);
-        new IsMoveOfPiece(PieceType.Horsey).Evaluate(move).Should().BeFalse();
+        var move = new MoveFaker(pieceType: PieceType.Horsey);
+        new IsMoveOfPiece(PieceType.Bishop, PieceType.Rook).Evaluate(move).Should().BeFalse();
     }
 }
