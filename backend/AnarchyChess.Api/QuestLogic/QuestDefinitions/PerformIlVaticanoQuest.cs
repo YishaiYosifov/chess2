@@ -5,7 +5,7 @@ using AnarchyChess.Api.QuestLogic.QuestConditions;
 
 namespace AnarchyChess.Api.QuestLogic.QuestDefinitions;
 
-public class PerformIlVaticano : IQuestDefinition
+public class PerformIlVaticanoQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants =>
         [
