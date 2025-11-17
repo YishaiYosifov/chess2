@@ -16,7 +16,7 @@ public class CaptureWithKingQuest : IQuestDefinition
 
     private static QuestVariant CreateVariant(int numOfCaptures, QuestDifficulty difficulty) =>
         new(
-            Description: $"Capture a total of {numOfCaptures} pieces WITH your king across all games",
+            Description: $"Capture a total of {numOfCaptures} pieces WITH your king across multiple games",
             Difficulty: difficulty,
             Target: numOfCaptures,
             Conditions: () => [],
