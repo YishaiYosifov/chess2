@@ -467,6 +467,7 @@ builder.Services.AddSingleton<IQuestDefinition, PromoteToAllQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PawnPromotionsAcrossGamesQuest>();
 builder.Services.AddSingleton<IQuestDefinition, CheckerHopQuest>();
 builder.Services.AddSingleton<IQuestDefinition, PerformIlVaticano>();
+builder.Services.AddSingleton<IQuestDefinition, WinGameWith2Kings>();
 #endregion
 
 #region Challenges
