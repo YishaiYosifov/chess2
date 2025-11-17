@@ -5,7 +5,7 @@ using AnarchyChess.Api.QuestLogic.QuestConditions;
 
 namespace AnarchyChess.Api.QuestLogic.QuestDefinitions;
 
-public class WinGameWith2Kings : IQuestDefinition
+public class WinGameWith2KingsQuest : IQuestDefinition
 {
     public IEnumerable<QuestVariant> Variants =>
         [
