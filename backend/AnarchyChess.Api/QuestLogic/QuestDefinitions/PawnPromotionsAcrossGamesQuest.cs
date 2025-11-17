@@ -1,4 +1,5 @@
-﻿using AnarchyChess.Api.QuestLogic.Models;
+﻿using AnarchyChess.Api.GameLogic.Models;
+using AnarchyChess.Api.QuestLogic.Models;
 using AnarchyChess.Api.QuestLogic.MoveConditions;
 using AnarchyChess.Api.QuestLogic.QuestMetrics;
 
@@ -19,6 +20,13 @@ public class PawnPromotionsAcrossGamesQuest : IQuestDefinition
             Difficulty: difficulty,
             Target: promotions,
             Conditions: () => [],
-            Progressors: () => [new OwnMoveCountMetric(new IsMovePromotion())]
+            Progressors: () =>
+
+                [
+                    new OwnMoveCountMetric(
+                        new IsMoveOfPiece(PieceType.Pawn, PieceType.UnderagePawn),
+                        new IsMovePromotion()
+                    ),
+                ]
         );
 }
