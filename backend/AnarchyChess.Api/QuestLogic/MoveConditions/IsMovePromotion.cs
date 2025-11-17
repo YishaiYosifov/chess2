@@ -4,7 +4,11 @@ namespace AnarchyChess.Api.QuestLogic.MoveConditions;
 
 [GenerateSerializer]
 [Alias("AnarchyChess.Api.QuestLogic.MoveConditions.IsMovePromotion")]
-public class IsMovePromotion : IMoveCondition
+public class IsMovePromotion(PieceType? promotesTo = null) : IMoveCondition
 {
-    public bool Evaluate(Move move) => move.PromotesTo is not null;
+    [Id(0)]
+    private readonly PieceType? _promotesTo = promotesTo;
+
+    public bool Evaluate(Move move) =>
+        _promotesTo is null ? move.PromotesTo is not null : move.PromotesTo == _promotesTo;
 }
