@@ -193,7 +193,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_increments_progress()
+    public async Task GameEndedEvent_increments_progress()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 2);
 
@@ -212,7 +212,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_does_nothing_if_conditions_not_met()
+    public async Task GameEndedEvent_does_nothing_if_conditions_not_met()
     {
         SetupSelectableVariant();
 
@@ -229,7 +229,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_completes_quest_and_updates_state()
+    public async Task GameEndedEvent_completes_quest_and_updates_state()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
 
@@ -254,7 +254,7 @@ public class QuestGrainTests : BaseOrleansIntegrationTest
     }
 
     [Fact]
-    public async Task OnGameOverAsync_increments_streak_across_multiple_days()
+    public async Task GameEndedEvent_increments_streak_across_multiple_days()
     {
         SetupWinVariant(QuestDifficulty.Easy, target: 1);
 

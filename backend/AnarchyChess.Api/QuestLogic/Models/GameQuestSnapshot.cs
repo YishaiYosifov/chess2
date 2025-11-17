@@ -8,5 +8,6 @@ namespace AnarchyChess.Api.QuestLogic.Models;
 public record GameQuestSnapshot(
     GameColor PlayerColor,
     IReadOnlyList<Move> MoveHistory,
-    GameResultData ResultData
+    GameResultData ResultData,
+    GameState FinalGameState
 );
