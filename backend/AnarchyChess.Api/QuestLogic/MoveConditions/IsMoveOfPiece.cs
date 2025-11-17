@@ -4,10 +4,10 @@ namespace AnarchyChess.Api.QuestLogic.MoveConditions;
 
 [GenerateSerializer]
 [Alias("AnarchyChess.Api.QuestLogic.MoveConditions.IsMoveOfPiece")]
-public class IsMoveOfPiece(PieceType piece) : IMoveCondition
+public class IsMoveOfPiece(params HashSet<PieceType> pieces) : IMoveCondition
 {
     [Id(0)]
-    private readonly PieceType _piece = piece;
+    private readonly HashSet<PieceType> _pieces = pieces;
 
-    public bool Evaluate(Move move) => move.Piece.Type == _piece;
+    public bool Evaluate(Move move) => _pieces.Contains(move.Piece.Type);
 }
