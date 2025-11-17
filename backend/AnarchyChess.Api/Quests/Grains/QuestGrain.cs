@@ -1,6 +1,7 @@
 ﻿using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.QuestLogic;
 using AnarchyChess.Api.QuestLogic.Models;
@@ -136,6 +137,9 @@ public class QuestGrain(
     {
         var quest = GetOrSelectQuest();
         if (quest.IsCompleted)
+            return;
+
+        if (@event.EndStatus.Result is GameResult.Aborted)
             return;
 
         var snapshot = await GetQuestSnapshotFromGameEnd(@event);
