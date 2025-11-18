@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { mockNextCookies } from "@/lib/testUtils/mocks/mockCookies";
 import constants from "@/lib/constants";
-import RegisterPage from "../page";
+import SignInPage from "../page";
 
 vi.mock("next/navigation");
 vi.mock("next/headers");
@@ -13,7 +13,7 @@ describe("AuthPage", () => {
     const redirectMock = vi.mocked(redirect);
 
     it("should render the logo text image", async () => {
-        render(await RegisterPage());
+        render(await SignInPage());
 
         const logoImg = screen.getByAltText(/logo/i);
         expect(logoImg).toBeInTheDocument();
@@ -21,14 +21,14 @@ describe("AuthPage", () => {
     });
 
     it("should render Google OAuth button", async () => {
-        render(await RegisterPage());
+        render(await SignInPage());
 
         expect(screen.getByText(/Continue with Google/i)).toBeInTheDocument();
         expect(screen.getByAltText(/Google Icon/i)).toBeInTheDocument();
     });
 
     it("should render Discord OAuth button", async () => {
-        render(await RegisterPage());
+        render(await SignInPage());
 
         expect(screen.getByText(/Continue with Discord/i)).toBeInTheDocument();
         expect(screen.getByAltText(/Discord Icon/i)).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe("AuthPage", () => {
     it("should redirect when logged in", async () => {
         mockNextCookies(constants.COOKIES.IS_LOGGED_IN);
 
-        const act = async () => render(await RegisterPage());
+        const act = async () => render(await SignInPage());
 
         await expect(act).rejects.toThrow("redirect /");
     });

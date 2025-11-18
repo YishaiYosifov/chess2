@@ -16,7 +16,7 @@ const GuestRedirect = () => {
         async function handleCreateGuest() {
             const { error } = await createGuestUser();
             if (error) {
-                router.replace(constants.PATHS.REGISTER);
+                router.replace(constants.PATHS.SIGNIN);
                 return;
             }
 

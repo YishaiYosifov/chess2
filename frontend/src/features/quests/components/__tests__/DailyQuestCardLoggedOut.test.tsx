@@ -12,19 +12,19 @@ describe("DailyQuestCardLoggedOut", () => {
         );
     });
 
-    it("should render the login/register message", () => {
+    it("should render the sign in message", () => {
         render(<DailyQuestCardLoggedOut />);
 
         expect(screen.getByTestId("dailyQuestMessage")).toHaveTextContent(
-            /register to start completing daily quests/i,
+            /sign in to start completing daily quests/i,
         );
     });
 
-    it("should link the button to the register page", () => {
+    it("should link the button to the sign in page", () => {
         render(<DailyQuestCardLoggedOut />);
 
-        const link = screen.getByTestId("dailyQuestRegisterLink");
-        expect(link).toHaveAttribute("href", constants.PATHS.REGISTER);
-        expect(link).toHaveTextContent("Register");
+        const link = screen.getByTestId("dailyQuestSignInLink");
+        expect(link).toHaveAttribute("href", constants.PATHS.SIGNIN);
+        expect(link).toHaveTextContent("Sign In");
     });
 });

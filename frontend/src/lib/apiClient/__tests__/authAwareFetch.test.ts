@@ -103,7 +103,7 @@ describe("authAwareFetch", () => {
 
         expect(logoutMock).toHaveBeenCalledOnce();
         expect(navigateMock).toHaveBeenCalledExactlyOnceWith(
-            constants.PATHS.REGISTER,
+            constants.PATHS.SIGNIN,
         );
     });
 
@@ -116,7 +116,7 @@ describe("authAwareFetch", () => {
 
         expect(logoutMock).toHaveBeenCalledOnce();
         expect(navigateMock).toHaveBeenCalledExactlyOnceWith(
-            constants.PATHS.REGISTER,
+            constants.PATHS.SIGNIN,
         );
     });
 });

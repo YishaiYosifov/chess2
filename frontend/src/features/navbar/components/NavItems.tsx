@@ -73,7 +73,7 @@ export const UpperNavItems = ({
             {!hasAccessCookie && (
                 <NavItem
                     as={Link}
-                    href="/register"
+                    href={constants.PATHS.SIGNIN}
                     icon={<ArrowLeftEndOnRectangleIcon />}
                     isCollapsed={isCollapsed}
                     className="text-secondary rounded-md"

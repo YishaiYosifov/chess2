@@ -17,7 +17,7 @@ const RefreshRedirect = () => {
             const { error } = await refresh();
             if (error) {
                 await logout();
-                router.replace(constants.PATHS.REGISTER);
+                router.replace(constants.PATHS.SIGNIN);
                 return;
             }
 
