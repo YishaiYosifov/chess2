@@ -1,4 +1,4 @@
-import { GameColor, GameState } from "@/lib/apiClient";
+import { GameColor, GameSource, GameState } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { createFakePlayer } from "./playerFaker";
 import { createFakeClock } from "./clockFaker";
@@ -13,6 +13,7 @@ export function createFakeGameState(
     return {
         pool: createFakePoolKey(),
         revision: faker.number.int({ min: 5, max: 100 }),
+        gameSource: faker.helpers.enumValue(GameSource),
         whitePlayer: createFakePlayer(GameColor.WHITE),
         blackPlayer: createFakePlayer(GameColor.BLACK),
         sideToMove: GameColor.WHITE,

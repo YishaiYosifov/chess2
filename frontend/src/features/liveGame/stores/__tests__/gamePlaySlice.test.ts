@@ -12,6 +12,7 @@ import {
     LegalMoveMap,
     ProcessedMoveOptions,
 } from "@/features/chessboard/lib/types";
+import { createFakeClock } from "@/lib/testUtils/fakers/clockFaker";
 
 describe("gamePlaySlice", () => {
     let store: StoreApi<LiveChessStore>;
@@ -25,12 +26,22 @@ describe("gamePlaySlice", () => {
     describe("receiveMove", () => {
         it("should update clocks, sideToMove, and clear isPendingMoveAck", () => {
             const newPosition = createFakePosition();
-            const newClocks: Clocks = { whiteClock: 500, blackClock: 600 };
+            const newClocks: Clocks = {
+                whiteClock: 500,
+                blackClock: 600,
+                lastUpdated: Date.now().valueOf(),
+                isFrozen: true,
+            };
             const newSideToMove = GameColor.BLACK;
 
             store.setState({
                 isPendingMoveAck: true,
-                clocks: { whiteClock: 100, blackClock: 200 },
+                clocks: {
+                    whiteClock: 100,
+                    blackClock: 200,
+                    lastUpdated: Date.now().valueOf(),
+                    isFrozen: false,
+                },
                 sideToMove: GameColor.WHITE,
             });
 
@@ -54,11 +65,7 @@ describe("gamePlaySlice", () => {
             const newPosition = createFakePosition();
             store
                 .getState()
-                .receiveMove(
-                    newPosition,
-                    { whiteClock: 400, blackClock: 300 },
-                    GameColor.WHITE,
-                );
+                .receiveMove(newPosition, createFakeClock(), GameColor.WHITE);
 
             expect(decrementMock).toHaveBeenCalledOnce();
             expect(receivePosSpy).toHaveBeenCalledExactlyOnceWith(newPosition);
