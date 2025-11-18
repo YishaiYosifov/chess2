@@ -9,7 +9,8 @@ public record QuestVariant(
     QuestDifficulty Difficulty,
     int Target,
     Func<IReadOnlyCollection<IQuestCondition>> Conditions,
-    Func<IReadOnlyCollection<IQuestMetric>>? Progressors = null
+    Func<IReadOnlyCollection<IQuestMetric>>? Progressors = null,
+    bool ShouldResetOnFailure = false
 )
 {
     public QuestInstance CreateInstance(DateOnly? creationDate = null) =>
@@ -18,6 +19,7 @@ public record QuestVariant(
             Difficulty,
             Target,
             creationDate ?? new DateOnly(),
+            ShouldResetOnFailure,
             Conditions(),
             Progressors?.Invoke()
         );

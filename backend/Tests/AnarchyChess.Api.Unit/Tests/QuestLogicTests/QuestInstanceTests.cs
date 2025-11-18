@@ -21,6 +21,7 @@ public class QuestInstanceTests
             difficulty: QuestDifficulty.Easy,
             target: 3,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [condition],
             metrics: null
         );
@@ -44,6 +45,7 @@ public class QuestInstanceTests
             difficulty: QuestDifficulty.Medium,
             target: 5,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [condition],
             metrics: null
         );
@@ -70,6 +72,7 @@ public class QuestInstanceTests
             difficulty: QuestDifficulty.Medium,
             target: 3,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [conditionTrue, conditionFalse],
             metrics: null
         );
@@ -99,6 +102,7 @@ public class QuestInstanceTests
             difficulty: QuestDifficulty.Medium,
             target: 10,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [condition],
             metrics: [metric1, metric2]
         );
@@ -125,6 +129,7 @@ public class QuestInstanceTests
             difficulty: QuestDifficulty.Hard,
             target: 7,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [condition],
             metrics: [metric]
         );
@@ -135,5 +140,35 @@ public class QuestInstanceTests
 
         quest.Progress.Should().Be(7);
         quest.IsCompleted.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ApplySnapshot_resets_progress_to_zero_when_condition_false_and_shouldResetOnFailure_true()
+    {
+        var conditionTrue = Substitute.For<IQuestCondition>();
+        conditionTrue.Evaluate(Arg.Any<GameQuestSnapshot>()).Returns(true);
+
+        var conditionFalse = Substitute.For<IQuestCondition>();
+        conditionFalse.Evaluate(Arg.Any<GameQuestSnapshot>()).Returns(true, false);
+
+        QuestInstance quest = new(
+            description: "test",
+            difficulty: QuestDifficulty.Medium,
+            target: 5,
+            creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: true,
+            conditions: [conditionTrue, conditionFalse],
+            metrics: null
+        );
+
+        quest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
+
+        quest.Progress.Should().Be(1);
+
+        quest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
+
+        // progress should reset to zero because of failure
+        quest.Progress.Should().Be(0);
+        quest.IsCompleted.Should().BeFalse();
     }
 }
