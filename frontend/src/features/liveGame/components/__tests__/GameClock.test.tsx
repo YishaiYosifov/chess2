@@ -20,6 +20,7 @@ describe("GameClock", () => {
                     whiteClock: 300000,
                     blackClock: 300000,
                     lastUpdated: Date.now().valueOf(),
+                    isFrozen: false,
                 },
                 sideToMove: GameColor.WHITE,
             }),
@@ -89,6 +90,7 @@ describe("GameClock", () => {
                 whiteClock: 15000,
                 blackClock: 300000,
                 lastUpdated: Date.now().valueOf(),
+                isFrozen: false,
             },
             sideToMove: GameColor.WHITE,
         });
@@ -113,6 +115,7 @@ describe("GameClock", () => {
                 whiteClock: 0,
                 blackClock: 300000,
                 lastUpdated: 0,
+                isFrozen: true,
             },
             sideToMove: GameColor.WHITE,
             resultData: {
@@ -142,6 +145,7 @@ describe("GameClock", () => {
                 whiteClock: 5000,
                 blackClock: 300000,
                 lastUpdated: Date.now().valueOf(),
+                isFrozen: false,
             },
             sideToMove: GameColor.WHITE,
         });
@@ -158,12 +162,14 @@ describe("GameClock", () => {
         expect(screen.getByText("00:00.00")).toBeInTheDocument();
     });
 
-    it("should stop ticking when lastUpdated is null", () => {
+    it("should stop ticking when isFrozen is true", () => {
         store.setState({
             clocks: {
                 whiteClock: 1000,
                 blackClock: 1000,
-                lastUpdated: null,
+                lastUpdated: Date.now().valueOf(),
+
+                isFrozen: true,
             },
             sideToMove: GameColor.WHITE,
         });
@@ -174,7 +180,7 @@ describe("GameClock", () => {
             </LiveChessStoreContext.Provider>,
         );
         act(() => {
-            vi.advanceTimersByTime(1000);
+            vi.advanceTimersByTime(10000);
         });
 
         expect(screen.getByText("00:01.00")).toBeInTheDocument();
