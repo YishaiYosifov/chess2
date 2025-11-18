@@ -13,6 +13,7 @@ public class QuestGrainStorageTests
             difficulty: QuestDifficulty.Easy,
             target: 5,
             creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            shouldResetOnFailure: false,
             conditions: [],
             metrics: null
         );

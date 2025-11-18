@@ -11,6 +11,7 @@ public class QuestInstance(
     QuestDifficulty difficulty,
     int target,
     DateOnly creationDate,
+    bool shouldResetOnFailure,
     IReadOnlyCollection<IQuestCondition> conditions,
     IReadOnlyCollection<IQuestMetric>? metrics
 )
@@ -36,12 +37,22 @@ public class QuestInstance(
     [Id(6)]
     public DateOnly CreationDate { get; } = creationDate;
 
+    [Id(7)]
+    public bool ShouldResetOnFailure { get; } = shouldResetOnFailure;
+
     public bool IsCompleted => Progress >= Target;
 
     public int ApplySnapshot(GameQuestSnapshot snapshot)
     {
         var progressMade = EvaluateProgressMade(snapshot);
-        Progress = Math.Min(Progress + progressMade, Target);
+        if (progressMade == 0 && ShouldResetOnFailure)
+        {
+            Progress = 0;
+        }
+        else
+        {
+            Progress = Math.Clamp(Progress + progressMade, min: 0, max: Target);
+        }
         return progressMade;
     }
 
