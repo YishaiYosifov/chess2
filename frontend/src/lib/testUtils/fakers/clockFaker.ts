@@ -6,6 +6,7 @@ export function createFakeClock(overrides: Partial<Clocks> = {}): Clocks {
         whiteClock: faker.number.int({ min: 10000, max: 100000 }),
         blackClock: faker.number.int({ min: 10000, max: 100000 }),
         lastUpdated: Date.now().valueOf(),
+        isFrozen: false,
         ...overrides,
     };
 }
