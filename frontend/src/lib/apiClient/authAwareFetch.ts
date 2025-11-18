@@ -31,5 +31,5 @@ export default async function authAwareFetch(
 
 async function handleLogout(): Promise<void> {
     await logout({ client: rawClient });
-    await navigate(constants.PATHS.REGISTER);
+    await navigate(constants.PATHS.SIGNIN);
 }

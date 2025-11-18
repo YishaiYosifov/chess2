@@ -15,17 +15,17 @@ const DailyQuestCardLoggedOut = () => {
                     className="text-text/70 text-lg"
                     data-testid="dailyQuestMessage"
                 >
-                    Register to start completing daily quests, earn streaks, and
+                    Sign In to start completing daily quests, earn streaks, and
                     track your progress!
                 </p>
 
                 <Button>
                     <Link
-                        href={constants.PATHS.REGISTER}
+                        href={constants.PATHS.SIGNIN}
                         className="flex h-full w-full items-center justify-center"
-                        data-testid="dailyQuestRegisterLink"
+                        data-testid="dailyQuestSignInLink"
                     >
-                        Register
+                        Sign In
                     </Link>
                 </Button>
             </div>

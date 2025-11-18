@@ -9,8 +9,8 @@ describe("HomeHero", () => {
         render(<HomeHero />);
 
         const heroTitle = screen.getByTestId("homeHeroBanner");
-        expect(heroTitle).toHaveTextContent("Anarchy Chess");
-        expect(heroTitle).toHaveTextContent("WELCOME TO");
+        expect(heroTitle).toHaveTextContent("Welcome To");
+        expect(heroTitle).toHaveTextContent("CHESS");
         expect(heroTitle).toHaveTextContent("The Anarchy Update");
     });
 

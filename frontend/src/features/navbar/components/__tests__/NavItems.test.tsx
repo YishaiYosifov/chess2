@@ -9,7 +9,7 @@ describe("UpperNavItems", () => {
 
         expect(screen.getByText("Sign In").closest("a")).toHaveAttribute(
             "href",
-            constants.PATHS.REGISTER,
+            constants.PATHS.SIGNIN,
         );
         expect(screen.getByText("Play").closest("a")).toHaveAttribute(
             "href",

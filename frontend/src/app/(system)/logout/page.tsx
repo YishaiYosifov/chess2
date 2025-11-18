@@ -12,7 +12,7 @@ const LogoutPage = () => {
     useEffect(() => {
         async function handleLogOut() {
             await logout();
-            router.replace(constants.PATHS.REGISTER);
+            router.replace(constants.PATHS.SIGNIN);
         }
         handleLogOut();
     }, [router]);

@@ -27,7 +27,7 @@ const COOKIES = {
 };
 
 const PATHS = {
-    REGISTER: "/register",
+    SIGNIN: "/signin",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
     DONATE: "https://ko-fi.com/anarchychess",
