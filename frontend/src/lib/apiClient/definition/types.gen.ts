@@ -1152,6 +1152,19 @@ export type GetGameResultsResponses = {
 export type GetGameResultsResponse =
     GetGameResultsResponses[keyof GetGameResultsResponses];
 
+export type IndexData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: "/error";
+};
+
+export type IndexResponses = {
+    200: Blob | File;
+};
+
+export type IndexResponse = IndexResponses[keyof IndexResponses];
+
 export type CreateChallengeData = {
     body: PoolKey;
     path?: never;
