@@ -97,6 +97,8 @@ import type {
     GetUserQuestPointsResponses,
     GetWinStreakLeaderboardData,
     GetWinStreakLeaderboardResponses,
+    IndexData,
+    IndexResponses,
     LogoutData,
     LogoutResponses,
     OAuthCallbackData,
@@ -561,6 +563,19 @@ export const getGameResults = <ThrowOnError extends boolean = false>(
         ThrowOnError
     >({
         url: "/api/Game/results/{userId}",
+        ...options,
+    });
+};
+
+export const index = <ThrowOnError extends boolean = false>(
+    options?: Options<IndexData, ThrowOnError>,
+) => {
+    return (options?.client ?? client).get<
+        IndexResponses,
+        unknown,
+        ThrowOnError
+    >({
+        url: "/error",
         ...options,
     });
 };
