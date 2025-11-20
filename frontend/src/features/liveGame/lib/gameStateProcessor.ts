@@ -18,6 +18,7 @@ import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import constants from "@/lib/constants";
 import { StoreApi } from "zustand";
 import { LiveChessViewer } from "../stores/gamePlaySlice";
+import BoardPieces from "@/features/chessboard/lib/boardPieces";
 
 export interface ProcessedGameState {
     live: LiveChessStoreProps;
@@ -71,7 +72,7 @@ export function createStoreProps(
         resultData: gameState.resultData ?? null,
     };
     const board: ChessboardProps = {
-        pieceMap: positionHistory.at(-1)?.pieces ?? new Map(),
+        pieces: positionHistory.at(-1)?.pieces ?? new BoardPieces(),
         moveOptions: latestMoveOptions,
 
         boardDimensions: { width: boardWidth, height: boardHeight },

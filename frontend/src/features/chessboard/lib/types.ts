@@ -1,10 +1,11 @@
 import { GameColor, PieceType } from "@/lib/apiClient";
 import { LogicalPoint, StrPoint } from "@/features/point/types";
+import BoardPieces from "./boardPieces";
 
-export type PieceMap = Map<PieceID, Piece>;
 export type LegalMoveMap = Map<StrPoint, Move[]>;
 
 export interface Piece {
+    id: PieceID;
     type: PieceType;
     color: GameColor | null;
     position: LogicalPoint;
@@ -34,7 +35,7 @@ export type MinimalMove = Partial<Move> & {
 };
 
 export interface BoardState {
-    pieces: PieceMap;
+    pieces: BoardPieces;
     moveOptions: ProcessedMoveOptions;
     casuedByMove?: Move;
 }
@@ -52,15 +53,15 @@ export interface IntermediateSquare {
 export type PieceID = string;
 
 export interface AnimationStep {
-    newPieces: PieceMap;
+    newPieces: BoardPieces;
     movedPieceIds: PieceID[];
-    initialSpawnPositions?: PieceMap;
+    initialSpawnPositions?: BoardPieces;
     isCapture: boolean;
 }
 
 export interface MoveAnimation {
     steps: AnimationStep[];
-    removedPieceIds: Iterable<PieceID>;
+    removedPieceIds: PieceID[];
 }
 
 export interface GameReplay {

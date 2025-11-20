@@ -1,17 +1,17 @@
-import { PieceMap } from "@/features/chessboard/lib/types";
 import { GameColor } from "@/lib/apiClient";
 import { logicalPoint } from "@/features/point/pointUtils";
 import constants from "@/lib/constants";
-import { createPieceId } from "./pieceMapUtils";
+import { createPieceId } from "./pieceUtils";
+import BoardPieces from "./boardPieces";
 
 /**
- * Parse a fen into a PieceMap
+ * Parse a fen into BoardPieces
  *
  * @param fen - the fen to convert to a map
  * @returns the board as a map
  */
-export function decodeFen(fen: string): PieceMap {
-    const board: PieceMap = new Map();
+export function decodeFen(fen: string): BoardPieces {
+    const board = new BoardPieces();
     const ranks = fen.split("/").reverse();
 
     for (const [y, rank] of ranks.entries()) {
@@ -34,7 +34,8 @@ export function decodeFen(fen: string): PieceMap {
             const pieceLetter = square.toLowerCase();
             const pieceType = constants.LETTER_TO_PIECE[pieceLetter];
 
-            board.set(pieceId, {
+            board.add({
+                id: pieceId,
                 position: logicalPoint({ x, y }),
                 type: pieceType,
                 color,

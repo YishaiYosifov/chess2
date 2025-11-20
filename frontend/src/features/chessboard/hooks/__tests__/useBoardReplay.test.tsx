@@ -11,6 +11,7 @@ import { GameReplay } from "../../lib/types";
 import { logicalPoint } from "@/features/point/pointUtils";
 import { simulateMove } from "../../lib/simulateMove";
 import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
+import BoardPieces from "../../lib/boardPieces";
 
 describe("useBoardReplay", () => {
     let chessboardStore: StoreApi<ChessboardStore>;
@@ -62,7 +63,7 @@ describe("useBoardReplay", () => {
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
         mockSequentialUUID();
-        expect(chessboardStore.getState().pieceMap).toEqual(
+        expect(chessboardStore.getState().pieces).toEqual(
             decodeFen(replays[0].startingFen),
         );
     });
@@ -71,30 +72,30 @@ describe("useBoardReplay", () => {
         mockSequentialUUID();
         renderHook(() => useBoardReplay(replays, chessboardStore));
 
-        let nextPieces = new Map(chessboardStore.getState().pieceMap);
+        let nextPieces = new BoardPieces(chessboardStore.getState().pieces);
         nextPieces = simulateMove(
             nextPieces,
             expandMinimalMove(replays[0].moves[0]),
         ).newPieces;
 
         mockSequentialUUID();
-        expect(chessboardStore.getState().pieceMap).toEqual(
+        expect(chessboardStore.getState().pieces).toEqual(
             decodeFen(replays[0].startingFen),
         );
 
         act(() => vi.advanceTimersByTime(1000));
-        expect(chessboardStore.getState().pieceMap).toEqual(nextPieces);
+        expect(chessboardStore.getState().pieces).toEqual(nextPieces);
 
         act(() => vi.advanceTimersByTime(500));
         // unchanged until 1 second passes
-        expect(chessboardStore.getState().pieceMap).toEqual(nextPieces);
+        expect(chessboardStore.getState().pieces).toEqual(nextPieces);
         act(() => vi.advanceTimersByTime(500));
 
         nextPieces = simulateMove(
             nextPieces,
             expandMinimalMove(replays[0].moves[1]),
         ).newPieces;
-        expect(chessboardStore.getState().pieceMap).toEqual(nextPieces);
+        expect(chessboardStore.getState().pieces).toEqual(nextPieces);
     });
 
     it("should advance to next replay after last move", () => {
@@ -106,7 +107,7 @@ describe("useBoardReplay", () => {
         act(() => vi.advanceTimersByTime(2000));
 
         mockSequentialUUID();
-        expect(chessboardStore.getState().pieceMap).toEqual(
+        expect(chessboardStore.getState().pieces).toEqual(
             decodeFen(replays[1].startingFen),
         );
     });
@@ -124,7 +125,7 @@ describe("useBoardReplay", () => {
         act(() => vi.advanceTimersByTime(2000));
 
         mockSequentialUUID();
-        expect(chessboardStore.getState().pieceMap).toEqual(
+        expect(chessboardStore.getState().pieces).toEqual(
             decodeFen(replays[0].startingFen),
         );
     });
@@ -140,7 +141,7 @@ describe("useBoardReplay", () => {
         act(() => vi.advanceTimersByTime(5000));
 
         mockSequentialUUID();
-        expect(chessboardStore.getState().pieceMap).toEqual(
+        expect(chessboardStore.getState().pieces).toEqual(
             decodeFen(replays[0].startingFen),
         );
     });

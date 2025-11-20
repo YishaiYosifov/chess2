@@ -14,6 +14,7 @@ import {
     PieceSpawnPath,
 } from "@/lib/apiClient";
 import { idxToLogicalPoint, pointToStr } from "@/features/point/pointUtils";
+import { createPieceId } from "@/features/chessboard/lib/pieceUtils";
 
 export function decodePathIntoMap(
     paths: MovePath[],
@@ -77,6 +78,7 @@ function parseSideEffect(
 function parsePieceSpawns(path: PieceSpawnPath, boardWidth: number): Piece {
     const position = idxToLogicalPoint(path.posIdx, boardWidth);
     return {
+        id: createPieceId(),
         type: path.type,
         color: path.color ?? null,
         position,

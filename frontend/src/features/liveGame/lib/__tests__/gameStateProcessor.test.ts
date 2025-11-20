@@ -12,6 +12,7 @@ import { logicalPoint } from "@/features/point/pointUtils";
 import { decodePath, decodePathIntoMap } from "../moveDecoder";
 import { LiveChessViewer } from "../../stores/gamePlaySlice";
 import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
+import BoardPieces from "@/features/chessboard/lib/boardPieces";
 
 describe("createStoreProps", () => {
     it("should return the complete and correct store props object", () => {
@@ -79,7 +80,7 @@ describe("createStoreProps", () => {
         );
 
         const baseMs = gameState.pool.timeControl.baseSeconds * 1000;
-        let pieces = new Map(constants.DEFAULT_CHESS_BOARD);
+        let pieces = new BoardPieces(constants.DEFAULT_CHESS_BOARD);
 
         function applyMove(from: LogicalPoint, to: LogicalPoint) {
             const { newPieces } = simulateMove(pieces, {
@@ -99,7 +100,7 @@ describe("createStoreProps", () => {
         // starting with initial position
         const positionHistory: Position[] = [
             {
-                pieces: new Map(pieces),
+                pieces: new BoardPieces(pieces),
                 clocks: {
                     whiteClock: baseMs,
                     blackClock: baseMs,
@@ -184,7 +185,7 @@ describe("createStoreProps", () => {
                 resultData: null,
             },
             board: {
-                pieceMap: pieces,
+                pieces: pieces,
                 moveOptions: latestMoveOptions,
                 boardDimensions: {
                     width: constants.BOARD_WIDTH,

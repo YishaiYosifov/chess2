@@ -3,9 +3,9 @@ import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { LogicalPoint } from "@/features/point/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
-import { PieceMap } from "@/features/chessboard/lib/types";
 import { Piece } from "@/features/chessboard/lib/types";
 import { faker } from "@faker-js/faker";
+import BoardPieces from "@/features/chessboard/lib/boardPieces";
 
 export function createRandomPoint(): LogicalPoint {
     return logicalPoint({
@@ -16,6 +16,7 @@ export function createRandomPoint(): LogicalPoint {
 
 export function createFakePiece(override?: Partial<Piece>): Piece {
     return {
+        id: faker.string.uuid(),
         type: faker.helpers.enumValue(PieceType),
         color: faker.helpers.enumValue(GameColor),
         position: createRandomPoint(),
@@ -39,31 +40,34 @@ export function createFakeMove(override?: Partial<Move>): Move {
 }
 
 export function createFakeMoveFromPieces(
-    pieces: PieceMap,
+    pieces: BoardPieces,
     override?: Partial<Move>,
 ): Move {
+    const firstPiece = pieces.values().next().value;
+    if (!firstPiece) throw new Error("BoardPieces is empty");
+
     return createFakeMove({
-        from: pieces.values().toArray()[0].position,
+        from: firstPiece.position,
         ...override,
     });
 }
 
-export function createFakePieceMap(count = 5): PieceMap {
-    const map: PieceMap = new Map();
+export function createFakeBoardPieces(count = 5): BoardPieces {
+    const boardPieces = new BoardPieces();
     for (let i = 0; i < count; i++) {
-        map.set(`${i}`, createFakePiece());
+        boardPieces.add(createFakePiece({ id: i.toString() }));
     }
-    return map;
+    return boardPieces;
 }
 
-export function createSequentialPieceMapFromPieces(
+export function createSequentialBoardPiecesFromPieces(
     ...pieces: Piece[]
-): PieceMap {
-    const map: PieceMap = new Map();
+): BoardPieces {
+    const boardPieces = new BoardPieces();
     for (const [i, piece] of pieces.entries()) {
-        map.set(`${i}`, piece);
+        boardPieces.add({ ...piece, id: i.toString() });
     }
-    return map;
+    return boardPieces;
 }
 
 export function createFakeLegalMoveMap(count = 5): LegalMoveMap {

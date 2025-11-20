@@ -3,7 +3,7 @@
 import { StoreApi } from "zustand";
 
 import constants from "@/lib/constants";
-import { GameReplay, type PieceMap } from "../lib/types";
+import { GameReplay } from "../lib/types";
 
 import { GameColor } from "@/lib/apiClient";
 import {
@@ -17,6 +17,7 @@ import useConst from "@/hooks/useConst";
 import useBoardReplay from "../hooks/useBoardReplay";
 import { decodeFen } from "../lib/fenDecoder";
 import { useMemo } from "react";
+import BoardPieces from "../lib/boardPieces";
 
 interface BaseChessboardProps {
     boardWidth?: number;
@@ -32,7 +33,7 @@ interface ChessboardPropsWithReplay extends BaseChessboardProps {
 
 interface ChessboardPropsWithPosition extends BaseChessboardProps {
     replays?: never;
-    position?: PieceMap;
+    position?: BoardPieces;
 }
 
 type ChessboardProps = ChessboardPropsWithReplay | ChessboardPropsWithPosition;
@@ -55,7 +56,7 @@ const StaticChessboard = ({
 
     const chessboardStore = useConst<StoreApi<ChessboardStore>>(() =>
         createChessboardStore({
-            pieceMap: initialPosition,
+            pieces: initialPosition,
             boardDimensions: { width: boardWidth, height: boardHeight },
             moveOptions: createMoveOptions(),
             viewingFrom,

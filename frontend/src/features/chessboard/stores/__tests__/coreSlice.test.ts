@@ -6,7 +6,7 @@ import {
 } from "../chessboardStore";
 import {
     createFakeLegalMoveMap,
-    createFakePieceMap,
+    createFakeBoardPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { GameColor } from "@/lib/apiClient";
 import { createMoveOptions } from "../../lib/moveOptions";
@@ -30,7 +30,7 @@ describe("CoreSlice", () => {
                     width: 6,
                     height: 9,
                 },
-                pieceMap: createFakePieceMap(),
+                pieces: createFakeBoardPieces(),
                 moveOptions: createMoveOptions({
                     legalMoves: createFakeLegalMoveMap(),
                     hasForcedMoves: true,

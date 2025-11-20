@@ -5,13 +5,14 @@ import {
     createFakeMove,
     createFakePiece,
     createRandomPoint,
-    createSequentialPieceMapFromPieces,
+    createSequentialBoardPiecesFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { LegalMoveMap, Piece } from "../../lib/types";
+import { IntermediateSquare, LegalMoveMap, Piece } from "../../lib/types";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import { createMoveOptions } from "../../lib/moveOptions";
 import { PieceType } from "@/lib/apiClient";
 import { waitFor } from "@testing-library/react";
+import BoardPieces from "../../lib/boardPieces";
 
 describe("LegalMovesSlice", () => {
     let store: StoreApi<ChessboardStore>;
@@ -26,9 +27,8 @@ describe("LegalMovesSlice", () => {
         it("should return null if no legal moves exist for the origin", async () => {
             const origin = logicalPoint({ x: 1, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             store.setState({
                 moveOptions: createMoveOptions({ legalMoves: new Map() }),
@@ -36,16 +36,15 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(dest, "0", pieceMap);
+                .getLegalMove(dest, piece.id, pieces);
             expect(result).toBeNull();
         });
 
         it("should return null if no move matches the destination", async () => {
             const origin = logicalPoint({ x: 1, y: 1 });
             const dest = logicalPoint({ x: 5, y: 5 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             const move = createFakeMove({
                 from: origin,
@@ -61,16 +60,15 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(dest, "0", pieceMap);
+                .getLegalMove(dest, piece.id, pieces);
             expect(result).toBeNull();
         });
 
         it("should return the single matching move if only one matches", async () => {
             const origin = logicalPoint({ x: 2, y: 2 });
             const dest = logicalPoint({ x: 3, y: 3 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             const move = createFakeMove({ from: origin, to: dest });
             const legalMoves: LegalMoveMap = new Map([
@@ -83,7 +81,7 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(dest, "0", pieceMap);
+                .getLegalMove(dest, piece.id, pieces);
             expect(result).toEqual(move);
         });
 
@@ -91,9 +89,8 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             const triggerMove = createFakeMove({
                 from: origin,
@@ -112,7 +109,7 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(trigger, "0", pieceMap);
+                .getLegalMove(trigger, piece.id, pieces);
             expect(result).toEqual(triggerMove);
         });
 
@@ -120,9 +117,8 @@ describe("LegalMovesSlice", () => {
             const origin = logicalPoint({ x: 4, y: 4 });
             const trigger = logicalPoint({ x: 6, y: 6 });
             const dest = logicalPoint({ x: 9, y: 9 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             const triggerMove = createFakeMove({
                 from: origin,
@@ -138,16 +134,15 @@ describe("LegalMovesSlice", () => {
 
             const result = await store
                 .getState()
-                .getLegalMove(dest, "0", pieceMap);
+                .getLegalMove(dest, piece.id, pieces);
             expect(result).toEqual(triggerMove);
         });
 
         it("should return null if multiple moves match but promotion is cancelled", async () => {
             const origin = logicalPoint({ x: 0, y: 1 });
             const dest = logicalPoint({ x: 0, y: 7 });
-            const pieceMap = createSequentialPieceMapFromPieces(
-                createFakePiece({ position: origin }),
-            );
+            const piece = createFakePiece({ position: origin });
+            const pieces = BoardPieces.fromPieces(piece);
 
             const queenMove = createFakeMove({
                 from: origin,
@@ -170,7 +165,9 @@ describe("LegalMovesSlice", () => {
                 resolvePromotion: null,
             });
 
-            const promise = store.getState().getLegalMove(dest, "0", pieceMap);
+            const promise = store
+                .getState()
+                .getLegalMove(dest, piece.id, pieces);
 
             await waitFor(() => {
                 const state = store.getState();
@@ -207,7 +204,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieceMap: createSequentialPieceMapFromPieces(piece),
+                pieces: createSequentialBoardPiecesFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
@@ -221,7 +218,10 @@ describe("LegalMovesSlice", () => {
         });
 
         it("should highlight the first intermediate instead of 'to'", () => {
-            const intermediate = logicalPoint({ x: 1, y: 1 });
+            const intermediate: IntermediateSquare = {
+                position: logicalPoint({ x: 1, y: 1 }),
+                isCapture: false,
+            };
             const destination = logicalPoint({ x: 2, y: 2 });
             const move = createFakeMove({
                 from: piece.position,
@@ -234,7 +234,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieceMap: createSequentialPieceMapFromPieces(piece),
+                pieces: createSequentialBoardPiecesFromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
@@ -242,7 +242,7 @@ describe("LegalMovesSlice", () => {
 
             const highlighted = store.getState().highlightedLegalMoves;
             expect(highlighted).toHaveLength(1);
-            expect(highlighted[0]).toEqual(intermediate);
+            expect(highlighted[0]).toEqual(intermediate.position);
             expect(highlighted).not.toContainEqual(destination);
         });
     });

@@ -1,6 +1,6 @@
 import { Position } from "@/features/liveGame/lib/types";
 import { faker } from "@faker-js/faker";
-import { createFakePieceMap } from "./chessboardFakers";
+import { createFakeBoardPieces } from "./chessboardFakers";
 import { createFakeSan } from "./sanFaker";
 
 export function createFakePosition(
@@ -8,7 +8,7 @@ export function createFakePosition(
 ): Position {
     return {
         san: createFakeSan(),
-        pieces: createFakePieceMap(),
+        pieces: createFakeBoardPieces(),
         clocks: {
             whiteClock: faker.number.int({ min: 1000, max: 100000 }),
             blackClock: faker.number.int({ min: 1000, max: 100000 }),

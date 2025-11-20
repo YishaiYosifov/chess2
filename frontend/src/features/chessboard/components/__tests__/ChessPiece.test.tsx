@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { LogicalPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
 import { Move, Piece } from "../../lib/types";
-import { PieceMap } from "../../lib/types";
 import ChessboardStoreContext from "@/features/chessboard/contexts/chessboardStoreContext";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 import { StoreApi } from "zustand";
@@ -21,6 +20,7 @@ import {
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { createMoveOptions } from "../../lib/moveOptions";
 import getPieceImage from "../../lib/pieceImage";
+import BoardPieces from "../../lib/boardPieces";
 
 describe("ChessPiece", () => {
     const normalize = (str: string) => str.replace(/\s+/g, "");
@@ -86,10 +86,13 @@ describe("ChessPiece", () => {
         logicalPosition ??= logicalPoint({ x: 0, y: 9 });
         legalMoves ??= [];
 
-        const pieceInfo = createFakePiece({ position: logicalPosition });
-        const pieceMap: PieceMap = new Map([[CREATED_PIECE_ID, pieceInfo]]);
+        const pieceInfo = createFakePiece({
+            position: logicalPosition,
+            id: CREATED_PIECE_ID,
+        });
+        const boardPieces = BoardPieces.fromPieces(pieceInfo);
         store.setState({
-            pieceMap,
+            pieces: boardPieces,
             moveOptions: createMoveOptions({
                 legalMoves: createFakeLegalMoveMapFromMoves(legalMoves),
             }),
@@ -255,8 +258,8 @@ describe("ChessPiece", () => {
         ]);
         vi.advanceTimersToNextFrame();
 
-        const pieceMap = store.getState().pieceMap;
-        expect(pieceMap.get(CREATED_PIECE_ID)?.position).toEqual(move.to);
+        const pieces = store.getState().pieces;
+        expect(pieces.getById(CREATED_PIECE_ID)?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 700, y: 400 },
         });
@@ -294,23 +297,22 @@ describe("ChessPiece", () => {
         ]);
         vi.advanceTimersToNextFrame();
 
-        const pieceMap = store.getState().pieceMap;
-        expect(pieceMap.get(CREATED_PIECE_ID)?.position).toEqual(move.to);
+        const pieces = store.getState().pieces;
+        expect(pieces.getById(CREATED_PIECE_ID)?.position).toEqual(move.to);
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 200, y: 600 },
         });
         expect(normalize(piece.style.transform)).toBe(expectedTransform);
     });
 
-    it("should prioritize animatingPieceMap over regular pieces", () => {
+    it("should prioritize animatingPieces over regular pieces", () => {
         const animatingPiece = createFakePiece({
             position: logicalPoint({ x: 7, y: 3 }),
+            id: CREATED_PIECE_ID,
         });
-        const animatingPieceMap: PieceMap = new Map([
-            [CREATED_PIECE_ID, animatingPiece],
-        ]);
+        const animatingPieces = BoardPieces.fromPieces(animatingPiece);
 
-        store.setState({ animatingPieceMap });
+        store.setState({ animatingPieces: animatingPieces });
 
         const { piece } = renderPiece({
             logicalPosition: logicalPoint({ x: 0, y: 0 }),
@@ -327,7 +329,7 @@ describe("ChessPiece", () => {
         "should set opacity to 50% when the piece is being removed",
         (isRemoving) => {
             store.setState({
-                removingPieces: isRemoving
+                removingPieceIds: isRemoving
                     ? new Set(CREATED_PIECE_ID)
                     : new Set(),
             });

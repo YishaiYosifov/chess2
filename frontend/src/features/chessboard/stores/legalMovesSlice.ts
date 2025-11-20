@@ -1,5 +1,5 @@
 import { LogicalPoint } from "@/features/point/types";
-import { PieceID, PieceMap, ProcessedMoveOptions } from "../lib/types";
+import { PieceID, ProcessedMoveOptions } from "../lib/types";
 import { Move } from "../lib/types";
 import { StrPoint } from "@/features/point/types";
 import { Piece } from "../lib/types";
@@ -7,6 +7,7 @@ import { StateCreator } from "zustand";
 import { ChessboardStore } from "./chessboardStore";
 import { pointEquals, pointToStr } from "@/features/point/pointUtils";
 import { PieceType } from "@/lib/apiClient";
+import BoardPieces from "../lib/boardPieces";
 
 export interface LegalMovesSliceProps {
     moveOptions: ProcessedMoveOptions;
@@ -19,7 +20,7 @@ export interface LegalMovesSlice {
     getLegalMove(
         dest: LogicalPoint,
         pieceId: PieceID,
-        pieceMap: PieceMap,
+        pieces: BoardPieces,
     ): Promise<Move | null>;
 
     showLegalMoves(piece: Piece): boolean;
@@ -43,11 +44,11 @@ export function createLegalMovesSlice(
         ...initState,
         highlightedLegalMoves: [],
 
-        async getLegalMove(dest, pieceId, pieceMap) {
+        async getLegalMove(dest, pieceId, pieces) {
             const { moveOptions, promptPromotion, disambiguateDestination } =
                 get();
 
-            const piece = pieceMap.get(pieceId);
+            const piece = pieces.getById(pieceId);
             if (!piece) {
                 console.warn(
                     `Could not get legal moves for ${pieceId}, no piece was found`,
@@ -64,7 +65,7 @@ export function createLegalMovesSlice(
                 dest,
                 movesFromOrigin,
                 pieceId,
-                pieceMap,
+                pieces,
             );
             if (!movesToDest || movesToDest.length === 0) return null;
 

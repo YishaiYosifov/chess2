@@ -4,6 +4,7 @@ import { GameColor, MovePath, PieceType } from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
 import { Move } from "@/features/chessboard/lib/types";
 import { logicalPoint } from "@/features/point/pointUtils";
+import mockSequentialUUID from "@/lib/testUtils/mocks/mockUuids";
 
 vi.mock("brotli/compress");
 
@@ -25,7 +26,7 @@ describe("decodePathIntoMap", () => {
                 moveKey: "2",
                 triggerIdxs: [3],
                 capturedIdxs: [4],
-                intermediateIdxs: [5],
+                intermediateSquares: [{ posIdx: 5, isCapture: true }],
                 sideEffects: [{ fromIdx: 6, toIdx: 7 }],
                 pieceSpawns: [
                     {
@@ -38,6 +39,7 @@ describe("decodePathIntoMap", () => {
             },
         ];
 
+        mockSequentialUUID();
         const result = decodePathIntoMap(paths, 10);
 
         expect(result.size).toBe(1);
@@ -52,7 +54,9 @@ describe("decodePathIntoMap", () => {
             moveKey: "2",
             triggers: [logicalPoint({ x: 3, y: 0 })],
             captures: [logicalPoint({ x: 4, y: 0 })],
-            intermediates: [logicalPoint({ x: 5, y: 0 })],
+            intermediates: [
+                { position: logicalPoint({ x: 5, y: 0 }), isCapture: true },
+            ],
             sideEffects: [
                 {
                     from: logicalPoint({ x: 6, y: 0 }),
@@ -61,6 +65,7 @@ describe("decodePathIntoMap", () => {
             ],
             pieceSpawns: [
                 {
+                    id: "0",
                     type: PieceType.CHECKER,
                     color: GameColor.BLACK,
                     position: logicalPoint({ x: 8, y: 0 }),
@@ -111,7 +116,7 @@ describe("decodeEncodedMovesIntoMap", () => {
                 toIdx: 1,
                 triggerIdxs: [2],
                 capturedIdxs: [3],
-                intermediateIdxs: [4],
+                intermediateSquares: [{ posIdx: 4, isCapture: false }],
                 sideEffects: [{ fromIdx: 5, toIdx: 6 }],
                 pieceSpawns: [
                     {
@@ -133,6 +138,7 @@ describe("decodeEncodedMovesIntoMap", () => {
         const compressed = brotliCompress(Buffer.from(jsonString));
         const encoded = Buffer.from(compressed).toString("base64");
 
+        mockSequentialUUID();
         const result = decodeEncodedMovesIntoMap(encoded, 10);
 
         expect(result.size).toBe(2);
@@ -143,7 +149,12 @@ describe("decodeEncodedMovesIntoMap", () => {
                 moveKey: "1",
                 triggers: [logicalPoint({ x: 2, y: 0 })],
                 captures: [logicalPoint({ x: 3, y: 0 })],
-                intermediates: [logicalPoint({ x: 4, y: 0 })],
+                intermediates: [
+                    {
+                        position: logicalPoint({ x: 4, y: 0 }),
+                        isCapture: false,
+                    },
+                ],
                 sideEffects: [
                     {
                         from: logicalPoint({ x: 5, y: 0 }),
@@ -152,6 +163,7 @@ describe("decodeEncodedMovesIntoMap", () => {
                 ],
                 pieceSpawns: [
                     {
+                        id: "0",
                         type: PieceType.CHECKER,
                         color: GameColor.BLACK,
                         position: logicalPoint({ x: 7, y: 0 }),
