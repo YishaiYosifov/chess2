@@ -1,7 +1,7 @@
-﻿using Bogus;
-using AnarchyChess.Api.ArchivedGames.Entities;
+﻿using AnarchyChess.Api.ArchivedGames.Entities;
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.TestInfrastructure.TestData;
+using Bogus;
 
 namespace AnarchyChess.Api.TestInfrastructure.Fakes;
 
@@ -18,7 +18,6 @@ public class MoveArchiveFaker : Faker<MoveArchive>
         RuleFor(x => x.ToIdx, f => (byte)f.Random.Number(0, 99));
         RuleFor(x => x.Captures, MoveData.RandomIdxs);
         RuleFor(x => x.Triggers, MoveData.RandomIdxs);
-        RuleFor(x => x.Intermediates, MoveData.RandomIdxs);
         RuleFor(
             x => x.SideEffects,
             f => new MoveSideEffectArchiveFaker().Generate(f.Random.Number(1, 5))

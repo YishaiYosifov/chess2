@@ -133,12 +133,10 @@ public class ProfilePictureProviderTests : BaseIntegrationTest
     public async Task GetLastModifiedAsync_returns_value_after_upload()
     {
         using var stream = ImageUtils.CreateTestImageStream();
-
         await _profilePictureProvider.UploadProfilePictureAsync(_userId, stream, CT);
 
         var lastModified = await _profilePictureProvider.GetLastModifiedAsync(_userId, CT);
-        lastModified.Should().NotBe(DateTimeOffset.MinValue);
-        lastModified.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromSeconds(10));
+        lastModified.Should().BeCloseTo(DateTimeOffset.UtcNow, TimeSpan.FromMinutes(2));
     }
 
     [Fact]

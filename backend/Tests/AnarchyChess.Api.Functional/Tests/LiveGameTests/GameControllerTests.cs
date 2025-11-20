@@ -210,8 +210,12 @@ public class GameControllerTests : BaseFunctionalTest
     public async Task GetGameResults_ReturnsExpectedResults()
     {
         UserId userId = "test-user";
-        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(3);
-        var otherArchives = new GameArchiveFaker(whiteUserId: "someone else").Generate(3);
+        var archives = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(3);
+        var otherArchives = new GameArchiveFaker(whiteUserId: "someone else")
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(3);
         await DbContext.GameArchives.AddRangeAsync(archives.Concat(otherArchives), CT);
         await DbContext.SaveChangesAsync(CT);
 

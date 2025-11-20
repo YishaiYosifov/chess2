@@ -2,9 +2,9 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AnarchyChess.Api.GameLogic.Models;
-using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameSnapshot.Models;
+using AnarchyChess.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -32,28 +32,14 @@ public class MoveEncoderTests
     {
         MovePath[] paths =
         [
-            new(
-                FromIdx: 1,
-                ToIdx: 2,
-                MoveKey: "move1",
-                CapturedIdxs: [4, 5, 6],
-                TriggerIdxs: [7, 8, 9],
-                SideEffects: [new(FromIdx: 10, ToIdx: 11), new(FromIdx: 12, ToIdx: 13)],
-                PieceSpawns:
-                [
-                    new(Type: PieceType.Pawn, Color: GameColor.White, PosIdx: 14),
-                    new(Type: PieceType.Knook, Color: GameColor.Black, PosIdx: 15),
-                ],
-                IntermediateIdxs: [16, 17, 18],
-                PromotesTo: PieceType.Queen
-            ),
+            new MovePathFaker().Generate(),
             new(
                 FromIdx: 1,
                 ToIdx: 2,
                 MoveKey: "move2",
                 CapturedIdxs: null,
                 TriggerIdxs: null,
-                IntermediateIdxs: null,
+                IntermediateSquares: null,
                 SideEffects: null,
                 PieceSpawns: null,
                 PromotesTo: null
