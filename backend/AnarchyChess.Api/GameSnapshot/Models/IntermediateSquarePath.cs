@@ -2,14 +2,14 @@
 
 namespace AnarchyChess.Api.GameSnapshot.Models;
 
-public record IntermediateSquarePath(byte PositionIdx, bool IsCapture)
+public record IntermediateSquarePath(byte PosIdx, bool IsCapture)
 {
     public static IntermediateSquarePath FromIntermediateSquare(
         IntermediateSquare intermediateSquare,
         int boardWidth
     ) =>
         new(
-            PositionIdx: intermediateSquare.Position.AsIndex(boardWidth),
+            PosIdx: intermediateSquare.Position.AsIndex(boardWidth),
             IsCapture: intermediateSquare.IsCapture
         );
 }
