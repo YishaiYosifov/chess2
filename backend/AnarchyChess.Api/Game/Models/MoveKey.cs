@@ -22,7 +22,7 @@ public readonly record struct MoveKey(string Value)
         AlgebraicPoint from,
         AlgebraicPoint to,
         PieceType? promotesTo = null,
-        IEnumerable<AlgebraicPoint>? intermediateSquares = null
+        IEnumerable<IntermediateSquare>? intermediateSquares = null
     )
         : this(FromParts(from, to, promotesTo, intermediateSquares)) { }
 
@@ -36,7 +36,7 @@ public readonly record struct MoveKey(string Value)
         AlgebraicPoint from,
         AlgebraicPoint to,
         PieceType? promotesTo,
-        IEnumerable<AlgebraicPoint>? intermediateSquares
+        IEnumerable<IntermediateSquare>? intermediateSquares
     )
     {
         StringBuilder sb = new();
@@ -51,7 +51,7 @@ public readonly record struct MoveKey(string Value)
         foreach (var square in intermediateSquares ?? [])
         {
             sb.Append('~');
-            sb.Append(square.ToString());
+            sb.Append(square.Position.AsAlgebraic());
         }
         return sb.ToString();
     }

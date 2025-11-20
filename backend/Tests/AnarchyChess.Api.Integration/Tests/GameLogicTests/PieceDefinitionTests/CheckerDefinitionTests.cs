@@ -79,7 +79,11 @@ public class CheckerDefinitionTestData : TheoryData<PieceTestCase>
                 .WithFriendlyPieceAt("d6")
                 .WithEnemyPieceAt("d8")
                 .GoesTo("c7")
-                .GoesTo("e9", captures: ["d8"], intermediates: ["c7"])
+                .GoesTo(
+                    "e9",
+                    captures: ["d8"],
+                    intermediates: [new(new AlgebraicPoint("c7"), IsCapture: false)]
+                )
                 .GoesTo("f6", "g7", "d4", "c3", "f4", "g3")
                 .WithDescription("Multi jump with a friend an and enemy")
         );
@@ -93,12 +97,36 @@ public class CheckerDefinitionTestData : TheoryData<PieceTestCase>
                 .WithEnemyPieceAt("f6")
                 // chain from left up
                 .GoesTo("c7", captures: ["d6"])
-                .GoesTo("e9", captures: ["d6", "d8"], intermediates: ["c7"])
-                .GoesTo("g7", captures: ["d6", "d8", "f8"], intermediates: ["c7", "e9"])
+                .GoesTo(
+                    "e9",
+                    captures: ["d6", "d8"],
+                    intermediates: [new(new AlgebraicPoint("c7"), IsCapture: true)]
+                )
+                .GoesTo(
+                    "g7",
+                    captures: ["d6", "d8", "f8"],
+                    intermediates:
+                    [
+                        new(new AlgebraicPoint("c7"), IsCapture: true),
+                        new(new AlgebraicPoint("e9"), IsCapture: true),
+                    ]
+                )
                 // chain from right up
                 .GoesTo("g7", captures: ["f6"])
-                .GoesTo("e9", captures: ["f6", "f8"], intermediates: ["g7"])
-                .GoesTo("c7", captures: ["f6", "f8", "d8"], intermediates: ["g7", "e9"])
+                .GoesTo(
+                    "e9",
+                    captures: ["f6", "f8"],
+                    intermediates: [new(new AlgebraicPoint("g7"), IsCapture: true)]
+                )
+                .GoesTo(
+                    "c7",
+                    captures: ["f6", "f8", "d8"],
+                    intermediates:
+                    [
+                        new(new AlgebraicPoint("g7"), IsCapture: true),
+                        new(new AlgebraicPoint("e9"), IsCapture: true),
+                    ]
+                )
                 .GoesTo("d4", "c3", "f4", "g3")
                 .WithDescription("Multi capture chain that results in a loop")
         );

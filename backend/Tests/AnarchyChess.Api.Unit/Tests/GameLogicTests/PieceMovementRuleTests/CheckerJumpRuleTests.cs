@@ -155,7 +155,7 @@ public class CheckerJumpRuleTests
                 new MoveCapture(firstEnemyPosition, board),
                 new MoveCapture(branchEnemy1Position, board),
             ],
-            intermediateSquares: [firstLanding]
+            intermediateSquares: [new(firstLanding, IsCapture: true)]
         );
 
         Move moveLeftBranch = new(
@@ -167,7 +167,7 @@ public class CheckerJumpRuleTests
                 new MoveCapture(firstEnemyPosition, board),
                 new MoveCapture(branchEnemy2Position, board),
             ],
-            intermediateSquares: [firstLanding]
+            intermediateSquares: [new(firstLanding, IsCapture: true)]
         );
 
         moves.Should().BeEquivalentTo([moveAfterFirstJump, moveRightBranch, moveLeftBranch]);
@@ -202,7 +202,7 @@ public class CheckerJumpRuleTests
             finalLanding,
             piece,
             captures: [new MoveCapture(enemyPosition, board)],
-            intermediateSquares: [firstLanding]
+            intermediateSquares: [new(firstLanding, IsCapture: false)]
         );
 
         moves.Should().BeEquivalentTo([moveAfterFriendlyJump, moveAfterEnemyJump]);

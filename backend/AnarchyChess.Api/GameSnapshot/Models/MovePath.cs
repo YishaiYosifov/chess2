@@ -1,5 +1,5 @@
-﻿using AnarchyChess.Api.GameLogic.Models;
-using AnarchyChess.Api.Game.Models;
+﻿using AnarchyChess.Api.Game.Models;
+using AnarchyChess.Api.GameLogic.Models;
 
 namespace AnarchyChess.Api.GameSnapshot.Models;
 
@@ -11,7 +11,7 @@ public record MovePath(
     string MoveKey,
     IReadOnlyCollection<byte>? CapturedIdxs,
     IReadOnlyCollection<byte>? TriggerIdxs,
-    IReadOnlyCollection<byte>? IntermediateIdxs,
+    IReadOnlyCollection<IntermediateSquarePath>? IntermediateSquares,
     IReadOnlyList<MoveSideEffectPath>? SideEffects,
     IReadOnlyList<PieceSpawnPath>? PieceSpawns,
     PieceType? PromotesTo
@@ -29,7 +29,11 @@ public record MovePath(
                 : null;
         var intermediates =
             move.IntermediateSquares.Count != 0
-                ? move.IntermediateSquares.Select(i => i.AsIndex(boardWidth)).ToList()
+                ? move
+                    .IntermediateSquares.Select(i =>
+                        IntermediateSquarePath.FromIntermediateSquare(i, boardWidth)
+                    )
+                    .ToList()
                 : null;
         var sideEffects =
             move.SideEffects.Count != 0
@@ -49,7 +53,7 @@ public record MovePath(
             ToIdx: move.To.AsIndex(boardWidth),
             CapturedIdxs: captures,
             TriggerIdxs: triggers,
-            IntermediateIdxs: intermediates,
+            IntermediateSquares: intermediates,
             SideEffects: sideEffects,
             PromotesTo: move.PromotesTo,
             PieceSpawns: spawns,

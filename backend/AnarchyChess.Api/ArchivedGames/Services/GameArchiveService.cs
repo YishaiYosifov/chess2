@@ -159,7 +159,6 @@ public class GameArchiveService(IGameArchiveRepository gameArchiveRepository) : 
             ToIdx = path.ToIdx,
             Captures = path.CapturedIdxs?.ToList() ?? [],
             Triggers = path.TriggerIdxs?.ToList() ?? [],
-            Intermediates = path.IntermediateIdxs?.ToList() ?? [],
             SideEffects = sideEffects,
             PieceSpawns = pieceSpawns,
             PromotesTo = path.PromotesTo,

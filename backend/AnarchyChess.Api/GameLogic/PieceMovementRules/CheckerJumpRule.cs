@@ -34,7 +34,7 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
         AlgebraicPoint currentPosition,
         Piece movingPiece,
         HashSet<AlgebraicPoint> visited,
-        HashSet<AlgebraicPoint> intermediates,
+        HashSet<IntermediateSquare> intermediates,
         HashSet<MoveCapture> captured,
         Offset currentOffset
     )
@@ -47,7 +47,8 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
         if (!board.TryGetPieceAt(currentPosition, out var encounteredPiece))
             yield break;
 
-        if (encounteredPiece.Color != movingPiece.Color)
+        var isCapture = encounteredPiece.Color != movingPiece.Color;
+        if (isCapture)
             captured.Add(new MoveCapture(currentPosition, board));
 
         currentPosition += currentOffset;
@@ -65,6 +66,7 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
             intermediateSquares: intermediates
         );
 
+        IntermediateSquare intermediate = new(currentPosition, IsCapture: isCapture);
         foreach (var offset in _offsets)
         foreach (
             var move in FindCaptureSequences(
@@ -73,7 +75,7 @@ public class CheckerJumpRule(params Offset[] offsets) : IPieceMovementRule
                 currentPosition,
                 movingPiece,
                 visited: [.. visited],
-                intermediates: [.. intermediates, currentPosition],
+                intermediates: [.. intermediates, intermediate],
                 captured: [.. captured],
                 offset
             )

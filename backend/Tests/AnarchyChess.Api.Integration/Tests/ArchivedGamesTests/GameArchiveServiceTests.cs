@@ -117,7 +117,9 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     public async Task GetPaginatedResultsAsync_returns_expected_metadata_and_items()
     {
         var userId = "user123";
-        var archives = new GameArchiveFaker(whiteUserId: userId).Generate(4);
+        var archives = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate(4);
         await DbContext.GameArchives.AddRangeAsync(archives, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -149,7 +151,9 @@ public class GameArchiveServiceTests : BaseIntegrationTest
     [Fact]
     public async Task GetPaginatedResultsAsync_maps_all_properties_correctly()
     {
-        var archive = new GameArchiveFaker().Generate();
+        var archive = new GameArchiveFaker()
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate();
         await DbContext.AddAsync(archive, CT);
         await DbContext.SaveChangesAsync(CT);
 
@@ -223,7 +227,6 @@ public class GameArchiveServiceTests : BaseIntegrationTest
                     ToIdx = move.Path.ToIdx,
                     Captures = move.Path.CapturedIdxs?.ToList() ?? [],
                     Triggers = move.Path.TriggerIdxs?.ToList() ?? [],
-                    Intermediates = move.Path.IntermediateIdxs?.ToList() ?? [],
                     SideEffects =
                         move.Path.SideEffects?.Select(x => new MoveSideEffectArchive
                             {

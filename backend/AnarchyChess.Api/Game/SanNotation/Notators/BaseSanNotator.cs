@@ -1,7 +1,7 @@
 ﻿using System.Text;
+using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.GameLogic;
 using AnarchyChess.Api.GameLogic.Models;
-using AnarchyChess.Api.Game.Services;
 
 namespace AnarchyChess.Api.Game.SanNotation.Notators;
 
@@ -59,7 +59,7 @@ public abstract class BaseSanNotator(IPieceToLetter pieceToLetter) : ISanNotator
         foreach (var square in move.IntermediateSquares)
         {
             sb.Append('~');
-            sb.Append(square.AsAlgebraic());
+            sb.Append(square.Position.AsAlgebraic());
         }
     }
 

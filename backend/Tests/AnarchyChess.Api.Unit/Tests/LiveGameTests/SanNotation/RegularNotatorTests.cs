@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.Game.SanNotation.Notators;
 using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.TestInfrastructure.Factories;
 using FluentAssertions;
 
@@ -185,7 +185,12 @@ public class RegularNotatorTests
             new("a1"),
             new("g6"),
             PieceFactory.White(PieceType.Checker),
-            intermediateSquares: [new("b2"), new("d4"), new("f6")]
+            intermediateSquares:
+            [
+                new(new("b2"), IsCapture: true),
+                new(new("d4"), IsCapture: false),
+                new(new("f6"), IsCapture: true),
+            ]
         );
 
         StringBuilder sb = new();
