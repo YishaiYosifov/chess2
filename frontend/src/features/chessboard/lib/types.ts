@@ -22,7 +22,7 @@ export interface Move {
 
     triggers: LogicalPoint[];
     captures: LogicalPoint[];
-    intermediates: LogicalPoint[];
+    intermediates: IntermediateSquare[];
     sideEffects: MoveSideEffect[];
     pieceSpawns: Piece[];
     promotesTo: PieceType | null;
@@ -44,17 +44,23 @@ export interface MoveSideEffect {
     to: LogicalPoint;
 }
 
+export interface IntermediateSquare {
+    position: LogicalPoint;
+    isCapture: boolean;
+}
+
 export type PieceID = string;
 
 export interface AnimationStep {
     newPieces: PieceMap;
     movedPieceIds: PieceID[];
     initialSpawnPositions?: PieceMap;
+    isCapture: boolean;
 }
 
 export interface MoveAnimation {
     steps: AnimationStep[];
-    removedPieceIds: PieceID[];
+    removedPieceIds: Iterable<PieceID>;
 }
 
 export interface GameReplay {

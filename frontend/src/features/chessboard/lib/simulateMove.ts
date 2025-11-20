@@ -20,12 +20,13 @@ export function simulateMoveWithIntermediates(
     const currentPieces = new Map(pieces);
     for (const intermediate of move.intermediates) {
         const piece = { ...currentPieces.get(fromId)! };
-        piece.position = intermediate;
+        piece.position = intermediate.position;
         currentPieces.set(fromId, piece);
 
         steps.push({
             newPieces: new Map(currentPieces),
             movedPieceIds: [fromId],
+            isCapture: intermediate.isCapture,
         });
     }
 
@@ -40,7 +41,7 @@ export function simulateMoveWithIntermediates(
 function simulateMoveDetails(
     basePieces: PieceMap,
     move: Move,
-): { step: AnimationStep; removedPieceIds: PieceID[] } {
+): { step: AnimationStep; removedPieceIds: Set<PieceID> } {
     const movedPieceIds = new Set<PieceID>();
     const newPieces = new Map(basePieces);
 
@@ -64,17 +65,17 @@ function simulateMoveDetails(
         movedPieceIds.add(sideEffectId);
     }
 
-    const removedPieceIds: PieceID[] = [];
+    const removedPieceIds = new Set<PieceID>();
     const destCaptureId = pointToPiece(basePieces, move.to);
     if (destCaptureId && !movedPieceIds.has(destCaptureId)) {
-        removedPieceIds.push(destCaptureId);
+        removedPieceIds.add(destCaptureId);
         newPieces.delete(destCaptureId);
     }
     for (const capture of move.captures) {
         const captureId = pointToPiece(basePieces, capture);
         if (captureId) {
             newPieces.delete(captureId);
-            removedPieceIds.push(captureId);
+            removedPieceIds.add(captureId);
         }
     }
 
@@ -90,6 +91,10 @@ function simulateMoveDetails(
             newPieces,
             movedPieceIds: [...movedPieceIds],
             initialSpawnPositions,
+            isCapture:
+                removedPieceIds.size > 0 &&
+                move.intermediates.filter((x) => x.isCapture).length <
+                    removedPieceIds.size,
         },
         removedPieceIds,
     };

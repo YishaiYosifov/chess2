@@ -22,13 +22,15 @@ export const createAnimationSlice: StateCreator<
     [["zustand/immer", never], never],
     [],
     AnimationSlice
-> = (set) => {
+> = (set, get) => {
     let currentAnimationCancelToken: { canceled: boolean } | null = null;
 
     async function processMoveAnimation(
         animation: MoveAnimation,
         persistent: boolean = false,
     ) {
+        const { playAudioForAnimationStep } = get();
+
         if (currentAnimationCancelToken) {
             currentAnimationCancelToken.canceled = true;
         }
@@ -40,18 +42,16 @@ export const createAnimationSlice: StateCreator<
             state.removingPieces = new Set(animation.removedPieceIds);
         });
 
-        for (const {
-            movedPieceIds,
-            newPieces,
-            initialSpawnPositions,
-        } of animation.steps) {
+        for (const step of animation.steps) {
             if (cancelToken.canceled) break;
 
-            if (initialSpawnPositions) await spawnPieces(initialSpawnPositions);
+            playAudioForAnimationStep(step);
+            if (step.initialSpawnPositions)
+                await spawnPieces(step.initialSpawnPositions);
             set((state) => {
-                state.animatingPieceMap = newPieces;
+                state.animatingPieceMap = step.newPieces;
             });
-            await markPiecesAsAnimating(movedPieceIds);
+            await markPiecesAsAnimating(step.movedPieceIds);
         }
 
         if (!cancelToken.canceled && !persistent) {
@@ -73,7 +73,7 @@ export const createAnimationSlice: StateCreator<
         await new Promise<void>((resolve) => setTimeout(resolve));
     }
 
-    async function markPiecesAsAnimating(pieceIds: PieceID[]) {
+    async function markPiecesAsAnimating(pieceIds: Iterable<PieceID>) {
         set((state) => {
             for (const pieceId of pieceIds) state.animatingPieces.add(pieceId);
         });
@@ -117,6 +117,7 @@ export const createAnimationSlice: StateCreator<
                         {
                             newPieces,
                             movedPieceIds: [pieceId],
+                            isCapture: false,
                         },
                     ],
                     removedPieceIds: [],

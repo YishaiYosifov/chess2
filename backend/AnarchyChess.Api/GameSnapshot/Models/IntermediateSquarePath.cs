@@ -2,6 +2,8 @@
 
 namespace AnarchyChess.Api.GameSnapshot.Models;
 
+[GenerateSerializer]
+[Alias("AnarchyChess.Api.GameSnapshot.Models.IntermediateSquarePath")]
 public record IntermediateSquarePath(byte PosIdx, bool IsCapture)
 {
     public static IntermediateSquarePath FromIntermediateSquare(

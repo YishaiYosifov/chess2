@@ -323,10 +323,15 @@ export type MovePath = {
     moveKey: string;
     capturedIdxs?: Array<number> | null;
     triggerIdxs?: Array<number> | null;
-    intermediateIdxs?: Array<number> | null;
+    intermediateSquares?: Array<IntermediateSquarePath> | null;
     sideEffects?: Array<MoveSideEffectPath> | null;
     pieceSpawns?: Array<PieceSpawnPath> | null;
     promotesTo?: PieceType | null;
+};
+
+export type IntermediateSquarePath = {
+    posIdx: number;
+    isCapture: boolean;
 };
 
 export type MoveSideEffectPath = {
