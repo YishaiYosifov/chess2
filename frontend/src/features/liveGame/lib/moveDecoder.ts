@@ -1,9 +1,18 @@
 import brotliDecompress from "brotli/decompress";
 
-import { MoveSideEffect, Piece } from "@/features/chessboard/lib/types";
+import {
+    IntermediateSquare,
+    MoveSideEffect,
+    Piece,
+} from "@/features/chessboard/lib/types";
 import { Move } from "@/features/chessboard/lib/types";
 import { LegalMoveMap } from "@/features/chessboard/lib/types";
-import { MovePath, MoveSideEffectPath, PieceSpawnPath } from "@/lib/apiClient";
+import {
+    IntermediateSquarePath,
+    MovePath,
+    MoveSideEffectPath,
+    PieceSpawnPath,
+} from "@/lib/apiClient";
 import { idxToLogicalPoint, pointToStr } from "@/features/point/pointUtils";
 
 export function decodePathIntoMap(
@@ -32,8 +41,8 @@ export function decodePath(path: MovePath, boardWidth: number): Move {
         path.capturedIdxs?.map((idx) => idxToLogicalPoint(idx, boardWidth)) ??
         [];
     const intermediates =
-        path.intermediateIdxs?.map((idx) =>
-            idxToLogicalPoint(idx, boardWidth),
+        path.intermediateSquares?.map((x) =>
+            parseIntermediateSquares(x, boardWidth),
         ) ?? [];
     const sideEffects =
         path.sideEffects?.map((x) => parseSideEffect(x, boardWidth)) ?? [];
@@ -71,6 +80,17 @@ function parsePieceSpawns(path: PieceSpawnPath, boardWidth: number): Piece {
         type: path.type,
         color: path.color ?? null,
         position,
+    };
+}
+
+function parseIntermediateSquares(
+    path: IntermediateSquarePath,
+    boardWidth: number,
+): IntermediateSquare {
+    const position = idxToLogicalPoint(path.posIdx, boardWidth);
+    return {
+        position,
+        isCapture: path.isCapture,
     };
 }
 

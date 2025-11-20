@@ -96,7 +96,10 @@ function filterMovesByVisited(
             move.triggers.some((p) => pointEquals(p, dest))
         )
             return true;
-        return pointArrayStartsWith([...move.intermediates, move.to], visited);
+        return pointArrayStartsWith(
+            [...move.intermediates.map((x) => x.position), move.to],
+            visited,
+        );
     });
 }
 
@@ -105,8 +108,10 @@ function movesAreIndistinguishable(moves: Move[]): boolean {
         moves.length === 1 ||
         moves.every(
             (move) =>
-                pointArraysEqual(move.intermediates, moves[0].intermediates) &&
-                pointEquals(move.to, moves[0].to),
+                pointArraysEqual(
+                    move.intermediates.map((x) => x.position),
+                    moves[0].intermediates.map((x) => x.position),
+                ) && pointEquals(move.to, moves[0].to),
         )
     );
 }
@@ -119,11 +124,11 @@ function computeNextIntermediates(
     const nextIntermediates: LogicalPoint[] = [];
     for (const move of moves) {
         const index = move.intermediates.findIndex((intermediate) =>
-            pointEquals(intermediate, dest),
+            pointEquals(intermediate.position, dest),
         );
         const next =
             index !== -1 && index + 1 < move.intermediates.length
-                ? move.intermediates[index + 1]
+                ? move.intermediates[index + 1].position
                 : move.to;
 
         const strPoint = pointToStr(next);

@@ -23,6 +23,7 @@ import {
     IntermediateSlice,
 } from "./intermediateSlice";
 import { AnimationSlice, createAnimationSlice } from "./animationSlice";
+import { AudioSlice, createAudioSlice } from "./audioSlice";
 
 export type ChessboardStore = BoardSlice &
     PiecesSlice &
@@ -32,6 +33,7 @@ export type ChessboardStore = BoardSlice &
     InteractionSlice &
     IntermediateSlice &
     AnimationSlice &
+    AudioSlice &
     CoreSlice;
 export type ChessboardProps = BoardSliceProps &
     PieceSliceProps &
@@ -63,6 +65,7 @@ export function createChessboardStore(
                 ...createInteractionSlice(...a),
                 ...createIntermediateSlice(...a),
                 ...createAnimationSlice(...a),
+                ...createAudioSlice(...a),
                 ...createCoreSlice(...a),
             })),
             { name: "chessboardStore" },

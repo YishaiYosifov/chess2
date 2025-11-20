@@ -104,8 +104,8 @@ export function createLegalMovesSlice(
             for (const move of moves) {
                 if (move.intermediates.length != 0) {
                     toHighlightPoints.set(
-                        pointToStr(move.intermediates[0]),
-                        move.intermediates[0],
+                        pointToStr(move.intermediates[0].position),
+                        move.intermediates[0].position,
                     );
                     continue;
                 }

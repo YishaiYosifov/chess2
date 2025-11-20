@@ -52,7 +52,9 @@ export function createHistorySlice(
                     ? latestMoveOptions
                     : createMoveOptions(),
                 pieces: position.pieces,
-                casuedByMove: position.move,
+                casuedByMove: isOneStepForward
+                    ? position.move
+                    : positionHistory[number + 1]?.move,
             };
 
             return {
