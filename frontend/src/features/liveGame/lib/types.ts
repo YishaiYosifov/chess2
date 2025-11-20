@@ -1,9 +1,10 @@
-import { BoardState, Move, PieceMap } from "@/features/chessboard/lib/types";
+import BoardPieces from "@/features/chessboard/lib/boardPieces";
+import { BoardState, Move } from "@/features/chessboard/lib/types";
 
 export interface Position {
     move?: Move;
     san?: string;
-    pieces: PieceMap;
+    pieces: BoardPieces;
     clocks: ClockSnapshot;
 }
 

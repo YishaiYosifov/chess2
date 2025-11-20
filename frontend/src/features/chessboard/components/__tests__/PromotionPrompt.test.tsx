@@ -34,6 +34,7 @@ describe("PromotionPrompt", () => {
             pendingPromotion: {
                 at: logicalPoint({ x: 4, y: 6 }),
                 piece: {
+                    id: "0",
                     type: PieceType.PAWN,
                     color: GameColor.WHITE,
                     position: logicalPoint({ x: 4, y: 6 }),
@@ -63,6 +64,7 @@ describe("PromotionPrompt", () => {
             pendingPromotion: {
                 at: logicalPoint({ x: 2, y: 5 }),
                 piece: {
+                    id: "0",
                     type: PieceType.PAWN,
                     color: GameColor.WHITE,
                     position: logicalPoint({ x: 2, y: 5 }),
@@ -93,6 +95,7 @@ describe("PromotionPrompt", () => {
             pendingPromotion: {
                 at: logicalPoint({ x: 1, y: 6 }),
                 piece: {
+                    id: "0",
                     type: PieceType.PAWN,
                     color: GameColor.WHITE,
                     position: logicalPoint({ x: 1, y: 6 }),
@@ -120,6 +123,7 @@ describe("PromotionPrompt", () => {
             pendingPromotion: {
                 at: logicalPoint({ x: 2, y: 6 }),
                 piece: {
+                    id: "0",
                     type: PieceType.PAWN,
                     color: GameColor.WHITE,
                     position: logicalPoint({ x: 2, y: 6 }),
@@ -151,6 +155,7 @@ describe("PromotionPrompt", () => {
             pendingPromotion: {
                 at: logicalPoint({ x: 5, y: 2 }),
                 piece: {
+                    id: "0",
                     type: PieceType.PAWN,
                     color: GameColor.BLACK,
                     position: logicalPoint({ x: 5, y: 2 }),

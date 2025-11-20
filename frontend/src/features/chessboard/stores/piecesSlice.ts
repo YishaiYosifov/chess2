@@ -2,24 +2,23 @@ import { LogicalPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
 import { BoardState, PieceID } from "../lib/types";
 import { Move } from "../lib/types";
-import { PieceMap } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
 import { pointEquals } from "@/features/point/pointUtils";
 import {
-    pointToPiece,
     simulateMove,
     simulateMoveWithIntermediates,
 } from "../lib/simulateMove";
+import BoardPieces from "../lib/boardPieces";
 
 export interface PieceSliceProps {
-    pieceMap: PieceMap;
+    pieces: BoardPieces;
     canDrag: boolean;
     onPieceMovement?: (move: Move) => Promise<void>;
 }
 
 export interface PiecesSlice {
-    pieceMap: PieceMap;
+    pieces: BoardPieces;
     selectedPieceId: PieceID | null;
     canDrag: boolean;
     isProcessingMove: boolean;
@@ -65,10 +64,10 @@ export const createPiecesSlice =
         }
 
         function detectNeedsDoubleClick(dest: LogicalPoint): boolean {
-            const { selectedPieceId, pieceMap, hasMovesFromTo } = get();
+            const { selectedPieceId, pieces, hasMovesFromTo } = get();
             if (!selectedPieceId) return false;
 
-            const piece = pieceMap.get(selectedPieceId);
+            const piece = pieces.getById(selectedPieceId);
             if (!piece) return false;
 
             return (
@@ -80,24 +79,23 @@ export const createPiecesSlice =
         async function getMoveForSelection(
             dest: LogicalPoint,
         ): Promise<Move | null> {
-            const { selectedPieceId, getLegalMove, pieceMap } = get();
+            const { selectedPieceId, getLegalMove, pieces } = get();
             if (!selectedPieceId) return null;
 
-            const move = await getLegalMove(dest, selectedPieceId, pieceMap);
+            const move = await getLegalMove(dest, selectedPieceId, pieces);
             return move;
         }
 
         return {
             ...initState,
 
-            animatingPieceMap: null,
             selectedPieceId: null,
             animatingPieces: new Set(),
             isProcessingMove: false,
 
             selectPiece(pieceId) {
-                const { showLegalMoves, pieceMap, selectedPieceId } = get();
-                const piece = pieceMap.get(pieceId);
+                const { showLegalMoves, pieces, selectedPieceId } = get();
+                const piece = pieces.getById(pieceId);
                 if (!piece) {
                     console.warn(
                         `Cannot show legal moves, no piece was found with id ${pieceId}`,
@@ -123,24 +121,24 @@ export const createPiecesSlice =
             },
 
             async applyMoveWithIntermediates(move) {
-                const { playAnimationBatch, pieceMap } = get();
+                const { playAnimationBatch, pieces } = get();
 
-                const positions = simulateMoveWithIntermediates(pieceMap, move);
+                const positions = simulateMoveWithIntermediates(pieces, move);
                 const lastPosition = positions.steps.at(-1);
                 if (!lastPosition) return;
 
                 set((state) => {
-                    state.pieceMap = lastPosition.newPieces;
+                    state.pieces = lastPosition.newPieces;
                 });
                 await playAnimationBatch(positions);
             },
 
             async applyMove(move) {
-                const { playAnimation, pieceMap } = get();
-                const animation = simulateMove(pieceMap, move);
+                const { playAnimation, pieces } = get();
+                const animation = simulateMove(pieces, move);
 
                 set((state) => {
-                    state.pieceMap = animation.newPieces;
+                    state.pieces = animation.newPieces;
                 });
                 await playAnimation(animation);
             },
@@ -196,7 +194,7 @@ export const createPiecesSlice =
                     playAnimation,
                     applyMoveWithIntermediates,
                     setLegalMoves,
-                    pieceMap,
+                    pieces,
                 } = get();
                 setLegalMoves(boardState.moveOptions);
 
@@ -206,15 +204,15 @@ export const createPiecesSlice =
                 }
 
                 const movedPieces: PieceID[] = [];
-                for (const [id, newPiece] of boardState.pieces) {
-                    const piece = pieceMap.get(id);
+                for (const newPiece of boardState.pieces) {
+                    const piece = pieces.getById(newPiece.id);
                     if (!piece) continue;
                     if (!pointEquals(piece.position, newPiece.position))
-                        movedPieces.push(id);
+                        movedPieces.push(newPiece.id);
                 }
 
                 set((state) => {
-                    state.pieceMap = boardState.pieces;
+                    state.pieces = boardState.pieces;
                     state.selectedPieceId = null;
                 });
                 await playAnimation({
@@ -227,12 +225,12 @@ export const createPiecesSlice =
             },
 
             screenPointToPiece(point) {
-                const { screenToLogicalPoint, pieceMap } = get();
+                const { screenToLogicalPoint, pieces } = get();
 
                 const logicalPoint = screenToLogicalPoint(point);
                 if (!logicalPoint) return;
 
-                return pointToPiece(pieceMap, logicalPoint);
+                return pieces.getByPosition(logicalPoint)?.id;
             },
         };
     };

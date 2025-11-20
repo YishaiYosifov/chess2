@@ -1,19 +1,20 @@
 import { StateCreator } from "zustand";
 import type { ChessboardStore } from "./chessboardStore";
-import { AnimationStep, MoveAnimation, PieceID, PieceMap } from "../lib/types";
+import { AnimationStep, MoveAnimation, PieceID } from "../lib/types";
 import { LogicalPoint } from "@/features/point/types";
+import BoardPieces from "../lib/boardPieces";
 
 export interface AnimationSlice {
-    animatingPieceMap: PieceMap | null;
-    animatingPieces: Set<PieceID>;
-    removingPieces: Set<PieceID>;
+    animatingPieces: BoardPieces | null;
+    animatingPieceIds: Set<PieceID>;
+    removingPieceIds: Set<PieceID>;
 
     playAnimationBatch(animation: MoveAnimation): Promise<void>;
     playAnimation(animation: AnimationStep): Promise<void>;
     animatePiece(
         pieceId: PieceID,
         newPosition: LogicalPoint,
-        pieceMap: PieceMap,
+        pieces: BoardPieces,
     ): Promise<void>;
     clearAnimation(): void;
 }
@@ -39,7 +40,7 @@ export const createAnimationSlice: StateCreator<
         currentAnimationCancelToken = cancelToken;
 
         set((state) => {
-            state.removingPieces = new Set(animation.removedPieceIds);
+            state.removingPieceIds = new Set(animation.removedPieceIds);
         });
 
         for (const step of animation.steps) {
@@ -49,15 +50,15 @@ export const createAnimationSlice: StateCreator<
             if (step.initialSpawnPositions)
                 await spawnPieces(step.initialSpawnPositions);
             set((state) => {
-                state.animatingPieceMap = step.newPieces;
+                state.animatingPieces = step.newPieces;
             });
             await markPiecesAsAnimating(step.movedPieceIds);
         }
 
         if (!cancelToken.canceled && !persistent) {
             set((state) => {
-                state.animatingPieceMap = null;
-                state.removingPieces = new Set();
+                state.animatingPieces = null;
+                state.removingPieceIds = new Set();
             });
         }
 
@@ -66,23 +67,26 @@ export const createAnimationSlice: StateCreator<
         }
     }
 
-    async function spawnPieces(initialSpawnPositions: PieceMap): Promise<void> {
+    async function spawnPieces(
+        initialSpawnPositions: BoardPieces,
+    ): Promise<void> {
         set((state) => {
-            state.animatingPieceMap = initialSpawnPositions;
+            state.animatingPieces = initialSpawnPositions;
         });
         await new Promise<void>((resolve) => setTimeout(resolve));
     }
 
     async function markPiecesAsAnimating(pieceIds: Iterable<PieceID>) {
         set((state) => {
-            for (const pieceId of pieceIds) state.animatingPieces.add(pieceId);
+            for (const pieceId of pieceIds)
+                state.animatingPieceIds.add(pieceId);
         });
 
         await new Promise<void>((resolve) =>
             setTimeout(() => {
                 set((state) => {
                     for (const pieceId of pieceIds)
-                        state.animatingPieces.delete(pieceId);
+                        state.animatingPieceIds.delete(pieceId);
                 });
                 resolve();
             }, 100),
@@ -90,9 +94,9 @@ export const createAnimationSlice: StateCreator<
     }
 
     return {
-        animatingPieceMap: null,
-        animatingPieces: new Set(),
-        removingPieces: new Set(),
+        animatingPieces: null,
+        animatingPieceIds: new Set(),
+        removingPieceIds: new Set(),
 
         async playAnimationBatch(animation) {
             await processMoveAnimation(animation);
@@ -105,12 +109,12 @@ export const createAnimationSlice: StateCreator<
             });
         },
 
-        async animatePiece(pieceId, newPosition, pieceMap) {
-            const newPieces = new Map(pieceMap);
-            const piece = newPieces.get(pieceId);
+        async animatePiece(pieceId, newPosition, pieces) {
+            const newPieces = new BoardPieces(pieces);
+            const piece = newPieces.getById(pieceId);
             if (!piece) return;
 
-            newPieces.set(pieceId, { ...piece, position: newPosition });
+            newPieces.addAt(piece, newPosition);
             await processMoveAnimation(
                 {
                     steps: [
@@ -128,7 +132,7 @@ export const createAnimationSlice: StateCreator<
 
         clearAnimation() {
             set((state) => {
-                state.animatingPieceMap = null;
+                state.animatingPieces = null;
             });
         },
     };

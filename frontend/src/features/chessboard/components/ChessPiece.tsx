@@ -24,10 +24,10 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         unselectPiece,
         handleMousePieceDrop,
     } = useChessboardStore((x) => ({
-        piece: x.animatingPieceMap?.get(id) ?? x.pieceMap.get(id),
+        piece: x.animatingPieces?.getById(id) ?? x.pieces.getById(id),
         isSelected: x.selectedPieceId === id,
-        isAnimating: x.animatingPieces.has(id),
-        isRemoving: x.removingPieces.has(id),
+        isAnimating: x.animatingPieceIds.has(id),
+        isRemoving: x.removingPieceIds.has(id),
         canDrag: x.canDrag,
         screenPointToPiece: x.screenPointToPiece,
         selectPiece: x.selectPiece,

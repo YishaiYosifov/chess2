@@ -7,15 +7,15 @@ import IntermediateSquarePrompt from "./IntermediateSquarePrompt";
 
 const PieceRenderer = () => {
     const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
-        pieces: x.animatingPieceMap ?? x.pieceMap,
-        removingPieces: x.removingPieces,
+        pieces: x.animatingPieces ?? x.pieces,
+        removingPieces: x.removingPieceIds,
         highlightedLegalMoves: x.highlightedLegalMoves,
     }));
 
     return (
         <>
-            {[...pieces].map(([id]) => (
-                <ChessPiece id={id} key={id} />
+            {[...pieces].map((piece) => (
+                <ChessPiece id={piece.id} key={piece.id} />
             ))}
 
             {highlightedLegalMoves.map((point) => (

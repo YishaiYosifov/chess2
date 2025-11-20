@@ -24,6 +24,7 @@ import {
 } from "./intermediateSlice";
 import { AnimationSlice, createAnimationSlice } from "./animationSlice";
 import { AudioSlice, createAudioSlice } from "./audioSlice";
+import BoardPieces from "../lib/boardPieces";
 
 export type ChessboardStore = BoardSlice &
     PiecesSlice &
@@ -45,7 +46,7 @@ const defaultChessboardState: ChessboardProps = {
         width: constants.BOARD_WIDTH,
         height: constants.BOARD_HEIGHT,
     },
-    pieceMap: new Map(),
+    pieces: new BoardPieces(),
     canDrag: true,
     moveOptions: createMoveOptions(),
 };

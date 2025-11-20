@@ -28,7 +28,7 @@ import { Position } from "../../lib/types";
 import {
     createFakeLegalMoveMap,
     createFakePiece,
-    createSequentialPieceMapFromPieces,
+    createSequentialBoardPiecesFromPieces,
     createRandomPoint,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -67,7 +67,7 @@ describe("useLiveChessEvents", () => {
             position: logicalPoint({ x: 1, y: 1 }),
         });
         chessboardStore.setState({
-            pieceMap: createSequentialPieceMapFromPieces(piece),
+            pieces: createSequentialBoardPiecesFromPieces(piece),
         });
         liveChessStore.setState({
             viewingMoveNumber: 0,
@@ -165,7 +165,7 @@ describe("useLiveChessEvents", () => {
                 renderLiveChessEvents();
 
                 const clocks = createFakeClock();
-                const piecesBefore = chessboardStore.getState().pieceMap;
+                const piecesBefore = chessboardStore.getState().pieces;
                 const positionHistoryBefore =
                     liveChessStore.getState().positionHistory;
                 if (awaitingAck) liveChessStore.getState().markPendingMoveAck();
@@ -177,7 +177,7 @@ describe("useLiveChessEvents", () => {
                     positionHistoryBefore.length + 1,
                 );
 
-                const piecesAfter = chessboardStore.getState().pieceMap;
+                const piecesAfter = chessboardStore.getState().pieces;
                 if (!awaitingAck) {
                     expect(piecesAfter).not.toEqual(piecesBefore);
                 } else {

@@ -58,7 +58,7 @@ describe("MoveHistoryTable", () => {
         position: Position,
         moveOptions: ProcessedMoveOptions,
     ) {
-        expect(chessboardStore.getState().pieceMap).toEqual(position.pieces);
+        expect(chessboardStore.getState().pieces).toEqual(position.pieces);
         expect(chessboardStore.getState().moveOptions).toEqual(moveOptions);
     }
 

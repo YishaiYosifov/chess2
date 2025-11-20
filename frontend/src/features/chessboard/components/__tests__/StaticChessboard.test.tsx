@@ -1,36 +1,30 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
-import { PieceMap } from "../../lib/types";
 import StaticChessboard from "../StaticChessboard";
 import { GameColor, PieceType } from "@/lib/apiClient";
 import { logicalPoint } from "@/features/point/pointUtils";
+import BoardPieces from "../../lib/boardPieces";
 
-const mockBoard: PieceMap = new Map([
-    [
-        "1",
-        {
-            position: logicalPoint({ x: 0, y: 0 }),
-            type: PieceType.ROOK,
-            color: GameColor.WHITE,
-        },
-    ],
-    [
-        "2",
-        {
-            position: logicalPoint({ x: 1, y: 0 }),
-            type: PieceType.HORSEY,
-            color: GameColor.WHITE,
-        },
-    ],
-    [
-        "3",
-        {
-            position: logicalPoint({ x: 5, y: 0 }),
-            type: PieceType.ROOK,
-            color: GameColor.BLACK,
-        },
-    ],
-]);
+const mockBoard = BoardPieces.fromPieces(
+    {
+        id: "1",
+        position: logicalPoint({ x: 0, y: 0 }),
+        type: PieceType.ROOK,
+        color: GameColor.WHITE,
+    },
+    {
+        id: "2",
+        position: logicalPoint({ x: 1, y: 0 }),
+        type: PieceType.HORSEY,
+        color: GameColor.WHITE,
+    },
+    {
+        id: "3",
+        position: logicalPoint({ x: 5, y: 0 }),
+        type: PieceType.ROOK,
+        color: GameColor.BLACK,
+    },
+);
 
 describe("StaticChessboard", () => {
     it.each([
