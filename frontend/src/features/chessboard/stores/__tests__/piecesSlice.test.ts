@@ -1,40 +1,48 @@
 import { StoreApi } from "zustand";
-import { ChessboardStore, createChessboardStore } from "../chessboardStore";
+
 import {
     createFakeLegalMoveMap,
     createFakeMove,
     createFakePiece,
-    createFakeBoardPieces,
-    createSequentialBoardPiecesFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
-import { LogicalPoint } from "@/features/point/types";
-import { ScreenPoint } from "@/features/point/types";
-import { PieceID } from "../../lib/types";
-import { LegalMoveMap } from "../../lib/types";
-import { PieceMap } from "../../lib/types";
-import { Piece } from "../../lib/types";
 import {
     logicalPoint,
     pointToStr,
     screenPoint,
 } from "@/features/point/pointUtils";
-import { GameColor } from "@/lib/apiClient";
+
+import { BoardState, IntermediateSquare, LegalMoveMap } from "../../lib/types";
+import { ChessboardStore, createChessboardStore } from "../chessboardStore";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 import { createMoveOptions } from "../../lib/moveOptions";
+import { LogicalPoint } from "@/features/point/types";
+import { ScreenPoint } from "@/features/point/types";
+import BoardPieces from "../../lib/boardPieces";
+import { GameColor } from "@/lib/apiClient";
+import { Piece } from "../../lib/types";
 
 describe("PiecesSlice", () => {
     let store: StoreApi<ChessboardStore>;
 
     beforeEach(() => {
         store = createChessboardStore();
+        store.setState({
+            boardRect: {
+                left: 0,
+                top: 0,
+                width: 100,
+                height: 100,
+            } as DOMRect,
+        });
         vi.useFakeTimers({ shouldAdvanceTime: true });
     });
 
     function expectPieces(
-        ...pieces: { id: PieceID; position: LogicalPoint; piece: Piece }[]
+        ...pieces: { position: LogicalPoint; piece: Piece }[]
     ) {
-        const expectedPieces: PieceMap = new Map();
-        for (const { id, position, piece } of pieces) {
-            expectedPieces.set(id, { ...piece, position });
+        const expectedPieces = new BoardPieces();
+        for (const { position, piece } of pieces) {
+            expectedPieces.addAt(piece, position);
         }
 
         const newPieces = store.getState().pieces;
@@ -52,14 +60,14 @@ describe("PiecesSlice", () => {
                 position: logicalPoint({ x: 0, y: 0 }),
             });
             store.setState({
-                pieces: new Map([["0", piece]]),
-                selectedPieceId: "0",
+                pieces: BoardPieces.fromPieces(piece),
+                selectedPieceId: piece.id,
             });
 
-            const result = store.getState().selectPiece("0");
+            const result = store.getState().selectPiece(piece.id);
 
             expect(result).toBe(false);
-            expect(store.getState().selectedPieceId).toBe("0");
+            expect(store.getState().selectedPieceId).toBe(piece.id);
         });
 
         it("should select a piece if it has legal moves", () => {
@@ -69,15 +77,15 @@ describe("PiecesSlice", () => {
             const showLegalMovesMock = vi.fn(() => true);
 
             store.setState({
-                pieces: new Map([["0", piece]]),
+                pieces: BoardPieces.fromPieces(piece),
                 showLegalMoves: showLegalMovesMock,
                 selectedPieceId: null,
             });
 
-            const result = store.getState().selectPiece("0");
+            const result = store.getState().selectPiece(piece.id);
 
             expect(result).toBe(true);
-            expect(store.getState().selectedPieceId).toBe("0");
+            expect(store.getState().selectedPieceId).toBe(piece.id);
             expect(showLegalMovesMock).toHaveBeenCalledWith(piece);
         });
 
@@ -88,12 +96,12 @@ describe("PiecesSlice", () => {
             const showLegalMovesMock = vi.fn(() => false);
 
             store.setState({
-                pieces: new Map([["0", piece]]),
+                pieces: BoardPieces.fromPieces(piece),
                 showLegalMoves: showLegalMovesMock,
                 selectedPieceId: null,
             });
 
-            const result = store.getState().selectPiece("0");
+            const result = store.getState().selectPiece(piece.id);
 
             expect(result).toBe(false);
             expect(store.getState().selectedPieceId).toBeNull();
@@ -121,19 +129,12 @@ describe("PiecesSlice", () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),
             });
-            const otherPiece = createFakePiece({
-                position: logicalPoint({ x: 5, y: 5 }),
-            });
-            store.setState({
-                pieces: createSequentialBoardPiecesFromPieces(
-                    piece,
-                    otherPiece,
-                ),
-            });
+            const pieces = BoardPieces.fromPieces(piece);
+            store.setState({ pieces });
 
-            const intermediates = [
-                logicalPoint({ x: 1, y: 1 }),
-                logicalPoint({ x: 2, y: 2 }),
+            const intermediates: IntermediateSquare[] = [
+                { position: logicalPoint({ x: 1, y: 1 }), isCapture: false },
+                { position: logicalPoint({ x: 2, y: 2 }), isCapture: false },
             ];
             const move = createFakeMove({
                 from: piece.position,
@@ -141,302 +142,73 @@ describe("PiecesSlice", () => {
                 intermediates,
             });
 
-            await store.getState().applyMoveWithIntermediates(move);
-
-            expectPieces(
-                { id: "0", position: move.to, piece },
-                { id: "1", position: otherPiece.position, piece: otherPiece },
-            );
-        });
-
-        it("should set pieces to final and animatingPieceMap to first step before awaiting animations", async () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            const otherPiece = createFakePiece({
-                position: logicalPoint({ x: 5, y: 5 }),
-            });
-            store.setState({
-                pieces: createSequentialBoardPiecesFromPieces(
-                    piece,
-                    otherPiece,
-                ),
-            });
-
-            const intermediates = [
-                logicalPoint({ x: 1, y: 1 }),
-                logicalPoint({ x: 2, y: 2 }),
-            ];
-            const move = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 3, y: 3 }),
-                intermediates,
-            });
-
-            // don't await
             store.getState().applyMoveWithIntermediates(move);
 
-            const state = store.getState();
-            expectPieces(
-                { id: "0", position: move.to, piece }, // final pieces already set
-                { id: "1", position: otherPiece.position, piece: otherPiece },
-            );
-            expect(state.animatingPieceIds!.get("0")!.position).toEqual(
-                intermediates[0],
-            );
+            // final position should be set first, non animated
+            const expectedPieces = new BoardPieces(pieces);
+            expectedPieces.move(piece.id, move.to);
+            expect(store.getState().pieces).toEqual(expectedPieces);
+
+            for (const intermediate of intermediates) {
+                const expectedAnimationPieces = new BoardPieces(pieces);
+                expectedAnimationPieces.move(piece.id, intermediate.position);
+                expect(store.getState().animatingPieces).toEqual(
+                    expectedAnimationPieces,
+                );
+
+                vi.advanceTimersByTime(100);
+                await flushMicrotasks();
+            }
         });
     });
 
     describe("applyMove", () => {
-        it("should return if no piece at move.from", () => {
-            const pieceMap = createFakeBoardPieces();
-            store.setState({ pieces: pieceMap });
-
-            const move = createFakeMove({
-                from: logicalPoint({ x: 11, y: 11 }), // guaranteed empty point
-            });
-
-            store.getState().applyMove(move);
-            const newPieces = store.getState().pieces;
-            expect(newPieces).toEqual(pieceMap);
-        });
-
-        it("should move piece, delete captured pieces and handle sideEffects", () => {
+        it("should simulate the move and animate it", () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 1, y: 1 }),
             });
-            const capturedPiece = createFakePiece({
-                position: logicalPoint({ x: 2, y: 2 }),
-            });
-            const sideEffectPiece = createFakePiece({
-                position: logicalPoint({ x: 3, y: 3 }),
-            });
 
             store.setState({
-                pieces: createSequentialBoardPiecesFromPieces(
-                    piece,
-                    capturedPiece,
-                    sideEffectPiece,
-                ),
-            });
-
-            const sideEffectMove = createFakeMove({
-                from: sideEffectPiece.position,
-                to: logicalPoint({ x: 4, y: 4 }),
+                pieces: BoardPieces.fromPieces(piece),
             });
 
             const move = createFakeMove({
                 from: piece.position,
                 to: logicalPoint({ x: 5, y: 5 }),
-                captures: [capturedPiece.position],
-                sideEffects: [sideEffectMove],
             });
 
             store.getState().applyMove(move);
 
-            expectPieces(
-                { id: "0", position: move.to, piece },
-                {
-                    id: "2",
-                    position: sideEffectMove.to,
-                    piece: sideEffectPiece,
-                },
+            expectPieces({ piece, position: move.to });
+            expect(store.getState().animatingPieceIds).toEqual(
+                new Set([piece.id]),
             );
-        });
-    });
-
-    describe("detectNeedsDoubleClick", () => {
-        it("should return false if no piece is selected", () => {
-            store.setState({
-                selectedPieceId: null,
-                pieces: new Map(),
-            });
-
-            const result = store
-                .getState()
-                .detectNeedsDoubleClick(logicalPoint({ x: 1, y: 1 }));
-            expect(result).toBe(false);
-        });
-
-        it("should return false if the selected piece is not found in pieceMap", () => {
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map(), // no piece with id "0"
-            });
-
-            const result = store
-                .getState()
-                .detectNeedsDoubleClick(logicalPoint({ x: 1, y: 1 }));
-            expect(result).toBe(false);
-        });
-
-        it("should return false if the destination equals the piece position but there is no legal move there", () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            const move = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 2, y: 2 }),
-            });
-
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map([["0", piece]]),
-                moveOptions: {
-                    legalMoves: new Map([[pointToStr(piece.position), [move]]]),
-                    hasForcedMoves: false,
-                },
-            });
-
-            const result = store.getState().detectNeedsDoubleClick(move.to);
-            expect(result).toBe(false);
-        });
-
-        it("should return false if the destination is not the piece position but there is a legal move there", () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            const moveToPiece = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 1, y: 1 }),
-            });
-            const moveToSelect = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 2, y: 2 }),
-            });
-
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map([["0", piece]]),
-                moveOptions: {
-                    legalMoves: new Map([
-                        [
-                            pointToStr(piece.position),
-                            [moveToPiece, moveToSelect],
-                        ],
-                    ]),
-                    hasForcedMoves: false,
-                },
-            });
-
-            const result = store
-                .getState()
-                .detectNeedsDoubleClick(moveToSelect.to);
-            expect(result).toBe(false);
-        });
-
-        it("should return true if the destination is the picee position and there is a legal move there", () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            const moveToSelect = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 1, y: 1 }),
-            });
-            const anotherMove = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 2, y: 2 }),
-            });
-
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map([["0", piece]]),
-                moveOptions: {
-                    legalMoves: new Map([
-                        [
-                            pointToStr(piece.position),
-                            [moveToSelect, anotherMove],
-                        ],
-                    ]),
-                    hasForcedMoves: false,
-                },
-            });
-
-            const result = store
-                .getState()
-                .detectNeedsDoubleClick(moveToSelect.to);
-            expect(result).toBe(true);
-        });
-    });
-
-    describe("getMoveForSelection", () => {
-        it("should return null if no piece selected", async () => {
-            store.setState({ selectedPieceId: null });
-
-            const move = await store
-                .getState()
-                .getMoveForSelection(logicalPoint({ x: 1, y: 1 }));
-            expect(move).toBeNull();
-        });
-
-        it("should return a valid move for the selected piece", async () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            const move = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            store.setState({
-                selectedPieceId: "0",
-                pieces: new Map([["0", piece]]),
-                moveOptions: {
-                    legalMoves: new Map([[pointToStr(piece.position), [move]]]),
-                    hasForcedMoves: false,
-                },
-            });
-
-            const result = await store.getState().getMoveForSelection(move.to);
-            expect(result).toEqual(move);
-        });
-    });
-
-    describe("applyMoveTurn", () => {
-        it("should apply the move and call onPieceMovement", async () => {
-            const piece = createFakePiece({
-                position: logicalPoint({ x: 0, y: 0 }),
-            });
-            const move = createFakeMove({
-                from: piece.position,
-                to: logicalPoint({ x: 1, y: 1 }),
-            });
-
-            const onPieceMovementMock = vi.fn();
-            store.setState({
-                pieces: new Map([["0", piece]]),
-                onPieceMovement: onPieceMovementMock,
-            });
-
-            await store.getState().applyMoveTurn(move);
-
-            expectPieces({ id: "0", position: move.to, piece });
-            expect(onPieceMovementMock).toHaveBeenCalledWith(move);
         });
     });
 
     describe("handleMousePieceDrop", () => {
         it.each([
-            [
-                GameColor.WHITE,
-                logicalPoint({ x: 2, y: 7 }),
-                screenPoint({ x: 20, y: 20 }),
-            ],
-            [
-                GameColor.BLACK,
-                logicalPoint({ x: 7, y: 2 }),
-                screenPoint({ x: 20, y: 20 }),
-            ],
+            {
+                viewingFrom: GameColor.WHITE,
+                expectedPosition: logicalPoint({ x: 2, y: 7 }),
+                mousePosition: screenPoint({ x: 20, y: 20 }),
+            },
+            {
+                viewingFrom: GameColor.BLACK,
+                expectedPosition: logicalPoint({ x: 7, y: 2 }),
+                mousePosition: screenPoint({ x: 20, y: 20 }),
+            },
         ])(
             "should move the selected piece based on drop coordinates depending on viewingFrom",
-            async (
-                viewingFrom: GameColor,
-                expectedPosition: LogicalPoint,
-                mousePosition: ScreenPoint,
-            ) => {
+            async ({
+                viewingFrom,
+                expectedPosition,
+                mousePosition,
+            }: {
+                viewingFrom: GameColor;
+                expectedPosition: LogicalPoint;
+                mousePosition: ScreenPoint;
+            }) => {
                 const piece = createFakePiece({
                     position: logicalPoint({ x: 0, y: 0 }),
                 });
@@ -445,21 +217,14 @@ describe("PiecesSlice", () => {
                     to: expectedPosition,
                 });
 
-                const pieceMap: PieceMap = new Map([["0", piece]]);
+                const pieces = BoardPieces.fromPieces(piece);
                 const legalMoves: LegalMoveMap = new Map([
                     [pointToStr(piece.position), [move]],
                 ]);
 
                 store.setState({
-                    selectedPieceId: "0",
-                    pieces: pieceMap,
-                    boardDimensions: { width: 10, height: 10 },
-                    boardRect: {
-                        left: 0,
-                        top: 0,
-                        width: 100,
-                        height: 100,
-                    } as DOMRect,
+                    selectedPieceId: piece.id,
+                    pieces,
                     viewingFrom,
                     moveOptions: createMoveOptions({ legalMoves }),
                 });
@@ -470,56 +235,64 @@ describe("PiecesSlice", () => {
                     isDoubleClick: false,
                 });
 
-                expect(result.success).toBe(true);
-                expectPieces({ id: "0", position: expectedPosition, piece });
+                expect(result).toEqual({ success: true });
+                expectPieces({ position: expectedPosition, piece });
             },
         );
 
         it("should return false immediately if isProcessingMove is true", async () => {
-            const applyMoveTurnMock = vi.fn();
-            const screenToLogicalPointMock = vi.fn();
-            const getMoveForSelectionMock = vi.fn();
-            const flashLegalMovesMock = vi.fn();
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+
+            const pieces = BoardPieces.fromPieces(piece);
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(piece.position), [move]],
+            ]);
 
             store.setState({
                 isProcessingMove: true,
-                applyMoveTurn: applyMoveTurnMock,
-                screenToLogicalPoint: screenToLogicalPointMock,
-                getMoveForSelection: getMoveForSelectionMock,
-                flashLegalMoves: flashLegalMovesMock,
+                selectedPieceId: piece.id,
+                pieces,
+                moveOptions: createMoveOptions({ legalMoves }),
             });
 
             const result = await store.getState().handleMousePieceDrop({
-                mousePoint: screenPoint({ x: 50, y: 50 }),
+                mousePoint: screenPoint({ x: 10, y: 80 }),
                 isDrag: false,
                 isDoubleClick: false,
             });
 
-            expect(result.success).toBe(false);
-            expect(applyMoveTurnMock).not.toHaveBeenCalled();
-            expect(screenToLogicalPointMock).not.toHaveBeenCalled();
-            expect(getMoveForSelectionMock).not.toHaveBeenCalled();
-            expect(flashLegalMovesMock).not.toHaveBeenCalled();
+            expect(result).toEqual({ success: false });
+            expect(store.getState().pieces).toEqual(pieces);
         });
 
         it("should set isProcessingMove to true before processing and reset to false after", async () => {
-            const screenToLogicalPointMock = vi.fn(() =>
-                logicalPoint({ x: 1, y: 1 }),
-            );
-            const getMoveForSelectionMock = vi.fn().mockResolvedValue({
-                from: { x: 0, y: 0 },
-                to: { x: 1, y: 1 },
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
             });
-            const applyMoveTurnMock = vi.fn().mockResolvedValue(undefined);
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+
+            const pieces = BoardPieces.fromPieces(piece);
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(piece.position), [move]],
+            ]);
 
             store.setState({
-                screenToLogicalPoint: screenToLogicalPointMock,
-                getMoveForSelection: getMoveForSelectionMock,
-                applyMoveTurn: applyMoveTurnMock,
+                selectedPieceId: piece.id,
+                pieces,
+                moveOptions: createMoveOptions({ legalMoves }),
             });
 
             const movePromise = store.getState().handleMousePieceDrop({
-                mousePoint: screenPoint({ x: 10, y: 10 }),
+                mousePoint: screenPoint({ x: 10, y: 80 }),
                 isDrag: false,
                 isDoubleClick: false,
             });
@@ -527,6 +300,128 @@ describe("PiecesSlice", () => {
             expect(store.getState().isProcessingMove).toBe(true);
             await movePromise;
             expect(store.getState().isProcessingMove).toBe(false);
+        });
+
+        it("should flash legal moves if no move is found and hasForcedMoves is true and isDrag is true", async () => {
+            const pieces = BoardPieces.fromPieces(createFakePiece());
+            const flashLegalMovesMock = vi.fn();
+            store.setState({
+                pieces,
+                moveOptions: createMoveOptions({
+                    legalMoves: new Map(),
+                    hasForcedMoves: true,
+                }),
+                flashLegalMoves: flashLegalMovesMock,
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 10, y: 10 }),
+                isDrag: true,
+                isDoubleClick: false,
+            });
+
+            expect(result).toEqual({ success: false });
+            expect(flashLegalMovesMock).toHaveBeenCalled();
+        });
+
+        it("should not flash legal moves if no move is found and isDrag is false", async () => {
+            const pieces = BoardPieces.fromPieces(createFakePiece());
+            const flashLegalMovesMock = vi.fn();
+            store.setState({
+                pieces,
+                moveOptions: createMoveOptions({
+                    legalMoves: new Map(),
+                    hasForcedMoves: true,
+                }),
+                flashLegalMoves: flashLegalMovesMock,
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 10, y: 10 }),
+                isDrag: false,
+                isDoubleClick: false,
+            });
+
+            expect(result).toEqual({ success: false });
+            expect(flashLegalMovesMock).not.toHaveBeenCalled();
+        });
+
+        it("should not flash legal moves if no move is found and hasForcedMoves is false", async () => {
+            const pieces = BoardPieces.fromPieces(createFakePiece());
+            const flashLegalMovesMock = vi.fn();
+            store.setState({
+                pieces,
+                moveOptions: createMoveOptions({
+                    legalMoves: new Map(),
+                    hasForcedMoves: false,
+                }),
+                flashLegalMoves: flashLegalMovesMock,
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 10, y: 10 }),
+                isDrag: true,
+                isDoubleClick: false,
+            });
+
+            expect(result).toEqual({ success: false });
+            expect(flashLegalMovesMock).not.toHaveBeenCalled();
+        });
+
+        it("should return needsDoubleClick if the piece has moves from its position to dest, and dest === piece position", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const pieces = BoardPieces.fromPieces(piece);
+            const move = createFakeMove({
+                from: piece.position,
+                to: piece.position,
+            });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(piece.position), [move]],
+            ]);
+
+            store.setState({
+                selectedPieceId: piece.id,
+                pieces,
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 0, y: 90 }),
+                isDrag: false,
+                isDoubleClick: false,
+            });
+
+            expect(result).toEqual({ success: false, needsDoubleClick: true });
+        });
+
+        it("should not return needsDouble click if the piece doesn't have moves from its position to dest, and dest === piece position", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const pieces = BoardPieces.fromPieces(piece);
+            const move = createFakeMove({
+                from: piece.position,
+                to: logicalPoint({ x: 1, y: 1 }),
+            });
+            const legalMoves: LegalMoveMap = new Map([
+                [pointToStr(piece.position), [move]],
+            ]);
+
+            store.setState({
+                selectedPieceId: piece.id,
+                pieces,
+                moveOptions: createMoveOptions({ legalMoves }),
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 0, y: 90 }),
+                isDrag: false,
+                isDoubleClick: false,
+            });
+
+            expect(result).toEqual({ success: false });
         });
     });
 
@@ -546,8 +441,8 @@ describe("PiecesSlice", () => {
                 applyMoveWithIntermediates: applyMoveWithIntermediatesMock,
             });
 
-            const boardState = {
-                pieces: createSequentialBoardPiecesFromPieces(piece),
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces(piece),
                 moveOptions: { legalMoves, hasForcedMoves: false },
                 casuedByMove: move,
             };
@@ -556,7 +451,9 @@ describe("PiecesSlice", () => {
                 .getState()
                 .goToPosition(boardState, { animateIntermediates: true });
 
-            expect(applyMoveWithIntermediatesMock).toHaveBeenCalledWith(move);
+            expect(
+                applyMoveWithIntermediatesMock,
+            ).toHaveBeenCalledExactlyOnceWith(move);
             expect(store.getState().moveOptions).toEqual(
                 boardState.moveOptions,
             );
@@ -568,20 +465,62 @@ describe("PiecesSlice", () => {
             });
             const newPos = logicalPoint({ x: 1, y: 1 });
 
-            const boardState = {
-                pieces: createSequentialBoardPiecesFromPieces({
+            const playAnimationMock = vi.fn();
+            store.setState({
+                playAnimation: playAnimationMock,
+                pieces: BoardPieces.fromPieces(piece),
+            });
+
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces({
                     ...piece,
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                casuedByMove: createFakeMove({
+                    from: piece.position,
+                    to: newPos,
+                }),
             };
 
             await store.getState().goToPosition(boardState);
 
-            expect(store.getState().pieces).toEqual(boardState.pieces);
-            expect(store.getState().moveOptions).toEqual(
-                boardState.moveOptions,
-            );
+            expect(playAnimationMock).toHaveBeenCalledExactlyOnceWith({
+                newPieces: boardState.pieces,
+                movedPieceIds: [piece.id],
+                isCapture: false,
+            });
+        });
+
+        it("should set isCapture to true if casuedByMove is a capture", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const newPos = logicalPoint({ x: 1, y: 1 });
+            const playAnimationMock = vi.fn();
+            store.setState({
+                playAnimation: playAnimationMock,
+                pieces: BoardPieces.fromPieces(piece),
+            });
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces({
+                    ...piece,
+                    position: newPos,
+                }),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                casuedByMove: createFakeMove({
+                    from: piece.position,
+                    to: newPos,
+                    captures: [logicalPoint({ x: 1, y: 1 })],
+                }),
+            };
+
+            await store.getState().goToPosition(boardState);
+            expect(playAnimationMock).toHaveBeenCalledExactlyOnceWith({
+                newPieces: boardState.pieces,
+                movedPieceIds: [piece.id],
+                isCapture: true,
+            });
         });
     });
 });

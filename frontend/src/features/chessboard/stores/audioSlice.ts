@@ -12,7 +12,7 @@ export const createAudioSlice: StateCreator<
     [["zustand/immer", never], never],
     [],
     AudioSlice
-> = (set) => ({
+> = () => ({
     async playAudioForAnimationStep(step) {
         if (step.movedPieceIds.length === 0) return;
 
