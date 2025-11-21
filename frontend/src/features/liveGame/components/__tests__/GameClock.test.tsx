@@ -6,10 +6,14 @@ import createLiveChessStore, {
 import { GameColor, GameResult } from "@/lib/apiClient";
 import { act, render, screen } from "@testing-library/react";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 import GameClock from "../GameClock";
+
+vi.mock("@/features/audio/audioPlayer");
 
 describe("GameClock", () => {
     let store: StoreApi<LiveChessStore>;
+    const audioPlayerMock = vi.mocked(AudioPlayer);
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -184,5 +188,74 @@ describe("GameClock", () => {
         });
 
         expect(screen.getByText("00:01.00")).toBeInTheDocument();
+    });
+
+    it("should play warning sound once when time goes under 20s", () => {
+        store.setState({
+            clocks: {
+                whiteClock: 21000,
+                blackClock: 300000,
+                lastUpdated: Date.now(),
+                isFrozen: false,
+            },
+            sideToMove: GameColor.WHITE,
+            viewer: { playerColor: GameColor.WHITE, userId: "id" },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameClock color={GameColor.WHITE} />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        act(() => {
+            vi.advanceTimersByTime(2000);
+        });
+
+        expect(AudioPlayer.playAudio).toHaveBeenCalledExactlyOnceWith(
+            AudioType.LOW_TIME,
+        );
+    });
+
+    it("should not play sound if viewer is not the player", () => {
+        store.setState({
+            clocks: {
+                whiteClock: 15000,
+                blackClock: 300000,
+                lastUpdated: Date.now(),
+                isFrozen: false,
+            },
+            sideToMove: GameColor.WHITE,
+            viewer: { playerColor: GameColor.BLACK, userId: "id" }, // not same color
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameClock color={GameColor.WHITE} />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        expect(AudioPlayer.playAudio).not.toHaveBeenCalled();
+    });
+
+    it("should not play sound when clock is frozen", () => {
+        store.setState({
+            clocks: {
+                whiteClock: 15000,
+                blackClock: 300000,
+                lastUpdated: Date.now(),
+                isFrozen: true,
+            },
+            sideToMove: GameColor.WHITE,
+            viewer: { playerColor: GameColor.WHITE, userId: "id" },
+        });
+
+        render(
+            <LiveChessStoreContext.Provider value={store}>
+                <GameClock color={GameColor.WHITE} />
+            </LiveChessStoreContext.Provider>,
+        );
+
+        expect(AudioPlayer.playAudio).not.toHaveBeenCalled();
     });
 });
