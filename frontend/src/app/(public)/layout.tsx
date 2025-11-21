@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 const RootLayout = async ({ children }: { children: ReactNode }) => {
     return (
-        <html lang="en" data-bs-theme="dark">
+        <html lang="en" data-bs-theme="dark" data-scroll-behavior="smooth">
             <body
                 className={clsx(
                     "bg-background text-text",
