@@ -28,7 +28,6 @@ import { Position } from "../../lib/types";
 import {
     createFakeLegalMoveMap,
     createFakePiece,
-    createSequentialBoardPiecesFromPieces,
     createRandomPoint,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -36,6 +35,7 @@ import { brotliCompressSync } from "zlib";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import { decodePath } from "../../lib/moveDecoder";
 import { GameClientEvents, useGameEvent } from "../useGameHub";
+import BoardPieces from "@/features/chessboard/lib/boardPieces";
 
 vi.mock("@/features/liveGame/hooks/useGameHub");
 vi.mock("@/features/liveGame/lib/gameStateProcessor");
@@ -67,7 +67,7 @@ describe("useLiveChessEvents", () => {
             position: logicalPoint({ x: 1, y: 1 }),
         });
         chessboardStore.setState({
-            pieces: createSequentialBoardPiecesFromPieces(piece),
+            pieces: BoardPieces.fromPieces(piece),
         });
         liveChessStore.setState({
             viewingMoveNumber: 0,

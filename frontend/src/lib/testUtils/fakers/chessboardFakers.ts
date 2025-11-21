@@ -60,16 +60,6 @@ export function createFakeBoardPieces(count = 5): BoardPieces {
     return boardPieces;
 }
 
-export function createSequentialBoardPiecesFromPieces(
-    ...pieces: Piece[]
-): BoardPieces {
-    const boardPieces = new BoardPieces();
-    for (const [i, piece] of pieces.entries()) {
-        boardPieces.add({ ...piece, id: i.toString() });
-    }
-    return boardPieces;
-}
-
 export function createFakeLegalMoveMap(count = 5): LegalMoveMap {
     const pieces: Piece[] = [];
     for (let i = 0; i < count; i++) pieces.push(createFakePiece());

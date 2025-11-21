@@ -5,7 +5,6 @@ import {
     createFakeMove,
     createFakePiece,
     createRandomPoint,
-    createSequentialBoardPiecesFromPieces,
 } from "@/lib/testUtils/fakers/chessboardFakers";
 import { IntermediateSquare, LegalMoveMap, Piece } from "../../lib/types";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
@@ -204,7 +203,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieces: createSequentialBoardPiecesFromPieces(piece),
+                pieces: BoardPieces.fromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
@@ -234,7 +233,7 @@ describe("LegalMovesSlice", () => {
             ]);
 
             store.setState({
-                pieces: createSequentialBoardPiecesFromPieces(piece),
+                pieces: BoardPieces.fromPieces(piece),
                 moveOptions: createMoveOptions({ legalMoves }),
             });
 
