@@ -23,7 +23,7 @@ import {
     IntermediateSlice,
 } from "./intermediateSlice";
 import { AnimationSlice, createAnimationSlice } from "./animationSlice";
-import { AudioSlice, createAudioSlice } from "./audioSlice";
+import { AudioSlice, AudioSliceProps, createAudioSlice } from "./audioSlice";
 import BoardPieces from "../lib/boardPieces";
 
 export type ChessboardStore = BoardSlice &
@@ -38,6 +38,7 @@ export type ChessboardStore = BoardSlice &
     CoreSlice;
 export type ChessboardProps = BoardSliceProps &
     PieceSliceProps &
+    AudioSliceProps &
     LegalMovesSliceProps;
 
 const defaultChessboardState: ChessboardProps = {
@@ -49,6 +50,7 @@ const defaultChessboardState: ChessboardProps = {
     pieces: new BoardPieces(),
     canDrag: true,
     moveOptions: createMoveOptions(),
+    muteAudio: false,
 };
 
 enableMapSet();
@@ -66,7 +68,7 @@ export function createChessboardStore(
                 ...createInteractionSlice(...a),
                 ...createIntermediateSlice(...a),
                 ...createAnimationSlice(...a),
-                ...createAudioSlice(...a),
+                ...createAudioSlice(initState)(...a),
                 ...createCoreSlice(...a),
             })),
             { name: "chessboardStore" },

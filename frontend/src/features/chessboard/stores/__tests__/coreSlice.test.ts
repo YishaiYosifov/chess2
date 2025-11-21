@@ -36,6 +36,7 @@ describe("CoreSlice", () => {
                     hasForcedMoves: true,
                 }),
                 canDrag: false,
+                muteAudio: true,
             };
 
             store.getState().resetState(newChessboardState);
