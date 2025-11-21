@@ -4,6 +4,7 @@ import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { createFakePiece } from "@/lib/testUtils/fakers/chessboardFakers";
 import { logicalPoint } from "@/features/point/pointUtils";
 import BoardPieces from "../../lib/boardPieces";
+import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
 
 describe("AnimationSlice", () => {
     let store: StoreApi<ChessboardStore>;
@@ -150,6 +151,44 @@ describe("AnimationSlice", () => {
             await promise;
 
             expect(store.getState().animatingPieces).toBeNull();
+        });
+
+        it("should play audio for each animation step", async () => {
+            const playAudioForAnimationStepMock = vi.fn();
+            store.setState({
+                playAudioForAnimationStep: playAudioForAnimationStepMock,
+            });
+            const piece = createFakePiece();
+            const animation: MoveAnimation = {
+                steps: [
+                    {
+                        newPieces: BoardPieces.fromPieces(piece),
+                        movedPieceIds: [piece.id],
+                        isCapture: false,
+                    },
+                    {
+                        newPieces: BoardPieces.fromPieces(piece),
+                        movedPieceIds: [piece.id],
+                        isCapture: true,
+                    },
+                ],
+                removedPieceIds: [],
+            };
+
+            const promise = store.getState().playAnimationBatch(animation);
+
+            expect(
+                playAudioForAnimationStepMock,
+            ).toHaveBeenCalledExactlyOnceWith(animation.steps[0]);
+
+            vi.advanceTimersByTime(100);
+            await flushMicrotasks();
+            expect(playAudioForAnimationStepMock).toHaveBeenCalledTimes(2);
+            expect(playAudioForAnimationStepMock).toHaveBeenCalledWith(
+                animation.steps[1],
+            );
+
+            await promise;
         });
     });
 
