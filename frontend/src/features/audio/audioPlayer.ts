@@ -1,7 +1,14 @@
 export enum AudioType {
     MOVE = "/assets/sfx/move.webm",
     CAPTURE = "/assets/sfx/capture.webm",
+    ILLEGAL_MOVE = "/assets/sfx/illegal.webm",
+
     KNOOKLEAR_FUSION = "/assets/sfx/explosion.webm",
+
+    LOW_TIME = "/assets/sfx/low_time.webm",
+
+    MATCH_FOUND = "/assets/sfx/game_start.webm",
+    GAME_END = "/assets/sfx/game_end.webm",
 }
 
 export default class AudioPlayer {
