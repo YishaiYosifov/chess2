@@ -1,6 +1,11 @@
 import brotliCompress from "brotli/compress";
 
-import { GameColor, MovePath, PieceType } from "@/lib/apiClient";
+import {
+    GameColor,
+    MovePath,
+    PieceType,
+    SpecialMoveType,
+} from "@/lib/apiClient";
 import { decodeEncodedMovesIntoMap, decodePathIntoMap } from "../moveDecoder";
 import { Move } from "@/features/chessboard/lib/types";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -15,6 +20,7 @@ const emptyMove = {
     sideEffects: [],
     pieceSpawns: [],
     promotesTo: null,
+    specialMoveType: null,
 };
 
 describe("decodePathIntoMap", () => {
@@ -36,6 +42,7 @@ describe("decodePathIntoMap", () => {
                     },
                 ],
                 promotesTo: PieceType.BISHOP,
+                specialMoveType: SpecialMoveType.EN_PASSANT,
             },
         ];
 
@@ -72,6 +79,7 @@ describe("decodePathIntoMap", () => {
                 },
             ],
             promotesTo: PieceType.BISHOP,
+            specialMoveType: SpecialMoveType.EN_PASSANT,
         });
     });
 
@@ -170,6 +178,7 @@ describe("decodeEncodedMovesIntoMap", () => {
                     },
                 ],
                 promotesTo: null,
+                specialMoveType: null,
             },
         ]);
         expect(result.get("0,1")).toEqual<Move[]>([

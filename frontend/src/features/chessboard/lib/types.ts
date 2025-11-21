@@ -1,4 +1,4 @@
-import { GameColor, PieceType } from "@/lib/apiClient";
+import { GameColor, PieceType, SpecialMoveType } from "@/lib/apiClient";
 import { LogicalPoint, StrPoint } from "@/features/point/types";
 import BoardPieces from "./boardPieces";
 
@@ -27,6 +27,7 @@ export interface Move {
     sideEffects: MoveSideEffect[];
     pieceSpawns: Piece[];
     promotesTo: PieceType | null;
+    specialMoveType: SpecialMoveType | null;
 }
 
 export type MinimalMove = Partial<Move> & {
@@ -56,6 +57,7 @@ export interface AnimationStep {
     newPieces: BoardPieces;
     movedPieceIds: PieceID[];
     initialSpawnPositions?: BoardPieces;
+    specialMoveType?: SpecialMoveType | null;
     isCapture: boolean;
 }
 
