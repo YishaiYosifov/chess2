@@ -70,6 +70,7 @@ const HomeIntroSection = () => {
                 className="my-auto justify-self-center"
                 replays={typedHomePageReplay}
                 canDrag={false}
+                muteAudio={true}
             />
         </section>
     );

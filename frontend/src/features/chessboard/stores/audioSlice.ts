@@ -1,25 +1,38 @@
 import { StateCreator } from "zustand";
 
 import type { ChessboardStore } from "./chessboardStore";
+import { SpecialMoveType } from "@/lib/apiClient";
 import { AnimationStep } from "../lib/types";
+import AudioPlayer, { AudioType } from "../../audio/audioPlayer";
+
+export interface AudioSliceProps {
+    muteAudio: boolean;
+}
 
 export interface AudioSlice {
+    muteAudio: boolean;
     playAudioForAnimationStep(step: AnimationStep): Promise<void>;
 }
 
-export const createAudioSlice: StateCreator<
+const SPECIAL_MOVE_AUDIO_MAP: Partial<Record<SpecialMoveType, AudioType>> = {
+    [SpecialMoveType.KNOOKLEAR_FUSION]: AudioType.KNOOKLEAR_FUSION,
+};
+
+export function createAudioSlice(
+    initState: AudioSliceProps,
+): StateCreator<
     ChessboardStore,
     [["zustand/immer", never], never],
     [],
     AudioSlice
-> = () => ({
-    async playAudioForAnimationStep(step) {
-        if (step.movedPieceIds.length === 0) return;
+> {
+    return (_, get) => ({
+        ...initState,
+        cachedAudios: new Map(),
 
-        if (step.isCapture) {
-            await new Audio("/assets/sfx/capture.webm").play();
-        } else {
-            await new Audio("/assets/sfx/move.webm").play();
-        }
-    },
-});
+        async playAudioForAnimationStep(step) {
+            const { muteAudio } = get();
+            if (muteAudio || step.movedPieceIds.length === 0) return;
+        },
+    });
+}
