@@ -33,6 +33,17 @@ export function createAudioSlice(
         async playAudioForAnimationStep(step) {
             const { muteAudio } = get();
             if (muteAudio || step.movedPieceIds.length === 0) return;
+
+            const specialMoveAudio = step.specialMoveType
+                ? SPECIAL_MOVE_AUDIO_MAP[step.specialMoveType]
+                : null;
+            if (specialMoveAudio) {
+                await AudioPlayer.playAudio(specialMoveAudio);
+                return;
+            }
+
+            if (step.isCapture) await AudioPlayer.playAudio(AudioType.CAPTURE);
+            else await AudioPlayer.playAudio(AudioType.MOVE);
         },
     });
 }
