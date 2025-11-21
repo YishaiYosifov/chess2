@@ -70,6 +70,26 @@ describe("BoardPieces", () => {
         expect(movedPiece?.type).toBe(PieceType.QUEEN);
     });
 
+    it("should remove a piece that is at the new position when another piece moves there", () => {
+        const piece1 = createFakePiece({
+            position: logicalPoint({ x: 0, y: 0 }),
+        });
+        const piece2 = createFakePiece({
+            position: logicalPoint({ x: 1, y: 1 }),
+        });
+
+        const board = BoardPieces.fromPieces(piece1, piece2);
+
+        board.move(piece1.id, piece2.position);
+
+        const movedPieceA = board.getById(piece1.id);
+        expect(movedPieceA?.position).toEqual(piece2.position);
+        expect(board.getByPosition(piece2.position)).toEqual(movedPieceA);
+
+        // piece2 should have been removed
+        expect(board.getById(piece2.id)).toBeUndefined();
+    });
+
     it("should delete a piece by id", () => {
         const piece = createFakePiece({
             position: logicalPoint({ x: 3, y: 3 }),

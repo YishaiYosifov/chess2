@@ -58,7 +58,10 @@ export default class BoardPieces {
         piece.position = newPosition;
         if (promotesTo !== null) piece.type = promotesTo;
 
-        this._byPosition.set(pointToStr(newPosition), pieceId);
+        const newPositionStr = pointToStr(newPosition);
+        const inNewPosition = this._byPosition.get(newPositionStr);
+        if (inNewPosition) this._byId.delete(inNewPosition);
+        this._byPosition.set(newPositionStr, pieceId);
     }
 
     add(piece: Piece): void {
