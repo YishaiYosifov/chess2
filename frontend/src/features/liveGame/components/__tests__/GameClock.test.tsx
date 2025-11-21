@@ -13,7 +13,6 @@ vi.mock("@/features/audio/audioPlayer");
 
 describe("GameClock", () => {
     let store: StoreApi<LiveChessStore>;
-    const audioPlayerMock = vi.mocked(AudioPlayer);
 
     beforeEach(() => {
         vi.useFakeTimers();
