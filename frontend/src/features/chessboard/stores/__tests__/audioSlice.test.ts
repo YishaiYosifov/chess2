@@ -29,6 +29,21 @@ describe("AudioSlice", () => {
         expect(audioMock.play).not.toHaveBeenCalled();
     });
 
+    it("should not play audio if muteAudio is true", async () => {
+        const { audioMock, audioConstructorMock } = mockAudio();
+        store.setState({ muteAudio: true });
+        const step: AnimationStep = {
+            newPieces: new BoardPieces(),
+            movedPieceIds: ["1"],
+            isCapture: false,
+        };
+
+        await store.getState().playAudioForAnimationStep(step);
+
+        expect(audioConstructorMock).not.toHaveBeenCalled();
+        expect(audioMock.play).not.toHaveBeenCalled();
+    });
+
     it("should play special move audio if step has specialMoveType", async () => {
         const { audioMock, audioConstructorMock } = mockAudio();
         const step: AnimationStep = {
