@@ -10,6 +10,7 @@ import {
     simulateMoveWithIntermediates,
 } from "../lib/simulateMove";
 import BoardPieces from "../lib/boardPieces";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 export interface PieceSliceProps {
     pieces: BoardPieces;
@@ -173,6 +174,7 @@ export function createPiecesSlice(
                         isDrag // player tried to phyically move the piece, not just click and click somewhere else
                     ) {
                         flashLegalMoves();
+                        AudioPlayer.playAudio(AudioType.ILLEGAL_MOVE);
                     }
 
                     return { success: false };

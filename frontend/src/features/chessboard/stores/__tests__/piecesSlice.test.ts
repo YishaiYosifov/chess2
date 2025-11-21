@@ -20,6 +20,9 @@ import { ScreenPoint } from "@/features/point/types";
 import BoardPieces from "../../lib/boardPieces";
 import { GameColor } from "@/lib/apiClient";
 import { Piece } from "../../lib/types";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
+
+vi.mock("@/features/audio/audioPlayer");
 
 describe("PiecesSlice", () => {
     let store: StoreApi<ChessboardStore>;
@@ -322,6 +325,9 @@ describe("PiecesSlice", () => {
 
             expect(result).toEqual({ success: false });
             expect(flashLegalMovesMock).toHaveBeenCalled();
+            expect(AudioPlayer.playAudio).toHaveBeenCalledExactlyOnceWith(
+                AudioType.ILLEGAL_MOVE,
+            );
         });
 
         it("should not flash legal moves if no move is found and isDrag is false", async () => {
