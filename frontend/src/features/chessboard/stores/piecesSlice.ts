@@ -44,16 +44,15 @@ export interface PiecesSlice {
     screenPointToPiece(position: ScreenPoint): PieceID | undefined;
 }
 
-export const createPiecesSlice =
-    (
-        initState: PieceSliceProps,
-    ): StateCreator<
-        ChessboardStore,
-        [["zustand/immer", never], never],
-        [],
-        PiecesSlice
-    > =>
-    (set, get) => {
+export function createPiecesSlice(
+    initState: PieceSliceProps,
+): StateCreator<
+    ChessboardStore,
+    [["zustand/immer", never], never],
+    [],
+    PiecesSlice
+> {
+    return (set, get) => {
         async function applyMoveTurn(move: Move): Promise<void> {
             const { applyMove, disableMovement, onPieceMovement } = get();
 
@@ -216,6 +215,7 @@ export const createPiecesSlice =
                     isCapture: boardState.casuedByMove
                         ? boardState.casuedByMove.captures.length > 0
                         : false,
+                    specialMoveType: boardState.casuedByMove?.specialMoveType,
                 });
             },
 
@@ -229,3 +229,4 @@ export const createPiecesSlice =
             },
         };
     };
+}
