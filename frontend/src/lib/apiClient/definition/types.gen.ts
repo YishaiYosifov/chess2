@@ -327,6 +327,7 @@ export type MovePath = {
     sideEffects?: Array<MoveSideEffectPath> | null;
     pieceSpawns?: Array<PieceSpawnPath> | null;
     promotesTo?: PieceType | null;
+    specialMoveType?: SpecialMoveType | null;
 };
 
 export type IntermediateSquarePath = {
@@ -394,6 +395,45 @@ export enum PieceType {
      * Checker
      */
     CHECKER = 11,
+}
+
+export enum SpecialMoveType {
+    /**
+     * None
+     */
+    NONE = 0,
+    /**
+     * KingsideCastle
+     */
+    KINGSIDE_CASTLE = 1,
+    /**
+     * QueensideCastle
+     */
+    QUEENSIDE_CASTLE = 2,
+    /**
+     * VerticalCastle
+     */
+    VERTICAL_CASTLE = 3,
+    /**
+     * EnPassant
+     */
+    EN_PASSANT = 4,
+    /**
+     * IlVaticano
+     */
+    IL_VATICANO = 5,
+    /**
+     * KnooklearFusion
+     */
+    KNOOKLEAR_FUSION = 6,
+    /**
+     * RadioactiveBetaDecay
+     */
+    RADIOACTIVE_BETA_DECAY = 7,
+    /**
+     * OmnipotentPawnSpawn
+     */
+    OMNIPOTENT_PAWN_SPAWN = 8,
 }
 
 export type MoveOptions = {

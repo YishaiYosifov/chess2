@@ -35,6 +35,7 @@ export function createFakeMove(override?: Partial<Move>): Move {
         sideEffects: [],
         pieceSpawns: [],
         promotesTo: null,
+        specialMoveType: null,
         ...override,
     };
 }

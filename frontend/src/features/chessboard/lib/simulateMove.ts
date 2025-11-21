@@ -23,6 +23,7 @@ export function simulateMoveWithIntermediates(
             newPieces: new BoardPieces(currentPieces),
             movedPieceIds: [fromPiece.id],
             isCapture: intermediate.isCapture,
+            specialMoveType: move.specialMoveType,
         });
     }
 
@@ -93,6 +94,7 @@ function simulateMoveDetails(
                 removedPieceIds.length > 0 &&
                 move.intermediates.filter((x) => x.isCapture).length <
                     removedPieceIds.length,
+            specialMoveType: move.specialMoveType,
         },
         removedPieceIds,
     };

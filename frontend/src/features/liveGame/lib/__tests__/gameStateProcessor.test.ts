@@ -93,6 +93,7 @@ describe("createStoreProps", () => {
                 sideEffects: [],
                 pieceSpawns: [],
                 promotesTo: null,
+                specialMoveType: null,
             });
             pieces = newPieces;
         }
