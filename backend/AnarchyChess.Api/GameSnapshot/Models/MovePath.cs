@@ -14,7 +14,8 @@ public record MovePath(
     IReadOnlyCollection<IntermediateSquarePath>? IntermediateSquares,
     IReadOnlyList<MoveSideEffectPath>? SideEffects,
     IReadOnlyList<PieceSpawnPath>? PieceSpawns,
-    PieceType? PromotesTo
+    PieceType? PromotesTo,
+    SpecialMoveType? SpecialMoveType
 )
 {
     public static MovePath FromMove(Move move, int boardWidth, MoveKey? moveKey = null)
@@ -51,13 +52,16 @@ public record MovePath(
         return new(
             FromIdx: move.From.AsIndex(boardWidth),
             ToIdx: move.To.AsIndex(boardWidth),
+            MoveKey: moveKey ?? new MoveKey(move),
             CapturedIdxs: captures,
             TriggerIdxs: triggers,
             IntermediateSquares: intermediates,
             SideEffects: sideEffects,
             PromotesTo: move.PromotesTo,
             PieceSpawns: spawns,
-            MoveKey: moveKey ?? new MoveKey(move)
+            SpecialMoveType: move.SpecialMoveType is GameLogic.Models.SpecialMoveType.None
+                ? null
+                : move.SpecialMoveType
         );
     }
 }
