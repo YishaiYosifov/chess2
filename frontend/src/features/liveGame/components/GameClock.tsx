@@ -1,19 +1,25 @@
 import { GameColor } from "@/lib/apiClient";
 import useLiveChessStore from "../hooks/useLiveChessStore";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 const GameClock = ({ color }: { color: GameColor }) => {
-    const { clocks, sideToMove, result } = useLiveChessStore((x) => ({
+    const { clocks, sideToMove, viewer, result } = useLiveChessStore((x) => ({
         clocks: x.clocks,
         sideToMove: x.sideToMove,
+        viewer: x.viewer,
         result: x.resultData,
     }));
+
+    const playedWarningSoundRef = useRef<boolean>(false);
 
     const baseTimeLeft =
         color === GameColor.WHITE ? clocks.whiteClock : clocks.blackClock;
     const isTicking = sideToMove === color;
     const isGameOver = Boolean(result);
+
+    const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
 
     const calculateTimeLeft = useCallback(() => {
         if (!isTicking || clocks.isFrozen) return baseTimeLeft;
@@ -22,19 +28,30 @@ const GameClock = ({ color }: { color: GameColor }) => {
         return baseTimeLeft - timePassed;
     }, [clocks.lastUpdated, clocks.isFrozen, baseTimeLeft, isTicking]);
 
-    const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
-
     useEffect(() => {
         setTimeLeft(calculateTimeLeft());
         if (!isTicking || isGameOver) return;
 
         const interval = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
-            10,
+            100,
         );
 
         return () => clearInterval(interval);
     }, [calculateTimeLeft, isTicking, isGameOver]);
+
+    useEffect(() => {
+        if (
+            clocks.isFrozen ||
+            timeLeft > 20000 ||
+            playedWarningSoundRef.current ||
+            viewer.playerColor !== color
+        )
+            return;
+
+        AudioPlayer.playAudio(AudioType.LOW_TIME);
+        playedWarningSoundRef.current = true;
+    }, [timeLeft, color, viewer.playerColor, clocks.isFrozen]);
 
     const minutes = Math.max(0, Math.floor(timeLeft / 60000));
     const seconds = Math.max(0, (timeLeft % 60000) / 1000);
