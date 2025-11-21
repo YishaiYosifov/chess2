@@ -143,11 +143,6 @@ export const createPiecesSlice =
                 await playAnimation(animation);
             },
 
-            /**
-             * Handles a piece drop event based on mouse coordinates relative to the board.
-             * Converts pixel coordinates to board position, accounting for viewing orientation,
-             * then attempts to move the selected piece to that position.
-             */
             async handleMousePieceDrop({ mousePoint, isDrag, isDoubleClick }) {
                 const {
                     screenToLogicalPoint,
