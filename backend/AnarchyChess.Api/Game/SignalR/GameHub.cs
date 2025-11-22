@@ -1,10 +1,10 @@
-﻿using AnarchyChess.Api.GameLogic.Models;
+﻿using AnarchyChess.Api.Game.Grains;
+using AnarchyChess.Api.Game.Models;
+using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Infrastructure.SignalR;
-using AnarchyChess.Api.Game.Grains;
-using AnarchyChess.Api.Game.Models;
-using AnarchyChess.Api.Game.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -23,7 +23,7 @@ public interface IGameHubClient : IAnarchyChessHubClient
     Task LegalMovesChangedAsync(IEnumerable<byte> encodedLegalMoves, bool hasForcedMoves);
 
     Task DrawStateChangeAsync(DrawState drawState);
-    Task GameEndedAsync(GameResultData result);
+    Task GameEndedAsync(GameResultData result, ClockSnapshot finalClocks);
 
     Task ChatMessageAsync(string senderUserName, string message);
     Task ChatConnectedAsync();

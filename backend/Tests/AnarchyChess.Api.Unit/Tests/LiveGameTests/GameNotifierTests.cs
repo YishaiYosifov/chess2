@@ -108,10 +108,16 @@ public class GameNotifierTests
     {
         GameNotifierState state = new() { Revision = 5 };
         GameResultData result = new GameResultDataFaker().Generate();
+        ClockSnapshot finalClocks = new(
+            WhiteClock: 10,
+            BlackClock: 20,
+            LastUpdated: 1000,
+            IsFrozen: true
+        );
 
-        await _notifier.NotifyGameEndedAsync(_gameToken, result, state);
+        await _notifier.NotifyGameEndedAsync(_gameToken, result, finalClocks, state);
 
-        await _clientGameGroupProxyMock.Received(1).GameEndedAsync(result);
+        await _clientGameGroupProxyMock.Received(1).GameEndedAsync(result, finalClocks);
         state.Revision.Should().Be(6);
     }
 

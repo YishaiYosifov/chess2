@@ -343,6 +343,8 @@ public class GameGrain : Grain, IGameGrain, IRemindable
         var nextPlayer = game.Players.GetPlayerByColor(_core.SideToMove(game.Core));
         var legalMoves = _core.GetLegalMovesOf(nextPlayer.Color, game.Core);
 
+        if (moveResult.EndStatus is not null)
+            await EndGameAsync(moveResult.EndStatus, game, token);
         await _gameNotifier.NotifyMoveMadeAsync(
             notification: new(
                 GameToken: _token,
@@ -357,8 +359,6 @@ public class GameGrain : Grain, IGameGrain, IRemindable
             game.NotifierState
         );
 
-        if (moveResult.EndStatus is not null)
-            await EndGameAsync(moveResult.EndStatus, game, token);
         await _state.WriteStateAsync(token);
 
         return Result.Success;
@@ -419,10 +419,15 @@ public class GameGrain : Grain, IGameGrain, IRemindable
     )
     {
         _clock.CommitLastTurn(_core.SideToMove(game.Core), game.ClockState);
-        var state = GetGameState(game: game);
+        var state = GetGameState(game);
 
         game.Result = await _gameFinalizer.FinalizeGameAsync(_token, state, endStatus, token);
-        await _gameNotifier.NotifyGameEndedAsync(_token, game.Result, game.NotifierState);
+        await _gameNotifier.NotifyGameEndedAsync(
+            _token,
+            game.Result,
+            _clock.ToSnapshot(game.ClockState),
+            game.NotifierState
+        );
 
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
         GameEndedEvent endedEvent = new(_token, game.Result);

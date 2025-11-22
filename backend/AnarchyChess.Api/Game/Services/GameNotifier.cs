@@ -1,7 +1,7 @@
-﻿using AnarchyChess.Api.GameLogic.Models;
-using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.Game.Models;
+﻿using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.SignalR;
+using AnarchyChess.Api.GameLogic.Models;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
 using Microsoft.AspNetCore.SignalR;
@@ -17,7 +17,12 @@ public interface IGameNotifier
         DrawState drawState,
         GameNotifierState state
     );
-    Task NotifyGameEndedAsync(GameToken gameToken, GameResultData result, GameNotifierState state);
+    Task NotifyGameEndedAsync(
+        GameToken gameToken,
+        GameResultData result,
+        ClockSnapshot finalClocks,
+        GameNotifierState state
+    );
     Task NotifyMoveMadeAsync(MoveNotification notification, GameNotifierState state);
 }
 
@@ -79,11 +84,12 @@ public class GameNotifier(IHubContext<GameHub, IGameHubClient> hub) : IGameNotif
     public Task NotifyGameEndedAsync(
         GameToken gameToken,
         GameResultData result,
+        ClockSnapshot finalClocks,
         GameNotifierState state
     )
     {
         state.Revision++;
-        return _hub.Clients.Group(gameToken).GameEndedAsync(result);
+        return _hub.Clients.Group(gameToken).GameEndedAsync(result, finalClocks);
     }
 
     public async Task JoinGameGroupAsync(

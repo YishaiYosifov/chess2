@@ -42,7 +42,8 @@ public class MoveEncoderTests
                 IntermediateSquares: null,
                 SideEffects: null,
                 PieceSpawns: null,
-                PromotesTo: null
+                PromotesTo: null,
+                SpecialMoveType: null
             ),
         ];
 

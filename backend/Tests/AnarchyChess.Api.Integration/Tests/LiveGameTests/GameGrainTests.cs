@@ -33,6 +33,7 @@ public class GameGrainTests : BaseOrleansIntegrationTest
 
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
 
+    private readonly GameClock _gameClock;
     private readonly IGameResultDescriber _gameResultDescriber;
     private readonly ISanCalculator _sanCalculator;
     private readonly IGameCore _gameCore;
@@ -62,13 +63,13 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             IOptions<AppSettings>
         >();
         var gameFinalizer = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGameFinalizer>();
-        GameClock clock = new(_timeProviderMock);
+        _gameClock = new(_timeProviderMock);
 
         _settings = settings.Value.Game;
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
         Silo.ServiceProvider.AddService(_gameCore);
-        Silo.ServiceProvider.AddService<IGameClock>(clock);
+        Silo.ServiceProvider.AddService<IGameClock>(_gameClock);
         Silo.ServiceProvider.AddService(_gameResultDescriber);
         Silo.ServiceProvider.AddService(_gameNotifierMock);
         Silo.ServiceProvider.AddService(gameFinalizer);
@@ -492,14 +493,15 @@ public class GameGrainTests : BaseOrleansIntegrationTest
             .Received(1)
             .NotifyGameEndedAsync(
                 _gameToken,
-                ArgEx.FluentAssert<GameResultData>(
+                result: ArgEx.FluentAssert<GameResultData>(
                     (x) =>
                     {
                         x?.Result.Should().Be(expectedEndStatus.Result);
                         x?.ResultDescription.Should().Be(expectedEndStatus.ResultDescription);
                     }
                 ),
-                _state.CurrentGame!.NotifierState
+                finalClocks: _gameClock.ToSnapshot(_state.CurrentGame!.ClockState),
+                _state.CurrentGame.NotifierState
             );
 
         _whiteGameEndedStream.VerifySend(e =>
