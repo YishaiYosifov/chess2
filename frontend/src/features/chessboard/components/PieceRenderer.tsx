@@ -15,7 +15,7 @@ const PieceRenderer = () => {
 
     return (
         <>
-            {[...pieceIds].map((pieceId) => (
+            {pieceIds.map((pieceId) => (
                 <ChessPiece id={pieceId} key={pieceId} />
             ))}
 
