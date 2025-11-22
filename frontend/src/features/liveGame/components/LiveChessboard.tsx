@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { StoreApi } from "zustand";
 
 import LiveChessboardProfile, {
@@ -30,6 +30,7 @@ import useConst from "@/hooks/useConst";
 import { Move } from "@/features/chessboard/lib/types";
 import ChessboardWithSidebar from "@/features/chessboard/components/ChessboardWithSidebar";
 import { useGameEmitter } from "../hooks/useGameHub";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 const LiveChessboard = ({
     gameToken,
@@ -49,6 +50,13 @@ const LiveChessboard = ({
     const liveChessStore = useConst<StoreApi<LiveChessStore>>(() =>
         createLiveChessStore(storeProps.live),
     );
+
+    useEffect(() => {
+        if (gameState.moveHistory.length === 0) {
+            AudioPlayer.playAudio(AudioType.GAME_START);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only play sound once
+    }, []);
 
     const sendGameEvent = useGameEmitter(gameToken);
     const sendMove = useCallback(

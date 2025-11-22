@@ -7,7 +7,7 @@ export enum AudioType {
 
     LOW_TIME = "/assets/sfx/low_time.webm",
 
-    MATCH_FOUND = "/assets/sfx/game_start.webm",
+    GAME_START = "/assets/sfx/game_start.webm",
     GAME_END = "/assets/sfx/game_end.webm",
 }
 
