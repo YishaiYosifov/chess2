@@ -287,6 +287,29 @@ public class ChessBoardTests
     }
 
     [Fact]
+    public void PlayMove_with_two_pieces_swapping_squares_moves_both_correctly()
+    {
+        ChessBoard board = new();
+
+        Piece piece1 = PieceFactory.White(PieceType.Rook);
+        Piece piece2 = PieceFactory.Black(PieceType.Horsey);
+        AlgebraicPoint pos1 = new("a1");
+        AlgebraicPoint pos2 = new("b1");
+
+        board.PlacePiece(pos1, piece1);
+        board.PlacePiece(pos2, piece2);
+
+        // piece1 moves to piece2 position, piece2 moves to piece1 position
+        MoveSideEffect sideEffect = new(From: pos2, To: pos1, Piece: piece2);
+        Move move = new(from: pos1, to: pos2, piece: piece1, sideEffects: [sideEffect]);
+
+        board.PlayMove(move);
+
+        board.PeekPieceAt(pos1).Should().Be(piece2 with { TimesMoved = piece2.TimesMoved + 1 });
+        board.PeekPieceAt(pos2).Should().Be(piece1 with { TimesMoved = piece1.TimesMoved + 1 });
+    }
+
+    [Fact]
     public void PlacePiece_adds_piece()
     {
         ChessBoard board = new();
@@ -312,27 +335,6 @@ public class ChessBoardTests
         var pieces = board.GetAllPiecesWith(piece.Type, GameColor.Black);
         pieces.Should().BeEmpty();
         board.PeekPieceAt(pt).Should().BeNull();
-    }
-
-    [Fact]
-    public void MovePiece_moves_piece_and_updates_times_moved()
-    {
-        ChessBoard board = new();
-        var piece = PieceFactory.White();
-        AlgebraicPoint from = new("c1");
-        AlgebraicPoint to = new("e3");
-
-        board.PlacePiece(from, piece);
-        board.MovePiece(from, to);
-
-        board.PeekPieceAt(from).Should().BeNull();
-        var pieces = board.GetAllPiecesWith(piece.Type, GameColor.White);
-        pieces
-            .Should()
-            .ContainSingle()
-            .Which.Should()
-            .Be(piece with { TimesMoved = piece.TimesMoved + 1 });
-        board.PeekPieceAt(to).Should().NotBeNull();
     }
 
     [Fact]

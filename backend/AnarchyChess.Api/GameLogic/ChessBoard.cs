@@ -85,6 +85,10 @@ public class ChessBoard : IReadOnlyChessBoard
     public void PlayMove(Move move)
     {
         var steps = move.Flatten().ToList();
+
+        // store each piece along with its final destination before changing the board
+        // ensures we don't lose any piece if its original square gets overwritten during moves
+        List<(Piece piece, AlgebraicPoint newPosition)> finalPositions = [];
         foreach (var (from, to) in steps)
         {
             if (!IsWithinBoundaries(from) || !IsWithinBoundaries(to))
@@ -98,18 +102,29 @@ public class ChessBoard : IReadOnlyChessBoard
                     $"Piece not found at the specified 'From' point",
                     nameof(move)
                 );
+
+            finalPositions.Add((piece, to));
         }
 
-        // apply captures first
+        // step 1: remove all captured pieces first
+        // doing this first prevents accidental self captures
         foreach (var capture in move.Captures)
         {
             RemovePiece(capture.Position);
         }
 
-        // then move the pieces
-        foreach (var (from, to) in steps)
+        // step 2: clear all origin squares of moving pieces
+        // this is done before placing pieces to handle swaps correctly
+        // prevents a piece from deleting another that just moved into its destination
+        foreach (var (from, _) in steps)
         {
-            MovePiece(from, to);
+            RemovePiece(from);
+        }
+
+        // step 3: place all pieces in their final destinations
+        foreach (var (piece, newPosition) in finalPositions)
+        {
+            PlacePiece(newPosition, piece with { TimesMoved = piece.TimesMoved + 1 });
         }
 
         foreach (var spawn in move.PieceSpawns)
@@ -146,15 +161,6 @@ public class ChessBoard : IReadOnlyChessBoard
         (PieceType, GameColor?) key = (piece.Type, piece.Color);
         if (_piecePositions.TryGetValue(key, out var positions))
             positions.Remove(point);
-    }
-
-    public void MovePiece(AlgebraicPoint from, AlgebraicPoint to)
-    {
-        if (!TryGetPieceAt(from, out var piece))
-            return;
-
-        RemovePiece(from);
-        PlacePiece(to, piece with { TimesMoved = piece.TimesMoved + 1 });
     }
 
     public void ModifyPiece(AlgebraicPoint point, Func<Piece, Piece> modifyAction)
