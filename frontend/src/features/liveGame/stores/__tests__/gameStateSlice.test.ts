@@ -7,6 +7,7 @@ import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessS
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { DrawState, GameResult, GameResultData } from "@/lib/apiClient";
 import { createFakeDrawState } from "@/lib/testUtils/fakers/drawStateFaker";
+import { createFakeClock } from "@/lib/testUtils/fakers/clockFaker";
 
 describe("GameStateSlice", () => {
     let store: StoreApi<LiveChessStore>;
@@ -74,7 +75,8 @@ describe("GameStateSlice", () => {
                 whiteRatingChange: -10,
                 blackRatingChange: 10,
             };
-            store.getState().endGame(resultData);
+            const finalClocks = createFakeClock({ isFrozen: true });
+            store.getState().endGame(resultData, finalClocks);
             const state = store.getState();
 
             expect(state.whitePlayer.rating).toBe(
@@ -90,6 +92,7 @@ describe("GameStateSlice", () => {
                 legalMoves: new Map(),
                 hasForcedMoves: false,
             });
+            expect(state.clocks).toEqual(finalClocks);
         });
     });
 

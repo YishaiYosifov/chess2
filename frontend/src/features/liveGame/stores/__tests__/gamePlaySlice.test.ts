@@ -110,4 +110,26 @@ describe("gamePlaySlice", () => {
             },
         );
     });
+
+    describe("setClocks", () => {
+        it("should update clocks", () => {
+            const oldClocks: Clocks = {
+                whiteClock: 10,
+                blackClock: 20,
+                lastUpdated: 1000,
+                isFrozen: false,
+            };
+            store.setState({ clocks: oldClocks });
+
+            const newClocks: Clocks = {
+                whiteClock: 1,
+                blackClock: 2,
+                lastUpdated: 500,
+                isFrozen: true,
+            };
+            store.getState().setClocks(newClocks);
+
+            expect(store.getState().clocks).toEqual(newClocks);
+        });
+    });
 });

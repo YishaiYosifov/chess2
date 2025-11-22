@@ -105,8 +105,8 @@ export default function useLiveChessEvents(
         liveChessStore.getState().drawStateChange(drawState),
     );
 
-    useGameEvent(gameToken, "GameEndedAsync", async (result) => {
-        liveChessStore.getState().endGame(result);
+    useGameEvent(gameToken, "GameEndedAsync", async (result, finalClocks) => {
+        liveChessStore.getState().endGame(result, finalClocks);
         chessboardStore.getState().disableMovement();
         AudioPlayer.playAudio(AudioType.GAME_END);
     });
