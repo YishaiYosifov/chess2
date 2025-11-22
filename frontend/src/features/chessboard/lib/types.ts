@@ -58,7 +58,8 @@ export interface AnimationStep {
     movedPieceIds: PieceID[];
     initialSpawnPositions?: BoardPieces;
     specialMoveType?: SpecialMoveType | null;
-    isCapture: boolean;
+    isCapture?: boolean;
+    isPromotion?: boolean;
 }
 
 export interface MoveAnimation {

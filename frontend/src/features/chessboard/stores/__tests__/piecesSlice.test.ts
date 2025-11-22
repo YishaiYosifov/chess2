@@ -18,7 +18,7 @@ import { createMoveOptions } from "../../lib/moveOptions";
 import { LogicalPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
 import BoardPieces from "../../lib/boardPieces";
-import { GameColor } from "@/lib/apiClient";
+import { GameColor, PieceType, SpecialMoveType } from "@/lib/apiClient";
 import { Piece } from "../../lib/types";
 import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
@@ -483,10 +483,6 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                casuedByMove: createFakeMove({
-                    from: piece.position,
-                    to: newPos,
-                }),
             };
 
             await store.getState().goToPosition(boardState);
@@ -495,6 +491,7 @@ describe("PiecesSlice", () => {
                 newPieces: boardState.pieces,
                 movedPieceIds: [piece.id],
                 isCapture: false,
+                isPromotion: false,
             });
         });
 
@@ -526,6 +523,80 @@ describe("PiecesSlice", () => {
                 newPieces: boardState.pieces,
                 movedPieceIds: [piece.id],
                 isCapture: true,
+                isPromotion: false,
+                specialMoveType: null,
+            });
+        });
+
+        it("should pass specialMoveType to playAnimation when present", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const newPos = logicalPoint({ x: 2, y: 2 });
+            const playAnimationMock = vi.fn();
+
+            store.setState({
+                playAnimation: playAnimationMock,
+                pieces: BoardPieces.fromPieces(piece),
+            });
+
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces({
+                    ...piece,
+                    position: newPos,
+                }),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                casuedByMove: createFakeMove({
+                    from: piece.position,
+                    to: newPos,
+                    specialMoveType: SpecialMoveType.KNOOKLEAR_FUSION,
+                }),
+            };
+
+            await store.getState().goToPosition(boardState);
+
+            expect(playAnimationMock).toHaveBeenCalledExactlyOnceWith({
+                newPieces: boardState.pieces,
+                movedPieceIds: [piece.id],
+                isCapture: false,
+                isPromotion: false,
+                specialMoveType: SpecialMoveType.KNOOKLEAR_FUSION,
+            });
+        });
+
+        it("should set isPromotion=true when promotesTo is defined", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const newPos = logicalPoint({ x: 0, y: 7 });
+            const playAnimationMock = vi.fn();
+
+            store.setState({
+                playAnimation: playAnimationMock,
+                pieces: BoardPieces.fromPieces(piece),
+            });
+
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces({
+                    ...piece,
+                    position: newPos,
+                }),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                casuedByMove: createFakeMove({
+                    from: piece.position,
+                    to: newPos,
+                    promotesTo: PieceType.QUEEN,
+                }),
+            };
+
+            await store.getState().goToPosition(boardState);
+
+            expect(playAnimationMock).toHaveBeenCalledExactlyOnceWith({
+                newPieces: boardState.pieces,
+                movedPieceIds: [piece.id],
+                isCapture: false,
+                isPromotion: true,
+                specialMoveType: null,
             });
         });
     });

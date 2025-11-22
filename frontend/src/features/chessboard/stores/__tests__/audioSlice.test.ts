@@ -20,7 +20,6 @@ describe("AudioSlice", () => {
         const step: AnimationStep = {
             newPieces: new BoardPieces(),
             movedPieceIds: [],
-            isCapture: false,
         };
 
         await store.getState().playAudioForAnimationStep(step);
@@ -35,7 +34,6 @@ describe("AudioSlice", () => {
         const step: AnimationStep = {
             newPieces: new BoardPieces(),
             movedPieceIds: ["1"],
-            isCapture: false,
         };
 
         await store.getState().playAudioForAnimationStep(step);
@@ -82,7 +80,6 @@ describe("AudioSlice", () => {
         const step: AnimationStep = {
             newPieces: new BoardPieces(),
             movedPieceIds: ["1"],
-            isCapture: false,
         };
 
         await store.getState().playAudioForAnimationStep(step);
@@ -91,5 +88,20 @@ describe("AudioSlice", () => {
             AudioType.MOVE,
         );
         expect(audioMock.play).toHaveBeenCalledOnce();
+    });
+
+    it("should play both promotion and move audio when promotion", async () => {
+        const { audioMock, audioConstructorMock } = mockAudio();
+        const step: AnimationStep = {
+            newPieces: new BoardPieces(),
+            movedPieceIds: ["1"],
+            isPromotion: true,
+        };
+
+        await store.getState().playAudioForAnimationStep(step);
+
+        expect(audioConstructorMock).toHaveBeenCalledWith(AudioType.PROMOTION);
+        expect(audioConstructorMock).toHaveBeenCalledWith(AudioType.MOVE);
+        expect(audioMock.play).toBeCalledTimes(2);
     });
 });
