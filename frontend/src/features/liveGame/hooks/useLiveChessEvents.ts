@@ -7,6 +7,7 @@ import { Position } from "../lib/types";
 import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
 import { refetchGame } from "../lib/gameStateProcessor";
 import { useGameEvent } from "./useGameHub";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 export default function useLiveChessEvents(
     liveChessStore: StoreApi<LiveChessStore>,
@@ -107,5 +108,6 @@ export default function useLiveChessEvents(
     useGameEvent(gameToken, "GameEndedAsync", async (result) => {
         liveChessStore.getState().endGame(result);
         chessboardStore.getState().disableMovement();
+        AudioPlayer.playAudio(AudioType.GAME_END);
     });
 }
