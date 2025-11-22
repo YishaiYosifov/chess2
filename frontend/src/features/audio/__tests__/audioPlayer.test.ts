@@ -12,6 +12,7 @@ describe("AudioPlayer", () => {
         await AudioPlayer.playAudio(AudioType.MOVE);
 
         expect(audioConstructorMock).toHaveBeenCalledWith(AudioType.MOVE);
+        expect(audioMock.cloneNode).toHaveBeenCalledOnce();
         expect(audioMock.play).toHaveBeenCalledOnce();
     });
 

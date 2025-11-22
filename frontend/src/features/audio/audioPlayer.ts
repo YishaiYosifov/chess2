@@ -21,7 +21,8 @@ export default class AudioPlayer {
             this._cachedAudios.set(audioType, audio);
         }
 
-        audio.currentTime = 0;
-        await audio.play();
+        const clone = audio.cloneNode() as HTMLAudioElement;
+        clone.currentTime = 0;
+        await clone.play();
     }
 }

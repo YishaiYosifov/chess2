@@ -3,6 +3,7 @@ import { Mock } from "vitest";
 interface AudioMock {
     play: Mock;
     pause: Mock;
+    cloneNode: Mock;
     currentTime: number;
 }
 
@@ -13,6 +14,7 @@ export function mockAudio(): {
     const audioMock = {
         play: vi.fn(),
         pause: vi.fn(),
+        cloneNode: vi.fn().mockReturnThis(),
         currentTime: 0,
     };
 
