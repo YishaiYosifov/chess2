@@ -33,7 +33,7 @@ describe("HistorySlice", () => {
                 store.getState().positionHistory[0].pieces,
             );
             expect(result?.state.moveOptions.legalMoves.size).toBe(0);
-            expect(result?.state.casuedByMove).toBe(
+            expect(result?.state.causedByMove).toBe(
                 store.getState().positionHistory[0].move,
             );
             expect(result?.isOneStepForward).toBe(false);

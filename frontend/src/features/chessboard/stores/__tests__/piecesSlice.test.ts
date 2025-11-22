@@ -450,7 +450,7 @@ describe("PiecesSlice", () => {
             const boardState: BoardState = {
                 pieces: BoardPieces.fromPieces(piece),
                 moveOptions: { legalMoves, hasForcedMoves: false },
-                casuedByMove: move,
+                causedByMove: move,
             };
 
             await store
@@ -495,7 +495,7 @@ describe("PiecesSlice", () => {
             });
         });
 
-        it("should set isCapture to true if casuedByMove is a capture", async () => {
+        it("should set isCapture to true if causedByMove is a capture", async () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),
             });
@@ -511,7 +511,7 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                casuedByMove: createFakeMove({
+                causedByMove: createFakeMove({
                     from: piece.position,
                     to: newPos,
                     captures: [logicalPoint({ x: 1, y: 1 })],
@@ -546,7 +546,7 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                casuedByMove: createFakeMove({
+                causedByMove: createFakeMove({
                     from: piece.position,
                     to: newPos,
                     specialMoveType: SpecialMoveType.KNOOKLEAR_FUSION,
@@ -582,7 +582,7 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                casuedByMove: createFakeMove({
+                causedByMove: createFakeMove({
                     from: piece.position,
                     to: newPos,
                     promotesTo: PieceType.QUEEN,

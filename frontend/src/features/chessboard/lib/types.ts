@@ -38,7 +38,7 @@ export type MinimalMove = Partial<Move> & {
 export interface BoardState {
     pieces: BoardPieces;
     moveOptions: ProcessedMoveOptions;
-    casuedByMove?: Move;
+    causedByMove?: Move;
 }
 
 export interface MoveSideEffect {
