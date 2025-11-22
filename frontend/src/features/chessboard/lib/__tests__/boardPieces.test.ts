@@ -133,10 +133,25 @@ describe("BoardPieces", () => {
         ];
         const board = BoardPieces.fromPieces(...pieces);
 
-        const values = Array.from(board.values());
+        const values = new Set(board.values());
         expect(values).toHaveLength(pieces.length);
         for (const piece of pieces) {
             expect(values).toContainEqual(piece);
+        }
+    });
+
+    it("should iterate over all keys using keys()", () => {
+        const pieces = [
+            createFakePiece({ position: logicalPoint({ x: 1, y: 1 }) }),
+            createFakePiece({ position: logicalPoint({ x: 2, y: 2 }) }),
+            createFakePiece({ position: logicalPoint({ x: 3, y: 3 }) }),
+        ];
+        const board = BoardPieces.fromPieces(...pieces);
+
+        const values = new Set(board.keys());
+        expect(values).toHaveLength(pieces.length);
+        for (const piece of pieces) {
+            expect(values).toContainEqual(piece.id);
         }
     });
 
