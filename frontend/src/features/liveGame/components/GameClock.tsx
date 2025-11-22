@@ -42,7 +42,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
     useEffect(() => {
         if (
             clocks.isFrozen ||
-            isInTimeTrouble ||
+            !isInTimeTrouble ||
             playedWarningSoundRef.current ||
             viewer.playerColor !== color
         )

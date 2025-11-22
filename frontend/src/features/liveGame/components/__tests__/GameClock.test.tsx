@@ -208,6 +208,8 @@ describe("GameClock", () => {
             </LiveChessStoreContext.Provider>,
         );
 
+        expect(AudioPlayer.playAudio).not.toHaveBeenCalled();
+
         act(() => {
             vi.advanceTimersByTime(2000);
         });
