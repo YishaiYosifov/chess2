@@ -22,7 +22,6 @@ describe("AnimationSlice", () => {
                     {
                         newPieces: BoardPieces.fromPieces(piece),
                         movedPieceIds: [piece.id],
-                        isCapture: false,
                     },
                 ],
                 removedPieceIds: [],
@@ -52,7 +51,6 @@ describe("AnimationSlice", () => {
                     {
                         newPieces: BoardPieces.fromPieces(piece1),
                         movedPieceIds: [piece1.id],
-                        isCapture: false,
                     },
                 ],
                 removedPieceIds: [],
@@ -62,7 +60,6 @@ describe("AnimationSlice", () => {
                     {
                         newPieces: BoardPieces.fromPieces(piece2),
                         movedPieceIds: [piece2.id],
-                        isCapture: false,
                     },
                 ],
                 removedPieceIds: [],
@@ -135,7 +132,6 @@ describe("AnimationSlice", () => {
                         newPieces,
                         movedPieceIds: [movingPieceId, spawnedPieceId],
                         initialSpawnPositions,
-                        isCapture: false,
                     },
                 ],
                 removedPieceIds: [],
@@ -164,7 +160,6 @@ describe("AnimationSlice", () => {
                     {
                         newPieces: BoardPieces.fromPieces(piece),
                         movedPieceIds: [piece.id],
-                        isCapture: false,
                     },
                     {
                         newPieces: BoardPieces.fromPieces(piece),
@@ -198,7 +193,6 @@ describe("AnimationSlice", () => {
             const animationStep: AnimationStep = {
                 newPieces: BoardPieces.fromPieces(piece),
                 movedPieceIds: [piece.id],
-                isCapture: false,
             };
 
             const promise = store.getState().playAnimation(animationStep);

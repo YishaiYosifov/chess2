@@ -218,6 +218,9 @@ export function createPiecesSlice(
                         ? boardState.casuedByMove.captures.length > 0
                         : false,
                     specialMoveType: boardState.casuedByMove?.specialMoveType,
+                    isPromotion: boardState.casuedByMove
+                        ? boardState.casuedByMove.promotesTo !== null
+                        : false,
                 });
             },
 

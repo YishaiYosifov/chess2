@@ -94,6 +94,7 @@ function simulateMoveDetails(
                 removedPieceIds.length > 0 &&
                 move.intermediates.filter((x) => x.isCapture).length <
                     removedPieceIds.length,
+            isPromotion: move.promotesTo !== null,
             specialMoveType: move.specialMoveType,
         },
         removedPieceIds,

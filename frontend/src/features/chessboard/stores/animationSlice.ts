@@ -121,7 +121,6 @@ export const createAnimationSlice: StateCreator<
                         {
                             newPieces,
                             movedPieceIds: [pieceId],
-                            isCapture: false,
                         },
                     ],
                     removedPieceIds: [],
