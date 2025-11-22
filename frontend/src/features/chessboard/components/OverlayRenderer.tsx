@@ -18,22 +18,19 @@ const CIRCLE_PADDING = 0.05;
 
 const OverlayRenderer = () => {
     const {
-        dimensions,
-        overlays,
-        currentlyDrawing,
         commitCurrentlyDrawing,
         setCurrentlyDrawing,
         screenToViewPoint,
         clearOverlays,
     } = useChessboardStore((x) => ({
-        dimensions: x.boardDimensions,
-        overlays: x.overlays,
-        currentlyDrawing: x.currentlyDrawing,
         commitCurrentlyDrawing: x.commitCurrentlyDrawing,
         setCurrentlyDrawing: x.setCurrentlyDrawing,
         clearOverlays: x.clearOverlays,
         screenToViewPoint: x.screenToViewPoint,
     }));
+    const currentlyDrawing = useChessboardStore((x) => x.currentlyDrawing);
+    const dimensions = useChessboardStore((x) => x.boardDimensions);
+    const overlays = useChessboardStore((x) => x.overlays);
     const headId = useId();
 
     const startPointRef = useRef<ViewPoint | null>(null);

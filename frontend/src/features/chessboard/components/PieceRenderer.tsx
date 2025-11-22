@@ -6,16 +6,17 @@ import PromotionPrompt from "./PromotionPrompt";
 import IntermediateSquarePrompt from "./IntermediateSquarePrompt";
 
 const PieceRenderer = () => {
-    const { pieces, highlightedLegalMoves } = useChessboardStore((x) => ({
-        pieces: x.animatingPieces ?? x.pieces,
-        removingPieces: x.removingPieceIds,
-        highlightedLegalMoves: x.highlightedLegalMoves,
-    }));
+    const highlightedLegalMoves = useChessboardStore(
+        (x) => x.highlightedLegalMoves,
+    );
+    const pieceIds = useChessboardStore((x) =>
+        Array.from(x.animatingPieces?.keys() ?? x.pieces.keys()),
+    );
 
     return (
         <>
-            {[...pieces].map((piece) => (
-                <ChessPiece id={piece.id} key={piece.id} />
+            {[...pieceIds].map((pieceId) => (
+                <ChessPiece id={pieceId} key={pieceId} />
             ))}
 
             {highlightedLegalMoves.map((point) => (
