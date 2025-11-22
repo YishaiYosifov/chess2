@@ -18,6 +18,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
     const isTicking = sideToMove === color && !clocks.isFrozen;
 
     const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
+    const isInTimeTrouble = timeLeft < 20000;
 
     const calculateTimeLeft = useCallback(() => {
         if (!isTicking) return baseTimeLeft;
@@ -41,7 +42,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
     useEffect(() => {
         if (
             clocks.isFrozen ||
-            timeLeft > 20000 ||
+            isInTimeTrouble ||
             playedWarningSoundRef.current ||
             viewer.playerColor !== color
         )
@@ -49,14 +50,13 @@ const GameClock = ({ color }: { color: GameColor }) => {
 
         AudioPlayer.playAudio(AudioType.LOW_TIME);
         playedWarningSoundRef.current = true;
-    }, [timeLeft, color, viewer.playerColor, clocks.isFrozen]);
+    }, [timeLeft, color, viewer.playerColor, clocks.isFrozen, isInTimeTrouble]);
 
     const minutes = Math.max(0, Math.floor(timeLeft / 60000));
     const seconds = Math.max(0, (timeLeft % 60000) / 1000);
 
     const strMinutes = minutes.toString().padStart(2, "0");
 
-    const isInTimeTrouble = minutes < 1 && seconds < 20;
     const strSeconds = isInTimeTrouble
         ? seconds.toFixed(2).padStart(5, "0") // xx.yy
         : Math.floor(seconds).toString().padStart(2, "0"); // xx
