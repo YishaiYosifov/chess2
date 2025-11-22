@@ -2,6 +2,7 @@ import { StateCreator } from "zustand";
 
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
 import {
+    Clocks,
     DrawState,
     GamePlayer,
     GameResultData,
@@ -25,7 +26,7 @@ export interface GameStateSliceProps {
 export interface GameStateSlice extends GameStateSliceProps {
     decrementDrawCooldown(): void;
     drawStateChange(drawState: DrawState): void;
-    endGame(resultData: GameResultData): void;
+    endGame(resultData: GameResultData, finalClocks: Clocks): void;
 
     resetState(initState: LiveChessStoreProps): void;
 }
@@ -38,7 +39,7 @@ export function createGameStateSlice(
     [],
     GameStateSlice
 > {
-    return (set, _, store) => ({
+    return (set, get, store) => ({
         ...initState,
 
         decrementDrawCooldown() {
@@ -60,7 +61,10 @@ export function createGameStateSlice(
             });
         },
 
-        endGame(resultData) {
+        endGame(resultData, finalClocks) {
+            const { setClocks } = get();
+
+            setClocks(finalClocks);
             set((state) => {
                 if (state.whitePlayer.rating && resultData.whiteRatingChange)
                     state.whitePlayer.rating += resultData.whiteRatingChange;

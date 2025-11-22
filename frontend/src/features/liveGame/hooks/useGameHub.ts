@@ -22,7 +22,7 @@ export type GameClientEvents = {
         encodedLegalMoves: string,
         hasForcedMoves: boolean,
     ];
-    GameEndedAsync: [result: GameResultData];
+    GameEndedAsync: [result: GameResultData, finalClocks: Clocks];
 
     DrawStateChangeAsync: [drawState: DrawState];
 

@@ -29,6 +29,8 @@ export interface GamePlaySlice extends GamePlaySliceProps {
     resetLegalMovesForOpponentTurn(): void;
     receiveLegalMoves(moveOptions: ProcessedMoveOptions): void;
     markPendingMoveAck(): void;
+
+    setClocks(clocks: Clocks): void;
 }
 
 export function createGamePlaySlice(
@@ -69,6 +71,12 @@ export function createGamePlaySlice(
         markPendingMoveAck() {
             set((state) => {
                 state.isPendingMoveAck = true;
+            });
+        },
+
+        setClocks(clocks) {
+            set((state) => {
+                state.clocks = clocks;
             });
         },
     });
