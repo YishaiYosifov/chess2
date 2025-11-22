@@ -194,8 +194,8 @@ export function createPiecesSlice(
                 } = get();
                 setLegalMoves(boardState.moveOptions);
 
-                if (options?.animateIntermediates && boardState.casuedByMove) {
-                    await applyMoveWithIntermediates(boardState.casuedByMove);
+                if (options?.animateIntermediates && boardState.causedByMove) {
+                    await applyMoveWithIntermediates(boardState.causedByMove);
                     return;
                 }
 
@@ -214,12 +214,12 @@ export function createPiecesSlice(
                 await playAnimation({
                     newPieces: boardState.pieces,
                     movedPieceIds: movedPieces,
-                    isCapture: boardState.casuedByMove
-                        ? boardState.casuedByMove.captures.length > 0
+                    isCapture: boardState.causedByMove
+                        ? boardState.causedByMove.captures.length > 0
                         : false,
-                    specialMoveType: boardState.casuedByMove?.specialMoveType,
-                    isPromotion: boardState.casuedByMove
-                        ? boardState.casuedByMove.promotesTo !== null
+                    specialMoveType: boardState.causedByMove?.specialMoveType,
+                    isPromotion: boardState.causedByMove
+                        ? boardState.causedByMove.promotesTo !== null
                         : false,
                 });
             },
