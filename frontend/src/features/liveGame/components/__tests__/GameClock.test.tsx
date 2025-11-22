@@ -3,7 +3,7 @@ import { StoreApi } from "zustand";
 import createLiveChessStore, {
     LiveChessStore,
 } from "@/features/liveGame/stores/liveChessStore";
-import { GameColor, GameResult } from "@/lib/apiClient";
+import { GameColor } from "@/lib/apiClient";
 import { act, render, screen } from "@testing-library/react";
 import LiveChessStoreContext from "@/features/liveGame/contexts/liveChessContext";
 import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
@@ -67,12 +67,15 @@ describe("GameClock", () => {
         expect(screen.getByText("05:00")).toBeInTheDocument();
     });
 
-    it("should freeze clock when game is over", () => {
+    it("should freeze clock when isFrozen is true", () => {
         store.setState({
-            resultData: {
-                result: GameResult.WHITE_WIN,
-                resultDescription: "description",
+            clocks: {
+                whiteClock: 300000,
+                blackClock: 300000,
+                lastUpdated: Date.now(),
+                isFrozen: true,
             },
+            sideToMove: GameColor.WHITE,
         });
 
         render(
@@ -80,10 +83,12 @@ describe("GameClock", () => {
                 <GameClock color={GameColor.WHITE} />
             </LiveChessStoreContext.Provider>,
         );
+
         act(() => {
             vi.advanceTimersByTime(10000);
         });
 
+        // should still show initial time because frozen
         expect(screen.getByText("05:00")).toBeInTheDocument();
     });
 
@@ -112,19 +117,15 @@ describe("GameClock", () => {
         expect(clock.classList.contains("animate-freakout")).toBe(true);
     });
 
-    it("should apply 'text-red-600' class when clock is zero and game is over", () => {
+    it("should apply 'text-red-600' class when clock is zero and frozen", () => {
         store.setState({
             clocks: {
                 whiteClock: 0,
                 blackClock: 300000,
-                lastUpdated: 0,
+                lastUpdated: Date.now(),
                 isFrozen: true,
             },
             sideToMove: GameColor.WHITE,
-            resultData: {
-                result: GameResult.BLACK_WIN,
-                resultDescription: "timeout",
-            },
         });
 
         render(
