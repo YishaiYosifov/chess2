@@ -5,32 +5,30 @@ import clsx from "clsx";
 import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 const GameClock = ({ color }: { color: GameColor }) => {
-    const { clocks, sideToMove, viewer, result } = useLiveChessStore((x) => ({
+    const { clocks, sideToMove, viewer } = useLiveChessStore((x) => ({
         clocks: x.clocks,
         sideToMove: x.sideToMove,
         viewer: x.viewer,
-        result: x.resultData,
     }));
 
     const playedWarningSoundRef = useRef<boolean>(false);
 
     const baseTimeLeft =
         color === GameColor.WHITE ? clocks.whiteClock : clocks.blackClock;
-    const isTicking = sideToMove === color;
-    const isGameOver = Boolean(result);
+    const isTicking = sideToMove === color && !clocks.isFrozen;
 
     const [timeLeft, setTimeLeft] = useState<number>(baseTimeLeft);
 
     const calculateTimeLeft = useCallback(() => {
-        if (!isTicking || clocks.isFrozen) return baseTimeLeft;
+        if (!isTicking) return baseTimeLeft;
 
         const timePassed = new Date().valueOf() - clocks.lastUpdated;
         return baseTimeLeft - timePassed;
-    }, [clocks.lastUpdated, clocks.isFrozen, baseTimeLeft, isTicking]);
+    }, [clocks.lastUpdated, baseTimeLeft, isTicking]);
 
     useEffect(() => {
         setTimeLeft(calculateTimeLeft());
-        if (!isTicking || isGameOver) return;
+        if (!isTicking) return;
 
         const interval = setInterval(
             () => setTimeLeft(calculateTimeLeft()),
@@ -38,7 +36,7 @@ const GameClock = ({ color }: { color: GameColor }) => {
         );
 
         return () => clearInterval(interval);
-    }, [calculateTimeLeft, isTicking, isGameOver]);
+    }, [calculateTimeLeft, isTicking]);
 
     useEffect(() => {
         if (
@@ -67,11 +65,11 @@ const GameClock = ({ color }: { color: GameColor }) => {
         <span
             className={clsx(
                 "font-mono text-2xl",
-                isInTimeTrouble &&
-                    isTicking &&
-                    !isGameOver &&
-                    "animate-freakout",
-                seconds <= 0 && minutes <= 0 && isGameOver && "text-red-600",
+                isInTimeTrouble && isTicking && "animate-freakout",
+                seconds <= 0 &&
+                    minutes <= 0 &&
+                    clocks.isFrozen &&
+                    "text-red-600",
             )}
         >
             {strMinutes}:{strSeconds}
