@@ -14,7 +14,8 @@ import DoubleClickIndicator, { DoubleClickRef } from "./DoubleClickIndicator";
 const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
     const {
-        piece,
+        pieceType,
+        pieceColor,
         isSelected,
         isAnimating,
         isRemoving,
@@ -23,17 +24,25 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         selectPiece,
         unselectPiece,
         handleMousePieceDrop,
-    } = useChessboardStore((x) => ({
-        piece: x.animatingPieces?.getById(id) ?? x.pieces.getById(id),
-        isSelected: x.selectedPieceId === id,
-        isAnimating: x.animatingPieceIds.has(id),
-        isRemoving: x.removingPieceIds.has(id),
-        canDrag: x.canDrag,
-        screenPointToPiece: x.screenPointToPiece,
-        selectPiece: x.selectPiece,
-        unselectPiece: x.unselectPiece,
-        handleMousePieceDrop: x.handleMousePieceDrop,
-    }));
+    } = useChessboardStore((x) => {
+        const piece = x.animatingPieces?.getById(id) ?? x.pieces.getById(id);
+        return {
+            pieceType: piece?.type,
+            pieceColor: piece?.color,
+            isSelected: x.selectedPieceId === id,
+            isAnimating: x.animatingPieceIds.has(id),
+            isRemoving: x.removingPieceIds.has(id),
+            canDrag: x.canDrag,
+            screenPointToPiece: x.screenPointToPiece,
+            selectPiece: x.selectPiece,
+            unselectPiece: x.unselectPiece,
+            handleMousePieceDrop: x.handleMousePieceDrop,
+        };
+    });
+    const piecePosition = useChessboardStore(
+        (x) =>
+            (x.animatingPieces?.getById(id) ?? x.pieces.getById(id))?.position,
+    );
 
     const doubleClickRef = useRef<DoubleClickRef>(null);
 
@@ -105,12 +114,17 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
         },
     });
 
-    if (!piece) return null;
+    if (
+        piecePosition === undefined ||
+        pieceType === undefined ||
+        pieceColor === undefined
+    )
+        return null;
     return (
         <>
             <ChessSquare
                 data-testid="piece"
-                position={piece.position}
+                position={piecePosition}
                 className={clsx(
                     `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
                     transition-colors select-none`,
@@ -120,7 +134,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
                 )}
                 ref={pieceRef}
                 style={{
-                    backgroundImage: `url("${getPieceImage(piece.type, piece.color)}")`,
+                    backgroundImage: `url("${getPieceImage(pieceType, pieceColor)}")`,
                 }}
             >
                 <DoubleClickIndicator ref={doubleClickRef} />
@@ -128,7 +142,7 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
             {isSelected && (
                 <ChessSquare
                     data-testid="pieceSquareHighlight"
-                    position={piece.position}
+                    position={piecePosition}
                     className="bg-secondary/50 pointer-events-none z-5 touch-none"
                 />
             )}

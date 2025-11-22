@@ -86,6 +86,10 @@ export default class BoardPieces {
         return this._byId.values();
     }
 
+    keys(): IterableIterator<PieceID> {
+        return this._byId.keys();
+    }
+
     *[Symbol.iterator](): IterableIterator<Piece> {
         yield* this._byId.values();
     }
