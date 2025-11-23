@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import constants from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import useChallengeStore from "../../hooks/useChallengeStore";
+import Card from "@/components/ui/Card";
 
 const ChallengeFooter = () => {
     const [error, setError] = useState<string>();
@@ -67,7 +68,7 @@ const ChallengeFooter = () => {
     if (isCancelled || isExpired) return <ChallengeOver />;
 
     return (
-        <>
+        <Card className="flex-1 items-center">
             {challenge.requester.userId === user?.userId ? (
                 <Button
                     className="w-full"
@@ -100,7 +101,7 @@ const ChallengeFooter = () => {
                     </p>
                 )}
             </CountdownText>
-        </>
+        </Card>
     );
 };
 export default ChallengeFooter;
