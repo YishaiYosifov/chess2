@@ -13,14 +13,14 @@ const PoolToggle = ({
                 data-testid="poolToggle"
                 onClick={() => onToggle(!isRated)}
                 className="from-primary via-primary/50 to-primary relative col-span-2 h-8 w-full
-                    cursor-pointer rounded-sm bg-gradient-to-r p-1"
+                    cursor-pointer rounded-sm bg-gradient-to-r"
             >
                 <div
                     className={clsx(
                         "bg-secondary absolute top-1 h-6 w-10 rounded-sm shadow-2xl transition-all",
                         isRated ? "left-[calc(100%-2.75rem)]" : "left-1",
                     )}
-                ></div>
+                />
             </button>
             <span className="text-[0.9rem]">Casual (faster match)</span>
             <span className="text-[0.9rem]">Rated (longer wait)</span>

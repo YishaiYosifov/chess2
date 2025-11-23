@@ -8,7 +8,7 @@ const Card: React.ForwardRefRenderFunction<
     return (
         <article
             className={twMerge(
-                "bg-card border-secondary/30 flex flex-col gap-3 rounded-md border p-4",
+                "bg-card flex flex-col gap-3 rounded-md p-4",
                 className,
             )}
             ref={ref}

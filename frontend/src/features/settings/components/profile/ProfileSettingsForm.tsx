@@ -58,8 +58,8 @@ const ProfileSettingsForm = () => {
             }}
             onSubmit={handleSubmit}
         >
-            <Form>
-                <Card>
+            <Form className="flex-1">
+                <Card className="h-full">
                     <FormField label="About Me" name="about">
                         <InputField
                             data-testid="aboutMeSetting"

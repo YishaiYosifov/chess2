@@ -11,7 +11,7 @@ const HomeHero = () => {
         <header
             className="bg-checkerboard relative flex flex-col items-center justify-center gap-10
                 overflow-hidden bg-center p-3 py-10 md:gap-10 md:px-10 xl:flex-row
-                xl:items-start xl:gap-20 xl:py-30"
+                xl:items-start xl:gap-20 xl:py-35"
         >
             <div
                 className="relative flex h-full flex-col text-center text-nowrap xl:text-start"
@@ -59,7 +59,7 @@ const HomeHero = () => {
                     </div>
 
                     <Link href={constants.PATHS.QUESTS} className="w-full">
-                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                        <Button className="border-secondary mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
                             PLAY QUEST
                         </Button>
                     </Link>
@@ -74,7 +74,7 @@ const HomeHero = () => {
                     </div>
 
                     <Link href={constants.PATHS.GUIDE} className="w-full">
-                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                        <Button className="border-secondary mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
                             VIEW GUIDE
                         </Button>
                     </Link>

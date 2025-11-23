@@ -117,7 +117,7 @@ const MoveRow = ({
     const selectedClass = "bg-blue-300/30";
     return (
         <tr className={color}>
-            <td className="w-10 bg-zinc-900 p-3">{index}.</td>
+            <td className="bg-card w-10 p-3">{index}.</td>
             <td
                 className={clsx(
                     "cursor-pointer overflow-x-auto p-3",

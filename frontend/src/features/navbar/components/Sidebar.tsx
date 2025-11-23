@@ -21,8 +21,8 @@ const Sidebar = ({
     return (
         <aside
             className={clsx(
-                `border-secondary/50 bg-navbar fixed z-50 flex h-full flex-col justify-between
-                gap-10 overflow-auto border-r p-5 text-3xl transition-[width]`,
+                `bg-navbar fixed z-50 flex h-full flex-col justify-between gap-10 overflow-auto
+                border-r border-white/30 p-5 text-3xl transition-[width]`,
                 isCollapsed && "items-center",
                 getSidebarCollapseWidthCls(isCollapsed),
             )}

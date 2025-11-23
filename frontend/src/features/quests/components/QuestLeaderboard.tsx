@@ -19,7 +19,7 @@ const QuestLeaderboard = ({
     initialLeaderboard: PagedResultOfQuestPointsDto;
 }) => {
     return (
-        <Card className="w-full gap-5 p-6">
+        <Card className="w-full flex-1 gap-5 p-6">
             <div
                 className="flex flex-col flex-wrap items-center justify-center gap-2 sm:flex-row
                     sm:justify-between"

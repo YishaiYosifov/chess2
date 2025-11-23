@@ -11,7 +11,7 @@ export default function GuidePage() {
                 piecesGuideHref="#pieces-guide"
                 rulesGuideHref="#rules-guide"
             />
-            <div className="flex w-full max-w-6xl flex-1 flex-col gap-10">
+            <div className="flex w-full max-w-7xl flex-1 flex-col gap-10">
                 <NewPiecesGuide id="pieces-guide" />
                 <NewRulesGuide id="rules-guide" />
             </div>

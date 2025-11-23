@@ -5,7 +5,7 @@ const ProgressBar = ({ percent }: { percent: number }) => {
             data-testid="progressBar"
         >
             <div
-                className="bg-secondary h-4 rounded-full"
+                className="bg-secondary h-full rounded-full"
                 style={{ width: `${percent}%` }}
                 data-testid="progressBarFill"
             />

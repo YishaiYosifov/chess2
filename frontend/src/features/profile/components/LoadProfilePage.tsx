@@ -110,7 +110,7 @@ const LoadProfilePage = async ({
     });
 
     return (
-        <main className="mx-auto flex w-full max-w-6xl min-w-0 flex-col gap-5 p-6">
+        <main className="mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-5 p-6">
             <Profile
                 profile={profile}
                 questPoints={questPoints}

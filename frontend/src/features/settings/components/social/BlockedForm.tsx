@@ -49,7 +49,7 @@ const BlockedForm = ({
                 incrementTotalCount,
                 decrementTotalCount,
             }) => (
-                <Card>
+                <Card className="flex-1">
                     <h1 className="text-3xl">Blocked</h1>
                     <p className="text-text/70" data-testid="blockedFormCount">
                         You blocked {totalCount} players
