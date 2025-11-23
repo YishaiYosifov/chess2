@@ -94,15 +94,18 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     {
         var userId = "user1";
 
-        var archive1 = new GameArchiveFaker().Generate();
-        archive1.WhitePlayer.UserId = userId;
-        var archive2 = new GameArchiveFaker().Generate();
-        archive2.BlackPlayer.UserId = userId;
+        var archive1 = new GameArchiveFaker(whiteUserId: userId).Generate();
+        var archive2 = new GameArchiveFaker(blackUserId: userId).Generate();
 
         var otherArchive = new GameArchiveFaker().Generate();
-        otherArchive.WhitePlayer.UserId = "otherUser";
+        var abortedArchive = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, GameResult.Aborted)
+            .Generate();
 
-        await DbContext.GameArchives.AddRangeAsync([archive1, archive2, otherArchive], CT);
+        await DbContext.GameArchives.AddRangeAsync(
+            [archive1, archive2, abortedArchive, otherArchive],
+            CT
+        );
         await DbContext.SaveChangesAsync(CT);
 
         var count = await _gameArchiveRepository.CountArchivedGamesForUserAsync(userId, CT);

@@ -49,6 +49,7 @@ public class GameArchiveRepository(ApplicationDbContext dbContext) : IGameArchiv
             .Where(archive =>
                 archive.WhitePlayer.UserId == userId || archive.BlackPlayer.UserId == userId
             )
+            .Where(archive => archive.Result != GameResult.Aborted)
             .CountAsync(token);
 
     public async Task AddArchiveAsync(GameArchive gameArchive, CancellationToken token = default) =>
