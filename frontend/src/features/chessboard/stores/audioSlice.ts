@@ -16,6 +16,10 @@ export interface AudioSlice {
 
 const SPECIAL_MOVE_AUDIO_MAP: Partial<Record<SpecialMoveType, AudioType>> = {
     [SpecialMoveType.KNOOKLEAR_FUSION]: AudioType.KNOOKLEAR_FUSION,
+    [SpecialMoveType.KINGSIDE_CASTLE]: AudioType.CASTLE,
+    [SpecialMoveType.QUEENSIDE_CASTLE]: AudioType.CASTLE,
+    [SpecialMoveType.VERTICAL_CASTLE]: AudioType.CASTLE,
+    [SpecialMoveType.IL_VATICANO]: AudioType.CASTLE,
 };
 
 export function createAudioSlice(

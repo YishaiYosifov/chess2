@@ -2,9 +2,10 @@ export enum AudioType {
     MOVE = "/assets/sfx/move.webm",
     CAPTURE = "/assets/sfx/capture.webm",
     ILLEGAL_MOVE = "/assets/sfx/illegal.webm",
-    PROMOTION = "/assets/sfx/promotion.webm?a",
+    PROMOTION = "/assets/sfx/promotion.webm",
 
     KNOOKLEAR_FUSION = "/assets/sfx/explosion.webm",
+    CASTLE = "/assets/sfx/castle.webm",
 
     LOW_TIME = "/assets/sfx/low_time.webm",
 
