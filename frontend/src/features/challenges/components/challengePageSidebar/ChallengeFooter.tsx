@@ -65,7 +65,12 @@ const ChallengeFooter = () => {
         }
     }
 
-    if (isCancelled || isExpired) return <ChallengeOver />;
+    if (isCancelled || isExpired)
+        return (
+            <Card className="flex-1 items-center">
+                <ChallengeOver />
+            </Card>
+        );
 
     return (
         <Card className="flex-1 items-center">
