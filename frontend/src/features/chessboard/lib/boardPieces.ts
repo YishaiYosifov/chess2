@@ -1,9 +1,19 @@
 import { immerable } from "immer";
 
 import { LogicalPoint, StrPoint } from "@/features/point/types";
-import { Piece, PieceID } from "./types";
+import { Move, Piece, PieceID } from "./types";
 import { pointToStr } from "@/features/point/pointUtils";
-import { PieceType } from "@/lib/apiClient";
+
+interface SinglePieceMove {
+    pieceId: PieceID;
+    from: LogicalPoint;
+    to: LogicalPoint;
+}
+
+interface GatheredMoves {
+    pieceMoves: SinglePieceMove[];
+    movedPieceIds: Set<PieceID>;
+}
 
 export default class BoardPieces {
     [immerable] = true;
@@ -45,20 +55,58 @@ export default class BoardPieces {
         return this._byId.get(pieceId);
     }
 
-    move(
-        pieceId: PieceID,
-        newPosition: LogicalPoint,
-        promotesTo: PieceType | null = null,
-    ): void {
+    playMove(move: Move): {
+        movedPieceIds: PieceID[];
+        removedPieceIds: PieceID[];
+    } {
+        const { pieceMoves, movedPieceIds } = this._gatherMoves(move);
+        const removedPieceIds: PieceID[] = [];
+
+        // step 1: remove all captures first
+        // so we don't capture any piece that just moved
+        for (const capture of move.captures) {
+            const capturedPiece = this.getByPosition(capture);
+            if (capturedPiece) {
+                this.delete(capturedPiece.id);
+                removedPieceIds.push(capturedPiece.id);
+            }
+        }
+
+        // step 2: clear all origin squares of moving pieces
+        // this is done before placing pieces to handle swaps correctly
+        for (const move of pieceMoves) {
+            this._byPosition.delete(pointToStr(move.from));
+        }
+
+        // step 3: place all pieces on their final destinations
+        for (const move of pieceMoves) {
+            this._byPosition.set(pointToStr(move.to), move.pieceId);
+            const piece = this._byId.get(move.pieceId);
+            if (piece) piece.position = move.to;
+        }
+
+        for (const spawn of move.pieceSpawns) {
+            this.add(spawn);
+            movedPieceIds.add(spawn.id);
+        }
+
+        if (move.promotesTo)
+            this.getByPosition(move.to)!.type = move.promotesTo;
+
+        return {
+            removedPieceIds,
+            movedPieceIds: [...movedPieceIds],
+        };
+    }
+
+    movePiece(pieceId: PieceID, to: LogicalPoint) {
         const piece = this._byId.get(pieceId);
         if (!piece) return;
 
         this._byPosition.delete(pointToStr(piece.position));
+        piece.position = to;
 
-        piece.position = newPosition;
-        if (promotesTo !== null) piece.type = promotesTo;
-
-        const newPositionStr = pointToStr(newPosition);
+        const newPositionStr = pointToStr(to);
         const inNewPosition = this._byPosition.get(newPositionStr);
         if (inNewPosition) this._byId.delete(inNewPosition);
         this._byPosition.set(newPositionStr, pieceId);
@@ -92,5 +140,47 @@ export default class BoardPieces {
 
     *[Symbol.iterator](): IterableIterator<Piece> {
         yield* this._byId.values();
+    }
+
+    _gatherMoves(move: Move): GatheredMoves {
+        const pieceMoves: SinglePieceMove[] = [];
+        const movedPieceIds = new Set<PieceID>();
+
+        const mainPieceId = this._byPosition.get(pointToStr(move.from));
+        if (mainPieceId) {
+            pieceMoves.push({
+                pieceId: mainPieceId,
+                from: move.from,
+                to: move.to,
+            });
+            movedPieceIds.add(mainPieceId);
+        } else {
+            console.warn(
+                "Could not find piece to move at",
+                pointToStr(move.from),
+            );
+        }
+
+        for (const sideEffect of move.sideEffects) {
+            const sideEffectPieceId = this._byPosition.get(
+                pointToStr(sideEffect.from),
+            );
+            if (!sideEffectPieceId) {
+                console.warn(
+                    "Could not find side effect piece at",
+                    pointToStr(sideEffect.from),
+                );
+                continue;
+            }
+
+            pieceMoves.push({
+                pieceId: sideEffectPieceId,
+                from: sideEffect.from,
+                to: sideEffect.to,
+            });
+            movedPieceIds.add(sideEffectPieceId);
+        }
+
+        return { pieceMoves, movedPieceIds };
     }
 }

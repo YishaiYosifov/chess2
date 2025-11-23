@@ -149,12 +149,15 @@ describe("PiecesSlice", () => {
 
             // final position should be set first, non animated
             const expectedPieces = new BoardPieces(pieces);
-            expectedPieces.move(piece.id, move.to);
+            expectedPieces.playMove(move);
             expect(store.getState().pieces).toEqual(expectedPieces);
 
             for (const intermediate of intermediates) {
                 const expectedAnimationPieces = new BoardPieces(pieces);
-                expectedAnimationPieces.move(piece.id, intermediate.position);
+                expectedAnimationPieces.movePiece(
+                    piece.id,
+                    intermediate.position,
+                );
                 expect(store.getState().animatingPieces).toEqual(
                     expectedAnimationPieces,
                 );

@@ -40,19 +40,6 @@ export function createFakeMove(override?: Partial<Move>): Move {
     };
 }
 
-export function createFakeMoveFromPieces(
-    pieces: BoardPieces,
-    override?: Partial<Move>,
-): Move {
-    const firstPiece = pieces.values().next().value;
-    if (!firstPiece) throw new Error("BoardPieces is empty");
-
-    return createFakeMove({
-        from: firstPiece.position,
-        ...override,
-    });
-}
-
 export function createFakeBoardPieces(count = 5): BoardPieces {
     const boardPieces = new BoardPieces();
     for (let i = 0; i < count; i++) {

@@ -1,7 +1,6 @@
-import { pointToStr } from "@/features/point/pointUtils";
 import { AnimationStep, MoveAnimation, PieceID } from "./types";
-import { Move } from "./types";
 import BoardPieces from "./boardPieces";
+import { Move } from "./types";
 
 export function simulateMove(pieces: BoardPieces, move: Move): AnimationStep {
     return simulateMoveDetails(pieces, move).step;
@@ -17,7 +16,7 @@ export function simulateMoveWithIntermediates(
     const steps: AnimationStep[] = [];
     const currentPieces = new BoardPieces(pieces);
     for (const intermediate of move.intermediates) {
-        currentPieces.move(fromPiece.id, intermediate.position);
+        currentPieces.movePiece(fromPiece.id, intermediate.position);
 
         steps.push({
             newPieces: new BoardPieces(currentPieces),
@@ -39,51 +38,10 @@ function simulateMoveDetails(
     basePieces: BoardPieces,
     move: Move,
 ): { step: AnimationStep; removedPieceIds: PieceID[] } {
-    const movedPieceIds = new Set<PieceID>();
     const newPieces = new BoardPieces(basePieces);
+    const { movedPieceIds, removedPieceIds } = newPieces.playMove(move);
 
-    const movingPiece = basePieces.getByPosition(move.from);
-    if (movingPiece) {
-        newPieces.move(movingPiece.id, move.to, move.promotesTo);
-        movedPieceIds.add(movingPiece.id);
-    } else {
-        console.warn("Could not find piece to move at", pointToStr(move.from));
-    }
-
-    for (const sideEffect of move.sideEffects) {
-        const sideEffectPiece = basePieces.getByPosition(sideEffect.from);
-        if (!sideEffectPiece) {
-            console.warn(
-                "Could not find side effect piece at",
-                pointToStr(sideEffect.from),
-            );
-            continue;
-        }
-
-        newPieces.move(sideEffectPiece.id, sideEffect.to);
-        movedPieceIds.add(sideEffectPiece.id);
-    }
-
-    const removedPieceIds: PieceID[] = [];
-    const destCapturePiece = basePieces.getByPosition(move.to);
-    if (destCapturePiece && !movedPieceIds.has(destCapturePiece.id)) {
-        removedPieceIds.push(destCapturePiece.id);
-        newPieces.delete(destCapturePiece.id);
-    }
-    for (const capture of move.captures) {
-        const capturedPiece = basePieces.getByPosition(capture);
-        if (capturedPiece) {
-            newPieces.delete(capturedPiece.id);
-            removedPieceIds.push(capturedPiece.id);
-        }
-    }
-
-    const initialSpawnPositions = applySpawns(
-        newPieces,
-        basePieces,
-        move,
-        movedPieceIds,
-    );
+    const initialSpawnPositions = createInitialSpawns(basePieces, move);
 
     return {
         step: {
@@ -101,20 +59,15 @@ function simulateMoveDetails(
     };
 }
 
-function applySpawns(
-    newPieces: BoardPieces,
+function createInitialSpawns(
     basePieces: BoardPieces,
     move: Move,
-    movedPieceIds: Set<PieceID>,
 ): BoardPieces | undefined {
     if (move.pieceSpawns.length === 0) return;
 
     const initialSpawnPositions = new BoardPieces(basePieces);
     for (const piece of move.pieceSpawns) {
-        newPieces.add(piece);
         initialSpawnPositions.addAt(piece, move.from);
-
-        movedPieceIds.add(piece.id);
     }
     return initialSpawnPositions;
 }
