@@ -310,6 +310,27 @@ public class ChessBoardTests
     }
 
     [Fact]
+    public void PlayMove_with_a_self_capture_removes_piece_correctly()
+    {
+        ChessBoard board = new();
+
+        Piece piece = PieceFactory.White();
+        AlgebraicPoint position = new("a1");
+        board.PlacePiece(position, piece);
+
+        Move move = new(
+            from: position,
+            to: position,
+            piece: piece,
+            captures: [new MoveCapture(piece, position)]
+        );
+
+        board.PlayMove(move);
+
+        board.PeekPieceAt(position).Should().BeNull();
+    }
+
+    [Fact]
     public void PlacePiece_adds_piece()
     {
         ChessBoard board = new();

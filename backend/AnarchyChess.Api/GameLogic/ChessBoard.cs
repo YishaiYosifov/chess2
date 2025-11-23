@@ -103,7 +103,8 @@ public class ChessBoard : IReadOnlyChessBoard
                     nameof(move)
                 );
 
-            finalPositions.Add((piece, to));
+            if (from != to)
+                finalPositions.Add((piece, to));
         }
 
         // step 1: remove all captured pieces first
