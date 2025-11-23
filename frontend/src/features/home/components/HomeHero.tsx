@@ -33,7 +33,7 @@ const HomeHero = () => {
             </div>
 
             <div className="grid h-min max-w-180 grid-cols-2 items-stretch gap-10">
-                <Card className="border-secondary relative col-span-2 gap-5 border-4 p-2">
+                <Card className="border-accent relative col-span-2 gap-5 border-4 p-2">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-4xl text-balance sm:text-5xl">
                             PLAY ANARCHY CHESS!
@@ -44,13 +44,13 @@ const HomeHero = () => {
                     </div>
 
                     <Link href={constants.PATHS.PLAY} className="w-full">
-                        <Button className="bg-secondary w-full text-3xl text-black">
+                        <Button className="bg-accent w-full text-3xl text-black">
                             PLAY NOW
                         </Button>
                     </Link>
                 </Card>
 
-                <Card className="bg-background border-secondary border-4 p-2 sm:gap-10">
+                <Card className="bg-background border-primary border-4 p-2 sm:gap-10">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-3xl">DAILY QUEST</h1>
                         <p className="text-sm text-balance md:text-base">
@@ -59,13 +59,13 @@ const HomeHero = () => {
                     </div>
 
                     <Link href={constants.PATHS.QUESTS} className="w-full">
-                        <Button className="border-secondary mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
                             PLAY QUEST
                         </Button>
                     </Link>
                 </Card>
 
-                <Card className="bg-background border-secondary border-4 p-2 sm:gap-10">
+                <Card className="bg-background border-primary border-4 p-2 sm:gap-10">
                     <div className="flex flex-col gap-2">
                         <h1 className="text-3xl">NEW RULES</h1>
                         <p className="text-sm text-balance md:text-base">
@@ -74,7 +74,7 @@ const HomeHero = () => {
                     </div>
 
                     <Link href={constants.PATHS.GUIDE} className="w-full">
-                        <Button className="border-secondary mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
+                        <Button className="mt-auto w-full text-[clamp(0.8rem,4vw,2rem)] sm:text-3xl">
                             VIEW GUIDE
                         </Button>
                     </Link>

@@ -33,7 +33,7 @@ const PoolButton = ({
                 onClick={toggleSeek}
                 className={clsx(
                     "flex h-full w-full flex-col items-center justify-center rounded-sm",
-                    isMostPopular && "border-2 border-amber-300",
+                    isMostPopular && "border-accent border-3",
                 )}
             >
                 <span className="text-[1.6rem] text-nowrap">
