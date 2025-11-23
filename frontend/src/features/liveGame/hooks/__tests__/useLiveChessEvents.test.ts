@@ -367,7 +367,7 @@ describe("useLiveChessEvents", () => {
     });
 
     describe("GameEndedAsync", () => {
-        it("should update liveChessStore, disable chessboard movement, and open the game over popup", async () => {
+        it("should update liveChessStore, disable chessboard movement, and set final clocks", async () => {
             liveChessStore.setState({
                 resultData: null,
                 latestMoveOptions: {
@@ -395,13 +395,20 @@ describe("useLiveChessEvents", () => {
                 result: GameResult.WHITE_WIN,
                 resultDescription: "test",
             };
+            const finalClocks: Clocks = {
+                whiteClock: 6,
+                blackClock: 9,
+                lastUpdated: 1234,
+                isFrozen: true,
+            };
 
             await act(async () => {
-                gameEventHandlers.GameEndedAsync?.(gameResult);
+                gameEventHandlers.GameEndedAsync?.(gameResult, finalClocks);
             });
 
             const liveState = liveChessStore.getState();
             expect(liveState.resultData).toEqual(gameResult);
+            expect(liveState.clocks).toEqual(finalClocks);
 
             const chessboardState = chessboardStore.getState();
             expect(chessboardState.highlightedLegalMoves).toHaveLength(0);

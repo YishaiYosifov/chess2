@@ -2,7 +2,7 @@ import { StoreApi } from "zustand";
 
 import { ChessboardStore, createChessboardStore } from "../chessboardStore";
 import { mockAudio } from "@/lib/testUtils/mocks/mockAudio";
-import { AudioType } from "@/features/audio/audioPlayer";
+import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 import { SpecialMoveType } from "@/lib/apiClient";
 import { AnimationStep } from "../../lib/types";
 import BoardPieces from "../../lib/boardPieces";
@@ -12,6 +12,8 @@ describe("AudioSlice", () => {
 
     beforeEach(() => {
         store = createChessboardStore();
+        // @ts-expect-error reset private static property for testing
+        AudioPlayer._cachedAudios = new Map();
     });
 
     it("should not play audio if movedPieceIds is empty", async () => {

@@ -194,6 +194,7 @@ describe("createStoreProps", () => {
                 },
                 viewingFrom: GameColor.BLACK,
                 canDrag: true,
+                muteAudio: false,
             },
         });
     });
