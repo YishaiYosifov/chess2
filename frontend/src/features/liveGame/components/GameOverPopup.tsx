@@ -10,14 +10,11 @@ import Popup, { PopupRef } from "@/components/Popup";
 import useRematch from "../hooks/useRematch";
 
 const GameOverPopup = () => {
-    const { whitePlayer, blackPlayer, resultData, viewer, pool } =
-        useLiveChessStore((x) => ({
-            whitePlayer: x.whitePlayer,
-            blackPlayer: x.blackPlayer,
-            resultData: x.resultData,
-            viewer: x.viewer,
-            pool: x.pool,
-        }));
+    const whitePlayer = useLiveChessStore((x) => x.whitePlayer);
+    const blackPlayer = useLiveChessStore((x) => x.blackPlayer);
+    const resultData = useLiveChessStore((x) => x.resultData);
+    const viewer = useLiveChessStore((x) => x.viewer);
+    const pool = useLiveChessStore((x) => x.pool);
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
     const popupRef = useRef<PopupRef>(null);

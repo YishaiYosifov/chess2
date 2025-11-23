@@ -5,11 +5,9 @@ import clsx from "clsx";
 import AudioPlayer, { AudioType } from "@/features/audio/audioPlayer";
 
 const GameClock = ({ color }: { color: GameColor }) => {
-    const { clocks, sideToMove, viewer } = useLiveChessStore((x) => ({
-        clocks: x.clocks,
-        sideToMove: x.sideToMove,
-        viewer: x.viewer,
-    }));
+    const clocks = useLiveChessStore((x) => x.clocks);
+    const viewer = useLiveChessStore((x) => x.viewer);
+    const sideToMove = useLiveChessStore((x) => x.sideToMove);
 
     const playedWarningSoundRef = useRef<boolean>(false);
 

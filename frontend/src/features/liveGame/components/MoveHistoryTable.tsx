@@ -8,17 +8,13 @@ import useAutoScroll from "@/hooks/useAutoScroll";
 import { HistoryStep } from "../lib/types";
 
 const MoveHistoryTable = () => {
-    const {
-        positionHistory,
-        shiftMoveViewBy,
-        teleportToMove,
-        teleportToLastMove,
-    } = useLiveChessStore((x) => ({
-        positionHistory: x.positionHistory,
-        shiftMoveViewBy: x.shiftMoveViewBy,
-        teleportToMove: x.teleportToMove,
-        teleportToLastMove: x.teleportToLastMove,
-    }));
+    const { shiftMoveViewBy, teleportToMove, teleportToLastMove } =
+        useLiveChessStore((x) => ({
+            shiftMoveViewBy: x.shiftMoveViewBy,
+            teleportToMove: x.teleportToMove,
+            teleportToLastMove: x.teleportToLastMove,
+        }));
+    const positionHistory = useLiveChessStore((x) => x.positionHistory);
     const goToPosition = useChessboardStore((x) => x.goToPosition);
 
     const tableRef = useRef<HTMLDivElement | null>(null);

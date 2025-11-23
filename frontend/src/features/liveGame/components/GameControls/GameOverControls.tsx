@@ -8,10 +8,8 @@ import clsx from "clsx";
 import useRematch from "../../hooks/useRematch";
 
 const GameOverControls = () => {
-    const { pool, viewer } = useLiveChessStore((x) => ({
-        pool: x.pool,
-        viewer: x.viewer,
-    }));
+    const pool = useLiveChessStore((x) => x.pool);
+    const viewer = useLiveChessStore((x) => x.viewer);
 
     const { toggleSeek, isSeeking } = useMatchmaking(pool);
 
