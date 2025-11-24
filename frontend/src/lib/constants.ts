@@ -30,7 +30,6 @@ const PATHS = {
     SIGNIN: "/signin",
     LOGOUT: "/logout",
     REFRESH: "/refresh",
-    DONATE: "https://ko-fi.com/anarchychess",
     GAME: "/game",
     PLAY: "/play",
     GUIDE: "/guide",
@@ -42,6 +41,10 @@ const PATHS = {
     SETTINGS_PROFILE: "/settings/profile",
     SETTINGS_SOCIAL: "/settings/social",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
+    DONATE: "https://ko-fi.com/anarchychess",
+    GITHUB: "https://github.com/slomg/anarchychess",
+    DISCORD: "https://discord.gg/qnkddndecq",
+    YOUTUBE: "https://youtube.com/@slomgdev",
 };
 
 const LOCALSTORAGE = {
@@ -68,11 +71,6 @@ const PAGINATION_PAGE_SIZE = {
     WIN_STREAK_LEADERBOARD: 10,
     STARS: 5,
     BLOCKED: 5,
-};
-
-const SOCIALS = {
-    DISCORD: "https://discord.gg/qnkddndecq",
-    YOUTUBE: "https://youtube.com/@slomgdev",
 };
 
 interface TimeControlLabel {
@@ -220,7 +218,6 @@ const constants = {
     DEFAULT_CHALLENGE_INCREMENT_OPTION_IDX,
     SEEK_RESUBSCRIBE_INTERAVAL_MS,
     OPEN_SEEK_RESUBSCRIBE_INTERAVAL_MS,
-    SOCIALS,
     COOKIES,
     PATHS,
     HEADERS,

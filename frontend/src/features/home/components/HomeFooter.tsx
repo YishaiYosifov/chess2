@@ -45,14 +45,19 @@ const HomeFooter = () => {
                         <li>
                             <Link href={constants.PATHS.GUIDE}>Guide</Link>
                         </li>
+                        <li>
+                            <Link href={constants.PATHS.GITHUB}>
+                                Source Code
+                            </Link>
+                        </li>
                     </ul>
                 </div>
 
                 <div className="flex flex-col items-center gap-3 md:items-end">
                     <h2 className="text-2xl font-bold">Follow Us</h2>
                     <div className="text-text/70 flex gap-3">
-                        <Link href={constants.SOCIALS.DISCORD}>Discord</Link>
-                        <Link href={constants.SOCIALS.YOUTUBE}>YouTube</Link>
+                        <Link href={constants.PATHS.DISCORD}>Discord</Link>
+                        <Link href={constants.PATHS.YOUTUBE}>YouTube</Link>
                     </div>
                 </div>
             </div>

@@ -45,14 +45,16 @@ describe("HomeFooter", () => {
             "Donate",
             "Daily Quests",
             "Guide",
+            "Source Code",
         ]);
 
-        const [play, donate, quests, guide] = links;
+        const [play, donate, quests, guide, sourceCode] = links;
 
         expect(play).toHaveAttribute("href", constants.PATHS.PLAY);
         expect(donate).toHaveAttribute("href", constants.PATHS.DONATE);
         expect(quests).toHaveAttribute("href", constants.PATHS.QUESTS);
         expect(guide).toHaveAttribute("href", constants.PATHS.GUIDE);
+        expect(sourceCode).toHaveAttribute("href", constants.PATHS.GITHUB);
     });
 
     it("should render the Follow Us section with social links", () => {
@@ -74,7 +76,7 @@ describe("HomeFooter", () => {
 
         const [discord, youtube] = socialLinks;
 
-        expect(discord).toHaveAttribute("href", constants.SOCIALS.DISCORD);
-        expect(youtube).toHaveAttribute("href", constants.SOCIALS.YOUTUBE);
+        expect(discord).toHaveAttribute("href", constants.PATHS.DISCORD);
+        expect(youtube).toHaveAttribute("href", constants.PATHS.YOUTUBE);
     });
 });
