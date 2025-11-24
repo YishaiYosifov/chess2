@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 import "../globals.css";
 
-import ChallengeNotificationRenderer from "@/features/challenges/components/ChallengeNotification/ChallengeNotificationRenderer";
+import ChallengeNotificationRenderer from "@/features/challenges/components/challengeNotification/ChallengeNotificationRenderer";
 import SessionProvider from "@/features/auth/contexts/sessionContext";
 import LobbyHandler from "@/features/lobby/components/LobbyHandler";
 import Navbar from "@/features/navbar/components/Navbar";
