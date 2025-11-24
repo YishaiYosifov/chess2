@@ -1,20 +1,20 @@
 import { RetryContext } from "@microsoft/signalr";
-import RefreshRetryPolicy from "../refreshRetryPolicy";
+import EnsureAuthRetryPolicy from "../ensureAuthRetryPolicy";
 import { ErrorCode } from "@/lib/apiClient";
 import ensureAuth from "@/features/auth/lib/ensureAuth";
 
 vi.mock("@/features/auth/lib/ensureAuth");
 
-describe("RefreshRetryPolicy", () => {
+describe("EnsureAuthRetryPolicy", () => {
     const retryIntervals = [100, 200, 300];
     const postRetryInterval = 500;
 
     const ensureAuthMock = vi.mocked(ensureAuth);
 
-    let policy: RefreshRetryPolicy;
+    let policy: EnsureAuthRetryPolicy;
 
     beforeEach(() => {
-        policy = new RefreshRetryPolicy(retryIntervals, postRetryInterval);
+        policy = new EnsureAuthRetryPolicy(retryIntervals, postRetryInterval);
     });
 
     it("should return the correct retry interval based on previousRetryCount", () => {
@@ -46,7 +46,7 @@ describe("RefreshRetryPolicy", () => {
         expect(ensureAuthMock).toHaveBeenCalledTimes(1);
     });
 
-    it("should not call handleRefresh for other errors", () => {
+    it("should not call ensureAuth for other errors", () => {
         const ctx: Partial<RetryContext> = {
             previousRetryCount: 0,
             retryReason: new Error(),
@@ -56,7 +56,7 @@ describe("RefreshRetryPolicy", () => {
     });
 
     it("should return null if postRetryInterval is null and retries exhausted", () => {
-        policy = new RefreshRetryPolicy(retryIntervals, null);
+        policy = new EnsureAuthRetryPolicy(retryIntervals, null);
         const ctx: Partial<RetryContext> = {
             previousRetryCount: 10,
             retryReason: new Error(),

@@ -9,7 +9,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 import { enableMapSet, WritableDraft } from "immer";
-import RefreshRetryPolicy from "../lib/refreshRetryPolicy";
+import EnsureAuthRetryPolicy from "../lib/ensureAuthRetryPolicy";
 import ensureAuth from "@/features/auth/lib/ensureAuth";
 import { ErrorCode } from "@/lib/apiClient";
 
@@ -87,7 +87,7 @@ function createHubConnection(url: string): HubConnection {
     const hubConnection = new HubConnectionBuilder()
         .withUrl(url)
         .withAutomaticReconnect(
-            new RefreshRetryPolicy([1000, 2000, 5000], 20000),
+            new EnsureAuthRetryPolicy([1000, 2000, 5000], 20000),
         )
         .configureLogging(LogLevel.Information)
         .build();

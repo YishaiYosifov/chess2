@@ -14,7 +14,7 @@ import {
     LogLevel,
 } from "@microsoft/signalr";
 import flushMicrotasks from "@/lib/testUtils/flushMicrotasks";
-import RefreshRetryPolicy from "../../lib/refreshRetryPolicy";
+import EnsureAuthRetryPolicy from "../../lib/ensureAuthRetryPolicy";
 import ensureAuth from "@/features/auth/lib/ensureAuth";
 import { ErrorCode } from "@/lib/apiClient";
 
@@ -54,7 +54,7 @@ describe("signalRStore", () => {
             expect(
                 hubBuilderInstanceMock.withAutomaticReconnect,
             ).toHaveBeenCalledExactlyOnceWith(
-                new RefreshRetryPolicy([1000, 2000, 5000], 20000),
+                new EnsureAuthRetryPolicy([1000, 2000, 5000], 20000),
             );
             expect(
                 hubBuilderInstanceMock.configureLogging,
