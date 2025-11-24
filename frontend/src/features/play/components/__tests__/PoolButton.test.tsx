@@ -50,8 +50,7 @@ describe("PoolButton", () => {
         );
 
         expect(screen.getByText("Most Popular")).toBeInTheDocument();
-        const button = screen.getByRole("button");
-        expect(button.className).toMatch(/border-amber-300/);
+        expect(screen.getByRole("button")).toHaveClass("border-accent");
     });
 
     it("should show 'searching...' text and animate ping when isSeeking is true", () => {
