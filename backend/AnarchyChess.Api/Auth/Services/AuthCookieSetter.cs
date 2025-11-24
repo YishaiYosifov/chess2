@@ -8,6 +8,7 @@ public interface IAuthCookieSetter
 {
     void SetAuthCookies(string accessToken, string refreshToken, HttpContext context);
     void RemoveAuthCookies(HttpContext context);
+    void SetGuestCookie(string accessToken, HttpContext context);
 }
 
 public class AuthCookieSetter(
@@ -18,7 +19,7 @@ public class AuthCookieSetter(
 {
     private readonly SameSiteMode _sameSiteMode = hostEnvironment.IsDevelopment()
         ? SameSiteMode.None
-        : SameSiteMode.Strict;
+        : SameSiteMode.Lax;
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
 
@@ -55,11 +56,14 @@ public class AuthCookieSetter(
         DeleteCookie(_jwtSettings.IsLoggedInCookieName, context);
     }
 
+    public void SetGuestCookie(string accessToken, HttpContext context) =>
+        SetCookie(context, _jwtSettings.AccessTokenCookieName, accessToken);
+
     private void SetCookie(
         HttpContext context,
         string name,
         string value,
-        TimeSpan maxAge,
+        TimeSpan? maxAge = null,
         bool httpOnly = true,
         string? path = "/"
     )

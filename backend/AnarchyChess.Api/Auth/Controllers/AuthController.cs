@@ -53,7 +53,7 @@ public class AuthController(
     public ActionResult CreateGuestUser()
     {
         var guestToken = _guestService.CreateGuestUser();
-        _guestService.SetGuestCookie(guestToken, HttpContext);
+        _authCookieSetter.SetGuestCookie(guestToken, HttpContext);
         return NoContent();
     }
 

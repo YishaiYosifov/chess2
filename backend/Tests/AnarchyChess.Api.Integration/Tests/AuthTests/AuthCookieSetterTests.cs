@@ -24,7 +24,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
     private readonly LinkGenerator _linkGenerator;
 
     private SameSiteMode SameSiteMode =>
-        _webHostEnvironmentMock.IsDevelopment() ? SameSiteMode.None : SameSiteMode.Strict;
+        _webHostEnvironmentMock.IsDevelopment() ? SameSiteMode.None : SameSiteMode.Lax;
 
     private const string _refreshPath = "/api/auth/refresh";
 
@@ -104,6 +104,30 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         AssertCookiesExists(cookies, expectedIsAuthedTokenCookie);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void SetGuestCookie_sets_access_token_cookie(bool isDevelopment)
+    {
+        var authCookieSetter = CreateAuthCookieSetter(isDevelopment);
+        const string accessTokenValue = "guest-access-token";
+
+        var expectedCookie = CreateExpectedCookie(
+            _jwtSettings.AccessTokenCookieName,
+            accessTokenValue
+        );
+
+        var context = new DefaultHttpContext();
+        authCookieSetter.SetGuestCookie(accessTokenValue, context);
+
+        var cookies = SetCookieHeaderValue.ParseList(context.Response.Headers.SetCookie);
+        cookies
+            .Should()
+            .ContainSingle(x => x.Name == _jwtSettings.AccessTokenCookieName)
+            .Which.Should()
+            .BeEquivalentTo(expectedCookie);
+    }
+
     private AuthCookieSetter CreateAuthCookieSetter(bool isDevelopment)
     {
         _webHostEnvironmentMock.EnvironmentName.Returns(
@@ -115,7 +139,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
     private SetCookieHeaderValue CreateExpectedCookie(
         string name,
         string value,
-        TimeSpan maxAge,
+        TimeSpan? maxAge = null,
         bool httpOnly = true,
         string path = "/"
     )

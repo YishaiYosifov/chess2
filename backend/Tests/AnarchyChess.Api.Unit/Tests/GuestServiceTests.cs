@@ -1,35 +1,19 @@
-﻿using AutoFixture;
+﻿using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services;
-using AnarchyChess.Api.Shared.Models;
-using AnarchyChess.Api.TestInfrastructure.NSubtituteExtenstion;
 using FluentAssertions;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NSubstitute;
-using System.Security.Claims;
 
 namespace AnarchyChess.Api.Unit.Tests;
 
 public class GuestServiceTests : BaseUnitTest
 {
-    private readonly IWebHostEnvironment _hostEnvironmentMock =
-        Substitute.For<IWebHostEnvironment>();
     private readonly ITokenProvider _tokenProviderMock = Substitute.For<ITokenProvider>();
-
-    private readonly IOptions<AppSettings> _settings;
     private readonly GuestService _guestService;
 
     public GuestServiceTests()
     {
-        _settings = Fixture.Create<IOptions<AppSettings>>();
-        _guestService = new(
-            Substitute.For<ILogger<GuestService>>(),
-            _tokenProviderMock,
-            _settings,
-            _hostEnvironmentMock
-        );
+        _guestService = new(Substitute.For<ILogger<GuestService>>(), _tokenProviderMock);
     }
 
     [Fact]
@@ -61,36 +45,6 @@ public class GuestServiceTests : BaseUnitTest
 
         guestId1.ToString()?.Length.Should().BeGreaterThan(36);
         guestId2?.ToString()?.Length.Should().BeGreaterThan(36);
-    }
-
-    [Theory]
-    [InlineData("Development")]
-    [InlineData("Production")]
-    public void SetGuestCookie_sets_the_cookie_with_the_correct_parameters(string environment)
-    {
-        var guestToken = "token";
-        var accessCookieName = "test-cookie";
-        var httpContext = Fixture.Create<HttpContext>();
-        _hostEnvironmentMock.EnvironmentName.Returns(environment);
-        _settings.Value.Jwt.AccessTokenCookieName = accessCookieName;
-
-        _guestService.SetGuestCookie(guestToken, httpContext);
-
-        var cookieOptions = new CookieOptions()
-        {
-            HttpOnly = true,
-            IsEssential = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
-        };
-
-        httpContext
-            .Response.Cookies.Received(1)
-            .Append(
-                accessCookieName,
-                guestToken,
-                ArgEx.FluentAssert<CookieOptions>(x => x.Should().BeEquivalentTo(cookieOptions))
-            );
     }
 
     [Theory]

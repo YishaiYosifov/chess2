@@ -1,29 +1,20 @@
-﻿using AnarchyChess.Api.Profile.Models;
-using AnarchyChess.Api.Shared.Models;
-using Microsoft.Extensions.Options;
+﻿using System.Security.Claims;
+using AnarchyChess.Api.Profile.Models;
 using OpenIddict.Abstractions;
-using System.Security.Claims;
 
 namespace AnarchyChess.Api.Auth.Services;
 
 public interface IGuestService
 {
     string CreateGuestUser();
-    void SetGuestCookie(string guestToken, HttpContext context);
 
     bool IsGuest(ClaimsPrincipal? userClaims);
 }
 
-public class GuestService(
-    ILogger<GuestService> logger,
-    ITokenProvider tokenProvider,
-    IOptions<AppSettings> settings,
-    IWebHostEnvironment hostEnvironment
-) : IGuestService
+public class GuestService(ILogger<GuestService> logger, ITokenProvider tokenProvider)
+    : IGuestService
 {
-    private readonly IWebHostEnvironment _hostEnvironment = hostEnvironment;
     private readonly ITokenProvider _tokenProvider = tokenProvider;
-    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
     private readonly ILogger<GuestService> _logger = logger;
 
     /// <summary>
@@ -36,22 +27,6 @@ public class GuestService(
         var accessToken = _tokenProvider.GenerateGuestToken(id);
         _logger.LogInformation("Created guest user with id {Id}", id);
         return accessToken;
-    }
-
-    public void SetGuestCookie(string guestToken, HttpContext context)
-    {
-        // session cookie
-        context.Response.Cookies.Append(
-            _jwtSettings.AccessTokenCookieName,
-            guestToken,
-            new()
-            {
-                HttpOnly = true,
-                IsEssential = true,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-            }
-        );
     }
 
     /// <summary>

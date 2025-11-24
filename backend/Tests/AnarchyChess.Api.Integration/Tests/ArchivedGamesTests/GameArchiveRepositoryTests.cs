@@ -94,8 +94,12 @@ public class GameArchiveRepositoryTests : BaseIntegrationTest
     {
         var userId = "user1";
 
-        var archive1 = new GameArchiveFaker(whiteUserId: userId).Generate();
-        var archive2 = new GameArchiveFaker(blackUserId: userId).Generate();
+        var archive1 = new GameArchiveFaker(whiteUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate();
+        var archive2 = new GameArchiveFaker(blackUserId: userId)
+            .RuleFor(x => x.Result, f => f.PickRandomWithout(GameResult.Aborted))
+            .Generate();
 
         var otherArchive = new GameArchiveFaker().Generate();
         var abortedArchive = new GameArchiveFaker(whiteUserId: userId)
