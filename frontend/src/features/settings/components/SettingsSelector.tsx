@@ -17,7 +17,10 @@ const SettingsSelector = () => {
                 isBaseSettings ? "flex" : "hidden md:flex",
             )}
         >
-            <SettingButton path={constants.PATHS.SETTINGS_PROFILE}>
+            <SettingButton
+                path={constants.PATHS.SETTINGS_PROFILE}
+                className="rounded-t-md"
+            >
                 <UserIcon className="h-8 w-8" />
                 Profile
             </SettingButton>
@@ -32,16 +35,21 @@ export default SettingsSelector;
 
 const SettingButton = ({
     path,
+    className,
     children,
 }: {
     path: string;
+    className?: string;
     children: React.ReactNode;
 }) => {
     const router = useRouter();
 
     return (
         <button
-            className="hover:bg-primary flex cursor-pointer items-center gap-2 p-5 text-lg transition"
+            className={clsx(
+                "hover:bg-primary flex cursor-pointer items-center gap-2 p-5 text-lg transition",
+                className,
+            )}
             onClick={() => router.push(path)}
         >
             {children}
