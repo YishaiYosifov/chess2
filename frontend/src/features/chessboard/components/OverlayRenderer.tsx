@@ -7,7 +7,7 @@ import { OverlayItem } from "../stores/overlaySlice";
 import { pointEquals } from "@/features/point/pointUtils";
 import useBoardInteraction from "../hooks/useBoardInteraction";
 
-const COLOR = "#5e3b59";
+const COLOR = "#ff9e44";
 const OPACITY = 0.7;
 const STROKE_DRAWING_REDUCTION = 20;
 
