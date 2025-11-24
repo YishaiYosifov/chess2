@@ -53,7 +53,7 @@ const NewPiecesGuide = ({ id }: { id?: string }) => {
                 title="Traitor Rook (Neutral Piece)"
                 points={[
                     "Moves like a regular rook.",
-                    "Control by whichever side has more ADJACENT pieces (NOT overall pieces on the board, just adjacent ones).",
+                    "Controlled by whichever side has more ADJACENT pieces (NOT overall pieces on the board, just adjacent ones).",
                     "If tied, both sides can move it but neither can capture with it.",
                 ]}
                 images={[traitorrook1, traitorrook2, traitorrook3]}
