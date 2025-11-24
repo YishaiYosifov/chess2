@@ -99,7 +99,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         await matchmakingGrain.AddSeekAsync(seeker, this.AsSafeReference<ISeekObserver>(), token);
 
         _state.State.ConnectionMap.AddConnectionToPool(connectionId, pool);
-        await _state.WriteStateAsync(token);
+        await WriteStateAsync(token);
 
         return Result.Created;
     }
@@ -111,7 +111,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     {
         await RemoveConnectionFromPoolsAsync(connectionId, token);
         _connectionsRecentlyMatched.Remove(connectionId);
-        await _state.WriteStateAsync(token);
+        await WriteStateAsync(token);
     }
 
     public Task CancelSeekAsync(PoolKey pool, CancellationToken token = default) =>
@@ -139,7 +139,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         var gameToken = startGameResult.Value;
 
         await OnGameFoundAsync(gameToken, [connectionId], pool, token);
-        await _state.WriteStateAsync(token);
+        await WriteStateAsync(token);
         return Result.Created;
     }
 
@@ -151,7 +151,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     {
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
         await OnGameFoundAsync(gameToken, poolConnectionIds, pool, token);
-        await _state.WriteStateAsync(token);
+        await WriteStateAsync(token);
     }
 
     public async Task SeekRemovedAsync(PoolKey pool, CancellationToken token = default)
@@ -159,7 +159,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         _poolConnectionReservations.Remove(pool);
 
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
-        await _state.WriteStateAsync(token);
+        await WriteStateAsync(token);
         await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
     }
 
@@ -205,7 +205,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     public async Task OnNextAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
     {
         _state.State.ActiveGameTokens.Remove(@event.GameToken);
-        await _state.WriteStateAsync();
+        await WriteStateAsync();
     }
 
     public Task OnErrorAsync(Exception ex)
@@ -262,4 +262,12 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     private bool HasReachedGameLimit() =>
         _state.State.ActiveGameTokens.Count + _poolConnectionReservations.Count
         >= _settings.MaxActiveGames;
+
+    private async Task WriteStateAsync(CancellationToken token = default)
+    {
+        if (_state.State.ConnectionMap.IsEmpty() && _state.State.ActiveGameTokens.Count == 0)
+            await _state.ClearStateAsync(token);
+        else
+            await _state.WriteStateAsync(token);
+    }
 }

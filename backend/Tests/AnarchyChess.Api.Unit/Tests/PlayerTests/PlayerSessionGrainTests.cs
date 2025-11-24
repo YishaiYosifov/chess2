@@ -78,6 +78,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         _state.ConnectionMap.PoolConnections(pool).Should().BeEquivalentTo([(ConnectionId)"conn1"]);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Clears.Should().Be(0);
     }
 
     [Fact]
@@ -92,6 +93,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         await _casualPoolGrainMock.Received(2).AddSeekAsync(seeker, grain, CT);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Clears.Should().Be(0);
         _state
             .ConnectionMap.PoolConnections(pool)
             .Should()
@@ -142,6 +144,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn1", seeker, poolToRemove, CT);
         await grain.CreateSeekAsync("conn2", seeker, poolStillActive, CT);
         await grain.CreateSeekAsync("conn3", seeker, poolToRemove, CT); // keeps poolToRemove active
+        _stateStats.ResetCounts();
 
         await grain.CleanupConnectionAsync("conn1", CT);
 
@@ -156,6 +159,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
             .Should()
             .BeEquivalentTo([(ConnectionId)"conn3"]);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Clears.Should().Be(0);
     }
 
     [Fact]
@@ -168,13 +172,15 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
         await grain.CreateSeekAsync("conn1", seeker, pool1, CT);
         await grain.CreateSeekAsync("conn1", seeker, pool2, CT);
+        _stateStats.ResetCounts();
 
         await grain.CleanupConnectionAsync("conn1", CT);
 
         await _casualPoolGrainMock.Received(1).TryCancelSeekAsync(_userId, CT);
         await _ratedPoolGrainMock.Received(1).TryCancelSeekAsync(_userId, CT);
         _state.ConnectionMap.ActivePools.Should().BeEmpty();
-        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Writes.Should().Be(0);
+        _stateStats.Clears.Should().Be(1);
     }
 
     [Fact]
@@ -251,6 +257,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         _state.ConnectionMap.ActivePools.Should().BeEquivalentTo([anoterPool]);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Clears.Should().Be(0);
     }
 
     [Fact]
@@ -262,6 +269,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
         await grain.CreateSeekAsync("conn2", seeker, pool, CT);
+        _stateStats.ResetCounts();
 
         await grain.SeekRemovedAsync(pool, CT);
 
@@ -274,7 +282,8 @@ public class PlayerSessionGrainTests : BaseGrainTest
             );
 
         _state.ConnectionMap.ActivePools.Should().BeEmpty();
-        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Writes.Should().Be(0);
+        _stateStats.Clears.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Fact]
@@ -380,6 +389,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         _state.ActiveGameTokens.Should().BeEquivalentTo([gameToken]);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+        _stateStats.Clears.Should().Be(0);
     }
 
     [Fact]
@@ -460,6 +470,8 @@ public class PlayerSessionGrainTests : BaseGrainTest
         );
 
         _state.ActiveGameTokens.Should().NotContain("game1");
+
+        _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
     }
 
     private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)

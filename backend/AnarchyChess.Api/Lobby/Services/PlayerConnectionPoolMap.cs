@@ -18,6 +18,8 @@ public class PlayerConnectionPoolMap
     public HashSet<ConnectionId> PoolConnections(PoolKey poolKey) =>
         _poolToConnections.GetValueOrDefault(poolKey, []);
 
+    public bool IsEmpty() => _connectionToPools.Count == 0 && _poolToConnections.Count == 0;
+
     public void AddConnectionToPool(ConnectionId connectionId, PoolKey poolKey)
     {
         if (_connectionToPools.TryGetValue(connectionId, out var pools))

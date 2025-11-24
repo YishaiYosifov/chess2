@@ -11,6 +11,21 @@ public class PlayerConnectionPoolMapTests
     private readonly PlayerConnectionPoolMap _connMap = new();
 
     [Fact]
+    public void IsEmpty_returns_whether_conections_or_pool_exist()
+    {
+        ConnectionId conn = new("c1");
+        PoolKey pool = new(PoolType.Rated, new TimeControlSettings(300, 5));
+
+        _connMap.IsEmpty().Should().BeTrue();
+
+        _connMap.AddConnectionToPool(conn, pool);
+        _connMap.IsEmpty().Should().BeFalse();
+
+        _connMap.RemoveConnection(conn);
+        _connMap.IsEmpty().Should().BeTrue();
+    }
+
+    [Fact]
     public void AddConnectionToPool_adds_connection_and_pool()
     {
         ConnectionId conn = new("conn1");
