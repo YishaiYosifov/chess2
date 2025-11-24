@@ -202,10 +202,13 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
     )
     {
         if (_state.State.Request is not null)
+        {
             await _challengeNotifier.NotifyChallengeCancelled(
                 cancelledBy: cancelledBy,
+                recipientId: _state.State.Request.Recipient?.UserId,
                 _challengeToken
             );
+        }
 
         await TearDownChallengeAsync(token);
     }

@@ -64,7 +64,7 @@ public class ChallengeNotifierTests
     }
 
     [Fact]
-    public async Task NotifyChallengeCancelledAsync_notifies_the_group()
+    public async Task NotifyChallengeCancelledAsync_notifies_the_group_when_recipient_is_null()
     {
         ChallengeToken challengeToken = "challenge-123";
         UserId? cancelledBy = "cancelled by";
@@ -72,9 +72,25 @@ public class ChallengeNotifierTests
         var groupProxyMock = Substitute.For<IChallengeHubClient>();
         _clientsMock.Group(challengeToken).Returns(groupProxyMock);
 
-        await _notifier.NotifyChallengeCancelled(cancelledBy, challengeToken);
+        await _notifier.NotifyChallengeCancelled(cancelledBy, null, challengeToken);
 
         await groupProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeToken);
+        _clientsMock.DidNotReceive().User(Arg.Any<string>());
+    }
+
+    [Fact]
+    public async Task NotifyChallengeCancelledAsync_notifies_group_and_recipient_when_recipient_is_not_null()
+    {
+        ChallengeToken challengeToken = "challenge-456";
+        UserId? cancelledBy = "cancelled-by";
+
+        var groupProxyMock = Substitute.For<IChallengeHubClient>();
+        _clientsMock.Group(challengeToken).Returns(groupProxyMock);
+
+        await _notifier.NotifyChallengeCancelled(cancelledBy, _recipientId, challengeToken);
+
+        await groupProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeToken);
+        await _recipientProxyMock.Received(1).ChallengeCancelledAsync(cancelledBy, challengeToken);
     }
 
     [Fact]

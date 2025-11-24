@@ -240,7 +240,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy, _challengeToken);
+            .NotifyChallengeCancelled(cancelledBy, _recipientId, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 
@@ -326,7 +326,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _challengeToken);
+            .NotifyChallengeCancelled(cancelledBy: null, _recipientId, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 
@@ -340,7 +340,7 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
         await _challengeNotifierMock
             .Received(1)
-            .NotifyChallengeCancelled(cancelledBy: null, _challengeToken);
+            .NotifyChallengeCancelled(cancelledBy: null, recipientId: null, _challengeToken);
         await AssertToreDownAsync(grain);
     }
 

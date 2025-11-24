@@ -10,7 +10,11 @@ namespace AnarchyChess.Api.Challenges.Services;
 public interface IChallengeNotifier
 {
     Task NotifyChallengeAccepted(GameToken gameToken, ChallengeToken challengeToken);
-    Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeToken challengeToken);
+    Task NotifyChallengeCancelled(
+        UserId? cancelledBy,
+        UserId? recipientId,
+        ChallengeToken challengeToken
+    );
     Task NotifyChallengeReceived(ConnectionId recipientConnectionId, ChallengeRequest challenge);
     Task NotifyChallengeReceived(UserId recipientId, ChallengeRequest challenge);
     Task SubscribeToChallengeAsync(ConnectionId connectionId, ChallengeToken challengeToken);
@@ -29,8 +33,23 @@ public class ChallengeNotifier(IHubContext<ChallengeHub, IChallengeHubClient> hu
         ChallengeRequest challenge
     ) => _hub.Clients.Client(recipientConnectionId).ChallengeReceivedAsync(challenge);
 
-    public Task NotifyChallengeCancelled(UserId? cancelledBy, ChallengeToken challengeToken) =>
-        _hub.Clients.Group(challengeToken).ChallengeCancelledAsync(cancelledBy, challengeToken);
+    public async Task NotifyChallengeCancelled(
+        UserId? cancelledBy,
+        UserId? recipientId,
+        ChallengeToken challengeToken
+    )
+    {
+        await _hub
+            .Clients.Group(challengeToken)
+            .ChallengeCancelledAsync(cancelledBy, challengeToken);
+
+        if (recipientId is not null)
+        {
+            await _hub
+                .Clients.User(recipientId)
+                .ChallengeCancelledAsync(cancelledBy, challengeToken);
+        }
+    }
 
     public Task NotifyChallengeAccepted(GameToken gameToken, ChallengeToken challengeToken) =>
         _hub.Clients.Group(challengeToken).ChallengeAcceptedAsync(gameToken, challengeToken);
