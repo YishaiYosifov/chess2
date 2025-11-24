@@ -52,7 +52,7 @@ const LiveChessboard = ({
     );
 
     useEffect(() => {
-        if (gameState.moveHistory.length === 0) {
+        if (gameState.moveHistory.length === 0 && !gameState.resultData) {
             AudioPlayer.playAudio(AudioType.GAME_START);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps -- only play sound once
