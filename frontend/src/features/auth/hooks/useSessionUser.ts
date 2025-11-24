@@ -10,9 +10,7 @@ import { isAuthed } from "../lib/userGuard";
 export function useSessionStore<T>(selector: (store: SessionStore) => T): T {
     const sessionStoreContext = useContext(SessionContext);
     if (!sessionStoreContext)
-        throw new Error(
-            "useSessionStore must be use within AuthContextProvider",
-        );
+        throw new Error("useSessionStore must be use within SessionProvider");
 
     return useStore(sessionStoreContext, useShallow(selector));
 }
