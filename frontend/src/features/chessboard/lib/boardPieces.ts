@@ -90,7 +90,7 @@ export default class BoardPieces {
             movedPieceIds.add(spawn.id);
         }
 
-        if (move.promotesTo)
+        if (move.promotesTo !== null)
             this.getByPosition(move.to)!.type = move.promotesTo;
 
         return {

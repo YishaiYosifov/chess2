@@ -102,13 +102,13 @@ describe("BoardPieces", () => {
             const move = createFakeMove({
                 from: movingPiece.position,
                 to: logicalPoint({ x: 0, y: 7 }),
-                promotesTo: PieceType.QUEEN,
+                promotesTo: PieceType.KING,
             });
 
             const result = pieces.playMove(move);
 
             expect(pieces.getById(movingPiece.id)?.type).toEqual(
-                PieceType.QUEEN,
+                PieceType.KING,
             );
             expect(result.movedPieceIds).toEqual([movingPiece.id]);
             expect(result.removedPieceIds).toHaveLength(0);
