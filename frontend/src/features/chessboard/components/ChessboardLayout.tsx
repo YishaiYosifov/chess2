@@ -114,21 +114,30 @@ const ChessboardLayout = ({
 
     return (
         <div
-            data-testid="chessboard"
             className={twMerge(
-                `grid-template-rows-10 relative grid cursor-pointer touch-none grid-cols-10
-                rounded-md bg-[url(/assets/board.svg)] bg-[length:100%] bg-no-repeat select-none`,
+                "relative cursor-pointer touch-none select-none",
                 className,
             )}
-            style={{
-                width: `${boardSize}px`,
-                height: `${boardSize}px`,
-            }}
+            style={{ width: `${boardSize}px`, height: `${boardSize}px` }}
             ref={ref}
             onPointerDown={onPointerDown}
             onPointerUp={onPointerUp}
             onContextMenu={(e) => e.preventDefault()}
         >
+            <svg
+                viewBox="0 0 10 10"
+                preserveAspectRatio="none"
+                className="absolute inset-0 h-full w-full rounded-md"
+            >
+                <image
+                    href="/assets/board.svg"
+                    width="10"
+                    height="10"
+                    preserveAspectRatio="none"
+                />
+            </svg>
+
+            <LastMoveHighlight />
             <OverlayRenderer />
             <PieceRenderer />
             <Coords />
