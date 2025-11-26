@@ -49,7 +49,7 @@ export default function useLiveChessEvents(
                 receiveMove,
                 resetLegalMovesForOpponentTurn,
             } = liveChessStore.getState();
-            const { applyMoveWithIntermediates, disableMovement } =
+            const { applyMoveAnimated, disableMovement } =
                 chessboardStore.getState();
 
             // we missed a move... we need to refetch the state
@@ -66,7 +66,7 @@ export default function useLiveChessEvents(
             const decodedMove = decodePath(move.path, boardDimensions.width);
             if (!isPendingMoveAck) {
                 await jumpForwards();
-                await applyMoveWithIntermediates(decodedMove);
+                await applyMoveAnimated(decodedMove);
             }
 
             const pieces = chessboardStore.getState().pieces;

@@ -1,6 +1,6 @@
 import { LogicalPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
-import { BoardState, PieceID } from "../lib/types";
+import { BoardState, MoveBounds, PieceID } from "../lib/types";
 import { Move } from "../lib/types";
 import type { ChessboardStore } from "./chessboardStore";
 import { StateCreator } from "zustand";
@@ -34,9 +34,9 @@ export interface PiecesSlice {
         isDrag: boolean;
         isDoubleClick: boolean;
     }): Promise<{ success: boolean; needsDoubleClick?: boolean }>;
+    applyMoveAnimated(move: Move): Promise<void>;
+    applyMoveImmediate(move: Move): Promise<void>;
 
-    applyMove(move: Move): Promise<void>;
-    applyMoveWithIntermediates(move: Move): Promise<void>;
     goToPosition(
         boardState: BoardState,
         options?: { animateIntermediates?: boolean },
@@ -55,9 +55,10 @@ export function createPiecesSlice(
 > {
     return (set, get) => {
         async function applyMoveTurn(move: Move): Promise<void> {
-            const { applyMove, disableMovement, onPieceMovement } = get();
+            const { applyMoveImmediate, disableMovement, onPieceMovement } =
+                get();
 
-            const animationPromise = applyMove(move);
+            const animationPromise = applyMoveImmediate(move);
             disableMovement();
             await onPieceMovement?.(move);
             await animationPromise;
@@ -84,6 +85,21 @@ export function createPiecesSlice(
 
             const move = await getLegalMove(dest, selectedPieceId, pieces);
             return move;
+        }
+
+        function findMovedPiecesBetween(
+            oldPieces: BoardPieces,
+            newPieces: BoardPieces,
+        ): PieceID[] {
+            const movedPieceIds: PieceID[] = [];
+            for (const newPiece of oldPieces) {
+                const piece = newPieces.getById(newPiece.id);
+                if (!piece) continue;
+                if (!pointEquals(piece.position, newPiece.position))
+                    movedPieceIds.push(newPiece.id);
+            }
+
+            return movedPieceIds;
         }
 
         return {
@@ -120,7 +136,17 @@ export function createPiecesSlice(
                 });
             },
 
-            async applyMoveWithIntermediates(move) {
+            async applyMoveImmediate(move: Move): Promise<void> {
+                const { playAnimation, pieces } = get();
+                const animation = simulateMove(pieces, move);
+
+                set((state) => {
+                    state.pieces = animation.newPieces;
+                });
+                await playAnimation(animation);
+            },
+
+            async applyMoveAnimated(move: Move): Promise<void> {
                 const { playAnimationBatch, pieces } = get();
 
                 const positions = simulateMoveWithIntermediates(pieces, move);
@@ -131,16 +157,6 @@ export function createPiecesSlice(
                     state.pieces = lastPosition.newPieces;
                 });
                 await playAnimationBatch(positions);
-            },
-
-            async applyMove(move) {
-                const { playAnimation, pieces } = get();
-                const animation = simulateMove(pieces, move);
-
-                set((state) => {
-                    state.pieces = animation.newPieces;
-                });
-                await playAnimation(animation);
             },
 
             async handleMousePieceDrop({ mousePoint, isDrag, isDoubleClick }) {

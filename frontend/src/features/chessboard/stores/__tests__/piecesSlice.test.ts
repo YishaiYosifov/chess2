@@ -127,7 +127,7 @@ describe("PiecesSlice", () => {
         });
     });
 
-    describe("applyMoveWithIntermediates", () => {
+    describe("applyMoveAnimated", () => {
         it("should apply all intermediate steps and final move", async () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),
@@ -145,7 +145,7 @@ describe("PiecesSlice", () => {
                 intermediates,
             });
 
-            store.getState().applyMoveWithIntermediates(move);
+            store.getState().applyMoveAnimated(move);
 
             // final position should be set first, non animated
             const expectedPieces = new BoardPieces(pieces);
@@ -168,7 +168,7 @@ describe("PiecesSlice", () => {
         });
     });
 
-    describe("applyMove", () => {
+    describe("applyMoveImmediate", () => {
         it("should simulate the move and animate it", () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 1, y: 1 }),
@@ -183,7 +183,7 @@ describe("PiecesSlice", () => {
                 to: logicalPoint({ x: 5, y: 5 }),
             });
 
-            store.getState().applyMove(move);
+            store.getState().applyMoveImmediate(move);
 
             expectPieces({ piece, position: move.to });
             expect(store.getState().animatingPieceIds).toEqual(

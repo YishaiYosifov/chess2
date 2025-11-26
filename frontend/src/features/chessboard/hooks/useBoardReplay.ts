@@ -35,7 +35,7 @@ export default function useBoardReplay(
                 const move = currentReplay.moves[moveIndex];
                 chessboardStore
                     .getState()
-                    .applyMoveWithIntermediates(expandMinimalMove(move));
+                    .applyMoveAnimated(expandMinimalMove(move));
                 setMoveIndex((idx) => idx + 1);
             }, 1000);
         }
