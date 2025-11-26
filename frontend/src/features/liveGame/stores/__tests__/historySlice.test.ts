@@ -5,6 +5,7 @@ import createLiveChessStore, {
 } from "../liveChessStore";
 import { createFakeLiveChessStoreProps } from "@/lib/testUtils/fakers/liveChessStoreFaker";
 import { createFakePosition } from "@/lib/testUtils/fakers/positionFaker";
+import { createFakeMove } from "@/lib/testUtils/fakers/chessboardFakers";
 
 describe("HistorySlice", () => {
     let store: StoreApi<LiveChessStore>;
@@ -36,36 +37,60 @@ describe("HistorySlice", () => {
             expect(result?.isOneStepForward).toBe(false);
         });
 
-        it("should set moveThatProducedPosition to position.move for the viewed index", () => {
-            const { positionHistory } = store.getState();
+        it("should set moveThatProducedPosition to the move of the viewed position", () => {
+            const positionHistory = [
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+            ];
 
-            const result = store.getState().teleportToMove(0);
+            store.setState({
+                positionHistory,
+                viewingMoveNumber: 0,
+            });
+
+            const result = store.getState().teleportToMove(1);
 
             expect(result?.state.moveThatProducedPosition).toBe(
-                positionHistory[0].move,
+                positionHistory[1].move,
             );
         });
 
-        it("should set moveFromPreviousViewedPosition = position.move when moving one step forward", () => {
-            store.setState({ viewingMoveNumber: 0 });
+        it("should set moveFromPreviousViewedPosition to next position's move when moving backward", () => {
+            const positionHistory = [
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+            ];
 
-            const { positionHistory } = store.getState();
+            store.setState({
+                positionHistory,
+                viewingMoveNumber: 2,
+            });
+
             const result = store.getState().teleportToMove(1);
 
             expect(result?.state.moveFromPreviousViewedPosition).toBe(
-                positionHistory[1].move,
+                positionHistory[2].move,
             );
         });
 
-        it("should set moveFromPreviousViewedPosition = next position's move when moving backward", () => {
-            const { positionHistory } = store.getState();
+        it("should set moveFromPreviousViewedPosition = position.move when jumping forward more than one step", () => {
+            const positionHistory = [
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+                createFakePosition({ move: createFakeMove() }),
+            ];
 
-            store.setState({ viewingMoveNumber: 1 });
+            store.setState({
+                positionHistory,
+                viewingMoveNumber: 0,
+            });
 
-            const result = store.getState().teleportToMove(0);
+            const result = store.getState().teleportToMove(2);
 
             expect(result?.state.moveFromPreviousViewedPosition).toBe(
-                positionHistory[1].move,
+                positionHistory[2].move,
             );
         });
 
