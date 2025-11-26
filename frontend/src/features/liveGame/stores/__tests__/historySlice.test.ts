@@ -33,10 +33,40 @@ describe("HistorySlice", () => {
                 store.getState().positionHistory[0].pieces,
             );
             expect(result?.state.moveOptions.legalMoves.size).toBe(0);
-            expect(result?.state.causedByMove).toBe(
-                store.getState().positionHistory[0].move,
-            );
             expect(result?.isOneStepForward).toBe(false);
+        });
+
+        it("should set moveThatProducedPosition to position.move for the viewed index", () => {
+            const { positionHistory } = store.getState();
+
+            const result = store.getState().teleportToMove(0);
+
+            expect(result?.state.moveThatProducedPosition).toBe(
+                positionHistory[0].move,
+            );
+        });
+
+        it("should set moveFromPreviousViewedPosition = position.move when moving one step forward", () => {
+            store.setState({ viewingMoveNumber: 0 });
+
+            const { positionHistory } = store.getState();
+            const result = store.getState().teleportToMove(1);
+
+            expect(result?.state.moveFromPreviousViewedPosition).toBe(
+                positionHistory[1].move,
+            );
+        });
+
+        it("should set moveFromPreviousViewedPosition = next position's move when moving backward", () => {
+            const { positionHistory } = store.getState();
+
+            store.setState({ viewingMoveNumber: 1 });
+
+            const result = store.getState().teleportToMove(0);
+
+            expect(result?.state.moveFromPreviousViewedPosition).toBe(
+                positionHistory[1].move,
+            );
         });
 
         it("should return latest legal moves when getting latest position", () => {

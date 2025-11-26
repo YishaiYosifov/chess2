@@ -52,9 +52,15 @@ export function createHistorySlice(
                     ? latestMoveOptions
                     : createMoveOptions(),
                 pieces: position.pieces,
-                causedByMove: isOneStepForward
-                    ? position.move
-                    : positionHistory[number + 1]?.move,
+                moveThatProducedPosition: position.move,
+                // the move that should be considered "last" from the perspective of the current viewed position.
+                // if moving forward in history (number > viewingMoveNumber), this is the move that produced the current position (position.move).
+                // if moving backward in history (number < viewingMoveNumber), this is the move in the next position,
+                // because that was the move that brought us to the current position from the previous step.
+                moveFromPreviousViewedPosition:
+                    number > viewingMoveNumber
+                        ? position.move
+                        : positionHistory[number + 1]?.move,
             };
 
             return {
