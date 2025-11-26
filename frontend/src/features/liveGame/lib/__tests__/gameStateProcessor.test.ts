@@ -5,7 +5,10 @@ import { ChessboardProps } from "@/features/chessboard/stores/chessboardStore";
 import { LiveChessStoreProps } from "../../stores/liveChessStore";
 import { LogicalPoint } from "@/features/point/types";
 import { Position } from "../types";
-import { ProcessedMoveOptions } from "@/features/chessboard/lib/types";
+import {
+    MoveBounds,
+    ProcessedMoveOptions,
+} from "@/features/chessboard/lib/types";
 import constants from "@/lib/constants";
 import { simulateMove } from "@/features/chessboard/lib/simulateMove";
 import { logicalPoint } from "@/features/point/pointUtils";
@@ -151,6 +154,12 @@ describe("createStoreProps", () => {
             });
         }
 
+        const lastPosition = positionHistory.at(-1)!;
+        const lastMove: MoveBounds = {
+            from: lastPosition.move!.from,
+            to: lastPosition.move!.to,
+        };
+
         const legalMoves = decodePathIntoMap(
             gameState.moveOptions.legalMoves,
             constants.BOARD_WIDTH,
@@ -186,12 +195,13 @@ describe("createStoreProps", () => {
                 resultData: null,
             },
             board: {
-                pieces: pieces,
+                pieces,
                 moveOptions: latestMoveOptions,
                 boardDimensions: {
                     width: constants.BOARD_WIDTH,
                     height: constants.BOARD_HEIGHT,
                 },
+                lastMove,
                 viewingFrom: GameColor.BLACK,
                 canDrag: true,
                 muteAudio: false,

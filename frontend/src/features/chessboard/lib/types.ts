@@ -38,7 +38,8 @@ export type MinimalMove = Partial<Move> & {
 export interface BoardState {
     pieces: BoardPieces;
     moveOptions: ProcessedMoveOptions;
-    causedByMove?: Move;
+    moveThatProducedPosition?: Move;
+    moveFromPreviousViewedPosition?: Move;
 }
 
 export interface MoveSideEffect {
@@ -53,10 +54,18 @@ export interface IntermediateSquare {
 
 export type PieceID = string;
 
+export interface MoveBounds {
+    from: LogicalPoint;
+    to: LogicalPoint;
+}
+
 export interface AnimationStep {
     newPieces: BoardPieces;
     movedPieceIds: PieceID[];
+
     initialSpawnPositions?: BoardPieces;
+
+    moveBounds?: MoveBounds;
     specialMoveType?: SpecialMoveType | null;
     isCapture?: boolean;
     isPromotion?: boolean;

@@ -41,6 +41,7 @@ export function createStoreProps(
         legalMoves,
         hasForcedMoves: gameState.moveOptions.hasForcedMoves,
     };
+    const lastPosition = positionHistory.at(-1);
 
     const viewerColor = getViewerColor(
         gameState.whitePlayer,
@@ -72,8 +73,12 @@ export function createStoreProps(
         resultData: gameState.resultData ?? null,
     };
     const board: ChessboardProps = {
-        pieces: positionHistory.at(-1)?.pieces ?? new BoardPieces(),
+        pieces: lastPosition?.pieces ?? new BoardPieces(),
         moveOptions: latestMoveOptions,
+        lastMove: lastPosition?.move && {
+            from: lastPosition.move.from,
+            to: lastPosition.move.to,
+        },
 
         boardDimensions: { width: boardWidth, height: boardHeight },
         viewingFrom: viewerColor ?? GameColor.WHITE,

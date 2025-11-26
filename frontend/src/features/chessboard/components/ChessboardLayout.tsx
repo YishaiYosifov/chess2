@@ -115,6 +115,7 @@ const ChessboardLayout = ({
 
     return (
         <div
+            data-testid="chessboard"
             className={twMerge(
                 "relative cursor-pointer touch-none select-none",
                 className,

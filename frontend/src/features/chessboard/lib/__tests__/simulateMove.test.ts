@@ -34,6 +34,7 @@ describe("simulateMove", () => {
         const expectedResult: AnimationStep = {
             newPieces: expectedPieces,
             movedPieceIds: [piece.id],
+            moveBounds: { from: move.from, to: move.to },
             isCapture: false,
             isPromotion: false,
             specialMoveType: null,
