@@ -203,40 +203,57 @@ export function createPiecesSlice(
 
             async goToPosition(boardState, options) {
                 const {
+                    applyMoveAnimated,
                     playAnimation,
-                    applyMoveWithIntermediates,
                     setLegalMoves,
                     pieces,
                 } = get();
+
                 setLegalMoves(boardState.moveOptions);
 
-                if (options?.animateIntermediates && boardState.causedByMove) {
-                    await applyMoveWithIntermediates(boardState.causedByMove);
+                const {
+                    moveFromPreviousViewedPosition,
+                    moveThatProducedPosition,
+                } = boardState;
+
+                if (options?.animateIntermediates && moveThatProducedPosition) {
+                    await applyMoveAnimated(moveThatProducedPosition);
                     return;
                 }
 
-                const movedPieces: PieceID[] = [];
-                for (const newPiece of boardState.pieces) {
-                    const piece = pieces.getById(newPiece.id);
-                    if (!piece) continue;
-                    if (!pointEquals(piece.position, newPiece.position))
-                        movedPieces.push(newPiece.id);
-                }
+                const movedPieceIds = findMovedPiecesBetween(
+                    pieces,
+                    boardState.pieces,
+                );
 
                 set((state) => {
                     state.pieces = boardState.pieces;
                     state.selectedPieceId = null;
                 });
+
+                const moveBounds: MoveBounds | undefined =
+                    moveThatProducedPosition
+                        ? {
+                              from: moveThatProducedPosition.from,
+                              to: moveThatProducedPosition.to,
+                          }
+                        : undefined;
+                const isCapture = moveFromPreviousViewedPosition
+                    ? moveFromPreviousViewedPosition.captures.length > 0
+                    : false;
+                const isPromotion = moveFromPreviousViewedPosition
+                    ? moveFromPreviousViewedPosition.promotesTo !== null
+                    : false;
+
                 await playAnimation({
                     newPieces: boardState.pieces,
-                    movedPieceIds: movedPieces,
-                    isCapture: boardState.causedByMove
-                        ? boardState.causedByMove.captures.length > 0
-                        : false,
-                    specialMoveType: boardState.causedByMove?.specialMoveType,
-                    isPromotion: boardState.causedByMove
-                        ? boardState.causedByMove.promotesTo !== null
-                        : false,
+                    movedPieceIds,
+
+                    moveBounds,
+                    isCapture,
+                    isPromotion,
+                    specialMoveType:
+                        moveFromPreviousViewedPosition?.specialMoveType,
                 });
             },
 

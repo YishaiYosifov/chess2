@@ -435,7 +435,7 @@ describe("PiecesSlice", () => {
     });
 
     describe("goToPosition", () => {
-        it("should call applyMoveWithIntermediates in goToPosition when animateIntermediates=true", async () => {
+        it("should call applyMoveAnimated in goToPosition when animateIntermediates=true", async () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),
             });
@@ -445,24 +445,23 @@ describe("PiecesSlice", () => {
             });
             const legalMoves = createFakeLegalMoveMap();
 
-            const applyMoveWithIntermediatesMock = vi.fn();
+            const applyMoveAnimatedMock = vi.fn();
             store.setState({
-                applyMoveWithIntermediates: applyMoveWithIntermediatesMock,
+                applyMoveAnimated: applyMoveAnimatedMock,
             });
 
             const boardState: BoardState = {
                 pieces: BoardPieces.fromPieces(piece),
                 moveOptions: { legalMoves, hasForcedMoves: false },
-                causedByMove: move,
+                moveThatProducedPosition: move,
+                moveFromPreviousViewedPosition: move,
             };
 
             await store
                 .getState()
                 .goToPosition(boardState, { animateIntermediates: true });
 
-            expect(
-                applyMoveWithIntermediatesMock,
-            ).toHaveBeenCalledExactlyOnceWith(move);
+            expect(applyMoveAnimatedMock).toHaveBeenCalledExactlyOnceWith(move);
             expect(store.getState().moveOptions).toEqual(
                 boardState.moveOptions,
             );
@@ -498,25 +497,25 @@ describe("PiecesSlice", () => {
             });
         });
 
-        it("should set isCapture to true if causedByMove is a capture", async () => {
+        it("should set isCapture to true if moveFromPreviousViewedPosition is a capture", async () => {
             const piece = createFakePiece({
                 position: logicalPoint({ x: 0, y: 0 }),
             });
             const newPos = logicalPoint({ x: 1, y: 1 });
             const playAnimationMock = vi.fn();
+
             store.setState({
                 playAnimation: playAnimationMock,
                 pieces: BoardPieces.fromPieces(piece),
             });
+
             const boardState: BoardState = {
                 pieces: BoardPieces.fromPieces({
                     ...piece,
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                causedByMove: createFakeMove({
-                    from: piece.position,
-                    to: newPos,
+                moveFromPreviousViewedPosition: createFakeMove({
                     captures: [logicalPoint({ x: 1, y: 1 })],
                 }),
             };
@@ -549,9 +548,7 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                causedByMove: createFakeMove({
-                    from: piece.position,
-                    to: newPos,
+                moveFromPreviousViewedPosition: createFakeMove({
                     specialMoveType: SpecialMoveType.KNOOKLEAR_FUSION,
                 }),
             };
@@ -585,9 +582,7 @@ describe("PiecesSlice", () => {
                     position: newPos,
                 }),
                 moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
-                causedByMove: createFakeMove({
-                    from: piece.position,
-                    to: newPos,
+                moveFromPreviousViewedPosition: createFakeMove({
                     promotesTo: PieceType.QUEEN,
                 }),
             };
@@ -599,6 +594,43 @@ describe("PiecesSlice", () => {
                 movedPieceIds: [piece.id],
                 isCapture: false,
                 isPromotion: true,
+                specialMoveType: null,
+            });
+        });
+
+        it("should set moveBounds when moveThatProducedPosition is defined", async () => {
+            const piece = createFakePiece({
+                position: logicalPoint({ x: 0, y: 0 }),
+            });
+            const newPos = logicalPoint({ x: 0, y: 4 });
+            const playAnimationMock = vi.fn();
+
+            store.setState({
+                playAnimation: playAnimationMock,
+                pieces: BoardPieces.fromPieces(piece),
+            });
+
+            const boardState: BoardState = {
+                pieces: BoardPieces.fromPieces({
+                    ...piece,
+                    position: newPos,
+                }),
+                moveOptions: { legalMoves: new Map(), hasForcedMoves: false },
+                moveThatProducedPosition: createFakeMove({
+                    from: piece.position,
+                    to: newPos,
+                }),
+                moveFromPreviousViewedPosition: createFakeMove(),
+            };
+
+            await store.getState().goToPosition(boardState);
+
+            expect(playAnimationMock).toHaveBeenCalledExactlyOnceWith({
+                newPieces: boardState.pieces,
+                movedPieceIds: [piece.id],
+                moveBounds: { from: piece.position, to: newPos },
+                isCapture: false,
+                isPromotion: false,
                 specialMoveType: null,
             });
         });
