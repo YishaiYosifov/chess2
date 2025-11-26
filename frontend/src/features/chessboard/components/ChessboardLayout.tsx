@@ -10,6 +10,7 @@ import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import { twMerge } from "tailwind-merge";
 import OverlayRenderer from "./OverlayRenderer";
 import Coords from "./Coords";
+import LastMoveHighlight from "./LastMoveHighlight";
 
 export interface PaddingOffset {
     width: number;
