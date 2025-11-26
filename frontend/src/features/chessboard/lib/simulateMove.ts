@@ -1,4 +1,4 @@
-import { AnimationStep, MoveAnimation, PieceID } from "./types";
+import { AnimationStep, MoveAnimation, MoveBounds, PieceID } from "./types";
 import BoardPieces from "./boardPieces";
 import { Move } from "./types";
 
@@ -42,16 +42,24 @@ function simulateMoveDetails(
     const { movedPieceIds, removedPieceIds } = newPieces.playMove(move);
 
     const initialSpawnPositions = createInitialSpawns(basePieces, move);
+    const isCapture =
+        removedPieceIds.length > 0 &&
+        move.intermediates.filter((x) => x.isCapture).length <
+            removedPieceIds.length;
+    const moveBounds: MoveBounds = {
+        from: move.from,
+        to: move.to,
+    };
 
     return {
         step: {
             newPieces,
             movedPieceIds: [...movedPieceIds],
+
             initialSpawnPositions,
-            isCapture:
-                removedPieceIds.length > 0 &&
-                move.intermediates.filter((x) => x.isCapture).length <
-                    removedPieceIds.length,
+
+            moveBounds: moveBounds,
+            isCapture,
             isPromotion: move.promotesTo !== null,
             specialMoveType: move.specialMoveType,
         },
