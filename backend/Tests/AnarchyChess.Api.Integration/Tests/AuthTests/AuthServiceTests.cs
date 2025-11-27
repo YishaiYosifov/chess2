@@ -1,4 +1,6 @@
-﻿using AnarchyChess.Api.Auth.Errors;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure;
@@ -8,8 +10,6 @@ using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace AnarchyChess.Api.Integration.Tests.AuthTests;
 
@@ -178,8 +178,10 @@ public class AuthServiceTests : BaseIntegrationTest
         var result = await _authService.GenerateAuthTokensAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        result.Should().NotBeNull();
-        AuthUtils.AuthenticateWithTokens(ApiClient, result.AccessToken, result.RefreshToken);
+        result.IsError.Should().BeFalse();
+        var tokens = result.Value;
+
+        AuthUtils.AuthenticateWithTokens(ApiClient, tokens.AccessToken, tokens.RefreshToken);
         await AuthTestUtils.AssertAuthenticated(ApiClient);
         var refreshResult = await ApiClient.Api.RefreshTokenAsync();
         refreshResult.IsSuccessful.Should().BeTrue();

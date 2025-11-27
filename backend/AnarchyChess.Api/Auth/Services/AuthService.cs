@@ -15,7 +15,10 @@ namespace AnarchyChess.Api.Auth.Services;
 public interface IAuthService
 {
     Task<ErrorOr<AuthedUser>> GetLoggedInUserAsync(ClaimsPrincipal? userClaims);
-    Task<Tokens> GenerateAuthTokensAsync(AuthedUser user, CancellationToken token = default);
+    Task<ErrorOr<Tokens>> GenerateAuthTokensAsync(
+        AuthedUser user,
+        CancellationToken token = default
+    );
     Task<ErrorOr<AuthedUser>> SignupAsync(
         string username,
         string? email = null,
@@ -126,18 +129,20 @@ public class AuthService(
         return dbUser;
     }
 
-    public async Task<Tokens> GenerateAuthTokensAsync(
+    public async Task<ErrorOr<Tokens>> GenerateAuthTokensAsync(
         AuthedUser user,
         CancellationToken token = default
     )
     {
         var refreshTokenRecord = await _refreshTokenService.CreateRefreshTokenAsync(user, token);
 
-        var accessToken = _tokenProvider.GenerateAccessToken(user);
-        var refreshToken = _tokenProvider.GenerateRefreshToken(user, refreshTokenRecord.Jti);
+        var accessTokenResult = _tokenProvider.GenerateAccessToken(user);
+        if (accessTokenResult.IsError)
+            return accessTokenResult.Errors;
 
-        var tokens = new Tokens(accessToken, refreshToken);
-        return tokens;
+        var accessToken = accessTokenResult.Value;
+        var refreshToken = _tokenProvider.GenerateRefreshToken(user, refreshTokenRecord.Jti);
+        return new Tokens(accessToken, refreshToken);
     }
 
     public async Task<ErrorOr<Tokens>> RefreshTokenAsync(
@@ -160,8 +165,8 @@ public class AuthService(
         if (refreshResult.IsError)
             return refreshResult.Errors;
 
-        var tokens = await GenerateAuthTokensAsync(user, token);
+        var tokenResult = await GenerateAuthTokensAsync(user, token);
         await _unitOfWork.CompleteAsync(token);
-        return tokens;
+        return tokenResult;
     }
 }
