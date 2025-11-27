@@ -137,7 +137,11 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         var authCookieSetter = CreateAuthCookieSetter(isDevelopment);
 
         var error = AuthErrors.UserBanned;
-        var expectedCookie = CreateExpectedCookie(_settings.AuthFailureCookieName, error.Code);
+        var expectedCookie = CreateExpectedCookie(
+            _settings.AuthFailureCookieName,
+            error.Code,
+            httpOnly: false
+        );
 
         var context = new DefaultHttpContext();
         authCookieSetter.SetAuthFailureCookie(error, context);
