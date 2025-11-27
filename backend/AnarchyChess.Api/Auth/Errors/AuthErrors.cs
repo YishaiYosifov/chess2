@@ -17,6 +17,12 @@ public static class AuthErrors
             "The authentication token provided is invalid"
         );
 
+    public static Error UserBanned =>
+        Error.Forbidden(
+            ErrorCodes.AuthUserBanned,
+            "You cannot perform this action as your account is banned"
+        );
+
     public static Error OAuthInvalid =>
         Error.Unauthorized(ErrorCodes.AuthOAuthInvalid, "Could not authenticate via OAuth");
 

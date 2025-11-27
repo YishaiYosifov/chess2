@@ -1,11 +1,11 @@
-﻿using AnarchyChess.Api.Auth.Services;
+﻿using System.Net;
+using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
 
 namespace AnarchyChess.Api.TestInfrastructure.Utils;
 
@@ -74,7 +74,7 @@ public class AuthTestUtils(
         bool setRefreshToken = true
     )
     {
-        var accessToken = setAccessToken ? _tokenProvider.GenerateAccessToken(user) : null;
+        var accessToken = setAccessToken ? _tokenProvider.GenerateAccessToken(user).Value : null;
 
         string? refreshToken = null;
         if (setRefreshToken)

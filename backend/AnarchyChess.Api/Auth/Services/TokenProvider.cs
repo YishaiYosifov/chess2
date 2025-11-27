@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Shared.Models;
+using ErrorOr;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -10,22 +12,27 @@ namespace AnarchyChess.Api.Auth.Services;
 
 public interface ITokenProvider
 {
-    string GenerateAccessToken(AuthedUser user);
+    ErrorOr<string> GenerateAccessToken(AuthedUser user);
     string GenerateRefreshToken(AuthedUser user, string jti);
     string GenerateGuestToken(string guestId);
 }
 
-public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
+public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProvider)
+    : ITokenProvider
 {
     private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
+    private readonly TimeProvider _timeProvider = timeProvider;
 
-    public string GenerateAccessToken(AuthedUser user)
+    public ErrorOr<string> GenerateAccessToken(AuthedUser user)
     {
+        if (user.IsBanned)
+            return AuthErrors.UserBanned;
+
         return GenerateToken(
             new ClaimsIdentity(
                 [new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim("type", "access")]
             ),
-            DateTime.UtcNow.Add(_jwtSettings.AccessMaxAge)
+            _timeProvider.GetUtcNow().Add(_jwtSettings.AccessMaxAge).UtcDateTime
         );
     }
 
@@ -39,7 +46,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim(JwtRegisteredClaimNames.Jti, jti),
                 ]
             ),
-            DateTime.UtcNow.Add(_jwtSettings.RefreshMaxAge)
+            _timeProvider.GetUtcNow().Add(_jwtSettings.RefreshMaxAge).UtcDateTime
         );
     }
 
@@ -53,7 +60,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
                     new Claim("type", "access"),
                 ]
             ),
-            DateTime.MaxValue
+            DateTimeOffset.MaxValue.UtcDateTime
         );
     }
 

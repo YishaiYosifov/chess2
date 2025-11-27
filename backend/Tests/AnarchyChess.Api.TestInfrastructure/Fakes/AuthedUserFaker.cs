@@ -1,6 +1,6 @@
-﻿using Bogus;
-using AnarchyChess.Api.Profile.Entities;
+﻿using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
+using Bogus;
 
 namespace AnarchyChess.Api.TestInfrastructure.Fakes;
 
@@ -28,5 +28,6 @@ public class AuthedUserFaker : Faker<AuthedUser>
         RuleFor(x => x.PasswordHash, (string?)null);
         RuleFor(x => x.UsernameLastChanged, DateTime.UtcNow);
         RuleFor(x => x.CreatedAt, DateTime.UtcNow);
+        RuleFor(x => x.IsBanned, false);
     }
 }

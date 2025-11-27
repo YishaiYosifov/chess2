@@ -65,7 +65,7 @@ public class ApiTestBase : IAsyncLifetime
     protected async Task<HubConnection> AuthedSignalRAsync(string path, AuthedUser user)
     {
         var token = TokenProvider.GenerateAccessToken(user);
-        var conn = await SignalRAsync(path, token);
+        var conn = await SignalRAsync(path, token.Value);
         return conn;
     }
 

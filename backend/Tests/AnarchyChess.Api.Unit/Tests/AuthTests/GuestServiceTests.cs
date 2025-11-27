@@ -4,7 +4,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace AnarchyChess.Api.Unit.Tests;
+namespace AnarchyChess.Api.Unit.Tests.AuthTests;
 
 public class GuestServiceTests : BaseUnitTest
 {

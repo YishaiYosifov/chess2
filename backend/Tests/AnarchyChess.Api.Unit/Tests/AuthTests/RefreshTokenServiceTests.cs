@@ -1,17 +1,17 @@
-﻿using AutoFixture;
-using AnarchyChess.Api.Auth.Errors;
+﻿using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Repositories;
 using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using AnarchyChess.Api.Profile.Entities;
+using AutoFixture;
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 
-namespace AnarchyChess.Api.Unit.Tests;
+namespace AnarchyChess.Api.Unit.Tests.AuthTests;
 
 public class RefreshTokenServiceTests : BaseUnitTest
 {

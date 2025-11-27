@@ -17,4 +17,5 @@ public class AuthedUser : IdentityUser<UserId>
     public DateTime? UsernameLastChanged { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsBanned { get; set; }
 }
