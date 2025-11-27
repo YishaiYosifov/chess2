@@ -49,8 +49,8 @@ public class GuestServiceTests : BaseUnitTest
 
     [Theory]
     [InlineData("", false)]
-    [InlineData("0", false)]
-    [InlineData("1", true)]
+    [InlineData("false", false)]
+    [InlineData("true", true)]
     public void IsGuest_correctly_determines_if_a_user_is_a_guest_or_not(
         string anonymousClaim,
         bool isGuest

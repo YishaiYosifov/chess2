@@ -32,5 +32,5 @@ public static class ClaimUtils
     public static ClaimsPrincipal CreateGuestClaims(
         UserId userId,
         params IEnumerable<Claim> claims
-    ) => CreateUserClaims(userId, claims.Append(new Claim(ClaimTypes.Anonymous, "1")));
+    ) => CreateUserClaims(userId, claims.Append(new Claim(ClaimTypes.Anonymous, "true")));
 }

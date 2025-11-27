@@ -38,7 +38,7 @@ public class GuestService(ILogger<GuestService> logger, ITokenProvider tokenProv
             return false;
 
         var isAnnonymous = userClaims.GetClaim(ClaimTypes.Anonymous);
-        var isGuest = isAnnonymous is not null && isAnnonymous == "1";
+        var isGuest = isAnnonymous is not null && isAnnonymous == "true";
         return isGuest;
     }
 }

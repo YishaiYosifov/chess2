@@ -170,7 +170,7 @@ builder.Services.AddAuthorization(options =>
                 .RequireAssertion(context =>
                 {
                     var isAccess = context.User.HasClaim("type", "access");
-                    var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "1");
+                    var isAnonymous = context.User.HasClaim(ClaimTypes.Anonymous, "true");
                     return isAccess && !isAnonymous;
                 })
                 .AddAuthenticationSchemes("AccessBearer")

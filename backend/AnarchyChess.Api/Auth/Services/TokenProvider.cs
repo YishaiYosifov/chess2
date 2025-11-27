@@ -49,7 +49,7 @@ public class TokenProvider(IOptions<AppSettings> settings) : ITokenProvider
             new ClaimsIdentity(
                 [
                     new Claim(ClaimTypes.NameIdentifier, guestId),
-                    new Claim(ClaimTypes.Anonymous, "1"),
+                    new Claim(ClaimTypes.Anonymous, "true"),
                     new Claim("type", "access"),
                 ]
             ),
