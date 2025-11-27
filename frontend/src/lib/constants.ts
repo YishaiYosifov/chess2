@@ -89,7 +89,7 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         settings: { baseSeconds: 300, incrementSeconds: 0 },
         isMostPopular: true,
     },
-    { label: "Rapid", settings: { baseSeconds: 300, incrementSeconds: 3 } },
+    { label: "Blitz", settings: { baseSeconds: 300, incrementSeconds: 3 } },
     { label: "Rapid", settings: { baseSeconds: 600, incrementSeconds: 0 } },
     { label: "Rapid", settings: { baseSeconds: 900, incrementSeconds: 10 } },
     {
