@@ -27,7 +27,10 @@ const PlayOptions = () => {
     useEffect(() => {
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
         setShowPoolToggle(isLoggedIn !== undefined);
-    }, []);
+        if (!isLoggedIn) {
+            setPoolType(PoolType.CASUAL);
+        }
+    }, [setPoolType]);
 
     return (
         <Card data-testid="playOptions" className="items-center gap-7 pt-10">

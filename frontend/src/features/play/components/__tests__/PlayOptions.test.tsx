@@ -133,4 +133,38 @@ describe("PlayOptions", () => {
 
         expect(screen.getByTestId("challengePopup")).toBeInTheDocument();
     });
+
+    it("should reset pool type to casual when logging out", async () => {
+        const user = userEvent.setup();
+
+        mockIsAuthedCookie(true);
+        const { rerender } = render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
+        await user.click(screen.getByTestId("poolToggle"));
+
+        expect(
+            screen.getByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).toBeVisible();
+        expect(
+            screen.queryByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
+        ).not.toBeVisible();
+
+        mockIsAuthedCookie(false);
+        rerender(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
+        expect(
+            screen.getByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
+        ).toBeVisible();
+        expect(
+            screen.queryByTestId(`poolButtonsSection-${PoolType.RATED}`),
+        ).not.toBeVisible();
+    });
 });
