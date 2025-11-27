@@ -10,8 +10,8 @@ public class TimeControlTranslatorTests : BaseUnitTest
 
     [Theory]
     [InlineData(60, TimeControl.Bullet)]
-    [InlineData(180, TimeControl.Bullet)]
-    [InlineData(181, TimeControl.Blitz)]
+    [InlineData(179, TimeControl.Bullet)]
+    [InlineData(180, TimeControl.Blitz)]
     [InlineData(240, TimeControl.Blitz)]
     [InlineData(300, TimeControl.Blitz)]
     [InlineData(301, TimeControl.Rapid)]
