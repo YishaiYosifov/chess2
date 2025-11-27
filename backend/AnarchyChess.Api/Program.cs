@@ -196,11 +196,11 @@ builder
     })
     .AddJwtBearer(
         "AccessBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.AccessTokenCookieName)
+        options => ConfigureJwtBearerCookie(options, appSettings.Auth.AccessTokenCookieName)
     )
     .AddJwtBearer(
         "RefreshBearer",
-        options => ConfigureJwtBearerCookie(options, appSettings.Jwt.RefreshTokenCookieName)
+        options => ConfigureJwtBearerCookie(options, appSettings.Auth.RefreshTokenCookieName)
     );
 
 void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
@@ -209,10 +209,10 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     options.TokenValidationParameters = new()
     {
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(appSettings.Jwt.SecretKey)
+            Encoding.UTF8.GetBytes(appSettings.Auth.Jwt.SecretKey)
         ),
-        ValidIssuer = appSettings.Jwt.Issuer,
-        ValidAudience = appSettings.Jwt.Audience,
+        ValidIssuer = appSettings.Auth.Jwt.Issuer,
+        ValidAudience = appSettings.Auth.Jwt.Audience,
         ClockSkew = TimeSpan.Zero,
     };
 

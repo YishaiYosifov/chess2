@@ -20,7 +20,7 @@ public class AuthCookieSetter(
     private readonly SameSiteMode _sameSiteMode = hostEnvironment.IsDevelopment()
         ? SameSiteMode.None
         : SameSiteMode.Lax;
-    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
+    private readonly AuthSettings _jwtSettings = settings.Value.Auth;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
 
     public void SetAuthCookies(string accessToken, string refreshToken, HttpContext context)

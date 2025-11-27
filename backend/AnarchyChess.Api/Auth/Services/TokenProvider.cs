@@ -20,7 +20,7 @@ public interface ITokenProvider
 public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProvider)
     : ITokenProvider
 {
-    private readonly JwtSettings _jwtSettings = settings.Value.Jwt;
+    private readonly AuthSettings _settings = settings.Value.Auth;
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public ErrorOr<string> GenerateAccessToken(AuthedUser user)
@@ -32,7 +32,7 @@ public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProv
             new ClaimsIdentity(
                 [new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim("type", "access")]
             ),
-            _timeProvider.GetUtcNow().Add(_jwtSettings.AccessMaxAge).UtcDateTime
+            _timeProvider.GetUtcNow().Add(_settings.AccessMaxAge).UtcDateTime
         );
     }
 
@@ -46,7 +46,7 @@ public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProv
                     new Claim(JwtRegisteredClaimNames.Jti, jti),
                 ]
             ),
-            _timeProvider.GetUtcNow().Add(_jwtSettings.RefreshMaxAge).UtcDateTime
+            _timeProvider.GetUtcNow().Add(_settings.RefreshMaxAge).UtcDateTime
         );
     }
 
@@ -66,15 +66,15 @@ public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProv
 
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)
     {
-        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_settings.Jwt.SecretKey));
         SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
         SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = claims,
             Expires = expires,
             SigningCredentials = creds,
-            Issuer = _jwtSettings.Issuer,
-            Audience = _jwtSettings.Audience,
+            Issuer = _settings.Jwt.Issuer,
+            Audience = _settings.Jwt.Audience,
         };
 
         JsonWebTokenHandler handler = new();

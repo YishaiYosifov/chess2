@@ -7,7 +7,6 @@ public class AppSettings
     public required AuthSettings Auth { get; set; }
     public required LobbySettings Lobby { get; set; }
     public required GameSettings Game { get; set; }
-    public required JwtSettings Jwt { get; set; }
     public required ChallengeSettings Challenge { get; set; }
 
     public required string CSRFHeader { get; set; }
@@ -23,6 +22,16 @@ public class AuthSettings
 {
     public required string OAuthRedirectUrl { get; set; }
     public required string LoginPageUrl { get; set; }
+
+    public required JwtSettings Jwt { get; set; }
+
+    public TimeSpan AccessMaxAge { get; set; }
+    public TimeSpan RefreshMaxAge { get; set; }
+
+    public required string AccessTokenCookieName { get; set; }
+    public required string RefreshTokenCookieName { get; set; }
+    public required string IsLoggedInCookieName { get; set; }
+    public required string AuthFailureCookieName { get; set; }
 }
 
 public class ChallengeSettings
@@ -63,12 +72,6 @@ public class ChatSettings
 public class JwtSettings
 {
     public required string SecretKey { get; set; }
-    public TimeSpan AccessMaxAge { get; set; }
-    public TimeSpan RefreshMaxAge { get; set; }
     public required string Issuer { get; set; }
     public required string Audience { get; set; }
-
-    public required string AccessTokenCookieName { get; set; }
-    public required string RefreshTokenCookieName { get; set; }
-    public required string IsLoggedInCookieName { get; set; }
 }

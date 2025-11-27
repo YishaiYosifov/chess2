@@ -1,8 +1,8 @@
 ﻿using AnarchyChess.Api.Auth.Entities;
 using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Repositories;
-using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.Profile.Entities;
+using AnarchyChess.Api.Shared.Models;
 using ErrorOr;
 using Microsoft.Extensions.Options;
 
@@ -26,7 +26,7 @@ public class RefreshTokenService(
 ) : IRefreshTokenService
 {
     private readonly ILogger<RefreshTokenService> _logger = logger;
-    private readonly JwtSettings _jwtSettings = appSettings.Value.Jwt;
+    private readonly AuthSettings _settings = appSettings.Value.Auth;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly TimeProvider _timeProvider = timeProvider;
 
@@ -36,7 +36,7 @@ public class RefreshTokenService(
     )
     {
         var jti = GenerateJti();
-        var expiresAt = _timeProvider.GetUtcNow().Add(_jwtSettings.RefreshMaxAge);
+        var expiresAt = _timeProvider.GetUtcNow().Add(_settings.RefreshMaxAge);
         var refreshToken = new RefreshToken()
         {
             UserId = user.Id,
