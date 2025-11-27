@@ -42,7 +42,7 @@ public class ApiTestBase : IAsyncLifetime
         TokenProvider = Scope.ServiceProvider.GetRequiredService<ITokenProvider>();
         var refreshTokenService = Scope.ServiceProvider.GetRequiredService<IRefreshTokenService>();
 
-        AuthUtils = new(TokenProvider, refreshTokenService, AppSettings.Jwt, DbContext);
+        AuthUtils = new(TokenProvider, refreshTokenService, AppSettings.Auth, DbContext);
 
         // postgres can only store up to microsecond percision,
         // while c# DateTime also stores nanoseconds
@@ -85,7 +85,7 @@ public class ApiTestBase : IAsyncLifetime
                     if (!string.IsNullOrEmpty(accessToken))
                         options.Headers.Add(
                             "Cookie",
-                            $"{AppSettings.Jwt.AccessTokenCookieName}={accessToken}"
+                            $"{AppSettings.Auth.AccessTokenCookieName}={accessToken}"
                         );
                     options.Transports = HttpTransportType.LongPolling;
                 }

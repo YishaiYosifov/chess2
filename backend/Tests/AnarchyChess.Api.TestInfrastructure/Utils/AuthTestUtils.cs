@@ -16,13 +16,13 @@ public record TestGuestResult(UserId UserId, string AccessToken);
 public class AuthTestUtils(
     ITokenProvider tokenProvider,
     IRefreshTokenService refreshTokenService,
-    JwtSettings jwtSettings,
+    AuthSettings authSettings,
     DbContext dbContext
 )
 {
     private readonly ITokenProvider _tokenProvider = tokenProvider;
     private readonly IRefreshTokenService _refreshTokenService = refreshTokenService;
-    private readonly JwtSettings _jwtSettings = jwtSettings;
+    private readonly AuthSettings _authSettings = authSettings;
     private readonly DbContext _dbContext = dbContext;
 
     /// <summary>
@@ -99,7 +99,7 @@ public class AuthTestUtils(
             apiClient.CookieContainer.Add(
                 new Cookie()
                 {
-                    Name = _jwtSettings.AccessTokenCookieName,
+                    Name = _authSettings.AccessTokenCookieName,
                     Value = accessToken,
                     Domain = apiClient.Client.BaseAddress?.Host,
                 }
@@ -111,7 +111,7 @@ public class AuthTestUtils(
             apiClient.CookieContainer.Add(
                 new Cookie()
                 {
-                    Name = _jwtSettings.RefreshTokenCookieName,
+                    Name = _authSettings.RefreshTokenCookieName,
                     Value = refreshToken,
                     Path = "/api/auth/refresh",
                     Domain = apiClient.Client.BaseAddress?.Host,

@@ -1,4 +1,5 @@
-﻿using AnarchyChess.Api.Auth.Services;
+﻿using AnarchyChess.Api.Auth.Errors;
+using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure;
 using FluentAssertions;
@@ -16,7 +17,7 @@ namespace AnarchyChess.Api.Integration.Tests.AuthTests;
 
 public class AuthCookieSetterTests : BaseIntegrationTest
 {
-    private readonly JwtSettings _jwtSettings;
+    private readonly AuthSettings _settings;
     private readonly IOptions<AppSettings> _appSettingsOptions;
 
     private readonly IWebHostEnvironment _webHostEnvironmentMock =
@@ -32,7 +33,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         : base(factory)
     {
         _appSettingsOptions = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
-        _jwtSettings = _appSettingsOptions.Value.Jwt;
+        _settings = _appSettingsOptions.Value.Auth;
 
         _linkGenerator = Scope.ServiceProvider.GetRequiredService<LinkGenerator>();
     }
@@ -48,20 +49,20 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         const string refreshTokenValue = "refresh-token";
 
         var expectedAccessTokenCookie = CreateExpectedCookie(
-            _jwtSettings.AccessTokenCookieName,
+            _settings.AccessTokenCookieName,
             accessTokenValue,
-            _jwtSettings.AccessMaxAge
+            _settings.AccessMaxAge
         );
         var expectedRefreshTokenCookie = CreateExpectedCookie(
-            _jwtSettings.RefreshTokenCookieName,
+            _settings.RefreshTokenCookieName,
             refreshTokenValue,
-            _jwtSettings.RefreshMaxAge,
+            _settings.RefreshMaxAge,
             path: _refreshPath
         );
         var expectedIsAuthedTokenCookie = CreateExpectedCookie(
-            _jwtSettings.IsLoggedInCookieName,
+            _settings.IsLoggedInCookieName,
             "true",
-            _jwtSettings.RefreshMaxAge,
+            _settings.RefreshMaxAge,
             httpOnly: false
         );
 
@@ -85,14 +86,14 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         var context = new DefaultHttpContext();
 
         var expectedAccessTokenCookie = CreateExpectedDeletedCookie(
-            _jwtSettings.AccessTokenCookieName
+            _settings.AccessTokenCookieName
         );
         var expectedRefreshTokenCookie = CreateExpectedDeletedCookie(
-            _jwtSettings.RefreshTokenCookieName,
+            _settings.RefreshTokenCookieName,
             _refreshPath
         );
         var expectedIsAuthedTokenCookie = CreateExpectedDeletedCookie(
-            _jwtSettings.IsLoggedInCookieName
+            _settings.IsLoggedInCookieName
         );
 
         authCookieSetter.RemoveAuthCookies(context);
@@ -113,7 +114,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         const string accessTokenValue = "guest-access-token";
 
         var expectedCookie = CreateExpectedCookie(
-            _jwtSettings.AccessTokenCookieName,
+            _settings.AccessTokenCookieName,
             accessTokenValue
         );
 
@@ -123,7 +124,28 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         var cookies = SetCookieHeaderValue.ParseList(context.Response.Headers.SetCookie);
         cookies
             .Should()
-            .ContainSingle(x => x.Name == _jwtSettings.AccessTokenCookieName)
+            .ContainSingle(x => x.Name == _settings.AccessTokenCookieName)
+            .Which.Should()
+            .BeEquivalentTo(expectedCookie);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void SetAuthFailureCookie_sets_correct_error(bool isDevelopment)
+    {
+        var authCookieSetter = CreateAuthCookieSetter(isDevelopment);
+
+        var error = AuthErrors.UserBanned;
+        var expectedCookie = CreateExpectedCookie(_settings.AuthFailureCookieName, error.Code);
+
+        var context = new DefaultHttpContext();
+        authCookieSetter.SetAuthFailureCookie(error, context);
+
+        var cookies = SetCookieHeaderValue.ParseList(context.Response.Headers.SetCookie);
+        cookies
+            .Should()
+            .ContainSingle(x => x.Name == _settings.AuthFailureCookieName)
             .Which.Should()
             .BeEquivalentTo(expectedCookie);
     }

@@ -1,5 +1,6 @@
 ﻿using AnarchyChess.Api.Auth.Controllers;
 using AnarchyChess.Api.Shared.Models;
+using ErrorOr;
 using Microsoft.Extensions.Options;
 
 namespace AnarchyChess.Api.Auth.Services;
@@ -9,6 +10,7 @@ public interface IAuthCookieSetter
     void SetAuthCookies(string accessToken, string refreshToken, HttpContext context);
     void RemoveAuthCookies(HttpContext context);
     void SetGuestCookie(string accessToken, HttpContext context);
+    void SetAuthFailureCookie(Error reason, HttpContext context);
 }
 
 public class AuthCookieSetter(
@@ -58,6 +60,9 @@ public class AuthCookieSetter(
 
     public void SetGuestCookie(string accessToken, HttpContext context) =>
         SetCookie(context, _jwtSettings.AccessTokenCookieName, accessToken);
+
+    public void SetAuthFailureCookie(Error reason, HttpContext context) =>
+        SetCookie(context, _jwtSettings.AuthFailureCookieName, reason.Code, httpOnly: false);
 
     private void SetCookie(
         HttpContext context,
