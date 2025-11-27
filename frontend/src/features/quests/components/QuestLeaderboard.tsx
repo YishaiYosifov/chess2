@@ -34,13 +34,14 @@ const QuestLeaderboard = ({
                     No Players Yet
                 </p>
             )}
-            <div className="grid grid-cols-[max-content_1fr] gap-3">
-                <PaginatedItemsRenderer
-                    fetchItems={getQuestLeaderboard}
-                    initialPaged={initialLeaderboard}
-                >
-                    {({ items, page, pageSize }) =>
-                        items.map((profileQuestPoints, index) => (
+
+            <PaginatedItemsRenderer
+                fetchItems={getQuestLeaderboard}
+                initialPaged={initialLeaderboard}
+            >
+                {({ items, page, pageSize }) => (
+                    <div className="grid grid-cols-[max-content_1fr] gap-3">
+                        {items.map((profileQuestPoints, index) => (
                             <LeaderboardMinimalProfileView
                                 profile={profileQuestPoints.profile}
                                 page={page}
@@ -55,10 +56,10 @@ const QuestLeaderboard = ({
                                     {profileQuestPoints.questPoints} points
                                 </p>
                             </LeaderboardMinimalProfileView>
-                        ))
-                    }
-                </PaginatedItemsRenderer>
-            </div>
+                        ))}
+                    </div>
+                )}
+            </PaginatedItemsRenderer>
         </Card>
     );
 };

@@ -27,13 +27,13 @@ const WinStreakLeaderboard = ({
                 </p>
             )}
 
-            <div className="grid grid-cols-[max-content_1fr] gap-3">
-                <PaginatedItemsRenderer
-                    fetchItems={getWinStreakLeaderboard}
-                    initialPaged={initialLeaderboard}
-                >
-                    {({ items, page, pageSize }) =>
-                        items.map((streak, index) => (
+            <PaginatedItemsRenderer
+                fetchItems={getWinStreakLeaderboard}
+                initialPaged={initialLeaderboard}
+            >
+                {({ items, page, pageSize }) => (
+                    <div className="grid grid-cols-[max-content_1fr] gap-3">
+                        {items.map((streak, index) => (
                             <WinStreakLeaderboardItem
                                 streak={streak}
                                 page={page}
@@ -41,10 +41,10 @@ const WinStreakLeaderboard = ({
                                 index={index}
                                 key={streak.profile.userId}
                             />
-                        ))
-                    }
-                </PaginatedItemsRenderer>
-            </div>
+                        ))}
+                    </div>
+                )}
+            </PaginatedItemsRenderer>
         </Card>
     );
 };
