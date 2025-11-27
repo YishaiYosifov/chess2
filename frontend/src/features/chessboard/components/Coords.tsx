@@ -26,8 +26,8 @@ const Coords = () => {
                         className={clsx(
                             "flex items-end px-1 select-none",
                             viewerX % 2 === 0
-                                ? "text-[#577298]"
-                                : "text-[#e9e9d4]",
+                                ? "text-[#e9e9d4]"
+                                : "text-[#577298]",
                         )}
                     >
                         {file}
@@ -35,19 +35,24 @@ const Coords = () => {
                 );
             })}
 
-            {ranks.map((rank, y) => (
-                <CoordSquare
-                    key={rank}
-                    data-testid={`coordsRank-${rank}`}
-                    position={viewPoint({ x: 9, y })}
-                    className={clsx(
-                        "flex justify-end px-1 select-none",
-                        y % 2 === 0 ? "text-[#577298]" : "text-[#e9e9d4]",
-                    )}
-                >
-                    {rank}
-                </CoordSquare>
-            ))}
+            {ranks.map((rank, y) => {
+                const viewerY = viewingFrom == GameColor.WHITE ? y : 9 - y;
+                return (
+                    <CoordSquare
+                        key={rank}
+                        data-testid={`coordsRank-${rank}`}
+                        position={viewPoint({ x: 9, y: viewerY })}
+                        className={clsx(
+                            "flex justify-end px-1 select-none",
+                            viewerY % 2 === 0
+                                ? "text-[#e9e9d4]"
+                                : "text-[#577298]",
+                        )}
+                    >
+                        {rank}
+                    </CoordSquare>
+                );
+            })}
         </>
     );
 };

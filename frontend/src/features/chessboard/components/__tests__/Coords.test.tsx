@@ -12,7 +12,7 @@ import { GameColor } from "@/lib/apiClient";
 describe("Coords", () => {
     let store: StoreApi<ChessboardStore>;
 
-    const files = "abcdefghij".split("");
+    const files = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
     const ranks = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
 
     beforeEach(() => {
@@ -71,9 +71,13 @@ describe("Coords", () => {
             renderWithStore();
 
             ranks.forEach((rank, y) => {
+                const expectedY = viewingFrom === GameColor.WHITE ? y : 9 - y;
                 expect(
                     screen.getByTestId(`coordsRank-${rank}`),
-                ).toHaveAttribute("data-position", pointToStr({ x: 9, y }));
+                ).toHaveAttribute(
+                    "data-position",
+                    pointToStr({ x: 9, y: expectedY }),
+                );
             });
         },
     );
@@ -84,9 +88,9 @@ describe("Coords", () => {
         files.forEach((file, x) => {
             const el = screen.getByTestId(`coordsFile-${file}`);
             if (x % 2 === 0) {
-                expect(el.className).toContain("text-[#577298]");
+                expect(el).toHaveClass("text-[#e9e9d4]");
             } else {
-                expect(el.className).toContain("text-[#e9e9d4]");
+                expect(el).toHaveClass("text-[#577298]");
             }
         });
     });
@@ -97,9 +101,9 @@ describe("Coords", () => {
         ranks.forEach((rank, y) => {
             const el = screen.getByTestId(`coordsRank-${rank}`);
             if (y % 2 === 0) {
-                expect(el.className).toContain("text-[#577298]");
+                expect(el).toHaveClass("text-[#e9e9d4]");
             } else {
-                expect(el.className).toContain("text-[#e9e9d4]");
+                expect(el).toHaveClass("text-[#577298]");
             }
         });
     });
