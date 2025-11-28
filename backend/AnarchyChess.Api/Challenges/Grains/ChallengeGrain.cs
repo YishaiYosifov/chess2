@@ -172,7 +172,7 @@ public class ChallengeGrain : Grain, IChallengeGrain, IRemindable
         if (request.Pool.PoolType is PoolType.Rated && acceptedBy.IsGuest)
             return ChallengeErrors.AuthedOnlyPool;
 
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             userId1: request.Requester.UserId,
             userId2: acceptedBy,
             request.Pool,

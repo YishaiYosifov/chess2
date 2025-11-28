@@ -182,9 +182,10 @@ public class RematchGrain(
 
     private async Task AcceptRematchAsync(RematchRequest request, CancellationToken token = default)
     {
-        var gameToken = await _gameStarter.StartGameAsync(
-            request.Players.WhitePlayer.UserId,
-            request.Players.BlackPlayer.UserId,
+        // inverse colors
+        var gameToken = await _gameStarter.StartGameWithColorsAsync(
+            whiteUserId: request.Players.BlackPlayer.UserId,
+            blackUserId: request.Players.WhitePlayer.UserId,
             pool: request.Pool,
             gameSource: GameSource.Rematch,
             token: token

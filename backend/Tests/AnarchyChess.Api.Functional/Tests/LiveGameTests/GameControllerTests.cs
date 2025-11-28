@@ -32,7 +32,7 @@ public class GameControllerTests : BaseFunctionalTest
     {
         var guest1 = UserId.Guest();
         var guest2 = UserId.Guest();
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             guest1,
             guest2,
             new PoolKey(PoolType.Casual, new(600, 0)),
@@ -74,7 +74,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_gane_state_for_guest_not_in_game()
     {
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             UserId.Guest(),
             UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0)),
@@ -93,7 +93,7 @@ public class GameControllerTests : BaseFunctionalTest
     [Fact]
     public async Task GetGame_returns_game_state_for_authed_user_not_in_game()
     {
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             UserId.Guest(),
             UserId.Guest(),
             new PoolKey(PoolType.Casual, new(600, 0)),
@@ -160,7 +160,7 @@ public class GameControllerTests : BaseFunctionalTest
     {
         var guest1 = UserId.Guest();
         var guest2 = UserId.Guest();
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             guest1,
             guest2,
             new PoolKey(PoolType.Casual, new(600, 0)),
@@ -196,7 +196,7 @@ public class GameControllerTests : BaseFunctionalTest
         await DbContext.SaveChangesAsync(CT);
 
         var guestId = UserId.Guest();
-        var gameToken = await _gameStarter.StartGameAsync(
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
             authedUser.Id,
             guestId,
             new PoolKey(PoolType.Casual, new(300, 5)),

@@ -126,7 +126,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         {
             var gameToken = await _gameStarterFactory.UseAsync(
                 async (gameStarter, token) =>
-                    await gameStarter.StartGameAsync(
+                    await gameStarter.StartGameWithRandomColorsAsync(
                         seeker.UserId,
                         matchWith,
                         _key,
@@ -235,7 +235,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             if (!seeker1Reserved || !seeker2Reserved)
                 return false;
 
-            var gameToken = await gameStarter.StartGameAsync(
+            var gameToken = await gameStarter.StartGameWithRandomColorsAsync(
                 userId1,
                 userId2,
                 _key,

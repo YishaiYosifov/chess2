@@ -164,7 +164,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         GameToken gameToken = "game123";
         _gameStarterMock
-            .StartGameAsync(
+            .StartGameWithRandomColorsAsync(
                 seeker1.UserId,
                 seeker2.UserId,
                 _testPoolKey,
@@ -272,7 +272,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         GameToken gameToken = "direct-game-123";
         _gameStarterMock
-            .StartGameAsync(
+            .StartGameWithRandomColorsAsync(
                 initiatingSeeker.UserId,
                 matchWithSeeker.UserId,
                 _testPoolKey,
@@ -310,7 +310,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         matchWithObserver.TryReserveSeekAsync(_testPoolKey).Returns(Task.FromResult(true));
         _gameStarterMock
-            .StartGameAsync(
+            .StartGameWithRandomColorsAsync(
                 initiatingSeeker.UserId,
                 matchWithSeeker.UserId,
                 _testPoolKey,
@@ -342,7 +342,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, default!);
+            .StartGameWithRandomColorsAsync(default!, default!, default!, default, default!);
         await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
         await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
         _state.Pool.Seekers.Should().Contain(matchWithSeeker);
@@ -361,7 +361,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         result.FirstError.Should().Be(MatchmakingErrors.SeekNotFound);
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, default!);
+            .StartGameWithRandomColorsAsync(default!, default!, default!, default, default!);
     }
 
     [Fact]
@@ -382,7 +382,7 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
-            .StartGameAsync(default!, default!, default!, default, default!);
+            .StartGameWithRandomColorsAsync(default!, default!, default!, default, default!);
         _state.Pool.Seekers.Should().Contain(ratedSeeker);
         await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, default!, CT);
     }

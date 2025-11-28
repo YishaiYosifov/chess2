@@ -1,7 +1,7 @@
-﻿using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.Infrastructure;
-using AnarchyChess.Api.Game.Models;
+﻿using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
+using AnarchyChess.Api.GameSnapshot.Models;
+using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
@@ -40,7 +40,7 @@ public static class GameUtils
 
         TimeControlSettings timeControl = new(30, 0);
         PoolKey pool = new(PoolType.Rated, timeControl);
-        var gameToken = await gameStarter.StartGameAsync(user1.Id, user2.Id, pool);
+        var gameToken = await gameStarter.StartGameWithRandomColorsAsync(user1.Id, user2.Id, pool);
 
         return new(user1, user1Rating, user2, user2Rating, gameToken, pool);
     }

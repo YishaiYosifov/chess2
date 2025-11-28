@@ -14,7 +14,14 @@ namespace AnarchyChess.Api.Game.Services;
 
 public interface IGameStarter
 {
-    Task<GameToken> StartGameAsync(
+    Task<GameToken> StartGameWithColorsAsync(
+        UserId whiteUserId,
+        UserId blackUserId,
+        PoolKey pool,
+        GameSource gameSource = GameSource.Unknown,
+        CancellationToken token = default
+    );
+    Task<GameToken> StartGameWithRandomColorsAsync(
         UserId userId1,
         UserId userId2,
         PoolKey pool,
@@ -28,16 +35,18 @@ public class GameStarter(
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
     ITimeControlTranslator timeControlTranslator,
-    IRandomCodeGenerator randomCodeGenerator
+    IRandomCodeGenerator randomCodeGenerator,
+    IRandomProvider randomProvider
 ) : IGameStarter
 {
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
+    private readonly IRandomProvider _randomProvider = randomProvider;
     private readonly IGrainFactory _grains = grains;
 
-    public async Task<GameToken> StartGameAsync(
+    public async Task<GameToken> StartGameWithRandomColorsAsync(
         UserId userId1,
         UserId userId2,
         PoolKey pool,
@@ -45,11 +54,32 @@ public class GameStarter(
         CancellationToken token = default
     )
     {
+        var isUser1White = _randomProvider.Next(2) == 0;
+        var whiteUserId = isUser1White ? userId1 : userId2;
+        var blackUserId = isUser1White ? userId2 : userId1;
+
+        var gameToken = await StartGameWithColorsAsync(
+            whiteUserId,
+            blackUserId,
+            pool,
+            gameSource,
+            token
+        );
+        return gameToken;
+    }
+
+    public async Task<GameToken> StartGameWithColorsAsync(
+        UserId whiteUserId,
+        UserId blackUserId,
+        PoolKey pool,
+        GameSource gameSource = GameSource.Unknown,
+        CancellationToken token = default
+    )
+    {
         GameToken gameToken = _randomCodeGenerator.Generate(16);
 
-        // TODO: choose white and black based on each player last game
-        var whitePlayer = await CreatePlayer(userId1, GameColor.White, pool.TimeControl);
-        var blackPlayer = await CreatePlayer(userId2, GameColor.Black, pool.TimeControl);
+        var whitePlayer = await CreatePlayer(whiteUserId, GameColor.White, pool.TimeControl);
+        var blackPlayer = await CreatePlayer(blackUserId, GameColor.Black, pool.TimeControl);
 
         var gameGrain = _grains.GetGrain<IGameGrain>(gameToken);
         await gameGrain.StartGameAsync(whitePlayer, blackPlayer, pool, gameSource, token);

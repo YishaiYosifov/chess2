@@ -111,7 +111,12 @@ public class RematchTests : BaseFunctionalTest
         var guest2 = UserId.Guest();
 
         var pool = new PoolKeyFaker().Generate();
-        var gameToken = await _gameStarter.StartGameAsync(guest1, guest2, pool, token: CT);
+        var gameToken = await _gameStarter.StartGameWithRandomColorsAsync(
+            guest1,
+            guest2,
+            pool,
+            token: CT
+        );
         await FinishGameAsync(gameToken, guest1);
 
         await using var guest1Conn = new GameHubClient(
