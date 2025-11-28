@@ -1,5 +1,4 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Models;
-using AnarchyChess.Api.Auth.DTOs;
 using AnarchyChess.Api.Challenges.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Matchmaking.Models;
@@ -19,7 +18,7 @@ public interface IAnarchyChessApi
     #region Auth
 
     [Get("/api/oauth/signin/{provider}")]
-    Task<IApiResponse<Tokens>> OAuthLoginAsync(string provider);
+    Task<IApiResponse> SignInOAuthAsync(string provider);
 
     [Post("/api/auth/refresh")]
     Task<IApiResponse> RefreshTokenAsync();

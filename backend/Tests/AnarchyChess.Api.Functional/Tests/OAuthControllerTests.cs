@@ -6,18 +6,19 @@ using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationCons
 
 namespace AnarchyChess.Api.Functional.Tests;
 
-public class OAuthControllerTests(AnarchyChessWebApplicationFactory factory) : BaseFunctionalTest(factory)
+public class OAuthControllerTests(AnarchyChessWebApplicationFactory factory)
+    : BaseFunctionalTest(factory)
 {
     [Theory]
     [InlineData(Providers.Google, "accounts.google.com", "/o/oauth2/v2/auth")]
     [InlineData(Providers.Discord, "discord.com", "/oauth2/authorize")]
-    public async Task SigninOAuth_redirects_to_the_correct_place(
+    public async Task SignInOAuth_redirects_to_the_correct_place(
         string provider,
         string host,
         string pathname
     )
     {
-        var response = await ApiClient.Api.OAuthLoginAsync(provider);
+        var response = await ApiClient.Api.SignInOAuthAsync(provider);
 
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
 
@@ -32,9 +33,9 @@ public class OAuthControllerTests(AnarchyChessWebApplicationFactory factory) : B
     }
 
     [Fact]
-    public async Task OAuthCallback_ReturnsError_WhenProviderIsInvalid()
+    public async Task SignInOAuth_returns_not_found_for_invalid_provider()
     {
-        var response = await ApiClient.Api.OAuthLoginAsync("unknown");
+        var response = await ApiClient.Api.SignInOAuthAsync("unknown");
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

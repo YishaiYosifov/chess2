@@ -9,12 +9,14 @@ namespace AnarchyChess.Api.Auth.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class OAuthController(
+    ILogger<OAuthController> logger,
     IOAuthService oAuthService,
     IAuthCookieSetter authCookieSetter,
     IOAuthProviderNameNormalizer oAuthProviderNameNormalizer,
     IOptions<AppSettings> settings
 ) : Controller
 {
+    private readonly ILogger<OAuthController> _logger = logger;
     private readonly IOAuthService _oAuthService = oAuthService;
     private readonly IAuthCookieSetter _authCookieSetter = authCookieSetter;
     private readonly IOAuthProviderNameNormalizer _oAuthProviderNameNormalizer =
@@ -47,13 +49,22 @@ public class OAuthController(
                 );
                 return Redirect(_settings.OAuthRedirectUrl);
             },
-            errors => errors.ToActionResult()
+            errors =>
+            {
+                _logger.LogWarning(
+                    "Failed to authenticate from OAuth provider {Provider}, {Errors}",
+                    provider,
+                    errors
+                );
+                _authCookieSetter.SetAuthFailureCookie(errors.First(), HttpContext);
+                return Redirect(_settings.LoginPageUrl);
+            }
         );
     }
 
     [HttpGet("signin/{provider}")]
     [ProducesResponseType(StatusCodes.Status302Found)]
-    public ActionResult SigninOAuth(string provider)
+    public ActionResult SignInOAuth(string provider)
     {
         var normalizedProviderResult = _oAuthProviderNameNormalizer.NormalizeProviderName(provider);
         return normalizedProviderResult.Match(

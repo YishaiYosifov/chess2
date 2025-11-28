@@ -2,8 +2,8 @@
 using AnarchyChess.Api.Auth.DTOs;
 using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
-using AnarchyChess.Api.Shared.Services;
 using AnarchyChess.Api.Profile.Entities;
+using AnarchyChess.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -89,11 +89,7 @@ public class OAuthService(
             return signupResult.Errors;
         var newUser = signupResult.Value;
 
-        var loginInfo = new UserLoginInfo(
-            authenticator.Provider,
-            providerKey,
-            authenticator.Provider
-        );
+        UserLoginInfo loginInfo = new(authenticator.Provider, providerKey, authenticator.Provider);
         await _userManager.AddLoginAsync(newUser, loginInfo);
         return signupResult;
     }

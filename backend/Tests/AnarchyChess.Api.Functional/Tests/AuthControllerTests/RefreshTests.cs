@@ -27,7 +27,7 @@ public class RefreshTests(AnarchyChessWebApplicationFactory factory) : BaseFunct
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var accessToken = TokenProvider.GenerateAccessToken(user);
+        var accessToken = TokenProvider.GenerateAccessToken(user).Value;
         AuthUtils.AuthenticateWithTokens(ApiClient, refreshToken: accessToken);
 
         var response = await ApiClient.Api.RefreshTokenAsync();
