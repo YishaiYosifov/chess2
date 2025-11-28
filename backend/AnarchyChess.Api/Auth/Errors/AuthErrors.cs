@@ -23,6 +23,9 @@ public static class AuthErrors
             "You cannot perform this action as your account is banned"
         );
 
+    public static Error OAuthFailure =>
+        Error.Unexpected(ErrorCodes.AuthOAuthFailure, "OAuth failed");
+
     public static Error OAuthInvalid =>
         Error.Unauthorized(ErrorCodes.AuthOAuthInvalid, "Could not authenticate via OAuth");
 
