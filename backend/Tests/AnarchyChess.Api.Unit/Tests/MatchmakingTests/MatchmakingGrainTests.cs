@@ -9,6 +9,7 @@ using AnarchyChess.Api.Matchmaking.Services.Pools;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using Orleans.TestKit;
@@ -35,9 +36,20 @@ public class MatchmakingGrainTests : BaseGrainTest
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         var settings = Options.Create(AppSettingsLoader.LoadAppSettings());
 
+        var serviceProviderMock = Substitute.For<IServiceProvider>();
+        serviceProviderMock.GetService(typeof(IGameStarter)).Returns(_gameStarterMock);
+
+        var scopeMock = Substitute.For<IServiceScope, IAsyncDisposable>();
+        scopeMock.ServiceProvider.Returns(serviceProviderMock);
+
+        var scopeFactoryMock = Substitute.For<IServiceScopeFactory>();
+        scopeFactoryMock.CreateAsyncScope().Returns(scopeMock);
+
         Silo.ServiceProvider.AddService(settings);
         Silo.ServiceProvider.AddService(_timeProviderMock);
-        Silo.ServiceProvider.AddService(_gameStarterMock);
+        Silo.ServiceProvider.AddService<IGameStarterFactory>(
+            new GameStarterFactory(scopeFactoryMock)
+        );
 
         _state = Silo
             .StorageManager.GetStorage<MatchmakingGrainState<CasualMatchmakingPool>>(

@@ -55,7 +55,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     private readonly PoolKey _key;
     private readonly IPersistentState<MatchmakingGrainState<TPool>> _state;
     private readonly ILogger<MatchmakingGrain<TPool>> _logger;
-    private readonly IGameStarter _gameStarter;
+    private readonly IGameStarterFactory _gameStarterFactory;
     private readonly TimeProvider _timeProvider;
     private readonly LobbySettings _settings;
 
@@ -67,7 +67,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
     public MatchmakingGrain(
         [PersistentState(StateName)] IPersistentState<MatchmakingGrainState<TPool>> state,
         ILogger<MatchmakingGrain<TPool>> logger,
-        IGameStarter gameStarter,
+        IGameStarterFactory gameStarterFactory,
         IOptions<AppSettings> settings,
         TimeProvider timeProvider
     )
@@ -76,7 +76,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
 
         _state = state;
         _logger = logger;
-        _gameStarter = gameStarter;
+        _gameStarterFactory = gameStarterFactory;
         _timeProvider = timeProvider;
         _settings = settings.Value.Lobby;
     }
@@ -124,12 +124,16 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
 
         try
         {
-            var gameToken = await _gameStarter.StartGameAsync(
-                seeker.UserId,
-                matchWith,
-                _key,
-                GameSource.Matchmaking,
-                token: token
+            var gameToken = await _gameStarterFactory.UseAsync(
+                async (gameStarter, token) =>
+                    await gameStarter.StartGameAsync(
+                        seeker.UserId,
+                        matchWith,
+                        _key,
+                        GameSource.Matchmaking,
+                        token: token
+                    ),
+                token
             );
 
             await matchWithObserver.SeekMatchedAsync(gameToken, _key, token);
@@ -146,9 +150,36 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
 
     private async Task ExecuteWaveAsync(CancellationToken token = default)
     {
-        var matches = _state.State.Pool.CalculateMatches();
+        var pendingSeekRemovals = await _gameStarterFactory.UseAsync(ProcessWaveAsync, token);
+        await _state.WriteStateAsync(token);
 
-        List<UserId> removedUserSeeks = [];
+        if (pendingSeekRemovals.Count > 0)
+        {
+            await _openSeekRemovedStream.OnNextBatchAsync(
+                pendingSeekRemovals.Select(userId => new OpenSeekRemovedEvent(userId, _key))
+            );
+        }
+
+        // broadcast new seeks that survived the wave
+        if (_pendingSeekBroadcast.Count > 0)
+        {
+            await _openSeekCreatedStream.OnNextBatchAsync(
+                _pendingSeekBroadcast.Values.Select(seeker => new OpenSeekCreatedEvent(
+                    seeker,
+                    _key
+                ))
+            );
+            _pendingSeekBroadcast.Clear();
+        }
+    }
+
+    private async Task<List<UserId>> ProcessWaveAsync(
+        IGameStarter gameStarter,
+        CancellationToken token = default
+    )
+    {
+        var matches = _state.State.Pool.CalculateMatches();
+        List<UserId> pendingSeekRemovals = [];
         foreach (var (userId1, userId2) in matches)
         {
             _logger.LogInformation("Found match for {User1} with {User2}", userId1, userId2);
@@ -167,6 +198,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             }
 
             var didGameStart = await StartGameAsync(
+                gameStarter,
                 userId1,
                 seeker1Handler,
                 userId2,
@@ -179,34 +211,16 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             _state.State.Pool.RemoveSeeker(userId1);
             _state.State.Pool.RemoveSeeker(userId2);
             if (!_pendingSeekBroadcast.Remove(userId1))
-                removedUserSeeks.Add(userId1);
+                pendingSeekRemovals.Add(userId1);
             if (!_pendingSeekBroadcast.Remove(userId2))
-                removedUserSeeks.Add(userId2);
+                pendingSeekRemovals.Add(userId2);
         }
 
-        await _state.WriteStateAsync(token);
-
-        if (removedUserSeeks.Count > 0)
-        {
-            await _openSeekRemovedStream.OnNextBatchAsync(
-                removedUserSeeks.Select(userId => new OpenSeekRemovedEvent(userId, _key))
-            );
-        }
-
-        // broadcast new seeks that survived the wave
-        if (_pendingSeekBroadcast.Count > 0)
-        {
-            await _openSeekCreatedStream.OnNextBatchAsync(
-                _pendingSeekBroadcast.Values.Select(seeker => new OpenSeekCreatedEvent(
-                    seeker,
-                    _key
-                ))
-            );
-            _pendingSeekBroadcast.Clear();
-        }
+        return pendingSeekRemovals;
     }
 
     private async Task<bool> StartGameAsync(
+        IGameStarter gameStarter,
         UserId userId1,
         ISeekObserver seeker1Observer,
         UserId userId2,
@@ -221,7 +235,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
             if (!seeker1Reserved || !seeker2Reserved)
                 return false;
 
-            var gameToken = await _gameStarter.StartGameAsync(
+            var gameToken = await gameStarter.StartGameAsync(
                 userId1,
                 userId2,
                 _key,

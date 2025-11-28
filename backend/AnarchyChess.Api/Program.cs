@@ -374,6 +374,7 @@ builder.Services.AddSingleton<IValidator<TimeControlSettings>, TimeControlSettin
 
 #region Game
 builder.Services.AddScoped<IGameStarter, GameStarter>();
+builder.Services.AddScoped<IGameStarterFactory, GameStarterFactory>();
 builder.Services.AddScoped<IGameFinalizer, GameFinalizer>();
 builder.Services.AddScoped<IGameArchiveService, GameArchiveService>();
 builder.Services.AddScoped<IGameArchiveRepository, GameArchiveRepository>();
