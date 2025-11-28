@@ -120,9 +120,9 @@ public class RematchGrainTests : BaseGrainTest
     {
         var createdGameToken = "created game token";
         _gameStarterMock
-            .StartGameWithRandomColorsAsync(
-                _gameState.WhitePlayer.UserId,
-                _gameState.BlackPlayer.UserId,
+            .StartGameWithColorsAsync(
+                whiteUserId: _gameState.BlackPlayer.UserId,
+                blackUserId: _gameState.WhitePlayer.UserId,
                 _gameState.Pool,
                 GameSource.Rematch,
                 token: CT
