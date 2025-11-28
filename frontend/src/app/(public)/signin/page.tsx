@@ -10,6 +10,7 @@ import LogoText from "@public/assets/logo-text.svg";
 import AuthPageImage from "@/features/auth/components/AuthPageImage";
 import OAuthButton from "@/features/auth/components/OAuthButton";
 import constants, { OAuthProvider } from "@/lib/constants";
+import AuthPageAlert from "@/features/auth/components/AuthPageAlert";
 
 export const metadata = { title: "Login - Anarchy Chess" };
 
@@ -33,6 +34,7 @@ export default async function SignInPage() {
                         icon={<Image src={discordIcon} alt="Discord Icon" />}
                         loginText="Continue with Discord"
                     />
+                    <AuthPageAlert />
                 </div>
             </section>
             <AuthPageImage />

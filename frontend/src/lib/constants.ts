@@ -23,6 +23,7 @@ const COOKIES = {
     REFRESH_TOKEN: "refreshToken",
     ACCESS_TOKEN: "accessToken",
     IS_LOGGED_IN: "isLoggedIn",
+    AUTH_FAILURE: "authFailed",
     SIDEBAR_COLLAPSED: "sidebarCollapsed",
 };
 

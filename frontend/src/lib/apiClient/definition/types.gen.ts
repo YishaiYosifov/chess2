@@ -517,6 +517,7 @@ export enum ErrorCode {
     SOCIAL_NOT_BLOCKED = "Social.NotBlocked",
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
+    AUTH_USER_BANNED = "Auth.UserBanned",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
