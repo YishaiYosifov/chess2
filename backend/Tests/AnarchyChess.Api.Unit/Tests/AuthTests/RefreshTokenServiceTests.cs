@@ -58,7 +58,7 @@ public class RefreshTokenServiceTests : BaseUnitTest
 
         var result = await _refreshTokenService.CreateRefreshTokenAsync(_user, CT);
 
-        result.ExpiresAt.Should().Be(now.Add(_appSettings.Jwt.RefreshMaxAge));
+        result.ExpiresAt.Should().Be(now.Add(_appSettings.Auth.RefreshMaxAge));
     }
 
     [Fact]

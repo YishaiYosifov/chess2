@@ -17,7 +17,7 @@ namespace AnarchyChess.Api.Unit.Tests.AuthTests;
 public class TokenProviderTests
 {
     private readonly TokenProvider _tokenProvider;
-    private readonly JwtSettings _settings;
+    private readonly AuthSettings _settings;
 
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
@@ -26,7 +26,7 @@ public class TokenProviderTests
     {
         var settings = AppSettingsLoader.LoadAppSettings();
         _tokenProvider = new(Options.Create(settings), _timeProviderMock);
-        _settings = settings.Jwt;
+        _settings = settings.Auth;
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
     }
@@ -68,7 +68,7 @@ public class TokenProviderTests
                 ValidateAudience = false,
                 ValidateLifetime = false,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_settings.SecretKey)
+                    Encoding.UTF8.GetBytes(_settings.Jwt.SecretKey)
                 ),
             }
         );
@@ -86,8 +86,8 @@ public class TokenProviderTests
         result.IsError.Should().BeFalse();
 
         var token = ParseJwt(result.Value);
-        token.Issuer.Should().Be(_settings.Issuer);
-        token.Audiences.Should().BeEquivalentTo([_settings.Audience]);
+        token.Issuer.Should().Be(_settings.Jwt.Issuer);
+        token.Audiences.Should().BeEquivalentTo([_settings.Jwt.Audience]);
     }
 
     [Fact]
