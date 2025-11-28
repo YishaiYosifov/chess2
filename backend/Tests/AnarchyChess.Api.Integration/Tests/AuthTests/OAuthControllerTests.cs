@@ -19,7 +19,7 @@ using NSubstitute;
 namespace AnarchyChess.Api.Integration.Tests.AuthTests;
 
 /// <summary>
-/// Not a function test because I can't be asked to try to deal with
+/// Not a functional test because I can't be asked to try to deal with
 /// openiddict middleware trying to verify my token :D
 /// </summary>
 public class OAuthControllerTests : BaseIntegrationTest
