@@ -1,9 +1,9 @@
 ﻿using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using AnarchyChess.Api.Profile.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -41,11 +41,7 @@ public class OAuthServiceTests : BaseIntegrationTest
         };
     }
 
-    private async Task TestAuthenticateAsync(
-        string provider,
-        Claim claim,
-        Action<AuthedUser> userCreationAssertion
-    )
+    private async Task<AuthedUser> TestAuthenticateAsync(string provider, Claim claim)
     {
         var ticket = ClaimUtils.CreateAuthenticationTicket(claim);
         _authenticationServiceMock
@@ -61,7 +57,7 @@ public class OAuthServiceTests : BaseIntegrationTest
         await AuthTestUtils.AssertAuthenticated(ApiClient);
 
         var user = await _userManager.Users.SingleAsync();
-        userCreationAssertion(user);
+        return user;
     }
 
     [Fact]
@@ -69,15 +65,10 @@ public class OAuthServiceTests : BaseIntegrationTest
     {
         const string email = "test@email.com";
         var claim = new Claim(ClaimTypes.Email, email);
-        await TestAuthenticateAsync(
-            Providers.Google,
-            claim,
-            user =>
-            {
-                user.Email.Should().Be(email);
-                user.UserName?.Length.Should().BeGreaterThan(10);
-            }
-        );
+
+        var user = await TestAuthenticateAsync(Providers.Google, claim);
+        user.Email.Should().Be(email);
+        user.UserName?.Length.Should().BeGreaterThan(10);
     }
 
     [Fact]
@@ -85,15 +76,10 @@ public class OAuthServiceTests : BaseIntegrationTest
     {
         const string userJson = "{\"id\":\"123123\"}";
         var claim = new Claim("user", userJson);
-        await TestAuthenticateAsync(
-            Providers.Discord,
-            claim,
-            user =>
-            {
-                user.Email.Should().BeNull();
-                user.UserName?.Length.Should().BeGreaterThan(10);
-            }
-        );
+
+        var user = await TestAuthenticateAsync(Providers.Discord, claim);
+        user.Email.Should().BeNull();
+        user.UserName?.Length.Should().BeGreaterThan(10);
     }
 
     [Fact]
