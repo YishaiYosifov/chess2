@@ -1,9 +1,9 @@
-﻿using AnarchyChess.Api.Lobby.Models;
+﻿using System.Threading.Channels;
+using AnarchyChess.Api.Lobby.Models;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Channels;
 
 namespace AnarchyChess.Api.TestInfrastructure.SignalRClients;
 
@@ -37,6 +37,7 @@ public class OpenSeekHubClient : BaseHubClient
     )
     {
         OpenSeekHubClient client = new(connection);
+        await client.StartAsync(token);
         await client.SubscribeAsync(token);
         return client;
     }

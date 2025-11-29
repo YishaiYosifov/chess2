@@ -23,13 +23,15 @@ public class GameHubTests : BaseFunctionalTest
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
 
         await using GameHubClient player1Conn = new(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User1),
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User1),
             game.GameToken
         );
         await using GameHubClient player2ConnFirst = new(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+        await player1Conn.StartAsync(CT);
+        await player2ConnFirst.StartAsync(CT);
 
         (await player2ConnFirst.GetNextRevisionAsync(CT)).Should().Be(0);
         await player2ConnFirst.DisposeAsync();
@@ -37,9 +39,10 @@ public class GameHubTests : BaseFunctionalTest
         await player1Conn.RequestDrawAsync(CT);
 
         await using GameHubClient player2ConnReconnect = new(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+        await player2ConnReconnect.StartAsync(CT);
         (await player2ConnReconnect.GetNextRevisionAsync(CT)).Should().Be(1);
     }
 }

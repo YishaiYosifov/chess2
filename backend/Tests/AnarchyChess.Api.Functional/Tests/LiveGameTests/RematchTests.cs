@@ -29,14 +29,17 @@ public class RematchTests : BaseFunctionalTest
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
         await FinishGameAsync(game.GameToken, game.User1.Id);
 
-        await using var player1Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User1),
+        await using GameHubClient player1Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User1),
             game.GameToken
         );
-        await using var player2Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+        await using GameHubClient player2Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+
+        await player1Conn.StartAsync(CT);
+        await player2Conn.StartAsync(CT);
 
         await player1Conn.RequestRematchAsync(CT);
 
@@ -49,14 +52,17 @@ public class RematchTests : BaseFunctionalTest
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
         await FinishGameAsync(game.GameToken, game.User1.Id);
 
-        await using var player1Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User1),
+        await using GameHubClient player1Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User1),
             game.GameToken
         );
-        await using var player2Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+        await using GameHubClient player2Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+
+        await player1Conn.StartAsync(CT);
+        await player2Conn.StartAsync(CT);
 
         await player1Conn.RequestRematchAsync(CT);
         await player2Conn.WaitForRematchRequestedAsync(CT);
@@ -73,14 +79,17 @@ public class RematchTests : BaseFunctionalTest
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
         await FinishGameAsync(game.GameToken, game.User1.Id);
 
-        await using var player1Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User1),
+        await using GameHubClient player1Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User1),
             game.GameToken
         );
-        await using var player2Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+        await using GameHubClient player2Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+
+        await player1Conn.StartAsync(CT);
+        await player2Conn.StartAsync(CT);
 
         await player1Conn.RequestRematchAsync(CT);
         await player2Conn.RequestRematchAsync(CT);
@@ -119,17 +128,19 @@ public class RematchTests : BaseFunctionalTest
         );
         await FinishGameAsync(gameToken, guest1);
 
-        await using var guest1Conn = new GameHubClient(
-            await GuestSignalRAsync(GameHubClient.Path(gameToken), guest1),
+        await using GameHubClient guest1Conn = new(
+            GuestSignalR(GameHubClient.Path(gameToken), guest1),
             gameToken
         );
-        await using var guest2Conn = new GameHubClient(
-            await GuestSignalRAsync(GameHubClient.Path(gameToken), guest2),
+        await using GameHubClient guest2Conn = new(
+            GuestSignalR(GameHubClient.Path(gameToken), guest2),
             gameToken
         );
+
+        await guest1Conn.StartAsync(CT);
+        await guest2Conn.StartAsync(CT);
 
         await guest1Conn.RequestRematchAsync(CT);
-
         await guest2Conn.WaitForRematchRequestedAsync(CT);
 
         await guest2Conn.RequestRematchAsync(CT);
@@ -146,14 +157,17 @@ public class RematchTests : BaseFunctionalTest
         var game = await GameUtils.CreateRatedGameAsync(DbContext, _gameStarter);
         await FinishGameAsync(game.GameToken, game.User1.Id);
 
-        await using var player1Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User1),
+        await using GameHubClient player1Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User1),
             game.GameToken
         );
-        await using var player2Conn = new GameHubClient(
-            await AuthedSignalRAsync(GameHubClient.Path(game.GameToken), game.User2),
+        await using GameHubClient player2Conn = new(
+            AuthedSignalR(GameHubClient.Path(game.GameToken), game.User2),
             game.GameToken
         );
+
+        await player1Conn.StartAsync(CT);
+        await player2Conn.StartAsync(CT);
 
         await player1Conn.RequestRematchAsync(CT);
         await player2Conn.WaitForRematchRequestedAsync(CT);

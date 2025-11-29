@@ -6,7 +6,8 @@ using FluentAssertions;
 
 namespace AnarchyChess.Api.Functional.Tests.ChallengeTests;
 
-public class ChallengeHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunctionalTest(factory)
+public class ChallengeHubTests(AnarchyChessWebApplicationFactory factory)
+    : BaseFunctionalTest(factory)
 {
     [Fact]
     public async Task ChallengeReceivedAsync_is_called_for_each_challenge_when_connecting()
@@ -30,8 +31,9 @@ public class ChallengeHubTests(AnarchyChessWebApplicationFactory factory) : Base
         }
 
         await using ChallengeHubClient recipientConn = new(
-            await AuthedSignalRAsync(ChallengeHubClient.Path, recipient)
+            AuthedSignalR(ChallengeHubClient.Path, recipient)
         );
+        await recipientConn.StartAsync(CT);
 
         List<ChallengeRequest> receivedChallenges = [];
         for (var i = 0; i < createdChallenges.Count; i++)

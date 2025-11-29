@@ -1,7 +1,7 @@
-﻿using AnarchyChess.Api.Infrastructure.SignalR;
+﻿using System.Threading.Channels;
+using AnarchyChess.Api.Infrastructure.SignalR;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using Microsoft.AspNetCore.SignalR.Client;
-using System.Threading.Channels;
 
 namespace AnarchyChess.Api.TestInfrastructure.SignalRClients;
 
@@ -22,6 +22,10 @@ public abstract class BaseHubClient : IAsyncDisposable
             errors => _errorChannel.Writer.TryWrite(errors)
         );
     }
+
+    public Task StartAsync(CancellationToken token = default) => Connection.StartAsync(token);
+
+    public Task StopAsync(CancellationToken token = default) => Connection.StopAsync(token);
 
     public async Task<IEnumerable<SignalRError>> GetNextErrorsAsync(CancellationToken token)
     {

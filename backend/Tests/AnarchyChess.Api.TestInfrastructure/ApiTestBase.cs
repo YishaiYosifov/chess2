@@ -55,21 +55,21 @@ public class ApiTestBase : IAsyncLifetime
         );
     }
 
-    protected async Task<HubConnection> GuestSignalRAsync(string path, UserId? guestId = null)
+    protected HubConnection GuestSignalR(string path, UserId? guestId = null)
     {
         var token = TokenProvider.GenerateGuestToken(guestId ?? UserId.Guest());
-        var conn = await SignalRAsync(path, token);
+        var conn = SignalR(path, token);
         return conn;
     }
 
-    protected async Task<HubConnection> AuthedSignalRAsync(string path, AuthedUser user)
+    protected HubConnection AuthedSignalR(string path, AuthedUser user)
     {
         var token = TokenProvider.GenerateAccessToken(user);
-        var conn = await SignalRAsync(path, token.Value);
+        var conn = SignalR(path, token.Value);
         return conn;
     }
 
-    protected async Task<HubConnection> SignalRAsync(string path, string? accessToken = null)
+    protected HubConnection SignalR(string path, string? accessToken = null)
     {
         var baseAddress =
             ApiClient.Client.BaseAddress
@@ -91,7 +91,6 @@ public class ApiTestBase : IAsyncLifetime
                 }
             )
             .Build();
-        await connection.StartAsync();
 
         return connection;
     }

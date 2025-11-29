@@ -23,9 +23,11 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
     {
         await DbContext.AddRangeAsync(_requester, _recipient);
         await DbContext.SaveChangesAsync(CT);
+
         await using ChallengeHubClient recipientConn = new(
-            await AuthedSignalRAsync(ChallengeHubClient.Path, _recipient)
+            AuthedSignalR(ChallengeHubClient.Path, _recipient)
         );
+        await recipientConn.StartAsync(CT);
 
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
@@ -115,11 +117,9 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
         await using ChallengeInstanceHubClient recipientConn = new(
-            await AuthedSignalRAsync(
-                ChallengeInstanceHubClient.Path(challenge.ChallengeToken),
-                _recipient
-            )
+            AuthedSignalR(ChallengeInstanceHubClient.Path(challenge.ChallengeToken), _recipient)
         );
+        await recipientConn.StartAsync(CT);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
         var cancelResult = await ApiClient.Api.CancelChallengeAsync(challenge.ChallengeToken);
@@ -141,11 +141,9 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
         var challenge = await CreateChallengeAsync(_requester, _recipient);
 
         await using ChallengeInstanceHubClient requesterConn = new(
-            await AuthedSignalRAsync(
-                ChallengeInstanceHubClient.Path(challenge.ChallengeToken),
-                _requester
-            )
+            AuthedSignalR(ChallengeInstanceHubClient.Path(challenge.ChallengeToken), _requester)
         );
+        await requesterConn.StartAsync(CT);
 
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, _recipient);
         var result = await ApiClient.Api.AcceptChallengeAsync(challenge.ChallengeToken);

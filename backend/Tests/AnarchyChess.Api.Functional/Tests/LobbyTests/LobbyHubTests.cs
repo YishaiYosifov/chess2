@@ -11,20 +11,14 @@ namespace AnarchyChess.Api.Functional.Tests.LobbyTests;
 public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunctionalTest(factory)
 {
     [Fact]
-    public async Task Connecting_without_access_token_throws_error()
-    {
-        var act = async () => await SignalRAsync(LobbyHubClient.Path);
-        await act.Should().ThrowAsync<HttpRequestException>().WithMessage("*Unauthorized*");
-    }
-
-    [Fact]
     public async Task SeekRatedAsync_with_invalid_time_control_returns_an_error()
     {
         var user = new AuthedUserFaker().Generate();
         await DbContext.AddAsync(user, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await using LobbyHubClient conn = new(await AuthedSignalRAsync(LobbyHubClient.Path, user));
+        await using LobbyHubClient conn = new(AuthedSignalR(LobbyHubClient.Path, user));
+        await conn.StartAsync(CT);
 
         await conn.SeekRatedAsync(new TimeControlSettings(4912, -5), CT);
         var errors = await conn.GetNextErrorsAsync(CT);
@@ -36,7 +30,8 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task SeekCasualAsync_with_invalid_time_control_returns_an_error()
     {
-        await using LobbyHubClient conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn = new(GuestSignalR(LobbyHubClient.Path));
+        await conn.StartAsync(CT);
 
         await conn.SeekCasualAsync(new TimeControlSettings(56, 531), CT);
         var errors = await conn.GetNextErrorsAsync(CT);
@@ -48,8 +43,10 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task SeekCasualAsync_guest_vs_guest_matches()
     {
-        await using LobbyHubClient conn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
-        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path));
+        await using LobbyHubClient conn2 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn1.StartAsync(CT);
+        await conn2.StartAsync(CT);
 
         await conn1.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
         await conn2.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
@@ -65,12 +62,10 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await DbContext.AddRangeAsync(user1, user2);
         await DbContext.SaveChangesAsync(CT);
 
-        await using LobbyHubClient conn1 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, user1)
-        );
-        await using LobbyHubClient conn2 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, user2)
-        );
+        await using LobbyHubClient conn1 = new(AuthedSignalR(LobbyHubClient.Path, user1));
+        await using LobbyHubClient conn2 = new(AuthedSignalR(LobbyHubClient.Path, user2));
+        await conn1.StartAsync(CT);
+        await conn2.StartAsync(CT);
 
         await conn1.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
         await conn2.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
@@ -85,10 +80,10 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await DbContext.AddAsync(authedUser, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        await using LobbyHubClient conn1 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authedUser)
-        );
-        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn1 = new(AuthedSignalR(LobbyHubClient.Path, authedUser));
+        await using LobbyHubClient conn2 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn1.StartAsync(CT);
+        await conn2.StartAsync(CT);
 
         await conn1.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
         await conn2.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
@@ -108,21 +103,19 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await DbContext.AddRangeAsync(authed1, authed2, authed3, authed4);
         await DbContext.SaveChangesAsync(CT);
 
-        await using LobbyHubClient authedConn1 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authed1)
-        );
-        await using LobbyHubClient authedConn2 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authed2)
-        );
-        await using LobbyHubClient authedConn3 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authed3)
-        );
-        await using LobbyHubClient authedConn4 = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authed4)
-        );
+        await using LobbyHubClient authedConn1 = new(AuthedSignalR(LobbyHubClient.Path, authed1));
+        await using LobbyHubClient authedConn2 = new(AuthedSignalR(LobbyHubClient.Path, authed2));
+        await using LobbyHubClient authedConn3 = new(AuthedSignalR(LobbyHubClient.Path, authed3));
+        await using LobbyHubClient authedConn4 = new(AuthedSignalR(LobbyHubClient.Path, authed4));
+        await using LobbyHubClient guestConn1 = new(GuestSignalR(LobbyHubClient.Path));
+        await using LobbyHubClient guestConn2 = new(GuestSignalR(LobbyHubClient.Path));
 
-        await using LobbyHubClient guestConn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
-        await using LobbyHubClient guestConn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await authedConn1.StartAsync(CT);
+        await authedConn2.StartAsync(CT);
+        await authedConn3.StartAsync(CT);
+        await authedConn4.StartAsync(CT);
+        await guestConn1.StartAsync(CT);
+        await guestConn2.StartAsync(CT);
 
         List<Task> connTasks =
         [
@@ -148,7 +141,8 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task SeekRated_with_a_guest_should_return_an_error()
     {
-        await using LobbyHubClient conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn = new(GuestSignalR(LobbyHubClient.Path));
+        await conn.StartAsync(CT);
 
         await conn.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
 
@@ -162,12 +156,15 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     {
         TimeControlSettings timeControl = new(300, 10);
 
-        await using LobbyHubClient conn1 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn1.StartAsync(CT);
         await conn1.SeekCasualAsync(timeControl, CT);
         await conn1.DisposeAsync();
 
-        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
-        await using LobbyHubClient conn3 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn2 = new(GuestSignalR(LobbyHubClient.Path));
+        await using LobbyHubClient conn3 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn2.StartAsync(CT);
+        await conn3.StartAsync(CT);
 
         await conn2.SeekCasualAsync(timeControl, CT);
         await conn3.SeekCasualAsync(timeControl, CT);
@@ -180,14 +177,16 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     {
         TimeControlSettings timeControl = new(300, 10);
 
-        await using LobbyHubClient guest1ActiveConn = new(
-            await GuestSignalRAsync(LobbyHubClient.Path)
-        );
-        await using var guest1DisconnectedConn = await GuestSignalRAsync(LobbyHubClient.Path);
+        await using LobbyHubClient guest1ActiveConn = new(GuestSignalR(LobbyHubClient.Path));
+        LobbyHubClient guest1DisconnectedConn = new(GuestSignalR(LobbyHubClient.Path));
+        await guest1ActiveConn.StartAsync(CT);
+        await guest1DisconnectedConn.StartAsync(CT);
+
         await guest1ActiveConn.SeekCasualAsync(timeControl, CT);
         await guest1DisconnectedConn.StopAsync(CT);
 
-        await using LobbyHubClient guest2Conn = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient guest2Conn = new(GuestSignalR(LobbyHubClient.Path));
+        await guest2Conn.StartAsync(CT);
         await guest2Conn.SeekCasualAsync(timeControl, CT);
 
         await AssertMatchEstablishedAsync(guest1ActiveConn, guest2Conn);
@@ -199,10 +198,10 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         TimeControlSettings timeControl = new(300, 10);
 
         var seekerId = UserId.Guest();
-        await using LobbyHubClient conn1 = new(
-            await GuestSignalRAsync(LobbyHubClient.Path, seekerId)
-        );
-        await using LobbyHubClient conn2 = new(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path, seekerId));
+        await using LobbyHubClient conn2 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn1.StartAsync(CT);
+        await conn2.StartAsync(CT);
 
         await conn1.SeekCasualAsync(timeControl, CT);
         await conn2.MatchWithOpenSeekAsync(

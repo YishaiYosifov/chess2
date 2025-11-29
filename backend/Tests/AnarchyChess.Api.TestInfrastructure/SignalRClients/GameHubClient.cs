@@ -59,6 +59,7 @@ public class GameHubClient : BaseHubClient
     )
     {
         GameHubClient client = new(connection, gameToken);
+        await client.StartAsync(token);
         await client.WaitForChatConnection(token);
         return client;
     }

@@ -40,21 +40,23 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await DbContext.SaveChangesAsync(CT);
 
         await using LobbyHubClient authLobby = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authedSeeker)
+            AuthedSignalR(LobbyHubClient.Path, authedSeeker)
         );
+        await authLobby.StartAsync(CT);
         await authLobby.SeekRatedAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         await using LobbyHubClient casualLobby = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authedSeeker)
+            AuthedSignalR(LobbyHubClient.Path, authedSeeker)
         );
+        await casualLobby.StartAsync(CT);
         await casualLobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         await using OpenSeekHubClient openSeek = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId),
+            GuestSignalR(OpenSeekHubClient.Path, watcherId),
             CT
         );
-        var seeks = await openSeek.GetNextOpenSeekBatchAsync(CT);
 
+        var seeks = await openSeek.GetNextOpenSeekBatchAsync(CT);
         seeks.Should().ContainSingle().Which.Pool.PoolType.Should().Be(PoolType.Casual);
     }
 
@@ -68,12 +70,13 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await ClearShardForWatcher(authedWatcher.Id);
 
         await using LobbyHubClient authLobby = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authedSeeker)
+            AuthedSignalR(LobbyHubClient.Path, authedSeeker)
         );
+        await authLobby.StartAsync(CT);
         await authLobby.SeekRatedAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         await using OpenSeekHubClient openSeek = await OpenSeekHubClient.CreateSubscribedAsync(
-            await AuthedSignalRAsync(OpenSeekHubClient.Path, authedWatcher),
+            AuthedSignalR(OpenSeekHubClient.Path, authedWatcher),
             CT
         );
 
@@ -91,12 +94,13 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await ClearShardForWatcher(authedWatcher.Id);
 
         await using LobbyHubClient casualLobby = new(
-            await AuthedSignalRAsync(LobbyHubClient.Path, authedSeeker)
+            AuthedSignalR(LobbyHubClient.Path, authedSeeker)
         );
+        await casualLobby.StartAsync(CT);
         await casualLobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         await using OpenSeekHubClient openSeek = await OpenSeekHubClient.CreateSubscribedAsync(
-            await AuthedSignalRAsync(OpenSeekHubClient.Path, authedWatcher),
+            AuthedSignalR(OpenSeekHubClient.Path, authedWatcher),
             CT
         );
 
@@ -112,16 +116,15 @@ public class OpenSeekHubTests : BaseFunctionalTest
 
         TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
         var seekerId = UserId.Guest();
-        await using var lobby = new LobbyHubClient(
-            await GuestSignalRAsync(LobbyHubClient.Path, seekerId)
-        );
+        await using var lobby = new LobbyHubClient(GuestSignalR(LobbyHubClient.Path, seekerId));
+        await lobby.StartAsync(CT);
         await lobby.SeekCasualAsync(timeControl, CT);
 
         await using var watcher = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId),
+            GuestSignalR(OpenSeekHubClient.Path, watcherId),
             CT
         );
-        // wait until the seek is broadcasted
+
         var seekCreated = await watcher.GetNextOpenSeekBatchAsync(CT);
         seekCreated.Should().ContainSingle().Which.UserId.Should().Be(seekerId);
 
@@ -140,15 +143,17 @@ public class OpenSeekHubTests : BaseFunctionalTest
         await ClearShardForWatcher(watcherId1, watcherId2);
 
         await using var watcher1 = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId1),
-            CT
-        );
-        await using var watcher2 = await OpenSeekHubClient.CreateSubscribedAsync(
-            await GuestSignalRAsync(OpenSeekHubClient.Path, watcherId2),
+            GuestSignalR(OpenSeekHubClient.Path, watcherId1),
             CT
         );
 
-        await using var lobby = new LobbyHubClient(await GuestSignalRAsync(LobbyHubClient.Path));
+        await using var watcher2 = await OpenSeekHubClient.CreateSubscribedAsync(
+            GuestSignalR(OpenSeekHubClient.Path, watcherId2),
+            CT
+        );
+
+        await using var lobby = new LobbyHubClient(GuestSignalR(LobbyHubClient.Path));
+        await lobby.StartAsync(CT);
         await lobby.SeekCasualAsync(new(BaseSeconds: 300, IncrementSeconds: 3), CT);
 
         var watcher1Seeks = await watcher1.GetNextOpenSeekBatchAsync(CT);
