@@ -6,7 +6,6 @@ services:
             dockerfile: AnarchyChess.Api/Dockerfile
         depends_on:
             - postgres
-            - dragonfly
         restart: unless-stopped
 
     postgres:
@@ -20,18 +19,5 @@ services:
             - postgresdata:/var/lib/postgresql/data
         restart: unless-stopped
 
-    dragonfly:
-        image: docker.dragonflydb.io/dragonflydb/dragonfly
-        ulimits:
-            memlock: -1
-        environment:
-            DFLY_requirepass: ${DFLY_requirepass}
-        ports:
-            - "6379:6379"
-        volumes:
-            - dragonflydata:/data
-        restart: unless-stopped
-
 volumes:
-    dragonflydata:
     postgresdata:

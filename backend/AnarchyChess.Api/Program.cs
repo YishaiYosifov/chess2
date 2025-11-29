@@ -67,7 +67,6 @@ using Orleans.Serialization.Serializers;
 using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -134,16 +133,13 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddSignalR().AddStackExchangeRedis();
+builder.Services.AddSignalR();
 
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
 });
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    ConnectionMultiplexer.Connect(appSettings.RedisConnString)
-);
 
 StorageFactory.Modules.UseAzureBlobStorage();
 builder.Services.AddSingleton(

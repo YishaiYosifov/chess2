@@ -18,10 +18,8 @@ using Serilog;
 using Serilog.Sinks.XUnit.Injectable;
 using Serilog.Sinks.XUnit.Injectable.Abstract;
 using Serilog.Sinks.XUnit.Injectable.Extensions;
-using StackExchange.Redis;
 using Testcontainers.Azurite;
 using Testcontainers.PostgreSql;
-using Testcontainers.Redis;
 
 namespace AnarchyChess.Api.TestInfrastructure;
 
@@ -34,17 +32,12 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
         .WithPassword("postgres")
         .Build();
 
-    private readonly RedisContainer _redisContainer = new RedisBuilder()
-        .WithImage("docker.dragonflydb.io/dragonflydb/dragonfly:latest")
-        .Build();
-
     private readonly AzuriteContainer _azuriteContainer = new AzuriteBuilder()
         .WithImage("mcr.microsoft.com/azure-storage/azurite:latest")
         .Build();
 
     private NpgsqlConnection _dbConnection = null!;
     private Respawner _respawner = null!;
-    private IDatabase _redisDb = null!;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -74,11 +67,6 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                         options.ConnectionString = _dbContainer.GetConnectionString();
                     });
                 });
-
-                services.RemoveAll<IConnectionMultiplexer>();
-                services.AddSingleton<IConnectionMultiplexer>(
-                    ConnectionMultiplexer.Connect(_redisContainer.GetConnectionString())
-                );
 
                 services.RemoveAll<IBlobStorage>();
                 services.AddSingleton<IBlobStorage>(
@@ -129,36 +117,22 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
         return new(apiClient, httpClient, cookieContainer);
     }
 
-    public async Task ResetDatabaseAsync()
-    {
-        await _respawner.ResetAsync(_dbConnection);
-        await _redisDb.ExecuteAsync("FLUSHDB");
-    }
+    public Task ResetDatabaseAsync() => _respawner.ResetAsync(_dbConnection);
 
     public async ValueTask InitializeAsync()
     {
         await _dbContainer.StartAsync();
-        await _redisContainer.StartAsync();
         await _azuriteContainer.StartAsync();
 
         _dbConnection = await InitializeDbContainerAsync();
         _respawner = await InitializeRespawnerAsync(_dbConnection);
-        InitializeRedisContainer();
     }
 
     public new async ValueTask DisposeAsync()
     {
         await _dbContainer.StopAsync();
-        await _redisContainer.StopAsync();
         await _azuriteContainer.StopAsync();
         GC.SuppressFinalize(this);
-    }
-
-    private void InitializeRedisContainer()
-    {
-        using var scope = Services.CreateScope();
-        var redisConnection = scope.ServiceProvider.GetRequiredService<IConnectionMultiplexer>();
-        _redisDb = redisConnection.GetDatabase();
     }
 
     private async Task<NpgsqlConnection> InitializeDbContainerAsync()

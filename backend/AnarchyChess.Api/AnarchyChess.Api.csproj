@@ -20,7 +20,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.5" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="9.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
@@ -36,7 +35,6 @@
     <PackageReference Include="Microsoft.Orleans.Streaming" Version="9.2.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="NRediSearch" Version="2.2.79" />
     <PackageReference Include="NSwag.AspNetCore" Version="14.4.0" />
     <PackageReference Include="OpenIddict.Client.AspNetCore" Version="6.2.1" />
     <PackageReference Include="OpenIddict.Client.WebIntegration" Version="6.2.1" />
@@ -46,7 +44,6 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="SkiaSharp" Version="3.119.0" />
-    <PackageReference Include="StackExchange.Redis" Version="2.8.31" />
   </ItemGroup>
 
   <ItemGroup>
