@@ -23,6 +23,10 @@ public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProv
     private readonly AuthSettings _settings = settings.Value.Auth;
     private readonly TimeProvider _timeProvider = timeProvider;
 
+    private readonly SymmetricSecurityKey _secretKey = new(
+        Encoding.UTF8.GetBytes(settings.Value.Secrets.JwtSecret)
+    );
+
     public ErrorOr<string> GenerateAccessToken(AuthedUser user)
     {
         if (user.IsBanned)
@@ -66,8 +70,7 @@ public class TokenProvider(IOptions<AppSettings> settings, TimeProvider timeProv
 
     private string GenerateToken(ClaimsIdentity claims, DateTime expires)
     {
-        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_settings.Jwt.SecretKey));
-        SigningCredentials creds = new(key, SecurityAlgorithms.HmacSha256);
+        SigningCredentials creds = new(_secretKey, SecurityAlgorithms.HmacSha256);
         SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = claims,

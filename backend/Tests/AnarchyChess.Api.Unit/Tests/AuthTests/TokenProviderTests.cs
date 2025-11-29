@@ -18,6 +18,7 @@ public class TokenProviderTests
 {
     private readonly TokenProvider _tokenProvider;
     private readonly AuthSettings _settings;
+    private readonly string _jwtSecretKey;
 
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
     private readonly DateTimeOffset _fakeNow = DateTimeOffset.UtcNow;
@@ -27,6 +28,7 @@ public class TokenProviderTests
         var settings = AppSettingsLoader.LoadAppSettings();
         _tokenProvider = new(Options.Create(settings), _timeProviderMock);
         _settings = settings.Auth;
+        _jwtSecretKey = settings.Secrets.JwtSecret;
 
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
     }
@@ -67,9 +69,7 @@ public class TokenProviderTests
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 ValidateLifetime = false,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_settings.Jwt.SecretKey)
-                ),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecretKey)),
             }
         );
 

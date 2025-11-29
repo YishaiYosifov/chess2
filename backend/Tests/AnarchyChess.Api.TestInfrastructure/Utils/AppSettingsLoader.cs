@@ -16,6 +16,7 @@ public static class AppSettingsLoader
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true)
             .AddEnvironmentVariables()
+            .AddUserSecrets<Program>()
             .Build();
         var appSettings =
             configuration.GetSection("AppSettings").Get<AppSettings>()

@@ -91,10 +91,16 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                 {
                     Dictionary<string, string?> secrets = new()
                     {
-                        { "Authentication:Google:ClientId", "test-google-client-id" },
-                        { "Authentication:Google:ClientSecret", "test-google-client-secret" },
-                        { "Authentication:Discord:ClientId", "test-discord-client-id" },
-                        { "Authentication:Discord:ClientSecret", "test-discord-client-secret" },
+                        { "AppSettings:Secrets:GoogleOAuth:ClientId", "test-google-client-id" },
+                        {
+                            "AppSettings:Secrets:GoogleOAuth:ClientSecret",
+                            "test-google-client-secret"
+                        },
+                        { "AppSettings:Secrets:DiscordOAuth:ClientId", "test-discord-client-id" },
+                        {
+                            "AppSettings:Secrets:DiscordOAuth:ClientSecret",
+                            "test-discord-client-secret"
+                        },
                     };
                     configBuilder.AddInMemoryCollection(secrets);
                 }

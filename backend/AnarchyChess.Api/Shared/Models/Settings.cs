@@ -9,13 +9,27 @@ public class AppSettings
     public required GameSettings Game { get; set; }
     public required ChallengeSettings Challenge { get; set; }
 
-    public required string CSRFHeader { get; set; }
+    // Set via dotnet user-secrets
+    public required SecretSettings Secrets { get; set; }
 
-    public required string RedisConnString { get; set; }
+    public TimeSpan UsernameEditCooldown { get; set; }
+}
+
+public class SecretSettings
+{
+    public required string JwtSecret { get; set; }
+
     public required string DatabaseConnString { get; set; }
     public required string BlobStorageConnString { get; set; }
 
-    public TimeSpan UsernameEditCooldown { get; set; }
+    public required OAuthClientSettings GoogleOAuth { get; set; }
+    public required OAuthClientSettings DiscordOAuth { get; set; }
+}
+
+public class OAuthClientSettings
+{
+    public required string ClientId { get; set; }
+    public required string ClientSecret { get; set; }
 }
 
 public class AuthSettings
@@ -71,7 +85,6 @@ public class ChatSettings
 
 public class JwtSettings
 {
-    public required string SecretKey { get; set; }
     public required string Issuer { get; set; }
     public required string Audience { get; set; }
 }

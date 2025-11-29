@@ -138,13 +138,13 @@ builder.Services.AddSignalR();
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(appSettings.DatabaseConnString).UseSnakeCaseNamingConvention();
+    options.UseNpgsql(appSettings.Secrets.DatabaseConnString).UseSnakeCaseNamingConvention();
 });
 
 StorageFactory.Modules.UseAzureBlobStorage();
 builder.Services.AddSingleton(
     StorageFactory
-        .Blobs.FromConnectionString(appSettings.BlobStorageConnString)
+        .Blobs.FromConnectionString(appSettings.Secrets.BlobStorageConnString)
         .WithGzipCompression()
 );
 
@@ -205,7 +205,7 @@ void ConfigureJwtBearerCookie(JwtBearerOptions options, string cookieName)
     options.TokenValidationParameters = new()
     {
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(appSettings.Auth.Jwt.SecretKey)
+            Encoding.UTF8.GetBytes(appSettings.Secrets.JwtSecret)
         ),
         ValidIssuer = appSettings.Auth.Jwt.Issuer,
         ValidAudience = appSettings.Auth.Jwt.Audience,
@@ -249,29 +249,15 @@ builder
             .UseWebProviders()
             .AddGoogle(options =>
             {
-                var clientId =
-                    builder.Configuration["Authentication:Google:ClientId"]
-                    ?? throw new KeyNotFoundException("Google OAuth Client Id");
-                var clientSecret =
-                    builder.Configuration["Authentication:Google:ClientSecret"]
-                    ?? throw new KeyNotFoundException("Google OAuth Client Secret");
-
-                options.SetClientId(clientId);
-                options.SetClientSecret(clientSecret);
+                options.SetClientId(appSettings.Secrets.GoogleOAuth.ClientId);
+                options.SetClientSecret(appSettings.Secrets.GoogleOAuth.ClientSecret);
                 options.AddScopes("email");
                 options.SetRedirectUri("api/oauth/google/callback");
             })
             .AddDiscord(options =>
             {
-                var clientId =
-                    builder.Configuration["Authentication:Discord:ClientId"]
-                    ?? throw new KeyNotFoundException("Discord OAuth Client Id");
-                var clientSecret =
-                    builder.Configuration["Authentication:Discord:ClientSecret"]
-                    ?? throw new KeyNotFoundException("Discord OAuth Client Secret");
-
-                options.SetClientId(clientId);
-                options.SetClientSecret(clientSecret);
+                options.SetClientId(appSettings.Secrets.DiscordOAuth.ClientId);
+                options.SetClientSecret(appSettings.Secrets.DiscordOAuth.ClientSecret);
                 options.SetRedirectUri("api/oauth/discord/callback");
             });
 
@@ -336,13 +322,13 @@ builder.Host.UseOrleans(siloBuilder =>
     });
     siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
     {
-        options.ConnectionString = appSettings.DatabaseConnString;
+        options.ConnectionString = appSettings.Secrets.DatabaseConnString;
         options.Invariant = "Npgsql";
     });
 
     siloBuilder.UseAdoNetReminderService(options =>
     {
-        options.ConnectionString = appSettings.DatabaseConnString;
+        options.ConnectionString = appSettings.Secrets.DatabaseConnString;
         options.Invariant = "Npgsql";
     });
     siloBuilder.AddStartupTask(

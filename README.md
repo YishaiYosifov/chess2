@@ -52,16 +52,16 @@ dotnet restore
 ```bash
 dotnet user-secrets init
 
-dotnet user-secrets set "Authentication:Google:ClientId" "<client-id>"
-dotnet user-secrets set "Authentication:Google:ClientSecret" "<client-secret>"
+dotnet user-secrets set "AppSettings:Secrets:GoogleOAuth:ClientId" "<client-id>"
+dotnet user-secrets set "AppSettings:Secrets:GoogleOAuth:ClientSecret" "<client-secret>"
 
-dotnet user-secrets set "Authentication:Discord:ClientId" "<client-id>"
-dotnet user-secrets set "Authentication:Discord:ClientSecret" "<client-secret>"
+dotnet user-secrets set "AppSettings:Secrets:DiscordOAuth:ClientId" "<client-id>"
+dotnet user-secrets set "AppSettings:Secrets:DiscordOAuth:ClientSecret" "<client-secret>"
 
-dotnet user-secrets set "Authentication:JWTSecret" "<jwt-secret>"
+dotnet user-secrets set "AppSettings:Secrets:JwtSecret" "<jwt-secret>"
 
-dotnet user-secrets set "Services:Database:ConnString" "<connection-string>"
-dotnet user-secrets set "Services:BlobStorage:ConnString" "<connection-string>"
+dotnet user-secrets set "AppSettings:Secrets:DatabaseConnString" "<connection-string>"
+dotnet user-secrets set "AppSettings:Secrets:BlobStorageConnString" "<connection-string>"
 ```
 
 4. Setup appsettings file
