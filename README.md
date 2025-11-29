@@ -158,7 +158,7 @@ To run all backend tests:
 
 ```bash
 cd backend
-dotnet run AnarchyChess.Api.Sln
+dotnet test AnarchyChess.Api.sln
 ```
 
 ## Frontend
