@@ -18,12 +18,10 @@
 
 # Screenshots
 
-<div style="display: flex; flex-wrap: wrap; gap: 10px;">
-  <img src="screenshots/checker.png" alt="Checker" width="400">
-  <img src="screenshots/il-vaticano.png" alt="Il Vaticano" width="400">
-  <img src="screenshots/knooklear-fusion.png" alt="Knooklear Fusion" width="400">
-  <img src="screenshots/long-passant.png" alt="Long Passant" width="400">
-</div>
+<img src="screenshots/checker.png" alt="Checker" width="400">
+<img src="screenshots/il-vaticano.png" alt="Il Vaticano" width="400">
+<img src="screenshots/knooklear-fusion.png" alt="Knooklear Fusion" width="400">
+<img src="screenshots/long-passant.png" alt="Long Passant" width="400">
 
 # Tech Stack
 
