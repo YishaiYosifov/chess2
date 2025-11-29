@@ -29,7 +29,7 @@
 -   **Frontend:** Next.js + Typescript, styled with Tailwind
 -   **Database & Storage:** Currently configured for PostgreSQL and Azure Blob Storage. Other SQL databases and blob storage providers can be used by installing the appropriate EF Core and FluentStorage packages.
 
-# Installation / Running Locally
+# Running Locally
 
 ## Backend Setup
 
