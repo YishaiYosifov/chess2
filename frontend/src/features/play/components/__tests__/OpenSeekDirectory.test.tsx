@@ -59,17 +59,6 @@ describe("OpenSeekDirectory", () => {
         expect(screen.queryByTestId("openSeek")).not.toBeInTheDocument();
     });
 
-    it("should limit open seeks to 10", () => {
-        render(<OpenSeekDirectory />);
-
-        const seeks = Array.from({ length: 15 }, () => createFakeOpenSeek());
-
-        act(() => openSeekHandlers["NewOpenSeeksAsync"]?.(seeks));
-
-        const items = screen.getAllByTestId("openSeek");
-        expect(items.length).toBe(10);
-    });
-
     it("should display 'No open challenges' text", async () => {
         render(<OpenSeekDirectory />);
 

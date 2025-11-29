@@ -23,14 +23,14 @@ const OpenSeekDirectory = () => {
     >(new Map());
 
     const noSeeksRef = useRef<HTMLParagraphElement | null>(null);
-    const [showNoSeeks, setShowNoSeeks] = useState(true);
+    const [showNoSeeksText, setShowNoSeeksText] = useState(true);
     useEffect(() => {
         if (Object.keys(openSeeks).length !== 0) {
-            setShowNoSeeks(false);
+            setShowNoSeeksText(false);
             return;
         }
 
-        const timer = setTimeout(() => setShowNoSeeks(true), 300);
+        const timer = setTimeout(() => setShowNoSeeksText(true), 300);
         return () => clearTimeout(timer);
     }, [openSeeks]);
 
@@ -49,7 +49,6 @@ const OpenSeekDirectory = () => {
         setOpenSeeks((prev) => {
             const updated = { ...prev };
             for (const seek of newOpenSeeks) {
-                if (Object.keys(updated).length >= 10) break;
                 updated[
                     SeekKeyToStr({ userId: seek.userId, pool: seek.pool })
                 ] = seek;
@@ -85,7 +84,7 @@ const OpenSeekDirectory = () => {
 
             <div className="flex h-full max-h-96 flex-col gap-3 overflow-auto md:max-h-full">
                 <CSSTransition
-                    in={showNoSeeks}
+                    in={showNoSeeksText}
                     timeout={{ enter: 200, exit: 0 }}
                     classNames={{
                         enter: "opacity-0",
