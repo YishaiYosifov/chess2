@@ -1,7 +1,10 @@
-﻿namespace AnarchyChess.Api.GameLogic.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace AnarchyChess.Api.GameLogic.Models;
 
 [GenerateSerializer]
 [Alias("AnarchyChess.Api.GameLogic.Models.AlgebraicPoint")]
+[method: JsonConstructor]
 public readonly record struct AlgebraicPoint(int X, int Y)
 {
     public AlgebraicPoint(string algebraic)

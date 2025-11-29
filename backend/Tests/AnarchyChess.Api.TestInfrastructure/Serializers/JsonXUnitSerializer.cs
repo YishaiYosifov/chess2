@@ -5,9 +5,24 @@ namespace AnarchyChess.Api.TestInfrastructure.Serializers;
 
 public class JsonXUnitSerializer<T> : IXunitSerializer
 {
-    public object Deserialize(Type type, string serializedValue) =>
-        JsonSerializer.Deserialize(serializedValue, type)
-        ?? throw new InvalidOperationException("Deserialization returned null.");
+    public object Deserialize(Type type, string serializedValue)
+    {
+        if (type == typeof(T))
+            return JsonSerializer.Deserialize<T>(serializedValue)
+                ?? throw new InvalidOperationException("Deserialization returned null.");
+
+        if (typeof(IEnumerable<T>).IsAssignableFrom(type))
+        {
+            var list =
+                JsonSerializer.Deserialize<List<T>>(serializedValue)
+                ?? throw new InvalidOperationException("Deserialization returned null.");
+            return list;
+        }
+
+        throw new InvalidOperationException(
+            $"Type {type} is not supported by {nameof(JsonXUnitSerializer<T>)}."
+        );
+    }
 
     public bool IsSerializable(Type type, object? value, out string failureReason)
     {

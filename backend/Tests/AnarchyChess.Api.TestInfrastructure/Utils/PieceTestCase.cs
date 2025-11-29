@@ -9,12 +9,12 @@ namespace AnarchyChess.Api.TestInfrastructure.Utils;
 
 public class PieceTestCase
 {
-    public Piece Piece { get; }
-    public AlgebraicPoint Origin { get; }
-    public GameColor MovingPlayer { get; private set; }
+    public required Piece Piece { get; init; }
+    public required AlgebraicPoint Origin { get; init; }
+    public GameColor MovingPlayer { get; set; }
 
-    public List<Move> ExpectedMoves { get; } = [];
-    public List<Move> PriorMoves { get; } = [];
+    public List<Move> ExpectedMoves { get; init; } = [];
+    public List<Move> PriorMoves { get; init; } = [];
 
     [JsonIgnore]
     public Dictionary<AlgebraicPoint, Piece> BlockedBy { get; } = [];
@@ -34,20 +34,22 @@ public class PieceTestCase
 
     public string TestDecription { get; private set; } = "";
 
-    private readonly ChessBoard _board;
+    private readonly ChessBoard _board = new();
 
-    private PieceTestCase(AlgebraicPoint from, Piece piece)
+    public static PieceTestCase From(string from, Piece piece)
     {
-        Piece = piece;
-        Origin = from;
-        MovingPlayer = piece.Color ?? GameColor.White;
+        var origin = new AlgebraicPoint(from);
+        PieceTestCase testCase = new()
+        {
+            Piece = piece,
+            Origin = origin,
+            MovingPlayer = piece.Color ?? GameColor.White,
+        };
 
-        _board = new();
-        _board.PlacePiece(from, piece);
+        testCase._board.PlacePiece(origin, piece);
+
+        return testCase;
     }
-
-    public static PieceTestCase From(string from, Piece piece) =>
-        new(new AlgebraicPoint(from), piece);
 
     public PieceTestCase GoesTo(
         string to,
