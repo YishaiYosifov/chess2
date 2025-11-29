@@ -28,6 +28,7 @@
 -   **Backend:** C# With ASP.NET Core, structured with Orleans
 -   **Frontend:** Next.js + Typescript, styled with Tailwind
 -   **Database & Storage:** Works with any SQL database and blob storage provider
+-   **Database & Storage:** Currently configured for PostgreSQL and Azure Blob Storage. Other SQL databases and blob storage providers can be used by installing the appropriate EF Core and FluentStorage packages.
 
 # Installation / Running Locally
 
