@@ -42,6 +42,8 @@ const PATHS = {
     SETTINGS_PROFILE: "/settings/profile",
     SETTINGS_SOCIAL: "/settings/social",
     OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
+    TOS: "/tos",
+    PRIVACY: "/privacy",
     DONATE: "https://ko-fi.com/anarchychess",
     GITHUB: "https://github.com/slomg/anarchychess",
     DISCORD: "https://discord.gg/qnkddndecq",

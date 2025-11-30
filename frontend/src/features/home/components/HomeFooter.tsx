@@ -38,16 +38,18 @@ const HomeFooter = () => {
                             <Link href={constants.PATHS.DONATE}>Donate</Link>
                         </li>
                         <li>
-                            <Link href={constants.PATHS.QUESTS}>
-                                Daily Quests
+                            <Link href={constants.PATHS.GITHUB}>
+                                Source Code
                             </Link>
                         </li>
                         <li>
-                            <Link href={constants.PATHS.GUIDE}>Guide</Link>
+                            <Link href={constants.PATHS.TOS}>
+                                Terms of Service
+                            </Link>
                         </li>
                         <li>
-                            <Link href={constants.PATHS.GITHUB}>
-                                Source Code
+                            <Link href={constants.PATHS.PRIVACY}>
+                                Privacy Policy
                             </Link>
                         </li>
                     </ul>

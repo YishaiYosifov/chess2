@@ -43,18 +43,18 @@ describe("HomeFooter", () => {
         expect(links.map((l) => l.textContent)).toEqual([
             "Play Now",
             "Donate",
-            "Daily Quests",
-            "Guide",
             "Source Code",
+            "Terms of Service",
+            "Privacy Policy",
         ]);
 
-        const [play, donate, quests, guide, sourceCode] = links;
+        const [play, donate, sourceCode, tos, privacy] = links;
 
         expect(play).toHaveAttribute("href", constants.PATHS.PLAY);
         expect(donate).toHaveAttribute("href", constants.PATHS.DONATE);
-        expect(quests).toHaveAttribute("href", constants.PATHS.QUESTS);
-        expect(guide).toHaveAttribute("href", constants.PATHS.GUIDE);
         expect(sourceCode).toHaveAttribute("href", constants.PATHS.GITHUB);
+        expect(tos).toHaveAttribute("href", constants.PATHS.TOS);
+        expect(privacy).toHaveAttribute("href", constants.PATHS.PRIVACY);
     });
 
     it("should render the Follow Us section with social links", () => {
