@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
-import LeaderboardResetCountdown from "../LeaderboardResetCountdown";
+import QuestLeaderboardResetCountdown from "../QuestLeaderboardResetCountdown";
 
-describe("LeaderboardResetCountdown", () => {
+describe("QuestLeaderboardResetCountdown", () => {
     beforeEach(() => {
         vi.useFakeTimers();
     });
@@ -10,7 +10,7 @@ describe("LeaderboardResetCountdown", () => {
         const now = new Date(Date.UTC(2025, 8, 13, 23, 59, 50)); // day 13 23:59:50
         vi.setSystemTime(now);
 
-        render(<LeaderboardResetCountdown />);
+        render(<QuestLeaderboardResetCountdown />);
 
         expect(
             screen.getByTestId("leaderboardResetCountdown"),

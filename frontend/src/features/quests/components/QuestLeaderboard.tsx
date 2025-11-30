@@ -10,7 +10,7 @@ import {
 import PaginatedItemsRenderer from "@/features/pagination/components/PaginatedItemsRenderer";
 import Card from "@/components/ui/Card";
 
-import LeaderboardResetCountdown from "./LeaderboardResetCountdown";
+import QuestLeaderboardResetCountdown from "./QuestLeaderboardResetCountdown";
 import LeaderboardMinimalProfileView from "@/features/profile/components/LeaderboardMinimalProfileView";
 
 const QuestLeaderboard = ({
@@ -26,7 +26,7 @@ const QuestLeaderboard = ({
             >
                 <h1 className="text-2xl">Quest Leaderboard</h1>
 
-                <LeaderboardResetCountdown />
+                <QuestLeaderboardResetCountdown />
             </div>
 
             {initialLeaderboard.totalCount === 0 && (

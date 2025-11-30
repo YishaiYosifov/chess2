@@ -1,6 +1,6 @@
 import CountdownText from "@/components/CountdownText";
 
-const LeaderboardResetCountdown = () => {
+const QuestLeaderboardResetCountdown = () => {
     return (
         <CountdownText
             getTimeUntil={() => {
@@ -21,4 +21,4 @@ const LeaderboardResetCountdown = () => {
         </CountdownText>
     );
 };
-export default LeaderboardResetCountdown;
+export default QuestLeaderboardResetCountdown;
