@@ -16,7 +16,9 @@ namespace AnarchyChess.Api.Streaks.Grains;
 [Alias("AnarchyChess.Api.Streaks.Grains.IStreakGrain")]
 public interface IWinStreakGrain : IGrainWithStringKey;
 
+#if DEBUG
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
+#endif
 public class WinStreakGrain(
     ILogger<WinStreakGrain> logger,
     IWinStreakService winStreakService,
