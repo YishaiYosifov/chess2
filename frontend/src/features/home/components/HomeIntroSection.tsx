@@ -20,9 +20,9 @@ const HomeIntroSection = () => {
                 className="flex w-full flex-col items-center gap-3 text-center lg:max-w-lg lg:items-start
                     lg:text-start"
             >
-                <h1 className="text-5xl text-balance">
+                <h2 className="text-5xl text-balance">
                     Discover the Madness of Anarchy Chess
-                </h1>
+                </h2>
 
                 <p className="text-text/80 text-xl">
                     Don&apos;t worry, no one knows what&apos;s going on
