@@ -4,6 +4,8 @@
 
 [Terms Of Service](https://anarchychess.org/tos) | [Privacy Policy](https://anarchychess.org/privacy) | [License](LICENSE)
 
+[![Discord](https://img.shields.io/discord/1424365905005121658?label=Discord&logo=discord&style=flat)](https://discord.gg/qnkddndecq)
+
 **Chess: The Anarchy Update** is a chess website that takes all the stupid ideas from [r/AnarchyChess](https://reddit.com/r/anarchychess) and turns them a real, balanced, chess variant.
 
 # Features
