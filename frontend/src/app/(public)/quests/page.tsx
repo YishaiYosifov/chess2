@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+
 import {
     getDailyQuest,
     getMyQuestRanking,
@@ -13,7 +15,18 @@ import QuestLeaderboard from "@/features/quests/components/QuestLeaderboard";
 import dataOrThrow from "@/lib/apiClient/dataOrThrow";
 import constants from "@/lib/constants";
 
-export const metadata = { title: "Quests - Anarchy Chess" };
+export const metadata: Metadata = {
+    title: "Quests - Anarchy Chess",
+    description:
+        "Complete daily quests, earn points, and climb the leaderboard in Anarchy Chess. Check your rank and compete with other players!",
+    keywords: [
+        "anarchy chess",
+        "chess quests",
+        "daily challenges",
+        "chess leaderboard",
+        "online chess",
+    ],
+};
 
 export default async function QuestsPage() {
     return (
