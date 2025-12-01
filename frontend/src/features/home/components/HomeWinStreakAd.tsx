@@ -10,7 +10,7 @@ import Link from "next/link";
 const HomeWinStreakAd = () => {
     return (
         <section
-            className="grid w-full grid-rows-[auto_auto] justify-center gap-10 bg-[#0b0f16] p-15
+            className="grid grid-rows-[auto_auto] justify-center gap-10 bg-[#0b0f16] p-15
                 lg:grid-cols-[auto_auto] lg:grid-rows-1 lg:gap-x-20"
         >
             <div

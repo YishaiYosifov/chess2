@@ -6,11 +6,11 @@ export const metadata = { title: "Home - Anarchy Chess" };
 
 const HomePage = async () => {
     return (
-        <div className="flex flex-1 flex-col">
+        <main className="grid flex-1 grid-cols-1 grid-rows-[min-content_min-content_1fr] flex-col">
             <HomeHero />
             <HomeIntroSection />
             <HomeFooter />
-        </div>
+        </main>
     );
 };
 export default HomePage;
