@@ -15,7 +15,7 @@ const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
 
     return (
         <ChallengeStoreContext.Provider value={challengeStore}>
-            <aside className="flex h-full w-full min-w-xs flex-col gap-3 lg:max-w-sm">
+            <aside className="flex h-full w-full min-w-xs flex-col gap-3 overflow-auto lg:max-w-sm">
                 <ChallengeHeader />
                 <ChallengeDescription />
                 <ChallengeFooter />

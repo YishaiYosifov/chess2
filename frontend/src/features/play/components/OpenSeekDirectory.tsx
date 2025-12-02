@@ -79,10 +79,10 @@ const OpenSeekDirectory = () => {
     }
 
     return (
-        <Card className="h-full min-h-60 overflow-auto">
+        <Card className="min-h-40 flex-1">
             <h2 className="text-center text-3xl">Open Challenges</h2>
 
-            <div className="flex h-full max-h-96 flex-col gap-3 overflow-auto md:max-h-full">
+            <div className="flex h-full max-h-96 flex-col gap-3 md:max-h-full">
                 <CSSTransition
                     in={showNoSeeksText}
                     timeout={{ enter: 200, exit: 0 }}
