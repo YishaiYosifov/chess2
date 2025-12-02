@@ -19,14 +19,14 @@ const ChallengeFooter = () => {
     const user = useSessionUser();
     const router = useRouter();
 
-    const { challenge, isCancelled, setCancelled, isExpired, setExpired } =
+    const { isCancelled, setCancelled, isExpired, setExpired } =
         useChallengeStore((x) => ({
-            challenge: x.challenge,
             isCancelled: x.isCancelled,
             setCancelled: x.setCancelled,
             isExpired: x.isExpired,
             setExpired: x.setExpired,
         }));
+    const challenge = useChallengeStore((x) => x.challenge);
     const expiresAt = new Date(challenge.expiresAt);
 
     async function onAccept() {
