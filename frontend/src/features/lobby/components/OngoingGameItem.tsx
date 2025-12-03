@@ -12,7 +12,7 @@ const OngoingGameItem = ({ game }: { game: OngoingGame }) => {
 
     return (
         <div
-            className="hover:bg-primary flex cursor-pointer rounded-md p-3"
+            className="hover:bg-primary flex cursor-pointer gap-3 rounded-md p-3"
             onClick={redirectToGame}
             data-testid={`ongoingGameItem-${game.gameToken}`}
         >
