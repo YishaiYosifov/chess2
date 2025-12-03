@@ -115,7 +115,7 @@ import type {
     SetPreferencesData,
     SetPreferencesErrors,
     SetPreferencesResponses,
-    SigninOAuthData,
+    SignInOAuthData,
     TestAuthedData,
     TestAuthedErrors,
     TestAuthedResponses,
@@ -729,8 +729,8 @@ export const oAuthCallback = <ThrowOnError extends boolean = false>(
     });
 };
 
-export const signinOAuth = <ThrowOnError extends boolean = false>(
-    options: Options<SigninOAuthData, ThrowOnError>,
+export const signInOAuth = <ThrowOnError extends boolean = false>(
+    options: Options<SignInOAuthData, ThrowOnError>,
 ) => {
     return (options.client ?? client).get<unknown, unknown, ThrowOnError>({
         url: "/api/OAuth/signin/{provider}",

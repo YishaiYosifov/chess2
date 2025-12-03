@@ -518,6 +518,7 @@ export enum ErrorCode {
     AUTH_TOKEN_MISSING = "Auth.TokenMissing",
     AUTH_TOKEN_INVALID = "Auth.TokenInvalid",
     AUTH_USER_BANNED = "Auth.UserBanned",
+    AUTH_O_AUTH_FAILURE = "Auth.OAuth.Failure",
     AUTH_O_AUTH_INVALID = "Auth.OAuth.Invalid",
     AUTH_O_AUTH_PROVIDER_NOT_FOUND = "Auth.OAuth.ProviderNotFound",
     GAME_LOGIC_PIECE_NOT_FOUND = "GameLogic.PieceNotFound",
@@ -1430,7 +1431,7 @@ export type OAuthCallbackResponses = {
 export type OAuthCallbackResponse =
     OAuthCallbackResponses[keyof OAuthCallbackResponses];
 
-export type SigninOAuthData = {
+export type SignInOAuthData = {
     body?: never;
     path: {
         provider: string;
