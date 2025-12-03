@@ -14,7 +14,7 @@ export function mockAudio(): {
     const audioMock = {
         play: vi.fn(),
         pause: vi.fn(),
-        cloneNode: vi.fn().mockReturnThis(),
+        cloneNode: vi.fn(() => audioMock),
         currentTime: 0,
     };
 
