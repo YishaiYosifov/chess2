@@ -27,17 +27,20 @@ public class LobbyHubClient : BaseHubClient
         );
     }
 
-    public Task SeekRatedAsync(TimeControlSettings timeControl, CancellationToken token) =>
+    public Task SeekRatedAsync(TimeControlSettingsRequest timeControl, CancellationToken token) =>
         Connection.InvokeAsync("SeekRatedAsync", timeControl, token);
 
-    public Task SeekCasualAsync(TimeControlSettings timeControl, CancellationToken token) =>
+    public Task SeekCasualAsync(TimeControlSettingsRequest timeControl, CancellationToken token) =>
         Connection.InvokeAsync("SeekCasualAsync", timeControl, token);
 
-    public Task CancelSeekAsync(PoolKey pool, CancellationToken token) =>
+    public Task CancelSeekAsync(PoolKeyRequest pool, CancellationToken token) =>
         Connection.InvokeAsync("CancelSeekAsync", pool, token);
 
-    public Task MatchWithOpenSeekAsync(UserId matchWith, PoolKey pool, CancellationToken token) =>
-        Connection.InvokeAsync("MatchWithOpenSeekAsync", matchWith, pool, token);
+    public Task MatchWithOpenSeekAsync(
+        UserId matchWith,
+        PoolKeyRequest pool,
+        CancellationToken token
+    ) => Connection.InvokeAsync("MatchWithOpenSeekAsync", matchWith, pool, token);
 
     public async Task<List<OngoingGame>> GetNextOngoingGamesBatchAsync(CancellationToken token)
     {

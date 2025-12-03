@@ -1,9 +1,4 @@
-import {
-    MinimalProfile,
-    PoolKey,
-    PoolType,
-    TimeControl,
-} from "@/lib/apiClient";
+import { MinimalProfile, PoolKey, PoolType } from "@/lib/apiClient";
 
 export type PoolKeyStr = `${PoolType}-${number}+${number}`;
 
@@ -11,7 +6,6 @@ export interface OpenSeek {
     userId: string;
     userName: string;
     pool: PoolKey;
-    timeControl: TimeControl;
     rating?: number;
 }
 

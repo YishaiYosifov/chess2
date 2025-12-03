@@ -2,7 +2,6 @@
 using AnarchyChess.Api.Challenges.Grains;
 using AnarchyChess.Api.Challenges.Models;
 using AnarchyChess.Api.Challenges.Services;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Preferences.Services;
 using AnarchyChess.Api.Profile.DTOs;
@@ -26,7 +25,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
     private readonly ChallengeRequestCreator _challengeCreator;
 
     private readonly ChallengeSettings _settings;
-    private readonly ITimeControlTranslator _timeControlTranslator;
     private readonly IBlockService _blockService;
     private readonly IGrainFactory _grains;
 
@@ -38,7 +36,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
     {
         _grains = Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
         _blockService = Scope.ServiceProvider.GetRequiredService<IBlockService>();
-        _timeControlTranslator = Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
 
         var settings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
         _settings = settings.Value.Challenge;
@@ -49,7 +46,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
             _grains,
             settings,
             Scope.ServiceProvider.GetRequiredService<IRandomCodeGenerator>(),
-            Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>(),
             Scope.ServiceProvider.GetRequiredService<IInteractionLevelGate>(),
             _timeProviderMock,
             Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>()
@@ -80,7 +76,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
                     Requester: new MinimalProfile(requester),
                     Recipient: null,
                     Pool: pool,
-                    TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
                     ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
                 )
             );
@@ -113,7 +108,6 @@ public class ChallengeRequestCreatorTests : BaseIntegrationTest
                     Requester: new MinimalProfile(requester),
                     Recipient: new MinimalProfile(recipient),
                     Pool: pool,
-                    TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
                     ExpiresAt: _fakeNow.UtcDateTime + _settings.ChallengeLifetime
                 )
             );

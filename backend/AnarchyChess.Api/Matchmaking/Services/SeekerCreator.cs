@@ -1,5 +1,4 @@
 ﻿using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
@@ -36,27 +35,24 @@ public interface ISeekerCreator
 
 public class SeekerCreator(
     IRatingService ratingService,
-    ITimeControlTranslator timeControlTranslator,
     IOptions<AppSettings> settings,
     IBlockService blockService,
     TimeProvider timeProvider
 ) : ISeekerCreator
 {
     private readonly IRatingService _ratingService = ratingService;
-    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IBlockService _blockService = blockService;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly LobbySettings _settings = settings.Value.Lobby;
 
     public async Task<RatedSeeker> CreateRatedSeekerAsync(
         AuthedUser user,
-        TimeControlSettings timeControlSettings,
+        TimeControlSettings timeControl,
         int? allowedRatingRange,
         CancellationToken token = default
     )
     {
-        var timeControl = _timeControlTranslator.FromSeconds(timeControlSettings.BaseSeconds);
-        var rating = await _ratingService.GetRatingAsync(user.Id, timeControl, token);
+        var rating = await _ratingService.GetRatingAsync(user.Id, timeControl.Type, token);
         var blocked = await _blockService.GetAllBlockedUserIdsAsync(user.Id, token);
 
         return new(
@@ -67,7 +63,7 @@ public class SeekerCreator(
             Rating: new(
                 Value: rating,
                 AllowedRatingRange: allowedRatingRange,
-                TimeControl: timeControl
+                TimeControl: timeControl.Type
             )
         );
     }

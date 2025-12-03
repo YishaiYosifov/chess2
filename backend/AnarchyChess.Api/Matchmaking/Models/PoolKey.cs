@@ -1,11 +1,16 @@
-﻿using AnarchyChess.Api.GameSnapshot.Models;
+﻿using System.Text.Json.Serialization;
+using AnarchyChess.Api.GameSnapshot.Models;
 
 namespace AnarchyChess.Api.Matchmaking.Models;
 
 [GenerateSerializer]
 [Alias("AnarchyChess.Api.Matchmaking.Models.PoolKey")]
+[method: JsonConstructor]
 public record PoolKey(PoolType PoolType, TimeControlSettings TimeControl)
 {
+    public PoolKey(PoolKeyRequest request)
+        : this(request.PoolType, new TimeControlSettings(request.TimeControl)) { }
+
     public string ToGrainKey() =>
         $"{PoolType.ToString().ToLower()}:{TimeControl.BaseSeconds}+{TimeControl.IncrementSeconds}";
 

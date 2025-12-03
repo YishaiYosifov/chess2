@@ -3,15 +3,15 @@ using AnarchyChess.Api.Matchmaking.Models;
 
 namespace AnarchyChess.Api.TestInfrastructure.Fakes;
 
-public class PoolKeyFaker : RecordFaker<PoolKey>
+public class PoolKeyRequestFaker : RecordFaker<PoolKeyRequest>
 {
-    public PoolKeyFaker(PoolType? poolType = null)
+    public PoolKeyRequestFaker(PoolType? poolType = null)
     {
         StrictMode(true);
         RuleFor(x => x.PoolType, f => poolType ?? f.PickRandom<PoolType>());
         RuleFor(
             x => x.TimeControl,
-            f => new TimeControlSettings(
+            f => new TimeControlSettingsRequest(
                 BaseSeconds: f.PickRandom<int>(TimeControlSettingsRequest.AllowedBaseSeconds),
                 IncrementSeconds: f.PickRandom<int>(
                     TimeControlSettingsRequest.AllowedIncrementSeconds

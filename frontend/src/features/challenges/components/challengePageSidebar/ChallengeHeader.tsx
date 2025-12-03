@@ -17,7 +17,7 @@ const ChallengeHeader = () => {
             </h1>
             <div className="flex items-center gap-2">
                 <TimeControlIcon
-                    timeControl={challenge.timeControl}
+                    timeControl={challenge.pool.timeControl.type}
                     className="h-8 w-8"
                     data-testid="challengeHeaderTimeControlIcon"
                 />

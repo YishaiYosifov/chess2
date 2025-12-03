@@ -1,43 +1,21 @@
-﻿using System.Collections.Immutable;
+﻿using System.Text.Json.Serialization;
 
 namespace AnarchyChess.Api.GameSnapshot.Models;
 
 [GenerateSerializer]
 [Alias("AnarchyChess.Api.GameSnapshot.Models.TimeControlSettings")]
-public readonly record struct TimeControlSettings(int BaseSeconds, int IncrementSeconds)
+[method: JsonConstructor]
+public record TimeControlSettings(int BaseSeconds, int IncrementSeconds)
 {
-    public static readonly ImmutableHashSet<int> AllowedBaseSeconds =
-    [
-        15,
-        30,
-        60,
-        120,
-        180,
-        300,
-        420,
-        600,
-        900,
-        1200,
-        1500,
-        1800,
-        2700,
-        3600,
-        5400,
-    ];
+    public TimeControlSettings(TimeControlSettingsRequest request)
+        : this(request.BaseSeconds, request.IncrementSeconds) { }
 
-    public static readonly ImmutableHashSet<int> AllowedIncrementSeconds =
-    [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        10,
-        15,
-        20,
-        25,
-        30,
-        60,
-    ];
+    public TimeControl Type =>
+        BaseSeconds switch
+        {
+            < 180 => TimeControl.Bullet, // less than 3 minutes
+            <= 300 => TimeControl.Blitz, // 5 minutes or less
+            <= 1200 => TimeControl.Rapid, // 20 minutes or less
+            _ => TimeControl.Classical,
+        };
 }

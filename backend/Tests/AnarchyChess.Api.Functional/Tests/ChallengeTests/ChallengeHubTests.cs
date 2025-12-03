@@ -24,7 +24,7 @@ public class ChallengeHubTests(AnarchyChessWebApplicationFactory factory)
             await AuthUtils.AuthenticateAsync(ApiClient);
             var createResult = await ApiClient.Api.CreateChallengeAsync(
                 recipient.Id,
-                new PoolKeyFaker().Generate()
+                new PoolKeyRequestFaker().Generate()
             );
             createResult.Content.Should().NotBeNull();
             createdChallenges.Add(createResult.Content);

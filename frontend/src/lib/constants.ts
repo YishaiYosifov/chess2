@@ -83,21 +83,78 @@ interface TimeControlLabel {
 }
 
 const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
-    { label: "Bullet", settings: { baseSeconds: 60, incrementSeconds: 0 } },
-    { label: "Bullet", settings: { baseSeconds: 120, incrementSeconds: 1 } },
-    { label: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 0 } },
-    { label: "Blitz", settings: { baseSeconds: 180, incrementSeconds: 2 } },
+    {
+        label: "Bullet",
+        settings: {
+            baseSeconds: 60,
+            incrementSeconds: 0,
+            type: TimeControl.BULLET,
+        },
+    },
+    {
+        label: "Bullet",
+        settings: {
+            baseSeconds: 120,
+            incrementSeconds: 1,
+            type: TimeControl.BULLET,
+        },
+    },
     {
         label: "Blitz",
-        settings: { baseSeconds: 300, incrementSeconds: 0 },
+        settings: {
+            baseSeconds: 180,
+            incrementSeconds: 0,
+            type: TimeControl.BLITZ,
+        },
+    },
+    {
+        label: "Blitz",
+        settings: {
+            baseSeconds: 180,
+            incrementSeconds: 2,
+            type: TimeControl.BLITZ,
+        },
+    },
+    {
+        label: "Blitz",
+        settings: {
+            baseSeconds: 300,
+            incrementSeconds: 0,
+            type: TimeControl.BLITZ,
+        },
         isMostPopular: true,
     },
-    { label: "Blitz", settings: { baseSeconds: 300, incrementSeconds: 3 } },
-    { label: "Rapid", settings: { baseSeconds: 600, incrementSeconds: 0 } },
-    { label: "Rapid", settings: { baseSeconds: 900, incrementSeconds: 10 } },
+    {
+        label: "Blitz",
+        settings: {
+            baseSeconds: 300,
+            incrementSeconds: 3,
+            type: TimeControl.BLITZ,
+        },
+    },
+    {
+        label: "Rapid",
+        settings: {
+            baseSeconds: 600,
+            incrementSeconds: 0,
+            type: TimeControl.RAPID,
+        },
+    },
+    {
+        label: "Rapid",
+        settings: {
+            baseSeconds: 900,
+            incrementSeconds: 10,
+            type: TimeControl.RAPID,
+        },
+    },
     {
         label: "Classical",
-        settings: { baseSeconds: 1800, incrementSeconds: 0 },
+        settings: {
+            baseSeconds: 1800,
+            incrementSeconds: 0,
+            type: TimeControl.CLASSICAL,
+        },
     },
 ];
 

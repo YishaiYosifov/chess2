@@ -8,7 +8,7 @@ public interface IGameClock
     double CalculateTimeLeft(GameColor color, GameClockState state);
     void CommitLastTurn(GameColor color, GameClockState state);
     double CommitTurn(GameColor color, GameClockState state);
-    void Reset(TimeControlSettings timeControl, GameClockState state);
+    void Reset(GameClockState state);
     ClockSnapshot ToSnapshot(GameClockState state);
 }
 
@@ -21,7 +21,7 @@ public class GameClockState
         new() { [GameColor.White] = 0, [GameColor.Black] = 0 };
 
     [Id(1)]
-    public TimeControlSettings TimeControl { get; set; } = new();
+    public required TimeControlSettings TimeControl { get; set; }
 
     [Id(2)]
     public long LastUpdated { get; set; }
@@ -42,11 +42,10 @@ public class GameClock(TimeProvider timeProvider) : IGameClock
             state.IsFrozen
         );
 
-    public void Reset(TimeControlSettings timeControl, GameClockState state)
+    public void Reset(GameClockState state)
     {
-        state.TimeControl = timeControl;
-        state.Clocks[GameColor.White] = timeControl.BaseSeconds * 1000;
-        state.Clocks[GameColor.Black] = timeControl.BaseSeconds * 1000;
+        state.Clocks[GameColor.White] = state.TimeControl.BaseSeconds * 1000;
+        state.Clocks[GameColor.Black] = state.TimeControl.BaseSeconds * 1000;
         state.LastUpdated = _timeProvider.GetUtcNow().ToUnixTimeMilliseconds();
     }
 

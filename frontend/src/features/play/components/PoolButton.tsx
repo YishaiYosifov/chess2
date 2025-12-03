@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import Button from "@/components/ui/Button";
-import { PoolKey, PoolType, TimeControlSettings } from "@/lib/apiClient";
+import { PoolType, TimeControlSettings } from "@/lib/apiClient";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
 const PoolButton = ({
@@ -16,11 +16,10 @@ const PoolButton = ({
 }) => {
     const formattedTimeControl = `${timeControl.baseSeconds / 60} + ${timeControl.incrementSeconds}`;
 
-    const pool: PoolKey = {
+    const { isSeeking, toggleSeek } = useMatchmaking({
         poolType,
         timeControl,
-    };
-    const { isSeeking, toggleSeek } = useMatchmaking(pool);
+    });
 
     return (
         <div className={clsx("relative", isSeeking && "animate-subtle-ping")}>

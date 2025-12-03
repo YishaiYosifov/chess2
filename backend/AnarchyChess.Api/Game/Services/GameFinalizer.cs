@@ -1,7 +1,6 @@
 ﻿using AnarchyChess.Api.ArchivedGames.Services;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Shared.Services;
@@ -25,14 +24,12 @@ public class GameFinalizer(
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
     IGameArchiveService gameArchiveService,
-    ITimeControlTranslator timeControlTranslator,
     IUnitOfWork unitOfWork
 ) : IGameFinalizer
 {
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
     private readonly IGameArchiveService _gameArchiveService = gameArchiveService;
-    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<GameResultData> FinalizeGameAsync(
@@ -79,7 +76,7 @@ public class GameFinalizer(
             whiteUser,
             blackUser,
             gameResult,
-            _timeControlTranslator.FromSeconds(gameState.Pool.TimeControl.BaseSeconds),
+            gameState.Pool.TimeControl.Type,
             token
         );
         return ratingChange;

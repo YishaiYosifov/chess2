@@ -1,5 +1,5 @@
 import { LiveChessStoreProps } from "@/features/liveGame/stores/liveChessStore";
-import { GameColor, GamePlayer, PoolType } from "@/lib/apiClient";
+import { GameColor, GamePlayer, PoolType, TimeControl } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 import { createFakePlayer } from "./playerFaker";
 import { createMoveOptions } from "@/features/chessboard/lib/moveOptions";
@@ -45,6 +45,7 @@ export function createFakeLiveChessStoreProps(
             timeControl: {
                 baseSeconds: faker.number.int({ min: 60, max: 1200 }),
                 incrementSeconds: faker.number.int({ min: 3, max: 30 }),
+                type: faker.helpers.enumValue(TimeControl),
             },
         },
 

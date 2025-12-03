@@ -1,5 +1,4 @@
 ﻿using AnarchyChess.Api.Challenges.Models;
-using AnarchyChess.Api.GameSnapshot.Models;
 
 namespace AnarchyChess.Api.TestInfrastructure.Fakes;
 
@@ -11,7 +10,6 @@ public class ChallengeRequestFaker : RecordFaker<ChallengeRequest>
         RuleFor(x => x.ChallengeToken, f => (ChallengeToken)f.Random.AlphaNumeric(16));
         RuleFor(x => x.Requester, f => new MinimalProfileFaker().Generate());
         RuleFor(x => x.Recipient, f => new MinimalProfileFaker().Generate());
-        RuleFor(x => x.TimeControl, f => f.PickRandom<TimeControl>());
         RuleFor(x => x.Pool, f => new PoolKeyFaker().Generate());
         RuleFor(x => x.ExpiresAt, f => f.Date.Future());
     }

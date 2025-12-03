@@ -1,11 +1,32 @@
 ﻿using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Matchmaking.Models;
+using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.LiveGameTests;
 
 public class PoolKeyTests
 {
+    [Fact]
+    public void Constructor_converts_request()
+    {
+        var request = new PoolKeyRequestFaker().Generate();
+
+        PoolKey result = new(request);
+
+        result
+            .Should()
+            .Be(
+                new PoolKey(
+                    request.PoolType,
+                    TimeControl: new(
+                        BaseSeconds: request.TimeControl.BaseSeconds,
+                        IncrementSeconds: request.TimeControl.IncrementSeconds
+                    )
+                )
+            );
+    }
+
     [Theory]
     [InlineData(PoolType.Casual, 5, 3, "casual:5+3")]
     [InlineData(PoolType.Rated, 10, 0, "rated:10+0")]

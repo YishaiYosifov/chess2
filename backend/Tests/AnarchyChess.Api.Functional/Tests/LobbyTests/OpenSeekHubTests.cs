@@ -114,7 +114,7 @@ public class OpenSeekHubTests : BaseFunctionalTest
         var watcherId = UserId.Guest();
         await ClearShardForWatcher(watcherId);
 
-        TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
+        TimeControlSettingsRequest timeControl = new(BaseSeconds: 300, IncrementSeconds: 3);
         var seekerId = UserId.Guest();
         await using var lobby = new LobbyHubClient(GuestSignalR(LobbyHubClient.Path, seekerId));
         await lobby.StartAsync(CT);

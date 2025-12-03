@@ -5,7 +5,6 @@ using AnarchyChess.Api.Challenges.Services;
 using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
@@ -36,7 +35,6 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
 
     private readonly IGrainFactory _grainFactory;
     private readonly ChallengeSettings _settings;
-    private readonly ITimeControlTranslator _timeControlTranslator;
 
     private readonly IChallengeNotifier _challengeNotifierMock =
         Substitute.For<IChallengeNotifier>();
@@ -51,8 +49,6 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
         _recipient = new AuthedUserFaker().RuleFor(x => x.Id, (UserId)_recipientId).Generate();
 
         _grainFactory = ApiTestBase.Scope.ServiceProvider.GetRequiredService<IGrainFactory>();
-        _timeControlTranslator =
-            ApiTestBase.Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = ApiTestBase.Scope.ServiceProvider.GetRequiredService<
             IOptions<AppSettings>
         >();
@@ -361,7 +357,6 @@ public class ChallengeGrainTests : BaseOrleansIntegrationTest
             _challengeToken,
             Requester: new(requester),
             Recipient: recipient is null ? null : new(recipient),
-            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
             ExpiresAt: DateTime.UtcNow + _settings.ChallengeLifetime
         );

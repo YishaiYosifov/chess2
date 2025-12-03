@@ -9,7 +9,10 @@ namespace AnarchyChess.Api.Unit.Tests.LiveGameTests;
 public class GameClockTests
 {
     private readonly GameClock _clock;
-    private readonly GameClockState _state = new();
+    private readonly GameClockState _state = new()
+    {
+        TimeControl = new(BaseSeconds: 300, IncrementSeconds: 10),
+    };
 
     private readonly TimeProvider _timeProviderMock = Substitute.For<TimeProvider>();
 
@@ -21,15 +24,13 @@ public class GameClockTests
     [Fact]
     public void Reset_sets_clocks_to_base_seconds_and_updates_last_updated()
     {
-        TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 10);
         var now = DateTimeOffset.UtcNow;
         _timeProviderMock.GetUtcNow().Returns(now);
 
-        _clock.Reset(timeControl, _state);
+        _clock.Reset(_state);
 
-        _state.Clocks[GameColor.White].Should().Be(300_000);
-        _state.Clocks[GameColor.Black].Should().Be(300_000);
-        _state.TimeControl.Should().Be(timeControl);
+        _state.Clocks[GameColor.White].Should().Be(_state.TimeControl.BaseSeconds * 1000);
+        _state.Clocks[GameColor.Black].Should().Be(_state.TimeControl.BaseSeconds * 1000);
         _state.LastUpdated.Should().Be(now.ToUnixTimeMilliseconds());
         _state.IsFrozen.Should().BeFalse();
     }

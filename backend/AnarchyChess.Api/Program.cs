@@ -22,7 +22,6 @@ using AnarchyChess.Api.GameLogic;
 using AnarchyChess.Api.GameLogic.ForeverRules;
 using AnarchyChess.Api.GameLogic.PieceDefinitions;
 using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.GameSnapshot.Validators;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Infrastructure.Extensions;
@@ -351,7 +350,10 @@ builder.Services.AddSingleton<ILobbyNotifier, LobbyNotifier>();
 builder.Services.AddSingleton<IOpenSeekNotifier, OpenSeekNotifier>();
 builder.Services.AddScoped<ISeekerCreator, SeekerCreator>();
 
-builder.Services.AddSingleton<IValidator<TimeControlSettings>, TimeControlSettingsValidator>();
+builder.Services.AddSingleton<
+    IValidator<TimeControlSettingsRequest>,
+    TimeControlSettingsRequestValidator
+>();
 #endregion
 
 #region Game
@@ -370,7 +372,6 @@ builder.Services.AddTransient<IDrawEvaulator, DrawEvaulator>();
 builder.Services.AddSingleton<ISanCalculator, SanCalculator>();
 builder.Services.AddSingleton<IFenCalculator, FenCalculator>();
 builder.Services.AddSingleton<IPieceToLetter, PieceToLetter>();
-builder.Services.AddSingleton<ITimeControlTranslator, TimeControlTranslator>();
 builder.Services.AddSingleton<ILegalMoveCalculator, LegalMoveCalculator>();
 builder.Services.AddSingleton<IMoveEncoder, MoveEncoder>();
 

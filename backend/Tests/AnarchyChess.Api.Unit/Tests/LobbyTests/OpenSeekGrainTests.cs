@@ -1,5 +1,4 @@
 ﻿using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Lobby.Grains;
 using AnarchyChess.Api.Lobby.Models;
@@ -29,7 +28,6 @@ public class OpenSeekGrainTests : BaseGrainTest
         PoolType.Casual,
         new TimeControlSettings(BaseSeconds: 300, IncrementSeconds: 20)
     );
-    private readonly TimeControl _casualPoolTimeControl = TimeControl.Blitz;
 
     public OpenSeekGrainTests()
     {
@@ -38,7 +36,6 @@ public class OpenSeekGrainTests : BaseGrainTest
 
         Silo.ServiceProvider.AddService(_openSeekNotifierMock);
         Silo.ServiceProvider.AddService(_timeProviderMock);
-        Silo.ServiceProvider.AddService<ITimeControlTranslator>(new TimeControlTranslator());
     }
 
     private TestStream<OpenSeekCreatedEvent> ProbeOpenSeekCreatedStream() =>
@@ -76,7 +73,6 @@ public class OpenSeekGrainTests : BaseGrainTest
                 matchSeeker.UserId,
                 UserName: matchSeeker.UserName,
                 _casualPoolKey,
-                TimeControl: _casualPoolTimeControl,
                 Rating: null
             ),
         ];
@@ -182,13 +178,7 @@ public class OpenSeekGrainTests : BaseGrainTest
         List<string> expectedUserIds = [seeker1.UserId, seeker2.UserId];
         List<OpenSeek> expectedSeeks =
         [
-            new OpenSeek(
-                matchSeeker.UserId,
-                matchSeeker.UserName,
-                _casualPoolKey,
-                _casualPoolTimeControl,
-                Rating: null
-            ),
+            new OpenSeek(matchSeeker.UserId, matchSeeker.UserName, _casualPoolKey, Rating: null),
         ];
         await _openSeekNotifierMock
             .Received(1)

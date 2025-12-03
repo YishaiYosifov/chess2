@@ -21,13 +21,14 @@ public class ChallengeController(
     IGrainFactory grains,
     IChallengeRequestCreator challengeRequestCreator,
     IAuthService authService,
-    IValidator<TimeControlSettings> timeControlValidator
+    IValidator<TimeControlSettingsRequest> timeControlValidator
 ) : Controller
 {
     private readonly IGrainFactory _grains = grains;
     private readonly IChallengeRequestCreator _challengeRequestCreator = challengeRequestCreator;
     private readonly IAuthService _authService = authService;
-    private readonly IValidator<TimeControlSettings> _timeControlValidator = timeControlValidator;
+    private readonly IValidator<TimeControlSettingsRequest> _timeControlValidator =
+        timeControlValidator;
 
     [HttpPut]
     [ProducesResponseType<ChallengeRequest>(StatusCodes.Status200OK)]
@@ -36,7 +37,7 @@ public class ChallengeController(
     [ProducesResponseType<ApiProblemDetails>(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<ChallengeRequest>> CreateChallenge(
         [FromQuery] string? recipientId,
-        PoolKey pool
+        PoolKeyRequest pool
     )
     {
         var validationResult = _timeControlValidator.Validate(pool.TimeControl);
@@ -50,7 +51,7 @@ public class ChallengeController(
         var challengeRequestResult = await _challengeRequestCreator.CreateAsync(
             requesterId: userIdResult.Value,
             recipientId: recipientId,
-            pool
+            new PoolKey(pool)
         );
         if (challengeRequestResult.IsError)
             return challengeRequestResult.Errors.ToActionResult();

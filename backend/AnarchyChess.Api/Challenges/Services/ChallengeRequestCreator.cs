@@ -1,7 +1,6 @@
 ﻿using AnarchyChess.Api.Challenges.Errors;
 using AnarchyChess.Api.Challenges.Grains;
 using AnarchyChess.Api.Challenges.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Preferences.Services;
 using AnarchyChess.Api.Profile.DTOs;
@@ -29,7 +28,6 @@ public class ChallengeRequestCreator(
     IGrainFactory grains,
     IOptions<AppSettings> settings,
     IRandomCodeGenerator randomCodeGenerator,
-    ITimeControlTranslator timeControlTranslator,
     IInteractionLevelGate interactionLevelGate,
     TimeProvider timeProvider,
     UserManager<AuthedUser> userManager
@@ -38,7 +36,6 @@ public class ChallengeRequestCreator(
     private readonly ChallengeSettings _settings = settings.Value.Challenge;
     private readonly IGrainFactory _grains = grains;
     private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
-    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IInteractionLevelGate _interactionLevelGate = interactionLevelGate;
     private readonly TimeProvider _timeProvider = timeProvider;
     private readonly UserManager<AuthedUser> _userManager = userManager;
@@ -113,7 +110,7 @@ public class ChallengeRequestCreator(
         return challenge;
     }
 
-    private ChallengeRequest BuildChallenge(
+    private static ChallengeRequest BuildChallenge(
         ChallengeToken challengeToken,
         MinimalProfile requester,
         MinimalProfile? recipient,
@@ -124,7 +121,6 @@ public class ChallengeRequestCreator(
             ChallengeToken: challengeToken,
             Requester: requester,
             Recipient: recipient,
-            TimeControl: _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds),
             Pool: pool,
             ExpiresAt: expiresAt
         );

@@ -13,9 +13,9 @@ export default function createFakeOpenSeek(
             timeControl: {
                 baseSeconds: faker.number.int({ min: 10, max: 1000 }),
                 incrementSeconds: faker.number.int({ min: 1, max: 10 }),
+                type: faker.helpers.enumValue(TimeControl),
             },
         },
-        timeControl: faker.helpers.enumValue(TimeControl),
         ...overrides,
     };
 }

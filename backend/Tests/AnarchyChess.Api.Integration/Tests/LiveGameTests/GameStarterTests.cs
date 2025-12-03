@@ -3,7 +3,6 @@ using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Shared.Services;
@@ -32,7 +31,6 @@ public class GameStarterTests : BaseIntegrationTest
             _grainFactory,
             Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>(),
             Scope.ServiceProvider.GetRequiredService<IRatingService>(),
-            Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>(),
             Scope.ServiceProvider.GetRequiredService<IRandomCodeGenerator>(),
             _randomProviderMock
         );

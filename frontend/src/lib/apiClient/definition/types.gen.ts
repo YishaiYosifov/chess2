@@ -283,6 +283,7 @@ export enum PoolType {
 export type TimeControlSettings = {
     baseSeconds: number;
     incrementSeconds: number;
+    type: TimeControl;
 };
 
 export type GamePlayer = {
@@ -499,9 +500,18 @@ export type ChallengeRequest = {
     challengeToken: string;
     requester: MinimalProfile;
     recipient?: MinimalProfile | null;
-    timeControl: TimeControl;
     pool: PoolKey;
     expiresAt: string;
+};
+
+export type PoolKeyRequest = {
+    poolType: PoolType;
+    timeControl: TimeControlSettingsRequest;
+};
+
+export type TimeControlSettingsRequest = {
+    baseSeconds: number;
+    incrementSeconds: number;
 };
 
 export enum ErrorCode {
@@ -1213,7 +1223,7 @@ export type IndexResponses = {
 export type IndexResponse = IndexResponses[keyof IndexResponses];
 
 export type CreateChallengeData = {
-    body: PoolKey;
+    body: PoolKeyRequest;
     path?: never;
     query?: {
         recipientId?: string | null;

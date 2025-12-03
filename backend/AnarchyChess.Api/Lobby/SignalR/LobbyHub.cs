@@ -30,7 +30,7 @@ public class LobbyHub(
     ISeekerCreator seekerCreator,
     IGrainFactory grains,
     IAuthService authService,
-    IValidator<TimeControlSettings> timeControlValidator,
+    IValidator<TimeControlSettingsRequest> timeControlValidator,
     ILobbyNotifier lobbyNotifier
 ) : AnarchyChessHub<ILobbyHubClient>
 {
@@ -38,12 +38,13 @@ public class LobbyHub(
     private readonly ISeekerCreator _seekerCreator = seekerCreator;
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
-    private readonly IValidator<TimeControlSettings> _timeControlValidator = timeControlValidator;
+    private readonly IValidator<TimeControlSettingsRequest> _timeControlValidator =
+        timeControlValidator;
     private readonly ILobbyNotifier _lobbyNotifier = lobbyNotifier;
 
-    public async Task SeekRatedAsync(TimeControlSettings timeControl)
+    public async Task SeekRatedAsync(TimeControlSettingsRequest timeControlRequest)
     {
-        var validationResult = _timeControlValidator.Validate(timeControl);
+        var validationResult = _timeControlValidator.Validate(timeControlRequest);
         if (!validationResult.IsValid)
         {
             await HandleErrors(validationResult.Errors.ToErrorList());
@@ -60,6 +61,7 @@ public class LobbyHub(
         var user = userResult.Value;
         _logger.LogInformation("User {UserId} seeking rated match", user.Id);
 
+        TimeControlSettings timeControl = new(timeControlRequest);
         var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl);
         var grain = _grains.GetGrain<IPlayerSessionGrain>(user.Id);
         var result = await grain.CreateSeekAsync(
@@ -71,9 +73,9 @@ public class LobbyHub(
             await HandleErrors(result.Errors);
     }
 
-    public async Task SeekCasualAsync(TimeControlSettings timeControl)
+    public async Task SeekCasualAsync(TimeControlSettingsRequest timeControlRequest)
     {
-        var validationResult = _timeControlValidator.Validate(timeControl);
+        var validationResult = _timeControlValidator.Validate(timeControlRequest);
         if (!validationResult.IsValid)
         {
             await HandleErrors(validationResult.Errors.ToErrorList());
@@ -99,7 +101,7 @@ public class LobbyHub(
         var result = await grain.CreateSeekAsync(
             Context.ConnectionId,
             seeker,
-            new(PoolType.Casual, timeControl)
+            new PoolKey(PoolType.Casual, new TimeControlSettings(timeControlRequest))
         );
         if (result.IsError)
             await HandleErrors(result.Errors);

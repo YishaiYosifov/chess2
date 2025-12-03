@@ -69,7 +69,7 @@ const ChallengeNotification = ({
             data-testid={`challengeNotification-${challenge.challengeToken}`}
         >
             <TimeControlIcon
-                timeControl={challenge.timeControl}
+                timeControl={challenge.pool.timeControl.type}
                 className="h-9"
             />
 

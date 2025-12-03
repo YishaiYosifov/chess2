@@ -19,14 +19,12 @@ public class OpenSeekNotifierTests
             UserId: "user id",
             UserName: "username",
             Pool: new PoolKey(PoolType.Rated, new TimeControlSettings(600, 3)),
-            TimeControl: TimeControl.Rapid,
             Rating: 123
         ),
         new OpenSeek(
             UserId: "user id",
             UserName: "username",
             Pool: new PoolKey(PoolType.Casual, new TimeControlSettings(6, 35)),
-            TimeControl: TimeControl.Blitz,
             Rating: null
         ),
     ];

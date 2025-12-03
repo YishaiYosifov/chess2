@@ -2,7 +2,6 @@
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
@@ -34,14 +33,12 @@ public class GameStarter(
     IGrainFactory grains,
     UserManager<AuthedUser> userManager,
     IRatingService ratingService,
-    ITimeControlTranslator timeControlTranslator,
     IRandomCodeGenerator randomCodeGenerator,
     IRandomProvider randomProvider
 ) : IGameStarter
 {
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IRatingService _ratingService = ratingService;
-    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
     private readonly IRandomCodeGenerator _randomCodeGenerator = randomCodeGenerator;
     private readonly IRandomProvider _randomProvider = randomProvider;
     private readonly IGrainFactory _grains = grains;
@@ -97,10 +94,7 @@ public class GameStarter(
 
         int? rating = user is null
             ? null
-            : await _ratingService.GetRatingAsync(
-                user.Id,
-                _timeControlTranslator.FromSeconds(timeControl.BaseSeconds)
-            );
+            : await _ratingService.GetRatingAsync(user.Id, timeControl.Type);
 
         return new GamePlayer(
             UserId: userId,

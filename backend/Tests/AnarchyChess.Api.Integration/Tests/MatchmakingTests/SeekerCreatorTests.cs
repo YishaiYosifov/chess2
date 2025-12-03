@@ -1,5 +1,4 @@
 ﻿using AnarchyChess.Api.GameSnapshot.Models;
-using AnarchyChess.Api.GameSnapshot.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Matchmaking.Services;
 using AnarchyChess.Api.Shared.Models;
@@ -28,8 +27,6 @@ public class SeekerCreatorTests : BaseIntegrationTest
     {
         var ratingService = Scope.ServiceProvider.GetRequiredService<IRatingService>();
         var blockService = Scope.ServiceProvider.GetRequiredService<IBlockService>();
-        var timeControlTranslator =
-            Scope.ServiceProvider.GetRequiredService<ITimeControlTranslator>();
         var settings = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
         _timeProviderMock.GetUtcNow().Returns(_fakeNow);
 
@@ -37,7 +34,6 @@ public class SeekerCreatorTests : BaseIntegrationTest
         _gameSettings = settings.Value.Game;
         _seekerCreator = new SeekerCreator(
             ratingService,
-            timeControlTranslator,
             settings,
             blockService,
             _timeProviderMock
@@ -54,7 +50,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(user, rating);
         await DbContext.SaveChangesAsync(CT);
 
-        var timeControl = new TimeControlSettings { BaseSeconds = 300 };
+        TimeControlSettings timeControl = new(BaseSeconds: 300, IncrementSeconds: 0);
         var seeker = await _seekerCreator.CreateRatedSeekerAsync(user, timeControl, CT);
 
         SeekerRating expectedRating = new(
@@ -87,7 +83,7 @@ public class SeekerCreatorTests : BaseIntegrationTest
         await DbContext.AddRangeAsync(blockedUsers, CT);
         await DbContext.SaveChangesAsync(CT);
 
-        var timeControlSettings = new TimeControlSettings { BaseSeconds = 300 };
+        TimeControlSettings timeControlSettings = new(BaseSeconds: 300, IncrementSeconds: 0);
 
         var seeker = await _seekerCreator.CreateRatedSeekerAsync(
             user,

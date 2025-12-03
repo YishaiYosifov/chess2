@@ -38,7 +38,11 @@ describe("OpenSeekItem", () => {
     });
 
     it("should display the correct time control", () => {
-        seek.pool.timeControl = { baseSeconds: 300, incrementSeconds: 5 };
+        seek.pool.timeControl = {
+            baseSeconds: 300,
+            incrementSeconds: 5,
+            type: TimeControl.RAPID,
+        };
         render(<OpenSeekItem seek={seek} />);
         expect(screen.getByTestId("openSeekTimeControl")).toHaveTextContent(
             "5+5",

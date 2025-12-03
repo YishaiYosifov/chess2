@@ -157,7 +157,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
         PlayerRoster players = new(whitePlayer, blackPlayer);
         GameCoreState core = new();
         DrawRequestState drawRequest = new();
-        GameClockState clockState = new();
+        GameClockState clockState = new() { TimeControl = pool.TimeControl };
         GameNotifierState notifierState = new();
 
         _state.State.CurrentGame = new()
@@ -171,7 +171,7 @@ public class GameGrain : Grain, IGameGrain, IRemindable
             ClockState = clockState,
             NotifierState = notifierState,
         };
-        _clock.Reset(pool.TimeControl, clockState);
+        _clock.Reset(clockState);
 
         _clockTimer = this.RegisterGrainTimer(
             callback: HandleClockTickAsync,

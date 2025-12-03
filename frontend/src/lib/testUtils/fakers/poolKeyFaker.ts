@@ -1,4 +1,4 @@
-import { PoolKey, PoolType } from "@/lib/apiClient";
+import { PoolKey, PoolType, TimeControl } from "@/lib/apiClient";
 import { faker } from "@faker-js/faker";
 
 export function createFakePoolKey(overrides?: Partial<PoolKey>): PoolKey {
@@ -7,6 +7,7 @@ export function createFakePoolKey(overrides?: Partial<PoolKey>): PoolKey {
         timeControl: {
             baseSeconds: faker.number.int({ min: 10, max: 1000 }),
             incrementSeconds: faker.number.int({ min: 1, max: 10 }),
+            type: faker.helpers.enumValue(TimeControl),
         },
         ...overrides,
     };

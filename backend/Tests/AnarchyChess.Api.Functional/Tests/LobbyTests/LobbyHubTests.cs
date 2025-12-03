@@ -21,7 +21,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await using LobbyHubClient conn = new(AuthedSignalR(LobbyHubClient.Path, user));
         await conn.StartAsync(CT);
 
-        await conn.SeekRatedAsync(new TimeControlSettings(4912, -5), CT);
+        await conn.SeekRatedAsync(new TimeControlSettingsRequest(4912, -5), CT);
         var errors = await conn.GetNextErrorsAsync(CT);
 
         errors.Should().HaveCountGreaterThanOrEqualTo(1);
@@ -34,7 +34,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await using LobbyHubClient conn = new(GuestSignalR(LobbyHubClient.Path));
         await conn.StartAsync(CT);
 
-        await conn.SeekCasualAsync(new TimeControlSettings(56, 531), CT);
+        await conn.SeekCasualAsync(new TimeControlSettingsRequest(56, 531), CT);
         var errors = await conn.GetNextErrorsAsync(CT);
 
         errors.Should().HaveCountGreaterThanOrEqualTo(1);
@@ -49,8 +49,8 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await conn1.StartAsync(CT);
         await conn2.StartAsync(CT);
 
-        await conn1.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
-        await conn2.SeekCasualAsync(new TimeControlSettings(600, 0), CT);
+        await conn1.SeekCasualAsync(new TimeControlSettingsRequest(600, 0), CT);
+        await conn2.SeekCasualAsync(new TimeControlSettingsRequest(600, 0), CT);
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }
@@ -68,8 +68,8 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await conn1.StartAsync(CT);
         await conn2.StartAsync(CT);
 
-        await conn1.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
-        await conn2.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
+        await conn1.SeekRatedAsync(new TimeControlSettingsRequest(300, 10), CT);
+        await conn2.SeekRatedAsync(new TimeControlSettingsRequest(300, 10), CT);
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }
@@ -86,8 +86,8 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await conn1.StartAsync(CT);
         await conn2.StartAsync(CT);
 
-        await conn1.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
-        await conn2.SeekCasualAsync(new TimeControlSettings(900, 3), CT);
+        await conn1.SeekCasualAsync(new TimeControlSettingsRequest(900, 3), CT);
+        await conn2.SeekCasualAsync(new TimeControlSettingsRequest(900, 3), CT);
 
         await AssertMatchEstablishedAsync(conn1, conn2);
     }
@@ -95,7 +95,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task SeekRatedAsync_and_SeekCasualAsync_with_multiple_concurrent_user_pairs()
     {
-        TimeControlSettings timeControl = new(600, 5);
+        TimeControlSettingsRequest timeControl = new(600, 5);
 
         var authed1 = new AuthedUserFaker().Generate();
         var authed2 = new AuthedUserFaker().Generate();
@@ -145,7 +145,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await using LobbyHubClient conn = new(GuestSignalR(LobbyHubClient.Path));
         await conn.StartAsync(CT);
 
-        await conn.SeekRatedAsync(new TimeControlSettings(300, 10), CT);
+        await conn.SeekRatedAsync(new TimeControlSettingsRequest(300, 10), CT);
 
         var result = await conn.GetNextErrorsAsync(CT);
 
@@ -155,7 +155,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task Seek_and_disconnect_cancels_the_seek()
     {
-        TimeControlSettings timeControl = new(300, 10);
+        TimeControlSettingsRequest timeControl = new(300, 10);
 
         await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path));
         await conn1.StartAsync(CT);
@@ -176,7 +176,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task Seek_and_disconnect_on_another_connection_doesnt_cancel_the_seek()
     {
-        TimeControlSettings timeControl = new(300, 10);
+        TimeControlSettingsRequest timeControl = new(300, 10);
 
         await using LobbyHubClient guest1ActiveConn = new(GuestSignalR(LobbyHubClient.Path));
         LobbyHubClient guest1DisconnectedConn = new(GuestSignalR(LobbyHubClient.Path));
@@ -196,7 +196,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task MatchWithOpenSeekAsync_matches_user_with_open_seek()
     {
-        TimeControlSettings timeControl = new(300, 10);
+        TimeControlSettingsRequest timeControl = new(300, 10);
 
         var seekerId = UserId.Guest();
         await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path, seekerId));
@@ -207,7 +207,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await conn1.SeekCasualAsync(timeControl, CT);
         await conn2.MatchWithOpenSeekAsync(
             matchWith: seekerId,
-            new PoolKey(PoolType.Casual, timeControl),
+            new PoolKeyRequest(PoolType.Casual, timeControl),
             CT
         );
 
@@ -217,7 +217,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
     [Fact]
     public async Task OnConnectedAsync_sends_ongoing_games_to_client()
     {
-        TimeControlSettings timeControl = new(300, 10);
+        TimeControlSettingsRequest timeControl = new(300, 10);
 
         var seekerId = UserId.Guest();
         await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path, seekerId));
@@ -228,7 +228,7 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         await conn1.SeekCasualAsync(timeControl, CT);
         await conn2.MatchWithOpenSeekAsync(
             matchWith: seekerId,
-            new PoolKey(PoolType.Casual, timeControl),
+            new PoolKeyRequest(PoolType.Casual, timeControl),
             CT
         );
 

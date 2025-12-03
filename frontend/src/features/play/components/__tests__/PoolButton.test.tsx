@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import PoolButton from "../PoolButton";
 import userEvent from "@testing-library/user-event";
-import { PoolType } from "@/lib/apiClient";
+import { PoolType, TimeControl, TimeControlSettings } from "@/lib/apiClient";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
 
 vi.mock("@/features/lobby/hooks/useMatchmaking");
@@ -27,7 +27,11 @@ describe("PoolButton", () => {
 
         render(
             <PoolButton
-                timeControl={{ baseSeconds: 300, incrementSeconds: 3 }}
+                timeControl={{
+                    baseSeconds: 300,
+                    incrementSeconds: 3,
+                    type: TimeControl.RAPID,
+                }}
                 label="Rapid"
                 poolType={PoolType.RATED}
             />,
@@ -42,7 +46,11 @@ describe("PoolButton", () => {
 
         render(
             <PoolButton
-                timeControl={{ baseSeconds: 180, incrementSeconds: 2 }}
+                timeControl={{
+                    baseSeconds: 180,
+                    incrementSeconds: 2,
+                    type: TimeControl.BLITZ,
+                }}
                 label="Blitz"
                 poolType={PoolType.CASUAL}
                 isMostPopular
@@ -58,7 +66,11 @@ describe("PoolButton", () => {
 
         const { container } = render(
             <PoolButton
-                timeControl={{ baseSeconds: 600, incrementSeconds: 5 }}
+                timeControl={{
+                    baseSeconds: 600,
+                    incrementSeconds: 5,
+                    type: TimeControl.CLASSICAL,
+                }}
                 label="Classic"
                 poolType={PoolType.RATED}
             />,
@@ -75,7 +87,11 @@ describe("PoolButton", () => {
 
         render(
             <PoolButton
-                timeControl={{ baseSeconds: 60, incrementSeconds: 5 }}
+                timeControl={{
+                    baseSeconds: 60,
+                    incrementSeconds: 5,
+                    type: TimeControl.BULLET,
+                }}
                 label="Bullet"
                 poolType={PoolType.RATED}
             />,
@@ -88,7 +104,11 @@ describe("PoolButton", () => {
     });
 
     it("should call useMatchmaking with the correct pool object", () => {
-        const timeControl = { baseSeconds: 120, incrementSeconds: 5 };
+        const timeControl: TimeControlSettings = {
+            baseSeconds: 120,
+            incrementSeconds: 5,
+            type: TimeControl.BLITZ,
+        };
         const poolType = PoolType.CASUAL;
 
         setupUseMatchmakingMock();

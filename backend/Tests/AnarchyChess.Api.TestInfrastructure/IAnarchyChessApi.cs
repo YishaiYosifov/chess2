@@ -156,7 +156,7 @@ public interface IAnarchyChessApi
     [Put("/api/challenge")]
     Task<IApiResponse<ChallengeRequest>> CreateChallengeAsync(
         [Query] string? recipientId,
-        PoolKey pool
+        PoolKeyRequest pool
     );
 
     [Get("/api/challenge/by-id/{challengeToken}")]

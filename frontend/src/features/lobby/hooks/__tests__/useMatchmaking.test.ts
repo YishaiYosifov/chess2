@@ -1,4 +1,9 @@
-import { PoolKey, PoolType, TimeControlSettings } from "@/lib/apiClient";
+import {
+    PoolKey,
+    PoolType,
+    TimeControl,
+    TimeControlSettings,
+} from "@/lib/apiClient";
 import { act, renderHook } from "@testing-library/react";
 import useMatchmaking from "../useMatchmaking";
 import { EventHandlers } from "@/features/signalR/hooks/useSignalREvent";
@@ -17,6 +22,7 @@ describe("useMatchmaking", () => {
     const timeControl: TimeControlSettings = {
         baseSeconds: 300,
         incrementSeconds: 5,
+        type: TimeControl.RAPID,
     };
     const poolRated: PoolKey = {
         poolType: PoolType.RATED,

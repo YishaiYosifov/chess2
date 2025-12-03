@@ -43,14 +43,14 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
         var guestId = UserId.Guest();
         AuthUtils.AuthenticateGuest(ApiClient, guestId);
 
-        var pool = new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Casual).Generate();
+        var pool = new PoolKeyRequestFaker().RuleFor(x => x.PoolType, PoolType.Casual).Generate();
         var result = await ApiClient.Api.CreateChallengeAsync(null, pool);
 
         result.IsSuccessful.Should().BeTrue();
         result.Content.Should().NotBeNull();
         result.Content.Requester.UserId.Should().Be(guestId);
         result.Content.Recipient.Should().BeNull();
-        result.Content.Pool.Should().Be(pool);
+        result.Content.Pool.Should().Be(new PoolKey(pool));
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
 
         var result = await ApiClient.Api.CreateChallengeAsync(
             null,
-            new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated).Generate()
+            new PoolKeyRequestFaker().RuleFor(x => x.PoolType, PoolType.Rated).Generate()
         );
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
@@ -84,8 +84,8 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
 
         var result = await ApiClient.Api.CreateChallengeAsync(
             null,
-            new PoolKeyFaker(PoolType.Casual)
-                .RuleFor(x => x.TimeControl, new TimeControlSettings(1234, 55))
+            new PoolKeyRequestFaker(PoolType.Casual)
+                .RuleFor(x => x.TimeControl, new TimeControlSettingsRequest(1234, 55))
                 .Generate()
         );
 
@@ -176,7 +176,7 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
 
         var challenge = await CreateChallengeAsync(
             _requester,
-            pool: new PoolKeyFaker().RuleFor(x => x.PoolType, PoolType.Rated)
+            pool: new PoolKeyRequestFaker().RuleFor(x => x.PoolType, PoolType.Rated)
         );
 
         AuthUtils.AuthenticateGuest(ApiClient);
@@ -213,13 +213,13 @@ public class ChallengeControllerTests(AnarchyChessWebApplicationFactory factory)
     private async Task<ChallengeRequest> CreateChallengeAsync(
         AuthedUser requester,
         AuthedUser? recipient = null,
-        PoolKey? pool = null
+        PoolKeyRequest? pool = null
     )
     {
         await AuthUtils.AuthenticateWithUserAsync(ApiClient, requester);
         var result = await ApiClient.Api.CreateChallengeAsync(
             recipient?.Id,
-            pool ?? new PoolKeyFaker().Generate()
+            pool ?? new PoolKeyRequestFaker().Generate()
         );
 
         result.IsSuccessful.Should().BeTrue();

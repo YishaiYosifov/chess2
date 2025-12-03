@@ -1,5 +1,4 @@
-﻿using AnarchyChess.Api.GameSnapshot.Services;
-using AnarchyChess.Api.Infrastructure;
+﻿using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Lobby.Models;
 using AnarchyChess.Api.Lobby.Services;
 using AnarchyChess.Api.Matchmaking.Models;
@@ -43,17 +42,14 @@ public class OpenSeekEntry
 public record SeekKey(UserId UserId, PoolKey Pool);
 
 [KeepAlive]
-public class OpenSeekGrain(
-    ILogger<OpenSeekGrain> logger,
-    IOpenSeekNotifier openSeekNotifier,
-    ITimeControlTranslator timeControlTranslator
-) : Grain, IOpenSeekGrain
+public class OpenSeekGrain(ILogger<OpenSeekGrain> logger, IOpenSeekNotifier openSeekNotifier)
+    : Grain,
+        IOpenSeekGrain
 {
     public const int RefetchTimer = 0;
 
     private readonly ILogger<OpenSeekGrain> _logger = logger;
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
-    private readonly ITimeControlTranslator _timeControlTranslator = timeControlTranslator;
 
     private readonly Dictionary<UserId, SeekWatcher> _connections = [];
     private readonly Dictionary<SeekKey, OpenSeekEntry> _openSeeks = [];
@@ -148,7 +144,6 @@ public class OpenSeekGrain(
     private OpenSeekEntry RegisterOpenSeeker(Seeker seeker, PoolKey pool)
     {
         int? rating = seeker is RatedSeeker ratedSeeker ? ratedSeeker.Rating.Value : null;
-        var timeControl = _timeControlTranslator.FromSeconds(pool.TimeControl.BaseSeconds);
 
         HashSet<string> matchingUserIds = [];
         foreach (var (userId, watcher) in _connections)
@@ -159,7 +154,7 @@ public class OpenSeekGrain(
             }
         }
 
-        OpenSeek openSeek = new(UserId: seeker.UserId, seeker.UserName, pool, timeControl, rating);
+        OpenSeek openSeek = new(UserId: seeker.UserId, seeker.UserName, pool, rating);
         OpenSeekEntry entry = new()
         {
             OpenSeek = openSeek,

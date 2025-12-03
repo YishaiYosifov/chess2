@@ -17,14 +17,14 @@ const OpenSeekItem = ({ seek }: { seek: OpenSeek }) => {
 
     return (
         <div
-            className="hover:bg-primary flex transform cursor-pointer items-center gap-2 rounded-lg p-3"
+            className="hover:bg-primary flex transform cursor-pointer items-center gap-2 rounded-md p-3"
             data-testid="openSeek"
             onClick={match}
         >
             <div className="flex w-20 flex-col items-center">
                 <TimeControlIcon
                     className="h-10 w-10"
-                    timeControl={seek.timeControl}
+                    timeControl={seek.pool.timeControl.type}
                 />
                 <span className="text-2xl" data-testid="openSeekTimeControl">
                     {seek.pool.timeControl.baseSeconds / 60}+
