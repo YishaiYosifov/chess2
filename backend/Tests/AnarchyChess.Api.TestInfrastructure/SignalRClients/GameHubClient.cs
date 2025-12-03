@@ -66,7 +66,7 @@ public class GameHubClient : BaseHubClient
 
     public async Task<int> GetNextRevisionAsync(CancellationToken token)
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var revision = await _revisionSyncsChannel.Reader.ReadAsync(cts.Token);
         return revision;
     }
@@ -84,7 +84,7 @@ public class GameHubClient : BaseHubClient
         CancellationToken token = default
     )
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var message = await _messagesChannel.Reader.ReadAsync(cts.Token);
         return message;
     }
@@ -97,19 +97,19 @@ public class GameHubClient : BaseHubClient
 
     public async Task WaitForRematchRequestedAsync(CancellationToken token)
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         await _rematchRequestedChannel.Reader.ReadAsync(cts.Token);
     }
 
     public async Task WaitForRematchCancelledAsync(CancellationToken token)
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         await _rematchCancelledChannel.Reader.ReadAsync(cts.Token);
     }
 
     public async Task<GameToken> GetNextRematchAcceptedAsync(CancellationToken token)
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var rematch = await _rematchAcceptedChannel.Reader.ReadAsync(cts.Token);
         return rematch;
     }

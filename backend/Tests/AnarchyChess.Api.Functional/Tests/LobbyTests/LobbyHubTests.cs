@@ -1,4 +1,5 @@
-﻿using AnarchyChess.Api.GameSnapshot.Models;
+﻿using AnarchyChess.Api.Game.Models;
+using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure;
@@ -211,6 +212,38 @@ public class LobbyHubTests(AnarchyChessWebApplicationFactory factory) : BaseFunc
         );
 
         await AssertMatchEstablishedAsync(conn1, conn2);
+    }
+
+    [Fact]
+    public async Task OnConnectedAsync_sends_ongoing_games_to_client()
+    {
+        TimeControlSettings timeControl = new(300, 10);
+
+        var seekerId = UserId.Guest();
+        await using LobbyHubClient conn1 = new(GuestSignalR(LobbyHubClient.Path, seekerId));
+        await using LobbyHubClient conn2 = new(GuestSignalR(LobbyHubClient.Path));
+        await conn1.StartAsync(CT);
+        await conn2.StartAsync(CT);
+
+        await conn1.SeekCasualAsync(timeControl, CT);
+        await conn2.MatchWithOpenSeekAsync(
+            matchWith: seekerId,
+            new PoolKey(PoolType.Casual, timeControl),
+            CT
+        );
+
+        GameToken gameToken = await AssertMatchEstablishedAsync(conn1, conn2);
+
+        var connectedOngoing = await conn1.GetNextOngoingGamesBatchAsync(CT);
+        connectedOngoing.Should().ContainSingle().Which.GameToken.Should().Be(gameToken);
+
+        await using LobbyHubClient conn1Reconnect = new(
+            GuestSignalR(LobbyHubClient.Path, seekerId)
+        );
+        await conn1Reconnect.StartAsync(CT);
+
+        var reconnectOngoing = await conn1Reconnect.GetNextOngoingGamesBatchAsync(CT);
+        reconnectOngoing.Should().ContainSingle().Which.GameToken.Should().Be(gameToken);
     }
 
     private async Task AssertConcurrentMatchesAsync(params List<LobbyHubClient> conns)

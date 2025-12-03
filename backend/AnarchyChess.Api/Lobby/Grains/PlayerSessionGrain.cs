@@ -39,6 +39,9 @@ public interface IPlayerSessionGrain : IGrainWithStringKey, ISeekObserver
         PoolKey pool,
         CancellationToken token = default
     );
+
+    [Alias("GetOngoingGames")]
+    Task<List<OngoingGame>> GetOngoingGamesAsync();
 }
 
 [GenerateSerializer]
@@ -49,7 +52,7 @@ public class PlayerSessionState
     public PlayerConnectionPoolMap ConnectionMap { get; } = new();
 
     [Id(1)]
-    public HashSet<string> ActiveGameTokens { get; } = [];
+    public Dictionary<GameToken, OngoingGame> OngoingGames { get; } = [];
 }
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
@@ -64,13 +67,13 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
 
     private readonly IPersistentState<PlayerSessionState> _state;
     private readonly ILogger<PlayerSessionGrain> _logger;
-    private readonly ILobbyNotifier _matchmakingNotifier;
+    private readonly ILobbyNotifier _lobbyNotifier;
     private readonly LobbySettings _settings;
 
     public PlayerSessionGrain(
         [PersistentState(StateName)] IPersistentState<PlayerSessionState> state,
         ILogger<PlayerSessionGrain> logger,
-        ILobbyNotifier matchmakingNotifier,
+        ILobbyNotifier lobbyNotifier,
         IOptions<AppSettings> settings
     )
     {
@@ -78,7 +81,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
 
         _state = state;
         _logger = logger;
-        _matchmakingNotifier = matchmakingNotifier;
+        _lobbyNotifier = lobbyNotifier;
         _settings = settings.Value.Lobby;
     }
 
@@ -136,21 +139,17 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
             .MatchWithSeekerAsync(seeker, matchWith, token);
         if (startGameResult.IsError)
             return startGameResult.Errors;
-        var gameToken = startGameResult.Value;
+        var game = startGameResult.Value;
 
-        await OnGameFoundAsync(gameToken, [connectionId], pool, token);
+        await OnGameFoundAsync(game, [connectionId], token);
         await WriteStateAsync(token);
         return Result.Created;
     }
 
-    public async Task SeekMatchedAsync(
-        GameToken gameToken,
-        PoolKey pool,
-        CancellationToken token = default
-    )
+    public async Task SeekMatchedAsync(OngoingGame game, CancellationToken token = default)
     {
-        var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
-        await OnGameFoundAsync(gameToken, poolConnectionIds, pool, token);
+        var poolConnectionIds = _state.State.ConnectionMap.RemovePool(game.Pool);
+        await OnGameFoundAsync(game, poolConnectionIds, token);
         await WriteStateAsync(token);
     }
 
@@ -160,7 +159,7 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
 
         var poolConnectionIds = _state.State.ConnectionMap.RemovePool(pool);
         await WriteStateAsync(token);
-        await _matchmakingNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
+        await _lobbyNotifier.NotifySeekFailedAsync(poolConnectionIds, pool);
     }
 
     public Task<bool> TryReserveSeekAsync(PoolKey pool)
@@ -190,6 +189,9 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         return Task.CompletedTask;
     }
 
+    public Task<List<OngoingGame>> GetOngoingGamesAsync() =>
+        Task.FromResult<List<OngoingGame>>([.. _state.State.OngoingGames.Values]);
+
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
@@ -204,8 +206,10 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
 
     public async Task OnNextAsync(GameEndedEvent @event, StreamSequenceToken? token = null)
     {
-        _state.State.ActiveGameTokens.Remove(@event.GameToken);
+        _state.State.OngoingGames.Remove(@event.GameToken);
         await WriteStateAsync();
+
+        await _lobbyNotifier.NotifyOngoingGameEndedAsync(_userId, @event.GameToken);
     }
 
     public Task OnErrorAsync(Exception ex)
@@ -215,16 +219,15 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     }
 
     private async Task OnGameFoundAsync(
-        GameToken gameToken,
+        OngoingGame game,
         IEnumerable<ConnectionId> connectionIds,
-        PoolKey pool,
         CancellationToken token = default
     )
     {
-        _state.State.ActiveGameTokens.Add(gameToken);
-        _poolConnectionReservations.Remove(pool);
+        _state.State.OngoingGames.Add(game.GameToken, game);
+        _poolConnectionReservations.Remove(game.Pool);
 
-        await _matchmakingNotifier.NotifyGameFoundAsync(connectionIds, gameToken);
+        await _lobbyNotifier.NotifyGameFoundAsync(_userId, connectionIds, game);
         _connectionsRecentlyMatched.UnionWith(connectionIds);
 
         foreach (var connectionId in connectionIds)
@@ -260,12 +263,12 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         || _poolConnectionReservations.Values.Any(claimedConn => connectionId == claimedConn);
 
     private bool HasReachedGameLimit() =>
-        _state.State.ActiveGameTokens.Count + _poolConnectionReservations.Count
+        _state.State.OngoingGames.Count + _poolConnectionReservations.Count
         >= _settings.MaxActiveGames;
 
     private async Task WriteStateAsync(CancellationToken token = default)
     {
-        if (_state.State.ConnectionMap.IsEmpty() && _state.State.ActiveGameTokens.Count == 0)
+        if (_state.State.ConnectionMap.IsEmpty() && _state.State.OngoingGames.Count == 0)
             await _state.ClearStateAsync(token);
         else
             await _state.WriteStateAsync(token);

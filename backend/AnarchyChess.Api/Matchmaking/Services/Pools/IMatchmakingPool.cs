@@ -12,7 +12,7 @@ public interface IMatchmakingPool
     void AddSeeker(Seeker seeker);
     bool RemoveSeeker(UserId userId);
     bool HasSeeker(UserId userId);
-    public bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker);
+    bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker);
 
-    List<(UserId User1, UserId User2)> CalculateMatches();
+    List<(Seeker Seeker1, Seeker Seeker2)> CalculateMatches();
 }

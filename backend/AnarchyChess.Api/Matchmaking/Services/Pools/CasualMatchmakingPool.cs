@@ -23,9 +23,9 @@ public class CasualMatchmakingPool : IMatchmakingPool
     public bool TryGetSeeker(UserId userId, [NotNullWhen(true)] out Seeker? seeker) =>
         _seekers.TryGetValue(userId, out seeker);
 
-    public List<(UserId User1, UserId User2)> CalculateMatches()
+    public List<(Seeker Seeker1, Seeker Seeker2)> CalculateMatches()
     {
-        List<(UserId, UserId)> matches = [];
+        List<(Seeker, Seeker)> matches = [];
         List<Seeker> unmatchedSeekers = [.. _seekers.Values];
         var matchedIds = new HashSet<string>();
 
@@ -44,7 +44,7 @@ public class CasualMatchmakingPool : IMatchmakingPool
                 if (!seeker.IsCompatibleWith(candidate) || !candidate.IsCompatibleWith(seeker))
                     continue;
 
-                matches.Add((seeker.UserId, candidate.UserId));
+                matches.Add((seeker, candidate));
                 matchedIds.Add(seeker.UserId);
                 matchedIds.Add(candidate.UserId);
                 break;

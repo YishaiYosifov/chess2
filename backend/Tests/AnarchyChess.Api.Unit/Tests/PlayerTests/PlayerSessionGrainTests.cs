@@ -24,7 +24,7 @@ namespace AnarchyChess.Api.Unit.Tests.PlayerTests;
 
 public class PlayerSessionGrainTests : BaseGrainTest
 {
-    private readonly ILobbyNotifier _matchmakingNotifierMock = Substitute.For<ILobbyNotifier>();
+    private readonly ILobbyNotifier _lobbyNotifier = Substitute.For<ILobbyNotifier>();
     private readonly LobbySettings _settings;
 
     private readonly IMatchmakingGrain<RatedMatchmakingPool> _ratedPoolGrainMock = Substitute.For<
@@ -48,7 +48,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         _settings = settings.Lobby;
 
         Silo.ServiceProvider.AddService(Substitute.For<ILogger<PlayerSessionGrain>>());
-        Silo.ServiceProvider.AddService(_matchmakingNotifierMock);
+        Silo.ServiceProvider.AddService(_lobbyNotifier);
         Silo.ServiceProvider.AddService(Options.Create(settings));
 
         _state = Silo
@@ -124,7 +124,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync("game1", pool, CT);
+        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
 
         var result = await grain.CreateSeekAsync("conn1", seeker, pool, CT);
 
@@ -192,7 +192,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync("game1", pool, CT);
+        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
 
         // At this point, conn1 should be in _connectionsRecentlyMatched and blocked
         (await grain.CreateSeekAsync("conn1", seeker, pool, CT))
@@ -219,7 +219,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         List<ConnectionId> expectedConns = ["conn1", "conn2"];
         await _ratedPoolGrainMock.Received(1).TryCancelSeekAsync(_userId, CT);
-        await _matchmakingNotifierMock
+        await _lobbyNotifier
             .Received(1)
             .NotifySeekFailedAsync(
                 Arg.Is<IEnumerable<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
@@ -231,6 +231,8 @@ public class PlayerSessionGrainTests : BaseGrainTest
     public async Task SeekMatchedAsync_notifies_game_found_and_cleans_up_connections()
     {
         var poolToMatch = new PoolKeyFaker(PoolType.Rated).Generate();
+        var ongoingGame = new OngoingGameFaker(poolToMatch).Generate();
+
         var anoterPool = new PoolKeyFaker(PoolType.Casual).Generate();
         var seeker = new RatedSeekerFaker(_userId).Generate();
 
@@ -239,15 +241,15 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.CreateSeekAsync("conn2", seeker, poolToMatch, CT);
         await grain.CreateSeekAsync("conn3", seeker, anoterPool, CT);
 
-        var gameToken = "game-123";
-        await grain.SeekMatchedAsync(gameToken, poolToMatch, CT);
+        await grain.SeekMatchedAsync(ongoingGame, CT);
 
         List<ConnectionId> expectedConns = ["conn1", "conn2"];
-        await _matchmakingNotifierMock
+        await _lobbyNotifier
             .Received(1)
             .NotifyGameFoundAsync(
+                _userId,
                 Arg.Is<IEnumerable<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
-                gameToken
+                ongoingGame
             );
 
         // after matching the pool should be removed
@@ -274,7 +276,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         await grain.SeekRemovedAsync(pool, CT);
 
         List<ConnectionId> expectedConns = ["conn1", "conn2"];
-        await _matchmakingNotifierMock
+        await _lobbyNotifier
             .Received(1)
             .NotifySeekFailedAsync(
                 Arg.Is<IEnumerable<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
@@ -359,35 +361,41 @@ public class PlayerSessionGrainTests : BaseGrainTest
     [Fact]
     public async Task MatchWithOpenSeekAsync_starts_game_and_notifies()
     {
-        var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         var seeker = new CasualSeekerFaker(_userId).Generate();
+        var ongoingGame = new OngoingGameFaker(
+            new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0))
+        ).Generate();
         ConnectionId connection = "conn1";
         UserId targetSeekerId = "target-user";
-        GameToken gameToken = "game123";
 
-        _casualPoolGrainMock.MatchWithSeekerAsync(seeker, targetSeekerId, CT).Returns(gameToken);
+        _casualPoolGrainMock.MatchWithSeekerAsync(seeker, targetSeekerId, CT).Returns(ongoingGame);
 
         var result = await grain.MatchWithOpenSeekAsync(
             connection,
             seeker,
             targetSeekerId,
-            pool,
+            ongoingGame.Pool,
             CT
         );
 
         result.IsError.Should().BeFalse();
         List<ConnectionId> expectedConns = [connection];
         await _casualPoolGrainMock.Received(1).MatchWithSeekerAsync(seeker, targetSeekerId, CT);
-        await _matchmakingNotifierMock
+        await _lobbyNotifier
             .Received(1)
             .NotifyGameFoundAsync(
+                _userId,
                 Arg.Is<IEnumerable<ConnectionId>>(ids => ids.SequenceEqual(expectedConns)),
-                gameToken
+                ongoingGame
             );
 
-        _state.ActiveGameTokens.Should().BeEquivalentTo([gameToken]);
+        _state
+            .OngoingGames.Should()
+            .BeEquivalentTo(
+                new Dictionary<GameToken, OngoingGame>() { [ongoingGame.GameToken] = ongoingGame }
+            );
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
         _stateStats.Clears.Should().Be(0);
     }
@@ -418,7 +426,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         var seeker = new CasualSeekerFaker(_userId).Generate();
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync("game1", pool, CT); // now conn1 is in a game
+        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT); // now conn1 is in a game
 
         var result = await grain.MatchWithOpenSeekAsync("conn1", seeker, "any-user", pool, CT);
 
@@ -446,32 +454,67 @@ public class PlayerSessionGrainTests : BaseGrainTest
 
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(MatchmakingErrors.RequestedSeekerNotCompatible);
-        await _matchmakingNotifierMock
+        await _lobbyNotifier
             .DidNotReceiveWithAnyArgs()
-            .NotifyGameFoundAsync(default!, default!);
+            .NotifyGameFoundAsync(default, default!, default!);
     }
 
     [Fact]
     public async Task GameEndedEvent_removes_games_from_active_games()
     {
-        var pool = new PoolKeyFaker(PoolType.Rated).Generate();
+        var ongoingGame = new OngoingGameFaker().Generate();
         var seeker = new RatedSeekerFaker(_userId).Generate();
 
         var streamProbe = ProbeGameEndedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
-        await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync("game1", pool, CT);
+        await grain.CreateSeekAsync("conn1", seeker, ongoingGame.Pool, CT);
+        await grain.SeekMatchedAsync(ongoingGame, CT);
 
-        _state.ActiveGameTokens.Should().Contain("game1");
+        _state
+            .OngoingGames.Should()
+            .BeEquivalentTo(
+                new Dictionary<GameToken, OngoingGame>() { [ongoingGame.GameToken] = ongoingGame }
+            );
 
         await streamProbe.OnNextAsync(
-            new GameEndedEvent("game1", new GameResultDataFaker().Generate())
+            new GameEndedEvent(ongoingGame.GameToken, new GameResultDataFaker().Generate())
         );
 
-        _state.ActiveGameTokens.Should().NotContain("game1");
+        await _lobbyNotifier
+            .Received(1)
+            .NotifyOngoingGameEndedAsync(_userId, ongoingGame.GameToken);
+        _state.OngoingGames.Should().BeEmpty();
 
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Fact]
+    public async Task GetOngoingGamesAsync_returns_all_ongoing_games()
+    {
+        var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
+
+        var seeker = new RatedSeekerFaker(_userId).Generate();
+        PoolKey[] pools =
+        [
+            new(PoolType.Rated, new(1, 2)),
+            new(PoolType.Casual, new(3, 4)),
+            new(PoolType.Rated, new(4, 5)),
+        ];
+        List<OngoingGame> games = [];
+        for (int i = 0; i < pools.Length; i++)
+        {
+            var pool = pools[i];
+            await grain.CreateSeekAsync($"conn{i}", seeker, pool, CT);
+
+            var game = new OngoingGameFaker(pool).Generate();
+            await grain.SeekMatchedAsync(game, CT);
+            games.Add(game);
+        }
+
+        var result = await grain.GetOngoingGamesAsync();
+
+        result.Should().BeEquivalentTo(games);
     }
 
     private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)
@@ -479,7 +522,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
         for (var i = 0; i < _settings.MaxActiveGames; i++)
         {
             await grain.CreateSeekAsync($"conn{i}", seeker, pool);
-            await grain.SeekMatchedAsync($"game{i}", pool);
+            await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
         }
     }
 }

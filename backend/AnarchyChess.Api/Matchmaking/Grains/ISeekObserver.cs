@@ -1,5 +1,4 @@
-﻿using AnarchyChess.Api.Game.Models;
-using AnarchyChess.Api.Matchmaking.Models;
+﻿using AnarchyChess.Api.Matchmaking.Models;
 using Orleans.Concurrency;
 
 namespace AnarchyChess.Api.Matchmaking.Grains;
@@ -9,11 +8,7 @@ public interface ISeekObserver : IGrainObserver
 {
     [OneWay]
     [Alias("SeekMatched")]
-    public Task SeekMatchedAsync(
-        GameToken gameToken,
-        PoolKey pool,
-        CancellationToken token = default
-    );
+    public Task SeekMatchedAsync(OngoingGame game, CancellationToken token = default);
 
     [OneWay]
     [Alias("SeekRemoved")]

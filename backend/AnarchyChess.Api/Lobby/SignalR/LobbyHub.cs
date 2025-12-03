@@ -1,9 +1,11 @@
 ﻿using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Infrastructure.SignalR;
 using AnarchyChess.Api.Lobby.Grains;
+using AnarchyChess.Api.Lobby.Services;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Matchmaking.Services;
 using AnarchyChess.Api.Profile.Models;
@@ -15,8 +17,11 @@ namespace AnarchyChess.Api.Lobby.SignalR;
 
 public interface ILobbyHubClient : IAnarchyChessHubClient
 {
-    public Task MatchFoundAsync(string token);
-    public Task SeekFailedAsync(PoolKey pool);
+    Task MatchFoundAsync(string token);
+    Task SeekFailedAsync(PoolKey pool);
+
+    Task ReceiveOngoingGamesAsync(IEnumerable<OngoingGame> games);
+    Task OngoingGameEndedAsync(GameToken gameToken);
 }
 
 [Authorize(AuthPolicies.ActiveSession)]
@@ -25,7 +30,8 @@ public class LobbyHub(
     ISeekerCreator seekerCreator,
     IGrainFactory grains,
     IAuthService authService,
-    IValidator<TimeControlSettings> timeControlValidator
+    IValidator<TimeControlSettings> timeControlValidator,
+    ILobbyNotifier lobbyNotifier
 ) : AnarchyChessHub<ILobbyHubClient>
 {
     private readonly ILogger<LobbyHub> _logger = logger;
@@ -33,6 +39,7 @@ public class LobbyHub(
     private readonly IGrainFactory _grains = grains;
     private readonly IAuthService _authService = authService;
     private readonly IValidator<TimeControlSettings> _timeControlValidator = timeControlValidator;
+    private readonly ILobbyNotifier _lobbyNotifier = lobbyNotifier;
 
     public async Task SeekRatedAsync(TimeControlSettings timeControl)
     {
@@ -156,30 +163,45 @@ public class LobbyHub(
             await HandleErrors(matchResult.Errors);
     }
 
+    public override async Task OnConnectedAsync()
+    {
+        await base.OnConnectedAsync();
+        if (!TryGetUserId(out var userId))
+        {
+            _logger.LogWarning("User connected to lobby hub without a user ID");
+            return;
+        }
+
+        await NotifyOngoingGames(userId);
+    }
+
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        try
-        {
-            if (!TryGetUserId(out var userId))
-            {
-                _logger.LogWarning(
-                    "User disconnected from lobby hub without a user ID, cannot cancel seek"
-                );
-                return;
-            }
+        await base.OnDisconnectedAsync(exception);
 
-            _logger.LogInformation(
-                "User {UserId} disconnected from lobby hub, cancelling seek of connection of {ConnectionId} if it exists",
-                userId,
-                Context.ConnectionId
+        if (!TryGetUserId(out var userId))
+        {
+            _logger.LogWarning(
+                "User disconnected from lobby hub without a user ID, cannot cancel seek"
             );
+            return;
+        }
 
-            var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
-            await playerSessionGrain.CleanupConnectionAsync(Context.ConnectionId);
-        }
-        finally
-        {
-            await base.OnDisconnectedAsync(exception);
-        }
+        _logger.LogInformation(
+            "User {UserId} disconnected from lobby hub, cancelling seek of connection of {ConnectionId} if it exists",
+            userId,
+            Context.ConnectionId
+        );
+
+        var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        await playerSessionGrain.CleanupConnectionAsync(Context.ConnectionId);
+    }
+
+    private async Task NotifyOngoingGames(UserId userId)
+    {
+        var playerSessionGrain = _grains.GetGrain<IPlayerSessionGrain>(userId);
+        var ongoingGames = await playerSessionGrain.GetOngoingGamesAsync();
+        if (ongoingGames.Count > 0)
+            await _lobbyNotifier.NotifyOngoingGamesAsync(Context.ConnectionId, ongoingGames);
     }
 }

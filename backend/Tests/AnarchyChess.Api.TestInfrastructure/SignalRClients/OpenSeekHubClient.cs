@@ -47,7 +47,7 @@ public class OpenSeekHubClient : BaseHubClient
 
     public async Task<List<OpenSeek>> GetNextOpenSeekBatchAsync(CancellationToken token)
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var batch = await _openSeekCreatedChannel.Reader.ReadAsync(cts.Token);
         return batch;
     }
@@ -56,7 +56,7 @@ public class OpenSeekHubClient : BaseHubClient
         CancellationToken token
     )
     {
-        var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
+        using var cts = token.WithTimeout(TimeSpan.FromSeconds(10));
         var seek = await _openSeekRemovedChannel.Reader.ReadAsync(cts.Token);
         return seek;
     }

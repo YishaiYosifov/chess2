@@ -39,7 +39,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
 
         var matches = Pool.CalculateMatches();
 
-        matches.Should().ContainSingle().Which.Should().Be((seeker1.UserId, seeker2.UserId));
+        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker2));
     }
 
     [Fact]
@@ -50,7 +50,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
 
         var matches = Pool.CalculateMatches();
 
-        matches.Should().ContainSingle().Which.Should().Be((seeker1.UserId, seeker2.UserId));
+        matches.Should().ContainSingle().Which.Should().Be((seeker1, seeker2));
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
         matches1
             .Should()
             .ContainSingle()
-            .And.OnlyContain(m => m.User1 != "user3" && m.User2 != "user3");
+            .And.OnlyContain(m => m.Seeker1.UserId != "user3" && m.Seeker2.UserId != "user3");
 
         AddSeeker("user1", 1200);
         AddSeeker("user2", 1210);
@@ -96,22 +96,28 @@ public class RatedPoolTests : BasePoolTests<RatedMatchmakingPool>
 
         // user3 should now get matched due to lower score
         matches2.Should().ContainSingle();
-        matches2.SelectMany(m => new[] { m.User1, m.User2 }).Should().Contain("user3");
+        matches2
+            .SelectMany(m => new[] { m.Seeker1.UserId, m.Seeker2.UserId })
+            .Should()
+            .Contain("user3");
     }
 
     [Fact]
     public void CalculateMatches_matches_multiple_pairs()
     {
-        AddSeeker("user1", 1200);
-        AddSeeker("user2", 1205);
-        AddSeeker("user3", 1250);
-        AddSeeker("user4", 1245);
+        List<Seeker> seekers =
+        [
+            AddSeeker("user1", 1200),
+            AddSeeker("user2", 1205),
+            AddSeeker("user3", 1250),
+            AddSeeker("user4", 1245),
+        ];
 
         var matches = Pool.CalculateMatches();
 
         matches.Should().HaveCount(2);
-        var usersMatched = matches.SelectMany(m => new[] { m.User1, m.User2 }).ToList();
-        usersMatched.Should().BeEquivalentTo<UserId>(["user1", "user2", "user3", "user4"]);
+        var usersMatched = matches.SelectMany(m => new[] { m.Seeker1, m.Seeker2 }).ToList();
+        usersMatched.Should().BeEquivalentTo(seekers);
     }
 
     [Fact]
