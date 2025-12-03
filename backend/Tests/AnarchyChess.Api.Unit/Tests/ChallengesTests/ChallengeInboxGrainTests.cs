@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Challenges.Models;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.ChallengesTests;
 

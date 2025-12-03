@@ -3,7 +3,7 @@ using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
 using AnarchyChess.Api.Profile.Services;
 using ErrorOr;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.OAuthTests.OAuthAuthenticatorTests;

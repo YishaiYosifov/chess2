@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Web;
 using AnarchyChess.Api.TestInfrastructure;
-using FluentAssertions;
+using AwesomeAssertions;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
 
 namespace AnarchyChess.Api.Functional.Tests;

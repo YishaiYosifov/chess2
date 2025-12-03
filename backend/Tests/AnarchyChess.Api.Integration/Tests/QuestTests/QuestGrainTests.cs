@@ -6,7 +6,7 @@ using AnarchyChess.Api.Quests.Grains;
 using AnarchyChess.Api.Quests.Services;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Orleans.Core;
 

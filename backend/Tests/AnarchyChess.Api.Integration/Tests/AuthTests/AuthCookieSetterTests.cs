@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;

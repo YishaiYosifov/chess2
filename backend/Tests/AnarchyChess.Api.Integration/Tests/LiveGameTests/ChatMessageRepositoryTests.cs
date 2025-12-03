@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.Game.Entities;
 using AnarchyChess.Api.Game.Repositories;
 using AnarchyChess.Api.TestInfrastructure;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

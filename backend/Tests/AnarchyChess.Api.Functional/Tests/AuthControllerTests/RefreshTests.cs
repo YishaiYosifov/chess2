@@ -2,7 +2,7 @@
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Functional.Tests.AuthControllerTests;
 

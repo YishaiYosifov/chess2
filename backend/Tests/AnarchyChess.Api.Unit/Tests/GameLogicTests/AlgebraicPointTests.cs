@@ -1,5 +1,5 @@
 ﻿using AnarchyChess.Api.GameLogic.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.GameLogicTests;
 

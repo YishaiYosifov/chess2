@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Profile.Services;
 using AnarchyChess.Api.Shared.Services;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 

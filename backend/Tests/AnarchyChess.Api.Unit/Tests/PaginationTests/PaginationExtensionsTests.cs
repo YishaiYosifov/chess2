@@ -1,6 +1,6 @@
 ﻿using AnarchyChess.Api.Pagination.Extensions;
 using AnarchyChess.Api.Pagination.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.PaginationTests;
 

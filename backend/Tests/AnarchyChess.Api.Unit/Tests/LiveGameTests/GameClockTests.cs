@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.LiveGameTests;

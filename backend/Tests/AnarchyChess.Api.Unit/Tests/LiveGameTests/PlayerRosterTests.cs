@@ -2,7 +2,7 @@
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.LiveGameTests;
 

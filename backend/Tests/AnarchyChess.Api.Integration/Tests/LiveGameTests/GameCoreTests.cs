@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.TestInfrastructure;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnarchyChess.Api.Integration.Tests.LiveGameTests;

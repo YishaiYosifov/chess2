@@ -14,7 +14,7 @@ using AnarchyChess.Api.Quests.Grains;
 using AnarchyChess.Api.Quests.Services;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.NSubtituteExtenstion;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 using Orleans.TestKit;
 using Orleans.TestKit.Storage;

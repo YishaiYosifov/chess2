@@ -7,7 +7,7 @@ using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using ErrorOr;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Orleans.TestKit;

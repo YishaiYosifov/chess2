@@ -1,5 +1,5 @@
 ﻿using AnarchyChess.Api.Shared.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests;
 

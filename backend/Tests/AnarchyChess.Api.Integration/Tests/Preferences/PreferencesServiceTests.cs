@@ -3,7 +3,7 @@ using AnarchyChess.Api.Preferences.Models;
 using AnarchyChess.Api.Preferences.Services;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 

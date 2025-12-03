@@ -3,7 +3,7 @@ using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.Game;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.TestInfrastructure;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnarchyChess.Api.Integration.Tests.LiveGameTests;

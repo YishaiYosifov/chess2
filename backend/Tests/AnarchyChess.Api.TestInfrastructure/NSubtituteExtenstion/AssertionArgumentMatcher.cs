@@ -1,4 +1,4 @@
-﻿using FluentAssertions.Execution;
+﻿using AwesomeAssertions.Execution;
 using NSubstitute.Core;
 using NSubstitute.Core.Arguments;
 

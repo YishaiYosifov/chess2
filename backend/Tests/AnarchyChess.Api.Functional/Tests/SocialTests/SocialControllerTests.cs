@@ -3,7 +3,7 @@ using AnarchyChess.Api.Pagination.Models;
 using AnarchyChess.Api.Profile.DTOs;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnarchyChess.Api.Functional.Tests.SocialTests;

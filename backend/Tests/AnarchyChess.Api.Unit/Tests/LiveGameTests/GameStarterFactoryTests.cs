@@ -1,5 +1,5 @@
 ﻿using AnarchyChess.Api.Game.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 

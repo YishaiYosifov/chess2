@@ -4,7 +4,7 @@ using AnarchyChess.Api.Streaks.Entities;
 using AnarchyChess.Api.Streaks.Models;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Functional.Tests;
 

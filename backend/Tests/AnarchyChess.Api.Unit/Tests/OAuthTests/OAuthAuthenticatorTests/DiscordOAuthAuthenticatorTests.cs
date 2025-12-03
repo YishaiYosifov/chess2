@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;

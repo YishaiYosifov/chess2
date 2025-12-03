@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Matchmaking.Services.Pools;
 using AnarchyChess.Api.Profile.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.MatchmakingTests.PoolTests;
 

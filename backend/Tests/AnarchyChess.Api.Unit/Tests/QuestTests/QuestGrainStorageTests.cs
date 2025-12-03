@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.QuestLogic;
 using AnarchyChess.Api.QuestLogic.Models;
 using AnarchyChess.Api.Quests.Grains;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestTests;
 

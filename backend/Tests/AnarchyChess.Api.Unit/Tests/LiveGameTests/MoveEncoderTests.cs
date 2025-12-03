@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 

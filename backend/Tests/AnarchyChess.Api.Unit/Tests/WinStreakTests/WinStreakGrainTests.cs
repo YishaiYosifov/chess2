@@ -12,7 +12,7 @@ using AnarchyChess.Api.Streaks.Services;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using ErrorOr;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using Orleans.TestKit;

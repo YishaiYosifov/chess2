@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.QuestLogic.MoveConditions;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestLogicTests.MoveConditionTests;
 

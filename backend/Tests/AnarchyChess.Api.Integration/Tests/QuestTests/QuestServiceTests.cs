@@ -5,7 +5,7 @@ using AnarchyChess.Api.Quests.Entities;
 using AnarchyChess.Api.Quests.Services;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

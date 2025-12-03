@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Profile.DTOs;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AnarchyChess.Api.Functional.Tests.ProfileControllerTests;

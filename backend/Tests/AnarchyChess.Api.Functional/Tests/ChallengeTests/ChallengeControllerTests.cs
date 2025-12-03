@@ -8,7 +8,7 @@ using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.SignalRClients;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Functional.Tests.ChallengeTests;
 

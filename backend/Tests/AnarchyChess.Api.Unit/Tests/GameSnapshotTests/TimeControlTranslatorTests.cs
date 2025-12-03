@@ -1,6 +1,6 @@
 ﻿using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.GameSnapshot.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.GameSnapshotTests;
 

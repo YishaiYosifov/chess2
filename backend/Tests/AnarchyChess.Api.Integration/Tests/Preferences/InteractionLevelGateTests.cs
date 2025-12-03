@@ -5,7 +5,7 @@ using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Social.Services;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnarchyChess.Api.Integration.Tests.Preferences;

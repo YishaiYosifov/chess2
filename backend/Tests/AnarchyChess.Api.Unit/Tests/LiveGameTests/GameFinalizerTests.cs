@@ -11,7 +11,7 @@ using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using AnarchyChess.Api.UserRating.Models;
 using AnarchyChess.Api.UserRating.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 

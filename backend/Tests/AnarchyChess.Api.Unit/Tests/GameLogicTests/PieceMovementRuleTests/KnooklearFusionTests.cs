@@ -2,7 +2,7 @@
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameLogic.PieceMovementRules;
 using AnarchyChess.Api.TestInfrastructure.Factories;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.GameLogicTests.PieceMovementRuleTests;

@@ -5,7 +5,7 @@ using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.SignalRClients;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnarchyChess.Api.Functional.Tests.LiveGameTests;

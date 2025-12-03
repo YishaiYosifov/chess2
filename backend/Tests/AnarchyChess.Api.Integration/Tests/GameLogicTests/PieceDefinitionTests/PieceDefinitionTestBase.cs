@@ -1,7 +1,7 @@
 ﻿using AnarchyChess.Api.GameLogic;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AnarchyChess.Api.Integration.Tests.GameLogicTests.PieceDefinitionTests;

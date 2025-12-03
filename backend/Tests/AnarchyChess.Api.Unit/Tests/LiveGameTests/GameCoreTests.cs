@@ -6,7 +6,7 @@ using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.Game.SanNotation;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.TestInfrastructure.Factories;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 

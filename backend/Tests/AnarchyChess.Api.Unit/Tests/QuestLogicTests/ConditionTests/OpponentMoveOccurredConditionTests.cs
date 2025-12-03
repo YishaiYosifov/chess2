@@ -2,7 +2,7 @@
 using AnarchyChess.Api.QuestLogic.QuestConditions;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestLogicTests.ConditionTests;
 

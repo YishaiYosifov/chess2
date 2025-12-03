@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Game.SanNotation.Notators;
 using AnarchyChess.Api.Game.Services;
 using AnarchyChess.Api.TestInfrastructure.Factories;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Text;
 
 namespace AnarchyChess.Api.Unit.Tests.LiveGameTests.SanNotation;

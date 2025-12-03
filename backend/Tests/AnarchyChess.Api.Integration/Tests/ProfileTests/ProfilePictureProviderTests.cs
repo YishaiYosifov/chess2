@@ -3,7 +3,7 @@ using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Profile.Services;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentStorage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 using SkiaSharp;

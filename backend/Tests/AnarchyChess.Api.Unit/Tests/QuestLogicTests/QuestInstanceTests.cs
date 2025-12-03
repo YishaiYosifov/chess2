@@ -3,7 +3,7 @@ using AnarchyChess.Api.QuestLogic.Models;
 using AnarchyChess.Api.QuestLogic.QuestConditions;
 using AnarchyChess.Api.QuestLogic.QuestMetrics;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestLogicTests;

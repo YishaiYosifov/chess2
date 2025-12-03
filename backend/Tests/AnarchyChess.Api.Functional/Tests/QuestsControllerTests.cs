@@ -3,7 +3,7 @@ using AnarchyChess.Api.Quests.DTOs;
 using AnarchyChess.Api.Quests.Entities;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using System.Net;
 
 namespace AnarchyChess.Api.Functional.Tests;

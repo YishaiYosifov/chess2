@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using FluentAssertions;
+using AwesomeAssertions;
 using FluentStorage.Utils.Extensions;
 using Refit;
 using SkiaSharp;

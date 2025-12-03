@@ -1,6 +1,6 @@
 ﻿using AnarchyChess.Api.QuestLogic.QuestConditions;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestLogicTests.ConditionTests;

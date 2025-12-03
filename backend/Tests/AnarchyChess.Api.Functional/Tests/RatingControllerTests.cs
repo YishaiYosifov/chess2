@@ -3,7 +3,7 @@ using AnarchyChess.Api.GameSnapshot.Models;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.UserRating.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Functional.Tests;
 

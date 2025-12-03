@@ -2,7 +2,7 @@
 using AnarchyChess.Api.Matchmaking.Services.Pools;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.MatchmakingTests.PoolTests;
 

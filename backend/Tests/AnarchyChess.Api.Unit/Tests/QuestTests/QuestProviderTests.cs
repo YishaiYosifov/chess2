@@ -3,7 +3,7 @@ using AnarchyChess.Api.QuestLogic.Models;
 using AnarchyChess.Api.QuestLogic.QuestDefinitions;
 using AnarchyChess.Api.Quests.Services;
 using AnarchyChess.Api.Shared.Services;
-using FluentAssertions;
+using AwesomeAssertions;
 using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestTests;
