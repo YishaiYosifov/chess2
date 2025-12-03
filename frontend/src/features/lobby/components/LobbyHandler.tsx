@@ -17,6 +17,16 @@ const LobbyHandler = () => {
         router.push(`${constants.PATHS.GAME}/${token}`);
     });
 
+    useLobbyEvent("ReceiveOngoingGamesAsync", (games) => {
+        const { addOngoingGames } = useLobbyStore.getState();
+        addOngoingGames(games);
+    });
+
+    useLobbyEvent("OngoingGameEndedAsync", (gameToken) => {
+        const { removeOngoingGame } = useLobbyStore.getState();
+        removeOngoingGame(gameToken);
+    });
+
     useEffect(() => {
         if (lastPathnameRef.current === pathname) return;
 

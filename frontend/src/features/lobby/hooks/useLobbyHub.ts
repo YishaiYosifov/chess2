@@ -2,10 +2,14 @@ import constants from "@/lib/constants";
 import { PoolKey, TimeControlSettings } from "@/lib/apiClient";
 import { signalREventHookFactory } from "@/features/signalR/hooks/useSignalREvent";
 import { signalREmitterHookFactory } from "@/features/signalR/hooks/useSignalREmitter";
+import { OngoingGame } from "../lib/types";
 
 export type LobbyClientEvents = {
     MatchFoundAsync: [token: string];
     SeekFailedAsync: [pool: PoolKey];
+
+    ReceiveOngoingGamesAsync: [games: OngoingGame[]];
+    OngoingGameEndedAsync: [gameToken: string];
 };
 
 type LobbyHubEvents = {

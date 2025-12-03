@@ -1,4 +1,9 @@
-import { PoolKey, PoolType, TimeControl } from "@/lib/apiClient";
+import {
+    MinimalProfile,
+    PoolKey,
+    PoolType,
+    TimeControl,
+} from "@/lib/apiClient";
 
 export type PoolKeyStr = `${PoolType}-${number}+${number}`;
 
@@ -15,4 +20,10 @@ export type SeekKeyStr = `${PoolKeyStr}:${string}`;
 export interface SeekKey {
     userId: string;
     pool: PoolKey;
+}
+
+export interface OngoingGame {
+    gameToken: string;
+    pool: PoolKey;
+    opponent: MinimalProfile;
 }

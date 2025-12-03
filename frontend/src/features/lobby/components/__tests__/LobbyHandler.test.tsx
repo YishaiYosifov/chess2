@@ -12,6 +12,7 @@ import {
     useLobbyEmitter,
     useLobbyEvent,
 } from "../../hooks/useLobbyHub";
+import { createFakeOngoingGame } from "@/lib/testUtils/fakers/ongoingGameFaker";
 
 vi.mock("@/features/lobby/hooks/useLobbyHub");
 vi.mock("next/navigation");
@@ -96,5 +97,32 @@ describe("LobbyHandler", () => {
         rerender(<LobbyHandler />);
 
         expect(sendLobbyEventMock).not.toHaveBeenCalled();
+    });
+
+    it("should add ongoing games when ReceiveOngoingGamesAsync is triggered", () => {
+        const games = [createFakeOngoingGame(), createFakeOngoingGame()];
+
+        render(<LobbyHandler />);
+        act(() => lobbyHandlers.ReceiveOngoingGamesAsync?.(games));
+
+        expect(
+            Array.from(useLobbyStore.getState().ongoingGames.values()),
+        ).toEqual(games);
+    });
+
+    it("should remove an ongoing game when OngoingGameEndedAsync is triggered", () => {
+        const initial = new Map([
+            ["game123", createFakeOngoingGame({ gameToken: "game123" })],
+            ["game456", createFakeOngoingGame({ gameToken: "game456" })],
+        ]);
+        useLobbyStore.setState({ ongoingGames: initial });
+
+        render(<LobbyHandler />);
+        act(() => lobbyHandlers.OngoingGameEndedAsync?.("game456"));
+
+        expect(useLobbyStore.getState().ongoingGames.has("game456")).toBe(
+            false,
+        );
+        expect(useLobbyStore.getState().ongoingGames.has("game123")).toBe(true);
     });
 });

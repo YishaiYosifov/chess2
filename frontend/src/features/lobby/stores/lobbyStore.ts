@@ -4,17 +4,21 @@ import { devtools } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
 import { enableMapSet } from "immer";
 
-import { PoolKeyStr } from "../lib/types";
+import { OngoingGame, PoolKeyStr } from "../lib/types";
 
 interface LobbyStore {
     seeks: Set<PoolKeyStr>;
     requestedOpenSeek: boolean;
+    ongoingGames: Map<string, OngoingGame>;
 
     clearSeeks(): void;
     addSeek(pool: PoolKeyStr): void;
     removeSeek(pool: PoolKeyStr): void;
 
     setRequestedOpenSeek(isRequesting: boolean): void;
+
+    addOngoingGames(games: OngoingGame[]): void;
+    removeOngoingGame(gameToken: string): void;
 }
 
 enableMapSet();
@@ -23,6 +27,7 @@ const useLobbyStore = createWithEqualityFn<LobbyStore>()(
         immer((set) => ({
             seeks: new Set(),
             requestedOpenSeek: false,
+            ongoingGames: new Map(),
 
             clearSeeks() {
                 set((state) => {
@@ -43,6 +48,19 @@ const useLobbyStore = createWithEqualityFn<LobbyStore>()(
             setRequestedOpenSeek(isRequesting) {
                 set((state) => {
                     state.requestedOpenSeek = isRequesting;
+                });
+            },
+
+            addOngoingGames(games) {
+                set((state) => {
+                    for (const game of games) {
+                        state.ongoingGames.set(game.gameToken, game);
+                    }
+                });
+            },
+            removeOngoingGame(gameToken) {
+                set((state) => {
+                    state.ongoingGames.delete(gameToken);
                 });
             },
         })),
