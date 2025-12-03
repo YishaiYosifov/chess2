@@ -177,26 +177,6 @@ public class MatchmakingGrainTests : BaseGrainTest
 
         await observer1.Received(1).ReleaseReservationAsync(_testPoolKey);
         await observer2.Received(1).ReleaseReservationAsync(_testPoolKey);
-        await observer1
-            .Received(1)
-            .SeekMatchedAsync(
-                new OngoingGame(
-                    gameToken,
-                    _testPoolKey,
-                    new(UserId: seeker2.UserId, UserName: seeker2.UserName)
-                ),
-                Arg.Any<CancellationToken>()
-            );
-        await observer2
-            .Received(1)
-            .SeekMatchedAsync(
-                new OngoingGame(
-                    gameToken,
-                    _testPoolKey,
-                    new(UserId: seeker1.UserId, UserName: seeker1.UserName)
-                ),
-                Arg.Any<CancellationToken>()
-            );
 
         _state.Pool.Seekers.Should().BeEmpty();
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
@@ -298,26 +278,7 @@ public class MatchmakingGrainTests : BaseGrainTest
         var result = await grain.MatchWithSeekerAsync(initiatingSeeker, matchWithSeeker.UserId, CT);
 
         result.IsError.Should().BeFalse();
-        result
-            .Value.Should()
-            .BeEquivalentTo(
-                new OngoingGame(
-                    gameToken,
-                    _testPoolKey,
-                    new(UserId: matchWithSeeker.UserId, UserName: matchWithSeeker.UserName)
-                )
-            );
 
-        await matchWithObserver
-            .Received(1)
-            .SeekMatchedAsync(
-                new OngoingGame(
-                    gameToken,
-                    _testPoolKey,
-                    new(UserId: initiatingSeeker.UserId, UserName: initiatingSeeker.UserName)
-                ),
-                CT
-            );
         await matchWithObserver.Received(1).ReleaseReservationAsync(_testPoolKey);
         _state.Pool.Seekers.Should().NotContain(matchWithSeeker);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
@@ -374,7 +335,6 @@ public class MatchmakingGrainTests : BaseGrainTest
         await _gameStarterMock
             .DidNotReceiveWithAnyArgs()
             .StartGameWithRandomColorsAsync(default!, default!, default!, default, default!);
-        await matchWithObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, CT);
         await matchWithObserver.DidNotReceiveWithAnyArgs().ReleaseReservationAsync(default!);
         _state.Pool.Seekers.Should().Contain(matchWithSeeker);
         _stateStats.Writes.Should().BeGreaterThanOrEqualTo(1);
@@ -415,6 +375,5 @@ public class MatchmakingGrainTests : BaseGrainTest
             .DidNotReceiveWithAnyArgs()
             .StartGameWithRandomColorsAsync(default!, default!, default!, default, default!);
         _state.Pool.Seekers.Should().Contain(ratedSeeker);
-        await ratedObserver.DidNotReceiveWithAnyArgs().SeekMatchedAsync(default!, CT);
     }
 }

@@ -7,10 +7,6 @@ namespace AnarchyChess.Api.Matchmaking.Grains;
 public interface ISeekObserver : IGrainObserver
 {
     [OneWay]
-    [Alias("SeekMatched")]
-    public Task SeekMatchedAsync(OngoingGame game, CancellationToken token = default);
-
-    [OneWay]
     [Alias("SeekRemoved")]
     public Task SeekRemovedAsync(PoolKey pool, CancellationToken token = default);
 

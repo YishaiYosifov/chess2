@@ -184,6 +184,32 @@ public class GameGrain : Grain, IGameGrain, IRemindable
             period: TimeSpan.FromMinutes(5)
         );
 
+        var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
+
+        await streamProvider
+            .GetStream<GameStartedEvent>(nameof(GameStartedEvent), whitePlayer.UserId)
+            .OnNextAsync(
+                new GameStartedEvent(
+                    new OngoingGame(
+                        _token,
+                        pool,
+                        Opponent: new(UserId: blackPlayer.UserId, UserName: blackPlayer.UserName)
+                    )
+                )
+            );
+
+        await streamProvider
+            .GetStream<GameStartedEvent>(nameof(GameStartedEvent), blackPlayer.UserId)
+            .OnNextAsync(
+                new GameStartedEvent(
+                    new OngoingGame(
+                        _token,
+                        pool,
+                        Opponent: new(UserId: whitePlayer.UserId, UserName: whitePlayer.UserName)
+                    )
+                )
+            );
+
         await _state.WriteStateAsync(token);
     }
 

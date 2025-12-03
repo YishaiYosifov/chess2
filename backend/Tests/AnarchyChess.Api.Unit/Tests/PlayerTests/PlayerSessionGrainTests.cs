@@ -13,6 +13,7 @@ using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
 using AwesomeAssertions;
+using ErrorOr;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -56,6 +57,13 @@ public class PlayerSessionGrainTests : BaseGrainTest
             .State;
         _stateStats = Silo.StorageManager.GetStorageStats(PlayerSessionGrain.StateName)!;
     }
+
+    private TestStream<GameStartedEvent> ProbeGameStartedStream() =>
+        Silo.AddStreamProbe<GameStartedEvent>(
+            _userId,
+            streamNamespace: nameof(GameStartedEvent),
+            Streaming.StreamProvider
+        );
 
     private TestStream<GameEndedEvent> ProbeGameEndedStream() =>
         Silo.AddStreamProbe<GameEndedEvent>(
@@ -105,9 +113,10 @@ public class PlayerSessionGrainTests : BaseGrainTest
     {
         var seeker = new CasualSeekerFaker(_userId).Generate();
         var pool = new PoolKeyFaker().Generate();
+        var startedStreamProbe = ProbeGameStartedStream();
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
-        await FillGameLimitAsync(grain, seeker, pool);
+        await FillGameLimitAsync(startedStreamProbe, grain, seeker, pool);
 
         var result = await grain.CreateSeekAsync("extra-conn", seeker, pool, CT);
 
@@ -121,10 +130,11 @@ public class PlayerSessionGrainTests : BaseGrainTest
     {
         var pool = new PoolKeyFaker().Generate();
         var seeker = new RatedSeekerFaker(_userId).Generate();
+        var startedStreamProbe = ProbeGameStartedStream();
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
+        await startedStreamProbe.OnNextAsync(new(new OngoingGameFaker(pool).Generate()));
 
         var result = await grain.CreateSeekAsync("conn1", seeker, pool, CT);
 
@@ -188,11 +198,12 @@ public class PlayerSessionGrainTests : BaseGrainTest
     {
         var pool = new PoolKeyFaker().Generate();
         var seeker = new CasualSeekerFaker(_userId).Generate();
+        var startedStreamProbe = ProbeGameStartedStream();
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
+        await startedStreamProbe.OnNextAsync(new(new OngoingGameFaker(pool).Generate()));
 
         // At this point, conn1 should be in _connectionsRecentlyMatched and blocked
         (await grain.CreateSeekAsync("conn1", seeker, pool, CT))
@@ -236,12 +247,14 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var anoterPool = new PoolKeyFaker(PoolType.Casual).Generate();
         var seeker = new RatedSeekerFaker(_userId).Generate();
 
+        var startedStreamProbe = ProbeGameStartedStream();
+
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
         await grain.CreateSeekAsync("conn1", seeker, poolToMatch, CT);
         await grain.CreateSeekAsync("conn2", seeker, poolToMatch, CT);
         await grain.CreateSeekAsync("conn3", seeker, anoterPool, CT);
 
-        await grain.SeekMatchedAsync(ongoingGame, CT);
+        await startedStreamProbe.OnNextAsync(new(ongoingGame));
 
         List<ConnectionId> expectedConns = ["conn1", "conn2"];
         await _lobbyNotifier
@@ -293,9 +306,10 @@ public class PlayerSessionGrainTests : BaseGrainTest
     {
         PoolKey pool = new(PoolType.Rated, new TimeControlSettings(180, 2));
         var seeker = new RatedSeekerFaker(_userId).Generate();
+        var startedStreamProbe = ProbeGameStartedStream();
 
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
-        await FillGameLimitAsync(grain, seeker, pool);
+        await FillGameLimitAsync(startedStreamProbe, grain, seeker, pool);
 
         (await grain.TryReserveSeekAsync(pool)).Should().BeFalse();
     }
@@ -361,6 +375,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
     [Fact]
     public async Task MatchWithOpenSeekAsync_starts_game_and_notifies()
     {
+        var startedStreamProbe = ProbeGameStartedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         var seeker = new CasualSeekerFaker(_userId).Generate();
@@ -370,7 +385,9 @@ public class PlayerSessionGrainTests : BaseGrainTest
         ConnectionId connection = "conn1";
         UserId targetSeekerId = "target-user";
 
-        _casualPoolGrainMock.MatchWithSeekerAsync(seeker, targetSeekerId, CT).Returns(ongoingGame);
+        _casualPoolGrainMock
+            .MatchWithSeekerAsync(seeker, targetSeekerId, CT)
+            .Returns(Result.Created);
 
         var result = await grain.MatchWithOpenSeekAsync(
             connection,
@@ -381,6 +398,9 @@ public class PlayerSessionGrainTests : BaseGrainTest
         );
 
         result.IsError.Should().BeFalse();
+
+        await startedStreamProbe.OnNextAsync(new(ongoingGame));
+
         List<ConnectionId> expectedConns = [connection];
         await _casualPoolGrainMock.Received(1).MatchWithSeekerAsync(seeker, targetSeekerId, CT);
         await _lobbyNotifier
@@ -404,10 +424,11 @@ public class PlayerSessionGrainTests : BaseGrainTest
     public async Task MatchWithOpenSeekAsync_returns_error_if_game_limit_reached()
     {
         var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var startedStreamProbe = ProbeGameStartedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         var seeker = new CasualSeekerFaker(_userId).Generate();
-        await FillGameLimitAsync(grain, seeker, pool);
+        await FillGameLimitAsync(startedStreamProbe, grain, seeker, pool);
 
         var result = await grain.MatchWithOpenSeekAsync("connX", seeker, "any-user", pool, CT);
 
@@ -422,11 +443,12 @@ public class PlayerSessionGrainTests : BaseGrainTest
     public async Task MatchWithOpenSeekAsync_returns_error_if_connection_taken()
     {
         var pool = new PoolKey(PoolType.Casual, new TimeControlSettings(60, 0));
+        var startedStreamProbe = ProbeGameStartedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         var seeker = new CasualSeekerFaker(_userId).Generate();
         await grain.CreateSeekAsync("conn1", seeker, pool, CT);
-        await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT); // now conn1 is in a game
+        await startedStreamProbe.OnNextAsync(new(new OngoingGameFaker(pool).Generate())); // now conn1 is in a game
 
         var result = await grain.MatchWithOpenSeekAsync("conn1", seeker, "any-user", pool, CT);
 
@@ -465,11 +487,12 @@ public class PlayerSessionGrainTests : BaseGrainTest
         var ongoingGame = new OngoingGameFaker().Generate();
         var seeker = new RatedSeekerFaker(_userId).Generate();
 
-        var streamProbe = ProbeGameEndedStream();
+        var startStreamProbe = ProbeGameStartedStream();
+        var endStreamProbe = ProbeGameEndedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         await grain.CreateSeekAsync("conn1", seeker, ongoingGame.Pool, CT);
-        await grain.SeekMatchedAsync(ongoingGame, CT);
+        await startStreamProbe.OnNextAsync(new(ongoingGame));
 
         _state
             .OngoingGames.Should()
@@ -477,7 +500,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
                 new Dictionary<GameToken, OngoingGame>() { [ongoingGame.GameToken] = ongoingGame }
             );
 
-        await streamProbe.OnNextAsync(
+        await endStreamProbe.OnNextAsync(
             new GameEndedEvent(ongoingGame.GameToken, new GameResultDataFaker().Generate())
         );
 
@@ -492,6 +515,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
     [Fact]
     public async Task GetOngoingGamesAsync_returns_all_ongoing_games()
     {
+        var startedStreamProbe = ProbeGameStartedStream();
         var grain = await Silo.CreateGrainAsync<PlayerSessionGrain>(_userId);
 
         var seeker = new RatedSeekerFaker(_userId).Generate();
@@ -508,7 +532,7 @@ public class PlayerSessionGrainTests : BaseGrainTest
             await grain.CreateSeekAsync($"conn{i}", seeker, pool, CT);
 
             var game = new OngoingGameFaker(pool).Generate();
-            await grain.SeekMatchedAsync(game, CT);
+            await startedStreamProbe.OnNextAsync(new(game));
             games.Add(game);
         }
 
@@ -517,12 +541,17 @@ public class PlayerSessionGrainTests : BaseGrainTest
         result.Should().BeEquivalentTo(games);
     }
 
-    private async Task FillGameLimitAsync(PlayerSessionGrain grain, Seeker seeker, PoolKey pool)
+    private async Task FillGameLimitAsync(
+        TestStream<GameStartedEvent> startedStreamProbe,
+        PlayerSessionGrain grain,
+        Seeker seeker,
+        PoolKey pool
+    )
     {
         for (var i = 0; i < _settings.MaxActiveGames; i++)
         {
             await grain.CreateSeekAsync($"conn{i}", seeker, pool);
-            await grain.SeekMatchedAsync(new OngoingGameFaker(pool).Generate(), CT);
+            await startedStreamProbe.OnNextAsync(new(new OngoingGameFaker(pool).Generate()));
         }
     }
 }

@@ -4,7 +4,6 @@ using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Matchmaking.Errors;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.Matchmaking.Services.Pools;
-using AnarchyChess.Api.Profile.DTOs;
 using AnarchyChess.Api.Profile.Models;
 using AnarchyChess.Api.Shared.Models;
 using ErrorOr;
@@ -23,7 +22,7 @@ public interface IMatchmakingGrain : IGrainWithStringKey
     Task<bool> TryCancelSeekAsync(UserId userId, CancellationToken token = default);
 
     [Alias("MatchWithSeeker")]
-    Task<ErrorOr<OngoingGame>> MatchWithSeekerAsync(
+    Task<ErrorOr<Created>> MatchWithSeekerAsync(
         Seeker seeker,
         UserId matchWith,
         CancellationToken token = default
@@ -105,7 +104,7 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
         return result;
     }
 
-    public async Task<ErrorOr<OngoingGame>> MatchWithSeekerAsync(
+    public async Task<ErrorOr<Created>> MatchWithSeekerAsync(
         Seeker seeker,
         UserId matchWith,
         CancellationToken token = default
@@ -137,22 +136,11 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 token
             );
 
-            await matchWithObserver.SeekMatchedAsync(
-                new OngoingGame(
-                    gameToken,
-                    _poolKey,
-                    new MinimalProfile(seeker.UserId, seeker.UserName)
-                ),
-                token
-            );
             await BroadcastSeekRemoval(matchWith);
             _state.State.Pool.RemoveSeeker(matchWith);
             await _state.WriteStateAsync(token);
-            return new OngoingGame(
-                gameToken,
-                _poolKey,
-                new MinimalProfile(matchWithSeeker.UserId, matchWithSeeker.UserName)
-            );
+
+            return Result.Created;
         }
         finally
         {
@@ -255,14 +243,6 @@ public class MatchmakingGrain<TPool> : Grain, IMatchmakingGrain<TPool>
                 token: token
             );
 
-            await seeker1Observer.SeekMatchedAsync(
-                new OngoingGame(gameToken, _poolKey, new(seeker2.UserId, seeker2.UserName)),
-                token
-            );
-            await seeker2Observer.SeekMatchedAsync(
-                new OngoingGame(gameToken, _poolKey, new(seeker1.UserId, seeker1.UserName)),
-                token
-            );
             return true;
         }
         finally

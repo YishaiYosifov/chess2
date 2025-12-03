@@ -3,11 +3,12 @@ using AnarchyChess.Api.Game.Grains;
 using AnarchyChess.Api.Game.Models;
 using AnarchyChess.Api.GameLogic.Models;
 using AnarchyChess.Api.GameSnapshot.Models;
+using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Matchmaking.Models;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AnarchyChess.Api.TestInfrastructure.Utils;
-using ErrorOr;
 using AwesomeAssertions;
+using ErrorOr;
 using Microsoft.Extensions.Options;
 using Moq;
 using Orleans.TestKit;
@@ -30,6 +31,17 @@ public class GameGrainTests : BaseGrainTest
     [Fact]
     public async Task StartGameAsync_initializes_the_game_and_transitions_to_playing_state()
     {
+        var whiteStartedStreamProbe = Silo.AddStreamProbe<GameStartedEvent>(
+            _whitePlayer.UserId,
+            streamNamespace: nameof(GameStartedEvent),
+            Streaming.StreamProvider
+        );
+        var blackStartedStreamProbe = Silo.AddStreamProbe<GameStartedEvent>(
+            _blackPlayer.UserId,
+            streamNamespace: nameof(GameStartedEvent),
+            Streaming.StreamProvider
+        );
+
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
         Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(0);
 
@@ -51,6 +63,23 @@ public class GameGrainTests : BaseGrainTest
                 GameGrain.ClockReactivationReminder,
                 TimeSpan.FromMinutes(5),
                 TimeSpan.FromMinutes(5)
+            )
+        );
+
+        whiteStartedStreamProbe.VerifySend(x =>
+            x.Game
+            == new OngoingGame(
+                TestGameToken,
+                _pool,
+                Opponent: new(UserId: _blackPlayer.UserId, UserName: _blackPlayer.UserName)
+            )
+        );
+        blackStartedStreamProbe.VerifySend(x =>
+            x.Game
+            == new OngoingGame(
+                TestGameToken,
+                _pool,
+                Opponent: new(UserId: _whitePlayer.UserId, UserName: _whitePlayer.UserName)
             )
         );
     }

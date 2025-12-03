@@ -56,7 +56,11 @@ public class PlayerSessionState
 }
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
-public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<GameEndedEvent>
+public class PlayerSessionGrain
+    : Grain,
+        IPlayerSessionGrain,
+        IAsyncObserver<GameStartedEvent>,
+        IAsyncObserver<GameEndedEvent>
 {
     public const string StateName = "playerSession";
 
@@ -134,23 +138,15 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         if (IsConnectionTaken(connectionId))
             return PlayerSessionErrors.ConnectionInGame;
 
+        _state.State.ConnectionMap.AddConnectionToPool(connectionId, pool);
         var startGameResult = await GrainFactory
             .GetMatchmakingGrain(pool)
             .MatchWithSeekerAsync(seeker, matchWith, token);
         if (startGameResult.IsError)
             return startGameResult.Errors;
-        var game = startGameResult.Value;
 
-        await OnGameFoundAsync(game, [connectionId], token);
         await WriteStateAsync(token);
         return Result.Created;
-    }
-
-    public async Task SeekMatchedAsync(OngoingGame game, CancellationToken token = default)
-    {
-        var poolConnectionIds = _state.State.ConnectionMap.RemovePool(game.Pool);
-        await OnGameFoundAsync(game, poolConnectionIds, token);
-        await WriteStateAsync(token);
     }
 
     public async Task SeekRemovedAsync(PoolKey pool, CancellationToken token = default)
@@ -195,11 +191,18 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        var stream = streamProvider.GetStream<GameEndedEvent>(
+
+        var startedStream = streamProvider.GetStream<GameStartedEvent>(
+            nameof(GameStartedEvent),
+            this.GetPrimaryKeyString()
+        );
+        await startedStream.SubscribeAsync(this);
+
+        var endedStream = streamProvider.GetStream<GameEndedEvent>(
             nameof(GameEndedEvent),
             this.GetPrimaryKeyString()
         );
-        await stream.SubscribeAsync(this);
+        await endedStream.SubscribeAsync(this);
 
         await base.OnActivateAsync(cancellationToken);
     }
@@ -212,29 +215,31 @@ public class PlayerSessionGrain : Grain, IPlayerSessionGrain, IAsyncObserver<Gam
         await _lobbyNotifier.NotifyOngoingGameEndedAsync(_userId, @event.GameToken);
     }
 
+    public async Task OnNextAsync(GameStartedEvent @event, StreamSequenceToken? token = null)
+    {
+        var game = @event.Game;
+        var connectionIds = _state.State.ConnectionMap.RemovePool(game.Pool);
+        _state.State.OngoingGames.Add(game.GameToken, game);
+        _poolConnectionReservations.Remove(game.Pool);
+
+        _connectionsRecentlyMatched.UnionWith(connectionIds);
+
+        if (connectionIds.Count > 0)
+            await _lobbyNotifier.NotifyGameFoundAsync(_userId, connectionIds, game);
+
+        foreach (var connectionId in connectionIds)
+            await RemoveConnectionFromPoolsAsync(connectionId);
+
+        if (HasReachedGameLimit())
+            await CancelAllSeeksAsync();
+
+        await WriteStateAsync();
+    }
+
     public Task OnErrorAsync(Exception ex)
     {
         _logger.LogError(ex, "Error in player session grain game stream");
         return Task.CompletedTask;
-    }
-
-    private async Task OnGameFoundAsync(
-        OngoingGame game,
-        IEnumerable<ConnectionId> connectionIds,
-        CancellationToken token = default
-    )
-    {
-        _state.State.OngoingGames.Add(game.GameToken, game);
-        _poolConnectionReservations.Remove(game.Pool);
-
-        await _lobbyNotifier.NotifyGameFoundAsync(_userId, connectionIds, game);
-        _connectionsRecentlyMatched.UnionWith(connectionIds);
-
-        foreach (var connectionId in connectionIds)
-            await RemoveConnectionFromPoolsAsync(connectionId, token);
-
-        if (HasReachedGameLimit())
-            await CancelAllSeeksAsync(token);
     }
 
     private async Task CancelAllSeeksAsync(CancellationToken token = default)
