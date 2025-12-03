@@ -1,18 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
-import ChallengePopup from "@/features/challenges/components/ChallengePopup";
-
 import useLocalPref from "@/hooks/useLocalPref";
-import Button from "@/components/ui/Button";
 import { PoolType } from "@/lib/apiClient";
 import Card from "@/components/ui/Card";
 import constants from "@/lib/constants";
 import PoolToggle from "./PoolToggle";
 import PoolButton from "./PoolButton";
-import { PopupRef } from "@/components/Popup";
 
 const PlayOptions = () => {
     const [showPoolToggle, setShowPoolToggle] = useState(false);
@@ -21,8 +17,6 @@ const PlayOptions = () => {
         PoolType.CASUAL,
     );
     const isRated = poolType === PoolType.RATED;
-
-    const challengePopupRef = useRef<PopupRef>(null);
 
     useEffect(() => {
         const isLoggedIn = Cookies.get(constants.COOKIES.IS_LOGGED_IN);
@@ -51,15 +45,6 @@ const PlayOptions = () => {
                 <PoolButtons hidden={isRated} poolType={PoolType.CASUAL} />
                 <PoolButtons hidden={!isRated} poolType={PoolType.RATED} />
             </div>
-
-            <Button
-                className="w-full"
-                onClick={() => challengePopupRef.current?.open()}
-                data-testid="playOptionsChallengeFriend"
-            >
-                Challenge a friend
-            </Button>
-            <ChallengePopup ref={challengePopupRef} />
         </Card>
     );
 };

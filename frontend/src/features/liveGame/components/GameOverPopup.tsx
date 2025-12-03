@@ -49,7 +49,11 @@ const GameOverPopup = () => {
     const gameOverTitle = getGameOverTitle();
 
     return (
-        <Popup data-testid="gameOverPopup" ref={popupRef}>
+        <Popup
+            data-testid="gameOverPopup"
+            className="bg-background"
+            ref={popupRef}
+        >
             <h2 className="text-center text-3xl font-bold">{gameOverTitle}</h2>
             <p className="text-secondary text-center">
                 {resultData.resultDescription}

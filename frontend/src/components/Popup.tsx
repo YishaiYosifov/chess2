@@ -17,7 +17,7 @@ const Popup: ForwardRefRenderFunction<
     PopupRef,
     {
         className?: string;
-        children: ReactNode;
+        children?: ReactNode;
         "data-testid"?: string;
     }
 > = ({ className, children, "data-testid": testId }, ref) => {
@@ -39,8 +39,8 @@ const Popup: ForwardRefRenderFunction<
         >
             <div
                 className={twMerge(
-                    `bg-background shadow-x4 relative flex h-min max-h-full w-full max-w-md flex-col
-                    gap-3 overflow-auto rounded-2xl p-8`,
+                    `bg-card shadow-x4 relative flex h-min max-h-full w-full max-w-md flex-col gap-3
+                    overflow-auto rounded-2xl p-8`,
                     className,
                 )}
                 onClick={(e) => e.stopPropagation()}

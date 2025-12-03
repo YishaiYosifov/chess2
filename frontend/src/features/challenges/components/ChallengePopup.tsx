@@ -76,7 +76,7 @@ const ChallengePopup: ForwardRefRenderFunction<
     }
 
     return (
-        <Popup className="bg-card gap-8" data-testid="challengePopup" ref={ref}>
+        <Popup className="gap-8" data-testid="challengePopup" ref={ref}>
             <h1 className="text-center text-3xl font-bold">Create Challenge</h1>
 
             <div className="flex flex-col gap-3">
