@@ -17,9 +17,12 @@ const OngoingGamesPopup: ForwardRefRenderFunction<PopupRef, unknown> = (
     return (
         <Popup ref={ref} data-testid="ongoingGamesPopup">
             <h2 className="text-center text-3xl font-bold">Ongoing Games</h2>
-            {ongoingGames.map((game) => (
-                <OngoingGameItem key={game.gameToken} game={game} />
-            ))}
+
+            <div className="max-h-80 overflow-auto">
+                {ongoingGames.map((game) => (
+                    <OngoingGameItem key={game.gameToken} game={game} />
+                ))}
+            </div>
         </Popup>
     );
 };
