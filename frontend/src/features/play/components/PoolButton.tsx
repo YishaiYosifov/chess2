@@ -2,16 +2,15 @@ import clsx from "clsx";
 import Button from "@/components/ui/Button";
 import { PoolType, TimeControlSettings } from "@/lib/apiClient";
 import useMatchmaking from "@/features/lobby/hooks/useMatchmaking";
+import constants from "@/lib/constants";
 
 const PoolButton = ({
     timeControl,
     poolType,
-    label,
     isMostPopular,
 }: {
     timeControl: TimeControlSettings;
     poolType: PoolType;
-    label: string;
     isMostPopular?: boolean;
 }) => {
     const formattedTimeControl = `${timeControl.baseSeconds / 60} + ${timeControl.incrementSeconds}`;
@@ -43,7 +42,9 @@ const PoolButton = ({
                         searching...
                     </span>
                 ) : (
-                    <span className="text-[1rem] text-nowrap">{label}</span>
+                    <span className="text-[1rem] text-nowrap">
+                        {constants.TIME_CONTROL_LABELS[timeControl.type]}
+                    </span>
                 )}
             </Button>
         </div>

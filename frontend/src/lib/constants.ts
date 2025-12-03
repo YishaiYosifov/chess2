@@ -77,14 +77,12 @@ const PAGINATION_PAGE_SIZE = {
 };
 
 interface TimeControlLabel {
-    label: string;
     settings: TimeControlSettings;
     isMostPopular?: boolean;
 }
 
 const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
     {
-        label: "Bullet",
         settings: {
             baseSeconds: 60,
             incrementSeconds: 0,
@@ -92,7 +90,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Bullet",
         settings: {
             baseSeconds: 120,
             incrementSeconds: 1,
@@ -100,7 +97,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Blitz",
         settings: {
             baseSeconds: 180,
             incrementSeconds: 0,
@@ -108,7 +104,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Blitz",
         settings: {
             baseSeconds: 180,
             incrementSeconds: 2,
@@ -116,7 +111,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Blitz",
         settings: {
             baseSeconds: 300,
             incrementSeconds: 0,
@@ -125,7 +119,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         isMostPopular: true,
     },
     {
-        label: "Blitz",
         settings: {
             baseSeconds: 300,
             incrementSeconds: 3,
@@ -133,7 +126,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Rapid",
         settings: {
             baseSeconds: 600,
             incrementSeconds: 0,
@@ -141,7 +133,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Rapid",
         settings: {
             baseSeconds: 900,
             incrementSeconds: 10,
@@ -149,7 +140,6 @@ const STANDARD_TIME_CONTROLS: TimeControlLabel[] = [
         },
     },
     {
-        label: "Classical",
         settings: {
             baseSeconds: 1800,
             incrementSeconds: 0,

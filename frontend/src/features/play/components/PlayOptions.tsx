@@ -84,7 +84,6 @@ const PoolButtons = ({
                     timeControl={timeControl.settings}
                     poolType={poolType}
                     isMostPopular={timeControl.isMostPopular}
-                    label={timeControl.label}
                 />
             ))}
         </section>

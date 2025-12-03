@@ -32,7 +32,6 @@ describe("PoolButton", () => {
                     incrementSeconds: 3,
                     type: TimeControl.RAPID,
                 }}
-                label="Rapid"
                 poolType={PoolType.RATED}
             />,
         );
@@ -51,7 +50,6 @@ describe("PoolButton", () => {
                     incrementSeconds: 2,
                     type: TimeControl.BLITZ,
                 }}
-                label="Blitz"
                 poolType={PoolType.CASUAL}
                 isMostPopular
             />,
@@ -71,7 +69,6 @@ describe("PoolButton", () => {
                     incrementSeconds: 5,
                     type: TimeControl.CLASSICAL,
                 }}
-                label="Classic"
                 poolType={PoolType.RATED}
             />,
         );
@@ -92,7 +89,6 @@ describe("PoolButton", () => {
                     incrementSeconds: 5,
                     type: TimeControl.BULLET,
                 }}
-                label="Bullet"
                 poolType={PoolType.RATED}
             />,
         );
@@ -113,13 +109,7 @@ describe("PoolButton", () => {
 
         setupUseMatchmakingMock();
 
-        render(
-            <PoolButton
-                timeControl={timeControl}
-                label="Blitz"
-                poolType={poolType}
-            />,
-        );
+        render(<PoolButton timeControl={timeControl} poolType={poolType} />);
 
         expect(useMatchmakingMock).toHaveBeenCalledWith({
             poolType,
