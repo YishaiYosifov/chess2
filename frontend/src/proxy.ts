@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import constants from "@/lib/constants";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const hasAuthCookie = request.cookies.has(constants.COOKIES.ACCESS_TOKEN);
     const shouldBeAuthed = request.cookies.has(constants.COOKIES.IS_LOGGED_IN);
 

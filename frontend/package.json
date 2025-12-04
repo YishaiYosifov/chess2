@@ -24,11 +24,11 @@
         "formik": "^2.4.6",
         "immer": "^10.1.1",
         "js-cookie": "^3.0.5",
-        "next": "^15.5.6",
+        "next": "16.0.7",
         "qrcode": "^1.5.4",
-        "react": "^19.0.0",
+        "react": "19.2.1",
         "react-apexcharts": "^1.7.0",
-        "react-dom": "^19.0.0",
+        "react-dom": "19.2.1",
         "react-transition-group": "^4.4.5",
         "react-use-websocket": "^4.13.0",
         "tailwind-merge": "^3.3.1",
@@ -48,13 +48,13 @@
         "@types/js-cookie": "^3.0.6",
         "@types/node": "^20",
         "@types/qrcode": "^1.5.5",
-        "@types/react": "^19",
-        "@types/react-dom": "^19",
+        "@types/react": "19.2.7",
+        "@types/react-dom": "19.2.3",
         "@types/react-transition-group": "^4.4.12",
         "@vitejs/plugin-react": "^4.4.1",
         "@vitest/coverage-v8": "^3.2.3",
         "eslint": "^9",
-        "eslint-config-next": "15.3.1",
+        "eslint-config-next": "16.0.7",
         "jsdom": "^26.1.0",
         "prettier-plugin-classnames": "^0.7.7",
         "prettier-plugin-merge": "^0.7.3",
@@ -65,5 +65,9 @@
         "vitest": "^3.1.2",
         "vitest-dom": "^0.1.1",
         "vitest-mock-extended": "^3.1.0"
+    },
+    "overrides": {
+        "@types/react": "19.2.7",
+        "@types/react-dom": "19.2.3"
     }
 }
