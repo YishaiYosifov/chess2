@@ -8,14 +8,19 @@ import useConst from "@/hooks/useConst";
 import { createChallengeStore } from "../../stores/challengeStore";
 import ChallengeDescription from "./challengeDescriptions/ChallengeDescription";
 import useChallengeEvents from "../../hooks/useChallengeEvents";
+import useInvalidateOnNavigate from "@/hooks/useInvalidateOnNavigate";
 
 const ChallengeSidebar = ({ challenge }: { challenge: ChallengeRequest }) => {
     const challengeStore = useConst(() => createChallengeStore({ challenge }));
     useChallengeEvents(challengeStore, challenge.challengeToken);
+    useInvalidateOnNavigate();
 
     return (
         <ChallengeStoreContext.Provider value={challengeStore}>
-            <aside className="flex h-full w-full min-w-xs flex-col gap-3 overflow-auto lg:max-w-sm">
+            <aside
+                className="flex h-full w-full min-w-xs flex-col gap-3
+                    overflow-auto lg:max-w-sm"
+            >
                 <ChallengeHeader />
                 <ChallengeDescription />
                 <ChallengeFooter />
