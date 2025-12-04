@@ -23,7 +23,6 @@ import getPieceImage from "../../lib/pieceImage";
 import BoardPieces from "../../lib/boardPieces";
 
 describe("ChessPiece", () => {
-    const normalize = (str: string) => str.replace(/\s+/g, "");
     const CREATED_PIECE_ID = "0";
 
     const boardRect = {
@@ -73,10 +72,9 @@ describe("ChessPiece", () => {
     }) {
         draggingOffset ??= { x: 0, y: 0 };
         centerOffset ??= { x: 0, y: 0 };
-        const expected = `translate(
+        return `translate(
                 clamp(0%, calc(${percentPosition.x}% + ${draggingOffset.x - centerOffset.x}px), 900%),
                 clamp(0%, calc(${percentPosition.y}% + ${draggingOffset.y - centerOffset.y}px), 900%))`;
-        return normalize(expected);
     }
 
     function renderPiece({
@@ -153,7 +151,7 @@ describe("ChessPiece", () => {
             expect(piece).toHaveStyle(`
             background-image: url("${getPieceImage(pieceInfo.type, pieceInfo.color)}");
         `);
-            expect(normalize(piece.style.transform)).toBe(expectedTransform);
+            expect(piece).toHaveStyle({ transform: expectedTransform });
         },
     );
 
@@ -179,7 +177,7 @@ describe("ChessPiece", () => {
             draggingOffset: mouseCoords,
             centerOffset: expectedCenterOffset,
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should follow the mouse after clicking", async () => {
@@ -204,7 +202,7 @@ describe("ChessPiece", () => {
             draggingOffset: mouseCoords,
             centerOffset: expectedCenterOffset,
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should release reset the position of the piece once released", async () => {
@@ -225,7 +223,7 @@ describe("ChessPiece", () => {
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 0, y: 0 },
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should move the piece to a legal square when clicked", async () => {
@@ -263,7 +261,7 @@ describe("ChessPiece", () => {
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 700, y: 400 },
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should move the piece when clicked on it, move the mouse and click on the destination", async () => {
@@ -302,7 +300,7 @@ describe("ChessPiece", () => {
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 200, y: 600 },
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should prioritize animatingPieces over regular pieces", () => {
@@ -322,7 +320,7 @@ describe("ChessPiece", () => {
             percentPosition: { x: 700, y: 600 }, // based on animating position { x: 7, y: 3 }
         });
 
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it.each([true, false])(
@@ -360,7 +358,7 @@ describe("ChessPiece", () => {
         const expectedTransform = getExpectedTransform({
             percentPosition: { x: 0, y: 0 },
         });
-        expect(normalize(piece.style.transform)).toBe(expectedTransform);
+        expect(piece).toHaveStyle({ transform: expectedTransform });
     });
 
     it("should show the double click indicator when a double click occurs", async () => {

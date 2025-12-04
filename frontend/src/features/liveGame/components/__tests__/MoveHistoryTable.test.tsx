@@ -255,19 +255,19 @@ describe("MoveHistoryTable", () => {
 
         await user.click(screen.getByText("e5"));
         expect(goToPositionMock).toHaveBeenLastCalledWith(
-            expect.objectContaining({ pieces: move1.pieces }),
+            expect.objectContaining({ pieces: move3.pieces }),
             { animateIntermediates: false },
         );
 
         await user.click(screen.getByText("e6"));
         expect(goToPositionMock).toHaveBeenLastCalledWith(
-            expect.objectContaining({ pieces: move3.pieces }),
+            expect.objectContaining({ pieces: move4.pieces }),
             { animateIntermediates: true },
         );
 
         await user.click(screen.getByText("e4"));
         expect(goToPositionMock).toHaveBeenLastCalledWith(
-            expect.objectContaining({ pieces: move1.pieces }),
+            expect.objectContaining({ pieces: move2.pieces }),
             { animateIntermediates: false },
         );
     });

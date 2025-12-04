@@ -18,7 +18,9 @@ export function mockHubBuilder(connection?: HubConnection) {
     mockHubBuilder.configureLogging.mockReturnThis();
     mockHubBuilder.build.mockReturnValue(connection);
 
-    vi.mocked(HubConnectionBuilder).mockReturnValue(mockHubBuilder);
+    vi.mocked(HubConnectionBuilder).mockImplementation(function () {
+        return mockHubBuilder;
+    });
 
     return mockHubBuilder;
 }

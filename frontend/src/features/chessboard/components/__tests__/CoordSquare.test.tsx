@@ -47,17 +47,6 @@ describe("CoordSquare", () => {
         });
     });
 
-    it("should place element using transform at the correct position", () => {
-        store.setState({
-            boardDimensions: { width: 10, height: 10 },
-        });
-
-        renderWithStore(<CoordSquare position={viewPoint({ x: 3, y: 4 })} />);
-
-        const el = screen.getByTestId("coordSquare");
-        expect(el.getAttribute("style")).toContain("translate(");
-    });
-
     it("should include data-position attribute", () => {
         const pos = viewPoint({ x: 2, y: 5 });
         renderWithStore(<CoordSquare position={pos} />);
@@ -99,13 +88,15 @@ describe("CoordSquare", () => {
 
         const el = screen.getByTestId("coordSquare");
 
-        expect(el.style.transform.replace(/\s/g, "")).toBe(
-            "translate(clamp(0%,calc(200%+0px),900%),clamp(0%,calc(300%+0px),900%))",
-        );
+        expect(el).toHaveStyle({
+            transform:
+                "translate(clamp(0%,calc(200%+0px),900%),clamp(0%,calc(300%+0px),900%))",
+        });
 
         ref.current?.updateDraggingOffset({ x: 15, y: -10 });
-        expect(el.style.transform.replace(/\s/g, "")).toBe(
-            "translate(clamp(0%,calc(200%+15px),900%),clamp(0%,calc(300%+-10px),900%))",
-        );
+        expect(el).toHaveStyle({
+            transform:
+                "translate(clamp(0%,calc(200%+15px),900%),clamp(0%,calc(300%+-10px),900%))",
+        });
     });
 });

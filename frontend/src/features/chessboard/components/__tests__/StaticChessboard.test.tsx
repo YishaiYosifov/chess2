@@ -42,8 +42,7 @@ describe("StaticChessboard", () => {
             const expected = `translate(
                 clamp(0%, calc(${firstRow}% + 0px), 900%),
                 clamp(0%, calc(${firstColumn}% + 0px), 900%))`;
-            const normalize = (str: string) => str.replace(/\s+/g, "");
-            expect(normalize(piece.style.transform)).toBe(normalize(expected));
+            expect(piece).toHaveStyle({ transform: expected });
         },
     );
 

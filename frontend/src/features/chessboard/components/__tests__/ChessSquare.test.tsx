@@ -55,9 +55,9 @@ describe("ChessSquare", () => {
             );
 
             const el = screen.getByTestId("chessSquare");
-            expect(el.style.transform.replace(/\s/g, "")).toBe(
-                `translate(clamp(0%,calc(${expected.x * 100}%+0px),900%),clamp(0%,calc(${expected.y * 100}%+0px),900%))`,
-            );
+            expect(el).toHaveStyle({
+                transform: `translate(clamp(0%,calc(${expected.x * 100}%+0px),900%),clamp(0%,calc(${expected.y * 100}%+0px),900%))`,
+            });
         },
     );
 

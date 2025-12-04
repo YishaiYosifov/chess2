@@ -2,7 +2,7 @@ import { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 import { NextURL } from "next/dist/server/web/next-url";
 import { NextRequest, NextResponse } from "next/server";
 
-import { middleware } from "../middleware";
+import { proxy } from "../proxy";
 import constants from "@/lib/constants";
 
 vi.mock("next/server", () => ({
@@ -13,7 +13,7 @@ vi.mock("next/server", () => ({
     },
 }));
 
-describe("middleware", () => {
+describe("proxy", () => {
     function createRequest({
         setCookies,
         pathname,
@@ -51,7 +51,7 @@ describe("middleware", () => {
         async (setCookies: Record<string, string>) => {
             const request = createRequest({ setCookies });
 
-            const response = await middleware(request);
+            const response = await proxy(request);
 
             expect(NextResponse.next).toHaveBeenCalled();
             expect(response).toEqual({ type: "next" });
@@ -67,7 +67,7 @@ describe("middleware", () => {
             pathname,
         });
 
-        const response = await middleware(request);
+        const response = await proxy(request);
 
         expect(NextResponse.rewrite).toHaveBeenCalled();
         expect(response.type).toBe("rewrite");

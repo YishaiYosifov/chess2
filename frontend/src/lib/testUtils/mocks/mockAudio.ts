@@ -18,7 +18,9 @@ export function mockAudio(): {
         currentTime: 0,
     };
 
-    const audioConstructorMock = vi.fn().mockImplementation(() => audioMock);
+    const audioConstructorMock = vi.fn().mockImplementation(function () {
+        return audioMock;
+    });
     vi.stubGlobal("Audio", audioConstructorMock);
 
     return { audioMock, audioConstructorMock };
