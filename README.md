@@ -12,13 +12,13 @@
 
 # Features
 
--   **New Pieces & Rules:** Knook, Checker, Traitor Rook, Antiqueen, Underage Pawn, King Capture, King Touch = Draw, Forced En Passant, Long Passant, Il Vaticano, Omnipotent Pawn, Vertical Castling, Knooklear Fusion, Queen Beta Decay.\
-    _See the [full guide](https://anarchychess.org/guide) for detailed explanations of all pieces and rules_
+- **New Pieces & Rules:** Knook, Checker, Traitor Rook, Antiqueen, Underage Pawn, King Capture, King Touch = Draw, Forced En Passant, Long Passant, Il Vaticano, Omnipotent Pawn, Vertical Castling, Knooklear Fusion, Queen Beta Decay.\
+  _See the [full guide](https://anarchychess.org/guide) for detailed explanations of all pieces and rules_
 
--   **Player Profiles:** Track ratings, game history and progress for each time control
--   **Social Features:** Stars, blocks, in-game chat, leaderboards, direct challenges
--   **Matchmaking:** Seek a game in any time control, all at once, rated or casual. Your seek is also displayed as an open seek, allowing players to accept it directly without having to go through the pool
--   **Daily Quests:** Complete daily quests to climb the leaderboards and build a streak
+- **Player Profiles:** Track ratings, game history and progress for each time control
+- **Social Features:** Stars, blocks, in-game chat, leaderboards, direct challenges
+- **Matchmaking:** Seek a game in any time control, all at once, rated or casual. Your seek is also displayed as an open seek, allowing players to accept it directly without having to go through the pool
+- **Daily Quests:** Complete daily quests to climb the leaderboards and build a streak
 
 # Screenshots
 
@@ -31,9 +31,9 @@
 
 # Tech Stack
 
--   **Backend:** C# With ASP.NET Core, structured with Orleans
--   **Frontend:** Next.js + Typescript, styled with Tailwind
--   **Database & Storage:** Currently configured for PostgreSQL and Azure Blob Storage. Other SQL databases and blob storage providers can be used by installing the appropriate EF Core and FluentStorage packages.
+- **Backend:** C# With ASP.NET Core, structured with Orleans
+- **Frontend:** Next.js + Typescript, styled with Tailwind
+- **Database & Storage:** Currently configured for PostgreSQL and Azure Blob Storage. Other SQL databases and blob storage providers can be used by installing the appropriate EF Core and FluentStorage packages.
 
 # Running Locally
 
@@ -68,15 +68,7 @@ dotnet user-secrets set "AppSettings:Secrets:DatabaseConnString" "<connection-st
 dotnet user-secrets set "AppSettings:Secrets:BlobStorageConnString" "<connection-string>"
 ```
 
-4. Setup appsettings file
-
-```bash
-cp appsettings.Example.json appsettings.Development.json
-```
-
-This creates a development configuration file. You don't need to change anything in order to run.
-
-5. Run the backend server
+4. Run the backend server
 
 ```bash
 dotnet run
