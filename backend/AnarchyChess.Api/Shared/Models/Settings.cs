@@ -24,12 +24,23 @@ public class SecretSettings
 
     public required OAuthClientSettings GoogleOAuth { get; set; }
     public required OAuthClientSettings DiscordOAuth { get; set; }
+
+    public required OpenIddictSettings OpenIddict { get; set; }
 }
 
 public class OAuthClientSettings
 {
     public required string ClientId { get; set; }
     public required string ClientSecret { get; set; }
+}
+
+public class OpenIddictSettings
+{
+    public required string SigningCertB64 { get; set; }
+    public required string SigningCertPassword { get; set; }
+
+    public required string EncryptionCertB64 { get; set; }
+    public required string EncryptionCertPassword { get; set; }
 }
 
 public class AuthSettings
