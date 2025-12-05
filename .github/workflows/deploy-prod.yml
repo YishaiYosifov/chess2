@@ -1,15 +1,7 @@
-name: Trigger auto deployment for anarchychess-prod-container
+name: Deploy Prod
 
-# When this action will be executed
 on:
-    # Automatically trigger it when detected changes in repo
-    push:
-        branches: [main]
-        paths:
-            - "**"
-            - ".github/workflows/deploy-prod.yml"
-
-    # Allow manual trigger
+    # Manual trigger only
     workflow_dispatch:
 
 jobs:
