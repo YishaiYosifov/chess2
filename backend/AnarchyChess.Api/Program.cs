@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -66,9 +67,6 @@ using Orleans.Serialization.Serializers;
 using Orleans.Storage;
 using Scalar.AspNetCore;
 using Serilog;
-#if !DEBUG
-using System.Security.Cryptography.X509Certificates;
-#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -268,26 +266,30 @@ builder
             .EnableRedirectionEndpointPassthrough()
             .EnableStatusCodePagesIntegration();
 
-#if DEBUG
-        options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
-#else
+        if (builder.Environment.IsDevelopment())
+        {
+            options.AddDevelopmentEncryptionCertificate().AddDevelopmentSigningCertificate();
+        }
+        else
+        {
+            var signingBytes = Convert.FromBase64String(
+                appSettings.Secrets.OpenIddict.SigningCertB64
+            );
+            var signingCert = X509CertificateLoader.LoadPkcs12Collection(
+                signingBytes,
+                appSettings.Secrets.OpenIddict.SigningCertPassword.ToCharArray()
+            )[0];
 
-        var signingBytes = Convert.FromBase64String(appSettings.Secrets.OpenIddict.SigningCertB64);
-        var signingCert = X509CertificateLoader.LoadPkcs12Collection(
-            signingBytes,
-            appSettings.Secrets.OpenIddict.SigningCertPassword.ToCharArray()
-        )[0];
+            var encryptionBytes = Convert.FromBase64String(
+                appSettings.Secrets.OpenIddict.EncryptionCertB64
+            );
+            var encryptionCert = X509CertificateLoader.LoadPkcs12Collection(
+                encryptionBytes,
+                appSettings.Secrets.OpenIddict.EncryptionCertPassword.ToCharArray()
+            )[0];
 
-        var encryptionBytes = Convert.FromBase64String(
-            appSettings.Secrets.OpenIddict.EncryptionCertB64
-        );
-        var encryptionCert = X509CertificateLoader.LoadPkcs12Collection(
-            encryptionBytes,
-            appSettings.Secrets.OpenIddict.EncryptionCertPassword.ToCharArray()
-        )[0];
-
-        options.AddEncryptionCertificate(encryptionCert).AddSigningCertificate(signingCert);
-#endif
+            options.AddEncryptionCertificate(encryptionCert).AddSigningCertificate(signingCert);
+        }
     });
 
 builder
