@@ -129,11 +129,6 @@ backend/Scripts/Orleans
 
 4. Apply EF Core migrations
 
-```bash
-cd backend/AnarchyChess.Api
-dotnet ef migrations add Initial
-```
-
 In development the backend automatically applies migrations on startup. Otherwise, run
 
 ```bash

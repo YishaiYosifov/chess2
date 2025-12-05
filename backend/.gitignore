@@ -400,5 +400,3 @@ FodyWeavers.xsd
 # Appsettings
 appsettings.*.json
 !appsettings.example.json
-
-Migrations
