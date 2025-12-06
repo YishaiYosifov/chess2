@@ -131,7 +131,7 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddStackExchangeRedis(appSettings.Secrets.RedisConnString);
 
 #region Database
 builder.Services.AddDbContextPool<ApplicationDbContext>(options =>

@@ -6,6 +6,7 @@ using FluentStorage.Blobs;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -43,7 +44,6 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
     {
         builder.ConfigureServices(services =>
         {
-            // remove the existing database context, use the one in a test container instead
             services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
             services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
@@ -57,6 +57,12 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                     serviceUri: new(_azuriteContainer.GetBlobEndpoint())
                 )
             );
+
+            // remove signalr redis backplane
+            services.RemoveAll<HubOptions>();
+            services.RemoveAll(typeof(HubLifetimeManager<>));
+            services.RemoveAll<ISignalRBuilder>();
+            services.AddSignalR();
 
             InjectableTestOutputSink injectableTestOutputSink = new();
             services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
@@ -73,9 +79,12 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
     {
         builder.UseOrleans(siloBuilder =>
         {
+            string dbConnString = _dbContainer.GetConnectionString();
+            string azuriteConnString = _azuriteContainer.GetConnectionString();
+
             siloBuilder.UseAdoNetClustering(options =>
             {
-                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.ConnectionString = dbConnString;
                 options.Invariant = "Npgsql";
             });
 
@@ -88,9 +97,7 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                         {
                             ob.Configure(options =>
                             {
-                                options.QueueServiceClient = new(
-                                    _azuriteContainer.GetConnectionString()
-                                );
+                                options.QueueServiceClient = new(azuriteConnString);
                             });
                         });
                     }
@@ -99,20 +106,20 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
                     ProviderConstants.DEFAULT_PUBSUB_PROVIDER_NAME,
                     options =>
                     {
-                        options.ConnectionString = _dbContainer.GetConnectionString();
+                        options.ConnectionString = dbConnString;
                         options.Invariant = "Npgsql";
                     }
                 );
 
             siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
             {
-                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.ConnectionString = dbConnString;
                 options.Invariant = "Npgsql";
             });
 
             siloBuilder.UseAdoNetReminderService(options =>
             {
-                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.ConnectionString = dbConnString;
                 options.Invariant = "Npgsql";
             });
         });
