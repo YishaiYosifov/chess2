@@ -1,4 +1,5 @@
 ﻿using AnarchyChess.Api.Infrastructure;
+using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Lobby.Models;
 using AnarchyChess.Api.Lobby.Services;
 using AnarchyChess.Api.Matchmaking.Models;
@@ -47,6 +48,7 @@ public class OpenSeekGrain(ILogger<OpenSeekGrain> logger, IOpenSeekNotifier open
         IOpenSeekGrain
 {
     public const int RefetchTimer = 0;
+    public const string StateName = "openSeek";
 
     private readonly ILogger<OpenSeekGrain> _logger = logger;
     private readonly IOpenSeekNotifier _openSeekNotifier = openSeekNotifier;
@@ -128,15 +130,16 @@ public class OpenSeekGrain(ILogger<OpenSeekGrain> logger, IOpenSeekNotifier open
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var streamProvider = this.GetStreamProvider(Streaming.StreamProvider);
-        var openSeekCreatedStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
+
+        var createdStream = streamProvider.GetStream<OpenSeekCreatedEvent>(
             nameof(OpenSeekCreatedEvent)
         );
-        await openSeekCreatedStream.SubscribeAsync(OnSeekCreated);
+        await createdStream.SubscribeOrResumeAsync(OnSeekCreated);
 
-        var openSeekRemovedStream = streamProvider.GetStream<OpenSeekRemovedEvent>(
+        var removedStream = streamProvider.GetStream<OpenSeekRemovedEvent>(
             nameof(OpenSeekRemovedEvent)
         );
-        await openSeekRemovedStream.SubscribeAsync(OnSeekEnded);
+        await removedStream.SubscribeOrResumeAsync(OnSeekEnded);
 
         await base.OnActivateAsync(cancellationToken);
     }
