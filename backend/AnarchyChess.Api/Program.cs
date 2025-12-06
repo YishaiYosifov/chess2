@@ -372,20 +372,9 @@ builder.Host.UseOrleans(siloBuilder =>
         options.ConnectionString = appSettings.Secrets.DatabaseConnString;
         options.Invariant = "Npgsql";
     });
-    siloBuilder.AddStartupTask(
-        async (services, token) =>
-        {
-            var grainFactory = services.GetRequiredService<IGrainFactory>();
-            var grain = grainFactory.GetGrain<IQuestSeasonResetterGrain>(0);
-            await grain.InitializeAsync();
-
-            for (var i = 0; i < appSettings.Lobby.OpenSeekShardCount; i++)
-            {
-                await grainFactory.GetGrain<IOpenSeekGrain>(i).InitializeAsync();
-            }
-        }
-    );
 });
+
+builder.Services.AddHostedService<GrainInitializer>();
 
 #region Matchmaking
 builder.Services.AddSingleton<ILobbyNotifier, LobbyNotifier>();
