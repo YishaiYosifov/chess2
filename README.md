@@ -67,6 +67,7 @@ dotnet user-secrets set "AppSettings:Secrets:JwtSecret" "<jwt-secret>"
 dotnet user-secrets set "AppSettings:Secrets:DatabaseConnString" "<connection-string>"
 dotnet user-secrets set "AppSettings:Secrets:BlobStorageConnString" "<connection-string>"
 dotnet user-secrets set "AppSettings:Secrets:QueueStorageConnString" "<connection-string>"
+dotnet user-secrets set "AppSettings:Secrets:RedisConnString" "<connection-string>"
 ```
 
 4. Run the backend server
