@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Npgsql;
 using Orleans.Providers;
 using Refit;
@@ -41,70 +41,83 @@ public class AnarchyChessWebApplicationFactory : WebApplicationFactory<Program>,
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder
-            .ConfigureServices(services =>
-            {
-                // remove the existing database context, use the one in a test container instead
-                services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
-                services.AddDbContextPool<ApplicationDbContext>(options =>
-                    options
-                        .UseNpgsql(_dbContainer.GetConnectionString())
-                        .UseSnakeCaseNamingConvention()
-                );
-                services.AddAdoNetGrainStorage(
-                    ProviderConstants.DEFAULT_STORAGE_PROVIDER_NAME,
-                    options =>
-                    {
-                        options.Invariant = "Npgsql";
-                        options.ConnectionString = _dbContainer.GetConnectionString();
-                    }
-                );
-                services.UseAdoNetReminderService(services =>
-                {
-                    services.Configure(options =>
-                    {
-                        options.Invariant = "Npgsql";
-                        options.ConnectionString = _dbContainer.GetConnectionString();
-                    });
-                });
+        builder.ConfigureServices(services =>
+        {
+            // remove the existing database context, use the one in a test container instead
+            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+            services.AddDbContextPool<ApplicationDbContext>(options =>
+                options.UseNpgsql(_dbContainer.GetConnectionString()).UseSnakeCaseNamingConvention()
+            );
 
-                services.RemoveAll<IBlobStorage>();
-                services.AddSingleton<IBlobStorage>(
-                    StorageFactory.Blobs.AzureBlobStorageWithSharedKey(
-                        accountName: AzuriteBuilder.AccountName,
-                        key: AzuriteBuilder.AccountKey,
-                        serviceUri: new(_azuriteContainer.GetBlobEndpoint())
-                    )
-                );
+            services.RemoveAll<IBlobStorage>();
+            services.AddSingleton<IBlobStorage>(
+                StorageFactory.Blobs.AzureBlobStorageWithSharedKey(
+                    accountName: AzuriteBuilder.AccountName,
+                    key: AzuriteBuilder.AccountKey,
+                    serviceUri: new(_azuriteContainer.GetBlobEndpoint())
+                )
+            );
 
-                InjectableTestOutputSink injectableTestOutputSink = new();
-                services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
-                services.AddSerilog(
-                    (_, loggerConfiguration) =>
-                    {
-                        loggerConfiguration.WriteTo.InjectableTestOutput(injectableTestOutputSink);
-                    }
-                );
-            })
-            .ConfigureAppConfiguration(
-                (context, configBuilder) =>
+            InjectableTestOutputSink injectableTestOutputSink = new();
+            services.AddSingleton<IInjectableTestOutputSink>(injectableTestOutputSink);
+            services.AddSerilog(
+                (_, loggerConfiguration) =>
                 {
-                    Dictionary<string, string?> secrets = new()
-                    {
-                        { "AppSettings:Secrets:GoogleOAuth:ClientId", "test-google-client-id" },
-                        {
-                            "AppSettings:Secrets:GoogleOAuth:ClientSecret",
-                            "test-google-client-secret"
-                        },
-                        { "AppSettings:Secrets:DiscordOAuth:ClientId", "test-discord-client-id" },
-                        {
-                            "AppSettings:Secrets:DiscordOAuth:ClientSecret",
-                            "test-discord-client-secret"
-                        },
-                    };
-                    configBuilder.AddInMemoryCollection(secrets);
+                    loggerConfiguration.WriteTo.InjectableTestOutput(injectableTestOutputSink);
                 }
             );
+        });
+    }
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.UseOrleans(siloBuilder =>
+        {
+            siloBuilder.UseAdoNetClustering(options =>
+            {
+                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.Invariant = "Npgsql";
+            });
+
+            siloBuilder
+                .AddAzureQueueStreams(
+                    Streaming.StreamProvider,
+                    configurator =>
+                    {
+                        configurator.ConfigureAzureQueue(ob =>
+                        {
+                            ob.Configure(options =>
+                            {
+                                options.QueueServiceClient = new(
+                                    _azuriteContainer.GetConnectionString()
+                                );
+                            });
+                        });
+                    }
+                )
+                .AddAdoNetGrainStorage(
+                    ProviderConstants.DEFAULT_PUBSUB_PROVIDER_NAME,
+                    options =>
+                    {
+                        options.ConnectionString = _dbContainer.GetConnectionString();
+                        options.Invariant = "Npgsql";
+                    }
+                );
+
+            siloBuilder.AddAdoNetGrainStorageAsDefault(options =>
+            {
+                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.Invariant = "Npgsql";
+            });
+
+            siloBuilder.UseAdoNetReminderService(options =>
+            {
+                options.ConnectionString = _dbContainer.GetConnectionString();
+                options.Invariant = "Npgsql";
+            });
+        });
+
+        return base.CreateHost(builder);
     }
 
     public ApiClient CreateApiClient()

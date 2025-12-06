@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
@@ -28,7 +28,6 @@ using AnarchyChess.Api.Infrastructure;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Infrastructure.OpenAPI;
 using AnarchyChess.Api.Infrastructure.Sharding;
-using AnarchyChess.Api.Lobby.Grains;
 using AnarchyChess.Api.Lobby.Services;
 using AnarchyChess.Api.Lobby.SignalR;
 using AnarchyChess.Api.Matchmaking.Services;
@@ -41,7 +40,6 @@ using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Services;
 using AnarchyChess.Api.Profile.Validators;
 using AnarchyChess.Api.QuestLogic.QuestDefinitions;
-using AnarchyChess.Api.Quests.Grains;
 using AnarchyChess.Api.Quests.Repositories;
 using AnarchyChess.Api.Quests.Services;
 using AnarchyChess.Api.Shared.Models;
@@ -62,7 +60,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using NSwag.Generation.Processors;
-using Orleans.Configuration;
+using Orleans.Providers;
 using Orleans.Serialization.Serializers;
 using Orleans.Storage;
 using Scalar.AspNetCore;
@@ -326,16 +324,35 @@ builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
 
 builder.Host.UseOrleans(siloBuilder =>
 {
-    siloBuilder.UseLocalhostClustering();
-    siloBuilder.AddMemoryStreams(Streaming.StreamProvider).AddMemoryGrainStorage("PubSubStore");
-
-    siloBuilder.Configure(
-        (GrainCollectionOptions options) =>
-        {
-            options.ClassSpecificCollectionAge[typeof(PlayerSessionGrain).FullName!] =
-                TimeSpan.FromMinutes(5);
-        }
-    );
+    siloBuilder.UseAdoNetClustering(options =>
+    {
+        options.ConnectionString = appSettings.Secrets.DatabaseConnString;
+        options.Invariant = "Npgsql";
+    });
+    siloBuilder
+        .AddAzureQueueStreams(
+            Streaming.StreamProvider,
+            streamConfigurator =>
+            {
+                streamConfigurator.ConfigureAzureQueue(queueOptionsBuilder =>
+                {
+                    queueOptionsBuilder.Configure(options =>
+                    {
+                        options.QueueServiceClient = new(
+                            appSettings.Secrets.QueueStorageConnString
+                        );
+                    });
+                });
+            }
+        )
+        .AddAdoNetGrainStorage(
+            ProviderConstants.DEFAULT_PUBSUB_PROVIDER_NAME,
+            options =>
+            {
+                options.ConnectionString = appSettings.Secrets.DatabaseConnString;
+                options.Invariant = "Npgsql";
+            }
+        );
 
     siloBuilder.ConfigureServices(services =>
     {

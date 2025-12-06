@@ -33,7 +33,7 @@
   </ItemGroup>
     
   <ItemGroup>
-    <None Include="..\..\AnarchyChess.Api\appsettings.Example.json">
+    <None Include="..\..\AnarchyChess.Api\appsettings.json">
       <Link>appsettings.json</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -66,6 +66,7 @@ dotnet user-secrets set "AppSettings:Secrets:JwtSecret" "<jwt-secret>"
 
 dotnet user-secrets set "AppSettings:Secrets:DatabaseConnString" "<connection-string>"
 dotnet user-secrets set "AppSettings:Secrets:BlobStorageConnString" "<connection-string>"
+dotnet user-secrets set "AppSettings:Secrets:QueueStorageConnString" "<connection-string>"
 ```
 
 4. Run the backend server
@@ -113,7 +114,7 @@ CREATE DATABASE anarchychess;
 2. Set the connection string
 
 ```bash
-dotnet user-secrets set "Services:Database:ConnString" "<connection-string>"
+dotnet user-secrets set "AppSettings:Secrets:DatabaseConnString" "<connection-string>"
 ```
 
 3. Run Orleans SQL Setup Scripts
@@ -125,6 +126,7 @@ backend/Scripts/Orleans
 |- 001-query.sql
 |- 002-reminders.sql
 |- 003-storage.sql
+|- 004-clustering.sql
 ```
 
 4. Apply EF Core migrations
