@@ -1,4 +1,4 @@
-name: Deploy Prod
+name: Deploy Prod Backend
 
 on:
     # Manual trigger only
