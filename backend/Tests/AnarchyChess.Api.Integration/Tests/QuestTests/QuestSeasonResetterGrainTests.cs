@@ -44,7 +44,7 @@ public class QuestSeasonResetterGrainTests : BaseOrleansIntegrationTest
                 Silo.GetGrainId(grain),
                 QuestSeasonResetterGrain.ReminderName,
                 dueTime,
-                TimeSpan.FromDays(30)
+                TimeSpan.FromDays(10)
             )
         );
     }
@@ -97,7 +97,7 @@ public class QuestSeasonResetterGrainTests : BaseOrleansIntegrationTest
                 Silo.GetGrainId(grain),
                 QuestSeasonResetterGrain.ReminderName,
                 It.IsAny<TimeSpan>(),
-                TimeSpan.FromDays(30)
+                TimeSpan.FromDays(10)
             )
         );
     }
