@@ -41,7 +41,7 @@ const PATHS = {
     SETTINGS_BASE: "/settings",
     SETTINGS_PROFILE: "/settings/profile",
     SETTINGS_SOCIAL: "/settings/social",
-    OAUTH: `${process.env.NEXT_PUBLIC_API_URL}/api/oauth/signin/`,
+    OAUTH: `/api/oauth/signin/`,
     TOS: "/tos",
     PRIVACY: "/privacy",
     DONATE: "https://ko-fi.com/anarchychess",
@@ -58,10 +58,10 @@ const LOCALSTORAGE = {
 };
 
 const SIGNALR_PATHS = {
-    LOBBY: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/lobby`,
-    OPENSEEK: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/openseek`,
-    GAME: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/game`,
-    CHALLENGE: `${process.env.NEXT_PUBLIC_API_URL}/api/hub/challenge`,
+    LOBBY: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/hub/lobby`,
+    OPENSEEK: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/hub/openseek`,
+    GAME: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/hub/game`,
+    CHALLENGE: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/hub/challenge`,
 };
 
 const HEADERS = {
