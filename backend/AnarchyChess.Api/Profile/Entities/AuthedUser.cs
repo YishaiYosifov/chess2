@@ -11,7 +11,7 @@ public class AuthedUser : IdentityUser<UserId>
     public required string About { get; set; }
 
     [MaxLength(6)]
-    [DefaultValue("xx")]
+    [DefaultValue("XX")]
     public required string CountryCode { get; set; }
 
     public DateTime? UsernameLastChanged { get; set; }
