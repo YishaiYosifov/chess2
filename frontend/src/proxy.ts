@@ -30,5 +30,5 @@ function rewriteTo(request: NextRequest, newPathname: string): NextResponse {
 }
 
 export const config = {
-    matcher: ["/((?!_next|favicon.ico|api|assets).*)"], // Run on all paths except static assets and api routes
+    matcher: ["/((?!_next|favicon.ico|api|assets|data).*)"], // Run on all paths except static assets and api routes
 };
