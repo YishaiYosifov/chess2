@@ -33,6 +33,8 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         : base(factory)
     {
         _appSettingsOptions = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
+        // cookie domain is null in development, so add it so we can test it is added
+        _appSettingsOptions.Value.Auth.CookieDomain = ".anarchychess.org";
         _settings = _appSettingsOptions.Value.Auth;
 
         _linkGenerator = Scope.ServiceProvider.GetRequiredService<LinkGenerator>();
