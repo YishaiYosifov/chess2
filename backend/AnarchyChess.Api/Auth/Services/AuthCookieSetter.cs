@@ -84,6 +84,7 @@ public class AuthCookieSetter(
                 Secure = true,
                 SameSite = _sameSiteMode,
                 Path = path,
+                Domain = ".anarchychess.org",
             }
         );
     }
@@ -96,6 +97,7 @@ public class AuthCookieSetter(
             {
                 Secure = true,
                 SameSite = _sameSiteMode,
+                Domain = ".anarchychess.org",
                 Path = path,
             }
         );

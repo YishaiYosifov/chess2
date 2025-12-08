@@ -54,6 +54,7 @@ using ErrorOr;
 using FluentStorage;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -520,6 +521,20 @@ if (app.Environment.IsDevelopment())
     });
     app.MapScalarApiReference();
     app.ApplyMigrations();
+}
+
+// KnownNetworks and KnownProxies are cleared because azure container app does not provide a static proxy ip
+// but it's safe because all traffic reaches the container via the ACA frontend proxy over HTTPS,
+// and clients cannot inject or spoof X-Forwarded headers directly
+if (app.Environment.IsProduction())
+{
+    ForwardedHeadersOptions forwardingOptions = new()
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    };
+    forwardingOptions.KnownNetworks.Clear();
+    forwardingOptions.KnownProxies.Clear();
+    app.UseForwardedHeaders(forwardingOptions);
 }
 
 app.UseCors(AllowCorsOriginName);
