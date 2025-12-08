@@ -1,19 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 
+import getSidebarCollapseWidthCls from "../lib/sidebarWidth";
 import LogoText from "@public/assets/logo-text.svg";
 import Sidebar from "./Sidebar";
-import getSidebarCollapseWidthCls from "../lib/sidebarWidth";
 
 const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
     const headerRef = useRef<HTMLElement>(null);
+    const pathname = usePathname();
 
     const toggle = () => setIsOpen((prev) => !prev);
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [pathname]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -34,8 +40,8 @@ const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
             ref={headerRef}
         >
             <section
-                className="bg-navbar border-secondary/50 flex h-full w-full max-w-4xl items-center
-                    justify-between border-b p-5"
+                className="bg-navbar border-secondary/50 flex h-full w-full
+                    max-w-4xl items-center justify-between border-b p-5"
                 data-testid="navMobile"
             >
                 <button
@@ -47,11 +53,15 @@ const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
                     data-testid="sidebarToggle"
                 >
                     <span
-                        className="bg-text before:bg-text after:bg-text absolute top-4 left-0 -mt-0.5 h-1 w-8
-                            rounded transition-all duration-500 before:absolute before:h-1 before:w-8
-                            before:-translate-x-4 before:translate-y-3 before:rounded before:transition-all
-                            before:duration-500 before:content-[''] after:absolute after:h-1 after:w-8
-                            after:-translate-x-4 after:-translate-y-3 after:rounded after:transition-all
+                        className="bg-text before:bg-text after:bg-text absolute
+                            top-4 left-0 -mt-0.5 h-1 w-8 rounded transition-all
+                            duration-500 before:absolute before:h-1 before:w-8
+                            before:-translate-x-4 before:translate-y-3
+                            before:rounded before:transition-all
+                            before:duration-500 before:content-['']
+                            after:absolute after:h-1 after:w-8
+                            after:-translate-x-4 after:-translate-y-3
+                            after:rounded after:transition-all
                             after:duration-500 after:content-['']"
                     />
                 </button>
@@ -69,7 +79,8 @@ const NavMobile = ({ hasAccessCookie }: { hasAccessCookie: boolean }) => {
 
             <section
                 className={clsx(
-                    "fixed top-[75px] z-50 flex h-[calc(100vh-75px)] transition-transform",
+                    `fixed top-[75px] z-50 flex h-[calc(100vh-75px)]
+                    transition-transform`,
                     isOpen ? "translate-x-0" : "-translate-x-full",
                     getSidebarCollapseWidthCls(false),
                 )}
