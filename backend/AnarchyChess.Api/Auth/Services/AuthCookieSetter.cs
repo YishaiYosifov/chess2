@@ -22,47 +22,47 @@ public class AuthCookieSetter(
     private readonly SameSiteMode _sameSiteMode = hostEnvironment.IsDevelopment()
         ? SameSiteMode.None
         : SameSiteMode.Lax;
-    private readonly AuthSettings _jwtSettings = settings.Value.Auth;
+    private readonly AuthSettings _settings = settings.Value.Auth;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
 
     public void SetAuthCookies(string accessToken, string refreshToken, HttpContext context)
     {
         SetCookie(
             context,
-            _jwtSettings.AccessTokenCookieName,
+            _settings.AccessTokenCookieName,
             accessToken,
-            maxAge: _jwtSettings.AccessMaxAge
+            maxAge: _settings.AccessMaxAge
         );
         SetCookie(
             context,
-            _jwtSettings.RefreshTokenCookieName,
+            _settings.RefreshTokenCookieName,
             refreshToken,
-            maxAge: _jwtSettings.RefreshMaxAge,
+            maxAge: _settings.RefreshMaxAge,
             path: GetRefreshPath(context)
         );
 
         SetCookie(
             context,
-            _jwtSettings.IsLoggedInCookieName,
+            _settings.IsLoggedInCookieName,
             "true",
-            maxAge: _jwtSettings.RefreshMaxAge,
+            maxAge: _settings.RefreshMaxAge,
             httpOnly: false
         );
     }
 
     public void RemoveAuthCookies(HttpContext context)
     {
-        DeleteCookie(_jwtSettings.AccessTokenCookieName, context);
-        DeleteCookie(_jwtSettings.RefreshTokenCookieName, context, path: GetRefreshPath(context));
+        DeleteCookie(_settings.AccessTokenCookieName, context);
+        DeleteCookie(_settings.RefreshTokenCookieName, context, path: GetRefreshPath(context));
 
-        DeleteCookie(_jwtSettings.IsLoggedInCookieName, context);
+        DeleteCookie(_settings.IsLoggedInCookieName, context);
     }
 
     public void SetGuestCookie(string accessToken, HttpContext context) =>
-        SetCookie(context, _jwtSettings.AccessTokenCookieName, accessToken);
+        SetCookie(context, _settings.AccessTokenCookieName, accessToken);
 
     public void SetAuthFailureCookie(Error reason, HttpContext context) =>
-        SetCookie(context, _jwtSettings.AuthFailureCookieName, reason.Code, httpOnly: false);
+        SetCookie(context, _settings.AuthFailureCookieName, reason.Code, httpOnly: false);
 
     private void SetCookie(
         HttpContext context,
@@ -84,7 +84,7 @@ public class AuthCookieSetter(
                 Secure = true,
                 SameSite = _sameSiteMode,
                 Path = path,
-                Domain = ".anarchychess.org",
+                Domain = _settings.CookieDomain,
             }
         );
     }
@@ -97,7 +97,7 @@ public class AuthCookieSetter(
             {
                 Secure = true,
                 SameSite = _sameSiteMode,
-                Domain = ".anarchychess.org",
+                Domain = _settings.CookieDomain,
                 Path = path,
             }
         );

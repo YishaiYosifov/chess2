@@ -177,6 +177,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
             SameSite = SameSiteMode,
             Secure = true,
             Path = path,
+            Domain = _settings.CookieDomain,
         };
     }
 
@@ -188,6 +189,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
             SameSite = SameSiteMode,
             Expires = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero),
             Path = path,
+            Domain = _settings.CookieDomain,
         };
     }
 
