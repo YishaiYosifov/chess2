@@ -17,7 +17,7 @@ const secularOne = Secular_One({
 
 export const metadata: Metadata = {
     icons: {
-        icon: "./public/favicon.ico",
+        icon: "./favicon.ico",
     },
 };
 
@@ -31,7 +31,10 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
                 )}
             >
                 <SessionProvider user={null}>
-                    <div className="flex min-h-screen max-w-screen min-w-[300px] flex-col md:flex-row">
+                    <div
+                        className="flex min-h-screen max-w-screen min-w-[300px]
+                            flex-col md:flex-row"
+                    >
                         <Navbar />
                         {children}
                     </div>
