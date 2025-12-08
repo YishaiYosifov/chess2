@@ -308,6 +308,28 @@ describe("PiecesSlice", () => {
             expect(store.getState().isProcessingMove).toBe(false);
         });
 
+        it("should clear animation if no move is found", async () => {
+            const pieces = BoardPieces.fromPieces(createFakePiece());
+            const clearAnimationMock = vi.fn();
+            store.setState({
+                pieces,
+                moveOptions: createMoveOptions({
+                    legalMoves: new Map(),
+                    hasForcedMoves: true,
+                }),
+                clearAnimation: clearAnimationMock,
+            });
+
+            const result = await store.getState().handleMousePieceDrop({
+                mousePoint: screenPoint({ x: 10, y: 10 }),
+                isDrag: true,
+                isDoubleClick: false,
+            });
+            expect(result).toEqual({ success: false });
+
+            expect(clearAnimationMock).toHaveBeenCalled();
+        });
+
         it("should flash legal moves if no move is found and hasForcedMoves is true and isDrag is true", async () => {
             const pieces = BoardPieces.fromPieces(createFakePiece());
             const flashLegalMovesMock = vi.fn();

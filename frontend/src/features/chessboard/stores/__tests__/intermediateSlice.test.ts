@@ -32,7 +32,7 @@ describe("IntermediateSlice", () => {
         expect(animatingPiece?.position).toEqual(expectedPosition);
     }
 
-    it("should return null if no moves", async () => {
+    it("should return empty if no moves", async () => {
         const result = await store
             .getState()
             .disambiguateDestination(
@@ -41,7 +41,7 @@ describe("IntermediateSlice", () => {
                 "0",
                 createFakeBoardPieces(1),
             );
-        expect(result).toBeNull();
+        expect(result).toHaveLength(0);
     });
 
     it("should return single move immediately if only one move with no intermediates", async () => {
@@ -164,7 +164,7 @@ describe("IntermediateSlice", () => {
         resolve(null);
 
         const result = await promise;
-        expect(result).toBeNull();
+        expect(result).toHaveLength(0);
         expect(store.getState().nextIntermediates).toEqual([]);
         expect(store.getState().resolveNextIntermediate).toBeNull();
     });

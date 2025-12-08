@@ -20,7 +20,7 @@ export interface IntermediateSlice {
         moves: Move[],
         pieceId: PieceID,
         pieces: BoardPieces,
-    ): Promise<Move[] | null>;
+    ): Promise<Move[]>;
 }
 
 export const createIntermediateSlice: StateCreator<
@@ -34,14 +34,14 @@ export const createIntermediateSlice: StateCreator<
     resolveNextIntermediate: null,
 
     async disambiguateDestination(dest, moves, pieceId, pieces) {
-        if (moves.length == 0) return null;
+        if (moves.length == 0) return [];
 
-        const { animatePiece, clearAnimation } = get();
+        const { animatePiece } = get();
         const visited: LogicalPoint[] = [dest];
         try {
             while (true) {
                 moves = filterMovesByVisited(moves, visited, dest);
-                if (moves.length === 0) return null;
+                if (moves.length === 0) return [];
 
                 const cantDisambiguateFurther =
                     movesAreIndistinguishable(moves);
@@ -61,7 +61,7 @@ export const createIntermediateSlice: StateCreator<
                 );
 
                 // if move cancelled
-                if (!choice) return null;
+                if (!choice) return [];
 
                 // if we click on the same square
                 // finish by returning all moves whose intermediates match what we've visited
@@ -81,7 +81,6 @@ export const createIntermediateSlice: StateCreator<
                 state.nextIntermediates = [];
                 state.resolveNextIntermediate = null;
             });
-            clearAnimation();
         }
     },
 });

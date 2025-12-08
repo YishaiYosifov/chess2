@@ -163,6 +163,7 @@ export function createPiecesSlice(
                 const {
                     screenToLogicalPoint,
                     flashLegalMoves,
+                    clearAnimation,
                     moveOptions,
                     isProcessingMove,
                 } = get();
@@ -184,6 +185,7 @@ export function createPiecesSlice(
                         await applyMoveTurn(move);
                         return { success: true };
                     }
+                    clearAnimation();
 
                     if (
                         moveOptions.hasForcedMoves &&

@@ -67,7 +67,7 @@ export function createLegalMovesSlice(
                 pieceId,
                 pieces,
             );
-            if (!movesToDest || movesToDest.length === 0) return null;
+            if (movesToDest.length === 0) return null;
 
             if (movesToDest.length === 1) return movesToDest[0];
 
