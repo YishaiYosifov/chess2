@@ -1,4 +1,5 @@
-﻿using AnarchyChess.Api.Auth.Errors;
+﻿using System.Text.Json;
+using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Shared.Models;
 using AnarchyChess.Api.TestInfrastructure;
@@ -18,7 +19,7 @@ namespace AnarchyChess.Api.Integration.Tests.AuthTests;
 public class AuthCookieSetterTests : BaseIntegrationTest
 {
     private readonly AuthSettings _settings;
-    private readonly IOptions<AppSettings> _appSettingsOptions;
+    private readonly IOptions<AppSettings> _settingsOptions;
 
     private readonly IWebHostEnvironment _webHostEnvironmentMock =
         Substitute.For<IWebHostEnvironment>();
@@ -32,10 +33,15 @@ public class AuthCookieSetterTests : BaseIntegrationTest
     public AuthCookieSetterTests(AnarchyChessWebApplicationFactory factory)
         : base(factory)
     {
-        _appSettingsOptions = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
+        var settingsOptions = Scope.ServiceProvider.GetRequiredService<IOptions<AppSettings>>();
+        var clonedSettings = JsonSerializer.Deserialize<AppSettings>(
+            JsonSerializer.Serialize(settingsOptions.Value)
+        )!;
+
         // cookie domain is null in development, so add it so we can test it is added
-        _appSettingsOptions.Value.Auth.CookieDomain = ".anarchychess.org";
-        _settings = _appSettingsOptions.Value.Auth;
+        clonedSettings.Auth.CookieDomain = ".anarchychess.org";
+        _settings = clonedSettings.Auth;
+        _settingsOptions = Options.Create(clonedSettings);
 
         _linkGenerator = Scope.ServiceProvider.GetRequiredService<LinkGenerator>();
     }
@@ -161,7 +167,7 @@ public class AuthCookieSetterTests : BaseIntegrationTest
         _webHostEnvironmentMock.EnvironmentName.Returns(
             isDevelopment ? Environments.Development : Environments.Production
         );
-        return new AuthCookieSetter(_appSettingsOptions, _webHostEnvironmentMock, _linkGenerator);
+        return new AuthCookieSetter(_settingsOptions, _webHostEnvironmentMock, _linkGenerator);
     }
 
     private SetCookieHeaderValue CreateExpectedCookie(
