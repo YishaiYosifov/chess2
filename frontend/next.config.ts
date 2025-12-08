@@ -7,14 +7,6 @@ const nextConfig: NextConfig = {
             new URL("https://api.anarchychess.org/**"),
         ],
     },
-    rewrites() {
-        return [
-            {
-                source: "/api/:path*",
-                destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
-            },
-        ];
-    },
     devIndicators: false,
 };
 
