@@ -4,7 +4,6 @@ const Flag = ({ countryCode, size }: { countryCode: string; size: number }) => {
     return (
         <Image
             src={`/assets/flags/${countryCode.toLowerCase()}.svg`}
-            data-testid="flag"
             alt="flag"
             width={size}
             height={size}

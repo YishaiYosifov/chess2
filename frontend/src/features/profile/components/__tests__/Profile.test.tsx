@@ -91,10 +91,10 @@ describe("Profile", () => {
         renderProfile();
 
         expect(screen.getByText(userMock.userName!)).toBeInTheDocument();
-        const flag = screen.getByTestId("flag");
+        const flag = screen.getByAltText("flag");
         expect(flag).toHaveAttribute(
             "src",
-            `/assets/flags/${userMock.countryCode}.svg`,
+            `/assets/flags/${userMock.countryCode.toLowerCase()}.svg`,
         );
     });
 

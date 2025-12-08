@@ -51,7 +51,7 @@ describe("ProfileTooltip", () => {
         expect(
             within(tooltip).getByTestId("profilePicture"),
         ).toBeInTheDocument();
-        expect(within(tooltip).getByTestId("flag")).toBeInTheDocument();
+        expect(within(tooltip).getByAltText("flag")).toBeInTheDocument();
 
         expect(getUserByIdMock).toHaveBeenCalledExactlyOnceWith({
             path: { userId: userMock.userId },
