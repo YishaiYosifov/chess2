@@ -54,7 +54,7 @@ public class ProfilePictureProvider : IProfilePictureProvider
             if (original is null)
             {
                 _logger.LogInformation(
-                    "{UserId} tried to upload an invalid profile picture which parsing resulted in null",
+                    "User {UserId} tried to upload an invalid profile picture which parsing resulted in null",
                     userId
                 );
                 return ProfileErrors.InvalidProfilePicture;
@@ -63,7 +63,7 @@ public class ProfilePictureProvider : IProfilePictureProvider
         catch (Exception ex)
         {
             _logger.LogInformation(
-                "{UserId} tried to upload an invalid profile picture which parsing resulted in an exception, {Exception}",
+                "User {UserId} tried to upload an invalid profile picture which parsing resulted in an exception, {Exception}",
                 userId,
                 ex
             );
