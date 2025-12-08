@@ -89,7 +89,7 @@ function createHubConnection(url: string): HubConnection {
         .withAutomaticReconnect(
             new EnsureAuthRetryPolicy([1000, 2000, 5000], 20000),
         )
-        .configureLogging(LogLevel.Information)
+        .configureLogging(LogLevel.Debug)
         .build();
 
     hubConnection.onclose(() => {
