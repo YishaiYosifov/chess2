@@ -55,7 +55,7 @@ public class AuthSettings
     public TimeSpan AccessMaxAge { get; set; }
     public TimeSpan RefreshMaxAge { get; set; }
 
-    public string? CookieDomain { get; set; } = null;
+    public string? CookieDomain { get; set; }
     public required string AccessTokenCookieName { get; set; }
     public required string RefreshTokenCookieName { get; set; }
     public required string IsLoggedInCookieName { get; set; }
