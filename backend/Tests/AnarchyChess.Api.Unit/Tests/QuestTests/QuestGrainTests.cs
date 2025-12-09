@@ -229,38 +229,6 @@ public class QuestGrainTests : BaseGrainTest
     }
 
     [Fact]
-    public async Task GameEndedEvent_increments_streak_across_multiple_days()
-    {
-        SetupWinQuestVariant(target: 1);
-
-        var gameOverStream = ProbeGameEndedStream();
-        var grain = await CreateGrainAsync();
-
-        // day 1
-        await gameOverStream.OnNextAsync(
-            new GameEndedEvent(
-                _testGameToken,
-                new GameResultDataFaker(GameResult.WhiteWin).Generate()
-            )
-        );
-        var quest1 = await grain.GetQuestAsync(CT);
-        quest1.Streak.Should().Be(1);
-
-        // day 2
-        _fakeNow += TimeSpan.FromDays(1);
-        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
-        SetupWinQuestVariant(target: 1);
-        await gameOverStream.OnNextAsync(
-            new GameEndedEvent(
-                _testGameToken,
-                new GameResultDataFaker(GameResult.WhiteWin).Generate()
-            )
-        );
-        var quest2 = await grain.GetQuestAsync(CT);
-        quest2.Streak.Should().Be(2);
-    }
-
-    [Fact]
     public async Task GameEndedEvent_ignores_aborted_games()
     {
         SetupWinQuestVariant(target: 1);
@@ -321,10 +289,12 @@ public class QuestGrainTests : BaseGrainTest
                 new GameResultDataFaker(GameResult.WhiteWin).Generate()
             )
         );
+        await grain.CollectRewardAsync(CT);
         (await grain.GetQuestAsync(CT)).Streak.Should().Be(1);
 
         // skip a day
-        _timeProviderMock.GetUtcNow().Returns(_fakeNow + TimeSpan.FromDays(2));
+        _fakeNow += TimeSpan.FromDays(2);
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
         SetupWinQuestVariant(target: 1);
         var questAfterSkip = await grain.GetQuestAsync(CT);
 
@@ -398,6 +368,40 @@ public class QuestGrainTests : BaseGrainTest
         var questAfterReset = await grain.GetQuestAsync(CT);
         questAfterReset.Should().NotBe(replacement);
         questAfterReset.CanReplace.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task CollectRewardAsync_increments_streak_across_multiple_days()
+    {
+        SetupWinQuestVariant(target: 1);
+
+        var gameOverStream = ProbeGameEndedStream();
+        var grain = await CreateGrainAsync();
+
+        // day 1
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(
+                _testGameToken,
+                new GameResultDataFaker(GameResult.WhiteWin).Generate()
+            )
+        );
+        await grain.CollectRewardAsync(CT);
+        var quest1 = await grain.GetQuestAsync(CT);
+        quest1.Streak.Should().Be(1);
+
+        // day 2
+        _fakeNow += TimeSpan.FromDays(1);
+        _timeProviderMock.GetUtcNow().Returns(_fakeNow);
+        SetupWinQuestVariant(target: 1);
+        await gameOverStream.OnNextAsync(
+            new GameEndedEvent(
+                _testGameToken,
+                new GameResultDataFaker(GameResult.WhiteWin).Generate()
+            )
+        );
+        await grain.CollectRewardAsync(CT);
+        var quest2 = await grain.GetQuestAsync(CT);
+        quest2.Streak.Should().Be(2);
     }
 
     [Fact]

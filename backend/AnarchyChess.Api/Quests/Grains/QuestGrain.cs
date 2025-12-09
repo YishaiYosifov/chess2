@@ -47,24 +47,29 @@ public class QuestGrainStorage
         if (Quest is null)
             return;
 
-        Streak++;
         CanReplace = false;
     }
 
-    public void ResetProgressForNewQuest(QuestInstance quest)
+    public void SelectNewQuest(QuestInstance quest)
     {
+        // reset streak if last quest was missed, failed, or is too old
+        if (
+            Quest is null
+            || !Quest.IsCompleted
+            || quest.CreationDate.DayNumber - Quest.CreationDate.DayNumber >= 2
+        )
+            Streak = 0;
+
         Quest = quest;
         CanReplace = true;
         RewardCollected = false;
     }
 
-    public void ResetStreakIfMissedDay(DateOnly today)
+    public void MarkRewardCollected()
     {
-        if (today.DayNumber - Quest?.CreationDate.DayNumber > 1)
-            Streak = 0;
+        RewardCollected = true;
+        Streak++;
     }
-
-    public void MarkRewardCollected() => RewardCollected = true;
 }
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
@@ -170,10 +175,8 @@ public class QuestGrain(
 
     private QuestInstance SelectNewQuest()
     {
-        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().DateTime);
         var quest = _questProvider.GetRandomQuestInstance(except: _state.State.Quest);
-        _state.State.ResetStreakIfMissedDay(today);
-        _state.State.ResetProgressForNewQuest(quest);
+        _state.State.SelectNewQuest(quest);
 
         return quest;
     }

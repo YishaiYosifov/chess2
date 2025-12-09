@@ -1,28 +1,29 @@
 ﻿using AnarchyChess.Api.QuestLogic;
 using AnarchyChess.Api.QuestLogic.Models;
 using AnarchyChess.Api.Quests.Grains;
+using AnarchyChess.Api.TestInfrastructure.Fakes;
 using AwesomeAssertions;
 
 namespace AnarchyChess.Api.Unit.Tests.QuestTests;
 
 public class QuestGrainStorageTests
 {
-    private static QuestInstance CreateTestQuest() =>
+    private static QuestInstance CreateTestQuest(int daysAgo = 0) =>
         new(
             description: "test quest",
             difficulty: QuestDifficulty.Easy,
-            target: 5,
-            creationDate: DateOnly.FromDateTime(DateTime.UtcNow),
+            target: 1,
+            creationDate: DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-daysAgo)),
             shouldResetOnFailure: false,
             conditions: [],
             metrics: null
         );
 
     [Fact]
-    public void CompleteQuest_increments_streak_and_disables_replace_when_quest_is_set()
+    public void CompleteQuest_disallows_replace_when_quest_is_set()
     {
         var quest = CreateTestQuest();
-        var storage = new QuestGrainStorage
+        QuestGrainStorage storage = new()
         {
             Quest = quest,
             Streak = 2,
@@ -31,23 +32,22 @@ public class QuestGrainStorageTests
 
         storage.CompleteQuest();
 
-        storage.Streak.Should().Be(3);
+        storage.Streak.Should().Be(2);
         storage.CanReplace.Should().BeFalse();
     }
 
     [Fact]
     public void CompleteQuest_does_nothing_when_quest_is_null()
     {
-        QuestGrainStorage storage = new() { Streak = 2, CanReplace = true };
+        QuestGrainStorage storage = new() { CanReplace = true };
 
         storage.CompleteQuest();
 
-        storage.Streak.Should().Be(2);
         storage.CanReplace.Should().BeTrue();
     }
 
     [Fact]
-    public void ResetProgressForNewQuest_sets_quest_and_resets_flags()
+    public void SelectNewQuest_sets_quest_and_resets_flags()
     {
         var oldQuest = CreateTestQuest();
         QuestGrainStorage storage = new()
@@ -55,10 +55,11 @@ public class QuestGrainStorageTests
             Quest = oldQuest,
             CanReplace = false,
             RewardCollected = true,
+            Streak = 3,
         };
 
         var newQuest = CreateTestQuest();
-        storage.ResetProgressForNewQuest(newQuest);
+        storage.SelectNewQuest(newQuest);
 
         storage.Quest.Should().Be(newQuest);
         storage.CanReplace.Should().BeTrue();
@@ -66,36 +67,51 @@ public class QuestGrainStorageTests
     }
 
     [Fact]
-    public void ResetStreakIfMissedDay_resets_streak_if_more_than_one_day_passed()
+    public void SelectNewQuest_resets_streak_if_last_quest_was_not_completed()
     {
-        var quest = CreateTestQuest();
-        var storage = new QuestGrainStorage() { Quest = quest, Streak = 5 };
+        var oldQuest = CreateTestQuest();
+        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
 
-        var today = quest.CreationDate.AddDays(2);
-        storage.ResetStreakIfMissedDay(today);
+        var newQuest = CreateTestQuest();
+        storage.SelectNewQuest(newQuest);
 
         storage.Streak.Should().Be(0);
     }
 
     [Fact]
-    public void ResetStreakIfMissedDay_does_not_reset_streak_if_one_day_or_less_passed()
+    public void SelectNewQuest_resets_streak_if_two_or_more_days_passed()
     {
-        var quest = CreateTestQuest();
-        var storage = new QuestGrainStorage { Quest = quest, Streak = 5 };
+        var oldQuest = CreateTestQuest(daysAgo: 2);
+        oldQuest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
+        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
 
-        var today = quest.CreationDate.AddDays(1);
-        storage.ResetStreakIfMissedDay(today);
+        var newQuest = CreateTestQuest();
+        storage.SelectNewQuest(newQuest);
+
+        storage.Streak.Should().Be(0);
+    }
+
+    [Fact]
+    public void SelectNewQuest_preserves_streak_if_one_day_passed_and_completed()
+    {
+        var oldQuest = CreateTestQuest(daysAgo: 1);
+        oldQuest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
+        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
+
+        var newQuest = CreateTestQuest();
+        storage.SelectNewQuest(newQuest);
 
         storage.Streak.Should().Be(5);
     }
 
     [Fact]
-    public void MarkRewardCollected_sets_flag_to_true()
+    public void MarkRewardCollected_sets_flag_to_true_and_increments_streak()
     {
-        var storage = new QuestGrainStorage { RewardCollected = false };
+        QuestGrainStorage storage = new() { RewardCollected = false, Streak = 5 };
 
         storage.MarkRewardCollected();
 
         storage.RewardCollected.Should().BeTrue();
+        storage.Streak.Should().Be(6);
     }
 }
