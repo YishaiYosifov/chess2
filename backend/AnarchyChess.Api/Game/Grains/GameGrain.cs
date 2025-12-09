@@ -194,7 +194,8 @@ public class GameGrain : Grain, IGameGrain, IRemindable
                         _token,
                         pool,
                         Opponent: new(UserId: blackPlayer.UserId, UserName: blackPlayer.UserName)
-                    )
+                    ),
+                    gameSource
                 )
             );
 
@@ -206,7 +207,8 @@ public class GameGrain : Grain, IGameGrain, IRemindable
                         _token,
                         pool,
                         Opponent: new(UserId: whitePlayer.UserId, UserName: whitePlayer.UserName)
-                    )
+                    ),
+                    gameSource
                 )
             );
 

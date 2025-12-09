@@ -44,8 +44,9 @@ public class GameGrainTests : BaseGrainTest
 
         var grain = await Silo.CreateGrainAsync<GameGrain>(TestGameToken);
         Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(0);
+        GameSource gameSource = GameSource.Rematch;
 
-        await StartGameAsync(grain);
+        await StartGameAsync(grain, gameSource);
 
         Silo.TimerRegistry.NumberOfActiveTimers.Should().Be(1);
         var context = Silo.GetContextFromGrain(grain);
@@ -68,19 +69,21 @@ public class GameGrainTests : BaseGrainTest
 
         whiteStartedStreamProbe.VerifySend(x =>
             x.Game
-            == new OngoingGame(
-                TestGameToken,
-                _pool,
-                Opponent: new(UserId: _blackPlayer.UserId, UserName: _blackPlayer.UserName)
-            )
+                == new OngoingGame(
+                    TestGameToken,
+                    _pool,
+                    Opponent: new(UserId: _blackPlayer.UserId, UserName: _blackPlayer.UserName)
+                )
+            && x.GameSource == gameSource
         );
         blackStartedStreamProbe.VerifySend(x =>
             x.Game
-            == new OngoingGame(
-                TestGameToken,
-                _pool,
-                Opponent: new(UserId: _whitePlayer.UserId, UserName: _whitePlayer.UserName)
-            )
+                == new OngoingGame(
+                    TestGameToken,
+                    _pool,
+                    Opponent: new(UserId: _whitePlayer.UserId, UserName: _whitePlayer.UserName)
+                )
+            && x.GameSource == gameSource
         );
     }
 
@@ -275,12 +278,12 @@ public class GameGrainTests : BaseGrainTest
         result.FirstError.Should().Be(GameErrors.GameNotFound);
     }
 
-    private Task StartGameAsync(GameGrain grain) =>
+    private Task StartGameAsync(GameGrain grain, GameSource gameSource = GameSource.Unknown) =>
         grain.StartGameAsync(
             whitePlayer: _whitePlayer,
             blackPlayer: _blackPlayer,
             pool: _pool,
-            GameSource.Unknown,
+            gameSource,
             CT
         );
 }

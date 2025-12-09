@@ -56,6 +56,7 @@ public class PlayerSessionState
 }
 
 [ImplicitStreamSubscription(nameof(GameEndedEvent))]
+[ImplicitStreamSubscription(nameof(GameStartedEvent))]
 public class PlayerSessionGrain
     : Grain,
         IPlayerSessionGrain,
@@ -218,20 +219,13 @@ public class PlayerSessionGrain
     public async Task OnNextAsync(GameStartedEvent @event, StreamSequenceToken? token = null)
     {
         var game = @event.Game;
-        var connectionIds = _state.State.ConnectionMap.RemovePool(game.Pool);
+
         _state.State.OngoingGames.Add(game.GameToken, game);
-        _poolConnectionReservations.Remove(game.Pool);
-
-        _connectionsRecentlyMatched.UnionWith(connectionIds);
-
-        if (connectionIds.Count > 0)
-            await _lobbyNotifier.NotifyGameFoundAsync(_userId, connectionIds, game);
-
-        foreach (var connectionId in connectionIds)
-            await RemoveConnectionFromPoolsAsync(connectionId);
-
         if (HasReachedGameLimit())
             await CancelAllSeeksAsync();
+
+        if (@event.GameSource is GameSource.Matchmaking)
+            await MatchmakingGameMatchedAsync(game);
 
         await WriteStateAsync();
     }
@@ -240,6 +234,20 @@ public class PlayerSessionGrain
     {
         _logger.LogError(ex, "Error in player session grain game stream");
         return Task.CompletedTask;
+    }
+
+    private async Task MatchmakingGameMatchedAsync(OngoingGame game)
+    {
+        var connectionIds = _state.State.ConnectionMap.RemovePool(game.Pool);
+
+        _poolConnectionReservations.Remove(game.Pool);
+        _connectionsRecentlyMatched.UnionWith(connectionIds);
+
+        if (connectionIds.Count > 0)
+            await _lobbyNotifier.NotifyGameFoundAsync(_userId, connectionIds, game);
+
+        foreach (var connectionId in connectionIds)
+            await RemoveConnectionFromPoolsAsync(connectionId);
     }
 
     private async Task CancelAllSeeksAsync(CancellationToken token = default)
