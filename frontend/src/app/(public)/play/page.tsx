@@ -4,7 +4,6 @@ import StaticChessboardWithSidebar from "@/features/chessboard/components/Static
 import OpenSeekDirectory from "@/features/play/components/OpenSeekDirectory";
 import WithOptionalSession from "@/features/auth/hocs/WithOptionalSession";
 import PlayOptions from "@/features/play/components/PlayOptions";
-import PlayActions from "@/features/play/components/PlayActions";
 
 export const metadata: Metadata = {
     title: "Play - Anarchy Chess",
@@ -24,9 +23,11 @@ export default function PlayPage() {
         <WithOptionalSession>
             <StaticChessboardWithSidebar
                 aside={
-                    <aside className="flex h-full w-full min-w-xs flex-col gap-3 overflow-auto lg:max-w-sm">
+                    <aside
+                        className="flex h-full w-full min-w-xs flex-col gap-3
+                            overflow-auto lg:max-w-sm"
+                    >
                         <PlayOptions />
-                        <PlayActions />
                         <OpenSeekDirectory />
                     </aside>
                 }

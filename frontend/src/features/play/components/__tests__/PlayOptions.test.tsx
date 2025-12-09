@@ -1,41 +1,66 @@
 import { render, screen } from "@testing-library/react";
-
-import PlayOptions from "../PlayOptions";
-import constants from "@/lib/constants";
-import React from "react";
 import userEvent from "@testing-library/user-event";
-import { mockJsCookie } from "@/lib/testUtils/mocks/mockCookies";
-import { PoolType } from "@/lib/apiClient";
 
-vi.mock("js-cookie");
+import {
+    createFakeGuestUser,
+    createFakePrivateUser,
+} from "@/lib/testUtils/fakers/userFaker";
+
+import { createFakeOngoingGame } from "@/lib/testUtils/fakers/ongoingGameFaker";
+import SessionProvider from "@/features/auth/contexts/sessionContext";
+import { GuestUser, PoolType, PrivateUser } from "@/lib/apiClient";
+import useLobbyStore from "@/features/lobby/stores/lobbyStore";
+import PlayOptions from "../PlayOptions";
+
 vi.mock("@/features/lobby/hooks/useLobbyHub");
 
 describe("PlayOptions", () => {
-    function mockIsAuthedCookie(isAuthed: boolean) {
-        const cookieValue = isAuthed ? "true" : undefined;
-        mockJsCookie({ [constants.COOKIES.IS_LOGGED_IN]: cookieValue });
-    }
+    let loggedInUserMock: PrivateUser;
+    let guestUserMock: GuestUser;
+
+    beforeEach(() => {
+        loggedInUserMock = createFakePrivateUser();
+        guestUserMock = createFakeGuestUser();
+        useLobbyStore.setState(useLobbyStore.getInitialState());
+    });
 
     it("should render the heading and main container", () => {
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
         expect(screen.getByText("Play Anarchy Chess")).toBeInTheDocument();
         expect(screen.getByTestId("playOptions")).toBeInTheDocument();
     });
 
     it("should show PoolToggle when authenticated", () => {
-        mockIsAuthedCookie(true);
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
         expect(screen.getByTestId("poolToggle")).toBeInTheDocument();
     });
 
     it("should hide PoolToggle when unauthenticated", () => {
-        mockIsAuthedCookie(false);
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={guestUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
         expect(screen.queryByTestId("poolToggle")).not.toBeInTheDocument();
     });
 
     it("should render casual PoolButtons when isRated is false", () => {
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={null} fetchAttempted>
+                <PlayOptions />
+            </SessionProvider>,
+        );
 
         expect(
             screen.getByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
@@ -47,8 +72,12 @@ describe("PlayOptions", () => {
 
     it("should render rated PoolButtons when isRated is true", async () => {
         const user = userEvent.setup();
-        mockIsAuthedCookie(true);
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
         const poolToggle = screen.getByTestId("poolToggle");
 
         await user.click(poolToggle);
@@ -63,9 +92,12 @@ describe("PlayOptions", () => {
 
     it("should persist pool type across mounts", async () => {
         const user = userEvent.setup();
-        mockIsAuthedCookie(true);
 
-        const { unmount } = render(<PlayOptions />);
+        const { unmount } = render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
         const poolToggle = screen.getByTestId("poolToggle");
 
         await user.click(poolToggle);
@@ -74,8 +106,11 @@ describe("PlayOptions", () => {
         ).toBeVisible();
 
         unmount();
-
-        render(<PlayOptions />);
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
 
         expect(
             screen.getByTestId(`poolButtonsSection-${PoolType.RATED}`),
@@ -88,8 +123,11 @@ describe("PlayOptions", () => {
     it("should reset pool type to casual when logging out", async () => {
         const user = userEvent.setup();
 
-        mockIsAuthedCookie(true);
-        const { rerender } = render(<PlayOptions />);
+        const { rerender } = render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
 
         await user.click(screen.getByTestId("poolToggle"));
 
@@ -100,8 +138,11 @@ describe("PlayOptions", () => {
             screen.queryByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
         ).not.toBeVisible();
 
-        mockIsAuthedCookie(false);
-        rerender(<PlayOptions />);
+        rerender(
+            <SessionProvider user={guestUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
 
         expect(
             screen.getByTestId(`poolButtonsSection-${PoolType.CASUAL}`),
@@ -109,5 +150,51 @@ describe("PlayOptions", () => {
         expect(
             screen.queryByTestId(`poolButtonsSection-${PoolType.RATED}`),
         ).not.toBeVisible();
+    });
+
+    it("should open challenge popup when clicking on challenge a friend", async () => {
+        const user = userEvent.setup();
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
+        await user.click(screen.getByText("Challenge a Friend"));
+
+        expect(screen.getByTestId("challengePopup")).toBeInTheDocument();
+    });
+
+    it("should not display ongoing games button when there are no ongoing games", () => {
+        useLobbyStore.setState({ ongoingGames: new Map() });
+
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
+        expect(
+            screen.queryByText("Resume Ongoing Games"),
+        ).not.toBeInTheDocument();
+    });
+
+    it("should open ongoing games popup when clicking on resumt ongoing games", async () => {
+        useLobbyStore.setState({
+            ongoingGames: new Map([
+                ["token", createFakeOngoingGame({ gameToken: "token" })],
+            ]),
+        });
+
+        const user = userEvent.setup();
+        render(
+            <SessionProvider user={loggedInUserMock}>
+                <PlayOptions />
+            </SessionProvider>,
+        );
+
+        await user.click(screen.getByText("Resume Ongoing Games"));
+
+        expect(screen.getByTestId("ongoingGamesPopup")).toBeInTheDocument();
     });
 });
