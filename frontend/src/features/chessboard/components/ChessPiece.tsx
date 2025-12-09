@@ -11,6 +11,8 @@ import getPieceImage from "../lib/pieceImage";
 import { ChessSquareRef } from "./CoordSquare";
 import DoubleClickIndicator, { DoubleClickRef } from "./DoubleClickIndicator";
 
+const DOUBLE_CLICK_MS = 250;
+
 const ChessPiece = ({ id }: { id: PieceID }) => {
     const pieceRef = useRef<ChessSquareRef>(null);
     const {
@@ -85,7 +87,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
 
         async onDragEnd(point) {
             const now = Date.now();
-            const isDoubleClick = now - lastClickTimeRef.current < 500;
+            const isDoubleClick =
+                now - lastClickTimeRef.current < DOUBLE_CLICK_MS;
             lastClickTimeRef.current = Date.now();
 
             const { needsDoubleClick } = await handleMousePieceDrop({
@@ -102,7 +105,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
             if (!isSelected || info.button != 0) return;
 
             const now = Date.now();
-            const isDoubleClick = now - lastClickTimeRef.current < 500;
+            const isDoubleClick =
+                now - lastClickTimeRef.current < DOUBLE_CLICK_MS;
 
             const { success } = await handleMousePieceDrop({
                 mousePoint: info.point,
@@ -126,8 +130,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
                 data-testid="piece"
                 position={piecePosition}
                 className={clsx(
-                    `pointer-events-none z-10 touch-none bg-size-[length:100%] bg-no-repeat
-                    transition-colors select-none`,
+                    `pointer-events-none z-10 touch-none bg-size-[length:100%]
+                    bg-no-repeat transition-colors select-none`,
                     isAnimating && "transition-transform duration-100 ease-out",
                     isDragging && "z-30",
                     isRemoving && "opacity-50",
@@ -143,7 +147,8 @@ const ChessPiece = ({ id }: { id: PieceID }) => {
                 <ChessSquare
                     data-testid="pieceSquareHighlight"
                     position={piecePosition}
-                    className="bg-secondary/50 pointer-events-none z-5 touch-none"
+                    className="bg-secondary/50 pointer-events-none z-5
+                        touch-none"
                 />
             )}
         </>
