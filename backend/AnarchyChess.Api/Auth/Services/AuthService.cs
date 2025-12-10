@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using AnarchyChess.Api.Auth.DTOs;
 using AnarchyChess.Api.Auth.Errors;
+using AnarchyChess.Api.Auth.Models;
 using AnarchyChess.Api.Infrastructure.Extensions;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Models;
@@ -106,7 +106,7 @@ public class AuthService(
         string? countryCode = null
     )
     {
-        var dbUser = new AuthedUser()
+        AuthedUser dbUser = new()
         {
             Id = UserId.Authed(),
             UserName = username,

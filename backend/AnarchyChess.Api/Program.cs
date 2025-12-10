@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 using AnarchyChess.Api.ArchivedGames.Repositories;
 using AnarchyChess.Api.ArchivedGames.Services;
 using AnarchyChess.Api.Auth.Errors;
+using AnarchyChess.Api.Auth.OAuthAuthenticators;
 using AnarchyChess.Api.Auth.Repositories;
 using AnarchyChess.Api.Auth.Services;
-using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
 using AnarchyChess.Api.Challenges.Services;
 using AnarchyChess.Api.Challenges.SignalR;
 using AnarchyChess.Api.ErrorHandling.Extensions;
@@ -320,6 +320,8 @@ builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
 
 builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
 builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
+
+builder.Services.AddSingleton<ICountryResolver, CountryResolver>();
 #endregion
 
 

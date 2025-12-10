@@ -1,20 +1,14 @@
 ﻿using System.Security.Claims;
-using AnarchyChess.Api.Auth.Services;
-using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
-using AnarchyChess.Api.Profile.Services;
-using ErrorOr;
+using AnarchyChess.Api.Auth.Errors;
+using AnarchyChess.Api.Auth.Models;
+using AnarchyChess.Api.Auth.OAuthAuthenticators;
 using AwesomeAssertions;
-using NSubstitute;
 
 namespace AnarchyChess.Api.Unit.Tests.OAuthTests.OAuthAuthenticatorTests;
 
 public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
     where TAuthenticator : IOAuthAuthenticator
 {
-    protected readonly IAuthService AuthServiceMock = Substitute.For<IAuthService>();
-    protected readonly IUsernameGenerator UsernameGeneratorMock =
-        Substitute.For<IUsernameGenerator>();
-
     protected readonly TAuthenticator Authenticator;
 
     protected abstract string Provider { get; }
@@ -32,42 +26,33 @@ public abstract class BaseOAuthAuthenticatorTests<TAuthenticator> : BaseUnitTest
     }
 
     [Fact]
-    public void GetProviderKey_returns_the_correct_value()
+    public void ExtractOAuthIdentity_returns_the_correct_provider_key()
     {
-        var key = "test";
-        var claim = CreateProviderKeyClaim(key);
-        var identity = new ClaimsIdentity([claim], "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        string key = "test";
+        var (claim, expectedOAuthIdentity) = GetClaim(key);
+        ClaimsIdentity claimIdentity = new([claim], "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(claimIdentity);
 
-        var providerKeyResult = Authenticator.GetProviderKey(claimsPrincipal);
+        var result = Authenticator.ExtractOAuthIdentity(claimsPrincipal);
 
-        providerKeyResult.IsError.Should().BeFalse();
-        providerKeyResult.Value.Should().Be(key);
+        result.IsError.Should().BeFalse();
+        result.Value.Should().Be(expectedOAuthIdentity);
     }
 
     [Fact]
-    public void GetProviderKey_returns_an_error_when_the_claim_is_missing()
+    public void ExtractOAuthIdentity_returns_an_error_when_the_provider_key_claim_is_missing()
     {
-        var identity = new ClaimsIdentity([], "TestAuthType");
-        var claimsPrincipal = new ClaimsPrincipal(identity);
+        ClaimsIdentity identity = new([], "TestAuthType");
+        ClaimsPrincipal claimsPrincipal = new(identity);
 
-        var providerKeyResult = Authenticator.GetProviderKey(claimsPrincipal);
+        var providerKeyResult = Authenticator.ExtractOAuthIdentity(claimsPrincipal);
 
         providerKeyResult.IsError.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task SignUserUpAsync_forwards_errors_from_signup()
-    {
-        var error = Error.Failure();
-        AuthServiceMock.SignupAsync(Arg.Any<string>(), default, default).ReturnsForAnyArgs(error);
-
-        var result = await Authenticator.SignUserUpAsync(new(), "test");
-
-        result.IsError.Should().BeTrue();
-        result.Errors.Single().Should().Be(error);
+        providerKeyResult.FirstError.Should().Be(AuthErrors.OAuthInvalid);
     }
 
     protected abstract TAuthenticator CreateAuthenticator();
-    protected abstract Claim CreateProviderKeyClaim(string key);
+    protected abstract (Claim Claim, OAuthIdentity ExpectedOAuthIdentity) GetClaim(
+        string providerKey
+    );
 }

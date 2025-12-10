@@ -166,3 +166,7 @@ The frontend uses Vitest for testing. Run all tests with:
 cd frontend
 npm run test
 ```
+
+# Attributions
+
+- **IP2Location LITE:** Anarchy Chess uses the IP2Location LITE database for [IP geolocation](https://lite.ip2location.com) to determine users' countries during signup.

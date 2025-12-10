@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
-using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
-using AnarchyChess.Api.TestInfrastructure.Fakes;
-using AwesomeAssertions;
+using AnarchyChess.Api.Auth.Models;
+using AnarchyChess.Api.Auth.OAuthAuthenticators;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using static OpenIddict.Client.WebIntegration.OpenIddictClientWebIntegrationConstants;
@@ -10,33 +9,12 @@ namespace AnarchyChess.Api.Unit.Tests.OAuthTests.OAuthAuthenticatorTests;
 
 public class GoogleOAuthAuthenticatorTests : BaseOAuthAuthenticatorTests<GoogleOAuthAuthenticator>
 {
-    private readonly ILogger<GoogleOAuthAuthenticator> _loggerMock = Substitute.For<
-        ILogger<GoogleOAuthAuthenticator>
-    >();
-
     protected override string Provider => Providers.Google;
 
     protected override GoogleOAuthAuthenticator CreateAuthenticator() =>
-        new(_loggerMock, AuthServiceMock, UsernameGeneratorMock);
+        new(Substitute.For<ILogger<GoogleOAuthAuthenticator>>());
 
-    protected override Claim CreateProviderKeyClaim(string key) => new(ClaimTypes.Email, key);
-
-    [Fact]
-    public async Task SignUserUpAsync_create_a_user_correctly()
-    {
-        const string username = "test-username-1234";
-        const string email = "test@email.com";
-        UsernameGeneratorMock.GenerateUniqueUsernameAsync().Returns(username);
-
-        var user = new AuthedUserFaker()
-            .RuleFor(x => x.UserName, username)
-            .RuleFor(x => x.Email, email)
-            .Generate();
-        AuthServiceMock.SignupAsync(username, email, default).Returns(user);
-
-        var result = await Authenticator.SignUserUpAsync(new(), email);
-
-        result.IsError.Should().BeFalse();
-        result.Value.Should().BeEquivalentTo(user);
-    }
+    protected override (Claim Claim, OAuthIdentity ExpectedOAuthIdentity) GetClaim(
+        string providerKey
+    ) => (new(ClaimTypes.Email, providerKey), new OAuthIdentity(providerKey, Email: providerKey));
 }

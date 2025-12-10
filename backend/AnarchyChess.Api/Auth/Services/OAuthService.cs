@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using AnarchyChess.Api.Auth.DTOs;
-using AnarchyChess.Api.Auth.Errors;
-using AnarchyChess.Api.Auth.Services.OAuthAuthenticators;
+﻿using AnarchyChess.Api.Auth.Errors;
+using AnarchyChess.Api.Auth.Models;
+using AnarchyChess.Api.Auth.OAuthAuthenticators;
 using AnarchyChess.Api.Profile.Entities;
+using AnarchyChess.Api.Profile.Services;
 using AnarchyChess.Api.Shared.Services;
 using ErrorOr;
 using Microsoft.AspNetCore.Authentication;
@@ -24,14 +24,18 @@ public class OAuthService(
     IEnumerable<IOAuthAuthenticator> oauthAuthenticators,
     UserManager<AuthedUser> userManager,
     IAuthService authService,
+    IUsernameGenerator usernameGenerator,
+    ICountryResolver countryResolver,
     IUnitOfWork unitOfWork
 ) : IOAuthService
 {
     private readonly Dictionary<string, IOAuthAuthenticator> _authenticators =
-        oauthAuthenticators.ToDictionary(x => x.Provider, x => x);
+        oauthAuthenticators.ToDictionary(x => x.Provider);
 
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
+    private readonly IUsernameGenerator _usernameGenerator = usernameGenerator;
+    private readonly ICountryResolver _countryResolver = countryResolver;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<ErrorOr<Tokens>> AuthenticateAsync(
@@ -52,16 +56,12 @@ public class OAuthService(
             return oauthAuthenticatorResult.Errors;
         var oauthAuthenticator = oauthAuthenticatorResult.Value;
 
-        var providerKeyResult = oauthAuthenticator.GetProviderKey(claimsPrincipal);
-        if (providerKeyResult.IsError)
-            return providerKeyResult.Errors;
-        var providerKey = providerKeyResult.Value;
+        var oauthIdentityResult = oauthAuthenticator.ExtractOAuthIdentity(claimsPrincipal);
+        if (oauthIdentityResult.IsError)
+            return oauthIdentityResult.Errors;
+        var oauthIdentity = oauthIdentityResult.Value;
 
-        var userResult = await GetOrCreateUserAsync(
-            oauthAuthenticator,
-            claimsPrincipal,
-            providerKey
-        );
+        var userResult = await GetOrCreateUserAsync(oauthAuthenticator, oauthIdentity, context);
         if (userResult.IsError)
             return userResult.Errors;
         var user = userResult.Value;
@@ -73,23 +73,35 @@ public class OAuthService(
 
     private async Task<ErrorOr<AuthedUser>> GetOrCreateUserAsync(
         IOAuthAuthenticator authenticator,
-        ClaimsPrincipal claimsPrincipal,
-        string providerKey
+        OAuthIdentity oauthIdentity,
+        HttpContext context
     )
     {
         var existingLogin = await _userManager.FindByLoginAsync(
             authenticator.Provider,
-            providerKey
+            oauthIdentity.ProviderKey
         );
         if (existingLogin is not null)
             return existingLogin;
 
-        var signupResult = await authenticator.SignUserUpAsync(claimsPrincipal, providerKey);
+        var username = await _usernameGenerator.GenerateUniqueUsernameAsync();
+        var countryCode = await _countryResolver.LocateAsync(
+            context.Connection.RemoteIpAddress?.ToString()
+        );
+        var signupResult = await _authService.SignupAsync(
+            username: username,
+            email: oauthIdentity.Email,
+            countryCode: countryCode
+        );
         if (signupResult.IsError)
             return signupResult.Errors;
         var newUser = signupResult.Value;
 
-        UserLoginInfo loginInfo = new(authenticator.Provider, providerKey, authenticator.Provider);
+        UserLoginInfo loginInfo = new(
+            authenticator.Provider,
+            oauthIdentity.ProviderKey,
+            authenticator.Provider
+        );
         await _userManager.AddLoginAsync(newUser, loginInfo);
         return signupResult;
     }

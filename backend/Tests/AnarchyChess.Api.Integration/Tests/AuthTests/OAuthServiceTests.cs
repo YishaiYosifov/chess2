@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.TestInfrastructure;
@@ -26,19 +27,20 @@ public class OAuthServiceTests : BaseIntegrationTest
     private readonly IOAuthService _oauthService;
     private readonly UserManager<AuthedUser> _userManager;
 
+    private readonly IPAddress _ipAddress = IPAddress.Parse("8.8.8.8");
+    private const string _countryCode = "US";
+
     public OAuthServiceTests(AnarchyChessWebApplicationFactory factory)
         : base(factory)
     {
         _httpContextServiceProviderMock
             .GetService(typeof(IAuthenticationService))
             .Returns(_authenticationServiceMock);
+        _httpContext = new() { RequestServices = _httpContextServiceProviderMock };
+        _httpContext.Connection.RemoteIpAddress = _ipAddress;
 
         _oauthService = Scope.ServiceProvider.GetRequiredService<IOAuthService>();
         _userManager = Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>();
-        _httpContext = new DefaultHttpContext()
-        {
-            RequestServices = _httpContextServiceProviderMock,
-        };
     }
 
     private async Task<AuthedUser> TestAuthenticateAsync(string provider, Claim claim)
@@ -64,22 +66,24 @@ public class OAuthServiceTests : BaseIntegrationTest
     public async Task AuthenticateAsync_Google_creates_user_with_email()
     {
         const string email = "test@email.com";
-        var claim = new Claim(ClaimTypes.Email, email);
+        Claim claim = new(ClaimTypes.Email, email);
 
         var user = await TestAuthenticateAsync(Providers.Google, claim);
         user.Email.Should().Be(email);
         user.UserName?.Length.Should().BeGreaterThan(10);
+        user.CountryCode.Should().Be(_countryCode);
     }
 
     [Fact]
     public async Task AuthenticateAsync_Discord_creates_user_with_username()
     {
         const string userJson = "{\"id\":\"123123\"}";
-        var claim = new Claim("user", userJson);
+        Claim claim = new("user", userJson);
 
         var user = await TestAuthenticateAsync(Providers.Discord, claim);
         user.Email.Should().BeNull();
         user.UserName?.Length.Should().BeGreaterThan(10);
+        user.CountryCode.Should().Be(_countryCode);
     }
 
     [Fact]
