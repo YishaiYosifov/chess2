@@ -70,7 +70,30 @@ public class QuestGrainStorageTests
     public void SelectNewQuest_resets_streak_if_last_quest_was_not_completed()
     {
         var oldQuest = CreateTestQuest();
-        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
+        QuestGrainStorage storage = new()
+        {
+            Quest = oldQuest,
+            Streak = 5,
+            RewardCollected = true,
+        };
+
+        var newQuest = CreateTestQuest();
+        storage.SelectNewQuest(newQuest);
+
+        storage.Streak.Should().Be(0);
+    }
+
+    [Fact]
+    public void SelectNewQuest_resets_streak_if_last_reward_was_not_collected()
+    {
+        var oldQuest = CreateTestQuest();
+        oldQuest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
+        QuestGrainStorage storage = new()
+        {
+            Quest = oldQuest,
+            Streak = 5,
+            RewardCollected = false,
+        };
 
         var newQuest = CreateTestQuest();
         storage.SelectNewQuest(newQuest);
@@ -83,7 +106,12 @@ public class QuestGrainStorageTests
     {
         var oldQuest = CreateTestQuest(daysAgo: 2);
         oldQuest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
-        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
+        QuestGrainStorage storage = new()
+        {
+            Quest = oldQuest,
+            Streak = 5,
+            RewardCollected = true,
+        };
 
         var newQuest = CreateTestQuest();
         storage.SelectNewQuest(newQuest);
@@ -96,7 +124,12 @@ public class QuestGrainStorageTests
     {
         var oldQuest = CreateTestQuest(daysAgo: 1);
         oldQuest.ApplySnapshot(new GameQuestSnapshotFaker().Generate());
-        QuestGrainStorage storage = new() { Quest = oldQuest, Streak = 5 };
+        QuestGrainStorage storage = new()
+        {
+            Quest = oldQuest,
+            Streak = 5,
+            RewardCollected = true,
+        };
 
         var newQuest = CreateTestQuest();
         storage.SelectNewQuest(newQuest);
