@@ -96,6 +96,7 @@ npm install
 
 ```
 NEXT_PUBLIC_API_URL="https://localhost:7266"
+NEXT_PUBLIC_OAUTH_URL="https://localhost:7266"
 ```
 
 4. Run the development server:
@@ -166,7 +167,3 @@ The frontend uses Vitest for testing. Run all tests with:
 cd frontend
 npm run test
 ```
-
-# Attributions
-
-- **IP2Location LITE:** Anarchy Chess uses the IP2Location LITE database for [IP geolocation](https://lite.ip2location.com) to determine users' countries during signup.

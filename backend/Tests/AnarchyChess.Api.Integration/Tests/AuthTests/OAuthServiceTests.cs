@@ -1,6 +1,6 @@
-﻿using System.Net;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using AnarchyChess.Api.Auth.Services;
+using AnarchyChess.Api.CountryCodes.Services;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.TestInfrastructure;
 using AnarchyChess.Api.TestInfrastructure.Fakes;
@@ -27,7 +27,6 @@ public class OAuthServiceTests : BaseIntegrationTest
     private readonly IOAuthService _oauthService;
     private readonly UserManager<AuthedUser> _userManager;
 
-    private readonly IPAddress _ipAddress = IPAddress.Parse("8.8.8.8");
     private const string _countryCode = "US";
 
     public OAuthServiceTests(AnarchyChessWebApplicationFactory factory)
@@ -37,7 +36,7 @@ public class OAuthServiceTests : BaseIntegrationTest
             .GetService(typeof(IAuthenticationService))
             .Returns(_authenticationServiceMock);
         _httpContext = new() { RequestServices = _httpContextServiceProviderMock };
-        _httpContext.Connection.RemoteIpAddress = _ipAddress;
+        _httpContext.Request.Headers.TryAdd(HeaderCountryResolver.HeaderName, _countryCode);
 
         _oauthService = Scope.ServiceProvider.GetRequiredService<IOAuthService>();
         _userManager = Scope.ServiceProvider.GetRequiredService<UserManager<AuthedUser>>();

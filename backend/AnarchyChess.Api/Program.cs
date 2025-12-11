@@ -11,6 +11,7 @@ using AnarchyChess.Api.Auth.Repositories;
 using AnarchyChess.Api.Auth.Services;
 using AnarchyChess.Api.Challenges.Services;
 using AnarchyChess.Api.Challenges.SignalR;
+using AnarchyChess.Api.CountryCodes.Services;
 using AnarchyChess.Api.ErrorHandling.Extensions;
 using AnarchyChess.Api.ErrorHandling.Infrastructure;
 using AnarchyChess.Api.ErrorHandling.OpenApi;
@@ -320,8 +321,10 @@ builder.Services.AddScoped<IOAuthAuthenticator, DiscordOAuthAuthenticator>();
 
 builder.Services.AddScoped<IUsernameGenerator, UsernameGenerator>();
 builder.Services.AddSingleton<IUsernameWordsProvider, UsernameWordsProvider>();
+#endregion
 
-builder.Services.AddSingleton<ICountryResolver, CountryResolver>();
+#region IP Country
+builder.Services.AddSingleton<IHeaderCountryResolver, HeaderCountryResolver>();
 #endregion
 
 

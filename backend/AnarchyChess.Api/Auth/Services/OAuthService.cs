@@ -1,6 +1,7 @@
 ﻿using AnarchyChess.Api.Auth.Errors;
 using AnarchyChess.Api.Auth.Models;
 using AnarchyChess.Api.Auth.OAuthAuthenticators;
+using AnarchyChess.Api.CountryCodes.Services;
 using AnarchyChess.Api.Profile.Entities;
 using AnarchyChess.Api.Profile.Services;
 using AnarchyChess.Api.Shared.Services;
@@ -25,8 +26,8 @@ public class OAuthService(
     UserManager<AuthedUser> userManager,
     IAuthService authService,
     IUsernameGenerator usernameGenerator,
-    ICountryResolver countryResolver,
-    IUnitOfWork unitOfWork
+    IUnitOfWork unitOfWork,
+    IHeaderCountryResolver headerCountryResolver
 ) : IOAuthService
 {
     private readonly Dictionary<string, IOAuthAuthenticator> _authenticators =
@@ -35,8 +36,8 @@ public class OAuthService(
     private readonly UserManager<AuthedUser> _userManager = userManager;
     private readonly IAuthService _authService = authService;
     private readonly IUsernameGenerator _usernameGenerator = usernameGenerator;
-    private readonly ICountryResolver _countryResolver = countryResolver;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IHeaderCountryResolver _headerCountryResolver = headerCountryResolver;
 
     public async Task<ErrorOr<Tokens>> AuthenticateAsync(
         string provider,
@@ -85,9 +86,7 @@ public class OAuthService(
             return existingLogin;
 
         var username = await _usernameGenerator.GenerateUniqueUsernameAsync();
-        var countryCode = await _countryResolver.LocateAsync(
-            context.Connection.RemoteIpAddress?.ToString()
-        );
+        var countryCode = _headerCountryResolver.GetCountryCode(context);
         var signupResult = await _authService.SignupAsync(
             username: username,
             email: oauthIdentity.Email,
