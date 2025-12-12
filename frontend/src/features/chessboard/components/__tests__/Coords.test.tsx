@@ -17,6 +17,7 @@ describe("Coords", () => {
 
     beforeEach(() => {
         store = createChessboardStore();
+        store.setState({ boardDimensions: { width: 10, height: 10 } });
     });
 
     const renderWithStore = () =>

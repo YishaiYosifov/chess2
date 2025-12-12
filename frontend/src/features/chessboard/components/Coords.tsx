@@ -7,9 +7,15 @@ import { GameColor } from "@/lib/apiClient";
 
 const Coords = () => {
     const viewingFrom = useChessboardStore((x) => x.viewingFrom);
+    const boardDimensions = useChessboardStore((x) => x.boardDimensions);
 
-    const files = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
-    const ranks = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+    const files = Array.from({ length: boardDimensions.height }, (_, i) =>
+        String.fromCharCode("a".charCodeAt(0) + i),
+    );
+    const ranks = Array.from(
+        { length: boardDimensions.height },
+        (_, i) => boardDimensions.height - i,
+    );
 
     return (
         <>
