@@ -42,6 +42,7 @@ const ChessboardLayout = ({
             onPointerUp: x.onPointerUp,
         }),
     );
+    const boardDimensions = useChessboardStore((x) => x.boardDimensions);
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -127,14 +128,14 @@ const ChessboardLayout = ({
             onContextMenu={(e) => e.preventDefault()}
         >
             <svg
-                viewBox="0 0 10 10"
+                viewBox={`0 0 ${boardDimensions.width} ${boardDimensions.height}`}
                 preserveAspectRatio="none"
                 className="absolute inset-0 h-full w-full rounded-md"
             >
                 <image
                     href="/assets/board.svg"
-                    width="10"
-                    height="10"
+                    width={boardDimensions.width}
+                    height={boardDimensions.height}
                     preserveAspectRatio="none"
                 />
             </svg>
