@@ -9,7 +9,7 @@ const Coords = () => {
     const viewingFrom = useChessboardStore((x) => x.viewingFrom);
     const boardDimensions = useChessboardStore((x) => x.boardDimensions);
 
-    const files = Array.from({ length: boardDimensions.height }, (_, i) =>
+    const files = Array.from({ length: boardDimensions.width }, (_, i) =>
         String.fromCharCode("a".charCodeAt(0) + i),
     );
     const ranks = Array.from(
