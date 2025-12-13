@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
-
-import Card from "@/components/ui/Card";
-import useLiveChessStore from "../hooks/useLiveChessStore";
 import { useRouter } from "next/navigation";
-import useAutoScroll from "@/hooks/useAutoScroll";
+
 import { useAuthedUser } from "@/features/auth/hooks/useSessionUser";
-import InputField from "@/components/ui/InputField";
-import Button from "@/components/ui/Button";
 import { useGameEmitter, useGameEvent } from "../hooks/useGameHub";
+import useLiveChessStore from "../hooks/useLiveChessStore";
+import InputField from "@/components/ui/InputField";
+import useAutoScroll from "@/hooks/useAutoScroll";
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 
 interface ChatMessage {
     sender: string;
@@ -69,7 +69,7 @@ const GameChat = ({ initialShowChat }: { initialShowChat: boolean }) => {
     }
 
     return (
-        <Card className="overflow-y-auto">
+        <Card className="relative overflow-y-auto">
             <div
                 className="h-full w-full overflow-auto break-words"
                 ref={chatRef}

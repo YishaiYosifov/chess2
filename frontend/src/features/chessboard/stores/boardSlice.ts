@@ -7,6 +7,7 @@ import { ViewPoint } from "@/features/point/types";
 import { ScreenPoint } from "@/features/point/types";
 import { Point } from "@/features/point/types";
 import { logicalPoint, viewPoint } from "@/features/point/pointUtils";
+import { invertColor } from "@/lib/utils/chessUtils";
 
 export interface BoardDimensions {
     width: number;
@@ -32,7 +33,8 @@ export interface BoardSlice extends BoardSliceProps {
     viewPointToLogicalPoint(viewPoint: ViewPoint): LogicalPoint;
     logicalPointToViewPoint(logicalPoint: LogicalPoint): ViewPoint;
 
-    setBoardRect: (rect: DOMRect) => void;
+    flipBoard(): void;
+    setBoardRect(rect: DOMRect): void;
 }
 
 export function createBoardSlice(
@@ -110,6 +112,11 @@ export function createBoardSlice(
             );
         },
 
+        flipBoard() {
+            set((state) => {
+                state.viewingFrom = invertColor(state.viewingFrom);
+            });
+        },
         setBoardRect(rect) {
             set((state) => {
                 state.boardRect = rect;

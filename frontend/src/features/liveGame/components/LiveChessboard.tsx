@@ -114,7 +114,8 @@ const LiveChessboard = ({
                     }
                     aside={
                         <aside
-                            className="grid h-full w-full min-w-xs grid-rows-[minmax(100px,3fr)_100px_200px] gap-3
+                            className="grid h-full w-full min-w-xs
+                                grid-rows-[minmax(100px,3fr)_100px_200px] gap-3
                                 overflow-auto lg:max-w-sm"
                         >
                             <MoveHistoryTable />

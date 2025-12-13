@@ -42,7 +42,8 @@ const RematchControls = () => {
             <GameControlButton
                 icon={ArrowPathIcon}
                 onClick={requestRematch}
-                className="bg-secondary enabled:hover:bg-card enabled:hover:text-text text-black"
+                className="bg-secondary enabled:hover:bg-card
+                    enabled:hover:text-text text-black"
                 data-testid="gameOverControlsRematch"
             >
                 Rematch?

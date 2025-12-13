@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { logicalPoint, pointToStr } from "@/features/point/pointUtils";
 import ChessSquare from "../ChessSquare";
 import { createChessboardStore } from "../../stores/chessboardStore";
@@ -60,6 +60,34 @@ describe("ChessSquare", () => {
             });
         },
     );
+
+    it("should update its rendered position when viewingFrom changes", () => {
+        const position = logicalPoint({ x: 2, y: 3 });
+
+        store.setState({ viewingFrom: GameColor.WHITE });
+
+        render(
+            <ChessboardStoreContext.Provider value={store}>
+                <ChessSquare position={position} />
+            </ChessboardStoreContext.Provider>,
+        );
+
+        const el = screen.getByTestId("chessSquare");
+
+        expect(el).toHaveStyle({
+            transform:
+                "translate(clamp(0%,calc(200%+0px),900%),clamp(0%,calc(600%+0px),900%))",
+        });
+
+        act(() => {
+            store.setState({ viewingFrom: GameColor.BLACK });
+        });
+
+        expect(el).toHaveStyle({
+            transform:
+                "translate(clamp(0%,calc(700%+0px),900%),clamp(0%,calc(300%+0px),900%))",
+        });
+    });
 
     it("should set data-position correctly", () => {
         const position = logicalPoint({ x: 1, y: 2 });

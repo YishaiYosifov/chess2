@@ -8,15 +8,13 @@ import useLiveChessStore from "../../hooks/useLiveChessStore";
 import { useGameEmitter } from "../../hooks/useGameHub";
 
 const LiveGameControls = () => {
-    const { gameToken, playerColor, canAbort, drawState } = useLiveChessStore(
-        (x) => ({
-            gameToken: x.gameToken,
-            playerColor: x.viewer.playerColor,
-            canAbort:
-                x.positionHistory.length <= constants.ALLOW_ABORTION_UNTIL_MOVE,
-            drawState: x.drawState,
-        }),
-    );
+    const { gameToken, playerColor, canAbort } = useLiveChessStore((x) => ({
+        gameToken: x.gameToken,
+        playerColor: x.viewer.playerColor,
+        canAbort:
+            x.positionHistory.length <= constants.ALLOW_ABORTION_UNTIL_MOVE,
+    }));
+    const drawState = useLiveChessStore((x) => x.drawState);
 
     const sendGameEvent = useGameEmitter(gameToken);
 

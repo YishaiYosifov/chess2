@@ -271,4 +271,9 @@ describe("MoveHistoryTable", () => {
             { animateIntermediates: false },
         );
     });
+
+    it("should render game actions", () => {
+        renderWithCtx();
+        expect(screen.getByTestId("gameActions")).toBeInTheDocument();
+    });
 });

@@ -97,8 +97,8 @@ const ProfileTooltip = ({
                     ref={refs.setFloating}
                     style={floatingStyles}
                     className={clsx(
-                        `bg-background border-primary z-50 mt-2 min-h-32 w-max max-w-[min(512px,100vw)]
-                        min-w-64 border-2`,
+                        `bg-background border-primary z-50 mt-2 min-h-32 w-max
+                        max-w-[min(512px,100vw)] min-w-64 border-2`,
                         !hasLoaded && "animate-lite-pulse",
                     )}
                     data-testid="profileTooltip"

@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useRef } from "react";
-
-import useLiveChessStore from "../hooks/useLiveChessStore";
-import Card from "@/components/ui/Card";
-import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import clsx from "clsx";
+
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
+import useLiveChessStore from "../hooks/useLiveChessStore";
 import useAutoScroll from "@/hooks/useAutoScroll";
 import { HistoryStep } from "../lib/types";
+import Card from "@/components/ui/Card";
+import GameActions from "./GameActions";
 
 const MoveHistoryTable = () => {
     const { shiftMoveViewBy, teleportToMove, teleportToLastMove } =
@@ -71,13 +72,14 @@ const MoveHistoryTable = () => {
     }, [goToPosition, shiftMoveViewBy, teleportToMove, teleportToLastMove]);
 
     return (
-        <Card
-            className="block max-h-96 overflow-x-auto p-0 lg:max-h-full"
-            ref={tableRef}
-        >
-            <table className="w-full table-fixed">
-                <tbody>{moveRows}</tbody>
-            </table>
+        <Card className="relative block max-h-96 p-0 lg:max-h-full">
+            <div className="max-h-full overflow-x-auto" ref={tableRef}>
+                <table className="w-full table-fixed">
+                    <tbody>{moveRows}</tbody>
+                </table>
+            </div>
+
+            <GameActions />
         </Card>
     );
 };

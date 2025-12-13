@@ -1,16 +1,12 @@
-import React, {
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
-import PieceRenderer from "./PieceRenderer";
-import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+
 import { twMerge } from "tailwind-merge";
-import OverlayRenderer from "./OverlayRenderer";
-import Coords from "./Coords";
+
+import { useChessboardStore } from "@/features/chessboard/hooks/useChessboard";
 import LastMoveHighlight from "./LastMoveHighlight";
+import OverlayRenderer from "./OverlayRenderer";
+import PieceRenderer from "./PieceRenderer";
+import Coords from "./Coords";
 
 export interface PaddingOffset {
     width: number;

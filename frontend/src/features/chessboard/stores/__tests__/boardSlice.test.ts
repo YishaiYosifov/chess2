@@ -148,6 +148,17 @@ describe("BoardSlice", () => {
         });
     });
 
+    describe("flipBoard", () => {
+        it.each([
+            { from: GameColor.WHITE, to: GameColor.BLACK },
+            { from: GameColor.BLACK, to: GameColor.WHITE },
+        ])("should flip viewingFrom", ({ from, to }) => {
+            store.setState({ viewingFrom: from });
+            store.getState().flipBoard();
+            expect(store.getState().viewingFrom).toBe(to);
+        });
+    });
+
     describe("setBoardRect", () => {
         it("persists boardRect in state", () => {
             const r = { ...rect } as DOMRect;

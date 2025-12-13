@@ -23,12 +23,9 @@ const ChessSquare: ForwardRefRenderFunction<
     ChessSquareRef,
     ChessSquareProps
 > = ({ position, ...props }, ref) => {
-    const { logicalPointToViewPoint } = useChessboardStore((x) => ({
-        logicalPointToViewPoint: x.logicalPointToViewPoint,
-        boardWidth: x.boardDimensions.width,
-        boardHeight: x.boardDimensions.height,
-    }));
-    const viewPosition = logicalPointToViewPoint(position);
+    const viewPosition = useChessboardStore((x) =>
+        x.logicalPointToViewPoint(position),
+    );
 
     return (
         <CoordSquare
